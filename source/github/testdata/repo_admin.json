@@ -1,0 +1,23 @@
+{
+  "permission": "admin",
+  "user": {
+    "login": "foo",
+    "id": 1,
+    "node_id": "MDQ6VXNlcjE=",
+    "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/foo",
+    "html_url": "https://github.com/foo",
+    "followers_url": "https://api.github.com/users/foo/followers",
+    "following_url": "https://api.github.com/users/foo/following{/other_user}",
+    "gists_url": "https://api.github.com/users/foo/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/foo/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/foo/subscriptions",
+    "organizations_url": "https://api.github.com/users/foo/orgs",
+    "repos_url": "https://api.github.com/users/foo/repos",
+    "events_url": "https://api.github.com/users/foo/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/foo/received_events",
+    "type": "User",
+    "site_admin": false
+  }
+}
