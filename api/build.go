@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-vela/lexi/compiler"
+	"github.com/go-vela/compiler/compiler"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
