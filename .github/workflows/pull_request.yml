@@ -1,20 +1,17 @@
+name: Pull Request Actions
 on: 
   pull_request:
-  push:
-    branches: 
-      - master
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-    
+
 jobs:
-  build:
-    name: Validate/Test
+  validate:
+    name: validate
     runs-on: ubuntu-latest
     container:
       image: golang:latest
     steps:
     - name: clone
-      uses: actions/checkout@v1      
+      uses: actions/checkout@v1     
+       
     - name: validate
       run: |
         # Check that go mod tidy produces a zero diff; clean up any changes afterwards.
@@ -23,5 +20,14 @@ jobs:
         go vet ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code) 
         # Check that go fmt ./... produces a zero diff; clean up any changes afterwards.
         go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code) 
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    container:
+      image: golang:latest
+    steps:
+    - name: clone
+      uses: actions/checkout@v1      
     - name: test
-      run: go test -cover ./...
+      run: go test -cover ./...            
