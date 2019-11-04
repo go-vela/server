@@ -5,11 +5,11 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/perm"
-	"github.com/gin-gonic/gin"
 )
 
 // BuildHandlers is a function that extends the provided base router group

@@ -5,8 +5,8 @@
 package middleware
 
 import (
-	"github.com/go-vela/server/source"
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/source"
 )
 
 // Source is a middleware function that initializes the source and

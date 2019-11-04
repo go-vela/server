@@ -10,8 +10,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database"
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 )
 
 func TestMiddleware_Database(t *testing.T) {
