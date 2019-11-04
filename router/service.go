@@ -5,11 +5,11 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/perm"
 	"github.com/go-vela/server/router/middleware/service"
-	"github.com/gin-gonic/gin"
 )
 
 // ServiceHandlers is a function that extends the provided base router group

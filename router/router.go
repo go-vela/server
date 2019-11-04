@@ -5,10 +5,10 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/gin-gonic/gin"
 )
 
 const (

@@ -5,9 +5,9 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware/perm"
-	"github.com/gin-gonic/gin"
 )
 
 // UserHandlers is a function that extends the provided base router group

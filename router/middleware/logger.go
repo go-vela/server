@@ -7,11 +7,11 @@ package middleware
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
