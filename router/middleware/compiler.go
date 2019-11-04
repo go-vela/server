@@ -5,7 +5,7 @@
 package middleware
 
 import (
-	"github.com/go-vela/lexi/compiler"
+	"github.com/go-vela/compiler/compiler"
 	"github.com/gin-gonic/gin"
 )
 
