@@ -1,33 +1,23 @@
-name: Pull Request Actions
-on: 
+name: Validate Action
+on:
   pull_request:
+  push:
 
 jobs:
   validate:
-    name: validate
     runs-on: ubuntu-latest
     container:
       image: golang:latest
     steps:
+
     - name: clone
-      uses: actions/checkout@v1     
-       
+      uses: actions/checkout@v1
+
     - name: validate
       run: |
         # Check that go mod tidy produces a zero diff; clean up any changes afterwards.
         go mod tidy && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
         # Check that go vet ./... produces a zero diff; clean up any changes afterwards.
-        go vet ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code) 
+        go vet ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
         # Check that go fmt ./... produces a zero diff; clean up any changes afterwards.
-        go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code) 
-
-  test:
-    name: test
-    runs-on: ubuntu-latest
-    container:
-      image: golang:latest
-    steps:
-    - name: clone
-      uses: actions/checkout@v1      
-    - name: test
-      run: go test -cover ./...            
+        go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)

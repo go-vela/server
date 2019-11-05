@@ -54,6 +54,8 @@ git remote add fork https://github.com/your_fork/server
 
 * Create secrets for local development:
 
+**NOTE: This will work for GitHub or GitHub Enterprise.**
+
 ```bash
 # Add Github Client ID to local secrets file for `docker-compose`
 echo "VELA_SOURCE_CLIENT=<Github Client ID>" >> secrets.env

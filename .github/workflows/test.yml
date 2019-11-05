@@ -1,0 +1,17 @@
+name: Test Action
+on:
+  pull_request:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:latest
+    steps:
+
+    - name: clone
+      uses: actions/checkout@v1
+
+    - name: test
+      run: go test -cover -coverprofile coverage.out ./...
