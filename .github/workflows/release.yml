@@ -23,7 +23,7 @@ jobs:
     - name: publish
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: target/vela/server
+        name: target/vela-server
         cache: true
         tag_names: true
         username: ${{ secrets.DOCKER_USERNAME }}
