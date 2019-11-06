@@ -9,9 +9,18 @@ jobs:
     container:
       image: golang:latest
     steps:
-
     - name: clone
       uses: actions/checkout@v1
 
+    - name: install
+      run: |
+        go get github.com/mattn/goveralls
+
     - name: test
-      run: go test -cover -coverprofile coverage.out ./...
+      run: |
+        go test -covermode=count -coverprofile=coverage.out ./...
+
+    - name: coveralls
+      run: |
+        # https://github.com/mattn/goveralls#goveralls
+        $GOPATH/bin/goveralls -service=actions -coverprofile=coverage.out -repotoken=${{ secrets.COVERALLS_TOKEN }}
