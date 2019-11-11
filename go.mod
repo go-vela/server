@@ -7,7 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-redis/redis v6.15.6+incompatible
-	github.com/go-vela/compiler v0.1.3
+	github.com/go-vela/compiler v0.1.4
 	github.com/go-vela/types v0.1.2
 	github.com/google/go-cmp v0.3.1
 	github.com/google/go-github/v26 v26.1.3
