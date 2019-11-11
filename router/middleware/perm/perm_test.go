@@ -1190,7 +1190,7 @@ func TestPerm_globalPerms(t *testing.T) {
 func TestPerm_globalPerms_Agent(t *testing.T) {
 	// setup types
 	uID := int64(1)
-	uName := "vela-agent"
+	uName := "vela-worker"
 	uToken := "bar"
 	uAdmin := false
 	u := &library.User{

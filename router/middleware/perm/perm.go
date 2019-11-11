@@ -194,7 +194,7 @@ func MustRead() gin.HandlerFunc {
 func globalPerms(user *library.User) bool {
 	switch {
 	// Agents have full access to endpoints
-	case user.GetName() == "vela-agent":
+	case user.GetName() == "vela-worker":
 		return true
 	// platform admins have full access to endpoints
 	case user.GetAdmin():
