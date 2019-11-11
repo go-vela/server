@@ -17,7 +17,10 @@ func HandleError(c *gin.Context, status int, err error) {
 	c.AbortWithStatusJSON(status, types.Error{Message: &msg})
 }
 
-// Helper functions to clamp integers - go only supports float64 via math.(max|min)
+// MaxInt is a helper function to clamp the integer which
+// prevents it from being higher then the provided value.
+//
+// Currently, Go only supports float64 via math. ( max | min )
 func MaxInt(a, b int) int {
 	if a > b {
 		return a
@@ -25,6 +28,10 @@ func MaxInt(a, b int) int {
 	return b
 }
 
+// MinInt is a helper function to clamp the integer which
+// prevents it from being lower then the provided value.
+//
+// Currently, Go only supports float64 via math. ( max | min )
 func MinInt(a, b int) int {
 	if a < b {
 		return a
