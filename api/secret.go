@@ -150,7 +150,7 @@ func GetSecret(c *gin.Context) {
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
-	s := c.Param("secret")
+	s := strings.TrimPrefix(c.Param("secret"), "/")
 
 	logrus.Infof("Reading secret %s/%s/%s/%s from %s service", t, o, n, s, e)
 
@@ -178,7 +178,7 @@ func UpdateSecret(c *gin.Context) {
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
-	s := c.Param("secret")
+	s := strings.TrimPrefix(c.Param("secret"), "/")
 
 	logrus.Infof("Updating secret %s/%s/%s/%s for %s service", t, o, n, s, e)
 
@@ -233,7 +233,7 @@ func DeleteSecret(c *gin.Context) {
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
-	s := c.Param("secret")
+	s := strings.TrimPrefix(c.Param("secret"), "/")
 
 	logrus.Infof("Deleting secret %s/%s/%s/%s from %s service", t, o, n, s, e)
 
