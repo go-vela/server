@@ -663,7 +663,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	rBranch := "master"
 	rPrivate := false
 	want := []*library.Repo{
-		&library.Repo{
+		{
 			Org:      &rOrg,
 			Name:     &rName,
 			FullName: &rFullName,

@@ -43,7 +43,7 @@ func TestVault_List_Org(t *testing.T) {
 	typee := "org"
 	arr := []string{"foo", "bar"}
 	want := []*library.Secret{
-		&library.Secret{
+		{
 			Org:    &org,
 			Repo:   &repo,
 			Name:   &name,
@@ -103,7 +103,7 @@ func TestVault_List_Repo(t *testing.T) {
 	typee := "repo"
 	arr := []string{"foo", "bar"}
 	want := []*library.Secret{
-		&library.Secret{
+		{
 			Org:    &org,
 			Repo:   &repo,
 			Name:   &name,
@@ -163,7 +163,7 @@ func TestVault_List_Shared(t *testing.T) {
 	typee := "shared"
 	arr := []string{"foo", "bar"}
 	want := []*library.Secret{
-		&library.Secret{
+		{
 			Org:    &org,
 			Team:   &team,
 			Name:   &name,
