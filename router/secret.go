@@ -26,9 +26,9 @@ func SecretHandlers(base *gin.RouterGroup) {
 	{
 		secrets.POST("", api.CreateSecret)
 		secrets.GET("", api.GetSecrets)
-		secrets.GET("/:secret", api.GetSecret)
-		secrets.PUT("/:secret", api.UpdateSecret)
-		secrets.DELETE("/:secret", api.DeleteSecret)
+		secrets.GET("/*secret", api.GetSecret)
+		secrets.PUT("/*secret", api.UpdateSecret)
+		secrets.DELETE("/*secret", api.DeleteSecret)
 	} // end of secrets endpoints
 
 }
