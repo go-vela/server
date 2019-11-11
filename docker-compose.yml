@@ -20,8 +20,7 @@ services:
       VELA_DATABASE_CONFIG: postgres://postgres@postgres:5432/vela?sslmode=disable
       VELA_LOG_LEVEL: debug
       VELA_QUEUE_DRIVER: redis
-      VELA_QUEUE_CLUSTER: "true"
-      VELA_QUEUE_CONFIG: redis://velaprod:7FkXJchYz4FZE5L@redis_master_1,10.61.191.76:26379,10.61.191.100:26379,10.61.191.105:26379
+      VELA_QUEUE_CONFIG: redis://redis:6379
       VELA_PORT: ":8080"
       VELA_SECRET: zB7mrKDTZqNeNTD8z47yG4DHywspAh
       VELA_SOURCE_DRIVER: github
