@@ -55,10 +55,10 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Reading service %s/%d/%d", r.GetFullName(), b.Number, number)
+		logrus.Debugf("Reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 		s, err := database.FromContext(c).GetService(number, b)
 		if err != nil {
-			retErr := fmt.Errorf("Error while reading service %s/%d/%d: %v", r.GetFullName(), b.Number, number, err)
+			retErr := fmt.Errorf("Error while reading service %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}

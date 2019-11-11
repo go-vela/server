@@ -55,10 +55,10 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Reading step %s/%d/%d", r.GetFullName(), b.Number, number)
+		logrus.Debugf("Reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 		s, err := database.FromContext(c).GetStep(number, b)
 		if err != nil {
-			retErr := fmt.Errorf("Error while reading step %s/%d/%d: %v", r.GetFullName(), b.Number, number, err)
+			retErr := fmt.Errorf("Error while reading step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
