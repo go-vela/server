@@ -122,7 +122,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// variable to store changeset files
-	files := []string{}
+	var files []string
 	// check if the build event is pull_request
 	if b.GetEvent() == constants.EventPull {
 

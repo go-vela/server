@@ -58,7 +58,7 @@ func TestDatabase_Client_GetService(t *testing.T) {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
-	err := db.CreateService(want)
+	_ = db.CreateService(want)
 
 	// run test
 	got, err := db.GetService(want.GetNumber(), b)
