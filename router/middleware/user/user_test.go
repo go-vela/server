@@ -138,7 +138,7 @@ func TestUser_Establish_NoToken(t *testing.T) {
 func TestUser_Establish_SecretValid(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	uName := "vela-agent"
+	uName := "vela-worker"
 	uActive := true
 	uAdmin := true
 	want := &library.User{Name: &uName, Active: &uActive, Admin: &uAdmin}

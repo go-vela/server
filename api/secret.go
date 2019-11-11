@@ -163,7 +163,7 @@ func GetSecret(c *gin.Context) {
 	}
 
 	// only allow agents to access the full secret with the value
-	if u.GetAdmin() && u.GetName() == "vela-agent" {
+	if u.GetAdmin() && u.GetName() == "vela-worker" {
 		c.JSON(http.StatusOK, secret)
 		return
 	}
