@@ -12,7 +12,7 @@ var (
 	// VersionMinor is for functionality in a backwards-compatible manner
 	VersionMinor int64 = 1
 	// VersionPatch is for backwards-compatible bug fixes
-	VersionPatch int64 = 1
+	VersionPatch int64 = 2
 	// VersionDev indicates drone build number. Releases will be empty string.
 	VersionDev string
 )
