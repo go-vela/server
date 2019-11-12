@@ -74,7 +74,7 @@ func CreateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetServiceLog(input.GetServiceID())
+	l, _ := database.FromContext(c).GetServiceLog(s.GetID())
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -142,7 +142,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetServiceLog(l.GetID())
+	l, _ = database.FromContext(c).GetServiceLog(s.GetID())
 
 	c.JSON(http.StatusOK, l)
 }
@@ -201,7 +201,7 @@ func CreateStepLog(c *gin.Context) {
 	}
 
 	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetStepLog(input.GetStepID())
+	l, _ := database.FromContext(c).GetStepLog(s.GetID())
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -269,7 +269,7 @@ func UpdateStepLog(c *gin.Context) {
 	}
 
 	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetStepLog(l.GetID())
+	l, _ = database.FromContext(c).GetStepLog(s.GetID())
 
 	c.JSON(http.StatusOK, l)
 }
