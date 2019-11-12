@@ -18,9 +18,11 @@ jobs:
 
     - name: test
       run: |
-        go test -covermode=count -coverprofile=coverage.out ./...
+        go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
     - name: coveralls
+      env:
+        COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
       run: |
         # https://github.com/mattn/goveralls#goveralls
-        $GOPATH/bin/goveralls -service=actions -coverprofile=coverage.out -repotoken=${{ secrets.COVERALLS_TOKEN }}
+        $(go env GOPATH)/bin/goveralls -service=github -coverprofile=coverage.out
