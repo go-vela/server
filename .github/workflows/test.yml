@@ -22,7 +22,7 @@ jobs:
 
     - name: coveralls
       env:
-        COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # https://github.com/mattn/goveralls#goveralls
         $(go env GOPATH)/bin/goveralls -service=github -coverprofile=coverage.out
