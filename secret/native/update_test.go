@@ -23,16 +23,18 @@ func TestNative_Update(t *testing.T) {
 	value := "foob"
 	typee := "repo"
 	arr := []string{"foo", "bar"}
+	booL := false
 	want := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &one,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 
 	// setup database

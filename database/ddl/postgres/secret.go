@@ -20,6 +20,7 @@ secrets (
 	value         BYTEA,
 	images        VARCHAR(1000),
 	events        VARCHAR(1000),
+	allow_command BOOLEAN,
 	UNIQUE(type, org, repo, name),
 	UNIQUE(type, org, team, name)
 );

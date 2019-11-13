@@ -23,28 +23,31 @@ func TestNative_List(t *testing.T) {
 	value := "foob"
 	typee := "repo"
 	arr := []string{"foo", "bar"}
+	booL := false
 	sOne := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &one,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 	two := int64(2)
 	sTwo := &library.Secret{
-		ID:     &two,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &value,
-		Value:  &name,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &two,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &value,
+		Value:        &name,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 	want := []*library.Secret{sTwo, sOne}
 
