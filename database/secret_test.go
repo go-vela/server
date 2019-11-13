@@ -628,15 +628,17 @@ func testSecret() *library.Secret {
 	i64 := int64(0)
 	str := ""
 	arr := []string{}
+	booL := false
 	return &library.Secret{
-		ID:     &i64,
-		Org:    &str,
-		Repo:   &str,
-		Team:   &str,
-		Name:   &str,
-		Value:  &str,
-		Type:   &str,
-		Images: &arr,
-		Events: &arr,
+		ID:           &i64,
+		Org:          &str,
+		Repo:         &str,
+		Team:         &str,
+		Name:         &str,
+		Value:        &str,
+		Type:         &str,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 }

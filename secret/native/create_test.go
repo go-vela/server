@@ -23,16 +23,18 @@ func TestNative_Create_Org(t *testing.T) {
 	value := "baz"
 	typee := "org"
 	arr := []string{"foo", "bar"}
+	booL := false
 	want := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &one,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 
 	// setup database
@@ -70,16 +72,18 @@ func TestNative_Create_Repo(t *testing.T) {
 	value := "foob"
 	typee := "repo"
 	arr := []string{"foo", "bar"}
+	booL := false
 	want := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &one,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 
 	// setup database
@@ -117,16 +121,18 @@ func TestNative_Create_Shared(t *testing.T) {
 	value := "foob"
 	typee := "shared"
 	arr := []string{"foo", "bar"}
+	booL := false
 	want := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &one,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 
 	// setup database
@@ -163,15 +169,17 @@ func TestNative_Create_Invalid(t *testing.T) {
 	value := "foob"
 	typee := "invalid"
 	arr := []string{"foo", "bar"}
+	booL := false
 	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		ID:           &one,
+		Org:          &org,
+		Repo:         &repo,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &booL,
 	}
 
 	// setup database
