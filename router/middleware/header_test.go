@@ -287,7 +287,7 @@ func TestMiddleware_Secure_TLS(t *testing.T) {
 
 func TestMiddleware_RequestVersion(t *testing.T) {
 	// setup types
-	wantVersion := "0.1.3"
+	wantVersion := "0.1.4"
 
 	// setup context
 	resp := httptest.NewRecorder()
@@ -317,7 +317,7 @@ func TestMiddleware_RequestVersion(t *testing.T) {
 
 func TestMiddleware_RequestVersion_Prod(t *testing.T) {
 	// setup types
-	wantVersion := "0.1.3"
+	wantVersion := "0.1.4"
 
 	// setup context
 	resp := httptest.NewRecorder()
@@ -347,7 +347,7 @@ func TestMiddleware_RequestVersion_Prod(t *testing.T) {
 
 func TestMiddleware_ResponseVersion(t *testing.T) {
 	// setup types
-	wantVersion := "0.1.3"
+	wantVersion := "0.1.4"
 
 	// setup context
 	resp := httptest.NewRecorder()
@@ -377,7 +377,7 @@ func TestMiddleware_ResponseVersion(t *testing.T) {
 
 func TestMiddleware_ResponseVersion_Prod(t *testing.T) {
 	// setup types
-	wantVersion := "0.1.3"
+	wantVersion := "0.1.4"
 
 	// setup context
 	resp := httptest.NewRecorder()
