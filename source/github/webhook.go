@@ -43,57 +43,42 @@ func (c *client) ProcessWebhook(request *http.Request) (*library.Repo, *library.
 func processPushEvent(payload *github.PushEvent) (*library.Repo, *library.Build, error) {
 	repo := payload.GetRepo()
 
-	r := &library.Repo{
-		Org:      repo.GetOwner().Login,
-		Name:     repo.Name,
-		FullName: repo.FullName,
-		Link:     repo.HTMLURL,
-		Clone:    repo.CloneURL,
-		Branch:   repo.DefaultBranch,
-		Private:  repo.Private,
-	}
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
 
-	title := fmt.Sprintf("%s received from %s", constants.EventPush, repo.GetHTMLURL())
-	event := constants.EventPush
-	branch := strings.Replace(payload.GetRef(), "refs/heads/", "", -1)
-
-	bClone := repo.GetCloneURL()
-	bSource := payload.GetHeadCommit().GetURL()
-	bMessage := payload.GetHeadCommit().GetMessage()
-	bCommit := payload.GetHeadCommit().GetID()
-	bSender := payload.GetSender().GetLogin()
-	bAuthor := payload.GetSender().GetLogin()
-	bRef := payload.GetRef()
-	bBaseRef := payload.GetBaseRef()
-
-	b := &library.Build{
-		Event:   &event,
-		Clone:   &bClone,
-		Source:  &bSource,
-		Title:   &title,
-		Message: &bMessage,
-		Commit:  &bCommit,
-		Sender:  &bSender,
-		Author:  &bAuthor,
-		Branch:  &branch,
-		Ref:     &bRef,
-		BaseRef: &bBaseRef,
-	}
+	b := new(library.Build)
+	b.SetEvent(constants.EventPush)
+	b.SetClone(repo.GetCloneURL())
+	b.SetSource(payload.GetHeadCommit().GetURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPush, repo.GetHTMLURL()))
+	b.SetMessage(payload.GetHeadCommit().GetMessage())
+	b.SetCommit(payload.GetHeadCommit().GetID())
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetSender().GetLogin())
+	b.SetBranch(strings.Replace(payload.GetRef(), "refs/heads/", "", -1))
+	b.SetRef(payload.GetRef())
+	b.SetBaseRef(payload.GetBaseRef())
 
 	// ensure build author is set
 	if len(b.GetAuthor()) == 0 {
-		b.Author = payload.GetHeadCommit().GetAuthor().Login
-		b.Sender = b.Author
+		b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
+		b.SetSender(b.GetAuthor())
 	}
 
 	// handle when push event is a tag
 	if strings.HasPrefix(b.GetRef(), "refs/tags/") {
 		// set the proper event for the build
-		*b.Event = constants.EventTag
+		b.SetEvent(constants.EventTag)
 
 		// set the proper branch from the base ref
 		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
-			*b.Branch = strings.Replace(payload.GetBaseRef(), "refs/heads/", "", -1)
+			b.SetBranch(strings.Replace(payload.GetBaseRef(), "refs/heads/", "", -1))
 		}
 	}
 
@@ -116,44 +101,37 @@ func processPREvent(payload *github.PullRequestEvent) (*library.Repo, *library.B
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 
-	r := &library.Repo{
-		Org:      repo.GetOwner().Login,
-		Name:     repo.Name,
-		FullName: repo.FullName,
-		Link:     repo.HTMLURL,
-		Clone:    repo.CloneURL,
-		Branch:   repo.DefaultBranch,
-		Private:  repo.Private,
-	}
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
 
-	event := constants.EventPull
-	clone := repo.GetCloneURL()
-	source := payload.GetPullRequest().GetHTMLURL()
-	title := fmt.Sprintf("%s received from %s", constants.EventPull, repo.GetHTMLURL())
-	ref := fmt.Sprintf("refs/pull/%d/head", payload.GetNumber())
-	b := &library.Build{
-		Event:   &event,
-		Clone:   &clone,
-		Source:  &source,
-		Title:   &title,
-		Message: payload.GetPullRequest().Title,
-		Commit:  payload.GetPullRequest().GetHead().SHA,
-		Sender:  payload.GetSender().Login,
-		Author:  payload.GetSender().Login,
-		Branch:  payload.GetPullRequest().GetBase().Ref,
-		Ref:     &ref,
-		BaseRef: payload.GetPullRequest().GetBase().Ref,
-	}
+	b := new(library.Build)
+	b.SetEvent(constants.EventPull)
+	b.SetClone(repo.GetCloneURL())
+	b.SetSource(payload.GetPullRequest().GetHTMLURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPull, repo.GetHTMLURL()))
+	b.SetMessage(payload.GetPullRequest().GetTitle())
+	b.SetCommit(payload.GetPullRequest().GetHead().GetSHA())
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetSender().GetLogin())
+	b.SetBranch(payload.GetPullRequest().GetBase().GetRef())
+	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetNumber()))
+	b.SetBaseRef(payload.GetPullRequest().GetBase().GetRef())
 
 	// ensure the build reference is set
 	if payload.GetPullRequest().GetMerged() {
-		*b.Ref = fmt.Sprintf("refs/pull/%d/merge", payload.GetNumber())
+		b.SetRef(fmt.Sprintf("refs/pull/%d/merge", payload.GetNumber()))
 	}
 
 	// ensure the build author and sender are set
 	if len(b.GetAuthor()) == 0 {
-		*b.Author = payload.GetPullRequest().GetUser().GetLogin()
-		*b.Sender = b.GetAuthor()
+		b.SetAuthor(payload.GetPullRequest().GetUser().GetLogin())
+		b.SetSender(b.GetAuthor())
 	}
 
 	return r, b, nil

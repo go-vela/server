@@ -36,9 +36,10 @@ func TestGithub_Authenticate(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "octocat"
-	token := "foo"
-	want := &library.User{Name: &name, Token: &token}
+	want := new(library.User)
+	want.SetName("octocat")
+	want.SetToken("foo")
+
 	client, _ := NewTest(s.URL)
 
 	// run test

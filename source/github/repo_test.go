@@ -43,9 +43,10 @@ func TestGithub_Config_YML(t *testing.T) {
 	}
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -78,9 +79,10 @@ func TestGithub_Config_YML_BadRequest(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -125,9 +127,10 @@ func TestGithub_Config_YAML(t *testing.T) {
 	}
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -165,9 +168,10 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -200,9 +204,10 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -240,9 +245,10 @@ func TestGithub_Disable(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
@@ -271,9 +277,10 @@ func TestGithub_Disable_NotFoundHooks(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
@@ -307,9 +314,10 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	foo := "foo"
-	bar := "bar"
-	u := &library.User{Name: &foo, Token: &bar}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL, "https://foos.ball.com")
 
 	// run test
@@ -340,9 +348,10 @@ func TestGithub_Enable(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -373,15 +382,18 @@ func TestGithub_Status_Running(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
 
-	num := 1
-	event := constants.EventPush
-	status := constants.StatusRunning
-	commit := "abcd1234"
-	b := &library.Build{Number: &num, Event: &event, Status: &status, Commit: &commit}
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventPush)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -412,15 +424,18 @@ func TestGithub_Status_Success(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
 
-	num := 1
-	event := constants.EventPush
-	status := constants.StatusRunning
-	commit := "abcd1234"
-	b := &library.Build{Number: &num, Event: &event, Status: &status, Commit: &commit}
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventPush)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -451,15 +466,18 @@ func TestGithub_Status_Failure(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
 
-	num := 1
-	event := constants.EventPush
-	status := constants.StatusRunning
-	commit := "abcd1234"
-	b := &library.Build{Number: &num, Event: &event, Status: &status, Commit: &commit}
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventPush)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -490,15 +508,17 @@ func TestGithub_Status_Killed(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
 
-	num := 1
-	event := constants.EventPush
-	status := constants.StatusRunning
-	commit := "abcd1234"
-	b := &library.Build{Number: &num, Event: &event, Status: &status, Commit: &commit}
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventPush)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
 
 	client, _ := NewTest(s.URL)
 
@@ -530,15 +550,18 @@ func TestGithub_Status_Error(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
 
-	num := 1
-	event := constants.EventPush
-	status := constants.StatusRunning
-	commit := "abcd1234"
-	b := &library.Build{Number: &num, Event: &event, Status: &status, Commit: &commit}
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventPush)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -570,13 +593,15 @@ func TestGithub_ListChanges(t *testing.T) {
 
 	// setup types
 	want := []string{"file1.txt"}
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
 
-	org := "repos"
-	rName := "octocat"
-	r := &library.Repo{Org: &org, Name: &rName}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("repos")
+	r.SetName("octocat")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -612,12 +637,15 @@ func TestGithub_ListChangesPR(t *testing.T) {
 
 	// setup types
 	want := []string{"file1.txt"}
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
-	org := "repos"
-	rName := "octocat"
-	r := &library.Repo{Org: &org, Name: &rName}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("repos")
+	r.SetName("octocat")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -652,27 +680,20 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
-	rOrg := "octocat"
-	rName := "Hello-World"
-	rFullName := "octocat/Hello-World"
-	rLink := "https://github.com/octocat/Hello-World"
-	rClone := "https://github.com/octocat/Hello-World.git"
-	rBranch := "master"
-	rPrivate := false
-	want := []*library.Repo{
-		{
-			Org:      &rOrg,
-			Name:     &rName,
-			FullName: &rFullName,
-			Link:     &rLink,
-			Clone:    &rClone,
-			Branch:   &rBranch,
-			Private:  &rPrivate,
-		},
-	}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("octocat")
+	r.SetName("Hello-World")
+	r.SetFullName("octocat/Hello-World")
+	r.SetLink("https://github.com/octocat/Hello-World")
+	r.SetClone("https://github.com/octocat/Hello-World.git")
+	r.SetBranch("master")
+	r.SetPrivate(false)
+
+	want := []*library.Repo{r}
 
 	client, _ := NewTest(s.URL)
 
@@ -704,9 +725,10 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	want := []*library.Repo{}
 
 	client, _ := NewTest(s.URL)

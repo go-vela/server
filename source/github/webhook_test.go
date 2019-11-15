@@ -38,47 +38,28 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	rOrg := "Codertocat"
-	rName := "Hello-World"
-	rFullName := "Codertocat/Hello-World"
-	rLink := "https://github.com/Codertocat/Hello-World"
-	rClone := "https://github.com/Codertocat/Hello-World.git"
-	rBranch := "master"
-	zeroBool := false
-	wantRepo := &library.Repo{
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-		Link:     &rLink,
-		Clone:    &rClone,
-		Branch:   &rBranch,
-		Private:  &zeroBool,
-	}
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
 
-	bEvent := "push"
-	bClone := "https://github.com/Codertocat/Hello-World.git"
-	bSource := "https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95"
-	bTitle := "push received from https://github.com/Codertocat/Hello-World"
-	bMessage := "Update README.md"
-	bCommit := "9c93babf58917cd6f6f6772b5df2b098f507ff95"
-	bSender := "Codertocat"
-	bAuthor := "Codertocat"
-	bBranch := "master"
-	bRef := "refs/heads/master"
-	bBaseRef := ""
-	wantBuild := &library.Build{
-		Event:   &bEvent,
-		Clone:   &bClone,
-		Source:  &bSource,
-		Title:   &bTitle,
-		Message: &bMessage,
-		Commit:  &bCommit,
-		Sender:  &bSender,
-		Author:  &bAuthor,
-		Branch:  &bBranch,
-		Ref:     &bRef,
-		BaseRef: &bBaseRef,
-	}
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("push")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95")
+	wantBuild.SetTitle("push received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("Update README.md")
+	wantBuild.SetCommit("9c93babf58917cd6f6f6772b5df2b098f507ff95")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetBranch("master")
+	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBaseRef("")
+
 	gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
@@ -118,47 +99,28 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	rOrg := "Codertocat"
-	rName := "Hello-World"
-	rFullName := "Codertocat/Hello-World"
-	rLink := "https://github.com/Codertocat/Hello-World"
-	rClone := "https://github.com/Codertocat/Hello-World.git"
-	rBranch := "master"
-	zeroBool := false
-	wantRepo := &library.Repo{
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-		Link:     &rLink,
-		Clone:    &rClone,
-		Branch:   &rBranch,
-		Private:  &zeroBool,
-	}
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
 
-	bEvent := "push"
-	bClone := "https://github.com/Codertocat/Hello-World.git"
-	bSource := "https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95"
-	bTitle := "push received from https://github.com/Codertocat/Hello-World"
-	bMessage := "Update README.md"
-	bCommit := "9c93babf58917cd6f6f6772b5df2b098f507ff95"
-	bSender := "Codertocat"
-	bAuthor := "Codertocat"
-	bBranch := "master"
-	bRef := "refs/heads/master"
-	bBaseRef := ""
-	wantBuild := &library.Build{
-		Event:   &bEvent,
-		Clone:   &bClone,
-		Source:  &bSource,
-		Title:   &bTitle,
-		Message: &bMessage,
-		Commit:  &bCommit,
-		Sender:  &bSender,
-		Author:  &bAuthor,
-		Branch:  &bBranch,
-		Ref:     &bRef,
-		BaseRef: &bBaseRef,
-	}
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("push")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95")
+	wantBuild.SetTitle("push received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("Update README.md")
+	wantBuild.SetCommit("9c93babf58917cd6f6f6772b5df2b098f507ff95")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetBranch("master")
+	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBaseRef("")
+
 	gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
@@ -198,47 +160,28 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	rOrg := "Codertocat"
-	rName := "Hello-World"
-	rFullName := "Codertocat/Hello-World"
-	rLink := "https://github.com/Codertocat/Hello-World"
-	rClone := "https://github.com/Codertocat/Hello-World.git"
-	rBranch := "master"
-	zeroBool := false
-	wantRepo := &library.Repo{
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-		Link:     &rLink,
-		Clone:    &rClone,
-		Branch:   &rBranch,
-		Private:  &zeroBool,
-	}
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
 
-	bEvent := "pull_request"
-	bClone := "https://github.com/Codertocat/Hello-World.git"
-	bSource := "https://github.com/Codertocat/Hello-World/pull/1"
-	bTitle := "pull_request received from https://github.com/Codertocat/Hello-World"
-	bMessage := "Update the README with new information"
-	bCommit := "34c5c7793cb3b279e22454cb6750c80560547b3a"
-	bSender := "Codertocat"
-	bAuthor := "Codertocat"
-	bBranch := "master"
-	bRef := "refs/pull/1/head"
-	bBaseRef := "master"
-	wantBuild := &library.Build{
-		Event:   &bEvent,
-		Clone:   &bClone,
-		Source:  &bSource,
-		Title:   &bTitle,
-		Message: &bMessage,
-		Commit:  &bCommit,
-		Sender:  &bSender,
-		Author:  &bAuthor,
-		Branch:  &bBranch,
-		Ref:     &bRef,
-		BaseRef: &bBaseRef,
-	}
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("pull_request")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("Update the README with new information")
+	wantBuild.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetBranch("master")
+	wantBuild.SetRef("refs/pull/1/head")
+	wantBuild.SetBaseRef("master")
+
 	gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
