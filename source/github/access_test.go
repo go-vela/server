@@ -32,9 +32,11 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 
 	// setup types
 	want := "admin"
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -70,9 +72,11 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 
 	// setup types
 	want := "member"
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -98,9 +102,10 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 
 	// setup types
 	want := ""
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -132,9 +137,11 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 
 	// setup types
 	want := ""
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -160,9 +167,11 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 
 	// setup types
 	want := "admin"
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -194,9 +203,11 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 
 	// setup types
 	want := "admin"
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -222,9 +233,11 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 
 	// setup types
 	want := ""
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -256,9 +269,11 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 
 	// setup types
 	want := "admin"
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -294,9 +309,11 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 
 	// setup types
 	want := ""
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -322,9 +339,11 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 
 	// setup types
 	want := ""
-	name := "foo"
-	token := "bar"
-	u := &library.User{Name: &name, Token: &token}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
