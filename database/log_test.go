@@ -27,21 +27,20 @@ func init() {
 
 func TestDatabase_Client_GetBuildLogs(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	lOne := testLog()
-	lOne.ID = &one
-	lOne.StepID = &one
-	lOne.BuildID = &one
-	lOne.RepoID = &one
-	lOne.Data = &data
-	two := int64(2)
+	lOne.SetID(1)
+	lOne.SetStepID(1)
+	lOne.SetBuildID(1)
+	lOne.SetRepoID(1)
+	lOne.SetData([]byte{})
+
 	lTwo := testLog()
-	lTwo.ID = &two
-	lTwo.StepID = &two
-	lTwo.BuildID = &one
-	lTwo.RepoID = &one
-	lTwo.Data = &data
+	lTwo.SetID(2)
+	lTwo.SetStepID(2)
+	lTwo.SetBuildID(1)
+	lTwo.SetRepoID(1)
+	lTwo.SetData([]byte{})
+
 	want := []*library.Log{lOne, lTwo}
 
 	// setup database
@@ -67,15 +66,12 @@ func TestDatabase_Client_GetBuildLogs(t *testing.T) {
 
 func TestDatabase_Client_GetStepLog(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	want := testLog()
-	want.ID = &one
-	want.BuildID = &one
-	want.RepoID = &one
-	want.ServiceID = &one
-	want.StepID = &one
-	want.Data = &data
+	want.SetID(1)
+	want.SetBuildID(1)
+	want.SetRepoID(1)
+	want.SetStepID(1)
+	want.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()
@@ -99,15 +95,12 @@ func TestDatabase_Client_GetStepLog(t *testing.T) {
 
 func TestDatabase_Client_GetServiceLog(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	want := testLog()
-	want.ID = &one
-	want.BuildID = &one
-	want.RepoID = &one
-	want.ServiceID = &one
-	want.StepID = &one
-	want.Data = &data
+	want.SetID(1)
+	want.SetBuildID(1)
+	want.SetRepoID(1)
+	want.SetServiceID(1)
+	want.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()
@@ -131,14 +124,12 @@ func TestDatabase_Client_GetServiceLog(t *testing.T) {
 
 func TestDatabase_Client_CreateLog(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	want := testLog()
-	want.ID = &one
-	want.StepID = &one
-	want.BuildID = &one
-	want.RepoID = &one
-	want.Data = &data
+	want.SetID(1)
+	want.SetBuildID(1)
+	want.SetRepoID(1)
+	want.SetStepID(1)
+	want.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()
@@ -163,13 +154,11 @@ func TestDatabase_Client_CreateLog(t *testing.T) {
 
 func TestDatabase_Client_CreateLog_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	l := testLog()
-	l.ID = &one
-	l.BuildID = &one
-	l.RepoID = &one
-	l.Data = &data
+	l.SetID(1)
+	l.SetBuildID(1)
+	l.SetRepoID(1)
+	l.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()
@@ -188,14 +177,12 @@ func TestDatabase_Client_CreateLog_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateLog(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	want := testLog()
-	want.ID = &one
-	want.StepID = &one
-	want.BuildID = &one
-	want.RepoID = &one
-	want.Data = &data
+	want.SetID(1)
+	want.SetStepID(1)
+	want.SetBuildID(1)
+	want.SetRepoID(1)
+	want.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()
@@ -221,13 +208,11 @@ func TestDatabase_Client_UpdateLog(t *testing.T) {
 
 func TestDatabase_Client_UpdateLog_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	l := testLog()
-	l.ID = &one
-	l.BuildID = &one
-	l.RepoID = &one
-	l.Data = &data
+	l.SetID(1)
+	l.SetBuildID(1)
+	l.SetRepoID(1)
+	l.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()
@@ -247,14 +232,12 @@ func TestDatabase_Client_UpdateLog_Invalid(t *testing.T) {
 
 func TestDatabase_Client_DeleteLog(t *testing.T) {
 	// setup types
-	one := int64(1)
-	data := []byte("foo")
 	want := testLog()
-	want.ID = &one
-	want.StepID = &one
-	want.BuildID = &one
-	want.RepoID = &one
-	want.Data = &data
+	want.SetID(1)
+	want.SetStepID(1)
+	want.SetBuildID(1)
+	want.SetRepoID(1)
+	want.SetData([]byte{})
 
 	// setup database
 	database, _ := NewTest()

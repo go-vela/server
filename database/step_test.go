@@ -27,19 +27,17 @@ func init() {
 
 func TestDatabase_Client_GetStep(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	want := testStep()
-	want.ID = &one
-	want.RepoID = &one
-	want.BuildID = &one
-	want.Number = &oneNum
-	want.Name = &oneName
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -63,24 +61,20 @@ func TestDatabase_Client_GetStep(t *testing.T) {
 
 func TestDatabase_Client_GetStepList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	sOne := testStep()
-	sOne.ID = &one
-	sOne.RepoID = &one
-	sOne.BuildID = &one
-	sOne.Number = &oneNum
-	sOne.Name = &oneName
-	two := int64(2)
-	twoNum := 2
-	twoName := "bar"
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+
 	sTwo := testStep()
-	sTwo.ID = &two
-	sTwo.RepoID = &one
-	sTwo.BuildID = &one
-	sTwo.Number = &twoNum
-	sTwo.Name = &twoName
+	sTwo.SetID(2)
+	sTwo.SetRepoID(1)
+	sTwo.SetBuildID(1)
+	sTwo.SetNumber(2)
+	sTwo.SetName("bar")
+
 	want := []*library.Step{sOne, sTwo}
 
 	// setup database
@@ -106,28 +100,25 @@ func TestDatabase_Client_GetStepList(t *testing.T) {
 
 func TestDatabase_Client_GetBuildStepList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	sOne := testStep()
-	sOne.ID = &one
-	sOne.RepoID = &one
-	sOne.BuildID = &one
-	sOne.Number = &oneNum
-	sOne.Name = &oneName
-	two := int64(2)
-	twoNum := 2
-	twoName := "bar"
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+
 	sTwo := testStep()
-	sTwo.ID = &two
-	sTwo.RepoID = &one
-	sTwo.BuildID = &one
-	sTwo.Number = &twoNum
-	sTwo.Name = &twoName
+	sTwo.SetID(2)
+	sTwo.SetRepoID(1)
+	sTwo.SetBuildID(1)
+	sTwo.SetNumber(2)
+	sTwo.SetName("bar")
+
 	want := []*library.Step{sTwo, sOne}
 
 	// setup database
@@ -153,37 +144,31 @@ func TestDatabase_Client_GetBuildStepList(t *testing.T) {
 
 func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
+	b.SetID(2)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	sOne := testStep()
-	sOne.ID = &one
-	sOne.RepoID = &one
-	sOne.BuildID = &one
-	sOne.Number = &oneNum
-	sOne.Name = &oneName
-	two := int64(2)
-	twoNum := 2
-	twoName := "bar"
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+
 	sTwo := testStep()
-	sTwo.ID = &two
-	sTwo.RepoID = &one
-	sTwo.BuildID = &one
-	sTwo.Number = &twoNum
-	sTwo.Name = &twoName
-	three := int64(3)
-	threeNum := 3
-	threeName := "baz"
+	sTwo.SetID(2)
+	sTwo.SetRepoID(2)
+	sTwo.SetBuildID(2)
+	sTwo.SetNumber(1)
+	sTwo.SetName("foo")
+
 	sThree := testStep()
-	sThree.ID = &three
-	sThree.RepoID = &one
-	sThree.BuildID = &two
-	sThree.Number = &threeNum
-	sThree.Name = &threeName
+	sThree.SetID(3)
+	sThree.SetRepoID(2)
+	sThree.SetBuildID(2)
+	sThree.SetNumber(2)
+	sThree.SetName("bar")
 
 	want := 2
 
@@ -211,19 +196,17 @@ func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 
 func TestDatabase_Client_CreateStep(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	want := testStep()
-	want.ID = &one
-	want.RepoID = &one
-	want.BuildID = &one
-	want.Number = &oneNum
-	want.Name = &oneName
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -248,18 +231,11 @@ func TestDatabase_Client_CreateStep(t *testing.T) {
 
 func TestDatabase_Client_CreateStep_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
-	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
 	s := testStep()
-	s.ID = &one
-	s.BuildID = &one
-	s.Number = &oneNum
-	s.Name = &oneName
+	s.SetID(1)
+	s.SetBuildID(1)
+	s.SetNumber(1)
+	s.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -278,19 +254,17 @@ func TestDatabase_Client_CreateStep_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateStep(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	want := testStep()
-	want.ID = &one
-	want.RepoID = &one
-	want.BuildID = &one
-	want.Number = &oneNum
-	want.Name = &oneName
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -316,18 +290,11 @@ func TestDatabase_Client_UpdateStep(t *testing.T) {
 
 func TestDatabase_Client_UpdateStep_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
-	b := testBuild()
-	b.ID = &one
-	b.RepoID = &one
-	b.Number = &oneNum
 	s := testStep()
-	s.ID = &one
-	s.BuildID = &one
-	s.Number = &oneNum
-	s.Name = &oneName
+	s.SetID(1)
+	s.SetBuildID(1)
+	s.SetNumber(1)
+	s.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -347,15 +314,12 @@ func TestDatabase_Client_UpdateStep_Invalid(t *testing.T) {
 
 func TestDatabase_Client_DeleteStep(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	oneName := "foo"
 	want := testStep()
-	want.ID = &one
-	want.RepoID = &one
-	want.BuildID = &one
-	want.Number = &oneNum
-	want.Name = &oneName
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()

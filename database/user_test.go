@@ -27,15 +27,11 @@ func init() {
 
 func TestDatabase_Client_GetUser(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	want := testUser()
-	want.ID = &id
-	want.Name = &name
-	want.Token = &token
-	want.Hash = &hash
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -59,15 +55,11 @@ func TestDatabase_Client_GetUser(t *testing.T) {
 
 func TestDatabase_Client_GetUserName(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	want := testUser()
-	want.ID = &id
-	want.Name = &name
-	want.Token = &token
-	want.Hash = &hash
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -91,21 +83,18 @@ func TestDatabase_Client_GetUserName(t *testing.T) {
 
 func TestDatabase_Client_GetUserCount(t *testing.T) {
 	// setup types
-	one := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	uOne := testUser()
-	uOne.ID = &one
-	uOne.Name = &name
-	uOne.Token = &token
-	uOne.Hash = &hash
-	two := int64(2)
+	uOne.SetID(1)
+	uOne.SetName("foo")
+	uOne.SetToken("bar")
+	uOne.SetHash("baz")
+
 	uTwo := testUser()
-	uTwo.ID = &two
-	uTwo.Name = &token
-	uTwo.Token = &name
-	uTwo.Hash = &hash
+	uTwo.SetID(2)
+	uTwo.SetName("bar")
+	uTwo.SetToken("foo")
+	uTwo.SetHash("baz")
+
 	want := 2
 
 	// setup database
@@ -131,21 +120,18 @@ func TestDatabase_Client_GetUserCount(t *testing.T) {
 
 func TestDatabase_Client_GetUserList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	uOne := testUser()
-	uOne.ID = &one
-	uOne.Name = &name
-	uOne.Token = &token
-	uOne.Hash = &hash
-	two := int64(2)
+	uOne.SetID(1)
+	uOne.SetName("foo")
+	uOne.SetToken("bar")
+	uOne.SetHash("baz")
+
 	uTwo := testUser()
-	uTwo.ID = &two
-	uTwo.Name = &token
-	uTwo.Token = &name
-	uTwo.Hash = &hash
+	uTwo.SetID(2)
+	uTwo.SetName("bar")
+	uTwo.SetToken("foo")
+	uTwo.SetHash("baz")
+
 	want := []*library.User{uOne, uTwo}
 
 	// setup database
@@ -171,28 +157,26 @@ func TestDatabase_Client_GetUserList(t *testing.T) {
 
 func TestDatabase_Client_GetUserLiteList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	uOne := testUser()
-	uOne.ID = &one
-	uOne.Name = &name
-	uOne.Token = &token
-	uOne.Hash = &hash
-	two := int64(2)
+	uOne.SetID(1)
+	uOne.SetName("foo")
+	uOne.SetToken("bar")
+	uOne.SetHash("baz")
+
 	uTwo := testUser()
-	uTwo.ID = &two
-	uTwo.Name = &token
-	uTwo.Token = &name
-	uTwo.Hash = &hash
+	uTwo.SetID(2)
+	uTwo.SetName("bar")
+	uTwo.SetToken("foo")
+	uTwo.SetHash("baz")
 
 	wOne := testUser()
-	wOne.ID = &one
-	wOne.Name = &name
+	wOne.SetID(1)
+	wOne.SetName("foo")
+
 	wTwo := testUser()
-	wTwo.ID = &two
-	wTwo.Name = &token
+	wTwo.SetID(2)
+	wTwo.SetName("bar")
+
 	want := []*library.User{wTwo, wOne}
 
 	// setup database
@@ -218,15 +202,11 @@ func TestDatabase_Client_GetUserLiteList(t *testing.T) {
 
 func TestDatabase_Client_CreateUser(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	want := testUser()
-	want.ID = &id
-	want.Name = &name
-	want.Token = &token
-	want.Hash = &hash
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -251,13 +231,10 @@ func TestDatabase_Client_CreateUser(t *testing.T) {
 
 func TestDatabase_Client_CreateUser_Invalid(t *testing.T) {
 	// setup types
-	id := int64(1)
-	token := "bar"
-	hash := "baz"
 	u := testUser()
-	u.ID = &id
-	u.Token = &token
-	u.Hash = &hash
+	u.SetID(1)
+	u.SetToken("bar")
+	u.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -276,15 +253,11 @@ func TestDatabase_Client_CreateUser_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateUser(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	want := testUser()
-	want.ID = &id
-	want.Name = &name
-	want.Token = &token
-	want.Hash = &hash
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -310,13 +283,10 @@ func TestDatabase_Client_UpdateUser(t *testing.T) {
 
 func TestDatabase_Client_UpdateUser_Invalid(t *testing.T) {
 	// setup types
-	id := int64(1)
-	token := "bar"
-	hash := "baz"
 	u := testUser()
-	u.ID = &id
-	u.Token = &token
-	u.Hash = &hash
+	u.SetID(1)
+	u.SetToken("bar")
+	u.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -336,15 +306,11 @@ func TestDatabase_Client_UpdateUser_Invalid(t *testing.T) {
 
 func TestDatabase_Client_DeleteUser(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
 	want := testUser()
-	want.ID = &id
-	want.Name = &name
-	want.Token = &token
-	want.Hash = &hash
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
 
 	// setup database
 	db, _ := NewTest()
