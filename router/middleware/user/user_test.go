@@ -23,8 +23,8 @@ import (
 
 func TestUser_Retrieve(t *testing.T) {
 	// setup types
-	uID := int64(1)
-	want := &library.User{ID: &uID}
+	want := new(library.User)
+	want.SetID(1)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -42,19 +42,15 @@ func TestUser_Retrieve(t *testing.T) {
 func TestUser_Establish(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	zeroBool := false
-	want := &library.User{
-		ID:     &uID,
-		Name:   &uName,
-		Token:  &uToken,
-		Hash:   &uHash,
-		Active: &zeroBool,
-		Admin:  &zeroBool,
-	}
+
+	want := new(library.User)
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
+	want.SetActive(false)
+	want.SetAdmin(false)
+
 	got := new(library.User)
 
 	tkn, err := token.Compose(want)
@@ -138,10 +134,12 @@ func TestUser_Establish_NoToken(t *testing.T) {
 func TestUser_Establish_SecretValid(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	uName := "vela-worker"
-	uActive := true
-	uAdmin := true
-	want := &library.User{Name: &uName, Active: &uActive, Admin: &uAdmin}
+
+	want := new(library.User)
+	want.SetName("vela-worker")
+	want.SetActive(true)
+	want.SetAdmin(true)
+
 	got := new(library.User)
 
 	// setup context

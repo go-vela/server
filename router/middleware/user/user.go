@@ -34,14 +34,11 @@ func Establish() gin.HandlerFunc {
 
 		secret := c.MustGet("secret").(string)
 		if strings.EqualFold(t, secret) {
-			uName := "vela-worker"
-			uActive := true
-			uAdmin := true
-			u := &library.User{
-				Name:   &uName,
-				Active: &uActive,
-				Admin:  &uAdmin,
-			}
+			u := new(library.User)
+			u.SetName("vela-worker")
+			u.SetActive(true)
+			u.SetAdmin(true)
+
 			ToContext(c, u)
 			c.Next()
 			return

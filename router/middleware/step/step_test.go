@@ -22,8 +22,8 @@ import (
 
 func TestStep_Retrieve(t *testing.T) {
 	// setup types
-	num := int64(1)
-	want := &library.Step{ID: &num}
+	want := new(library.Step)
+	want.SetID(1)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -40,33 +40,35 @@ func TestStep_Retrieve(t *testing.T) {
 
 func TestStep_Establish(t *testing.T) {
 	// setup types
-	num := 1
-	num64 := int64(1)
-	foo := "foo"
-	bar := "bar"
-	foobar := "foo/bar"
-	zeroInt := 1
-	zeroInt64 := int64(1)
-	zeroString := ""
-	r := &library.Repo{ID: &num64, UserID: &num64, Org: &foo, Name: &bar, FullName: &foobar}
-	b := &library.Build{ID: &num64, RepoID: &num64, Number: &num}
-	want := &library.Step{
-		ID:           &num64,
-		RepoID:       &num64,
-		BuildID:      &num64,
-		Number:       &num,
-		Name:         &foo,
-		Stage:        &zeroString,
-		Status:       &zeroString,
-		Error:        &zeroString,
-		ExitCode:     &zeroInt,
-		Created:      &zeroInt64,
-		Started:      &zeroInt64,
-		Finished:     &zeroInt64,
-		Host:         &zeroString,
-		Runtime:      &zeroString,
-		Distribution: &zeroString,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	want := new(library.Step)
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
+	want.SetStage("")
+	want.SetStatus("")
+	want.SetError("")
+	want.SetExitCode(0)
+	want.SetCreated(0)
+	want.SetStarted(0)
+	want.SetFinished(0)
+	want.SetHost("")
+	want.SetRuntime("")
+	want.SetDistribution("")
+
 	got := new(library.Step)
 
 	// setup database
@@ -138,11 +140,12 @@ func TestStep_Establish_NoRepo(t *testing.T) {
 
 func TestStep_Establish_NoBuild(t *testing.T) {
 	// setup types
-	rID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{ID: &rID, UserID: &rID, Org: &rOrg, Name: &rName, FullName: &rFullName}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -176,13 +179,17 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 
 func TestStep_Establish_NoStepParameter(t *testing.T) {
 	// setup types
-	num := 1
-	num64 := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{ID: &num64, UserID: &num64, Org: &rOrg, Name: &rName, FullName: &rFullName}
-	b := &library.Build{ID: &num64, RepoID: &num64, Number: &num}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -219,13 +226,17 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	// setup types
-	num := 1
-	num64 := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{ID: &num64, UserID: &num64, Org: &rOrg, Name: &rName, FullName: &rFullName}
-	b := &library.Build{ID: &num64, RepoID: &num64, Number: &num}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -262,13 +273,17 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 func TestStep_Establish_NoStep(t *testing.T) {
 	// setup types
-	num := 1
-	num64 := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{ID: &num64, UserID: &num64, Org: &rOrg, Name: &rName, FullName: &rFullName}
-	b := &library.Build{ID: &num64, RepoID: &num64, Number: &num}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
 
 	// setup database
 	db, _ := database.NewTest()

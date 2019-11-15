@@ -19,22 +19,17 @@ import (
 
 func TestToken_Compose(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
-	u := &library.User{
-		ID:    &id,
-		Name:  &name,
-		Token: &token,
-		Hash:  &hash,
-	}
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
 
 	tkn := jwt.New(jwt.SigningMethodHS256)
 	claims := tkn.Claims.(jwt.MapClaims)
-	claims["active"] = u.Active
-	claims["admin"] = u.Admin
-	claims["name"] = u.Name
+	claims["active"] = u.GetActive()
+	claims["admin"] = u.GetAdmin()
+	claims["name"] = u.GetName()
 	want, err := tkn.SignedString([]byte(u.GetHash()))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
@@ -53,19 +48,13 @@ func TestToken_Compose(t *testing.T) {
 
 func TestToken_Parse(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
-	zeroBool := false
-	want := &library.User{
-		ID:     &id,
-		Name:   &name,
-		Token:  &token,
-		Hash:   &hash,
-		Active: &zeroBool,
-		Admin:  &zeroBool,
-	}
+	want := new(library.User)
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetHash("baz")
+	want.SetActive(false)
+	want.SetAdmin(false)
 
 	tkn, err := Compose(want)
 	if err != nil {
@@ -93,16 +82,11 @@ func TestToken_Parse(t *testing.T) {
 
 func TestToken_Parse_Error_NoParse(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
-	u := &library.User{
-		ID:    &id,
-		Name:  &name,
-		Token: &token,
-		Hash:  &hash,
-	}
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -126,22 +110,17 @@ func TestToken_Parse_Error_NoParse(t *testing.T) {
 
 func TestToken_Parse_Error_InvalidSignature(t *testing.T) {
 	// setup types
-	id := int64(1)
-	name := "foo"
-	token := "bar"
-	hash := "baz"
-	u := &library.User{
-		ID:    &id,
-		Name:  &name,
-		Token: &token,
-		Hash:  &hash,
-	}
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
 
 	tkn := jwt.New(jwt.SigningMethodHS512)
 	claims := tkn.Claims.(jwt.MapClaims)
-	claims["active"] = u.Active
-	claims["admin"] = u.Admin
-	claims["name"] = u.Name
+	claims["active"] = u.GetActive()
+	claims["admin"] = u.GetAdmin()
+	claims["name"] = u.GetName()
 	token, err := tkn.SignedString([]byte(u.GetHash()))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)

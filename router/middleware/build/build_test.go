@@ -20,8 +20,8 @@ import (
 
 func TestBuild_Retrieve(t *testing.T) {
 	// setup types
-	bID := int64(1)
-	want := &library.Build{ID: &bID}
+	want := new(library.Build)
+	want.SetID(1)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -38,52 +38,40 @@ func TestBuild_Retrieve(t *testing.T) {
 
 func TestBuild_Establish(t *testing.T) {
 	// setup types
-	uID := int64(1)
-	uUserID := int64(1)
-	uOrg := "foo"
-	uName := "bar"
-	uFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &uID,
-		UserID:   &uUserID,
-		Org:      &uOrg,
-		Name:     &uName,
-		FullName: &uFullName,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
-	bID := int64(1)
-	bRepoID := int64(1)
-	bNumber := 1
-	zeroInt := 0
-	zeroInt64 := int64(0)
-	zeroString := ""
-	want := &library.Build{
-		ID:           &bID,
-		RepoID:       &bRepoID,
-		Number:       &bNumber,
-		Parent:       &zeroInt,
-		Event:        &zeroString,
-		Status:       &zeroString,
-		Error:        &zeroString,
-		Enqueued:     &zeroInt64,
-		Created:      &zeroInt64,
-		Started:      &zeroInt64,
-		Finished:     &zeroInt64,
-		Deploy:       &zeroString,
-		Clone:        &zeroString,
-		Source:       &zeroString,
-		Title:        &zeroString,
-		Message:      &zeroString,
-		Commit:       &zeroString,
-		Sender:       &zeroString,
-		Author:       &zeroString,
-		Branch:       &zeroString,
-		Ref:          &zeroString,
-		BaseRef:      &zeroString,
-		Host:         &zeroString,
-		Runtime:      &zeroString,
-		Distribution: &zeroString,
-	}
+	want := new(library.Build)
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetNumber(1)
+	want.SetParent(1)
+	want.SetEvent("")
+	want.SetStatus("")
+	want.SetError("")
+	want.SetEnqueued(0)
+	want.SetCreated(0)
+	want.SetStarted(0)
+	want.SetFinished(0)
+	want.SetDeploy("")
+	want.SetClone("")
+	want.SetSource("")
+	want.SetTitle("")
+	want.SetMessage("")
+	want.SetCommit("")
+	want.SetSender("")
+	want.SetAuthor("")
+	want.SetBranch("")
+	want.SetRef("")
+	want.SetBaseRef("")
+	want.SetHost("")
+	want.SetRuntime("")
+	want.SetDistribution("")
+
 	got := new(library.Build)
 
 	// setup database
@@ -149,18 +137,12 @@ func TestBuild_Establish_NoRepo(t *testing.T) {
 
 func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	// setup types
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -194,18 +176,12 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	// setup types
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -239,18 +215,12 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_NoBuild(t *testing.T) {
 	// setup types
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := database.NewTest()

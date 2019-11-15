@@ -25,18 +25,13 @@ import (
 func TestPerm_MustPlatformAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := true
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -91,18 +86,13 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -157,31 +147,20 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 func TestPerm_MustAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
 
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -242,31 +221,20 @@ func TestPerm_MustAdmin(t *testing.T) {
 func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
 
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := true
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -327,30 +295,20 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -411,30 +369,20 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 func TestPerm_MustWrite(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -495,30 +443,20 @@ func TestPerm_MustWrite(t *testing.T) {
 func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := true
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -579,30 +517,20 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -663,30 +591,20 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -747,30 +665,20 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 func TestPerm_MustRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -831,30 +739,20 @@ func TestPerm_MustRead(t *testing.T) {
 func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := true
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -915,30 +813,20 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -999,30 +887,20 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -1083,30 +961,20 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 func TestPerm_MustRead_NotRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"
-	rID := int64(1)
-	rUserID := int64(1)
-	rOrg := "foo"
-	rName := "bar"
-	rFullName := "foo/bar"
-	r := &library.Repo{
-		ID:       &rID,
-		UserID:   &rUserID,
-		Org:      &rOrg,
-		Name:     &rName,
-		FullName: &rFullName,
-	}
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	tkn, err := token.Compose(u)
 	if err != nil {
@@ -1166,18 +1034,12 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 
 func TestPerm_globalPerms(t *testing.T) {
 	// setup types
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	// run test
 	got := globalPerms(u)
@@ -1189,16 +1051,12 @@ func TestPerm_globalPerms(t *testing.T) {
 
 func TestPerm_globalPerms_Agent(t *testing.T) {
 	// setup types
-	uID := int64(1)
-	uName := "vela-worker"
-	uToken := "bar"
-	uAdmin := false
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Admin: &uAdmin,
-	}
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("vela-worker")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
 
 	// run test
 	got := globalPerms(u)
@@ -1210,18 +1068,12 @@ func TestPerm_globalPerms_Agent(t *testing.T) {
 
 func TestPerm_globalPerms_Admin(t *testing.T) {
 	// setup types
-	uID := int64(1)
-	uName := "foo"
-	uToken := "bar"
-	uHash := "baz"
-	uAdmin := true
-	u := &library.User{
-		ID:    &uID,
-		Name:  &uName,
-		Token: &uToken,
-		Hash:  &uHash,
-		Admin: &uAdmin,
-	}
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
 
 	// run test
 	got := globalPerms(u)
