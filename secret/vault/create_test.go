@@ -28,25 +28,16 @@ func TestVault_Create_Org(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "*"
-	team := ""
-	name := "bar"
-	value := "baz"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("*")
+	sec.SetTeam("")
+	sec.SetName("bar")
+	sec.SetValue("baz")
+	sec.SetType("org")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -54,7 +45,7 @@ func TestVault_Create_Org(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, sec)
+	err = s.Create("org", "foo", "*", sec)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -79,25 +70,16 @@ func TestVault_Create_Repo(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	team := ""
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetTeam("")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("repo")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -105,7 +87,7 @@ func TestVault_Create_Repo(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, sec)
+	err = s.Create("repo", "foo", "bar", sec)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -130,25 +112,16 @@ func TestVault_Create_Shared(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := ""
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("")
+	sec.SetTeam("bar")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("shared")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -156,7 +129,7 @@ func TestVault_Create_Shared(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, team, sec)
+	err = s.Create("shared", "foo", "bar", sec)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -181,23 +154,16 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := ""
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetTeam("")
+	sec.SetName("baz")
+	sec.SetValue("")
+	sec.SetType("repo")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -205,7 +171,7 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, sec)
+	err = s.Create("repo", "foo", "bar", sec)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -218,23 +184,16 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 
 func TestVault_Create_InvalidType(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "invalid"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetTeam("")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("invalid")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// setup mock server
 	fake := httptest.NewServer(http.NotFoundHandler())
@@ -246,7 +205,7 @@ func TestVault_Create_InvalidType(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, sec)
+	err = s.Create("invalid", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Create should have returned err")
 	}
@@ -254,25 +213,16 @@ func TestVault_Create_InvalidType(t *testing.T) {
 
 func TestVault_Create_ClosedServer(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	team := ""
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetTeam("")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("repo")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// setup mock server
 	fake := httptest.NewServer(http.NotFoundHandler())
@@ -284,7 +234,7 @@ func TestVault_Create_ClosedServer(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, sec)
+	err = s.Create("repo", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Create should have returned err")
 	}

@@ -15,27 +15,17 @@ import (
 
 func TestNative_Create_Org(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "*"
-	team := ""
-	name := "bar"
-	value := "baz"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	booL := false
-	want := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	want := new(library.Secret)
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("*")
+	want.SetTeam("")
+	want.SetName("bar")
+	want.SetValue("baz")
+	want.SetType("org")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -50,12 +40,12 @@ func TestNative_Create_Org(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, want)
+	err = s.Create("org", "foo", "*", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
 
-	got, _ := s.Get(typee, org, repo, name)
+	got, _ := s.Get("org", "foo", "*", "bar")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -64,27 +54,17 @@ func TestNative_Create_Org(t *testing.T) {
 
 func TestNative_Create_Repo(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	team := ""
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	booL := false
-	want := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	want := new(library.Secret)
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetTeam("")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -99,12 +79,12 @@ func TestNative_Create_Repo(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, want)
+	err = s.Create("repo", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
 
-	got, _ := s.Get(typee, org, repo, name)
+	got, _ := s.Get("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -113,27 +93,17 @@ func TestNative_Create_Repo(t *testing.T) {
 
 func TestNative_Create_Shared(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := ""
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
-	arr := []string{"foo", "bar"}
-	booL := false
-	want := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	want := new(library.Secret)
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("")
+	want.SetTeam("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("shared")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -148,12 +118,12 @@ func TestNative_Create_Shared(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, team, want)
+	err = s.Create("shared", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
 
-	got, _ := s.Get(typee, org, team, name)
+	got, _ := s.Get("shared", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -162,25 +132,17 @@ func TestNative_Create_Shared(t *testing.T) {
 
 func TestNative_Create_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "invalid"
-	arr := []string{"foo", "bar"}
-	booL := false
-	sec := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	sec := new(library.Secret)
+	sec.SetID(1)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetTeam("")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("invalid")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -195,7 +157,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create(typee, org, repo, sec)
+	err = s.Create("invalid", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Create should have returned err")
 	}

@@ -15,27 +15,17 @@ import (
 
 func TestNative_Update(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	team := ""
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	booL := false
-	want := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	want := new(library.Secret)
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetTeam("")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -51,12 +41,12 @@ func TestNative_Update(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Update(typee, org, repo, want)
+	err = s.Update("repo", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Update returned err: %v", err)
 	}
 
-	got, _ := s.Get(typee, org, repo, name)
+	got, _ := s.Get("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Update is %v, want %v", got, want)
@@ -65,12 +55,9 @@ func TestNative_Update(t *testing.T) {
 
 func TestNative_Update_Invalid(t *testing.T) {
 	// setup types
-	name := "baz"
-	value := "foob"
-	sec := &library.Secret{
-		Name:  &name,
-		Value: &value,
-	}
+	sec := new(library.Secret)
+	sec.SetName("baz")
+	sec.SetValue("foob")
 
 	// setup database
 	d, _ := database.NewTest()

@@ -45,9 +45,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 			for _, element := range events {
 				event, ok := element.(string)
 				if ok {
-					events := s.GetEvents()
-					events = append(events, event)
-					s.Events = &events
+					s.SetEvents(append(s.GetEvents(), event))
 				}
 			}
 		}
@@ -61,9 +59,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 			for _, element := range images {
 				image, ok := element.(string)
 				if ok {
-					images := s.GetImages()
-					images = append(images, image)
-					s.Images = &images
+					s.SetImages(append(s.GetImages(), image))
 				}
 			}
 		}
@@ -74,7 +70,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	if ok {
 		name, ok := v.(string)
 		if ok {
-			s.Name = &name
+			s.SetName(name)
 		}
 	}
 
@@ -83,7 +79,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	if ok {
 		org, ok := v.(string)
 		if ok {
-			s.Org = &org
+			s.SetOrg(org)
 		}
 	}
 
@@ -92,7 +88,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	if ok {
 		repo, ok := v.(string)
 		if ok {
-			s.Repo = &repo
+			s.SetRepo(repo)
 		}
 	}
 
@@ -101,7 +97,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	if ok {
 		team, ok := v.(string)
 		if ok {
-			s.Team = &team
+			s.SetTeam(team)
 		}
 	}
 
@@ -110,7 +106,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	if ok {
 		secretType, ok := v.(string)
 		if ok {
-			s.Type = &secretType
+			s.SetType(secretType)
 		}
 	}
 
@@ -119,7 +115,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	if ok {
 		value, ok := v.(string)
 		if ok {
-			s.Value = &value
+			s.SetValue(value)
 		}
 	}
 

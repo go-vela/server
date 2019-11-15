@@ -22,17 +22,17 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 
 	// update the events if set
 	if len(s.GetEvents()) > 0 {
-		sec.Events = s.Events
+		sec.SetEvents(s.GetEvents())
 	}
 
 	// update the images if set
 	if len(s.GetImages()) > 0 {
-		sec.Images = s.Images
+		sec.SetImages(s.GetImages())
 	}
 
 	// update the value if set
 	if len(s.GetValue()) > 0 {
-		sec.Value = s.Value
+		sec.SetValue(s.GetValue())
 	}
 
 	return c.Native.UpdateSecret(sec)
