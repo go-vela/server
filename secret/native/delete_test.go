@@ -14,23 +14,17 @@ import (
 
 func TestNative_Delete(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetID(1)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetTeam("")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("repo")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -46,7 +40,7 @@ func TestNative_Delete(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Delete(typee, org, repo, name)
+	err = s.Delete("repo", "foo", "bar", "baz")
 	if err != nil {
 		t.Errorf("Delete returned err: %v", err)
 	}

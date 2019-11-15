@@ -15,27 +15,17 @@ import (
 
 func TestNative_Get(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	team := ""
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	booL := false
-	want := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	want := new(library.Secret)
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetTeam("")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(false)
 
 	// setup database
 	d, _ := database.NewTest()
@@ -51,7 +41,7 @@ func TestNative_Get(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Get(typee, org, repo, name)
+	got, err := s.Get("repo", "foo", "bar", "baz")
 	if err != nil {
 		t.Errorf("Get returned err: %v", err)
 	}

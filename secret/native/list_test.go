@@ -15,40 +15,30 @@ import (
 
 func TestNative_List(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	team := ""
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	booL := false
-	sOne := &library.Secret{
-		ID:           &one,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
-	two := int64(2)
-	sTwo := &library.Secret{
-		ID:           &two,
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &value,
-		Value:        &name,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &booL,
-	}
+	sOne := new(library.Secret)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetRepo("bar")
+	sOne.SetTeam("")
+	sOne.SetName("baz")
+	sOne.SetValue("foob")
+	sOne.SetType("repo")
+	sOne.SetImages([]string{"foo", "bar"})
+	sOne.SetEvents([]string{"foo", "bar"})
+	sOne.SetAllowCommand(false)
+
+	sTwo := new(library.Secret)
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetRepo("bar")
+	sTwo.SetTeam("")
+	sTwo.SetName("foob")
+	sTwo.SetValue("baz")
+	sTwo.SetType("repo")
+	sTwo.SetImages([]string{"foo", "bar"})
+	sTwo.SetEvents([]string{"foo", "bar"})
+	sTwo.SetAllowCommand(false)
+
 	want := []*library.Secret{sTwo, sOne}
 
 	// setup database
@@ -66,7 +56,7 @@ func TestNative_List(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.List(typee, org, repo, 1, 10)
+	got, err := s.List("repo", "foo", "bar", 1, 10)
 	if err != nil {
 		t.Errorf("List returned err: %v", err)
 	}

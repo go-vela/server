@@ -13,23 +13,15 @@ import (
 
 func TestNative_Count(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	sec := &library.Secret{
-		ID:     &one,
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	sec := new(library.Secret)
+	sec.SetID(1)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("repo")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
 
 	want := 1
 
@@ -47,7 +39,7 @@ func TestNative_Count(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Count(typee, org, repo)
+	got, err := s.Count("repo", "foo", "bar")
 	if err != nil {
 		t.Errorf("Count returned err: %v", err)
 	}

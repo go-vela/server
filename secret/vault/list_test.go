@@ -36,23 +36,16 @@ func TestVault_List_Org(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	org := "foo"
-	repo := "*"
-	name := "baz"
-	value := "foob"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	want := []*library.Secret{
-		{
-			Org:    &org,
-			Repo:   &repo,
-			Name:   &name,
-			Value:  &value,
-			Type:   &typee,
-			Images: &arr,
-			Events: &arr,
-		},
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("*")
+	sec.SetName("bar")
+	sec.SetValue("baz")
+	sec.SetType("org")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+
+	want := []*library.Secret{sec}
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -60,7 +53,7 @@ func TestVault_List_Org(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.List(typee, org, repo, 1, 10)
+	got, err := s.List("org", "foo", "*", 1, 10)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -96,23 +89,16 @@ func TestVault_List_Repo(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	want := []*library.Secret{
-		{
-			Org:    &org,
-			Repo:   &repo,
-			Name:   &name,
-			Value:  &value,
-			Type:   &typee,
-			Images: &arr,
-			Events: &arr,
-		},
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetRepo("bar")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("repo")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+
+	want := []*library.Secret{sec}
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -156,23 +142,16 @@ func TestVault_List_Shared(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	org := "foo"
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
-	arr := []string{"foo", "bar"}
-	want := []*library.Secret{
-		{
-			Org:    &org,
-			Team:   &team,
-			Name:   &name,
-			Value:  &value,
-			Type:   &typee,
-			Images: &arr,
-			Events: &arr,
-		},
-	}
+	sec := new(library.Secret)
+	sec.SetOrg("foo")
+	sec.SetTeam("bar")
+	sec.SetName("baz")
+	sec.SetValue("foob")
+	sec.SetType("shared")
+	sec.SetImages([]string{"foo", "bar"})
+	sec.SetEvents([]string{"foo", "bar"})
+
+	want := []*library.Secret{sec}
 
 	// run test
 	s, err := New(fake.URL, "foo")

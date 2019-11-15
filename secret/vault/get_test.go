@@ -31,21 +31,14 @@ func TestVault_Get_Org(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	org := "foo"
-	repo := "*"
-	name := "baz"
-	value := "foob"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	want := &library.Secret{
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	want := new(library.Secret)
+	want.SetOrg("foo")
+	want.SetRepo("*")
+	want.SetName("bar")
+	want.SetValue("baz")
+	want.SetType("org")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -53,7 +46,7 @@ func TestVault_Get_Org(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Get(typee, org, repo, name)
+	got, err := s.Get("org", "foo", "bar", "baz")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
@@ -84,21 +77,14 @@ func TestVault_Get_Repo(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
-	arr := []string{"foo", "bar"}
-	want := &library.Secret{
-		Org:    &org,
-		Repo:   &repo,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	want := new(library.Secret)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -106,7 +92,7 @@ func TestVault_Get_Repo(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Get(typee, org, repo, name)
+	got, err := s.Get("repo", "foo", "bar", "baz")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
@@ -137,21 +123,14 @@ func TestVault_Get_Shared(t *testing.T) {
 	defer fake.Close()
 
 	// setup types
-	org := "foo"
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
-	arr := []string{"foo", "bar"}
-	want := &library.Secret{
-		Org:    &org,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
-	}
+	want := new(library.Secret)
+	want.SetOrg("foo")
+	want.SetTeam("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("shared")
+	want.SetImages([]string{"foo", "bar"})
+	want.SetEvents([]string{"foo", "bar"})
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -159,7 +138,7 @@ func TestVault_Get_Shared(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Get(typee, org, team, name)
+	got, err := s.Get("shared", "foo", "bar", "baz")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
