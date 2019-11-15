@@ -71,20 +71,17 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// update fields in build object
-	num := 1
-	pending := constants.StatusPending
-	time := time.Now().UTC().Unix()
-	input.RepoID = r.ID
-	input.Status = &pending
-	input.Created = &time
-	input.Number = &num
-	input.Parent = input.Number
+	input.SetRepoID(r.GetID())
+	input.SetStatus(constants.StatusPending)
+	input.SetCreated(time.Now().UTC().Unix())
+	input.SetNumber(1)
+	input.SetParent(input.GetNumber())
 
-	bNumber := (lastBuild.GetNumber() + 1)
-	bParent := lastBuild.GetNumber()
 	if lastBuild != nil {
-		input.Number = &bNumber
-		input.Parent = &bParent
+		input.SetNumber(
+			lastBuild.GetNumber() + 1,
+		)
+		input.SetParent(lastBuild.GetNumber())
 	}
 
 	// send API call to capture list of files changed for the commit
@@ -236,18 +233,14 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// update fields in build object
-	zero := int64(0)
-	bNumber := int(lastBuild.GetNumber() + 1)
-	bCreated := time.Now().UTC().Unix()
-	bStatus := constants.StatusPending
-	b.ID = &zero
-	b.Parent = b.Number
-	b.Number = &bNumber
-	b.Created = &bCreated
-	b.Enqueued = &zero
-	b.Started = &zero
-	b.Finished = &zero
-	b.Status = &bStatus
+	b.SetID(0)
+	b.SetParent(b.GetNumber())
+	b.SetNumber((lastBuild.GetNumber() + 1))
+	b.SetCreated(time.Now().UTC().Unix())
+	b.SetEnqueued(0)
+	b.SetStarted(0)
+	b.SetFinished(0)
+	b.SetStatus(constants.StatusPending)
 
 	// send API call to capture list of files changed for the commit
 	files, err := source.FromContext(c).ListChanges(u, r, lastBuild.GetCommit())
@@ -324,39 +317,39 @@ func UpdateBuild(c *gin.Context) {
 	// update build fields if provided
 	if len(input.GetStatus()) > 0 {
 		// update status if set
-		b.Status = input.Status
+		b.SetStatus(input.GetStatus())
 	}
 	if len(input.GetError()) > 0 {
 		// update error if set
-		b.Error = input.Error
+		b.SetError(input.GetError())
 	}
 	if input.GetStarted() > 0 {
 		// update started if set
-		b.Started = input.Started
+		b.SetStarted(input.GetStarted())
 	}
 	if input.GetFinished() > 0 {
 		// update finished if set
-		b.Finished = input.Finished
+		b.SetFinished(input.GetFinished())
 	}
 	if len(input.GetTitle()) > 0 {
 		// update title if set
-		b.Title = input.Title
+		b.SetTitle(input.GetTitle())
 	}
 	if len(input.GetMessage()) > 0 {
 		// update message if set
-		b.Message = input.Message
+		b.SetMessage(input.GetMessage())
 	}
 	if len(input.GetHost()) > 0 {
 		// update host if set
-		b.Host = input.Host
+		b.SetHost(input.GetHost())
 	}
 	if len(input.GetRuntime()) > 0 {
 		// update runtime if set
-		b.Runtime = input.Runtime
+		b.SetRuntime(input.GetRuntime())
 	}
 	if len(input.GetDistribution()) > 0 {
 		// update distribution if set
-		b.Distribution = input.Distribution
+		b.SetDistribution(input.GetDistribution())
 	}
 
 	// send API call to update the build
@@ -416,8 +409,7 @@ func DeleteBuild(c *gin.Context) {
 // and services, for the build in the configured backend.
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
-	t := time.Now().UTC().Unix()
-	b.Enqueued = &t
+	b.SetEnqueued(time.Now().UTC().Unix())
 
 	// send API call to create the build
 	err := database.CreateBuild(b)
@@ -452,12 +444,9 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 // configured backend.
 func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step) {
 	// update fields in build object
-	e := "unable to publish build to queue"
-	s := constants.StatusError
-	t := time.Now().UTC().Unix()
-	b.Error = &e
-	b.Status = &s
-	b.Finished = &t
+	b.SetError("unable to publish build to queue")
+	b.SetStatus(constants.StatusError)
+	b.SetFinished(time.Now().UTC().Unix())
 
 	// send API call to update the build
 	err := database.UpdateBuild(b)
@@ -467,10 +456,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 
 	for _, s := range services {
 		// update fields in service object
-		k := constants.StatusKilled
-		t := time.Now().UTC().Unix()
-		s.Status = &k
-		s.Finished = &t
+		s.SetStatus(constants.StatusKilled)
+		s.SetFinished(time.Now().UTC().Unix())
 
 		// send API call to update the service
 		err := database.UpdateService(s)
@@ -481,10 +468,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 
 	for _, s := range steps {
 		// update fields in step object
-		k := constants.StatusKilled
-		t := time.Now().UTC().Unix()
-		s.Status = &k
-		s.Finished = &t
+		s.SetStatus(constants.StatusKilled)
+		s.SetFinished(time.Now().UTC().Unix())
 
 		// send API call to update the step
 		err := database.UpdateStep(s)

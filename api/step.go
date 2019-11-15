@@ -43,16 +43,14 @@ func CreateStep(c *gin.Context) {
 	}
 
 	// update fields in step object
-	input.RepoID = r.ID
-	input.BuildID = b.ID
+	input.SetRepoID(r.GetID())
+	input.SetBuildID(b.GetID())
 
 	if len(input.GetStatus()) == 0 {
-		s := constants.StatusPending
-		input.Status = &s
+		input.SetStatus(constants.StatusPending)
 	}
 	if input.GetCreated() == 0 {
-		t := time.Now().UTC().Unix()
-		input.Created = &t
+		input.SetCreated(time.Now().UTC().Unix())
 	}
 
 	// send API call to create the step
@@ -162,35 +160,35 @@ func UpdateStep(c *gin.Context) {
 	// update step fields if provided
 	if len(input.GetStatus()) > 0 {
 		// update status if set
-		s.Status = input.Status
+		s.SetStatus(input.GetStatus())
 	}
 	if len(input.GetError()) > 0 {
 		// update error if set
-		s.Error = input.Error
+		s.SetError(input.GetError())
 	}
 	if input.GetExitCode() > 0 {
 		// update exit_code if set
-		s.ExitCode = input.ExitCode
+		s.SetExitCode(input.GetExitCode())
 	}
 	if input.GetStarted() > 0 {
 		// update started if set
-		s.Started = input.Started
+		s.SetStarted(input.GetStarted())
 	}
 	if input.GetFinished() > 0 {
 		// update finished if set
-		s.Finished = input.Finished
+		s.SetFinished(input.GetFinished())
 	}
 	if len(input.GetHost()) > 0 {
 		// update host if set
-		s.Host = input.Host
+		s.SetHost(input.GetHost())
 	}
 	if len(input.GetRuntime()) > 0 {
 		// update runtime if set
-		s.Runtime = input.Runtime
+		s.SetRuntime(input.GetRuntime())
 	}
 	if len(input.GetDistribution()) > 0 {
 		// update distribution if set
-		s.Distribution = input.Distribution
+		s.SetDistribution(input.GetDistribution())
 	}
 
 	// send API call to update the step
@@ -240,17 +238,14 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			p := constants.StatusPending
-			t := time.Now().UTC().Unix()
-			s := &library.Step{
-				BuildID: b.ID,
-				RepoID:  b.RepoID,
-				Number:  &step.Number,
-				Name:    &step.Name,
-				Stage:   &stage.Name,
-				Status:  &p,
-				Created: &t,
-			}
+			s := new(library.Step)
+			s.SetBuildID(b.GetID())
+			s.SetRepoID(b.GetRepoID())
+			s.SetNumber(step.Number)
+			s.SetName(step.Name)
+			s.SetStage(stage.Name)
+			s.SetStatus(constants.StatusPending)
+			s.SetCreated(time.Now().UTC().Unix())
 
 			// send API call to create the step
 			err := database.CreateStep(s)
@@ -265,12 +260,11 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 			}
 
 			// create the log object
-			l := &library.Log{
-				StepID:  s.ID,
-				BuildID: s.BuildID,
-				RepoID:  s.RepoID,
-				Data:    &[]byte{},
-			}
+			l := new(library.Log)
+			l.SetServiceID(s.GetID())
+			l.SetBuildID(b.GetID())
+			l.SetRepoID(b.GetRepoID())
+			l.SetData([]byte{})
 
 			// send API call to create the step logs
 			err = database.CreateLog(l)
@@ -285,16 +279,13 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
 		// create the step object
-		p := constants.StatusPending
-		t := time.Now().UTC().Unix()
-		s := &library.Step{
-			BuildID: b.ID,
-			RepoID:  b.RepoID,
-			Number:  &step.Number,
-			Name:    &step.Name,
-			Status:  &p,
-			Created: &t,
-		}
+		s := new(library.Step)
+		s.SetBuildID(b.GetID())
+		s.SetRepoID(b.GetRepoID())
+		s.SetNumber(step.Number)
+		s.SetName(step.Name)
+		s.SetStatus(constants.StatusPending)
+		s.SetCreated(time.Now().UTC().Unix())
 
 		// send API call to create the step
 		err := database.CreateStep(s)
@@ -309,12 +300,11 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 		}
 
 		// create the log object
-		l := &library.Log{
-			StepID:  s.ID,
-			BuildID: s.BuildID,
-			RepoID:  s.RepoID,
-			Data:    &[]byte{},
-		}
+		l := new(library.Log)
+		l.SetServiceID(s.GetID())
+		l.SetBuildID(b.GetID())
+		l.SetRepoID(b.GetRepoID())
+		l.SetData([]byte{})
 
 		// send API call to create the step logs
 		err = database.CreateLog(l)
