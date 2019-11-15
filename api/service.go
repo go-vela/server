@@ -43,16 +43,14 @@ func CreateService(c *gin.Context) {
 	}
 
 	// update fields in service object
-	input.RepoID = r.ID
-	input.BuildID = b.ID
+	input.SetRepoID(r.GetID())
+	input.SetBuildID(b.GetID())
 
 	if len(input.GetStatus()) == 0 {
-		s := constants.StatusPending
-		input.Status = &s
+		input.SetStatus(constants.StatusPending)
 	}
 	if input.GetCreated() == 0 {
-		t := time.Now().UTC().Unix()
-		input.Created = &t
+		input.SetCreated(time.Now().UTC().Unix())
 	}
 
 	// send API call to create the service
@@ -162,23 +160,23 @@ func UpdateService(c *gin.Context) {
 	// update service fields if provided
 	if len(input.GetStatus()) > 0 {
 		// update status if set
-		s.Status = input.Status
+		s.SetStatus(input.GetStatus())
 	}
 	if len(input.GetError()) > 0 {
 		// update error if set
-		s.Error = input.Error
+		s.SetError(input.GetError())
 	}
 	if input.GetExitCode() > 0 {
 		// update exit_code if set
-		s.ExitCode = input.ExitCode
+		s.SetExitCode(input.GetExitCode())
 	}
 	if input.GetStarted() > 0 {
 		// update started if set
-		s.Started = input.Started
+		s.SetStarted(input.GetStarted())
 	}
 	if input.GetFinished() > 0 {
 		// update finished if set
-		s.Finished = input.Finished
+		s.SetFinished(input.GetFinished())
 	}
 
 	// send API call to update the service
@@ -226,16 +224,13 @@ func planServices(database database.Service, p *pipeline.Build, b *library.Build
 	// iterate through all pipeline services
 	for _, service := range p.Services {
 		// create the service object
-		p := constants.StatusPending
-		t := time.Now().UTC().Unix()
-		s := &library.Service{
-			BuildID: b.ID,
-			RepoID:  b.RepoID,
-			Name:    &service.Name,
-			Number:  &service.Number,
-			Status:  &p,
-			Created: &t,
-		}
+		s := new(library.Service)
+		s.SetBuildID(b.GetID())
+		s.SetRepoID(b.GetRepoID())
+		s.SetName(service.Name)
+		s.SetNumber(service.Number)
+		s.SetStatus(constants.StatusPending)
+		s.SetCreated(time.Now().UTC().Unix())
 
 		// send API call to create the service
 		err := database.CreateService(s)
@@ -250,12 +245,11 @@ func planServices(database database.Service, p *pipeline.Build, b *library.Build
 		}
 
 		// create the log object
-		l := &library.Log{
-			ServiceID: s.ID,
-			BuildID:   s.BuildID,
-			RepoID:    s.RepoID,
-			Data:      &[]byte{},
-		}
+		l := new(library.Log)
+		l.SetServiceID(s.GetID())
+		l.SetBuildID(b.GetID())
+		l.SetRepoID(b.GetRepoID())
+		l.SetData([]byte{})
 
 		// send API call to create the service logs
 		err = database.CreateLog(l)

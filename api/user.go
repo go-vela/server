@@ -251,9 +251,9 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// update user fields if provided
-	if input.Active != nil {
+	if input.GetActive() {
 		// update active if set
-		u.Active = input.Active
+		u.SetActive(input.GetActive())
 	}
 
 	// send API call to update the user
@@ -332,8 +332,10 @@ func DeleteToken(c *gin.Context) {
 		return
 	}
 
-	*u.Hash = base64.StdEncoding.EncodeToString(
-		[]byte(uid.String()),
+	u.SetHash(
+		base64.StdEncoding.EncodeToString(
+			[]byte(uid.String()),
+		),
 	)
 
 	// send API call to update the user

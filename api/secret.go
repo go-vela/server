@@ -42,22 +42,20 @@ func CreateSecret(c *gin.Context) {
 	}
 
 	// update fields in secret object
-	input.Org = &o
-	input.Repo = &n
-	input.Type = &t
+	input.SetOrg(o)
+	input.SetRepo(n)
+	input.SetType(t)
 	if len(input.GetImages()) > 0 {
-		images := unique(input.GetImages())
-		input.Images = &images
+		input.SetImages(unique(input.GetImages()))
 	}
 	if len(input.GetEvents()) > 0 {
-		events := unique(input.GetEvents())
-		input.Events = &events
+		input.SetEvents(unique(input.GetEvents()))
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update the team instead of repo
-		input.Team = &n
+		input.SetTeam(n)
 		input.Repo = nil
 	}
 
@@ -192,23 +190,21 @@ func UpdateSecret(c *gin.Context) {
 	}
 
 	// update secret fields if provided
-	input.Name = &s
-	input.Org = &o
-	input.Repo = &n
-	input.Type = &t
+	input.SetName(s)
+	input.SetOrg(o)
+	input.SetRepo(n)
+	input.SetType(t)
 	if len(input.GetImages()) > 0 {
-		images := unique(input.GetImages())
-		input.Images = &images
+		input.SetImages(unique(input.GetImages()))
 	}
 	if len(input.GetEvents()) > 0 {
-		events := unique(input.GetEvents())
-		input.Events = &events
+		input.SetEvents(unique(input.GetEvents()))
 	}
 
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update the team instead of repo
-		input.Team = &n
+		input.SetTeam(n)
 		input.Repo = nil
 	}
 

@@ -41,37 +41,31 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// update fields in repo object
-	input.UserID = u.ID
+	input.SetUserID(u.GetID())
 
 	if !input.GetActive() {
-		a := true
-		input.Active = &a
+		input.SetActive(true)
 	}
 
 	if input.GetTimeout() == 0 {
-		t := int64(60)
-		input.Timeout = &t
+		input.SetTimeout(60)
 	}
 
 	if len(input.GetVisibility()) == 0 {
-		p := "public"
-		input.Visibility = &p
+		input.SetVisibility("public")
 	}
 
 	if len(input.GetFullName()) == 0 {
-		s := fmt.Sprintf("%s/%s", input.GetOrg(), input.GetName())
-		input.FullName = &s
+		input.SetFullName(fmt.Sprintf("%s/%s", input.GetOrg(), input.GetName()))
 	}
 
 	if len(input.GetBranch()) == 0 {
-		b := "master"
-		input.Branch = &b
+		input.SetBranch("master")
 	}
 
 	if !input.GetAllowPull() && !input.GetAllowPush() && !input.GetAllowDeploy() && !input.GetAllowTag() {
-		t := true
-		input.AllowPull = &t
-		input.AllowPush = &t
+		input.SetAllowPull(true)
+		input.SetAllowPush(true)
 	}
 
 	// ensure repo is allowed to be activated
@@ -107,17 +101,14 @@ func CreateRepo(c *gin.Context) {
 
 	// TODO: build these from the source client
 	if len(input.GetLink()) == 0 {
-		input.Link = &url
+		input.SetLink(url)
 	}
 	if len(input.GetClone()) == 0 {
-		s := fmt.Sprintf("%s.git", url)
-		input.Clone = &s
+		input.SetClone(fmt.Sprintf("%s.git", url))
 	}
 
-	//
 	if len(r.GetOrg()) > 0 && !r.GetActive() {
-		t := true
-		r.Active = &t
+		r.SetActive(true)
 
 		// send API call to update the repo
 		err = database.FromContext(c).UpdateRepo(r)
@@ -229,46 +220,43 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// update repo fields if provided
-	if input.Branch != nil {
+	if len(input.GetBranch()) > 0 {
 		// update branch if set
-		r.Branch = input.Branch
+		r.SetBranch(input.GetBranch())
 	}
-	if input.Visibility != nil {
+	if len(input.GetVisibility()) > 0 {
 		// update visibility if set
-		r.Visibility = input.Visibility
+		r.SetVisibility(input.GetVisibility())
 	}
-	if input.Private != nil {
+	if input.GetPrivate() {
 		// update private if set
-		r.Private = input.Private
+		r.SetPrivate(input.GetPrivate())
 	}
-	if input.Active != nil {
+	if input.GetActive() {
 		// update active if set
-		r.Active = input.Active
+		r.SetActive(input.GetActive())
 	}
-	if input.AllowPull != nil {
+	if input.GetAllowPull() {
 		// update allow_pull if set
-		r.AllowPull = input.AllowPull
+		r.SetAllowPull(input.GetAllowPull())
 	}
-	if input.AllowPush != nil {
+	if input.GetAllowPush() {
 		// update allow_push if set
-		r.AllowPush = input.AllowPush
+		r.SetAllowPush(input.GetAllowPush())
 	}
-	if input.AllowDeploy != nil {
+	if input.GetAllowDeploy() {
 		// update allow_deploy if set
-		r.AllowDeploy = input.AllowDeploy
+		r.SetAllowDeploy(input.GetAllowDeploy())
 	}
-	if input.AllowTag != nil {
+	if input.GetAllowTag() {
 		// update allow_tag if set
-		r.AllowTag = input.AllowTag
+		r.SetAllowTag(input.GetAllowTag())
 	}
 	// set default events if no events are enabled
-	if !r.GetAllowPull() &&
-		!r.GetAllowPush() &&
-		!r.GetAllowDeploy() &&
-		!r.GetAllowTag() {
-		t := true
-		r.AllowPull = &t
-		r.AllowPush = &t
+	if !r.GetAllowPull() && !r.GetAllowPush() &&
+		!r.GetAllowDeploy() && !r.GetAllowTag() {
+		r.SetAllowPull(true)
+		r.SetAllowPush(true)
 	}
 
 	// send API call to update the repo
@@ -307,7 +295,7 @@ func DeleteRepo(c *gin.Context) {
 	}
 
 	// Mark the the repo as inactive
-	*r.Active = false
+	r.SetActive(false)
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
@@ -365,7 +353,7 @@ func ChownRepo(c *gin.Context) {
 	logrus.Infof("Changing owner of repo %s", r.GetFullName())
 
 	// update repo owner
-	r.UserID = u.ID
+	r.SetUserID(u.GetID())
 
 	// send API call to updated the repo
 	err := database.FromContext(c).UpdateRepo(r)

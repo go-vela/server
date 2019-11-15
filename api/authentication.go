@@ -88,16 +88,16 @@ func Authenticate(c *gin.Context) {
 		}
 
 		// create the user account
-		uHash := base64.StdEncoding.EncodeToString([]byte(uid.String()))
-		uActive := true
-		uAdmin := false
-		u = &library.User{
-			Name:   newUser.Name,
-			Token:  newUser.Token,
-			Hash:   &uHash,
-			Active: &uActive,
-			Admin:  &uAdmin,
-		}
+		u := new(library.User)
+		u.SetName(newUser.GetName())
+		u.SetToken(newUser.GetToken())
+		u.SetHash(
+			base64.StdEncoding.EncodeToString(
+				[]byte(uid.String()),
+			),
+		)
+		u.SetActive(true)
+		u.SetAdmin(false)
 
 		// send API call to create the user in the database
 		err = database.FromContext(c).CreateUser(u)
@@ -121,11 +121,9 @@ func Authenticate(c *gin.Context) {
 	}
 
 	// update the user account
-	uActive := true
-	uAdmin := false
-	u.Token = newUser.Token
-	u.Active = &uActive
-	u.Admin = &uAdmin
+	u.SetToken(newUser.GetToken())
+	u.SetActive(true)
+	u.SetAdmin(false)
 
 	// send API call to update the user in the database
 	err = database.FromContext(c).UpdateUser(u)
@@ -180,16 +178,16 @@ func AuthenticateCLI(c *gin.Context) {
 		}
 
 		// create the user account
-		uHash := base64.StdEncoding.EncodeToString([]byte(uid.String()))
-		uActive := true
-		uAdmin := false
-		u = &library.User{
-			Name:   newUser.Name,
-			Token:  newUser.Token,
-			Hash:   &uHash,
-			Active: &uActive,
-			Admin:  &uAdmin,
-		}
+		u := new(library.User)
+		u.SetName(newUser.GetName())
+		u.SetToken(newUser.GetToken())
+		u.SetHash(
+			base64.StdEncoding.EncodeToString(
+				[]byte(uid.String()),
+			),
+		)
+		u.SetActive(true)
+		u.SetAdmin(false)
 
 		// send API call to create the user in the database
 		err = database.FromContext(c).CreateUser(u)
@@ -212,11 +210,9 @@ func AuthenticateCLI(c *gin.Context) {
 	}
 
 	// update the user account
-	uActive := true
-	uAdmin := false
-	u.Token = newUser.Token
-	u.Active = &uActive
-	u.Admin = &uAdmin
+	u.SetToken(newUser.GetToken())
+	u.SetActive(true)
+	u.SetAdmin(false)
 
 	// send API call to update the user in the database
 	err = database.FromContext(c).UpdateUser(u)

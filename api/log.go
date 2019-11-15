@@ -61,9 +61,9 @@ func CreateServiceLog(c *gin.Context) {
 	}
 
 	// update fields in log object
-	input.ServiceID = s.ID
-	input.BuildID = b.ID
-	input.RepoID = r.ID
+	input.SetServiceID(s.GetID())
+	input.SetBuildID(b.GetID())
+	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
 	err = database.FromContext(c).CreateLog(input)
@@ -130,7 +130,7 @@ func UpdateServiceLog(c *gin.Context) {
 	// update log fields if provided
 	if len(input.GetData()) > 0 {
 		// update data if set
-		l.Data = input.Data
+		l.SetData(input.GetData())
 	}
 
 	// send API call to update the log
@@ -188,9 +188,9 @@ func CreateStepLog(c *gin.Context) {
 	}
 
 	// update fields in log object
-	input.StepID = s.ID
-	input.BuildID = b.ID
-	input.RepoID = r.ID
+	input.SetStepID(s.GetID())
+	input.SetBuildID(b.GetID())
+	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
 	err = database.FromContext(c).CreateLog(input)
@@ -257,7 +257,7 @@ func UpdateStepLog(c *gin.Context) {
 	// update log fields if provided
 	if len(input.GetData()) > 0 {
 		// update data if set
-		l.Data = input.Data
+		l.SetData(input.GetData())
 	}
 
 	// send API call to update the log

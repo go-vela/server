@@ -105,26 +105,23 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// update fields in build object
-	num := 1
-	pending := constants.StatusPending
-	time := time.Now().UTC().Unix()
-	b.RepoID = r.ID
-	b.Status = &pending
-	b.Created = &time
-	b.Number = &num
-	b.Parent = b.Number
+	b.SetRepoID(r.GetID())
+	b.SetNumber(1)
+	b.SetParent(b.GetNumber())
+	b.SetStatus(constants.StatusPending)
+	b.SetCreated(time.Now().UTC().Unix())
 
-	bNumber := (lastBuild.GetNumber() + 1)
-	bParent := lastBuild.GetNumber()
 	if lastBuild != nil {
-		b.Number = &bNumber
-		b.Parent = &bParent
+		b.SetNumber(
+			lastBuild.GetNumber() + 1,
+		)
+		b.SetParent(lastBuild.GetNumber())
 	}
 
 	// variable to store changeset files
 	var files []string
 	// check if the build event is pull_request
-	if b.GetEvent() == constants.EventPull {
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
 
 		// parse out pull request number from base ref
 		// TODO: clean this up
