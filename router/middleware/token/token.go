@@ -28,9 +28,9 @@ func Compose(u *library.User) (string, error) {
 	claims := t.Claims.(jwt.MapClaims)
 
 	// append extra metadata to token claims
-	claims["active"] = u.Active
-	claims["admin"] = u.Admin
-	claims["name"] = u.Name
+	claims["active"] = u.GetActive()
+	claims["admin"] = u.GetAdmin()
+	claims["name"] = u.GetName()
 
 	// sign the token using our secret key
 	token, err := t.SignedString([]byte(u.GetHash()))

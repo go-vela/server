@@ -29,15 +29,30 @@ import (
 
 func TestMiddleware_Logger(t *testing.T) {
 	// setup types
-	num := 1
-	num64 := int64(num)
-	foo := "foo"
-	bar := "bar"
-	foobar := "foo/bar"
-	b := &library.Build{ID: &num64, RepoID: &num64, Number: &num}
-	r := &library.Repo{ID: &num64, UserID: &num64, Org: &foo, Name: &bar, FullName: &foobar}
-	s := &library.Step{ID: &num64, RepoID: &num64, BuildID: &num64, Number: &num, Name: &foo}
-	u := &library.User{ID: &num64, Name: &foo, Token: &bar}
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	s := new(library.Step)
+	s.SetID(1)
+	s.SetRepoID(1)
+	s.SetBuildID(1)
+	s.SetNumber(1)
+	s.SetName("foo")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
 	wantMessage := ""

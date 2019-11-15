@@ -19,8 +19,8 @@ import (
 
 func TestRepo_Retrieve(t *testing.T) {
 	// setup types
-	num := int64(1)
-	want := &library.Repo{ID: &num}
+	want := new(library.Repo)
+	want.SetID(1)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -37,32 +37,25 @@ func TestRepo_Retrieve(t *testing.T) {
 
 func TestRepo_Establish(t *testing.T) {
 	// setup types
-	num := int64(1)
-	org := "foo"
-	name := "bar"
-	fullname := "foo/bar"
-	zeroInt64 := int64(0)
-	zeroString := ""
-	zeroBool := false
-	want := &library.Repo{
-		ID:          &num,
-		UserID:      &num,
-		Org:         &org,
-		Name:        &name,
-		FullName:    &fullname,
-		Link:        &zeroString,
-		Clone:       &zeroString,
-		Branch:      &zeroString,
-		Timeout:     &zeroInt64,
-		Visibility:  &zeroString,
-		Private:     &zeroBool,
-		Trusted:     &zeroBool,
-		Active:      &zeroBool,
-		AllowPull:   &zeroBool,
-		AllowPush:   &zeroBool,
-		AllowDeploy: &zeroBool,
-		AllowTag:    &zeroBool,
-	}
+	want := new(library.Repo)
+	want.SetID(1)
+	want.SetUserID(1)
+	want.SetOrg("foo")
+	want.SetName("bar")
+	want.SetFullName("foo/bar")
+	want.SetLink("")
+	want.SetClone("")
+	want.SetBranch("")
+	want.SetTimeout(0)
+	want.SetVisibility("")
+	want.SetPrivate(false)
+	want.SetTrusted(false)
+	want.SetActive(false)
+	want.SetAllowPull(false)
+	want.SetAllowPush(false)
+	want.SetAllowDeploy(false)
+	want.SetAllowTag(false)
+
 	got := new(library.Repo)
 
 	// setup database
