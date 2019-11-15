@@ -11,8 +11,6 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-cmp/cmp"
-	"github.com/kr/pretty"
 )
 
 func init() {
@@ -29,28 +27,17 @@ func init() {
 
 func TestDatabase_Client_GetService(t *testing.T) {
 	// setup types
-	zero := int64(0)
-	one := 1
-	one64 := int64(1)
-	foo := "foo"
-	b := &library.Build{
-		ID:     &one64,
-		RepoID: &one64,
-		Number: &one,
-	}
-	want := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &zero,
-		Started:  &zero,
-		Finished: &zero,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	b := testBuild()
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	want := testService()
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -74,36 +61,20 @@ func TestDatabase_Client_GetService(t *testing.T) {
 
 func TestDatabase_Client_GetServiceList(t *testing.T) {
 	// setup types
-	one := 1
-	one64 := int64(1)
-	two64 := int64(2)
-	foo := "foo"
-	sOne := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
-	sTwo := &library.Service{
-		ID:       &two64,
-		RepoID:   &one64,
-		BuildID:  &two64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	sOne := testService()
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+
+	sTwo := testService()
+	sTwo.SetID(2)
+	sTwo.SetRepoID(1)
+	sTwo.SetBuildID(1)
+	sTwo.SetNumber(2)
+	sTwo.SetName("bar")
+
 	want := []*library.Service{sOne, sTwo}
 
 	// setup database
@@ -122,9 +93,6 @@ func TestDatabase_Client_GetServiceList(t *testing.T) {
 		t.Errorf("GetServiceList returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("GetServiceList() mismatch (-want +got):\n%s", diff)
-	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("GetServiceList is %v, want %v", got, want)
 	}
@@ -132,44 +100,25 @@ func TestDatabase_Client_GetServiceList(t *testing.T) {
 
 func TestDatabase_Client_GetBuildServiceList(t *testing.T) {
 	// setup types
-	one := 1
-	two := 2
-	one64 := int64(1)
-	two64 := int64(2)
-	foo := "foo"
-	bar := "bar"
+	b := testBuild()
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
 
-	b := &library.Build{
-		ID:     &one64,
-		RepoID: &one64,
-		Number: &one,
-	}
-	sOne := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
-	sTwo := &library.Service{
-		ID:       &two64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &two,
-		Name:     &bar,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	sOne := testService()
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+
+	sTwo := testService()
+	sTwo.SetID(2)
+	sTwo.SetRepoID(1)
+	sTwo.SetBuildID(1)
+	sTwo.SetNumber(2)
+	sTwo.SetName("bar")
+
 	want := []*library.Service{sTwo, sOne}
 
 	// setup database
@@ -189,65 +138,38 @@ func TestDatabase_Client_GetBuildServiceList(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		pretty.Ldiff(t, got, want)
 		t.Errorf("GetBuildServiceList is %v, want %v", got, want)
 	}
 }
 
 func TestDatabase_Client_GetBuildServiceCount(t *testing.T) {
 	// setup types
-	one := 1
-	two := 2
-	one64 := int64(1)
-	two64 := int64(2)
-	three64 := int64(3)
-	foo := "foo"
-	bar := "bar"
+	b := testBuild()
+	b.SetID(2)
+	b.SetRepoID(1)
+	b.SetNumber(1)
 
-	b := &library.Build{
-		ID:     &two64,
-		RepoID: &one64,
-		Number: &two,
-	}
-	sOne := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
-	sTwo := &library.Service{
-		ID:       &two64,
-		RepoID:   &two64,
-		BuildID:  &two64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &one,
-		Name:     &bar,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
-	sThree := &library.Service{
-		ID:       &three64,
-		RepoID:   &two64,
-		BuildID:  &two64,
-		Created:  &one64,
-		Started:  &one64,
-		Finished: &one64,
-		Number:   &two,
-		Name:     &bar,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	sOne := testService()
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+
+	sTwo := testService()
+	sTwo.SetID(2)
+	sTwo.SetRepoID(2)
+	sTwo.SetBuildID(2)
+	sTwo.SetNumber(1)
+	sTwo.SetName("foo")
+
+	sThree := testService()
+	sThree.SetID(3)
+	sThree.SetRepoID(2)
+	sThree.SetBuildID(2)
+	sThree.SetNumber(2)
+	sThree.SetName("bar")
+
 	want := 2
 
 	// setup database
@@ -274,28 +196,17 @@ func TestDatabase_Client_GetBuildServiceCount(t *testing.T) {
 
 func TestDatabase_Client_CreateService(t *testing.T) {
 	// setup types
-	zero := int64(0)
-	one := 1
-	one64 := int64(1)
-	foo := "foo"
-	b := &library.Build{
-		ID:     &one64,
-		RepoID: &one64,
-		Number: &one,
-	}
-	want := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &zero,
-		Started:  &zero,
-		Finished: &zero,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	b := testBuild()
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	want := testService()
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -320,22 +231,11 @@ func TestDatabase_Client_CreateService(t *testing.T) {
 
 func TestDatabase_Client_CreateService_Invalid(t *testing.T) {
 	// setup types
-	zero := int64(0)
-	one := 1
-	one64 := int64(1)
-	foo := "foo"
-	s := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &zero,
-		Started:  &zero,
-		Finished: &zero,
-		Number:   &one,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	s := testService()
+	s.SetID(1)
+	s.SetRepoID(1)
+	s.SetBuildID(1)
+	s.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -354,28 +254,17 @@ func TestDatabase_Client_CreateService_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateService(t *testing.T) {
 	// setup types
-	zero := int64(0)
-	one := 1
-	one64 := int64(1)
-	foo := "foo"
-	b := &library.Build{
-		ID:     &one64,
-		RepoID: &one64,
-		Number: &one,
-	}
-	want := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &zero,
-		Started:  &zero,
-		Finished: &zero,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	b := testBuild()
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	want := testService()
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetNumber(1)
+	want.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -401,23 +290,11 @@ func TestDatabase_Client_UpdateService(t *testing.T) {
 
 func TestDatabase_Client_UpdateService_Invalid(t *testing.T) {
 	// setup types
-	zero := int64(0)
-	one := 1
-	one64 := int64(1)
-	foo := "foo"
-	s := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &zero,
-		Started:  &zero,
-		Finished: &zero,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	s := testService()
+	s.SetID(1)
+	s.SetRepoID(1)
+	s.SetBuildID(1)
+	s.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -428,7 +305,6 @@ func TestDatabase_Client_UpdateService_Invalid(t *testing.T) {
 	_ = db.CreateService(s)
 
 	// run test
-	s.RepoID = &zero
 	err := db.UpdateService(s)
 
 	if err == nil {
@@ -438,23 +314,12 @@ func TestDatabase_Client_UpdateService_Invalid(t *testing.T) {
 
 func TestDatabase_Client_DeleteService(t *testing.T) {
 	// setup types
-	zero := int64(0)
-	one := 1
-	one64 := int64(1)
-	foo := "foo"
-	want := &library.Service{
-		ID:       &one64,
-		RepoID:   &one64,
-		BuildID:  &one64,
-		Created:  &zero,
-		Started:  &zero,
-		Finished: &zero,
-		Number:   &one,
-		Name:     &foo,
-		Status:   &foo,
-		Error:    &foo,
-		ExitCode: &one,
-	}
+	s := testService()
+	s.SetID(1)
+	s.SetRepoID(1)
+	s.SetBuildID(1)
+	s.SetNumber(1)
+	s.SetName("foo")
 
 	// setup database
 	db, _ := NewTest()
@@ -462,12 +327,34 @@ func TestDatabase_Client_DeleteService(t *testing.T) {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
-	_ = db.CreateService(want)
+	_ = db.CreateService(s)
 
 	// run test
-	err := db.DeleteService(want.GetBuildID())
+	err := db.DeleteService(s.GetBuildID())
 
 	if err != nil {
 		t.Errorf("DeleteService returned err: %v", err)
+	}
+}
+
+// testService is a test helper function to create a
+// library Service type with all fields set to their
+// zero values.
+func testService() *library.Service {
+	i64 := int64(0)
+	i := 0
+	str := ""
+	return &library.Service{
+		ID:       &i64,
+		BuildID:  &i64,
+		RepoID:   &i64,
+		Number:   &i,
+		Name:     &str,
+		Status:   &str,
+		Error:    &str,
+		ExitCode: &i,
+		Created:  &i64,
+		Started:  &i64,
+		Finished: &i64,
 	}
 }

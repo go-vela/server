@@ -27,19 +27,13 @@ func init() {
 
 func TestDatabase_Client_GetSecret_Org(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "*"
-	name := "bar"
-	value := "baz"
-	typee := "org"
 	want := testSecret()
-	want.ID = &one
-	want.Org = &org
-	want.Repo = &repo
-	want.Name = &name
-	want.Value = &value
-	want.Type = &typee
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("*")
+	want.SetName("bar")
+	want.SetValue("baz")
+	want.SetType("org")
 
 	// setup database
 	db, _ := NewTest()
@@ -50,7 +44,7 @@ func TestDatabase_Client_GetSecret_Org(t *testing.T) {
 	_ = db.CreateSecret(want)
 
 	// run test
-	got, err := db.GetSecret(typee, org, repo, name)
+	got, err := db.GetSecret("org", "foo", "*", "bar")
 
 	if err != nil {
 		t.Errorf("GetSecret returned err: %v", err)
@@ -63,19 +57,13 @@ func TestDatabase_Client_GetSecret_Org(t *testing.T) {
 
 func TestDatabase_Client_GetSecret_Repo(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	want := testSecret()
-	want.ID = &one
-	want.Org = &org
-	want.Repo = &repo
-	want.Name = &name
-	want.Value = &value
-	want.Type = &typee
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
 
 	// setup database
 	db, _ := NewTest()
@@ -86,7 +74,7 @@ func TestDatabase_Client_GetSecret_Repo(t *testing.T) {
 	_ = db.CreateSecret(want)
 
 	// run test
-	got, err := db.GetSecret(typee, org, repo, name)
+	got, err := db.GetSecret("repo", "foo", "bar", "baz")
 
 	if err != nil {
 		t.Errorf("GetSecret returned err: %v", err)
@@ -99,19 +87,13 @@ func TestDatabase_Client_GetSecret_Repo(t *testing.T) {
 
 func TestDatabase_Client_GetSecret_Shared(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
 	want := testSecret()
-	want.ID = &one
-	want.Org = &org
-	want.Team = &team
-	want.Name = &name
-	want.Value = &value
-	want.Type = &typee
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetTeam("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("shared")
 
 	// setup database
 	db, _ := NewTest()
@@ -122,7 +104,7 @@ func TestDatabase_Client_GetSecret_Shared(t *testing.T) {
 	_ = db.CreateSecret(want)
 
 	// run test
-	got, err := db.GetSecret(typee, org, team, name)
+	got, err := db.GetSecret("shared", "foo", "bar", "baz")
 
 	if err != nil {
 		t.Errorf("GetSecret returned err: %v", err)
@@ -135,27 +117,22 @@ func TestDatabase_Client_GetSecret_Shared(t *testing.T) {
 
 func TestDatabase_Client_GetSecretList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Repo = &repo
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetRepo("bar")
+	sOne.SetName("baz")
+	sOne.SetValue("foob")
+	sOne.SetType("repo")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Repo = &repo
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetRepo("bar")
+	sTwo.SetName("foob")
+	sTwo.SetValue("baz")
+	sTwo.SetType("repo")
+
 	want := []*library.Secret{sOne, sTwo}
 
 	// setup database
@@ -181,27 +158,22 @@ func TestDatabase_Client_GetSecretList(t *testing.T) {
 
 func TestDatabase_Client_GetTypeSecretList_Org(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "*"
-	name := "bar"
-	value := "baz"
-	typee := "org"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Repo = &repo
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetRepo("*")
+	sOne.SetName("bar")
+	sOne.SetValue("baz")
+	sOne.SetType("org")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Repo = &repo
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetRepo("*")
+	sTwo.SetName("baz")
+	sTwo.SetValue("bar")
+	sTwo.SetType("org")
+
 	want := []*library.Secret{sTwo, sOne}
 
 	// setup database
@@ -214,7 +186,7 @@ func TestDatabase_Client_GetTypeSecretList_Org(t *testing.T) {
 	_ = db.CreateSecret(sTwo)
 
 	// run test
-	got, err := db.GetTypeSecretList(typee, org, repo, 1, 10)
+	got, err := db.GetTypeSecretList("org", "foo", "*", 1, 10)
 
 	if err != nil {
 		t.Errorf("GetTypeSecretList returned err: %v", err)
@@ -227,27 +199,22 @@ func TestDatabase_Client_GetTypeSecretList_Org(t *testing.T) {
 
 func TestDatabase_Client_GetTypeSecretList_Repo(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Repo = &repo
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetRepo("bar")
+	sOne.SetName("baz")
+	sOne.SetValue("foob")
+	sOne.SetType("repo")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Repo = &repo
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetRepo("bar")
+	sTwo.SetName("foob")
+	sTwo.SetValue("baz")
+	sTwo.SetType("repo")
+
 	want := []*library.Secret{sTwo, sOne}
 
 	// setup database
@@ -260,7 +227,7 @@ func TestDatabase_Client_GetTypeSecretList_Repo(t *testing.T) {
 	_ = db.CreateSecret(sTwo)
 
 	// run test
-	got, err := db.GetTypeSecretList(typee, org, repo, 1, 10)
+	got, err := db.GetTypeSecretList("repo", "foo", "bar", 1, 10)
 
 	if err != nil {
 		t.Errorf("GetTypeSecretList returned err: %v", err)
@@ -273,27 +240,22 @@ func TestDatabase_Client_GetTypeSecretList_Repo(t *testing.T) {
 
 func TestDatabase_Client_GetTypeSecretList_Shared(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Team = &team
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetTeam("bar")
+	sOne.SetName("baz")
+	sOne.SetValue("foob")
+	sOne.SetType("shared")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Team = &team
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetTeam("bar")
+	sTwo.SetName("foob")
+	sTwo.SetValue("baz")
+	sTwo.SetType("shared")
+
 	want := []*library.Secret{sTwo, sOne}
 
 	// setup database
@@ -306,7 +268,7 @@ func TestDatabase_Client_GetTypeSecretList_Shared(t *testing.T) {
 	_ = db.CreateSecret(sTwo)
 
 	// run test
-	got, err := db.GetTypeSecretList(typee, org, team, 1, 10)
+	got, err := db.GetTypeSecretList("shared", "foo", "bar", 1, 10)
 
 	if err != nil {
 		t.Errorf("GetTypeSecretList returned err: %v", err)
@@ -319,27 +281,22 @@ func TestDatabase_Client_GetTypeSecretList_Shared(t *testing.T) {
 
 func TestDatabase_Client_GetTypeSecretCount_Org(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "*"
-	name := "bar"
-	value := "baz"
-	typee := "org"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Repo = &repo
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetRepo("*")
+	sOne.SetName("bar")
+	sOne.SetValue("baz")
+	sOne.SetType("org")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Repo = &repo
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetRepo("*")
+	sTwo.SetName("baz")
+	sTwo.SetValue("bar")
+	sTwo.SetType("org")
+
 	want := 2
 
 	// setup database
@@ -352,7 +309,7 @@ func TestDatabase_Client_GetTypeSecretCount_Org(t *testing.T) {
 	_ = db.CreateSecret(sTwo)
 
 	// run test
-	got, err := db.GetTypeSecretCount(typee, org, repo)
+	got, err := db.GetTypeSecretCount("org", "foo", "*")
 
 	if err != nil {
 		t.Errorf("GetTypeSecretCount returned err: %v", err)
@@ -365,27 +322,22 @@ func TestDatabase_Client_GetTypeSecretCount_Org(t *testing.T) {
 
 func TestDatabase_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Repo = &repo
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetRepo("bar")
+	sOne.SetName("baz")
+	sOne.SetValue("foob")
+	sOne.SetType("repo")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Repo = &repo
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetRepo("bar")
+	sTwo.SetName("foob")
+	sTwo.SetValue("baz")
+	sTwo.SetType("repo")
+
 	want := 2
 
 	// setup database
@@ -398,7 +350,7 @@ func TestDatabase_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	_ = db.CreateSecret(sTwo)
 
 	// run test
-	got, err := db.GetTypeSecretCount(typee, org, repo)
+	got, err := db.GetTypeSecretCount("repo", "foo", "bar")
 
 	if err != nil {
 		t.Errorf("GetTypeSecretCount returned err: %v", err)
@@ -411,27 +363,22 @@ func TestDatabase_Client_GetTypeSecretCount_Repo(t *testing.T) {
 
 func TestDatabase_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	team := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "shared"
 	sOne := testSecret()
-	sOne.ID = &one
-	sOne.Org = &org
-	sOne.Team = &team
-	sOne.Name = &name
-	sOne.Value = &value
-	sOne.Type = &typee
-	two := int64(2)
+	sOne.SetID(1)
+	sOne.SetOrg("foo")
+	sOne.SetTeam("bar")
+	sOne.SetName("baz")
+	sOne.SetValue("foob")
+	sOne.SetType("shared")
+
 	sTwo := testSecret()
-	sTwo.ID = &two
-	sTwo.Org = &org
-	sTwo.Team = &team
-	sTwo.Name = &value
-	sTwo.Value = &name
-	sTwo.Type = &typee
+	sTwo.SetID(2)
+	sTwo.SetOrg("foo")
+	sTwo.SetTeam("bar")
+	sTwo.SetName("foob")
+	sTwo.SetValue("baz")
+	sTwo.SetType("shared")
+
 	want := 2
 
 	// setup database
@@ -444,7 +391,7 @@ func TestDatabase_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	_ = db.CreateSecret(sTwo)
 
 	// run test
-	got, err := db.GetTypeSecretCount(typee, org, team)
+	got, err := db.GetTypeSecretCount("shared", "foo", "bar")
 
 	if err != nil {
 		t.Errorf("GetTypeSecretCount returned err: %v", err)
@@ -457,19 +404,13 @@ func TestDatabase_Client_GetTypeSecretCount_Shared(t *testing.T) {
 
 func TestDatabase_Client_CreateSecret(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	want := testSecret()
-	want.ID = &one
-	want.Org = &org
-	want.Repo = &repo
-	want.Name = &name
-	want.Value = &value
-	want.Type = &typee
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
 
 	// setup database
 	db, _ := NewTest()
@@ -485,7 +426,7 @@ func TestDatabase_Client_CreateSecret(t *testing.T) {
 		t.Errorf("CreateSecret returned err: %v", err)
 	}
 
-	got, _ := db.GetSecret(typee, org, repo, name)
+	got, _ := db.GetSecret("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("CreateSecret is %v, want %v", got, want)
@@ -494,17 +435,12 @@ func TestDatabase_Client_CreateSecret(t *testing.T) {
 
 func TestDatabase_Client_CreateSecret_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	value := "foob"
-	typee := "repo"
 	s := testSecret()
-	s.ID = &one
-	s.Org = &org
-	s.Repo = &repo
-	s.Value = &value
-	s.Type = &typee
+	s.SetID(1)
+	s.SetOrg("foo")
+	s.SetRepo("bar")
+	s.SetValue("foob")
+	s.SetType("repo")
 
 	// setup database
 	db, _ := NewTest()
@@ -523,19 +459,13 @@ func TestDatabase_Client_CreateSecret_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateSecret(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	want := testSecret()
-	want.ID = &one
-	want.Org = &org
-	want.Repo = &repo
-	want.Name = &name
-	want.Value = &value
-	want.Type = &typee
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
 
 	// setup database
 	db, _ := NewTest()
@@ -552,7 +482,7 @@ func TestDatabase_Client_UpdateSecret(t *testing.T) {
 		t.Errorf("UpdateSecret returned err: %v", err)
 	}
 
-	got, _ := db.GetSecret(typee, org, repo, name)
+	got, _ := db.GetSecret("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("UpdateSecret is %v, want %v", got, want)
@@ -561,17 +491,12 @@ func TestDatabase_Client_UpdateSecret(t *testing.T) {
 
 func TestDatabase_Client_UpdateSecret_Invalid(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	value := "foob"
-	typee := "repo"
 	s := testSecret()
-	s.ID = &one
-	s.Org = &org
-	s.Repo = &repo
-	s.Value = &value
-	s.Type = &typee
+	s.SetID(1)
+	s.SetOrg("foo")
+	s.SetRepo("bar")
+	s.SetValue("foob")
+	s.SetType("repo")
 
 	// setup database
 	db, _ := NewTest()
@@ -591,19 +516,13 @@ func TestDatabase_Client_UpdateSecret_Invalid(t *testing.T) {
 
 func TestDatabase_Client_DeleteSecret(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := "baz"
-	value := "foob"
-	typee := "repo"
 	want := testSecret()
-	want.ID = &one
-	want.Org = &org
-	want.Repo = &repo
-	want.Name = &name
-	want.Value = &value
-	want.Type = &typee
+	want.SetID(1)
+	want.SetOrg("foo")
+	want.SetRepo("bar")
+	want.SetName("baz")
+	want.SetValue("foob")
+	want.SetType("repo")
 
 	// setup database
 	db, _ := NewTest()

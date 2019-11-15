@@ -5,7 +5,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 	"testing"
@@ -28,20 +27,16 @@ func init() {
 
 func TestDatabase_Client_GetBuild(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
-	oneNum := 1
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
 	want := testBuild()
-	want.ID = &id
-	want.RepoID = &id
-	want.Number = &oneNum
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetNumber(1)
 
 	// setup database
 	database, _ := NewTest()
@@ -65,26 +60,21 @@ func TestDatabase_Client_GetBuild(t *testing.T) {
 
 func TestDatabase_Client_GetLastBuild(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
-	oneNum := 1
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
 	b := testBuild()
-	b.ID = &id
-	b.RepoID = &id
-	b.Number = &oneNum
-	two := int64(2)
-	twoNum := 2
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	want := testBuild()
-	want.ID = &two
-	want.RepoID = &id
-	want.Number = &twoNum
+	want.SetID(2)
+	want.SetRepoID(1)
+	want.SetNumber(2)
 
 	// setup database
 	database, _ := NewTest()
@@ -109,15 +99,11 @@ func TestDatabase_Client_GetLastBuild(t *testing.T) {
 
 func TestDatabase_Client_GetLastBuild_NotFound(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	database, _ := NewTest()
@@ -140,18 +126,16 @@ func TestDatabase_Client_GetLastBuild_NotFound(t *testing.T) {
 
 func TestDatabase_Client_GetBuildList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
 	bOne := testBuild()
-	bOne.ID = &one
-	bOne.RepoID = &one
-	bOne.Number = &oneNum
-	two := int64(2)
-	twoNum := 2
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+
 	bTwo := testBuild()
-	bTwo.ID = &two
-	bTwo.RepoID = &one
-	bTwo.Number = &twoNum
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+
 	want := []*library.Build{bOne, bTwo}
 
 	// setup database
@@ -177,18 +161,16 @@ func TestDatabase_Client_GetBuildList(t *testing.T) {
 
 func TestDatabase_Client_GetBuildCount(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
 	bOne := testBuild()
-	bOne.ID = &one
-	bOne.RepoID = &one
-	bOne.Number = &oneNum
-	two := int64(2)
-	twoNum := 2
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+
 	bTwo := testBuild()
-	bTwo.ID = &two
-	bTwo.RepoID = &one
-	bTwo.Number = &twoNum
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+
 	want := 2
 
 	// setup database
@@ -214,22 +196,18 @@ func TestDatabase_Client_GetBuildCount(t *testing.T) {
 
 func TestDatabase_Client_GetBuildCountByStatus(t *testing.T) {
 	// setup types
-	one := int64(1)
-	oneNum := 1
-	pStatus := "pending"
 	bOne := testBuild()
-	bOne.ID = &one
-	bOne.RepoID = &one
-	bOne.Number = &oneNum
-	bOne.Status = &pStatus
-	two := int64(2)
-	twoNum := 2
-	rStatus := "running"
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+	bOne.SetStatus(constants.StatusPending)
+
 	bTwo := testBuild()
-	bTwo.ID = &two
-	bTwo.RepoID = &one
-	bTwo.Number = &twoNum
-	bTwo.Status = &rStatus
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+	bTwo.SetStatus(constants.StatusRunning)
+
 	want := 1
 
 	// setup database
@@ -255,31 +233,24 @@ func TestDatabase_Client_GetBuildCountByStatus(t *testing.T) {
 
 func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
-	one := int64(1)
-	oneNum := 1
-	pStatus := "pending"
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
 	bOne := testBuild()
-	bOne.ID = &one
-	bOne.RepoID = &id
-	bOne.Number = &oneNum
-	bOne.Status = &pStatus
-	two := int64(2)
-	twoNum := 2
-	rStatus := "running"
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+	bOne.SetStatus(constants.StatusPending)
+
 	bTwo := testBuild()
-	bTwo.ID = &two
-	bTwo.RepoID = &id
-	bTwo.Number = &twoNum
-	bTwo.Status = &rStatus
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+	bTwo.SetStatus(constants.StatusRunning)
+
 	want := []*library.Build{bTwo, bOne}
 
 	// setup database
@@ -305,33 +276,27 @@ func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 
 func TestDatabase_Client_GetRepoBuildCount(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
-	one := int64(1)
-	oneNum := 1
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
 	bOne := testBuild()
-	bOne.ID = &one
-	bOne.RepoID = &id
-	bOne.Number = &oneNum
-	two := int64(2)
-	twoNum := 2
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+
 	bTwo := testBuild()
-	bTwo.ID = &two
-	bTwo.RepoID = &id
-	bTwo.Number = &twoNum
-	three := int64(2)
-	threeNum := 2
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+
 	bThree := testBuild()
-	bThree.ID = &three
-	bThree.RepoID = &id
-	bThree.Number = &threeNum
+	bThree.SetID(3)
+	bThree.SetRepoID(2)
+	bThree.SetNumber(3)
+
 	want := 2
 
 	// setup database
@@ -358,20 +323,16 @@ func TestDatabase_Client_GetRepoBuildCount(t *testing.T) {
 
 func TestDatabase_Client_CreateBuild(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
-	oneNum := 1
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
 	want := testBuild()
-	want.ID = &id
-	want.RepoID = &id
-	want.Number = &oneNum
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetNumber(1)
 
 	// setup database
 	database, _ := NewTest()
@@ -396,11 +357,9 @@ func TestDatabase_Client_CreateBuild(t *testing.T) {
 
 func TestDatabase_Client_CreateBuild_Invalid(t *testing.T) {
 	// setup types
-	id := int64(1)
-	oneNum := 1
 	b := testBuild()
-	b.ID = &id
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetNumber(1)
 
 	// setup database
 	database, _ := NewTest()
@@ -419,20 +378,16 @@ func TestDatabase_Client_CreateBuild_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateBuild(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
-	oneNum := 1
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
 	want := testBuild()
-	want.ID = &id
-	want.RepoID = &id
-	want.Number = &oneNum
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetNumber(1)
 
 	// setup database
 	database, _ := NewTest()
@@ -458,11 +413,9 @@ func TestDatabase_Client_UpdateBuild(t *testing.T) {
 
 func TestDatabase_Client_UpdateBuild_Invalid(t *testing.T) {
 	// setup types
-	id := int64(1)
-	oneNum := 1
 	b := testBuild()
-	b.ID = &id
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetNumber(1)
 
 	// setup database
 	database, _ := NewTest()
@@ -482,12 +435,10 @@ func TestDatabase_Client_UpdateBuild_Invalid(t *testing.T) {
 
 func TestDatabase_Client_DeleteBuild(t *testing.T) {
 	// setup types
-	id := int64(1)
-	oneNum := 1
 	b := testBuild()
-	b.ID = &id
-	b.RepoID = &id
-	b.Number = &oneNum
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
 
 	// setup database
 	database, _ := NewTest()

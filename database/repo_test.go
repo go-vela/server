@@ -5,7 +5,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 	"testing"
@@ -28,16 +27,12 @@ func init() {
 
 func TestDatabase_Client_GetRepo(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	want := testRepo()
-	want.ID = &id
-	want.UserID = &id
-	want.Org = &org
-	want.Name = &repo
-	want.FullName = &name
+	want.SetID(1)
+	want.SetUserID(1)
+	want.SetOrg("foo")
+	want.SetName("bar")
+	want.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := NewTest()
@@ -61,24 +56,20 @@ func TestDatabase_Client_GetRepo(t *testing.T) {
 
 func TestDatabase_Client_GetRepoList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	rOne := testRepo()
-	rOne.ID = &one
-	rOne.UserID = &one
-	rOne.Org = &org
-	rOne.Name = &repo
-	rOne.FullName = &name
-	two := int64(2)
-	twoName := fmt.Sprintf("%s/%s", repo, org)
+	rOne.SetID(1)
+	rOne.SetUserID(1)
+	rOne.SetOrg("foo")
+	rOne.SetName("bar")
+	rOne.SetFullName("foo/bar")
+
 	rTwo := testRepo()
-	rTwo.ID = &two
-	rTwo.UserID = &one
-	rTwo.Org = &repo
-	rTwo.Name = &org
-	rTwo.FullName = &twoName
+	rTwo.SetID(2)
+	rTwo.SetUserID(1)
+	rTwo.SetOrg("bar")
+	rTwo.SetName("foo")
+	rTwo.SetFullName("bar/foo")
+
 	want := []*library.Repo{rOne, rTwo}
 
 	// setup database
@@ -104,24 +95,20 @@ func TestDatabase_Client_GetRepoList(t *testing.T) {
 
 func TestDatabase_Client_GetRepoCount(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	rOne := testRepo()
-	rOne.ID = &one
-	rOne.UserID = &one
-	rOne.Org = &org
-	rOne.Name = &repo
-	rOne.FullName = &name
-	two := int64(2)
-	twoName := fmt.Sprintf("%s/%s", repo, org)
+	rOne.SetID(1)
+	rOne.SetUserID(1)
+	rOne.SetOrg("foo")
+	rOne.SetName("bar")
+	rOne.SetFullName("foo/bar")
+
 	rTwo := testRepo()
-	rTwo.ID = &two
-	rTwo.UserID = &one
-	rTwo.Org = &repo
-	rTwo.Name = &org
-	rTwo.FullName = &twoName
+	rTwo.SetID(2)
+	rTwo.SetUserID(1)
+	rTwo.SetOrg("bar")
+	rTwo.SetName("foo")
+	rTwo.SetFullName("bar/foo")
+
 	want := 2
 
 	// setup database
@@ -147,28 +134,25 @@ func TestDatabase_Client_GetRepoCount(t *testing.T) {
 
 func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	rOne := testRepo()
-	rOne.ID = &one
-	rOne.UserID = &one
-	rOne.Org = &org
-	rOne.Name = &repo
-	rOne.FullName = &name
-	two := int64(2)
-	twoName := fmt.Sprintf("%s/%s", repo, org)
+	rOne.SetID(1)
+	rOne.SetUserID(1)
+	rOne.SetOrg("foo")
+	rOne.SetName("bar")
+	rOne.SetFullName("foo/bar")
+
 	rTwo := testRepo()
-	rTwo.ID = &two
-	rTwo.UserID = &one
-	rTwo.Org = &repo
-	rTwo.Name = &org
-	rTwo.FullName = &twoName
+	rTwo.SetID(2)
+	rTwo.SetUserID(1)
+	rTwo.SetOrg("bar")
+	rTwo.SetName("foo")
+	rTwo.SetFullName("bar/foo")
+
 	u := testUser()
-	u.ID = &one
-	u.Name = &org
-	u.Token = &repo
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+
 	want := []*library.Repo{rTwo, rOne}
 
 	// setup database
@@ -194,28 +178,24 @@ func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 
 func TestDatabase_Client_GetUserRepoCount(t *testing.T) {
 	// setup types
-	one := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	rOne := testRepo()
-	rOne.ID = &one
-	rOne.UserID = &one
-	rOne.Org = &org
-	rOne.Name = &repo
-	rOne.FullName = &name
-	two := int64(2)
-	twoName := fmt.Sprintf("%s/%s", repo, org)
+	rOne.SetID(1)
+	rOne.SetUserID(1)
+	rOne.SetOrg("foo")
+	rOne.SetName("bar")
+	rOne.SetFullName("foo/bar")
+
 	rTwo := testRepo()
-	rTwo.ID = &two
-	rTwo.UserID = &one
-	rTwo.Org = &repo
-	rTwo.Name = &org
-	rTwo.FullName = &twoName
+	rTwo.SetID(2)
+	rTwo.SetUserID(1)
+	rTwo.SetOrg("bar")
+	rTwo.SetName("foo")
+	rTwo.SetFullName("bar/foo")
+
 	u := testUser()
-	u.ID = &one
-	u.Name = &org
-	u.Token = &repo
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
 
 	want := 2
 
@@ -242,16 +222,12 @@ func TestDatabase_Client_GetUserRepoCount(t *testing.T) {
 
 func TestDatabase_Client_CreateRepo(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	want := testRepo()
-	want.ID = &id
-	want.UserID = &id
-	want.Org = &org
-	want.Name = &repo
-	want.FullName = &name
+	want.SetID(1)
+	want.SetUserID(1)
+	want.SetOrg("foo")
+	want.SetName("bar")
+	want.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := NewTest()
@@ -276,15 +252,11 @@ func TestDatabase_Client_CreateRepo(t *testing.T) {
 
 func TestDatabase_Client_CreateRepo_Invalid(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := NewTest()
@@ -303,16 +275,12 @@ func TestDatabase_Client_CreateRepo_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateRepo(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	want := testRepo()
-	want.ID = &id
-	want.UserID = &id
-	want.Org = &org
-	want.Name = &repo
-	want.FullName = &name
+	want.SetID(1)
+	want.SetUserID(1)
+	want.SetOrg("foo")
+	want.SetName("bar")
+	want.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := NewTest()
@@ -338,15 +306,11 @@ func TestDatabase_Client_UpdateRepo(t *testing.T) {
 
 func TestDatabase_Client_UpdateRepo_Invalid(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	r := testRepo()
-	r.ID = &id
-	r.Org = &org
-	r.Name = &repo
-	r.FullName = &name
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := NewTest()
@@ -367,20 +331,14 @@ func TestDatabase_Client_UpdateRepo_Invalid(t *testing.T) {
 
 func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
-	pull := true
-	active := false
 	want := testRepo()
-	want.ID = &id
-	want.UserID = &id
-	want.Org = &org
-	want.Name = &repo
-	want.FullName = &name
-	want.AllowPull = &pull
-	want.Active = &active
+	want.SetID(1)
+	want.SetUserID(1)
+	want.SetOrg("foo")
+	want.SetName("bar")
+	want.SetFullName("foo/bar")
+	want.SetAllowPull(true)
+	want.SetActive(false)
 
 	// setup database
 	db, _ := NewTest()
@@ -391,8 +349,9 @@ func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
 	_ = db.CreateRepo(want)
 
 	// run test
-	pull = false
-	active = true
+	want.SetAllowPull(false)
+	want.SetActive(true)
+
 	err := db.UpdateRepo(want)
 
 	if err != nil {
@@ -408,16 +367,12 @@ func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
 
 func TestDatabase_Client_DeleteRepo(t *testing.T) {
 	// setup types
-	id := int64(1)
-	org := "foo"
-	repo := "bar"
-	name := fmt.Sprintf("%s/%s", org, repo)
 	want := testRepo()
-	want.ID = &id
-	want.UserID = &id
-	want.Org = &org
-	want.Name = &repo
-	want.FullName = &name
+	want.SetID(1)
+	want.SetUserID(1)
+	want.SetOrg("foo")
+	want.SetName("bar")
+	want.SetFullName("foo/bar")
 
 	// setup database
 	db, _ := NewTest()
