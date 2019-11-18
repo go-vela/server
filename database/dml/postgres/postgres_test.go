@@ -26,6 +26,16 @@ func TestPostgres_NewMap(t *testing.T) {
 			},
 			Delete: DeleteBuild,
 		},
+		HookService: &Service{
+			List: map[string]string{
+				"all":  ListHooks,
+				"repo": ListRepoHooks,
+			},
+			Select: map[string]string{
+				"repo": SelectRepoHook,
+			},
+			Delete: DeleteHook,
+		},
 		LogService: &Service{
 			List: map[string]string{
 				"all":   ListLogs,
