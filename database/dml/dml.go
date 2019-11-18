@@ -23,6 +23,7 @@ type Service struct {
 // Map represents the common DML services in a struct for lookups.
 type Map struct {
 	BuildService   *Service
+	HookService    *Service
 	LogService     *Service
 	RepoService    *Service
 	SecretService  *Service
