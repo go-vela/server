@@ -14,6 +14,7 @@ type Service struct {
 // Map represents the Sqlite DML services in a struct for lookups.
 type Map struct {
 	BuildService   *Service
+	HookService    *Service
 	LogService     *Service
 	RepoService    *Service
 	SecretService  *Service
@@ -26,6 +27,7 @@ type Map struct {
 func NewMap() *Map {
 	return &Map{
 		BuildService:   createBuildService(),
+		HookService:    createHookService(),
 		LogService:     createLogService(),
 		RepoService:    createRepoService(),
 		SecretService:  createSecretService(),
