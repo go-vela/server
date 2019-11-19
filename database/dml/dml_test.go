@@ -37,7 +37,8 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 				"repo": postgres.ListRepoHooks,
 			},
 			Select: map[string]string{
-				"repo": postgres.SelectRepoHook,
+				"count": postgres.SelectRepoHookCount,
+				"repo":  postgres.SelectRepoHook,
 			},
 			Delete: postgres.DeleteHook,
 		},
@@ -151,7 +152,8 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 				"repo": sqlite.ListRepoHooks,
 			},
 			Select: map[string]string{
-				"repo": sqlite.SelectRepoHook,
+				"count": sqlite.SelectRepoHookCount,
+				"repo":  sqlite.SelectRepoHook,
 			},
 			Delete: sqlite.DeleteHook,
 		},
