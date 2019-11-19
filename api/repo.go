@@ -224,7 +224,7 @@ func UpdateRepo(c *gin.Context) {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
 	}
-	if input.GetTimeout() != 0 {
+	if input.GetTimeout() > 0 {
 		// update timeout if set
 		r.SetTimeout(input.GetTimeout())
 	}
