@@ -17,7 +17,8 @@ func TestSqlite_createHookService(t *testing.T) {
 			"repo": ListRepoHooks,
 		},
 		Select: map[string]string{
-			"repo": SelectRepoHook,
+			"count": SelectRepoHookCount,
+			"repo":  SelectRepoHook,
 		},
 		Delete: DeleteHook,
 	}

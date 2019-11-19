@@ -23,6 +23,14 @@ LIMIT ?
 OFFSET ?;
 `
 
+	// SelectRepoHookCount represents a query to select
+	// the count of webhooks for a repo_id in the database.
+	SelectRepoHookCount = `
+SELECT count(*) as count
+FROM hooks
+WHERE repo_id = ?;
+`
+
 	// SelectRepoHook represents a query to select
 	// a webhook for a repo_id in the database.
 	SelectRepoHook = `
@@ -52,7 +60,8 @@ func createHookService() *Service {
 			"repo": ListRepoHooks,
 		},
 		Select: map[string]string{
-			"repo": SelectRepoHook,
+			"count": SelectRepoHookCount,
+			"repo":  SelectRepoHook,
 		},
 		Delete: DeleteHook,
 	}
