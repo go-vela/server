@@ -21,6 +21,7 @@ services:
       VELA_LOG_LEVEL: debug
       VELA_QUEUE_DRIVER: redis
       VELA_QUEUE_CONFIG: redis://redis:6379
+      VELA_QUEUE_WORKER_ROUTES: docker,large,small,docker:large
       VELA_PORT: ":8080"
       VELA_SECRET: zB7mrKDTZqNeNTD8z47yG4DHywspAh
       VELA_SOURCE_DRIVER: github
