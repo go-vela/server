@@ -183,6 +183,12 @@ func createTables(db *sql.DB, ddlMap *ddl.Map) error {
 		return fmt.Errorf("Error creating %s table: %v", constants.TableBuild, err)
 	}
 
+	// create the hook table
+	_, err = db.Exec(ddlMap.HookService.Create)
+	if err != nil {
+		return fmt.Errorf("Error creating %s table: %v", constants.TableHook, err)
+	}
+
 	// create the log table
 	_, err = db.Exec(ddlMap.LogService.Create)
 	if err != nil {
@@ -230,6 +236,14 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 		_, err := db.Exec(index)
 		if err != nil {
 			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableBuild, err)
+		}
+	}
+
+	// create the hook table indexes
+	for _, index := range ddlMap.HookService.Indexes {
+		_, err := db.Exec(index)
+		if err != nil {
+			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableHook, err)
 		}
 	}
 
