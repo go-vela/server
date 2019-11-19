@@ -32,7 +32,7 @@ type Service interface {
 	// gets a list of builds by repo ID.
 	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, error)
 	// GetRepoBuildCount defines a function that
-	// gets a the count of builds for a specific repo ID.
+	// gets the count of builds by repo ID.
 	GetRepoBuildCount(*library.Repo) (int64, error)
 	// CreateBuild defines a function that
 	// creates a new build.
@@ -43,6 +43,27 @@ type Service interface {
 	// DeleteBuild defines a function that
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
+
+	// Hook Database Interface Functions
+
+	// GetHookList defines a function that gets
+	// a list of all webhooks.
+	GetHookList() ([]*library.Hook, error)
+	// GetRepoHookList defines a function that
+	// gets a list of webhooks by repo ID.
+	GetRepoHookList(*library.Repo, int, int) ([]*library.Hook, error)
+	// GetRepoHookCount defines a function that
+	// gets the count of webhooks by repo ID.
+	GetRepoHookCount(*library.Repo) (int64, error)
+	// CreateHook defines a function that
+	// creates a new webhook.
+	CreateHook(*library.Hook) error
+	// UpdateHook defines a function that
+	// updates a webhook.
+	UpdateHook(*library.Hook) error
+	// DeleteHook defines a function that
+	// deletes a webhook by unique ID.
+	DeleteHook(int64) error
 
 	// Log Database Interface Functions
 
@@ -74,13 +95,13 @@ type Service interface {
 	// gets a list of all repos.
 	GetRepoList() ([]*library.Repo, error)
 	// GetRepoCount defines a function that
-	// gets a the count of repos.
+	// gets the count of repos.
 	GetRepoCount() (int64, error)
 	// GetUserRepoList defines a function
 	// that gets a list of repos by user ID.
 	GetUserRepoList(*library.User, int, int) ([]*library.Repo, error)
-	// GetRepoCount defines a function that
-	// gets a the count of repos for a user.
+	// GetUserRepoCount defines a function that
+	// gets the count of repos for a user.
 	GetUserRepoCount(*library.User) (int64, error)
 	// CreateRepo defines a function that
 	// creates a new repo.
@@ -128,7 +149,7 @@ type Service interface {
 	// gets a list of steps by build ID.
 	GetBuildStepList(*library.Build, int, int) ([]*library.Step, error)
 	// GetBuildStepCount defines a function that
-	// gets a count of steps by build ID.
+	// gets the count of steps by build ID.
 	GetBuildStepCount(*library.Build) (int64, error)
 	// CreateStep defines a function that
 	// creates a new step.
@@ -152,7 +173,7 @@ type Service interface {
 	// that gets a list of steps by build ID.
 	GetBuildServiceList(*library.Build, int, int) ([]*library.Service, error)
 	// GetBuildServiceCount defines a function
-	// that gets a count of steps by build ID.
+	// that gets the count of steps by build ID.
 	GetBuildServiceCount(*library.Build) (int64, error)
 	// CreateService defines a function that
 	// creates a new step.
@@ -176,7 +197,7 @@ type Service interface {
 	// gets a list of all users.
 	GetUserList() ([]*library.User, error)
 	// GetUserCount defines a function that
-	// gets a the count of users.
+	// gets the count of users.
 	GetUserCount() (int64, error)
 	// GetUserLiteList defines a function
 	// that gets a lite list of users.

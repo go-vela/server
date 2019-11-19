@@ -28,6 +28,17 @@ func TestDML_mapFromSqlite(t *testing.T) {
 			},
 			Delete: sqlite.DeleteBuild,
 		},
+		HookService: &Service{
+			List: map[string]string{
+				"all":  sqlite.ListHooks,
+				"repo": sqlite.ListRepoHooks,
+			},
+			Select: map[string]string{
+				"count": sqlite.SelectRepoHookCount,
+				"repo":  sqlite.SelectRepoHook,
+			},
+			Delete: sqlite.DeleteHook,
+		},
 		LogService: &Service{
 			List: map[string]string{
 				"all":   sqlite.ListLogs,

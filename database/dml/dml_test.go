@@ -31,6 +31,17 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 			},
 			Delete: postgres.DeleteBuild,
 		},
+		HookService: &Service{
+			List: map[string]string{
+				"all":  postgres.ListHooks,
+				"repo": postgres.ListRepoHooks,
+			},
+			Select: map[string]string{
+				"count": postgres.SelectRepoHookCount,
+				"repo":  postgres.SelectRepoHook,
+			},
+			Delete: postgres.DeleteHook,
+		},
 		LogService: &Service{
 			List: map[string]string{
 				"all":   postgres.ListLogs,
@@ -134,6 +145,17 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 				"countByRepo":   sqlite.SelectRepoBuildCount,
 			},
 			Delete: sqlite.DeleteBuild,
+		},
+		HookService: &Service{
+			List: map[string]string{
+				"all":  sqlite.ListHooks,
+				"repo": sqlite.ListRepoHooks,
+			},
+			Select: map[string]string{
+				"count": sqlite.SelectRepoHookCount,
+				"repo":  sqlite.SelectRepoHook,
+			},
+			Delete: sqlite.DeleteHook,
 		},
 		LogService: &Service{
 			List: map[string]string{

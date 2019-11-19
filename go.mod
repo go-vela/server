@@ -8,7 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/go-vela/compiler v0.1.6
-	github.com/go-vela/types v0.1.4
+	github.com/go-vela/types v0.1.5-0.20191118212607-25b6d8ccc669
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/google/go-github/v26 v26.1.3
 	github.com/google/uuid v1.1.1

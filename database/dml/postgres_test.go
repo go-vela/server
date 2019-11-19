@@ -28,6 +28,17 @@ func TestDML_mapFromPostgres(t *testing.T) {
 			},
 			Delete: postgres.DeleteBuild,
 		},
+		HookService: &Service{
+			List: map[string]string{
+				"all":  postgres.ListHooks,
+				"repo": postgres.ListRepoHooks,
+			},
+			Select: map[string]string{
+				"count": postgres.SelectRepoHookCount,
+				"repo":  postgres.SelectRepoHook,
+			},
+			Delete: postgres.DeleteHook,
+		},
 		LogService: &Service{
 			List: map[string]string{
 				"all":   postgres.ListLogs,
