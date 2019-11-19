@@ -11,6 +11,7 @@ import "github.com/go-vela/server/database/ddl/sqlite"
 func mapFromSqlite(from *sqlite.Map) *Map {
 	return &Map{
 		BuildService:   serviceFromSqlite(from.BuildService),
+		HookService:    serviceFromSqlite(from.HookService),
 		LogService:     serviceFromSqlite(from.LogService),
 		RepoService:    serviceFromSqlite(from.RepoService),
 		SecretService:  serviceFromSqlite(from.SecretService),

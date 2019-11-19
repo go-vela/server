@@ -25,6 +25,12 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 				postgres.CreateBuildStatusIndex,
 			},
 		},
+		HookService: &Service{
+			Create: postgres.CreateHookTable,
+			Indexes: []string{
+				postgres.CreateHookRepoIDBuildIDIndex,
+			},
+		},
 		LogService: &Service{
 			Create: postgres.CreateLogTable,
 			Indexes: []string{
@@ -90,6 +96,12 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 				sqlite.CreateBuildRepoIDIndex,
 				sqlite.CreateBuildRepoIDNumberIndex,
 				sqlite.CreateBuildStatusIndex,
+			},
+		},
+		HookService: &Service{
+			Create: sqlite.CreateHookTable,
+			Indexes: []string{
+				sqlite.CreateHookRepoIDBuildIDIndex,
 			},
 		},
 		LogService: &Service{

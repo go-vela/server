@@ -11,6 +11,7 @@ import "github.com/go-vela/server/database/dml/postgres"
 func mapFromPostgres(from *postgres.Map) *Map {
 	return &Map{
 		BuildService:   serviceFromPostgres(from.BuildService),
+		HookService:    serviceFromPostgres(from.HookService),
 		LogService:     serviceFromPostgres(from.LogService),
 		RepoService:    serviceFromPostgres(from.RepoService),
 		SecretService:  serviceFromPostgres(from.SecretService),
