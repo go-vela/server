@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -48,7 +49,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	if input.GetTimeout() == 0 {
-		input.SetTimeout(60)
+		input.SetTimeout(constants.BuildTimeoutMin)
 	}
 
 	if len(input.GetVisibility()) == 0 {
@@ -224,9 +225,19 @@ func UpdateRepo(c *gin.Context) {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
 	}
-	if input.GetTimeout() != 0 {
-		// update timeout if set
-		r.SetTimeout(input.GetTimeout())
+	if input.GetTimeout() > 0 {
+		// update build timeout if set
+		r.SetTimeout(
+			int64(
+				util.MaxInt(
+					constants.BuildTimeoutMin,
+					util.MinInt(
+						int(input.GetTimeout()),
+						constants.BuildTimeoutMax,
+					), // clamp max
+				), // clamp min
+			),
+		)
 	}
 	if len(input.GetVisibility()) > 0 {
 		// update visibility if set
