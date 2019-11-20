@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -224,35 +225,39 @@ func UpdateRepo(c *gin.Context) {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
 	}
-	if input.GetTimeout() > 0 {
-		// update timeout if set
-		r.SetTimeout(input.GetTimeout())
+	if input.GetTimeout() >= constants.BuildTimeoutMin &&
+		input.GetTimeout() <= constants.BuildTimeoutMax {
+		// update timeout if set and within constraints
+		timeout := int64(
+			util.MaxInt(constants.BuildTimeoutMin, // clamp max
+				util.MinInt(int(input.GetTimeout()), constants.BuildTimeoutMax))) // clamp min
+		r.SetTimeout(timeout)
 	}
 	if len(input.GetVisibility()) > 0 {
 		// update visibility if set
 		r.SetVisibility(input.GetVisibility())
 	}
-	if input.GetPrivate() {
+	if input.Private != nil {
 		// update private if set
 		r.SetPrivate(input.GetPrivate())
 	}
-	if input.GetActive() {
+	if input.Active != nil {
 		// update active if set
 		r.SetActive(input.GetActive())
 	}
-	if input.GetAllowPull() {
+	if input.AllowPull != nil {
 		// update allow_pull if set
 		r.SetAllowPull(input.GetAllowPull())
 	}
-	if input.GetAllowPush() {
+	if input.AllowPush != nil {
 		// update allow_push if set
 		r.SetAllowPush(input.GetAllowPush())
 	}
-	if input.GetAllowDeploy() {
+	if input.AllowDeploy != nil {
 		// update allow_deploy if set
 		r.SetAllowDeploy(input.GetAllowDeploy())
 	}
-	if input.GetAllowTag() {
+	if input.AllowTag != nil {
 		// update allow_tag if set
 		r.SetAllowTag(input.GetAllowTag())
 	}
