@@ -22,6 +22,15 @@ import (
 // PUT    /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
+// POST   /api/v1/repos/:org/:repo/builds/:build/services
+// GET    /api/v1/repos/:org/:repo/builds/:build/services
+// GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
+// PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service
+// POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step
@@ -48,10 +57,13 @@ func BuildHandlers(base *gin.RouterGroup) {
 			build.DELETE("", perm.MustPlatformAdmin(), api.DeleteBuild)
 			build.GET("/logs", perm.MustRead(), api.GetBuildLogs)
 
+			// Service endpoints
+			// * Log endpoints
+			ServiceHandlers(build)
+
 			// Step endpoints
 			// * Log endpoints
 			StepHandlers(build)
-			ServiceHandlers(build)
 
 		} // end of build endpoints
 

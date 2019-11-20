@@ -141,7 +141,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	client := c.newClientToken(*u.Token)
 
 	context := fmt.Sprintf("%s/%s", c.StatusContext, b.GetEvent())
-	url := fmt.Sprintf("%s/%s/%s/%d", c.LocalHost, org, name, b.Number)
+	url := fmt.Sprintf("%s/%s/%s/%d", c.LocalHost, org, name, b.GetNumber())
 
 	var state string
 	var description string
