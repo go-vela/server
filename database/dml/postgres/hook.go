@@ -37,7 +37,7 @@ WHERE repo_id = $1;
 SELECT *
 FROM hooks
 WHERE repo_id = $1
-AND id = $2
+AND source_id = $2
 LIMIT 1;
 `
 
