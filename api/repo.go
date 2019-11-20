@@ -49,7 +49,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	if input.GetTimeout() == 0 {
-		input.SetTimeout(60)
+		input.SetTimeout(constants.BuildTimeoutMin)
 	}
 
 	if len(input.GetVisibility()) == 0 {
@@ -225,13 +225,19 @@ func UpdateRepo(c *gin.Context) {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
 	}
-	if input.GetTimeout() >= constants.BuildTimeoutMin &&
-		input.GetTimeout() <= constants.BuildTimeoutMax {
-		// update timeout if set and within constraints
-		timeout := int64(
-			util.MaxInt(constants.BuildTimeoutMin, // clamp max
-				util.MinInt(int(input.GetTimeout()), constants.BuildTimeoutMax))) // clamp min
-		r.SetTimeout(timeout)
+	if input.GetTimeout() > 0 {
+		// update build timeout if set
+		r.SetTimeout(
+			int64(
+				util.MaxInt(
+					constants.BuildTimeoutMin,
+					util.MinInt(
+						int(input.GetTimeout()),
+						constants.BuildTimeoutMax,
+					), // clamp max
+				), // clamp min
+			),
+		)
 	}
 	if len(input.GetVisibility()) > 0 {
 		// update visibility if set
