@@ -29,6 +29,15 @@ import (
 // PUT    /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
+// POST   /api/v1/repos/:org/:repo/builds/:build/services
+// GET    /api/v1/repos/:org/:repo/builds/:build/services
+// GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
+// PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service
+// POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step
@@ -56,6 +65,8 @@ func RepoHandlers(base *gin.RouterGroup) {
 			repo.PATCH("/chown", perm.MustAdmin(), api.ChownRepo)
 
 			// Build endpoints
+			// * Service endpoints
+			//   * Log endpoints
 			// * Step endpoints
 			//   * Log endpoints
 			BuildHandlers(repo)
