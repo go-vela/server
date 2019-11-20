@@ -202,11 +202,18 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 		return
 	}
 
+	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
+	route, err := queue.Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		return
+	}
+
 	logrus.Infof("Publishing item for build %d for %s to queue", b.GetNumber(), r.GetFullName())
-	err = queue.Publish("vela", byteItem)
+	err = queue.Publish(route, byteItem)
 	if err != nil {
 		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-		err = queue.Publish("vela", byteItem)
+		err = queue.Publish(route, byteItem)
 		if err != nil {
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 			return
