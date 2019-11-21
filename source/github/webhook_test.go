@@ -10,7 +10,9 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
@@ -30,14 +32,21 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	request.Header.Set("X-GitHub-Host", "github.com")
-	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "push")
 
 	// setup client
 	client, _ := NewTest(s.URL)
 
 	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("push")
+	wantHook.SetBranch("master")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -60,10 +69,14 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 	wantBuild.SetBaseRef("")
 
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if !reflect.DeepEqual(gotRepo, wantRepo) {
@@ -99,6 +112,15 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("push")
+	wantHook.SetBranch("master")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -121,10 +143,14 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 	wantBuild.SetBaseRef("")
 
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if !reflect.DeepEqual(gotRepo, wantRepo) {
@@ -160,6 +186,15 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("pull_request")
+	wantHook.SetBranch("master")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -182,10 +217,14 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetRef("refs/pull/1/head")
 	wantBuild.SetBaseRef("master")
 
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if !reflect.DeepEqual(gotRepo, wantRepo) {
@@ -221,10 +260,23 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("pull_request")
+	wantHook.SetBranch("master")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if gotRepo != nil {
@@ -260,10 +312,23 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("pull_request")
+	wantHook.SetBranch("master")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if gotRepo != nil {
@@ -299,10 +364,21 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("pull_request")
+	wantHook.SetStatus(constants.StatusSuccess)
+
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err == nil {
 		t.Errorf("ProcessWebhook should have returned err")
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if gotRepo != nil {
@@ -338,10 +414,21 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("foobar")
+	wantHook.SetStatus(constants.StatusSuccess)
+
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err == nil {
 		t.Errorf("ProcessWebhook should have returned err")
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if gotRepo != nil {
@@ -377,10 +464,21 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	wantHook := new(library.Hook)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("deployment")
+	wantHook.SetStatus(constants.StatusSuccess)
+
+	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotHook, wantHook) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
 	}
 
 	if gotRepo != nil {
