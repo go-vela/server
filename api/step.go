@@ -261,7 +261,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 
 			// create the log object
 			l := new(library.Log)
-			l.SetServiceID(s.GetID())
+			l.SetStepID(s.GetID())
 			l.SetBuildID(b.GetID())
 			l.SetRepoID(b.GetRepoID())
 			l.SetData([]byte{})
