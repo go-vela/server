@@ -34,12 +34,20 @@ func PostWebhook(c *gin.Context) {
 	logrus.Info("Webhook received")
 
 	// process the webhook from the source control provider
-	r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
+	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %w", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
 	}
+
+	defer func() {
+		// send API call to update the webhook
+		err = database.FromContext(c).UpdateHook(h)
+		if err != nil {
+			logrus.Errorf("unable to update webhook %s/%s: %w", r.GetFullName(), h.GetSourceID(), err)
+		}
+	}()
 
 	// check if build was parsed from webhook
 	if b == nil {
@@ -63,6 +71,20 @@ func PostWebhook(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
 	}
+
+	// set the RepoID field
+	h.SetRepoID(r.GetID())
+
+	// send API call to create the webhook
+	err = database.FromContext(c).CreateHook(h)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create webhook %s/%s: %w", r.GetFullName(), h.GetSourceID(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// send API call to capture the created webhook
+	h, _ = database.FromContext(c).GetHook(h.GetSourceID(), r)
 
 	// check if the repo is active
 	if !r.GetActive() {
@@ -171,6 +193,12 @@ func PostWebhook(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		return
 	}
+
+	// send API call to capture the triggered build
+	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+
+	// set the BuildID field
+	h.SetBuildID(b.GetID())
 
 	c.JSON(http.StatusOK, b)
 
