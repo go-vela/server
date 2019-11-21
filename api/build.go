@@ -120,6 +120,9 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
+	// send API call to capture the created build
+	input, _ = database.FromContext(c).GetBuild(input.GetNumber(), r)
+
 	c.JSON(http.StatusCreated, input)
 
 	// send API call to set the status on the commit
@@ -277,6 +280,9 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		return
 	}
+
+	// send API call to capture the restarted build
+	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
 
 	c.JSON(http.StatusCreated, b)
 
