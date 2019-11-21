@@ -25,6 +25,41 @@ func init() {
 	}
 }
 
+func TestDatabase_Client_GetHook(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	want := testHook()
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetBuildID(1)
+	want.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+
+	// setup database
+	db, _ := NewTest()
+	defer func() {
+		db.Database.Exec("delete from hooks;")
+		db.Database.Close()
+	}()
+	_ = db.CreateHook(want)
+
+	// run test
+	got, err := db.GetHook(want.GetSourceID(), r)
+
+	if err != nil {
+		t.Errorf("GetHook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetHook is %v, want %v", got, want)
+	}
+}
+
 func TestDatabase_Client_GetHookList(t *testing.T) {
 	// setup types
 	hOne := testHook()

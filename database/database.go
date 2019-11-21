@@ -46,6 +46,9 @@ type Service interface {
 
 	// Hook Database Interface Functions
 
+	// GetHook defines a function that
+	// gets a webhook by source ID and repo ID.
+	GetHook(string, *library.Repo) (*library.Hook, error)
 	// GetHookList defines a function that gets
 	// a list of all webhooks.
 	GetHookList() ([]*library.Hook, error)

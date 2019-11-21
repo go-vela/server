@@ -12,7 +12,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetRepoList gets a list of all webhooks from the database.
+// GetUser gets a user by unique ID from the database.
+func (c *client) GetHook(id string, r *library.Repo) (*library.Hook, error) {
+	logrus.Tracef("Getting webhook %s/%s from the database", r.GetFullName(), id)
+
+	// variable to store query results
+	h := new(database.Hook)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableHook).
+		Raw(c.DML.HookService.Select["repo"], r.GetID(), id).
+		Scan(h).Error
+
+	return h.ToLibrary(), err
+}
+
+// GetHookList gets a list of all webhooks from the database.
 func (c *client) GetHookList() ([]*library.Hook, error) {
 	logrus.Trace("Listing hooks from the database")
 
