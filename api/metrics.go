@@ -69,7 +69,7 @@ func recordGauges(c *gin.Context) {
 
 	bFail, err := database.FromContext(c).GetBuildCountByStatus("failure")
 	if err != nil {
-		logrus.Errorf("Error while reading all failure builds: %v", err)
+		logrus.Errorf("Error while reading all failed builds: %v", err)
 	}
 
 	bKill, err := database.FromContext(c).GetBuildCountByStatus("killed")
@@ -82,12 +82,18 @@ func recordGauges(c *gin.Context) {
 		logrus.Errorf("Error while reading all success builds: %v", err)
 	}
 
+	bErr, err := database.FromContext(c).GetBuildCountByStatus("error")
+	if err != nil {
+		logrus.Errorf("Error while reading all error builds: %v", err)
+	}
+
 	gauge.WithLabelValues("users").Set(float64(u))
 	gauge.WithLabelValues("repos").Set(float64(r))
 	gauge.WithLabelValues("builds").Set(float64(b))
 	gauge.WithLabelValues("running_builds").Set(float64(bRun))
 	gauge.WithLabelValues("pending_builds").Set(float64(bPen))
-	gauge.WithLabelValues("failure_builds").Set(float64(bFail))
+	gauge.WithLabelValues("failed_builds").Set(float64(bFail))
 	gauge.WithLabelValues("killed_builds").Set(float64(bKill))
 	gauge.WithLabelValues("success_builds").Set(float64(bSucc))
+	gauge.WithLabelValues("error_builds").Set(float64(bErr))
 }
