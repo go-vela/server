@@ -123,7 +123,6 @@ func Authenticate(c *gin.Context) {
 	// update the user account
 	u.SetToken(newUser.GetToken())
 	u.SetActive(true)
-	u.SetAdmin(false)
 
 	// send API call to update the user in the database
 	err = database.FromContext(c).UpdateUser(u)
@@ -212,7 +211,6 @@ func AuthenticateCLI(c *gin.Context) {
 	// update the user account
 	u.SetToken(newUser.GetToken())
 	u.SetActive(true)
-	u.SetAdmin(false)
 
 	// send API call to update the user in the database
 	err = database.FromContext(c).UpdateUser(u)
