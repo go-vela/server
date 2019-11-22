@@ -16,7 +16,7 @@ steps (
 	build_id      INTEGER,
 	number        INTEGER,
 	name          VARCHAR(250),
-	image		  VARCHAR(250),
+	image         VARCHAR(500),
 	stage         VARCHAR(250),
 	status        VARCHAR(250),
 	error         VARCHAR(500),
