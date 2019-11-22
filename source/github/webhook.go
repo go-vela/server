@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/v26/github"
 
@@ -16,31 +17,42 @@ import (
 )
 
 // ProcessWebhook parses the webhook from a repo
-func (c *client) ProcessWebhook(request *http.Request) (*library.Repo, *library.Build, error) {
+func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.Repo, *library.Build, error) {
+	h := new(library.Hook)
+	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
+	h.SetCreated(time.Now().UTC().Unix())
+	h.SetHost("github.com")
+	h.SetEvent(request.Header.Get("X-GitHub-Event"))
+	h.SetStatus(constants.StatusSuccess)
+
+	if len(request.Header.Get("X-GitHub-Enterprise-Host")) > 0 {
+		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
+	}
+
 	payload, err := github.ValidatePayload(request, nil)
 	if err != nil {
-		return nil, nil, err
+		return h, nil, nil, err
 	}
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
 	if err != nil {
-		return nil, nil, err
+		return h, nil, nil, err
 	}
 
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
-		return processPushEvent(event)
+		return processPushEvent(h, event)
 	case *github.PullRequestEvent:
-		return processPREvent(event)
+		return processPREvent(h, event)
 	}
 
-	return nil, nil, nil
+	return h, nil, nil, nil
 }
 
 // processPushEvent is a helper function to process the push event
-func processPushEvent(payload *github.PushEvent) (*library.Repo, *library.Build, error) {
+func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook, *library.Repo, *library.Build, error) {
 	repo := payload.GetRepo()
 
 	r := new(library.Repo)
@@ -65,6 +77,13 @@ func processPushEvent(payload *github.PushEvent) (*library.Repo, *library.Build,
 	b.SetRef(payload.GetRef())
 	b.SetBaseRef(payload.GetBaseRef())
 
+	// set the Branch field
+	h.SetBranch(b.GetBranch())
+	// set the Link field
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
 	// ensure build author is set
 	if len(b.GetAuthor()) == 0 {
 		b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
@@ -82,20 +101,27 @@ func processPushEvent(payload *github.PushEvent) (*library.Repo, *library.Build,
 		}
 	}
 
-	return r, b, nil
+	return h, r, b, nil
 }
 
 // processPREvent is a helper function to process the pull_request event
-func processPREvent(payload *github.PullRequestEvent) (*library.Repo, *library.Build, error) {
+func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library.Hook, *library.Repo, *library.Build, error) {
+	// set the Branch field
+	h.SetBranch(payload.GetPullRequest().GetBase().GetRef())
+	// set the Link field
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
+	)
+
 	// if the pull request state isn't open we ignore it
 	if payload.GetPullRequest().GetState() != "open" {
-		return nil, nil, nil
+		return h, nil, nil, nil
 	}
 
 	// skip if the pull request action is not opened or synchronize
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") {
-		return nil, nil, nil
+		return h, nil, nil, nil
 	}
 
 	// capture the repo from the payload
@@ -134,5 +160,5 @@ func processPREvent(payload *github.PullRequestEvent) (*library.Repo, *library.B
 		b.SetSender(b.GetAuthor())
 	}
 
-	return r, b, nil
+	return h, r, b, nil
 }

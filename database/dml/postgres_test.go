@@ -34,7 +34,8 @@ func TestDML_mapFromPostgres(t *testing.T) {
 				"repo": postgres.ListRepoHooks,
 			},
 			Select: map[string]string{
-				"repo": postgres.SelectRepoHook,
+				"count": postgres.SelectRepoHookCount,
+				"repo":  postgres.SelectRepoHook,
 			},
 			Delete: postgres.DeleteHook,
 		},

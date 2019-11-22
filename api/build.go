@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-vela/compiler/compiler"
@@ -84,12 +85,48 @@ func CreateBuild(c *gin.Context) {
 		input.SetParent(lastBuild.GetNumber())
 	}
 
-	// send API call to capture list of files changed for the commit
-	files, err := source.FromContext(c).ListChanges(u, r, input.GetCommit())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get changeset for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-		return
+	// variable to store changeset files
+	var files []string
+	// check if the build event is not pull_request
+	if !strings.EqualFold(input.GetEvent(), constants.EventPull) {
+		// send API call to capture list of files changed for the commit
+		files, err = source.FromContext(c).Changeset(u, r, input.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+			return
+		}
+	}
+
+	// files is empty if the build event is pull_request
+	if len(files) == 0 {
+		// parse out pull request number from base ref
+		//
+		// pattern: refs/pull/1/head
+		var parts []string
+		if strings.HasPrefix(input.GetRef(), "refs/pull/") {
+			parts = strings.Split(input.GetRef(), "/")
+		}
+
+		// capture number by converting from string
+		number, err := strconv.Atoi(parts[2])
+		if err != nil {
+			// capture number by scanning from string
+			_, err := fmt.Sscanf(input.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+			if err != nil {
+				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+				return
+			}
+		}
+
+		// send API call to capture list of files changed for the pull request
+		files, err = source.FromContext(c).ChangesetPR(u, r, number)
+		if err != nil {
+			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+			return
+		}
 	}
 
 	// send API call to capture the pipeline configuration file
@@ -119,6 +156,9 @@ func CreateBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		return
 	}
+
+	// send API call to capture the created build
+	input, _ = database.FromContext(c).GetBuild(input.GetNumber(), r)
 
 	c.JSON(http.StatusCreated, input)
 
@@ -241,13 +281,52 @@ func RestartBuild(c *gin.Context) {
 	b.SetStarted(0)
 	b.SetFinished(0)
 	b.SetStatus(constants.StatusPending)
+	b.SetHost("")
+	b.SetRuntime("")
+	b.SetDistribution("")
 
-	// send API call to capture list of files changed for the commit
-	files, err := source.FromContext(c).ListChanges(u, r, lastBuild.GetCommit())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get changeset for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-		return
+	// variable to store changeset files
+	var files []string
+	// check if the build event is not pull_request
+	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		// send API call to capture list of files changed for the commit
+		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+			return
+		}
+	}
+
+	// files is empty if the build event is pull_request
+	if len(files) == 0 {
+		// parse out pull request number from base ref
+		//
+		// pattern: refs/pull/1/head
+		var parts []string
+		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
+			parts = strings.Split(b.GetRef(), "/")
+		}
+
+		// capture number by converting from string
+		number, err := strconv.Atoi(parts[2])
+		if err != nil {
+			// capture number by scanning from string
+			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+			if err != nil {
+				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+				return
+			}
+		}
+
+		// send API call to capture list of files changed for the pull request
+		files, err = source.FromContext(c).ChangesetPR(u, r, number)
+		if err != nil {
+			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+			return
+		}
 	}
 
 	// send API call to capture the pipeline configuration file
@@ -277,6 +356,9 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		return
 	}
+
+	// send API call to capture the restarted build
+	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
 
 	c.JSON(http.StatusCreated, b)
 

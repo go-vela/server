@@ -1,0 +1,232 @@
+// Copyright (c) 2019 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
+package api
+
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/util"
+
+	"github.com/go-vela/types/library"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+)
+
+// CreateHook represents the API handler to create
+// a webhook in the configured backend.
+func CreateHook(c *gin.Context) {
+	// capture middleware values
+	r := repo.Retrieve(c)
+
+	logrus.Infof("Creating new webhook for repo %s", r.GetFullName())
+
+	// capture body from API request
+	input := new(library.Hook)
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for new webhook for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// update fields in webhook object
+	input.SetRepoID(r.GetID())
+
+	if input.GetCreated() == 0 {
+		input.SetCreated(time.Now().UTC().Unix())
+	}
+
+	// send API call to create the webhook
+	err = database.FromContext(c).CreateHook(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create webhook for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// send API call to capture the created webhook
+	h, _ := database.FromContext(c).GetHook(input.GetSourceID(), r)
+
+	c.JSON(http.StatusCreated, h)
+}
+
+// GetHooks represents the API handler to capture a list
+// of webhooks from the configured backend.
+func GetHooks(c *gin.Context) {
+	// capture middleware values
+	r := repo.Retrieve(c)
+
+	logrus.Infof("Reading webhooks for repo %s", r.GetFullName())
+
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+
+	// send API call to capture the total number of webhooks for the repo
+	t, err := database.FromContext(c).GetRepoHookCount(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get steps count for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// send API call to capture the list of steps for the build
+	h, err := database.FromContext(c).GetRepoHookList(r, page, perPage)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get steps for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
+
+	c.JSON(http.StatusOK, h)
+}
+
+// GetHook represents the API handler to capture a
+// webhook from the configured backend.
+func GetHook(c *gin.Context) {
+	// capture middleware values
+	r := repo.Retrieve(c)
+	hook := c.Param("hook")
+
+	logrus.Infof("Reading webhook %s/%s", r.GetFullName(), hook)
+
+	// send API call to capture the webhook
+	h, err := database.FromContext(c).GetHook(hook, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get webhook for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, h)
+}
+
+// UpdateHook represents the API handler to update
+// a webhook in the configured backend.
+func UpdateHook(c *gin.Context) {
+	// capture middleware values
+	r := repo.Retrieve(c)
+	hook := c.Param("hook")
+
+	logrus.Infof("Updating webhook %s/%s", r.GetFullName(), hook)
+
+	// capture body from API request
+	input := new(library.Hook)
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for webhook %s/%s: %w", r.GetFullName(), hook, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// send API call to capture the webhook
+	h, err := database.FromContext(c).GetHook(hook, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get webhook %s/%s: %w", r.GetFullName(), hook, err)
+		util.HandleError(c, http.StatusNotFound, retErr)
+		return
+	}
+
+	// update webhook fields if provided
+	if input.GetCreated() > 0 {
+		// update created if set
+		h.SetCreated(input.GetCreated())
+	}
+	if len(input.GetHost()) > 0 {
+		// update host if set
+		h.SetHost(input.GetHost())
+	}
+	if len(input.GetEvent()) > 0 {
+		// update event if set
+		h.SetEvent(input.GetEvent())
+	}
+	if len(input.GetBranch()) > 0 {
+		// update branch if set
+		h.SetBranch(input.GetBranch())
+	}
+	if len(input.GetError()) > 0 {
+		// update error if set
+		h.SetError(input.GetError())
+	}
+	if len(input.GetStatus()) > 0 {
+		// update status if set
+		h.SetStatus(input.GetStatus())
+	}
+	if len(input.GetLink()) > 0 {
+		// update link if set
+		h.SetLink(input.GetLink())
+	}
+
+	// send API call to update the webhook
+	err = database.FromContext(c).UpdateHook(h)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update webhook %s/%s: %w", r.GetFullName(), hook, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// send API call to capture the updated user
+	h, _ = database.FromContext(c).GetHook(h.GetSourceID(), r)
+
+	c.JSON(http.StatusOK, h)
+}
+
+// DeleteHook represents the API handler to remove
+// a webhook from the configured backend.
+func DeleteHook(c *gin.Context) {
+	// capture middleware values
+	r := repo.Retrieve(c)
+	hook := c.Param("hook")
+
+	logrus.Infof("Deleting webhook %s/%s", r.GetFullName(), hook)
+
+	// send API call to capture the webhook
+	h, err := database.FromContext(c).GetHook(hook, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get webhook %s/%s: %w", r.GetFullName(), hook, err)
+		util.HandleError(c, http.StatusNotFound, retErr)
+		return
+	}
+
+	// send API call to remove the webhook
+	err = database.FromContext(c).DeleteHook(h.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to delete webhook %s/%s: %w", r.GetFullName(), hook, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, fmt.Sprintf("Webhook %s/%s deleted", r.GetFullName(), h.GetSourceID()))
+}

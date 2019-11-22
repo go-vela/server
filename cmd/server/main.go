@@ -117,6 +117,12 @@ func main() {
 			Name:   "queue-cluster",
 			Usage:  "queue client is setup for clusters",
 		},
+		// By default all builds are pushed to the "vela" route
+		cli.StringSliceFlag{
+			EnvVar: "VELA_QUEUE_WORKER_ROUTES,QUEUE_WORKER_ROUTES",
+			Name:   "queue-worker-routes",
+			Usage:  "queue worker routes is configuration for routing builds",
+		},
 
 		// Secret Flags
 

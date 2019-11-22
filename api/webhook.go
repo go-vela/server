@@ -34,12 +34,20 @@ func PostWebhook(c *gin.Context) {
 	logrus.Info("Webhook received")
 
 	// process the webhook from the source control provider
-	r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
+	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %w", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
 	}
+
+	defer func() {
+		// send API call to update the webhook
+		err = database.FromContext(c).UpdateHook(h)
+		if err != nil {
+			logrus.Errorf("unable to update webhook %s/%s: %w", r.GetFullName(), h.GetSourceID(), err)
+		}
+	}()
 
 	// check if build was parsed from webhook
 	if b == nil {
@@ -63,6 +71,20 @@ func PostWebhook(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return
 	}
+
+	// set the RepoID field
+	h.SetRepoID(r.GetID())
+
+	// send API call to create the webhook
+	err = database.FromContext(c).CreateHook(h)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create webhook %s/%s: %w", r.GetFullName(), h.GetSourceID(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// send API call to capture the created webhook
+	h, _ = database.FromContext(c).GetHook(h.GetSourceID(), r)
 
 	// check if the repo is active
 	if !r.GetActive() {
@@ -120,24 +142,41 @@ func PostWebhook(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is pull_request
-	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
-
-		// parse out pull request number from base ref
-		// TODO: clean this up
-		s := strings.Split(b.GetRef(), "pull/")
-		number, _ := strconv.Atoi(strings.Split(s[1], "/")[0])
-
-		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ListChangesPR(u, r, number)
+	// check if the build event is not pull_request
+	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		// send API call to capture list of files changed for the commit
+		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 			return
 		}
-	} else { // all other event types use commit to get changes
-		// send API call to capture list of files changed for the commit
-		files, err = source.FromContext(c).ListChanges(u, r, b.GetCommit())
+	}
+
+	// files is empty if the build event is pull_request
+	if len(files) == 0 {
+		// parse out pull request number from base ref
+		//
+		// pattern: refs/pull/1/head
+		var parts []string
+		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
+			parts = strings.Split(b.GetRef(), "/")
+		}
+
+		// capture number by converting from string
+		number, err := strconv.Atoi(parts[2])
+		if err != nil {
+			// capture number by scanning from string
+			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+			if err != nil {
+				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+				return
+			}
+		}
+
+		// send API call to capture list of files changed for the pull request
+		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -172,6 +211,12 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// send API call to capture the triggered build
+	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+
+	// set the BuildID field
+	h.SetBuildID(b.GetID())
+
 	c.JSON(http.StatusOK, b)
 
 	// send API call to set the status on the commit
@@ -202,11 +247,18 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 		return
 	}
 
+	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
+	route, err := queue.Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		return
+	}
+
 	logrus.Infof("Publishing item for build %d for %s to queue", b.GetNumber(), r.GetFullName())
-	err = queue.Publish("vela", byteItem)
+	err = queue.Publish(route, byteItem)
 	if err != nil {
 		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-		err = queue.Publish("vela", byteItem)
+		err = queue.Publish(route, byteItem)
 		if err != nil {
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 			return

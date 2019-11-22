@@ -13,6 +13,7 @@ IF NOT EXISTS
 hooks (
 	id        INTEGER PRIMARY KEY AUTOINCREMENT,
 	repo_id   INTEGER,
+	build_id  INTEGER,
 	source_id TEXT,
 	created   INTEGER,
 	host      TEXT,

@@ -74,7 +74,7 @@ func GetSteps(c *gin.Context) {
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
 
-	logrus.Infof("Reading steps for build %s/%d", r.GetFullName(), b.Number)
+	logrus.Infof("Reading steps for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -262,7 +262,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 
 			// create the log object
 			l := new(library.Log)
-			l.SetServiceID(s.GetID())
+			l.SetStepID(s.GetID())
 			l.SetBuildID(b.GetID())
 			l.SetRepoID(b.GetRepoID())
 			l.SetData([]byte{})
