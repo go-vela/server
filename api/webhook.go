@@ -142,24 +142,41 @@ func PostWebhook(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is pull_request
-	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
-
-		// parse out pull request number from base ref
-		// TODO: clean this up
-		s := strings.Split(b.GetRef(), "pull/")
-		number, _ := strconv.Atoi(strings.Split(s[1], "/")[0])
-
-		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ListChangesPR(u, r, number)
+	// check if the build event is not pull_request
+	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		// send API call to capture list of files changed for the commit
+		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 			return
 		}
-	} else { // all other event types use commit to get changes
-		// send API call to capture list of files changed for the commit
-		files, err = source.FromContext(c).ListChanges(u, r, b.GetCommit())
+	}
+
+	// files is empty if the build event is pull_request
+	if len(files) == 0 {
+		// parse out pull request number from base ref
+		//
+		// pattern: refs/pull/1/head
+		var parts []string
+		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
+			parts = strings.Split(b.GetRef(), "/")
+		}
+
+		// capture number by converting from string
+		number, err := strconv.Atoi(parts[2])
+		if err != nil {
+			// capture number by scanning from string
+			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+			if err != nil {
+				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+				return
+			}
+		}
+
+		// send API call to capture list of files changed for the pull request
+		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
