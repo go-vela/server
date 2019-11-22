@@ -38,6 +38,7 @@ func TestDatabase_Client_GetStep(t *testing.T) {
 	want.SetBuildID(1)
 	want.SetNumber(1)
 	want.SetName("foo")
+	want.SetImage("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -67,6 +68,7 @@ func TestDatabase_Client_GetStepList(t *testing.T) {
 	sOne.SetBuildID(1)
 	sOne.SetNumber(1)
 	sOne.SetName("foo")
+	sOne.SetImage("baz")
 
 	sTwo := testStep()
 	sTwo.SetID(2)
@@ -74,6 +76,7 @@ func TestDatabase_Client_GetStepList(t *testing.T) {
 	sTwo.SetBuildID(1)
 	sTwo.SetNumber(2)
 	sTwo.SetName("bar")
+	sTwo.SetImage("baz")
 
 	want := []*library.Step{sOne, sTwo}
 
@@ -111,6 +114,7 @@ func TestDatabase_Client_GetBuildStepList(t *testing.T) {
 	sOne.SetBuildID(1)
 	sOne.SetNumber(1)
 	sOne.SetName("foo")
+	sOne.SetImage("baz")
 
 	sTwo := testStep()
 	sTwo.SetID(2)
@@ -118,6 +122,7 @@ func TestDatabase_Client_GetBuildStepList(t *testing.T) {
 	sTwo.SetBuildID(1)
 	sTwo.SetNumber(2)
 	sTwo.SetName("bar")
+	sTwo.SetImage("baz")
 
 	want := []*library.Step{sTwo, sOne}
 
@@ -155,6 +160,7 @@ func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 	sOne.SetBuildID(1)
 	sOne.SetNumber(1)
 	sOne.SetName("foo")
+	sOne.SetImage("baz")
 
 	sTwo := testStep()
 	sTwo.SetID(2)
@@ -162,6 +168,7 @@ func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 	sTwo.SetBuildID(2)
 	sTwo.SetNumber(1)
 	sTwo.SetName("foo")
+	sTwo.SetImage("baz")
 
 	sThree := testStep()
 	sThree.SetID(3)
@@ -169,6 +176,7 @@ func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 	sThree.SetBuildID(2)
 	sThree.SetNumber(2)
 	sThree.SetName("bar")
+	sThree.SetImage("baz")
 
 	want := 2
 
@@ -207,6 +215,7 @@ func TestDatabase_Client_CreateStep(t *testing.T) {
 	want.SetBuildID(1)
 	want.SetNumber(1)
 	want.SetName("foo")
+	want.SetImage("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -236,6 +245,7 @@ func TestDatabase_Client_CreateStep_Invalid(t *testing.T) {
 	s.SetBuildID(1)
 	s.SetNumber(1)
 	s.SetName("foo")
+	s.SetImage("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -265,6 +275,7 @@ func TestDatabase_Client_UpdateStep(t *testing.T) {
 	want.SetBuildID(1)
 	want.SetNumber(1)
 	want.SetName("foo")
+	want.SetImage("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -295,6 +306,7 @@ func TestDatabase_Client_UpdateStep_Invalid(t *testing.T) {
 	s.SetBuildID(1)
 	s.SetNumber(1)
 	s.SetName("foo")
+	s.SetImage("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -320,6 +332,7 @@ func TestDatabase_Client_DeleteStep(t *testing.T) {
 	want.SetBuildID(1)
 	want.SetNumber(1)
 	want.SetName("foo")
+	want.SetImage("baz")
 
 	// setup database
 	db, _ := NewTest()
@@ -350,6 +363,7 @@ func testStep() *library.Step {
 		RepoID:       &i64,
 		Number:       &i,
 		Name:         &str,
+		Image:        &str,
 		Stage:        &str,
 		Status:       &str,
 		Error:        &str,
