@@ -243,6 +243,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 			s.SetRepoID(b.GetRepoID())
 			s.SetNumber(step.Number)
 			s.SetName(step.Name)
+			s.SetImage(step.Image)
 			s.SetStage(stage.Name)
 			s.SetStatus(constants.StatusPending)
 			s.SetCreated(time.Now().UTC().Unix())
@@ -284,6 +285,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 		s.SetRepoID(b.GetRepoID())
 		s.SetNumber(step.Number)
 		s.SetName(step.Name)
+		s.SetImage(step.Image)
 		s.SetStatus(constants.StatusPending)
 		s.SetCreated(time.Now().UTC().Unix())
 

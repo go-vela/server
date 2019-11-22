@@ -16,6 +16,7 @@ services (
 	build_id      INTEGER,
 	number        INTEGER,
 	name          TEXT,
+	image         TEXT,
 	status        TEXT,
 	error         TEXT,
 	exit_code     INTEGER,

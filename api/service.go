@@ -228,6 +228,7 @@ func planServices(database database.Service, p *pipeline.Build, b *library.Build
 		s.SetBuildID(b.GetID())
 		s.SetRepoID(b.GetRepoID())
 		s.SetName(service.Name)
+		s.SetImage(service.Image)
 		s.SetNumber(service.Number)
 		s.SetStatus(constants.StatusPending)
 		s.SetCreated(time.Now().UTC().Unix())

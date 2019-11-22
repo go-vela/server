@@ -16,6 +16,7 @@ steps (
 	build_id      INTEGER,
 	number        INTEGER,
 	name          TEXT,
+	image          TEXT,
 	stage         TEXT,
 	status        TEXT,
 	error         TEXT,

@@ -58,6 +58,7 @@ func TestService_Establish(t *testing.T) {
 	want.SetBuildID(1)
 	want.SetNumber(1)
 	want.SetName("foo")
+	want.SetImage("baz")
 	want.SetStatus("")
 	want.SetError("")
 	want.SetExitCode(0)
