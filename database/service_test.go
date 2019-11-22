@@ -363,6 +363,7 @@ func testService() *library.Service {
 		RepoID:   &i64,
 		Number:   &i,
 		Name:     &str,
+		Image:    &str,
 		Status:   &str,
 		Error:    &str,
 		ExitCode: &i,

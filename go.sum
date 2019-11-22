@@ -74,6 +74,8 @@ github.com/go-vela/compiler v0.1.7-0.20191119211930-181ca867dc69/go.mod h1:elwzS
 github.com/go-vela/types v0.1.5-0.20191119211417-27d1fc0f8405/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
 github.com/go-vela/types v0.1.5-0.20191120155809-3124b5fd0366 h1:laA4q7wOyS+LNFogv7XgM6qiIrGOny/2WO655P2nEWo=
 github.com/go-vela/types v0.1.5-0.20191120155809-3124b5fd0366/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
+github.com/go-vela/types v0.1.5-0.20191122193811-670c833293bf h1:qOfrVjzPmX/v6JzHkY2q0TfzIeGVpXAV7W9m9aNxAmM=
+github.com/go-vela/types v0.1.5-0.20191122193811-670c833293bf/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
@@ -159,6 +161,8 @@ github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+o
 github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGiHgQ4OO8tzTaLawm8vnODuwDk=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515/go.mod h1:+0opPa2QZZtGFBFZlji/RkVcI2GknAs/DXo4wKdlNEc=
+github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
+github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
