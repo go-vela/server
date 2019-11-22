@@ -10,13 +10,13 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// Changeset sends the list of files changed for a none pull request event.
+// Changeset captures the list of files changed for a commit.
 func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]string, error) {
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 	s := []string{}
 
-	// send API call to get the commit
+	// send API call to capture the commit
 	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha)
 	if err != nil {
 		return nil, fmt.Errorf("Repositories.GetCommit returned error: %v", err)
@@ -30,12 +30,13 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 	return s, nil
 }
 
-// ChangesetPR sends the list of files changed for a pull request event.
+// ChangesetPR captures the list of files changed for a pull request.
 func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]string, error) {
-	s := []string{}
+	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
+	s := []string{}
 
-	// send API call to get the files from the pull request
+	// send API call to capture the files from the pull request
 	files, _, err := client.PullRequests.ListFiles(ctx, r.GetOrg(), r.GetName(), number, nil)
 	if err != nil {
 		return nil, fmt.Errorf("PullRequests.ListFiles returned error: %v", err)

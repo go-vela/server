@@ -43,12 +43,12 @@ type Service interface {
 	// Changeset Source Interface Functions
 
 	// Changeset defines a function that captures the list
-	// of files changed for a non pull request event.
+	// of files changed for a commit.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
 	Changeset(*library.User, *library.Repo, string) ([]string, error)
-	// ChangesetPR defines a function that sends the list
-	// of files changed for a pull request event.
+	// ChangesetPR defines a function that captures the list
+	// of files changed for a pull request.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
 	ChangesetPR(*library.User, *library.Repo, int) ([]string, error)
