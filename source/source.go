@@ -26,7 +26,7 @@ type Service interface {
 	Login(http.ResponseWriter, *http.Request) (string, error)
 	// LoginCLI defines a function that begins
 	// the OAuth workflow for the session.
-	LoginCLI(username, password, otp string) (*library.User, error)
+	LoginCLI(string, string, string) (*library.User, error)
 
 	// Access Source Interface Functions
 
@@ -39,6 +39,19 @@ type Service interface {
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
 	TeamAccess(*library.User, string, string) (string, error)
+
+	// Changeset Source Interface Functions
+
+	// Changeset defines a function that captures the list
+	// of files changed for a non pull request event.
+	//
+	// https://en.wikipedia.org/wiki/Changeset.
+	Changeset(*library.User, *library.Repo, string) ([]string, error)
+	// ChangesetPR defines a function that sends the list
+	// of files changed for a pull request event.
+	//
+	// https://en.wikipedia.org/wiki/Changeset.
+	ChangesetPR(*library.User, *library.Repo, int) ([]string, error)
 
 	// Repo Source Interface Functions
 
@@ -57,12 +70,6 @@ type Service interface {
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
 	ListUserRepos(*library.User) ([]*library.Repo, error)
-	// ListChanges defines a function that sends the list
-	// of files changed for a none pull request event.
-	ListChanges(*library.User, *library.Repo, string) ([]string, error)
-	// ListChangesPR defines a function that sends the list
-	// of files changed for a pull request event.
-	ListChangesPR(*library.User, *library.Repo, int) ([]string, error)
 
 	// Webhook Source Interface Functions
 
