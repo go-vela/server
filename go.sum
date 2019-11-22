@@ -72,8 +72,6 @@ github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr6
 github.com/go-vela/compiler v0.1.7-0.20191119211930-181ca867dc69 h1:yqNJaDsrXhK2MDOzyWFlHJ1KFP0Ut6big0xnIcxafRM=
 github.com/go-vela/compiler v0.1.7-0.20191119211930-181ca867dc69/go.mod h1:elwzS24+2FHXf0zkEIhkXfudJfnK4K3RxDrZEmojJtk=
 github.com/go-vela/types v0.1.5-0.20191119211417-27d1fc0f8405/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
-github.com/go-vela/types v0.1.5-0.20191120155809-3124b5fd0366 h1:laA4q7wOyS+LNFogv7XgM6qiIrGOny/2WO655P2nEWo=
-github.com/go-vela/types v0.1.5-0.20191120155809-3124b5fd0366/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
 github.com/go-vela/types v0.1.5-0.20191122193811-670c833293bf h1:qOfrVjzPmX/v6JzHkY2q0TfzIeGVpXAV7W9m9aNxAmM=
 github.com/go-vela/types v0.1.5-0.20191122193811-670c833293bf/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
