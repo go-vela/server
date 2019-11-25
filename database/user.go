@@ -162,5 +162,5 @@ func (c *client) DeleteUser(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableUser).
-		Raw(c.DML.UserService.Delete, id).Error
+		Exec(c.DML.UserService.Delete, id).Error
 }

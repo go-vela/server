@@ -167,5 +167,5 @@ func (c *client) DeleteRepo(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableRepo).
-		Raw(c.DML.RepoService.Delete, id).Error
+		Exec(c.DML.RepoService.Delete, id).Error
 }

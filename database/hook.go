@@ -151,5 +151,5 @@ func (c *client) DeleteHook(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableHook).
-		Raw(c.DML.HookService.Delete, id).Error
+		Exec(c.DML.HookService.Delete, id).Error
 }
