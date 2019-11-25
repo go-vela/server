@@ -46,8 +46,7 @@ LIMIT 1;
 	DeleteService = `
 DELETE
 FROM services
-WHERE id = ?
-LIMIT 1;
+WHERE id = ?;
 `
 )
 

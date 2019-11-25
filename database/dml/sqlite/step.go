@@ -46,8 +46,7 @@ LIMIT 1;
 	DeleteStep = `
 DELETE
 FROM steps
-WHERE id = ?
-LIMIT 1;
+WHERE id = ?;
 `
 )
 
