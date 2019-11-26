@@ -78,13 +78,28 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// send API call to capture the last hook for the repo
+	lastHook, err := database.FromContext(c).GetLastHook(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// set the Number field
+	if lastHook != nil {
+		h.SetNumber(
+			lastHook.GetNumber() + 1,
+		)
+	}
+
 	// set the RepoID field
 	h.SetRepoID(r.GetID())
 
 	// send API call to create the webhook
 	err = database.FromContext(c).CreateHook(h)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook %s/%s: %w", r.GetFullName(), h.GetSourceID(), err)
+		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
@@ -92,7 +107,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the created webhook
-	h, _ = database.FromContext(c).GetHook(h.GetSourceID(), r)
+	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
 
 	// check if the repo is active
 	if !r.GetActive() {
@@ -226,7 +241,7 @@ func PostWebhook(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
-		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %v", r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to compile pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())

@@ -39,6 +39,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -113,6 +114,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -187,6 +189,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -261,6 +264,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -313,6 +317,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -365,6 +370,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -415,6 +421,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
@@ -465,6 +472,7 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 
 	// run test
 	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")

@@ -18,7 +18,7 @@ func TestPostgres_NewMap(t *testing.T) {
 		},
 		HookService: &Service{
 			Create:  CreateHookTable,
-			Indexes: []string{CreateHookRepoIDBuildIDIndex},
+			Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
 		},
 		LogService: &Service{
 			Create:  CreateLogTable,

@@ -9,12 +9,13 @@ import (
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 
+	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 )
 
 // GetUser gets a user by unique ID from the database.
-func (c *client) GetHook(id string, r *library.Repo) (*library.Hook, error) {
-	logrus.Tracef("Getting webhook %s/%s from the database", r.GetFullName(), id)
+func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
+	logrus.Tracef("Getting webhook %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
 	h := new(database.Hook)
@@ -22,8 +23,29 @@ func (c *client) GetHook(id string, r *library.Repo) (*library.Hook, error) {
 	// send query to the database and store result in variable
 	err := c.Database.
 		Table(constants.TableHook).
-		Raw(c.DML.HookService.Select["repo"], r.GetID(), id).
+		Raw(c.DML.HookService.Select["repo"], r.GetID(), number).
 		Scan(h).Error
+
+	return h.ToLibrary(), err
+}
+
+// GetLastHook gets the last hook by repo ID from the database.
+func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
+	logrus.Tracef("Getting last hook for repo %s from the database", r.GetFullName())
+
+	// variable to store query results
+	h := new(database.Hook)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableHook).
+		Raw(c.DML.HookService.Select["last"], r.GetID()).
+		Scan(h).Error
+
+	// the record will not exist if it's a new repo
+	if gorm.IsRecordNotFoundError(err) {
+		return nil, nil
+	}
 
 	return h.ToLibrary(), err
 }

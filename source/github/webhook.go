@@ -19,6 +19,7 @@ import (
 // ProcessWebhook parses the webhook from a repo
 func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.Repo, *library.Build, error) {
 	h := new(library.Hook)
+	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
