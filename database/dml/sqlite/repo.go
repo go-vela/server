@@ -53,8 +53,7 @@ FROM repos;
 	DeleteRepo = `
 DELETE
 FROM repos
-WHERE id = ?
-LIMIT 1;
+WHERE id = ?;
 `
 )
 

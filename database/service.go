@@ -146,5 +146,5 @@ func (c *client) DeleteService(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableService).
-		Raw(c.DML.ServiceService.Delete, id).Error
+		Exec(c.DML.ServiceService.Delete, id).Error
 }

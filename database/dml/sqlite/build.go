@@ -71,8 +71,7 @@ WHERE status = ?;
 	DeleteBuild = `
 DELETE
 FROM builds
-WHERE id = ?
-LIMIT 1;
+WHERE id = ?;
 `
 )
 

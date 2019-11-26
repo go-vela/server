@@ -146,5 +146,5 @@ func (c *client) DeleteStep(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableStep).
-		Raw(c.DML.StepService.Delete, id).Error
+		Exec(c.DML.StepService.Delete, id).Error
 }
