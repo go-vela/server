@@ -44,8 +44,7 @@ LIMIT 1;
 	DeleteLog = `
 DELETE
 FROM logs
-WHERE id = $1
-LIMIT 1;
+WHERE id = $1;
 `
 )
 

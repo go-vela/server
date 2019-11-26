@@ -200,5 +200,5 @@ func (c *client) DeleteBuild(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableBuild).
-		Raw(c.DML.BuildService.Delete, id).Error
+		Exec(c.DML.BuildService.Delete, id).Error
 }

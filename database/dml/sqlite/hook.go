@@ -46,8 +46,7 @@ LIMIT 1;
 	DeleteHook = `
 DELETE
 FROM hooks
-WHERE id = ?
-LIMIT 1;
+WHERE id = ?;
 `
 )
 

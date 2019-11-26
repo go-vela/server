@@ -117,5 +117,5 @@ func (c *client) DeleteLog(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableLog).
-		Raw(c.DML.LogService.Delete, id).Error
+		Exec(c.DML.LogService.Delete, id).Error
 }
