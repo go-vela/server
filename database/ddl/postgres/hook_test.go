@@ -13,7 +13,7 @@ func TestPostgres_createHookService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateHookTable,
-		Indexes: []string{CreateHookRepoIDBuildIDIndex},
+		Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
 	}
 
 	// run test

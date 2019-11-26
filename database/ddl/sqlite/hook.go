@@ -14,6 +14,7 @@ hooks (
 	id        INTEGER PRIMARY KEY AUTOINCREMENT,
 	repo_id   INTEGER,
 	build_id  INTEGER,
+	number    INTEGER,
 	source_id TEXT,
 	created   INTEGER,
 	host      TEXT,
@@ -26,13 +27,22 @@ hooks (
 );
 `
 
-	// CreateHookRepoIDBuildIDIndex represents a query to create an
-	// index on the hooks table for the repo_id and build_id columns.
-	CreateHookRepoIDBuildIDIndex = `
+	// CreateHookRepoIDNumberIndex represents a query to create an
+	// index on the hooks table for the repo_id and number columns.
+	CreateHookRepoIDNumberIndex = `
 CREATE INDEX
 IF NOT EXISTS
-hooks_repo_id_build_id
-ON hooks (repo_id, build_id);
+hooks_repo_id_number
+ON hooks (repo_id, number);
+`
+
+	// CreateHookRepoIDIndex represents a query to create an
+	// index on the hooks table for the repo_id column.
+	CreateHookRepoIDIndex = `
+CREATE INDEX
+IF NOT EXISTS
+hooks_repo_id
+ON hooks (repo_id);
 `
 )
 
@@ -41,6 +51,6 @@ ON hooks (repo_id, build_id);
 func createHookService() *Service {
 	return &Service{
 		Create:  CreateHookTable,
-		Indexes: []string{CreateHookRepoIDBuildIDIndex},
+		Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
 	}
 }

@@ -38,6 +38,7 @@ func TestDatabase_Client_GetHook(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetBuildID(1)
+	want.SetNumber(1)
 	want.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup database
@@ -49,7 +50,7 @@ func TestDatabase_Client_GetHook(t *testing.T) {
 	_ = db.CreateHook(want)
 
 	// run test
-	got, err := db.GetHook(want.GetSourceID(), r)
+	got, err := db.GetHook(want.GetNumber(), r)
 
 	if err != nil {
 		t.Errorf("GetHook returned err: %v", err)
@@ -66,12 +67,14 @@ func TestDatabase_Client_GetHookList(t *testing.T) {
 	hOne.SetID(1)
 	hOne.SetRepoID(1)
 	hOne.SetBuildID(1)
+	hOne.SetNumber(1)
 	hOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	hTwo := testHook()
 	hTwo.SetID(2)
 	hTwo.SetRepoID(1)
 	hTwo.SetBuildID(2)
+	hTwo.SetNumber(2)
 	hTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	want := []*library.Hook{hOne, hTwo}
@@ -103,12 +106,14 @@ func TestDatabase_Client_GetRepoHookList(t *testing.T) {
 	hOne.SetID(1)
 	hOne.SetRepoID(1)
 	hOne.SetBuildID(1)
+	hOne.SetNumber(1)
 	hOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	hTwo := testHook()
 	hTwo.SetID(2)
 	hTwo.SetRepoID(1)
 	hTwo.SetBuildID(2)
+	hTwo.SetNumber(2)
 	hTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	r := testRepo()
@@ -147,12 +152,14 @@ func TestDatabase_Client_GetRepoHookCount(t *testing.T) {
 	hOne.SetID(1)
 	hOne.SetRepoID(1)
 	hOne.SetBuildID(1)
+	hOne.SetNumber(1)
 	hOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	hTwo := testHook()
 	hTwo.SetID(2)
 	hTwo.SetRepoID(1)
 	hTwo.SetBuildID(2)
+	hTwo.SetNumber(2)
 	hTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	r := testRepo()
@@ -191,6 +198,7 @@ func TestDatabase_Client_CreateHook(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetBuildID(1)
+	want.SetNumber(1)
 	want.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup database
@@ -219,6 +227,7 @@ func TestDatabase_Client_CreateHook_Invalid(t *testing.T) {
 	h := testHook()
 	h.SetID(1)
 	h.SetBuildID(1)
+	h.SetNumber(1)
 	h.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup database
@@ -242,6 +251,7 @@ func TestDatabase_Client_UpdateHook(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetBuildID(1)
+	want.SetNumber(1)
 	want.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup database
@@ -271,6 +281,7 @@ func TestDatabase_Client_UpdateHook_Invalid(t *testing.T) {
 	h := testHook()
 	h.SetID(1)
 	h.SetBuildID(1)
+	h.SetNumber(1)
 	h.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup database
@@ -296,6 +307,7 @@ func TestDatabase_Client_DeleteHook(t *testing.T) {
 	h.SetID(1)
 	h.SetRepoID(1)
 	h.SetBuildID(1)
+	h.SetNumber(1)
 	h.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup database
@@ -318,12 +330,14 @@ func TestDatabase_Client_DeleteHook(t *testing.T) {
 // library Hook type with all fields set to their
 // zero values.
 func testHook() *library.Hook {
+	i := 0
 	i64 := int64(0)
 	str := ""
 	return &library.Hook{
 		ID:       &i64,
 		RepoID:   &i64,
 		BuildID:  &i64,
+		Number:   &i,
 		SourceID: &str,
 		Created:  &i64,
 		Host:     &str,

@@ -14,6 +14,7 @@ hooks (
 	id        SERIAL PRIMARY KEY,
 	repo_id   INTEGER,
 	build_id  INTEGER,
+	number    INTEGER,
 	source_id VARCHAR(250),
 	created   INTEGER,
 	host      VARCHAR(250),
@@ -22,17 +23,26 @@ hooks (
 	error     VARCHAR(500),
 	status    VARCHAR(250),
 	link      VARCHAR(1000),
-	UNIQUE(repo_id, build_id)
+	UNIQUE(repo_id, number)
 );
 `
 
-	// CreateHookRepoIDBuildIDIndex represents a query to create an
-	// index on the hooks table for the repo_id and build_id columns.
-	CreateHookRepoIDBuildIDIndex = `
+	// CreateHookRepoIDNumberIndex represents a query to create an
+	// index on the hooks table for the repo_id and number columns.
+	CreateHookRepoIDNumberIndex = `
 CREATE INDEX
 IF NOT EXISTS
-hooks_repo_id_build_id
-ON hooks (repo_id, build_id);
+hooks_repo_id_number
+ON hooks (repo_id, number);
+`
+
+	// CreateHookRepoIDIndex represents a query to create an
+	// index on the hooks table for the repo_id column.
+	CreateHookRepoIDIndex = `
+CREATE INDEX
+IF NOT EXISTS
+hooks_repo_id
+ON hooks (repo_id);
 `
 )
 
@@ -41,6 +51,6 @@ ON hooks (repo_id, build_id);
 func createHookService() *Service {
 	return &Service{
 		Create:  CreateHookTable,
-		Indexes: []string{CreateHookRepoIDBuildIDIndex},
+		Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
 	}
 }

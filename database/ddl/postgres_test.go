@@ -25,7 +25,8 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 		HookService: &Service{
 			Create: postgres.CreateHookTable,
 			Indexes: []string{
-				postgres.CreateHookRepoIDBuildIDIndex,
+				postgres.CreateHookRepoIDNumberIndex,
+				postgres.CreateHookRepoIDIndex,
 			},
 		},
 		LogService: &Service{
