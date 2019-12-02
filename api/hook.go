@@ -37,11 +37,26 @@ func CreateHook(c *gin.Context) {
 		return
 	}
 
+	// send API call to capture the last hook for the repo
+	lastHook, err := database.FromContext(c).GetLastHook(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
 	// update fields in webhook object
 	input.SetRepoID(r.GetID())
+	input.SetNumber(1)
 
 	if input.GetCreated() == 0 {
 		input.SetCreated(time.Now().UTC().Unix())
+	}
+
+	if lastHook != nil {
+		input.SetNumber(
+			lastHook.GetNumber() + 1,
+		)
 	}
 
 	// send API call to create the webhook
@@ -53,7 +68,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the created webhook
-	h, _ := database.FromContext(c).GetHook(input.GetSourceID(), r)
+	h, _ := database.FromContext(c).GetHook(input.GetNumber(), r)
 
 	c.JSON(http.StatusCreated, h)
 }
@@ -122,10 +137,17 @@ func GetHook(c *gin.Context) {
 
 	logrus.Infof("Reading webhook %s/%s", r.GetFullName(), hook)
 
-	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHook(hook, r)
+	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get webhook for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// send API call to capture the webhook
+	h, err := database.FromContext(c).GetHook(number, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		return
 	}
@@ -151,10 +173,17 @@ func UpdateHook(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHook(hook, r)
+	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get webhook %s/%s: %w", r.GetFullName(), hook, err)
+		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// send API call to capture the webhook
+	h, err := database.FromContext(c).GetHook(number, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), number, err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 		return
 	}
@@ -192,13 +221,13 @@ func UpdateHook(c *gin.Context) {
 	// send API call to update the webhook
 	err = database.FromContext(c).UpdateHook(h)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update webhook %s/%s: %w", r.GetFullName(), hook, err)
+		retErr := fmt.Errorf("unable to update webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		return
 	}
 
 	// send API call to capture the updated user
-	h, _ = database.FromContext(c).GetHook(h.GetSourceID(), r)
+	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
 
 	c.JSON(http.StatusOK, h)
 }
@@ -212,10 +241,17 @@ func DeleteHook(c *gin.Context) {
 
 	logrus.Infof("Deleting webhook %s/%s", r.GetFullName(), hook)
 
-	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHook(hook, r)
+	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get webhook %s/%s: %w", r.GetFullName(), hook, err)
+		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// send API call to capture the webhook
+	h, err := database.FromContext(c).GetHook(number, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), number, err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 		return
 	}
@@ -223,10 +259,10 @@ func DeleteHook(c *gin.Context) {
 	// send API call to remove the webhook
 	err = database.FromContext(c).DeleteHook(h.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete webhook %s/%s: %w", r.GetFullName(), hook, err)
+		retErr := fmt.Errorf("unable to delete webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("Webhook %s/%s deleted", r.GetFullName(), h.GetSourceID()))
+	c.JSON(http.StatusOK, fmt.Sprintf("Webhook %s/%d deleted", r.GetFullName(), h.GetNumber()))
 }

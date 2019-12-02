@@ -119,8 +119,7 @@ LIMIT 1;
 	DeleteSecret = `
 DELETE
 FROM secrets
-WHERE id = ?
-LIMIT 1;
+WHERE id = ?;
 `
 )
 

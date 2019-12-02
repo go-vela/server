@@ -19,6 +19,7 @@ import (
 // ProcessWebhook parses the webhook from a repo
 func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.Repo, *library.Build, error) {
 	h := new(library.Hook)
+	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
@@ -55,6 +56,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.
 func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook, *library.Repo, *library.Build, error) {
 	repo := payload.GetRepo()
 
+	// convert payload to library repo
 	r := new(library.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
@@ -64,6 +66,7 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 
+	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventPush)
 	b.SetClone(repo.GetCloneURL())
@@ -77,9 +80,9 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 	b.SetRef(payload.GetRef())
 	b.SetBaseRef(payload.GetBaseRef())
 
-	// set the Branch field
+	// update the hook object
 	h.SetBranch(b.GetBranch())
-	// set the Link field
+	h.SetEvent(constants.EventPush)
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
@@ -92,6 +95,8 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 
 	// handle when push event is a tag
 	if strings.HasPrefix(b.GetRef(), "refs/tags/") {
+		// set the proper event for the hook
+		h.SetEvent(constants.EventTag)
 		// set the proper event for the build
 		b.SetEvent(constants.EventTag)
 
@@ -106,9 +111,9 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 
 // processPREvent is a helper function to process the pull_request event
 func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library.Hook, *library.Repo, *library.Build, error) {
-	// set the Branch field
+	// update the hook object
 	h.SetBranch(payload.GetPullRequest().GetBase().GetRef())
-	// set the Link field
+	h.SetEvent(constants.EventPull)
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
@@ -127,6 +132,7 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 
+	// convert payload to library repo
 	r := new(library.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
 	r.SetName(repo.GetName())
@@ -136,6 +142,7 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 
+	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventPull)
 	b.SetClone(repo.GetCloneURL())

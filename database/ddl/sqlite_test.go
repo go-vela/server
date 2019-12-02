@@ -25,7 +25,8 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 		HookService: &Service{
 			Create: sqlite.CreateHookTable,
 			Indexes: []string{
-				sqlite.CreateHookRepoIDBuildIDIndex,
+				sqlite.CreateHookRepoIDNumberIndex,
+				sqlite.CreateHookRepoIDIndex,
 			},
 		},
 		LogService: &Service{

@@ -34,6 +34,7 @@ func TestPostgres_NewMap(t *testing.T) {
 			Select: map[string]string{
 				"count": SelectRepoHookCount,
 				"repo":  SelectRepoHook,
+				"last":  SelectLastRepoHook,
 			},
 			Delete: DeleteHook,
 		},

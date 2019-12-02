@@ -52,8 +52,7 @@ FROM users;
 	DeleteUser = `
 DELETE
 FROM users
-WHERE id = $1
-LIMIT 1;
+WHERE id = $1;
 `
 )
 

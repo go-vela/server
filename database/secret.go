@@ -193,5 +193,5 @@ func (c *client) DeleteSecret(id int64) error {
 	// send query to the database
 	return c.Database.
 		Table(constants.TableSecret).
-		Raw(c.DML.SecretService.Delete, id).Error
+		Exec(c.DML.SecretService.Delete, id).Error
 }

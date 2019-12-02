@@ -37,7 +37,17 @@ WHERE repo_id = $1;
 SELECT *
 FROM hooks
 WHERE repo_id = $1
-AND source_id = $2
+AND number = $2
+LIMIT 1;
+`
+
+	// SelectLastRepoHook represents a query to select
+	// the last hook for a repo_id in the database.
+	SelectLastRepoHook = `
+SELECT *
+FROM hooks
+WHERE repo_id = $1
+ORDER BY number DESC
 LIMIT 1;
 `
 
@@ -46,8 +56,7 @@ LIMIT 1;
 	DeleteHook = `
 DELETE
 FROM hooks
-WHERE id = $1
-LIMIT 1;
+WHERE id = $1;
 `
 )
 
@@ -62,6 +71,7 @@ func createHookService() *Service {
 		Select: map[string]string{
 			"count": SelectRepoHookCount,
 			"repo":  SelectRepoHook,
+			"last":  SelectLastRepoHook,
 		},
 		Delete: DeleteHook,
 	}

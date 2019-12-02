@@ -36,6 +36,7 @@ func TestDML_mapFromSqlite(t *testing.T) {
 			Select: map[string]string{
 				"count": sqlite.SelectRepoHookCount,
 				"repo":  sqlite.SelectRepoHook,
+				"last":  sqlite.SelectLastRepoHook,
 			},
 			Delete: sqlite.DeleteHook,
 		},
