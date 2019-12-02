@@ -100,6 +100,32 @@ func (c *client) GetBuildServiceCount(b *library.Build) (int64, error) {
 	return r[0], err
 }
 
+// GetServiceImageCount gets a count of an images occurance in the database.
+func (c *client) GetServiceImageCount() (map[string]float64, error) {
+	logrus.Tracef("Counting images for services in the database")
+
+	type imageCount struct {
+		Image string `sql:"image"`
+		Count int    `sql:"count"`
+	}
+
+	// variable to store query results
+	images := new([]imageCount)
+	counts := make(map[string]float64)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableStep).
+		Raw(c.DML.ServiceService.Select["image-count"]).
+		Scan(images).Error
+
+	for _, image := range *images {
+		counts[image.Image] = float64(image.Count)
+	}
+
+	return counts, err
+}
+
 // CreateService creates a new service in the database.
 func (c *client) CreateService(s *library.Service) error {
 	logrus.Tracef("Creating service %s in the database", s.GetName())
