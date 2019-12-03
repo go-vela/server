@@ -16,7 +16,6 @@ services:
       - vela
     environment:
       VELA_ADDR: "http://localhost:8080"
-      VELA_WEBUI_ADDR: "http://localhost:8888"
       VELA_DATABASE_DRIVER: postgres
       VELA_DATABASE_CONFIG: postgres://postgres@postgres:5432/vela?sslmode=disable
       VELA_LOG_LEVEL: debug
