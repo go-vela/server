@@ -141,7 +141,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	client := c.newClientToken(*u.Token)
 
 	context := fmt.Sprintf("%s/%s", c.StatusContext, b.GetEvent())
-	url := fmt.Sprintf("%s/%s/%s/%d", c.LocalHost, org, name, b.GetNumber())
+	url := fmt.Sprintf("%s/%s/%s/%d", c.WebUIHost, org, name, b.GetNumber())
 
 	var state string
 	var description string
@@ -170,7 +170,11 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		Context:     github.String(context),
 		Description: github.String(description),
 		State:       github.String(state),
-		TargetURL:   github.String(url),
+	}
+
+	// provide "Details" link in GitHub UI if server was configured with it
+	if len(c.WebUIHost) > 0 {
+		status.TargetURL = github.String(url)
 	}
 
 	// send API call to create the status context for the commit
