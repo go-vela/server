@@ -38,6 +38,11 @@ func main() {
 			Usage:  "server address as a fully qualified url (<scheme>://<host>)",
 		},
 		cli.StringFlag{
+			EnvVar: "VELA_WEBUI_ADDR,VELA_WEBUI_HOST",
+			Name:   "webui-addr",
+			Usage:  "web ui address as a fully qualified url (<scheme>://<host>)",
+		},
+		cli.StringFlag{
 			EnvVar: "VELA_SECRET",
 			Name:   "vela-secret",
 			Usage:  "secret used for server <-> agent communication",

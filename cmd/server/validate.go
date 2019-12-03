@@ -74,6 +74,18 @@ func validateCore(c *cli.Context) error {
 		return fmt.Errorf("vela-secret (VELA_SECRET) flag is not properly configured")
 	}
 
+	if len(c.String("webui-addr")) == 0 {
+		logrus.Warn("optional flag webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) not set")
+	} else {
+		if !strings.Contains(c.String("webui-addr"), "://") {
+			return fmt.Errorf("webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) flag must be <scheme>://<hostname> format")
+		}
+
+		if strings.HasSuffix(c.String("webui-addr"), "/") {
+			return fmt.Errorf("webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) flag must not have trailing slash")
+		}
+	}
+
 	return nil
 }
 

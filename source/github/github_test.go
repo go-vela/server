@@ -28,6 +28,7 @@ func TestGithub_New(t *testing.T) {
 		URL:           s.URL,
 		API:           s.URL + "/api/v3/",
 		LocalHost:     s.URL,
+		WebUIHost:     s.URL,
 		StatusContext: "continuous-integration/vela",
 		OConfig: &oauth2.Config{
 			ClientID:     id,

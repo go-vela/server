@@ -28,6 +28,7 @@ type client struct {
 	URL           string
 	API           string
 	LocalHost     string
+	WebUIHost     string
 	StatusContext string
 	OConfig       *oauth2.Config
 	AuthReq       *github.AuthorizationRequest
@@ -41,6 +42,7 @@ func New(c *cli.Context) (*client, error) {
 		URL:           defaultURL,
 		API:           defaultAPI,
 		LocalHost:     c.String("server-addr"),
+		WebUIHost:     c.String("webui-addr"),
 		StatusContext: c.String("source-context"),
 	}
 
@@ -91,6 +93,7 @@ func createTestContext(urls ...string) *cli.Context {
 	if len(urls) > 1 {
 		set.Set("server-addr", urls[1])
 	}
+	set.String("webui-addr", urls[0], "doc")
 	set.String("source-url", urls[0], "doc")
 	set.String("source-client", "foo", "doc")
 	set.String("source-secret", "bar", "doc")
