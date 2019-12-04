@@ -17,8 +17,9 @@ func TestPostgres_createServiceService(t *testing.T) {
 			"build": ListBuildServices,
 		},
 		Select: map[string]string{
-			"build": SelectBuildService,
-			"count": SelectBuildServicesCount,
+			"build":        SelectBuildService,
+			"count":        SelectBuildServicesCount,
+			"count-images": SelectServiceImagesCount,
 		},
 		Delete: DeleteService,
 	}

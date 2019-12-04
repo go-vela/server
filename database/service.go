@@ -116,7 +116,7 @@ func (c *client) GetServiceImageCount() (map[string]float64, error) {
 	// send query to the database and store result in variable
 	err := c.Database.
 		Table(constants.TableStep).
-		Raw(c.DML.ServiceService.Select["image-count"]).
+		Raw(c.DML.ServiceService.Select["count-images"]).
 		Scan(images).Error
 
 	for _, image := range *images {

@@ -202,6 +202,63 @@ func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 	}
 }
 
+func TestDatabase_Client_GetStepImageCount(t *testing.T) {
+	// setup types
+	b := testBuild()
+	b.SetID(2)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	sOne := testStep()
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+	sOne.SetImage("baz")
+
+	sTwo := testStep()
+	sTwo.SetID(2)
+	sTwo.SetRepoID(2)
+	sTwo.SetBuildID(2)
+	sTwo.SetNumber(1)
+	sTwo.SetName("foo")
+	sTwo.SetImage("baz")
+
+	sThree := testStep()
+	sThree.SetID(3)
+	sThree.SetRepoID(2)
+	sThree.SetBuildID(2)
+	sThree.SetNumber(2)
+	sThree.SetName("bar")
+	sThree.SetImage("bazian:latest")
+
+	want := make(map[string]float64)
+	want["baz"] = 2
+	want["bazian:latest"] = 1
+
+	// setup database
+	db, _ := NewTest()
+	defer func() {
+		db.Database.Exec("delete from steps;")
+		db.Database.Close()
+	}()
+	err := db.CreateStep(sOne)
+	err = db.CreateStep(sTwo)
+	err = db.CreateStep(sThree)
+
+	// run test
+	got, err := db.GetStepImageCount()
+
+	if err != nil {
+		t.Errorf("GetBuildStepCount returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetBuildStepCount is %v, want %v", got, want)
+	}
+}
+
 func TestDatabase_Client_CreateStep(t *testing.T) {
 	// setup types
 	b := testBuild()

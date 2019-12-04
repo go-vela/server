@@ -67,9 +67,9 @@ func createServiceService() *Service {
 			"build": ListBuildServices,
 		},
 		Select: map[string]string{
-			"build":       SelectBuildService,
-			"count":       SelectBuildServicesCount,
-			"image-count": SelectServiceImagesCount,
+			"build":        SelectBuildService,
+			"count":        SelectBuildServicesCount,
+			"count-images": SelectServiceImagesCount,
 		},
 		Delete: DeleteService,
 	}

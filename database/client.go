@@ -92,6 +92,7 @@ func NewTest() (*client, error) {
 
 	// create the database client
 	db, err := gorm.Open(name, config)
+	//db.LogMode(true)
 	if err != nil {
 		return nil, err
 	}
