@@ -251,11 +251,11 @@ func TestDatabase_Client_GetStepImageCount(t *testing.T) {
 	got, err := db.GetStepImageCount()
 
 	if err != nil {
-		t.Errorf("GetBuildStepCount returned err: %v", err)
+		t.Errorf("GetStepImageCount returned err: %v", err)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetBuildStepCount is %v, want %v", got, want)
+		t.Errorf("GetStepImageCount is %v, want %v", got, want)
 	}
 }
 
