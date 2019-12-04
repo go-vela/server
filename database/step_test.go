@@ -243,9 +243,9 @@ func TestDatabase_Client_GetStepImageCount(t *testing.T) {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
-	err := db.CreateStep(sOne)
-	err = db.CreateStep(sTwo)
-	err = db.CreateStep(sThree)
+	_ = db.CreateStep(sOne)
+	_ = db.CreateStep(sTwo)
+	_ = db.CreateStep(sThree)
 
 	// run test
 	got, err := db.GetStepImageCount()
