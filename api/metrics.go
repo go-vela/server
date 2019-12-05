@@ -15,6 +15,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// predefine Prometheus metrics else they will be regenerated
+// each function call which will throw error:
+// "duplicate metrics collector registration attempted"
 var (
 	gauge = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -22,6 +25,22 @@ var (
 			Help: "The Vela totals collect the total number for a resource type.",
 		},
 		[]string{"type"},
+	)
+
+	stepImages = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "step_images",
+			Help: "Step Images collect the number of times an image was used in a step.",
+		},
+		[]string{"name"},
+	)
+
+	serviceImages = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "service_images",
+			Help: "Service Images collect the number of times an image was used in a service.",
+		},
+		[]string{"name"},
 	)
 )
 
@@ -87,6 +106,15 @@ func recordGauges(c *gin.Context) {
 		logrus.Errorf("Error while reading all error builds: %v", err)
 	}
 
+	stepImageMap, err := database.FromContext(c).GetStepImageCount()
+	if err != nil {
+		logrus.Errorf("Error while reading all images: %v", err)
+	}
+	serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
+	if err != nil {
+		logrus.Errorf("Error while reading all images: %v", err)
+	}
+
 	gauge.WithLabelValues("users").Set(float64(u))
 	gauge.WithLabelValues("repos").Set(float64(r))
 	gauge.WithLabelValues("builds").Set(float64(b))
@@ -96,4 +124,12 @@ func recordGauges(c *gin.Context) {
 	gauge.WithLabelValues("killed_builds").Set(float64(bKill))
 	gauge.WithLabelValues("success_builds").Set(float64(bSucc))
 	gauge.WithLabelValues("error_builds").Set(float64(bErr))
+
+	// Add image metrics
+	for image, count := range stepImageMap {
+		stepImages.WithLabelValues(image).Set(count)
+	}
+	for image, count := range serviceImageMap {
+		serviceImages.WithLabelValues(image).Set(count)
+	}
 }

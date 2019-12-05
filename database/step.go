@@ -100,6 +100,32 @@ func (c *client) GetBuildStepCount(b *library.Build) (int64, error) {
 	return r[0], err
 }
 
+// GetStepImageCount gets a count of an images occurance in the database.
+func (c *client) GetStepImageCount() (map[string]float64, error) {
+	logrus.Tracef("Counting images for steps in the database")
+
+	type imageCount struct {
+		Image string
+		Count int
+	}
+
+	// variable to store query results
+	images := new([]imageCount)
+	counts := make(map[string]float64)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableStep).
+		Raw(c.DML.StepService.Select["count-images"]).
+		Scan(images).Error
+
+	for _, image := range *images {
+		counts[image.Image] = float64(image.Count)
+	}
+
+	return counts, err
+}
+
 // CreateStep creates a new step in the database.
 func (c *client) CreateStep(s *library.Step) error {
 	logrus.Tracef("Creating step %s in the database", s.GetName())
