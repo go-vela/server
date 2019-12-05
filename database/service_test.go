@@ -254,7 +254,7 @@ func TestDatabase_Client_GetServiceImageCount(t *testing.T) {
 		t.Errorf("GetServiceImageCount returned err: %v", err)
 	}
 
-	if reflect.DeepEqual(got, want) {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("GetServiceImageCount is %v, want %v", got, want)
 	}
 }
