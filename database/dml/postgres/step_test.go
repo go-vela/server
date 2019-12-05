@@ -17,8 +17,9 @@ func TestPostgres_createStepService(t *testing.T) {
 			"build": ListBuildSteps,
 		},
 		Select: map[string]string{
-			"build": SelectBuildStep,
-			"count": SelectBuildStepsCount,
+			"build":        SelectBuildStep,
+			"count":        SelectBuildStepsCount,
+			"count-images": SelectStepImagesCount,
 		},
 		Delete: DeleteStep,
 	}
