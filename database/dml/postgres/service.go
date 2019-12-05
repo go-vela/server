@@ -34,7 +34,7 @@ WHERE build_id = $1
 	// SelectServiceImagesCount represents a query to select
 	// the count of an images appearances in the database.
 	SelectServiceImagesCount = `
-SELECT image, COUNT(image)
+SELECT image, count(image) as count
 FROM services
 GROUP BY image
 `

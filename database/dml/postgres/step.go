@@ -34,7 +34,7 @@ WHERE build_id = $1
 	// SelectStepImagesCount represents a query to select
 	// the count of an images appearances in the database.
 	SelectStepImagesCount = `
-SELECT image, COUNT(image) as count
+SELECT image, count(image) as count
 FROM steps
 GROUP BY image
 `
