@@ -7,7 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-redis/redis v6.15.6+incompatible
-	github.com/go-vela/compiler v0.2.0-rc1
+	github.com/go-vela/compiler v0.2.0-rc1.0.20191204215712-26835f66bcda
 	github.com/go-vela/types v0.2.0-rc1
 	github.com/google/go-github/v26 v26.1.3
 	github.com/google/uuid v1.1.1
