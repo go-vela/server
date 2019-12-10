@@ -96,9 +96,10 @@ func TestPostgres_NewMap(t *testing.T) {
 				"build": ListBuildSteps,
 			},
 			Select: map[string]string{
-				"build":        SelectBuildStep,
-				"count":        SelectBuildStepsCount,
-				"count-images": SelectStepImagesCount,
+				"build":          SelectBuildStep,
+				"count":          SelectBuildStepsCount,
+				"count-images":   SelectStepImagesCount,
+				"count-statuses": SelectStepStatusesCount,
 			},
 			Delete: DeleteStep,
 		},

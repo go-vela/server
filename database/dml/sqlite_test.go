@@ -98,9 +98,10 @@ func TestDML_mapFromSqlite(t *testing.T) {
 				"build": sqlite.ListBuildSteps,
 			},
 			Select: map[string]string{
-				"build":        sqlite.SelectBuildStep,
-				"count":        sqlite.SelectBuildStepsCount,
-				"count-images": sqlite.SelectStepImagesCount,
+				"build":          sqlite.SelectBuildStep,
+				"count":          sqlite.SelectBuildStepsCount,
+				"count-images":   sqlite.SelectStepImagesCount,
+				"count-statuses": sqlite.SelectStepStatusesCount,
 			},
 			Delete: sqlite.DeleteStep,
 		},
