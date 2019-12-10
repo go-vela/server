@@ -39,6 +39,14 @@ FROM steps
 GROUP BY image;
 `
 
+	// SelectStepStatusesCount represents a query to select
+	// the count of an images appearances in the database.
+	SelectStepStatusesCount = `
+SELECT status, count(status) as count
+FROM steps
+GROUP BY status;
+`
+
 	// SelectBuildStep represents a query to select a
 	// step for a build_id and number in the database.
 	SelectBuildStep = `
@@ -67,9 +75,10 @@ func createStepService() *Service {
 			"build": ListBuildSteps,
 		},
 		Select: map[string]string{
-			"build":        SelectBuildStep,
-			"count":        SelectBuildStepsCount,
-			"count-images": SelectStepImagesCount,
+			"build":          SelectBuildStep,
+			"count":          SelectBuildStepsCount,
+			"count-images":   SelectStepImagesCount,
+			"count-statuses": SelectStepStatusesCount,
 		},
 		Delete: DeleteStep,
 	}

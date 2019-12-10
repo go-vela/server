@@ -19,12 +19,12 @@ import (
 // each function call which will throw error:
 // "duplicate metrics collector registration attempted"
 var (
-	gauge = promauto.NewGaugeVec(
+	totals = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "vela_totals",
 			Help: "The Vela totals collect the total number for a resource type.",
 		},
-		[]string{"type"},
+		[]string{"resource", "field", "value"},
 	)
 
 	stepImages = promauto.NewGaugeVec(
@@ -106,24 +106,38 @@ func recordGauges(c *gin.Context) {
 		logrus.Errorf("Error while reading all error builds: %v", err)
 	}
 
+	stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
+	if err != nil {
+		logrus.Errorf("Error while reading all error builds: %v", err)
+	}
+
 	stepImageMap, err := database.FromContext(c).GetStepImageCount()
 	if err != nil {
 		logrus.Errorf("Error while reading all images: %v", err)
 	}
+
 	serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
 	if err != nil {
 		logrus.Errorf("Error while reading all images: %v", err)
 	}
 
-	gauge.WithLabelValues("users").Set(float64(u))
-	gauge.WithLabelValues("repos").Set(float64(r))
-	gauge.WithLabelValues("builds").Set(float64(b))
-	gauge.WithLabelValues("running_builds").Set(float64(bRun))
-	gauge.WithLabelValues("pending_builds").Set(float64(bPen))
-	gauge.WithLabelValues("failed_builds").Set(float64(bFail))
-	gauge.WithLabelValues("killed_builds").Set(float64(bKill))
-	gauge.WithLabelValues("success_builds").Set(float64(bSucc))
-	gauge.WithLabelValues("error_builds").Set(float64(bErr))
+	// Add platform metrics
+	totals.WithLabelValues("platform", "count", "users").Set(float64(u))
+	totals.WithLabelValues("platform", "count", "repos").Set(float64(r))
+	totals.WithLabelValues("platform", "count", "builds").Set(float64(b))
+
+	// Add build metrics
+	totals.WithLabelValues("build", "status", "running").Set(float64(bRun))
+	totals.WithLabelValues("build", "status", "pending").Set(float64(bPen))
+	totals.WithLabelValues("build", "status", "failed").Set(float64(bFail))
+	totals.WithLabelValues("build", "status", "killed").Set(float64(bKill))
+	totals.WithLabelValues("build", "status", "success").Set(float64(bSucc))
+	totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
+
+	// Add step metrics
+	for status, count := range stepStatusMap {
+		totals.WithLabelValues("steps", "status", status).Set(count)
+	}
 
 	// Add image metrics
 	for image, count := range stepImageMap {

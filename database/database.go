@@ -160,6 +160,9 @@ type Service interface {
 	// GetStepImageCount defines a function that
 	// gets the count of an images occurance.
 	GetStepImageCount() (map[string]float64, error)
+	// GetStepImageCount defines a function that
+	// gets the count of an images occurance.
+	GetStepStatusCount() (map[string]float64, error)
 	// CreateStep defines a function that
 	// creates a new step.
 	CreateStep(*library.Step) error
