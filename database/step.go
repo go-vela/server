@@ -126,7 +126,7 @@ func (c *client) GetStepImageCount() (map[string]float64, error) {
 	return counts, err
 }
 
-// GetStepStatusCount gets a count of an images occurance in the database.
+// GetStepStatusCount gets a count of step status' occurance in the database.
 func (c *client) GetStepStatusCount() (map[string]float64, error) {
 	logrus.Trace("Counting the total of each status for steps in the database")
 

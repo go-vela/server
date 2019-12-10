@@ -40,7 +40,7 @@ GROUP BY image;
 `
 
 	// SelectStepStatusesCount represents a query to select
-	// the count of an images appearances in the database.
+	// the count of step status' appearances in the database.
 	SelectStepStatusesCount = `
 SELECT status, count(status) as count
 FROM steps
