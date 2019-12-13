@@ -1,17 +1,21 @@
-name: Build Action
+# name of the action
+name: build
+
+# trigger on pull_request or push events
 on:
   pull_request:
   push:
 
+# pipeline to execute
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
       image: golang:latest
     steps:
-
     - name: clone
       uses: actions/checkout@v1
 
     - name: build
-      run: make build
+      run: |
+        make build
