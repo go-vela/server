@@ -1,23 +1,30 @@
+# name of the action
 name: Publish Action
+
+# trigger on push events with branch master
 on:
   push:
     branches: [ master ]
 
+# pipeline to execute
 jobs:
   publish:
     runs-on: ubuntu-latest
     container:
       image: golang:latest
     steps:
-
     - name: clone
-      uses: actions/checkout@master
+      uses: actions/checkout@v1
 
     - name: build
       env:
         GOOS: linux
         CGO_ENABLED: '1'
-      run: go build -a -ldflags '-s -w -extldflags "-static"' -o release/vela-server github.com/go-vela/server/cmd/server
+      run: |
+        go build -a \
+          -ldflags '-s -w -extldflags "-static"' \
+          -o release/vela-server \
+          github.com/go-vela/server/cmd/server
 
     - name: publish
       uses: elgohr/Publish-Docker-Github-Action@master

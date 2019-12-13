@@ -1,8 +1,12 @@
-name: Test Action
+# name of the action
+name: test
+
+# trigger on pull_request or push events
 on:
   pull_request:
   push:
 
+# pipeline to execute
 jobs:
   test:
     runs-on: ubuntu-latest

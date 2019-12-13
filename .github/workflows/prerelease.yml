@@ -1,10 +1,13 @@
+# name of the action
 name: prerelease
 
+# trigger on push events with `v*` in tag
 on:
   push:
     tags:
       - 'v*'
 
+# pipeline to execute
 jobs:
   prerelease:
     runs-on: ubuntu-latest

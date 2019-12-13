@@ -1,15 +1,18 @@
-name: Validate Action
+# name of the action
+name: validate
+
+# trigger on pull_request or push events
 on:
   pull_request:
   push:
 
+# pipeline to execute
 jobs:
   validate:
     runs-on: ubuntu-latest
     container:
       image: golang:latest
     steps:
-
     - name: clone
       uses: actions/checkout@v1
 
