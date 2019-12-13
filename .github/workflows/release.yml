@@ -1,8 +1,10 @@
-name: Release Action
+name: release
+
 on:
   push:
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*'
+      - '!v*-rc*'
 
 jobs:
   release:
@@ -10,21 +12,38 @@ jobs:
     container:
       image: golang:latest
     steps:
-
     - name: clone
-      uses: actions/checkout@master
+      uses: actions/checkout@v1
 
-    - name: build
+    - name: tags
+      run: |
+        git fetch --tags
+
+    - name: version
+      id: version
+      run: |
+        echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+    - name: install
+      run: |
+        go get github.com/git-chglog/git-chglog/cmd/git-chglog
+        go get github.com/itchio/gothub
+
+    - name: changelog
+      run: |
+        # https://github.com/git-chglog/git-chglog#git-chglog
+        $(go env GOPATH)/bin/git-chglog \
+          -o $GITHUB_WORKSPACE/CHANGELOG.md \
+          ${{ steps.version.outputs.VERSION }}
+
+    - name: release
       env:
-        GOOS: linux
-        CGO_ENABLED: '1'
-      run: go build -a -ldflags '-s -w -extldflags "-static"' -o release/vela-server github.com/go-vela/server/cmd/server
-
-    - name: publish
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: target/vela-server
-        cache: true
-        tag_names: true
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # https://github.com/itchio/gothub#gothub
+        $(go env GOPATH)/bin/gothub edit \
+          --user go-vela \
+          --repo server \
+          --tag ${{ steps.version.outputs.VERSION }} \
+          --name ${{ steps.version.outputs.VERSION }} \
+          --description "$(cat $GITHUB_WORKSPACE/CHANGELOG.md)"
