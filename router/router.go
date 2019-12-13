@@ -35,6 +35,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.GET("/login", api.Login)
 	r.POST("/login", api.Login)
 	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
+	r.GET("/badge/:org/:repo/status.svg", api.Badge)
 
 	r.POST("/webhook", api.PostWebhook)
 
