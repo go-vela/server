@@ -1,5 +1,5 @@
 # name of the action
-name: Publish Action
+name: publish
 
 # trigger on push events with branch master
 on:
