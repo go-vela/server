@@ -50,6 +50,11 @@ func server(c *cli.Context) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
+	compiler, err := setupCompiler(c)
+	if err != nil {
+		return err
+	}
+
 	database, err := setupDatabase(c)
 	if err != nil {
 		return err
@@ -70,20 +75,21 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	compiler, err := setupCompiler(c)
+	metadata, err := setupMetadata(c)
 	if err != nil {
 		return err
 	}
 
 	router := router.Load(
-		middleware.RequestVersion,
 		middleware.Compiler(compiler),
 		middleware.Database(database),
+		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
+		middleware.Metadata(metadata),
 		middleware.Queue(queue),
+		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Source(source),
-		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
 		middleware.Whitelist(c.StringSlice("vela-repo-whitelist")),
 	)
 
