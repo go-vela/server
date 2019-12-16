@@ -7,5 +7,9 @@
 package database
 
 import (
+	// Load in the Gorm Postgres dialect for
+	// integrating with a Postgres instance.
+	//
+	// https://gorm.io/docs/dialects.html
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
