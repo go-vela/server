@@ -483,6 +483,8 @@ func testBuild() *library.Build {
 		Commit:       &str,
 		Sender:       &str,
 		Author:       &str,
+		Email:        &str,
+		Link:         &str,
 		Branch:       &str,
 		Ref:          &str,
 		BaseRef:      &str,
