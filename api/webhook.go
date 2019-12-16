@@ -35,6 +35,9 @@ var baseErr = "unable to process webhook"
 func PostWebhook(c *gin.Context) {
 	logrus.Info("Webhook received")
 
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
+
 	// process the webhook from the source control provider
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
@@ -234,9 +237,10 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// parse and compile the pipeline configuration file
-	pipe, err := compiler.FromContext(c).
+	p, err := compiler.FromContext(c).
 		WithBuild(b).
 		WithFiles(files).
+		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
 		Compile(config)
@@ -249,7 +253,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), pipe, b, r)
+	err = planBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		h.SetStatus(constants.StatusFailure)
@@ -274,7 +278,7 @@ func PostWebhook(c *gin.Context) {
 	// publish the build to the queue
 	go publishToQueue(
 		queue.FromContext(c),
-		pipe,
+		p,
 		b,
 		r,
 		u,

@@ -20,6 +20,7 @@ import (
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -32,6 +33,7 @@ import (
 // create a build in the configured backend.
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
 	r := repo.Retrieve(c)
 
 	logrus.Infof("Creating new build for repo %s", r.GetFullName())
@@ -141,6 +143,7 @@ func CreateBuild(c *gin.Context) {
 	pipe, err := compiler.FromContext(c).
 		WithBuild(input).
 		WithFiles(files).
+		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
 		Compile(config)
@@ -251,6 +254,7 @@ func GetBuild(c *gin.Context) {
 // restart an existing build in the configured backend.
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
 
@@ -341,6 +345,7 @@ func RestartBuild(c *gin.Context) {
 	pipe, err := compiler.FromContext(c).
 		WithBuild(b).
 		WithFiles(files).
+		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
 		Compile(config)
