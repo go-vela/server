@@ -65,6 +65,8 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetCommit("")
 	want.SetSender("")
 	want.SetAuthor("")
+	want.SetEmail("")
+	want.SetLink("")
 	want.SetBranch("")
 	want.SetRef("")
 	want.SetBaseRef("")

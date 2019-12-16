@@ -30,6 +30,8 @@ builds (
 	commit        VARCHAR(500),
 	sender        VARCHAR(250),
 	author        VARCHAR(250),
+	email         VARCHAR(500),
+	link          VARCHAR(1000),
 	branch        VARCHAR(500),
 	ref           VARCHAR(500),
 	base_ref      VARCHAR(500),

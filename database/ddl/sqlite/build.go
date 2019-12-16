@@ -30,6 +30,8 @@ builds (
 	'commit'      TEXT,
 	sender        TEXT,
 	author        TEXT,
+	email         TEXT,
+	link          TEXT,
 	branch        TEXT,
 	ref           TEXT,
 	base_ref      TEXT,
