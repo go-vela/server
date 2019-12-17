@@ -75,7 +75,8 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 	b.SetMessage(payload.GetHeadCommit().GetMessage())
 	b.SetCommit(payload.GetHeadCommit().GetID())
 	b.SetSender(payload.GetSender().GetLogin())
-	b.SetAuthor(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
+	b.SetEmail(payload.GetHeadCommit().GetAuthor().GetEmail())
 	b.SetBranch(strings.Replace(payload.GetRef(), "refs/heads/", "", -1))
 	b.SetRef(payload.GetRef())
 	b.SetBaseRef(payload.GetBaseRef())
@@ -87,10 +88,19 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
 
-	// ensure build author is set
+	// ensure the build author is set
 	if len(b.GetAuthor()) == 0 {
-		b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
-		b.SetSender(b.GetAuthor())
+		b.SetAuthor(payload.GetHeadCommit().GetCommitter().GetName())
+	}
+
+	// ensure the build sender is set
+	if len(b.GetSender()) == 0 {
+		b.SetSender(payload.GetPusher().GetName())
+	}
+
+	// ensure the build email is set
+	if len(b.GetEmail()) == 0 {
+		b.SetEmail(payload.GetHeadCommit().GetCommitter().GetEmail())
 	}
 
 	// handle when push event is a tag
@@ -151,7 +161,8 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library
 	b.SetMessage(payload.GetPullRequest().GetTitle())
 	b.SetCommit(payload.GetPullRequest().GetHead().GetSHA())
 	b.SetSender(payload.GetSender().GetLogin())
-	b.SetAuthor(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetPullRequest().GetUser().GetLogin())
+	b.SetEmail(payload.GetPullRequest().GetUser().GetEmail())
 	b.SetBranch(payload.GetPullRequest().GetBase().GetRef())
 	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetNumber()))
 	b.SetBaseRef(payload.GetPullRequest().GetBase().GetRef())
@@ -161,10 +172,19 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library
 		b.SetRef(fmt.Sprintf("refs/pull/%d/merge", payload.GetNumber()))
 	}
 
-	// ensure the build author and sender are set
+	// ensure the build author is set
 	if len(b.GetAuthor()) == 0 {
-		b.SetAuthor(payload.GetPullRequest().GetUser().GetLogin())
-		b.SetSender(b.GetAuthor())
+		b.SetAuthor(payload.GetPullRequest().GetHead().GetUser().GetLogin())
+	}
+
+	// ensure the build sender is set
+	if len(b.GetSender()) == 0 {
+		b.SetSender(payload.GetPullRequest().GetUser().GetLogin())
+	}
+
+	// ensure the build email is set
+	if len(b.GetEmail()) == 0 {
+		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
 	return h, r, b, nil

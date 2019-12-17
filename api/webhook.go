@@ -81,6 +81,10 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// set the RepoID fields
+	b.SetRepoID(r.GetID())
+	h.SetRepoID(r.GetID())
+
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).GetLastHook(r)
 	if err != nil {
@@ -95,9 +99,6 @@ func PostWebhook(c *gin.Context) {
 			lastHook.GetNumber() + 1,
 		)
 	}
-
-	// set the RepoID field
-	h.SetRepoID(r.GetID())
 
 	// send API call to create the webhook
 	err = database.FromContext(c).CreateHook(h)
@@ -163,7 +164,6 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// update fields in build object
-	b.SetRepoID(r.GetID())
 	b.SetNumber(1)
 	b.SetParent(b.GetNumber())
 	b.SetStatus(constants.StatusPending)
@@ -174,6 +174,13 @@ func PostWebhook(c *gin.Context) {
 			lastBuild.GetNumber() + 1,
 		)
 		b.SetParent(lastBuild.GetNumber())
+	}
+
+	// populate the build link if a web address is provided
+	if len(m.Vela.WebAddress) > 0 {
+		b.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+		)
 	}
 
 	// variable to store changeset files

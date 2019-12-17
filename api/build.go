@@ -87,6 +87,13 @@ func CreateBuild(c *gin.Context) {
 		input.SetParent(lastBuild.GetNumber())
 	}
 
+	// populate the build link if a web address is provided
+	if len(m.Vela.WebAddress) > 0 {
+		input.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), input.GetNumber()),
+		)
+	}
+
 	// variable to store changeset files
 	var files []string
 	// check if the build event is not pull_request
@@ -140,7 +147,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// parse and compile the pipeline configuration file
-	pipe, err := compiler.FromContext(c).
+	p, err := compiler.FromContext(c).
 		WithBuild(input).
 		WithFiles(files).
 		WithMetadata(m).
@@ -154,7 +161,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), pipe, input, r)
+	err = planBuild(database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		return
@@ -174,7 +181,7 @@ func CreateBuild(c *gin.Context) {
 	// publish the build to the queue
 	go publishToQueue(
 		queue.FromContext(c),
-		pipe,
+		p,
 		input,
 		r,
 		u,
@@ -289,6 +296,13 @@ func RestartBuild(c *gin.Context) {
 	b.SetRuntime("")
 	b.SetDistribution("")
 
+	// populate the build link if a web address is provided
+	if len(m.Vela.WebAddress) > 0 {
+		b.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+		)
+	}
+
 	// variable to store changeset files
 	var files []string
 	// check if the build event is not pull_request
@@ -342,7 +356,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// parse and compile the pipeline configuration file
-	pipe, err := compiler.FromContext(c).
+	p, err := compiler.FromContext(c).
 		WithBuild(b).
 		WithFiles(files).
 		WithMetadata(m).
@@ -356,7 +370,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), pipe, b, r)
+	err = planBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 		return
@@ -376,7 +390,7 @@ func RestartBuild(c *gin.Context) {
 	// publish the build to the queue
 	go publishToQueue(
 		queue.FromContext(c),
-		pipe,
+		p,
 		b,
 		r,
 		u,
