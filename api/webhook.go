@@ -176,9 +176,12 @@ func PostWebhook(c *gin.Context) {
 		b.SetParent(lastBuild.GetNumber())
 	}
 
-	b.SetLink(
-		fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
-	)
+	// populate the build link if a web address is provided
+	if len(m.Vela.WebAddress) > 0 {
+		b.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+		)
+	}
 
 	// variable to store changeset files
 	var files []string

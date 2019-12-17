@@ -86,9 +86,13 @@ func CreateBuild(c *gin.Context) {
 		)
 		input.SetParent(lastBuild.GetNumber())
 	}
-	input.SetLink(
-		fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), input.GetNumber()),
-	)
+
+	// populate the build link if a web address is provided
+	if len(m.Vela.WebAddress) > 0 {
+		input.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), input.GetNumber()),
+		)
+	}
 
 	// variable to store changeset files
 	var files []string
@@ -291,9 +295,13 @@ func RestartBuild(c *gin.Context) {
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
-	b.SetLink(
-		fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
-	)
+
+	// populate the build link if a web address is provided
+	if len(m.Vela.WebAddress) > 0 {
+		b.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+		)
+	}
 
 	// variable to store changeset files
 	var files []string
