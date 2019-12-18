@@ -24,9 +24,8 @@ jobs:
       run: |
         go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
-    - name: coveralls
-      env:
-        COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # https://github.com/mattn/goveralls#goveralls
-        $(go env GOPATH)/bin/goveralls -service=github -coverprofile=coverage.out
+    - name: coverage
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: coverage.out
