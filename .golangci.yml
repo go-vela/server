@@ -1,0 +1,73 @@
+# This is a manually created golangci.com yaml configuration with
+# some defaults explicitly provided. There is a large number of
+# linters we've enabled that are usually disabled by default.
+#
+# https://github.com/golangci/golangci-lint#config-file
+
+# This section provides the configuration for how golangci
+# outputs it results from the linters it executes.
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+# This section provides the configuration for which linters
+# golangci will execute. Several of them were disabled by
+# default but we've opted to enable them.
+linters:
+  # disable all linters as new linters might be added to golangci
+  disable-all: true
+  enable:
+    # linters enabled by default
+    - deadcode
+    - errcheck
+    - govet
+    - gosimple # a.k.a. megacheck
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unused
+    - varcheck
+
+    # linters disabled by default
+    - bodyclose
+    - gocognit
+    - goconst
+    - gocyclo
+    - goimports
+    - gosec
+    - funlen
+    - maligned
+    - misspell
+    - stylecheck
+    - unparam
+    - whitespace
+    - wsl
+
+  # static list of linters we know golangci can run but we've
+  # chosen to leave disabled for now
+  #
+  # disable:
+  #   - depguard
+  #   - dogsled
+  #   - dupl
+  #   - gocritic
+  #   - gochecknoinits
+  #   - gochecknoglobals
+  #   - godox
+  #   - gofmt
+  #   - golint
+  #   - gomnd
+  #   - interfacer
+  #   - lll
+  #   - nakedret
+  #   - scopelint
+  #   - unconvert
+
+# This section provides the configuration for each linter
+# we've instructed golangci to execute. Currently, we've
+# left this part empty as we're going to roll with the
+# linter specific default settings for now.
+#
+# linters-settings:
