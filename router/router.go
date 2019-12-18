@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 )
 
@@ -35,7 +36,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.GET("/login", api.Login)
 	r.POST("/login", api.Login)
 	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
-	r.GET("/badge/:org/:repo/status.svg", api.Badge)
+	r.GET("/badge/:org/:repo/status.svg", repo.Establish(), api.Badge)
 
 	r.POST("/webhook", api.PostWebhook)
 
