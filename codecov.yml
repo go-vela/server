@@ -1,0 +1,50 @@
+# The is the default codecov.io yaml configuration all projects use
+# that do not have their own codecov.yml already in the project.
+#
+# https://docs.codecov.io/docs/codecov-yaml#section-default-yaml
+
+# This section provides the generic configuration for codecov.
+#
+# https://docs.codecov.io/docs/codecovyml-reference#section-codecov
+codecov:
+
+  require_ci_to_pass: yes
+
+# This section provides the configuration for the
+# coverage report codecov analyzes for results.
+#
+# https://docs.codecov.io/docs/codecovyml-reference#section-coverage
+coverage:
+
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    project: yes
+    patch: yes
+    changes: no
+
+# This section provides the configuration for the
+# parsers codecov uses for the coverage report.
+#
+# https://docs.codecov.io/docs/codecovyml-reference#section-parsers
+parsers:
+
+  gcov:
+
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+# This section provides the configuration for the
+# comments codecov makes to open pull requests.
+#
+# https://docs.codecov.io/docs/codecovyml-reference#section-comment
+comment:
+
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: no
