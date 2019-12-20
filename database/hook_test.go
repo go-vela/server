@@ -43,10 +43,12 @@ func TestDatabase_Client_GetHook(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(want)
 
 	// run test
@@ -81,10 +83,12 @@ func TestDatabase_Client_GetHookList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(hOne)
 	_ = db.CreateHook(hTwo)
 
@@ -127,10 +131,12 @@ func TestDatabase_Client_GetRepoHookList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(hOne)
 	_ = db.CreateHook(hTwo)
 
@@ -173,10 +179,12 @@ func TestDatabase_Client_GetRepoHookCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(hOne)
 	_ = db.CreateHook(hTwo)
 
@@ -203,6 +211,7 @@ func TestDatabase_Client_CreateHook(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
@@ -232,6 +241,7 @@ func TestDatabase_Client_CreateHook_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
@@ -256,10 +266,12 @@ func TestDatabase_Client_UpdateHook(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(want)
 
 	// run test
@@ -286,10 +298,12 @@ func TestDatabase_Client_UpdateHook_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(h)
 
 	// run test
@@ -298,7 +312,6 @@ func TestDatabase_Client_UpdateHook_Invalid(t *testing.T) {
 	if err == nil {
 		t.Errorf("UpdateHook should have returned err")
 	}
-
 }
 
 func TestDatabase_Client_DeleteHook(t *testing.T) {
@@ -312,10 +325,12 @@ func TestDatabase_Client_DeleteHook(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from hooks;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateHook(h)
 
 	// run test
@@ -333,6 +348,7 @@ func testHook() *library.Hook {
 	i := 0
 	i64 := int64(0)
 	str := ""
+
 	return &library.Hook{
 		ID:       &i64,
 		RepoID:   &i64,

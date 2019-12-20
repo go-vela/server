@@ -25,8 +25,9 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 	want, _ := native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 

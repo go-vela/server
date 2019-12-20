@@ -19,7 +19,7 @@ func init() {
 		log.Fatalf("Error creating test database: %v", err)
 	}
 
-	_, _ = db.Database.DB().Exec(db.DDL.ServiceService.Create)
+	_, err = db.Database.DB().Exec(db.DDL.ServiceService.Create)
 	if err != nil {
 		log.Fatalf("Error creating %s table: %v", constants.TableService, err)
 	}
@@ -414,6 +414,7 @@ func testService() *library.Service {
 	i64 := int64(0)
 	i := 0
 	str := ""
+
 	return &library.Service{
 		ID:       &i64,
 		BuildID:  &i64,

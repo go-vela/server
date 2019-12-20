@@ -261,6 +261,7 @@ func TestDatabase_Client_DeleteLog(t *testing.T) {
 func testLog() *library.Log {
 	i64 := int64(0)
 	b := []byte{}
+
 	return &library.Log{
 		ID:        &i64,
 		BuildID:   &i64,

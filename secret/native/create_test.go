@@ -29,6 +29,7 @@ func TestNative_Create_Org(t *testing.T) {
 
 	// setup database
 	d, _ := database.NewTest()
+
 	defer func() {
 		d.Database.Exec("delete from secrets;")
 		d.Database.Close()
@@ -68,6 +69,7 @@ func TestNative_Create_Repo(t *testing.T) {
 
 	// setup database
 	d, _ := database.NewTest()
+
 	defer func() {
 		d.Database.Exec("delete from secrets;")
 		d.Database.Close()
@@ -107,6 +109,7 @@ func TestNative_Create_Shared(t *testing.T) {
 
 	// setup database
 	d, _ := database.NewTest()
+
 	defer func() {
 		d.Database.Exec("delete from secrets;")
 		d.Database.Close()
@@ -146,6 +149,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 
 	// setup database
 	d, _ := database.NewTest()
+
 	defer func() {
 		d.Database.Exec("delete from secrets;")
 		d.Database.Close()

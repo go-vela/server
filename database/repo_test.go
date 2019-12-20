@@ -326,7 +326,6 @@ func TestDatabase_Client_UpdateRepo_Invalid(t *testing.T) {
 	if err == nil {
 		t.Errorf("UpdateRepo should have returned err")
 	}
-
 }
 
 func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
@@ -397,6 +396,7 @@ func testRepo() *library.Repo {
 	i64 := int64(0)
 	str := ""
 	b := false
+
 	return &library.Repo{
 		ID:          &i64,
 		UserID:      &i64,

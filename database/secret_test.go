@@ -548,6 +548,7 @@ func testSecret() *library.Secret {
 	str := ""
 	arr := []string{}
 	booL := false
+
 	return &library.Secret{
 		ID:           &i64,
 		Org:          &str,

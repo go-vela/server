@@ -43,7 +43,9 @@ func CreateBuild(c *gin.Context) {
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new build for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -53,7 +55,9 @@ func CreateBuild(c *gin.Context) {
 		(input.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(input.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("unable to create new build: %s does not have %s events enabled", r.GetFullName(), input.GetEvent())
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -61,7 +65,9 @@ func CreateBuild(c *gin.Context) {
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -69,7 +75,9 @@ func CreateBuild(c *gin.Context) {
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last build for %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -102,7 +110,9 @@ func CreateBuild(c *gin.Context) {
 		files, err = source.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 	}
@@ -124,7 +134,9 @@ func CreateBuild(c *gin.Context) {
 			_, err := fmt.Sscanf(input.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
 			if err != nil {
 				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+
 				util.HandleError(c, http.StatusInternalServerError, retErr)
+
 				return
 			}
 		}
@@ -133,7 +145,9 @@ func CreateBuild(c *gin.Context) {
 		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 	}
@@ -142,7 +156,9 @@ func CreateBuild(c *gin.Context) {
 	config, err := source.FromContext(c).Config(u, r.GetOrg(), r.GetName(), input.GetCommit())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -156,7 +172,9 @@ func CreateBuild(c *gin.Context) {
 		Compile(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -164,6 +182,7 @@ func CreateBuild(c *gin.Context) {
 	err = planBuild(database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
+
 		return
 	}
 
@@ -200,7 +219,9 @@ func GetBuilds(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -208,7 +229,9 @@ func GetBuilds(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -219,7 +242,9 @@ func GetBuilds(c *gin.Context) {
 	t, err := database.FromContext(c).GetRepoBuildCount(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build count for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -227,7 +252,9 @@ func GetBuilds(c *gin.Context) {
 	b, err := database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -271,7 +298,9 @@ func RestartBuild(c *gin.Context) {
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -279,7 +308,9 @@ func RestartBuild(c *gin.Context) {
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -311,7 +342,9 @@ func RestartBuild(c *gin.Context) {
 		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 	}
@@ -333,7 +366,9 @@ func RestartBuild(c *gin.Context) {
 			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
 			if err != nil {
 				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+
 				util.HandleError(c, http.StatusInternalServerError, retErr)
+
 				return
 			}
 		}
@@ -342,7 +377,9 @@ func RestartBuild(c *gin.Context) {
 		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 	}
@@ -351,7 +388,9 @@ func RestartBuild(c *gin.Context) {
 	config, err := source.FromContext(c).Config(u, r.GetOrg(), r.GetName(), b.GetCommit())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -365,7 +404,9 @@ func RestartBuild(c *gin.Context) {
 		Compile(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -373,6 +414,7 @@ func RestartBuild(c *gin.Context) {
 	err = planBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
+
 		return
 	}
 
@@ -411,7 +453,9 @@ func UpdateBuild(c *gin.Context) {
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -457,7 +501,9 @@ func UpdateBuild(c *gin.Context) {
 	err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -498,7 +544,9 @@ func DeleteBuild(c *gin.Context) {
 	err := database.FromContext(c).DeleteBuild(b.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -516,6 +564,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	err := database.CreateBuild(b)
 	if err != nil {
 		cleanBuild(database, b, nil, nil)
+
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
@@ -526,6 +575,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	services, err := planServices(database, p, b)
 	if err != nil {
 		cleanBuild(database, b, services, nil)
+
 		return err
 	}
 
@@ -533,6 +583,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	steps, err := planSteps(database, p, b)
 	if err != nil {
 		cleanBuild(database, b, services, steps)
+
 		return err
 	}
 

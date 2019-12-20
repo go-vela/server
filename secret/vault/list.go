@@ -21,7 +21,9 @@ import (
 // behavior for fetching Vault secrets in paginated manner.
 func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, error) {
 	logrus.Tracef("Listing vault %s secrets for %s/%s", sType, org, name)
+
 	var err error
+
 	s := []*library.Secret{}
 	vault := new(api.Secret)
 

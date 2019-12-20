@@ -15,6 +15,7 @@ import (
 // GetSecret gets a secret by type, org, name (repo or team) and secret name from the database.
 func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) {
 	logrus.Tracef("Getting %s secret %s for %s/%s from the database", t, secretName, o, n)
+
 	var err error
 
 	// variable to store query results
@@ -72,6 +73,7 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 // GetTypeSecretList gets a list of secrets by type, owner, and name (repo or team) from the database.
 func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*library.Secret, error) {
 	logrus.Tracef("Listing %s secrets for %s/%s from the database", t, o, n)
+
 	var err error
 
 	// variable to store query results
@@ -115,6 +117,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 // GetTypeSecretCount gets a count of secrets by type, owner, and name (repo or team) from the database.
 func (c *client) GetTypeSecretCount(t, o, n string) (int64, error) {
 	logrus.Tracef("Counting %s secrets for %s/%s from the database", t, o, n)
+
 	var err error
 
 	// variable to store query results

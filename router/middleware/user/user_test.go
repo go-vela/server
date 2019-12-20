@@ -28,6 +28,7 @@ func TestUser_Retrieve(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, want)
 
@@ -67,8 +68,9 @@ func TestUser_Establish(t *testing.T) {
 	_ = db.CreateUser(want)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -114,8 +116,9 @@ func TestUser_Establish_NoToken(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
 
@@ -143,8 +146,9 @@ func TestUser_Establish_SecretValid(t *testing.T) {
 	got := new(library.User)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
@@ -179,8 +183,9 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo?access_token=bar", nil)
 
@@ -211,8 +216,9 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo?access_token=bar", nil)
 

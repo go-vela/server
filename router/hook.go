@@ -20,7 +20,6 @@ import (
 // PUT    /api/v1/hooks/:org/:repo/:hook
 // DELETE /api/v1/hooks/:org/:repo/:hook
 func HookHandlers(base *gin.RouterGroup) {
-
 	// Hooks endpoints
 	hooks := base.Group("/hooks/:org/:repo", repo.Establish())
 	{
@@ -30,5 +29,4 @@ func HookHandlers(base *gin.RouterGroup) {
 		hooks.PUT("/:hook", perm.MustPlatformAdmin(), api.UpdateHook)
 		hooks.DELETE("/:hook", perm.MustPlatformAdmin(), api.DeleteHook)
 	} // end of hooks endpoints
-
 }

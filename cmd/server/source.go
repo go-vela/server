@@ -20,6 +20,7 @@ import (
 // helper function to setup the source from the CLI arguments.
 func setupSource(c *cli.Context) (source.Service, error) {
 	logrus.Debug("Creating source client from CLI configuration")
+
 	switch c.String("source-driver") {
 	case constants.DriverGithub:
 		return setupGithub(c)

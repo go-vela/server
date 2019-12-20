@@ -18,6 +18,7 @@ import (
 func TestGithub_OrgAccess_Admin(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -27,6 +28,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/org_admin.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -67,6 +69,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/org_member.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -132,6 +135,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/org_pending.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -189,6 +193,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 func TestGithub_RepoAccess_Admin(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -198,6 +203,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/repo_admin.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -255,6 +261,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 func TestGithub_TeamAccess_Admin(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -264,6 +271,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/team_admin.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -295,6 +303,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -304,6 +313,7 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/team_admin.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 

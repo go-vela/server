@@ -29,10 +29,12 @@ func TestNative_Update(t *testing.T) {
 
 	// setup database
 	d, _ := database.NewTest()
+
 	defer func() {
 		d.Database.Exec("delete from secrets;")
 		d.Database.Close()
 	}()
+
 	_ = d.CreateSecret(want)
 
 	// run test

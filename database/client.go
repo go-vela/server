@@ -85,6 +85,7 @@ func NewTest() (*client, error) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -165,6 +166,7 @@ func pingDatabase(db *sql.DB) error {
 		if err != nil {
 			logrus.Debugf("Error pinging database. Retrying in %v", (time.Duration(i) * time.Second))
 			time.Sleep(1 * time.Second)
+
 			continue
 		}
 

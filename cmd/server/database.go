@@ -18,6 +18,7 @@ import (
 // helper function to setup the database from the CLI arguments.
 func setupDatabase(c *cli.Context) (database.Service, error) {
 	logrus.Debug("Creating database client from CLI configuration")
+
 	switch c.String("database.driver") {
 	case constants.DriverPostgres, "postgresql":
 		return setupPostgres(c)

@@ -23,10 +23,11 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/push.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -97,10 +98,11 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pushNoSender.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -173,10 +175,11 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pull.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -249,10 +252,11 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pullClosedAction.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -302,10 +306,11 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pullClosedState.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -355,10 +360,11 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pull.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "foobar")
@@ -406,10 +412,11 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pull.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
@@ -457,10 +464,11 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 
 	// setup request
 	body, err := os.Open("testdata/pull.json")
-	defer body.Close()
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
+
+	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")

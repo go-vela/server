@@ -65,6 +65,7 @@ func Cors(c *gin.Context) {
 // intended for debugging and troubleshooting.
 func RequestVersion(c *gin.Context) {
 	apiVersion := version.Version
+
 	if gin.Mode() == "debug" {
 		c.Request.Header.Set("X-Vela-Version", apiVersion.String())
 	} else { // in prod we don't want the build number metadata
@@ -78,6 +79,7 @@ func RequestVersion(c *gin.Context) {
 // intended for debugging and troubleshooting.
 func ResponseVersion(c *gin.Context) {
 	apiVersion := version.Version
+
 	if gin.Mode() == "debug" {
 		c.Header("X-Vela-Version", apiVersion.String())
 	} else { // in prod we don't want the build number metadata

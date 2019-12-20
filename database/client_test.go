@@ -24,6 +24,7 @@ func TestDatabase_New(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -91,6 +92,7 @@ func TestDatabase_setupDatabase(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -114,6 +116,7 @@ func TestDatabase_setupDatabase_BadDatabase(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -125,6 +128,7 @@ func TestDatabase_setupDatabase_BadDatabase(t *testing.T) {
 
 	// run test
 	database.Close()
+
 	err := setupDatabase(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("setupDatabase should have returned err")
@@ -137,6 +141,7 @@ func TestDatabase_setupDatabase_BadTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -149,6 +154,7 @@ func TestDatabase_setupDatabase_BadTable(t *testing.T) {
 
 	// run test
 	ddlMap.BuildService.Create = "#"
+
 	err := setupDatabase(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("setupDatabase should have returned err")
@@ -161,6 +167,7 @@ func TestDatabase_setupDatabase_BadIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -185,6 +192,7 @@ func TestDatabase_pingDatabase(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -207,6 +215,7 @@ func TestDatabase_pingDatabase_BadDatabase(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -229,6 +238,7 @@ func TestDatabase_createTables(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -252,6 +262,7 @@ func TestDatabase_createTables_BadBuildTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -263,6 +274,7 @@ func TestDatabase_createTables_BadBuildTable(t *testing.T) {
 
 	// run test
 	ddlMap.BuildService.Create = "#"
+
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createTables should have returned err")
@@ -275,6 +287,7 @@ func TestDatabase_createTables_BadLogTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -298,6 +311,7 @@ func TestDatabase_createTables_BadRepoTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -309,6 +323,7 @@ func TestDatabase_createTables_BadRepoTable(t *testing.T) {
 
 	// run test
 	ddlMap.RepoService.Create = "#"
+
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createTables should have returned err")
@@ -321,6 +336,7 @@ func TestDatabase_createTables_BadSecretTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -332,6 +348,7 @@ func TestDatabase_createTables_BadSecretTable(t *testing.T) {
 
 	// run test
 	ddlMap.SecretService.Create = "#"
+
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createTables should have returned err")
@@ -344,6 +361,7 @@ func TestDatabase_createTables_BadStepTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -355,6 +373,7 @@ func TestDatabase_createTables_BadStepTable(t *testing.T) {
 
 	// run test
 	ddlMap.StepService.Create = "#"
+
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createTables should have returned err")
@@ -367,6 +386,7 @@ func TestDatabase_createTables_BadUserTable(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -378,6 +398,7 @@ func TestDatabase_createTables_BadUserTable(t *testing.T) {
 
 	// run test
 	ddlMap.UserService.Create = "#"
+
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createTables should have returned err")
@@ -390,6 +411,7 @@ func TestDatabase_createIndexes(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -414,6 +436,7 @@ func TestDatabase_createIndexes_BadBuildIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -427,6 +450,7 @@ func TestDatabase_createIndexes_BadBuildIndex(t *testing.T) {
 
 	// run test
 	ddlMap.BuildService.Indexes = []string{"#"}
+
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createIndexes should have returned err")
@@ -439,6 +463,7 @@ func TestDatabase_createIndexes_BadLogIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -452,6 +477,7 @@ func TestDatabase_createIndexes_BadLogIndex(t *testing.T) {
 
 	// run test
 	ddlMap.LogService.Indexes = []string{"#"}
+
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createIndexes should have returned err")
@@ -464,6 +490,7 @@ func TestDatabase_createIndexes_BadRepoIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -477,6 +504,7 @@ func TestDatabase_createIndexes_BadRepoIndex(t *testing.T) {
 
 	// run test
 	ddlMap.RepoService.Indexes = []string{"#"}
+
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createIndexes should have returned err")
@@ -489,6 +517,7 @@ func TestDatabase_createIndexes_BadSecretIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -502,6 +531,7 @@ func TestDatabase_createIndexes_BadSecretIndex(t *testing.T) {
 
 	// run test
 	ddlMap.SecretService.Indexes = []string{"#"}
+
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createIndexes should have returned err")
@@ -514,6 +544,7 @@ func TestDatabase_createIndexes_BadStepIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -527,6 +558,7 @@ func TestDatabase_createIndexes_BadStepIndex(t *testing.T) {
 
 	// run test
 	ddlMap.StepService.Indexes = []string{"#"}
+
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createIndexes should have returned err")
@@ -539,6 +571,7 @@ func TestDatabase_createIndexes_BadUserIndex(t *testing.T) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -552,6 +585,7 @@ func TestDatabase_createIndexes_BadUserIndex(t *testing.T) {
 
 	// run test
 	ddlMap.UserService.Indexes = []string{"#"}
+
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createIndexes should have returned err")

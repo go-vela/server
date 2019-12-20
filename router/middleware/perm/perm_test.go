@@ -40,15 +40,18 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -57,6 +60,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -72,6 +76,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	engine.GET("/admin/users", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -101,15 +106,18 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -118,6 +126,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -133,6 +142,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	engine.GET("/admin/users", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -169,17 +179,20 @@ func TestPerm_MustAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -191,6 +204,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -207,6 +221,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -243,17 +258,20 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -265,6 +283,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -281,6 +300,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -317,17 +337,20 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -339,6 +362,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -355,6 +379,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -391,17 +416,20 @@ func TestPerm_MustWrite(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -413,6 +441,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -429,6 +458,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -465,17 +495,20 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -487,6 +520,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -503,6 +537,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -539,17 +574,20 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -561,6 +599,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -577,6 +616,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -613,17 +653,20 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -635,6 +678,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -651,6 +695,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -687,17 +732,20 @@ func TestPerm_MustRead(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -709,6 +757,7 @@ func TestPerm_MustRead(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -725,6 +774,7 @@ func TestPerm_MustRead(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -761,17 +811,20 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -783,6 +836,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -799,6 +853,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -835,17 +890,20 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -857,6 +915,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -873,6 +932,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -909,17 +969,20 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -931,6 +994,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -947,6 +1011,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -983,17 +1048,20 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
@@ -1005,6 +1073,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -1021,6 +1090,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 

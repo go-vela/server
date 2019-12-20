@@ -28,6 +28,7 @@ func Login(c *gin.Context) {
 	if strings.EqualFold(c.Request.Method, "POST") {
 		// assume all POST requests are coming from the CLI
 		AuthenticateCLI(c)
+
 		return
 	}
 
@@ -57,7 +58,9 @@ func Authenticate(c *gin.Context) {
 		oAuthState, err = source.FromContext(c).Login(c.Writer, c.Request)
 		if err != nil {
 			retErr := fmt.Errorf("unable to login user: %w", err)
+
 			util.HandleError(c, http.StatusUnauthorized, retErr)
+
 			return
 		}
 	}
@@ -66,7 +69,9 @@ func Authenticate(c *gin.Context) {
 	newUser, err := source.FromContext(c).Authenticate(c.Writer, c.Request, oAuthState)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
+
 		util.HandleError(c, http.StatusUnauthorized, retErr)
+
 		return
 	}
 
@@ -83,7 +88,9 @@ func Authenticate(c *gin.Context) {
 		uid, err := uuid.NewRandom()
 		if err != nil {
 			retErr := fmt.Errorf("unable to create UID for user %s: %w", u.GetName(), err)
+
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 			return
 		}
 
@@ -103,7 +110,9 @@ func Authenticate(c *gin.Context) {
 		err = database.FromContext(c).CreateUser(u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create user %s: %w", u.GetName(), err)
+
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 			return
 		}
 
@@ -111,12 +120,15 @@ func Authenticate(c *gin.Context) {
 		t, err := token.Compose(u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 			return
 		}
 
 		// return the user with their JWT token
 		c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
+
 		return
 	}
 
@@ -128,7 +140,9 @@ func Authenticate(c *gin.Context) {
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 
@@ -136,7 +150,9 @@ func Authenticate(c *gin.Context) {
 	t, err := token.Compose(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 
@@ -153,7 +169,9 @@ func AuthenticateCLI(c *gin.Context) {
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON: %w", err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -161,7 +179,9 @@ func AuthenticateCLI(c *gin.Context) {
 	newUser, err := source.FromContext(c).LoginCLI(input.GetUsername(), input.GetPassword(), input.GetOTP())
 	if err != nil {
 		retErr := fmt.Errorf("unable to login user: %w", err)
+
 		util.HandleError(c, http.StatusUnauthorized, retErr)
+
 		return
 	}
 
@@ -172,7 +192,9 @@ func AuthenticateCLI(c *gin.Context) {
 		uid, err := uuid.NewRandom()
 		if err != nil {
 			retErr := fmt.Errorf("unable to create UID for user %s: %w", u.GetName(), err)
+
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 			return
 		}
 
@@ -192,7 +214,9 @@ func AuthenticateCLI(c *gin.Context) {
 		err = database.FromContext(c).CreateUser(u)
 		if err != nil {
 			retErr := fmt.Errorf("Could not create user %s: %v", u.GetName(), err.Error())
+
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 			return
 		}
 
@@ -200,11 +224,14 @@ func AuthenticateCLI(c *gin.Context) {
 		t, err := token.Compose(u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 			return
 		}
 
 		c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
+
 		return
 	}
 
@@ -216,7 +243,9 @@ func AuthenticateCLI(c *gin.Context) {
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("Could not update user %s: %v", u.GetName(), err.Error())
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 
@@ -224,7 +253,9 @@ func AuthenticateCLI(c *gin.Context) {
 	t, err := token.Compose(u)
 	if err != nil {
 		retErr := fmt.Errorf("Could not compose token for user %s: %v", u.GetName(), err.Error())
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 

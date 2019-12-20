@@ -22,8 +22,9 @@ func TestMiddleware_NoCache(t *testing.T) {
 	wantLastModified := time.Now().UTC().Format(http.TimeFormat)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -66,8 +67,9 @@ func TestMiddleware_Options(t *testing.T) {
 	wantContentType := "application/json"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodOptions, "/health", nil)
 
@@ -113,8 +115,9 @@ func TestMiddleware_Options(t *testing.T) {
 
 func TestMiddleware_Options_InvalidMethod(t *testing.T) {
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -164,8 +167,9 @@ func TestMiddleware_Cors(t *testing.T) {
 	wantExposeHeaders := "link, x-total-count"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -201,8 +205,9 @@ func TestMiddleware_Secure(t *testing.T) {
 	wantProtection := "1; mode=block"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -244,8 +249,9 @@ func TestMiddleware_Secure_TLS(t *testing.T) {
 	wantSecurity := "max-age=31536000"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 	context.Request.TLS = new(tls.ConnectionState)
@@ -290,8 +296,9 @@ func TestMiddleware_RequestVersion(t *testing.T) {
 	wantVersion := "0.2.0"
 
 	// setup context
+	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
-	gin.SetMode(gin.DebugMode)
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -320,8 +327,9 @@ func TestMiddleware_RequestVersion_Prod(t *testing.T) {
 	wantVersion := "0.2.0"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -350,8 +358,9 @@ func TestMiddleware_ResponseVersion(t *testing.T) {
 	wantVersion := "0.2.0"
 
 	// setup context
+	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
-	gin.SetMode(gin.DebugMode)
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -380,8 +389,9 @@ func TestMiddleware_ResponseVersion_Prod(t *testing.T) {
 	wantVersion := "0.2.0"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 

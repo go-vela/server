@@ -18,7 +18,6 @@ import (
 // PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 func LogServiceHandlers(base *gin.RouterGroup) {
-
 	// Logs endpoints
 	logs := base.Group("/logs")
 	{
@@ -27,7 +26,6 @@ func LogServiceHandlers(base *gin.RouterGroup) {
 		logs.PUT("", perm.MustWrite(), api.UpdateServiceLog)
 		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteServiceLog)
 	} // end of logs endpoints
-
 }
 
 // LogStepHandlers is a function that extends the provided base router group
@@ -38,7 +36,6 @@ func LogServiceHandlers(base *gin.RouterGroup) {
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 func LogStepHandlers(base *gin.RouterGroup) {
-
 	// Logs endpoints
 	logs := base.Group("/logs")
 	{
@@ -47,5 +44,4 @@ func LogStepHandlers(base *gin.RouterGroup) {
 		logs.PUT("", perm.MustWrite(), api.UpdateStepLog)
 		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteStepLog)
 	} // end of logs endpoints
-
 }

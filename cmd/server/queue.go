@@ -20,6 +20,7 @@ import (
 // helper function to setup the queue from the CLI arguments.
 func setupQueue(c *cli.Context) (queue.Service, error) {
 	logrus.Debug("Creating queue client from CLI configuration")
+
 	switch c.String("queue-driver") {
 	case constants.DriverKafka:
 		return setupKafka(c)
@@ -39,7 +40,6 @@ func setupKafka(c *cli.Context) (queue.Service, error) {
 
 // helper function to setup the Redis queue from the CLI arguments.
 func setupRedis(c *cli.Context) (queue.Service, error) {
-
 	// setup routes
 	routes := append(c.StringSlice("queue-worker-routes"), constants.DefaultRoute)
 

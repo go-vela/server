@@ -200,5 +200,6 @@ func globalPerms(user *library.User) bool {
 	case user.GetAdmin():
 		return true
 	}
+
 	return false
 }

@@ -40,10 +40,12 @@ func TestDatabase_Client_GetBuild(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(want)
 
 	// run test
@@ -78,10 +80,12 @@ func TestDatabase_Client_GetLastBuild(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(b)
 	_ = database.CreateBuild(want)
 
@@ -107,6 +111,7 @@ func TestDatabase_Client_GetLastBuild_NotFound(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
@@ -140,10 +145,12 @@ func TestDatabase_Client_GetBuildList(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(bOne)
 	_ = database.CreateBuild(bTwo)
 
@@ -175,10 +182,12 @@ func TestDatabase_Client_GetBuildCount(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(bOne)
 	_ = database.CreateBuild(bTwo)
 
@@ -212,10 +221,12 @@ func TestDatabase_Client_GetBuildCountByStatus(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(bOne)
 	_ = database.CreateBuild(bTwo)
 
@@ -255,10 +266,12 @@ func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(bOne)
 	_ = database.CreateBuild(bTwo)
 
@@ -301,10 +314,12 @@ func TestDatabase_Client_GetRepoBuildCount(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(bOne)
 	_ = database.CreateBuild(bTwo)
 	_ = database.CreateBuild(bThree)
@@ -336,6 +351,7 @@ func TestDatabase_Client_CreateBuild(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
@@ -363,6 +379,7 @@ func TestDatabase_Client_CreateBuild_Invalid(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
@@ -391,6 +408,7 @@ func TestDatabase_Client_UpdateBuild(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
@@ -419,10 +437,12 @@ func TestDatabase_Client_UpdateBuild_Invalid(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(b)
 
 	// run test
@@ -442,10 +462,12 @@ func TestDatabase_Client_DeleteBuild(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(b)
 
 	// run test
@@ -463,6 +485,7 @@ func testBuild() *library.Build {
 	i64 := int64(0)
 	i := 0
 	str := ""
+
 	return &library.Build{
 		ID:           &i64,
 		RepoID:       &i64,

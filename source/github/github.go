@@ -90,9 +90,11 @@ func NewTest(urls ...string) (*client, error) {
 func createTestContext(urls ...string) *cli.Context {
 	set := flag.NewFlagSet("test", 0)
 	set.String("server-addr", urls[0], "doc")
+
 	if len(urls) > 1 {
 		set.Set("server-addr", urls[1])
 	}
+
 	set.String("webui-addr", urls[0], "doc")
 	set.String("source-url", urls[0], "doc")
 	set.String("source-client", "foo", "doc")
@@ -125,6 +127,7 @@ func (c *client) newClientToken(token string) *github.Client {
 
 	// ensure the proper URL is set
 	github.BaseURL, _ = url.Parse(c.API)
+
 	return github
 }
 
@@ -142,5 +145,6 @@ func (c *client) newClientBasicAuth(username, password, otp string) *github.Clie
 
 	// ensure the proper URL is set
 	github.BaseURL, _ = url.Parse(c.API)
+
 	return github
 }

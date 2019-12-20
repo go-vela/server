@@ -13,7 +13,6 @@ import (
 )
 
 func TestDatabase_Client_Route(t *testing.T) {
-
 	// setup
 	client, _ := NewTest()
 	tests := []struct {

@@ -37,7 +37,9 @@ func CreateRepo(c *gin.Context) {
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new repo: %w", err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -72,7 +74,9 @@ func CreateRepo(c *gin.Context) {
 	// ensure repo is allowed to be activated
 	if !checkWhitelist(input, whitelist) {
 		retErr := fmt.Errorf("unable to activate repo: %s is not on whitelist", input.GetFullName())
+
 		util.HandleError(c, http.StatusForbidden, retErr)
+
 		return
 	}
 
@@ -80,7 +84,9 @@ func CreateRepo(c *gin.Context) {
 	r, err := database.FromContext(c).GetRepo(input.GetOrg(), input.GetName())
 	if err == nil && r.GetActive() {
 		retErr := fmt.Errorf("unable to activate repo: %s is already active", input.GetFullName())
+
 		util.HandleError(c, http.StatusConflict, retErr)
+
 		return
 	}
 
@@ -88,6 +94,7 @@ func CreateRepo(c *gin.Context) {
 	url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+
 		switch err.Error() {
 		case "Repo already enabled":
 			util.HandleError(c, http.StatusConflict, retErr)
@@ -96,6 +103,7 @@ func CreateRepo(c *gin.Context) {
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		return
 	}
@@ -115,7 +123,9 @@ func CreateRepo(c *gin.Context) {
 		err = database.FromContext(c).UpdateRepo(r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
+
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 
@@ -126,7 +136,9 @@ func CreateRepo(c *gin.Context) {
 		err = database.FromContext(c).CreateRepo(input)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new repo %s: %w", input.GetFullName(), err)
+
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 
@@ -149,7 +161,9 @@ func GetRepos(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -157,7 +171,9 @@ func GetRepos(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -168,7 +184,9 @@ func GetRepos(c *gin.Context) {
 	t, err := database.FromContext(c).GetUserRepoCount(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -176,7 +194,9 @@ func GetRepos(c *gin.Context) {
 	r, err := database.FromContext(c).GetUserRepoList(u, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -216,7 +236,9 @@ func UpdateRepo(c *gin.Context) {
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -278,7 +300,9 @@ func UpdateRepo(c *gin.Context) {
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -301,11 +325,15 @@ func DeleteRepo(c *gin.Context) {
 	err := source.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
+
 		if err.Error() == "Repo not found" {
 			util.HandleError(c, http.StatusNotExtended, retErr)
+
 			return
 		}
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -314,7 +342,9 @@ func DeleteRepo(c *gin.Context) {
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -343,7 +373,9 @@ func RepairRepo(c *gin.Context) {
 	err := s.Disable(u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -351,7 +383,9 @@ func RepairRepo(c *gin.Context) {
 	_, err = s.Enable(u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -374,7 +408,9 @@ func ChownRepo(c *gin.Context) {
 	err := database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to change owner of repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -385,14 +421,12 @@ func ChownRepo(c *gin.Context) {
 // whitelist are allowed to enable repos. If the whitelist is
 // empty then any repo can be enabled.
 func checkWhitelist(r *library.Repo, whitelist []string) bool {
-
 	// if the whitelist is not set or empty allow any repo to be enabled
 	if len(whitelist) == 0 {
 		return true
 	}
 
 	for _, repo := range whitelist {
-
 		// allow all repos in org
 		if strings.Contains(repo, "/*") {
 			if strings.HasPrefix(repo, r.GetOrg()) {

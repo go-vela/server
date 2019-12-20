@@ -35,10 +35,12 @@ func TestDatabase_Client_GetUser(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(want)
 
 	// run test
@@ -63,10 +65,12 @@ func TestDatabase_Client_GetUserName(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(want)
 
 	// run test
@@ -99,10 +103,12 @@ func TestDatabase_Client_GetUserCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(uOne)
 	_ = db.CreateUser(uTwo)
 
@@ -136,10 +142,12 @@ func TestDatabase_Client_GetUserList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(uOne)
 	_ = db.CreateUser(uTwo)
 
@@ -181,10 +189,12 @@ func TestDatabase_Client_GetUserLiteList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(uOne)
 	_ = db.CreateUser(uTwo)
 
@@ -210,6 +220,7 @@ func TestDatabase_Client_CreateUser(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
@@ -238,6 +249,7 @@ func TestDatabase_Client_CreateUser_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
@@ -261,10 +273,12 @@ func TestDatabase_Client_UpdateUser(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(want)
 
 	// run test
@@ -290,10 +304,12 @@ func TestDatabase_Client_UpdateUser_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(u)
 
 	// run test
@@ -314,10 +330,12 @@ func TestDatabase_Client_DeleteUser(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(want)
 
 	// run test
@@ -335,6 +353,7 @@ func testUser() *library.User {
 	i64 := int64(0)
 	str := ""
 	b := false
+
 	return &library.User{
 		ID:     &i64,
 		Name:   &str,

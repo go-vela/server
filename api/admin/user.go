@@ -24,7 +24,9 @@ func AllUsers(c *gin.Context) {
 	u, err := database.FromContext(c).GetUserList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all users: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

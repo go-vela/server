@@ -30,6 +30,7 @@ func TestToken_Compose(t *testing.T) {
 	claims["active"] = u.GetActive()
 	claims["admin"] = u.GetAdmin()
 	claims["name"] = u.GetName()
+
 	want, err := tkn.SignedString([]byte(u.GetHash()))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
@@ -63,10 +64,12 @@ func TestToken_Parse(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(want)
 
 	// run test
@@ -90,6 +93,7 @@ func TestToken_Parse_Error_NoParse(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
@@ -121,6 +125,7 @@ func TestToken_Parse_Error_InvalidSignature(t *testing.T) {
 	claims["active"] = u.GetActive()
 	claims["admin"] = u.GetAdmin()
 	claims["name"] = u.GetName()
+
 	token, err := tkn.SignedString([]byte(u.GetHash()))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
@@ -128,10 +133,12 @@ func TestToken_Parse_Error_InvalidSignature(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(u)
 
 	// run test

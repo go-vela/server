@@ -25,6 +25,7 @@ func TestBuild_Retrieve(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	ToContext(context, want)
 
@@ -78,17 +79,20 @@ func TestBuild_Establish(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from builds;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateBuild(want)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1", nil)
 
@@ -120,8 +124,9 @@ func TestBuild_Establish_NoRepo(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1", nil)
 
@@ -148,15 +153,18 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds", nil)
 
@@ -187,15 +195,18 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/foo", nil)
 
@@ -226,15 +237,18 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1", nil)
 

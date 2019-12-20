@@ -143,8 +143,11 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	context := fmt.Sprintf("%s/%s", c.StatusContext, b.GetEvent())
 	url := fmt.Sprintf("%s/%s/%s/%d", c.WebUIHost, org, name, b.GetNumber())
 
-	var state string
-	var description string
+	var (
+		state       string
+		description string
+	)
+
 	// set the state and description for the status context
 	// depending on what the status of the build is
 	switch b.GetStatus() {
