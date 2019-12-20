@@ -100,7 +100,8 @@ func (c *client) GetBuildStepCount(b *library.Build) (int64, error) {
 	return r[0], err
 }
 
-// GetStepImageCount gets a count of an images occurance in the database.
+// GetStepImageCount gets a list of all step images
+// and the count of their occurrence in the database.
 func (c *client) GetStepImageCount() (map[string]float64, error) {
 	logrus.Tracef("Counting images for steps in the database")
 
@@ -126,7 +127,8 @@ func (c *client) GetStepImageCount() (map[string]float64, error) {
 	return counts, err
 }
 
-// GetStepStatusCount gets a count of step status' occurance in the database.
+// GetStepStatusCount gets a list of all step statuses
+// and the count of their occurrence in the database.
 func (c *client) GetStepStatusCount() (map[string]float64, error) {
 	logrus.Trace("Counting the total of each status for steps in the database")
 
