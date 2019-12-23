@@ -274,7 +274,7 @@ func UpdateStepLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
-	
+
 	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
