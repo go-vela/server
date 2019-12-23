@@ -413,6 +413,7 @@ func TestDatabase_Client_UpdateBuild(t *testing.T) {
 		database.Database.Exec("delete from builds;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateBuild(want)
 
 	// run test

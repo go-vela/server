@@ -42,7 +42,9 @@ func PostWebhook(c *gin.Context) {
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %w", err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -59,6 +61,7 @@ func PostWebhook(c *gin.Context) {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
+
 		return
 	}
 
@@ -66,8 +69,10 @@ func PostWebhook(c *gin.Context) {
 	if r == nil {
 		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -75,9 +80,12 @@ func PostWebhook(c *gin.Context) {
 	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -90,6 +98,7 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -105,8 +114,10 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -117,8 +128,10 @@ func PostWebhook(c *gin.Context) {
 	if !r.GetActive() {
 		retErr := fmt.Errorf("%s: %s is not an active repo", baseErr, r.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -129,8 +142,10 @@ func PostWebhook(c *gin.Context) {
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -138,8 +153,10 @@ func PostWebhook(c *gin.Context) {
 	if r.GetUserID() == 0 {
 		retErr := fmt.Errorf("%s: %s has no valid owner", baseErr, r.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -148,8 +165,10 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -158,8 +177,10 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get last build for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -192,8 +213,10 @@ func PostWebhook(c *gin.Context) {
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
+
 			return
 		}
 	}
@@ -216,8 +239,10 @@ func PostWebhook(c *gin.Context) {
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %w", baseErr, r.GetFullName(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
+
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(retErr.Error())
+
 				return
 			}
 		}
@@ -227,8 +252,10 @@ func PostWebhook(c *gin.Context) {
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
+
 			return
 		}
 	}
@@ -238,8 +265,10 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -254,8 +283,10 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to compile pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return
 	}
 
@@ -263,8 +294,10 @@ func PostWebhook(c *gin.Context) {
 	err = planBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(err.Error())
+
 		return
 	}
 
@@ -298,26 +331,33 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 	item := types.ToItem(p, b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
+
 	byteItem, err := json.Marshal(item)
 	if err != nil {
 		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
 		return
 	}
 
 	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
+
 	route, err := queue.Route(&p.Worker)
 	if err != nil {
 		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
 		return
 	}
 
 	logrus.Infof("Publishing item for build %d for %s to queue", b.GetNumber(), r.GetFullName())
+
 	err = queue.Publish(route, byteItem)
 	if err != nil {
 		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
 		err = queue.Publish(route, byteItem)
 		if err != nil {
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
 			return
 		}
 	}

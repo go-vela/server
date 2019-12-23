@@ -45,10 +45,12 @@ func TestDatabase_Client_GetBuildLogs(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateLog(lOne)
 	_ = database.CreateLog(lTwo)
 
@@ -75,10 +77,12 @@ func TestDatabase_Client_GetStepLog(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateLog(want)
 
 	// run test
@@ -104,10 +108,12 @@ func TestDatabase_Client_GetServiceLog(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateLog(want)
 
 	// run test
@@ -133,6 +139,7 @@ func TestDatabase_Client_CreateLog(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
@@ -162,6 +169,7 @@ func TestDatabase_Client_CreateLog_Invalid(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
@@ -186,10 +194,12 @@ func TestDatabase_Client_UpdateLog(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateLog(want)
 
 	// run test
@@ -216,10 +226,12 @@ func TestDatabase_Client_UpdateLog_Invalid(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateLog(l)
 
 	// run test
@@ -241,10 +253,12 @@ func TestDatabase_Client_DeleteLog(t *testing.T) {
 
 	// setup database
 	database, _ := NewTest()
+
 	defer func() {
 		database.Database.Exec("delete from logs;")
 		database.Database.Close()
 	}()
+
 	_ = database.CreateLog(want)
 
 	// run test

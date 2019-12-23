@@ -42,10 +42,12 @@ func TestDatabase_Client_GetService(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(want)
 
 	// run test
@@ -82,10 +84,12 @@ func TestDatabase_Client_GetServiceList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(sOne)
 	_ = db.CreateService(sTwo)
 
@@ -128,10 +132,12 @@ func TestDatabase_Client_GetBuildServiceList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(sOne)
 	_ = db.CreateService(sTwo)
 
@@ -182,10 +188,12 @@ func TestDatabase_Client_GetBuildServiceCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(sOne)
 	_ = db.CreateService(sTwo)
 	_ = db.CreateService(sThree)
@@ -239,10 +247,12 @@ func TestDatabase_Client_GetServiceImageCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(sOne)
 	_ = db.CreateService(sTwo)
 	_ = db.CreateService(sThree)
@@ -276,6 +286,7 @@ func TestDatabase_Client_CreateService(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
@@ -306,6 +317,7 @@ func TestDatabase_Client_CreateService_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
@@ -336,10 +348,12 @@ func TestDatabase_Client_UpdateService(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(want)
 
 	// run test
@@ -367,10 +381,12 @@ func TestDatabase_Client_UpdateService_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(s)
 
 	// run test
@@ -393,10 +409,12 @@ func TestDatabase_Client_DeleteService(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateService(s)
 
 	// run test

@@ -24,24 +24,28 @@ func setupMetadata(c *cli.Context) (*types.Metadata, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	m.Database = database
 
 	queue, err := metadataQueue(c)
 	if err != nil {
 		return nil, err
 	}
+
 	m.Queue = queue
 
 	source, err := metadataSource(c)
 	if err != nil {
 		return nil, err
 	}
+
 	m.Source = source
 
 	vela, err := metadataVela(c)
 	if err != nil {
 		return nil, err
 	}
+
 	m.Vela = vela
 
 	return m, nil

@@ -166,6 +166,7 @@ func Authenticate(c *gin.Context) {
 func AuthenticateCLI(c *gin.Context) {
 	// capture body from API request
 	input := new(library.Login)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON: %w", err)

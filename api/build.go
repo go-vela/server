@@ -40,6 +40,7 @@ func CreateBuild(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Build)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new build for repo %s: %w", r.GetFullName(), err)
@@ -450,6 +451,7 @@ func UpdateBuild(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Build)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
@@ -464,34 +466,42 @@ func UpdateBuild(c *gin.Context) {
 		// update status if set
 		b.SetStatus(input.GetStatus())
 	}
+
 	if len(input.GetError()) > 0 {
 		// update error if set
 		b.SetError(input.GetError())
 	}
+
 	if input.GetStarted() > 0 {
 		// update started if set
 		b.SetStarted(input.GetStarted())
 	}
+
 	if input.GetFinished() > 0 {
 		// update finished if set
 		b.SetFinished(input.GetFinished())
 	}
+
 	if len(input.GetTitle()) > 0 {
 		// update title if set
 		b.SetTitle(input.GetTitle())
 	}
+
 	if len(input.GetMessage()) > 0 {
 		// update message if set
 		b.SetMessage(input.GetMessage())
 	}
+
 	if len(input.GetHost()) > 0 {
 		// update host if set
 		b.SetHost(input.GetHost())
 	}
+
 	if len(input.GetRuntime()) > 0 {
 		// update runtime if set
 		b.SetRuntime(input.GetRuntime())
 	}
+
 	if len(input.GetDistribution()) > 0 {
 		// update distribution if set
 		b.SetDistribution(input.GetDistribution())

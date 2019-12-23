@@ -24,8 +24,9 @@ func TestMiddleware_Secret(t *testing.T) {
 	want := "foobar"
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
@@ -55,12 +56,14 @@ func TestMiddleware_Secrets(t *testing.T) {
 	defer d.Database.Close()
 
 	var got secret.Service
+
 	want, _ := native.New(d)
 	s := map[string]secret.Service{"native": want}
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 

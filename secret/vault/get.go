@@ -31,6 +31,7 @@ func (c *client) Get(sType, org, name, path string) (s *library.Secret, err erro
 	default:
 		return nil, fmt.Errorf("invalid secret type: %v", sType)
 	}
+
 	if err != nil {
 		return nil, err
 	}

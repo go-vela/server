@@ -118,5 +118,6 @@ func server(c *cli.Context) error {
 
 	// Wait for stuff and watch for errors
 	tomb.Wait()
+
 	return tomb.Err()
 }

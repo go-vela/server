@@ -35,6 +35,7 @@ func CreateService(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Service)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
@@ -51,6 +52,7 @@ func CreateService(c *gin.Context) {
 	if len(input.GetStatus()) == 0 {
 		input.SetStatus(constants.StatusPending)
 	}
+
 	if input.GetCreated() == 0 {
 		input.SetCreated(time.Now().UTC().Unix())
 	}
@@ -162,6 +164,7 @@ func UpdateService(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Service)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
@@ -176,18 +179,22 @@ func UpdateService(c *gin.Context) {
 		// update status if set
 		s.SetStatus(input.GetStatus())
 	}
+
 	if len(input.GetError()) > 0 {
 		// update error if set
 		s.SetError(input.GetError())
 	}
+
 	if input.GetExitCode() > 0 {
 		// update exit_code if set
 		s.SetExitCode(input.GetExitCode())
 	}
+
 	if input.GetStarted() > 0 {
 		// update started if set
 		s.SetStarted(input.GetStarted())
 	}
+
 	if input.GetFinished() > 0 {
 		// update finished if set
 		s.SetFinished(input.GetFinished())

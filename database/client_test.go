@@ -101,6 +101,7 @@ func TestDatabase_setupDatabase(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -150,6 +151,7 @@ func TestDatabase_setupDatabase_BadTable(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -176,10 +178,12 @@ func TestDatabase_setupDatabase_BadIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
 	ddlMap.BuildService.Indexes = []string{"#"}
+
 	err := setupDatabase(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("setupDatabase should have returned err")
@@ -226,6 +230,7 @@ func TestDatabase_pingDatabase_BadDatabase(t *testing.T) {
 
 	// run test
 	database.Close()
+
 	err := pingDatabase(database.DB())
 	if err == nil {
 		t.Errorf("pingDatabase should have returned err")
@@ -247,6 +252,7 @@ func TestDatabase_createTables(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -270,6 +276,7 @@ func TestDatabase_createTables_BadBuildTable(t *testing.T) {
 
 	// setup database
 	database, _ := gorm.Open(name, config)
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -295,10 +302,12 @@ func TestDatabase_createTables_BadLogTable(t *testing.T) {
 
 	// setup database
 	database, _ := gorm.Open(name, config)
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
 	ddlMap.LogService.Create = "#"
+
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
 		t.Errorf("createTables should have returned err")
@@ -319,6 +328,7 @@ func TestDatabase_createTables_BadRepoTable(t *testing.T) {
 
 	// setup database
 	database, _ := gorm.Open(name, config)
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -344,6 +354,7 @@ func TestDatabase_createTables_BadSecretTable(t *testing.T) {
 
 	// setup database
 	database, _ := gorm.Open(name, config)
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -369,6 +380,7 @@ func TestDatabase_createTables_BadStepTable(t *testing.T) {
 
 	// setup database
 	database, _ := gorm.Open(name, config)
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -394,6 +406,7 @@ func TestDatabase_createTables_BadUserTable(t *testing.T) {
 
 	// setup database
 	database, _ := gorm.Open(name, config)
+
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
@@ -420,6 +433,7 @@ func TestDatabase_createIndexes(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 
@@ -445,6 +459,7 @@ func TestDatabase_createIndexes_BadBuildIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 
@@ -472,6 +487,7 @@ func TestDatabase_createIndexes_BadLogIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 
@@ -499,6 +515,7 @@ func TestDatabase_createIndexes_BadRepoIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 
@@ -526,6 +543,7 @@ func TestDatabase_createIndexes_BadSecretIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 
@@ -553,6 +571,7 @@ func TestDatabase_createIndexes_BadStepIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 
@@ -580,6 +599,7 @@ func TestDatabase_createIndexes_BadUserIndex(t *testing.T) {
 	// setup database
 	database, _ := gorm.Open(name, config)
 	defer database.Close()
+
 	ddlMap, _ := ddl.NewMap(name)
 	_ = createTables(database.DB(), ddlMap)
 

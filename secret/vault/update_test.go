@@ -17,6 +17,7 @@ import (
 func TestVault_Update_Org(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -29,6 +30,7 @@ func TestVault_Update_Org(t *testing.T) {
 	engine.PUT("/v1/secret/:type/:org/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -63,6 +65,7 @@ func TestVault_Update_Org(t *testing.T) {
 func TestVault_Update_Repo(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -75,6 +78,7 @@ func TestVault_Update_Repo(t *testing.T) {
 	engine.PUT("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -108,6 +112,7 @@ func TestVault_Update_Repo(t *testing.T) {
 func TestVault_Update_Shared(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -120,6 +125,7 @@ func TestVault_Update_Shared(t *testing.T) {
 	engine.PUT("/v1/secret/:type/:org/:team/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -153,6 +159,7 @@ func TestVault_Update_Shared(t *testing.T) {
 func TestVault_Update_InvalidSecret(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -165,6 +172,7 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 	engine.PUT("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -252,6 +260,7 @@ func TestVault_Update_ClosedServer(t *testing.T) {
 func TestVault_Update_NoWrite(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -264,6 +273,7 @@ func TestVault_Update_NoWrite(t *testing.T) {
 	engine.PUT("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 

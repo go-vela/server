@@ -34,6 +34,7 @@ func CreateSecret(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Secret)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s for %s service: %w", t, o, n, e, err)
@@ -183,6 +184,7 @@ func GetSecret(c *gin.Context) {
 	// only allow agents to access the full secret with the value
 	if u.GetAdmin() && u.GetName() == "vela-worker" {
 		c.JSON(http.StatusOK, secret)
+
 		return
 	}
 
@@ -202,6 +204,7 @@ func UpdateSecret(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Secret)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s/%s for %s service: %v", t, o, n, s, e, err)
@@ -290,5 +293,6 @@ func unique(stringSlice []string) []string {
 			list = append(list, entry)
 		}
 	}
+
 	return list
 }

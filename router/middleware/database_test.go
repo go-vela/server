@@ -17,6 +17,7 @@ import (
 func TestMiddleware_Database(t *testing.T) {
 	// setup types
 	var got database.Service
+
 	want, _ := database.NewTest()
 	defer want.Database.Close()
 

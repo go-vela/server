@@ -36,6 +36,7 @@ func GetBuildLogs(c *gin.Context) {
 		retErr := fmt.Errorf("unable to get logs for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -54,6 +55,7 @@ func CreateServiceLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
@@ -129,6 +131,7 @@ func UpdateServiceLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
@@ -195,6 +198,7 @@ func CreateStepLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
@@ -270,6 +274,7 @@ func UpdateStepLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
+	
 	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)

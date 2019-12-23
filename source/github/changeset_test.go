@@ -18,6 +18,7 @@ import (
 func TestGithub_Changeset(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -27,6 +28,7 @@ func TestGithub_Changeset(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/listchanges.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -62,6 +64,7 @@ func TestGithub_Changeset(t *testing.T) {
 func TestGithub_ChangesetPR(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -71,6 +74,7 @@ func TestGithub_ChangesetPR(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/listchangespr.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 

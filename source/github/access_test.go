@@ -60,6 +60,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 func TestGithub_OrgAccess_Member(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -109,6 +110,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	u := new(library.User)
 	u.SetName("foo")
 	u.SetToken("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
@@ -126,6 +128,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 func TestGithub_OrgAccess_Pending(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 

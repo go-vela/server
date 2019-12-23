@@ -18,6 +18,7 @@ import (
 func TestVault_List_Org(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -32,6 +33,7 @@ func TestVault_List_Org(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -71,6 +73,7 @@ func TestVault_List_Org(t *testing.T) {
 func TestVault_List_Repo(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -85,6 +88,7 @@ func TestVault_List_Repo(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -124,6 +128,7 @@ func TestVault_List_Repo(t *testing.T) {
 func TestVault_List_Shared(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -138,6 +143,7 @@ func TestVault_List_Shared(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -219,6 +225,7 @@ func TestVault_List_ClosedServer(t *testing.T) {
 func TestVault_List_EmptyList(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -228,6 +235,7 @@ func TestVault_List_EmptyList(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/empty_list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -255,6 +263,7 @@ func TestVault_List_EmptyList(t *testing.T) {
 func TestVault_List_InvalidList(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -264,6 +273,7 @@ func TestVault_List_InvalidList(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/invalid_list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -291,6 +301,7 @@ func TestVault_List_InvalidList(t *testing.T) {
 func TestVault_List_NoRead(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -303,6 +314,7 @@ func TestVault_List_NoRead(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 

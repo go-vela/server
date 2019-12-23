@@ -38,6 +38,7 @@ func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, err
 	default:
 		return nil, fmt.Errorf("invalid secret type: %v", sType)
 	}
+
 	if err != nil {
 		return nil, err
 	}

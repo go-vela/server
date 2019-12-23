@@ -61,10 +61,12 @@ func TestUser_Establish(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from users;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateUser(want)
 
 	// setup context
@@ -79,6 +81,7 @@ func TestUser_Establish(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -95,6 +98,7 @@ func TestUser_Establish(t *testing.T) {
 
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 
@@ -161,6 +165,7 @@ func TestUser_Establish_SecretValid(t *testing.T) {
 
 		c.Status(http.StatusOK)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -179,6 +184,7 @@ func TestUser_Establish_SecretValid(t *testing.T) {
 func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	// setup database
 	secret := "superSecret"
+
 	db, _ := database.NewTest()
 	defer db.Database.Close()
 
@@ -226,6 +232,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.String(http.StatusOK, userPayload)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -242,6 +249,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 
 		c.Status(http.StatusOK)
 	})
+
 	s1 := httptest.NewServer(engine)
 	defer s1.Close()
 

@@ -30,6 +30,7 @@ func CreateHook(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Hook)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new webhook for repo %s: %w", r.GetFullName(), err)
@@ -184,6 +185,7 @@ func UpdateHook(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Hook)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for webhook %s/%s: %w", r.GetFullName(), hook, err)
@@ -217,26 +219,32 @@ func UpdateHook(c *gin.Context) {
 		// update created if set
 		h.SetCreated(input.GetCreated())
 	}
+
 	if len(input.GetHost()) > 0 {
 		// update host if set
 		h.SetHost(input.GetHost())
 	}
+
 	if len(input.GetEvent()) > 0 {
 		// update event if set
 		h.SetEvent(input.GetEvent())
 	}
+
 	if len(input.GetBranch()) > 0 {
 		// update branch if set
 		h.SetBranch(input.GetBranch())
 	}
+
 	if len(input.GetError()) > 0 {
 		// update error if set
 		h.SetError(input.GetError())
 	}
+
 	if len(input.GetStatus()) > 0 {
 		// update status if set
 		h.SetStatus(input.GetStatus())
 	}
+
 	if len(input.GetLink()) > 0 {
 		// update link if set
 		h.SetLink(input.GetLink())

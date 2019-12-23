@@ -22,6 +22,7 @@ func TestMiddleware_Source(t *testing.T) {
 	defer s.Close()
 
 	var got source.Service
+
 	want, _ := github.NewTest(s.URL)
 
 	// setup context

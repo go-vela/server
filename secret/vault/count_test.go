@@ -15,6 +15,7 @@ import (
 func TestVault_Count_Org(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -29,6 +30,7 @@ func TestVault_Count_Org(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -59,6 +61,7 @@ func TestVault_Count_Org(t *testing.T) {
 func TestVault_Count_Repo(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -73,6 +76,7 @@ func TestVault_Count_Repo(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -103,6 +107,7 @@ func TestVault_Count_Repo(t *testing.T) {
 func TestVault_Count_Shared(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -117,6 +122,7 @@ func TestVault_Count_Shared(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -189,6 +195,7 @@ func TestVault_Count_ClosedServer(t *testing.T) {
 func TestVault_Count_EmptyList(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -198,6 +205,7 @@ func TestVault_Count_EmptyList(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/empty_list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -225,6 +233,7 @@ func TestVault_Count_EmptyList(t *testing.T) {
 func TestVault_Count_InvalidList(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -234,6 +243,7 @@ func TestVault_Count_InvalidList(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/invalid_list.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 

@@ -22,6 +22,7 @@ import (
 func TestMiddleware_CompilerNative(t *testing.T) {
 	// setup types
 	var got compiler.Engine
+
 	want, _ := native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 
 	// setup context

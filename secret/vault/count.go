@@ -31,6 +31,7 @@ func (c *client) Count(sType, org, name string) (i int64, err error) {
 	default:
 		return 0, fmt.Errorf("invalid secret type: %v", sType)
 	}
+
 	if err != nil {
 		return 0, err
 	}

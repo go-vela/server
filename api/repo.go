@@ -34,6 +34,7 @@ func CreateRepo(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Repo)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new repo: %w", err)
@@ -105,6 +106,7 @@ func CreateRepo(c *gin.Context) {
 		}
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -112,6 +114,7 @@ func CreateRepo(c *gin.Context) {
 	if len(input.GetLink()) == 0 {
 		input.SetLink(url)
 	}
+
 	if len(input.GetClone()) == 0 {
 		input.SetClone(fmt.Sprintf("%s.git", url))
 	}
@@ -233,6 +236,7 @@ func UpdateRepo(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Repo)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for repo %s: %w", r.GetFullName(), err)
@@ -247,6 +251,7 @@ func UpdateRepo(c *gin.Context) {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
 	}
+
 	if input.GetTimeout() > 0 {
 		// update build timeout if set
 		r.SetTimeout(
@@ -261,34 +266,42 @@ func UpdateRepo(c *gin.Context) {
 			),
 		)
 	}
+
 	if len(input.GetVisibility()) > 0 {
 		// update visibility if set
 		r.SetVisibility(input.GetVisibility())
 	}
+
 	if input.Private != nil {
 		// update private if set
 		r.SetPrivate(input.GetPrivate())
 	}
+
 	if input.Active != nil {
 		// update active if set
 		r.SetActive(input.GetActive())
 	}
+
 	if input.AllowPull != nil {
 		// update allow_pull if set
 		r.SetAllowPull(input.GetAllowPull())
 	}
+
 	if input.AllowPush != nil {
 		// update allow_push if set
 		r.SetAllowPush(input.GetAllowPush())
 	}
+
 	if input.AllowDeploy != nil {
 		// update allow_deploy if set
 		r.SetAllowDeploy(input.GetAllowDeploy())
 	}
+
 	if input.AllowTag != nil {
 		// update allow_tag if set
 		r.SetAllowTag(input.GetAllowTag())
 	}
+
 	// set default events if no events are enabled
 	if !r.GetAllowPull() && !r.GetAllowPush() &&
 		!r.GetAllowDeploy() && !r.GetAllowTag() {
@@ -339,6 +352,7 @@ func DeleteRepo(c *gin.Context) {
 
 	// Mark the the repo as inactive
 	r.SetActive(false)
+
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
