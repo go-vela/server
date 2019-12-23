@@ -34,10 +34,13 @@ func CreateSecret(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Secret)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s for %s service: %w", t, o, n, e, err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -69,7 +72,9 @@ func CreateSecret(c *gin.Context) {
 	err = secret.FromContext(c, e).Create(t, o, n, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create secret %s/%s/%s for %s service: %w", t, o, n, e, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -92,7 +97,9 @@ func GetSecrets(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for %s/%s/%s from %s service: %w", t, o, n, e, err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -100,7 +107,9 @@ func GetSecrets(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for %s/%s/%s from %s service: %w", t, o, n, e, err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -108,7 +117,9 @@ func GetSecrets(c *gin.Context) {
 	total, err := secret.FromContext(c, e).Count(t, o, n)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secret count for %s/%s/%s from %s service: %w", t, o, n, e, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -119,7 +130,9 @@ func GetSecrets(c *gin.Context) {
 	s, err := secret.FromContext(c, e).List(t, o, n, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secrets for %s/%s/%s from %s service: %w", t, o, n, e, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -162,13 +175,16 @@ func GetSecret(c *gin.Context) {
 	secret, err := secret.FromContext(c, e).Get(t, o, n, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secret %s/%s/%s/%s from %s service: %w", t, o, n, s, e, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
 	// only allow agents to access the full secret with the value
 	if u.GetAdmin() && u.GetName() == "vela-worker" {
 		c.JSON(http.StatusOK, secret)
+
 		return
 	}
 
@@ -188,10 +204,13 @@ func UpdateSecret(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Secret)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s/%s for %s service: %v", t, o, n, s, e, err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -225,7 +244,9 @@ func UpdateSecret(c *gin.Context) {
 	err = secret.FromContext(c, e).Update(t, o, n, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update secret %s/%s/%s/%s for %s service: %w", t, o, n, s, e, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -250,7 +271,9 @@ func DeleteSecret(c *gin.Context) {
 	err := secret.FromContext(c, e).Delete(t, o, n, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete secret %s/%s/%s/%s from %s service: %w", t, o, n, s, e, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -262,11 +285,14 @@ func DeleteSecret(c *gin.Context) {
 func unique(stringSlice []string) []string {
 	keys := make(map[string]bool)
 	list := []string{}
+
 	for _, entry := range stringSlice {
 		if _, value := keys[entry]; !value {
 			keys[entry] = true
+
 			list = append(list, entry)
 		}
 	}
+
 	return list
 }

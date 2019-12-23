@@ -32,10 +32,13 @@ func CreateUser(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.User)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new user: %w", err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -43,7 +46,9 @@ func CreateUser(c *gin.Context) {
 	err = database.FromContext(c).CreateUser(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create user: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -62,7 +67,9 @@ func GetUsers(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for users: %w", err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -70,7 +77,9 @@ func GetUsers(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for users: %w", err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -81,7 +90,9 @@ func GetUsers(c *gin.Context) {
 	t, err := database.FromContext(c).GetUserCount()
 	if err != nil {
 		retErr := fmt.Errorf("unable to get users count: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -89,7 +100,9 @@ func GetUsers(c *gin.Context) {
 	u, err := database.FromContext(c).GetUserLiteList(page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get users: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -128,7 +141,9 @@ func GetUser(c *gin.Context) {
 	u, err := database.FromContext(c).GetUserName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -190,6 +205,7 @@ func GetUserSourceRepos(c *gin.Context) {
 	err := threads.Wait()
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
+
 		return
 	}
 
@@ -235,10 +251,13 @@ func UpdateUser(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.User)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for user %s: %w", user, err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -246,7 +265,9 @@ func UpdateUser(c *gin.Context) {
 	u, err := database.FromContext(c).GetUserName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -260,7 +281,9 @@ func UpdateUser(c *gin.Context) {
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", user, err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -282,7 +305,9 @@ func DeleteUser(c *gin.Context) {
 	u, err := database.FromContext(c).GetUserName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -290,7 +315,9 @@ func DeleteUser(c *gin.Context) {
 	err = database.FromContext(c).DeleteUser(u.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -309,7 +336,9 @@ func CreateToken(c *gin.Context) {
 	t, err := token.Compose(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 
@@ -328,7 +357,9 @@ func DeleteToken(c *gin.Context) {
 	uid, err := uuid.NewRandom()
 	if err != nil {
 		retErr := fmt.Errorf("unable to create UID for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 
@@ -342,7 +373,9 @@ func DeleteToken(c *gin.Context) {
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 
@@ -350,7 +383,9 @@ func DeleteToken(c *gin.Context) {
 	t, err := token.Compose(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
 		return
 	}
 

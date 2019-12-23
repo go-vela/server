@@ -18,6 +18,7 @@ import (
 func TestVault_Get_Org(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -27,6 +28,7 @@ func TestVault_Get_Org(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/org.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -64,6 +66,7 @@ func TestVault_Get_Org(t *testing.T) {
 func TestVault_Get_Repo(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -73,6 +76,7 @@ func TestVault_Get_Repo(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/repo.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -110,6 +114,7 @@ func TestVault_Get_Repo(t *testing.T) {
 func TestVault_Get_Shared(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -119,6 +124,7 @@ func TestVault_Get_Shared(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/shared.json")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 

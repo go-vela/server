@@ -84,6 +84,5 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 				entry.Info()
 			}
 		}
-
 	}
 }

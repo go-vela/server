@@ -24,7 +24,9 @@ func AllSteps(c *gin.Context) {
 	s, err := database.FromContext(c).GetStepList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all steps: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

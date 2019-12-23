@@ -17,13 +17,15 @@ import (
 
 func TestMiddleware_Payload(t *testing.T) {
 	// setup types
-	want := `{"foo": "bar"}`
-	jsonBody, _ := json.Marshal(want)
 	var got interface{}
 
+	want := `{"foo": "bar"}`
+	jsonBody, _ := json.Marshal(want)
+
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodPost, "/health", bytes.NewBuffer(jsonBody))
 

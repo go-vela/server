@@ -51,14 +51,12 @@ func BaseMetrics() http.Handler {
 
 // CustomMetrics returns custom Prometheus metrics from private functions
 func CustomMetrics(c *gin.Context) {
-
 	// call helper function to return total users
 	recordGauges(c)
 }
 
 // helper function to get the totals of resource types
 func recordGauges(c *gin.Context) {
-
 	// return the total number of users in the application
 	u, err := database.FromContext(c).GetUserCount()
 	if err != nil {
@@ -143,6 +141,7 @@ func recordGauges(c *gin.Context) {
 	for image, count := range stepImageMap {
 		stepImages.WithLabelValues(image).Set(count)
 	}
+
 	for image, count := range serviceImageMap {
 		serviceImages.WithLabelValues(image).Set(count)
 	}

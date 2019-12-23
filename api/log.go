@@ -34,7 +34,9 @@ func GetBuildLogs(c *gin.Context) {
 	l, err := database.FromContext(c).GetBuildLogs(b.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -53,10 +55,13 @@ func CreateServiceLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -69,7 +74,9 @@ func CreateServiceLog(c *gin.Context) {
 	err = database.FromContext(c).CreateLog(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -93,7 +100,9 @@ func GetServiceLog(c *gin.Context) {
 	l, err := database.FromContext(c).GetServiceLog(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -114,16 +123,21 @@ func UpdateServiceLog(c *gin.Context) {
 	l, err := database.FromContext(c).GetServiceLog(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -137,7 +151,9 @@ func UpdateServiceLog(c *gin.Context) {
 	err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -161,7 +177,9 @@ func DeleteServiceLog(c *gin.Context) {
 	err := database.FromContext(c).DeleteLog(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -180,10 +198,13 @@ func CreateStepLog(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -196,7 +217,9 @@ func CreateStepLog(c *gin.Context) {
 	err = database.FromContext(c).CreateLog(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -220,7 +243,9 @@ func GetStepLog(c *gin.Context) {
 	l, err := database.FromContext(c).GetStepLog(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -241,16 +266,21 @@ func UpdateStepLog(c *gin.Context) {
 	l, err := database.FromContext(c).GetStepLog(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
 	// capture body from API request
 	input := new(library.Log)
+
 	err = c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -264,7 +294,9 @@ func UpdateStepLog(c *gin.Context) {
 	err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update logs for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -288,7 +320,9 @@ func DeleteStepLog(c *gin.Context) {
 	err := database.FromContext(c).DeleteLog(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

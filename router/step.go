@@ -25,7 +25,6 @@ import (
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 func StepHandlers(base *gin.RouterGroup) {
-
 	// Steps endpoints
 	steps := base.Group("/steps")
 	{
@@ -41,9 +40,6 @@ func StepHandlers(base *gin.RouterGroup) {
 
 			// Log endpoints
 			LogStepHandlers(step)
-
 		} // end of step endpoints
-
 	} // end of steps endpoints
-
 }

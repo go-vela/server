@@ -18,7 +18,7 @@ type client struct {
 func New(d database.Service) (*client, error) {
 	// immediately return if a nil database Service is provided
 	if d == nil {
-		return nil, fmt.Errorf("Empty Database client passed to native secret engine")
+		return nil, fmt.Errorf("empty Database client passed to native secret engine")
 	}
 
 	// create the client object

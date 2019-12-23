@@ -25,7 +25,7 @@ func (c *client) Delete(sType, org, name, path string) error {
 	case constants.SecretShared:
 		return c.deleteShared(org, name, path)
 	default:
-		return fmt.Errorf("Invalid secret type: %v", sType)
+		return fmt.Errorf("invalid secret type: %v", sType)
 	}
 }
 

@@ -42,10 +42,12 @@ func TestDatabase_Client_GetStep(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(want)
 
 	// run test
@@ -82,10 +84,12 @@ func TestDatabase_Client_GetStepList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(sOne)
 	_ = db.CreateStep(sTwo)
 
@@ -128,10 +132,12 @@ func TestDatabase_Client_GetBuildStepList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(sOne)
 	_ = db.CreateStep(sTwo)
 
@@ -182,10 +188,12 @@ func TestDatabase_Client_GetBuildStepCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(sOne)
 	_ = db.CreateStep(sTwo)
 	_ = db.CreateStep(sThree)
@@ -239,10 +247,12 @@ func TestDatabase_Client_GetStepImageCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(sOne)
 	_ = db.CreateStep(sTwo)
 	_ = db.CreateStep(sThree)
@@ -299,10 +309,12 @@ func TestDatabase_Client_GetStepStatusCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(sOne)
 	_ = db.CreateStep(sTwo)
 	_ = db.CreateStep(sThree)
@@ -336,6 +348,7 @@ func TestDatabase_Client_CreateStep(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
@@ -366,6 +379,7 @@ func TestDatabase_Client_CreateStep_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
@@ -396,10 +410,12 @@ func TestDatabase_Client_UpdateStep(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(want)
 
 	// run test
@@ -427,10 +443,12 @@ func TestDatabase_Client_UpdateStep_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(s)
 
 	// run test
@@ -453,10 +471,12 @@ func TestDatabase_Client_DeleteStep(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from steps;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateStep(want)
 
 	// run test
@@ -474,6 +494,7 @@ func testStep() *library.Step {
 	i64 := int64(0)
 	i := 0
 	str := ""
+
 	return &library.Step{
 		ID:           &i64,
 		BuildID:      &i64,

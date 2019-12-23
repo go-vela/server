@@ -15,7 +15,6 @@ import (
 
 // Route decides which route a build gets placed within the queue.
 func (c *client) Route(w *pipeline.Worker) (string, error) {
-
 	buf := bytes.Buffer{}
 
 	if w.Empty() {
@@ -26,6 +25,7 @@ func (c *client) Route(w *pipeline.Worker) (string, error) {
 	if !strings.EqualFold(strings.ToLower(w.Flavor), "") {
 		buf.WriteString(fmt.Sprintf(":%s", w.Flavor))
 	}
+
 	if !strings.EqualFold(strings.ToLower(w.Platform), "") {
 		buf.WriteString(fmt.Sprintf(":%s", w.Platform))
 	}

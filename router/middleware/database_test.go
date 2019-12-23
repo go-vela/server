@@ -17,12 +17,14 @@ import (
 func TestMiddleware_Database(t *testing.T) {
 	// setup types
 	var got database.Service
+
 	want, _ := database.NewTest()
 	defer want.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 

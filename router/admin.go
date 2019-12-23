@@ -19,7 +19,6 @@ import (
 // GET    /api/v1/admin/steps
 // GET    /api/v1/admin/users
 func AdminHandlers(base *gin.RouterGroup) {
-
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{
@@ -29,5 +28,4 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.GET("/steps", admin.AllSteps)
 		_admin.GET("/users", admin.AllUsers)
 	} // end of admin endpoints
-
 }

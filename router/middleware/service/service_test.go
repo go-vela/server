@@ -70,19 +70,22 @@ func TestService_Establish(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from builds;")
 		db.Database.Exec("delete from services;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateBuild(b)
 	_ = db.CreateService(want)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
@@ -115,8 +118,9 @@ func TestService_Establish_NoRepo(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
@@ -146,15 +150,18 @@ func TestService_Establish_NoBuild(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 
@@ -190,17 +197,20 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from builds;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateBuild(b)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services", nil)
 
@@ -237,17 +247,20 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from builds;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateBuild(b)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/foo", nil)
 
@@ -284,17 +297,20 @@ func TestService_Establish_NoService(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Exec("delete from builds;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 	_ = db.CreateBuild(b)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar/builds/1/services/1", nil)
 

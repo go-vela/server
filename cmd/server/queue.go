@@ -20,13 +20,14 @@ import (
 // helper function to setup the queue from the CLI arguments.
 func setupQueue(c *cli.Context) (queue.Service, error) {
 	logrus.Debug("Creating queue client from CLI configuration")
+
 	switch c.String("queue-driver") {
 	case constants.DriverKafka:
 		return setupKafka(c)
 	case constants.DriverRedis:
 		return setupRedis(c)
 	default:
-		return nil, fmt.Errorf("Unrecognized queue driver: %s", c.String("queue-driver"))
+		return nil, fmt.Errorf("invalid queue driver: %s", c.String("queue-driver"))
 	}
 }
 
@@ -34,20 +35,21 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 func setupKafka(c *cli.Context) (queue.Service, error) {
 	logrus.Tracef("Creating %s queue client from CLI configuration", constants.DriverKafka)
 	// return kafka.New(c.String("queue-config"), "vela")
-	return nil, fmt.Errorf("Unsupported queue driver: %s", constants.DriverKafka)
+	return nil, fmt.Errorf("unsupported queue driver: %s", constants.DriverKafka)
 }
 
 // helper function to setup the Redis queue from the CLI arguments.
 func setupRedis(c *cli.Context) (queue.Service, error) {
-
 	// setup routes
 	routes := append(c.StringSlice("queue-worker-routes"), constants.DefaultRoute)
 
 	if c.Bool("queue-cluster") {
 		logrus.Tracef("Creating %s queue cluster client from CLI configuration", constants.DriverRedis)
+
 		return redis.NewCluster(c.String("queue-config"), routes...)
 	}
 
 	logrus.Tracef("Creating %s queue client from CLI configuration", constants.DriverRedis)
+
 	return redis.New(c.String("queue-config"), routes...)
 }

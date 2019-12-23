@@ -60,15 +60,18 @@ func TestRepo_Establish(t *testing.T) {
 
 	// setup database
 	db, _ := database.NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(want)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar", nil)
 
@@ -99,8 +102,9 @@ func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "//bar/test", nil)
 
@@ -125,8 +129,9 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo//test", nil)
 
@@ -151,8 +156,9 @@ func TestRepo_Establish_NoRepo(t *testing.T) {
 	defer db.Database.Close()
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foo/bar", nil)
 

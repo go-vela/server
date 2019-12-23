@@ -25,7 +25,6 @@ import (
 // PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 func ServiceHandlers(base *gin.RouterGroup) {
-
 	// Services endpoints
 	services := base.Group("/services")
 	{
@@ -41,9 +40,6 @@ func ServiceHandlers(base *gin.RouterGroup) {
 
 			// Log endpoints
 			LogServiceHandlers(service)
-
 		} // end of service endpoints
-
 	} // end of services endpoints
-
 }

@@ -85,6 +85,7 @@ func NewTest() (*client, error) {
 	if len(name) == 0 {
 		name = constants.DriverSqlite
 	}
+
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
 		config = ":memory:"
@@ -163,15 +164,16 @@ func pingDatabase(db *sql.DB) error {
 		// send ping request to database
 		err := db.Ping()
 		if err != nil {
-			logrus.Debugf("Error pinging database. Retrying in %v", (time.Duration(i) * time.Second))
+			logrus.Debugf("unable to ping database. Retrying in %v", (time.Duration(i) * time.Second))
 			time.Sleep(1 * time.Second)
+
 			continue
 		}
 
 		return nil
 	}
 
-	return fmt.Errorf("Error establishing database connection")
+	return fmt.Errorf("unable to establish database connection")
 }
 
 // createTables is a helper function to setup
@@ -180,49 +182,49 @@ func createTables(db *sql.DB, ddlMap *ddl.Map) error {
 	// create the build table
 	_, err := db.Exec(ddlMap.BuildService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableBuild, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableBuild, err)
 	}
 
 	// create the hook table
 	_, err = db.Exec(ddlMap.HookService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableHook, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableHook, err)
 	}
 
 	// create the log table
 	_, err = db.Exec(ddlMap.LogService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableLog, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableLog, err)
 	}
 
 	// create the repo table
 	_, err = db.Exec(ddlMap.RepoService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableRepo, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableRepo, err)
 	}
 
 	// create the secret table
 	_, err = db.Exec(ddlMap.SecretService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableSecret, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableSecret, err)
 	}
 
 	// create the step table
 	_, err = db.Exec(ddlMap.StepService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableStep, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableStep, err)
 	}
 
 	// create the service table
 	_, err = db.Exec(ddlMap.ServiceService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableService, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableService, err)
 	}
 
 	// create the user table
 	_, err = db.Exec(ddlMap.UserService.Create)
 	if err != nil {
-		return fmt.Errorf("Error creating %s table: %v", constants.TableUser, err)
+		return fmt.Errorf("unable to create %s table: %v", constants.TableUser, err)
 	}
 
 	return nil
@@ -235,7 +237,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.BuildService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableBuild, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableBuild, err)
 		}
 	}
 
@@ -243,7 +245,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.HookService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableHook, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableHook, err)
 		}
 	}
 
@@ -251,7 +253,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.LogService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableLog, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableLog, err)
 		}
 	}
 
@@ -259,7 +261,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.RepoService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableRepo, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableRepo, err)
 		}
 	}
 
@@ -267,7 +269,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.SecretService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableSecret, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableSecret, err)
 		}
 	}
 
@@ -275,7 +277,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.StepService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableStep, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableStep, err)
 		}
 	}
 
@@ -283,7 +285,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.ServiceService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableService, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableService, err)
 		}
 	}
 
@@ -291,7 +293,7 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 	for _, index := range ddlMap.UserService.Indexes {
 		_, err := db.Exec(index)
 		if err != nil {
-			return fmt.Errorf("Error creating %s table indexes: %v", constants.TableUser, err)
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableUser, err)
 		}
 	}
 

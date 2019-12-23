@@ -17,6 +17,7 @@ import (
 func TestGithub_Authenticate(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
@@ -32,6 +33,7 @@ func TestGithub_Authenticate(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/user.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -61,6 +63,7 @@ func TestGithub_Authenticate(t *testing.T) {
 func TestGithub_Authenticate_NoCode(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/login", nil)
@@ -69,6 +72,7 @@ func TestGithub_Authenticate_NoCode(t *testing.T) {
 	engine.Any("/", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -94,6 +98,7 @@ func TestGithub_Authenticate_NoCode(t *testing.T) {
 func TestGithub_Authenticate_NoState(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/login?code=foo", nil)
@@ -102,6 +107,7 @@ func TestGithub_Authenticate_NoState(t *testing.T) {
 	engine.Any("/", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -127,6 +133,7 @@ func TestGithub_Authenticate_NoState(t *testing.T) {
 func TestGithub_Authenticate_BadToken(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/login?code=foo&state=bar", nil)
@@ -135,6 +142,7 @@ func TestGithub_Authenticate_BadToken(t *testing.T) {
 	engine.Any("/", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -160,6 +168,7 @@ func TestGithub_Authenticate_BadToken(t *testing.T) {
 func TestGithub_Authenticate_NotFound(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
@@ -173,6 +182,7 @@ func TestGithub_Authenticate_NotFound(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -198,6 +208,7 @@ func TestGithub_Authenticate_NotFound(t *testing.T) {
 func TestGithub_Authorize(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -207,6 +218,7 @@ func TestGithub_Authorize(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/user.json")
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -233,6 +245,7 @@ func TestGithub_Authorize(t *testing.T) {
 func TestGithub_Authorize_NotFound(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -240,6 +253,7 @@ func TestGithub_Authorize_NotFound(t *testing.T) {
 	engine.GET("/api/v3/user", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -265,6 +279,7 @@ func TestGithub_Authorize_NotFound(t *testing.T) {
 func TestGithub_Login(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/login", nil)
@@ -273,6 +288,7 @@ func TestGithub_Login(t *testing.T) {
 	engine.Any("/", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -294,6 +310,7 @@ func TestGithub_Login(t *testing.T) {
 func TestGithub_LoginWCreds(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodPost, "/login", nil)
@@ -302,6 +319,7 @@ func TestGithub_LoginWCreds(t *testing.T) {
 	engine.Any("/", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 

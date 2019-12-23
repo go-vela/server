@@ -29,8 +29,9 @@ func (c *client) Get(sType, org, name, path string) (s *library.Secret, err erro
 	case constants.SecretShared:
 		vault, err = c.getShared(org, name, path)
 	default:
-		return nil, fmt.Errorf("Invalid secret type: %v", sType)
+		return nil, fmt.Errorf("invalid secret type: %v", sType)
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,7 @@ func (c *client) get(path string) (*api.Secret, error) {
 
 	// return nil if secret does not exist
 	if vault == nil {
-		return nil, fmt.Errorf("Vault secret %s does not exist", path)
+		return nil, fmt.Errorf("secret %s does not exist", path)
 	}
 
 	return vault, nil

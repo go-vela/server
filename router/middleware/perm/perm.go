@@ -32,7 +32,7 @@ func MustPlatformAdmin() gin.HandlerFunc {
 			return
 
 		default:
-			retErr := fmt.Errorf("User %s is not a platform admin", u.GetName())
+			retErr := fmt.Errorf("user %s is not a platform admin", u.GetName())
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 			return
 		}
@@ -57,11 +57,11 @@ func MustSecretAdmin() gin.HandlerFunc {
 			logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
 			perm, err := source.FromContext(c).OrgAccess(u, o)
 			if err != nil {
-				logrus.Errorf("Unable to get user %s access level for org %s: %v", u.GetName(), o, err)
+				logrus.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
-				retErr := fmt.Errorf("User %s does not have 'admin' permissions for the org %s", u.GetName(), o)
+				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the org %s", u.GetName(), o)
 				util.HandleError(c, http.StatusUnauthorized, retErr)
 				return
 			}
@@ -69,11 +69,11 @@ func MustSecretAdmin() gin.HandlerFunc {
 			logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 			perm, err := source.FromContext(c).RepoAccess(u, o, n)
 			if err != nil {
-				logrus.Errorf("Unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
+				logrus.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
-				retErr := fmt.Errorf("User %s does not have 'admin' permissions for the repo %s/%s", u.GetName(), o, n)
+				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s/%s", u.GetName(), o, n)
 				util.HandleError(c, http.StatusUnauthorized, retErr)
 				return
 			}
@@ -81,16 +81,16 @@ func MustSecretAdmin() gin.HandlerFunc {
 			logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
 			perm, err := source.FromContext(c).TeamAccess(u, o, n)
 			if err != nil {
-				logrus.Errorf("Unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
+				logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
-				retErr := fmt.Errorf("User %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
+				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
 				util.HandleError(c, http.StatusUnauthorized, retErr)
 				return
 			}
 		default:
-			retErr := fmt.Errorf("Invalid secret type: %v", t)
+			retErr := fmt.Errorf("invalid secret type: %v", t)
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
@@ -110,7 +110,7 @@ func MustAdmin() gin.HandlerFunc {
 
 		perm, err := source.FromContext(c).RepoAccess(u, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("Unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
 
 		switch {
@@ -118,7 +118,7 @@ func MustAdmin() gin.HandlerFunc {
 			return
 
 		default:
-			retErr := fmt.Errorf("User %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
+			retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 			return
 		}
@@ -138,7 +138,7 @@ func MustWrite() gin.HandlerFunc {
 
 		perm, err := source.FromContext(c).RepoAccess(u, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("Unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
 
 		switch {
@@ -149,7 +149,7 @@ func MustWrite() gin.HandlerFunc {
 			return
 
 		default:
-			retErr := fmt.Errorf("User %s does not have 'write' permissions for the repo %s", u.GetName(), r.GetFullName())
+			retErr := fmt.Errorf("user %s does not have 'write' permissions for the repo %s", u.GetName(), r.GetFullName())
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 			return
 		}
@@ -169,7 +169,7 @@ func MustRead() gin.HandlerFunc {
 
 		perm, err := source.FromContext(c).RepoAccess(u, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("Unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
 
 		switch {
@@ -183,7 +183,7 @@ func MustRead() gin.HandlerFunc {
 			return
 
 		default:
-			retErr := fmt.Errorf("User %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())
+			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 			return
 		}
@@ -200,5 +200,6 @@ func globalPerms(user *library.User) bool {
 	case user.GetAdmin():
 		return true
 	}
+
 	return false
 }

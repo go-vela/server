@@ -37,10 +37,12 @@ func TestDatabase_Client_GetSecret_Org(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(want)
 
 	// run test
@@ -67,10 +69,12 @@ func TestDatabase_Client_GetSecret_Repo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(want)
 
 	// run test
@@ -97,10 +101,12 @@ func TestDatabase_Client_GetSecret_Shared(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(want)
 
 	// run test
@@ -137,10 +143,12 @@ func TestDatabase_Client_GetSecretList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -178,10 +186,12 @@ func TestDatabase_Client_GetTypeSecretList_Org(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -219,10 +229,12 @@ func TestDatabase_Client_GetTypeSecretList_Repo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -260,10 +272,12 @@ func TestDatabase_Client_GetTypeSecretList_Shared(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -301,10 +315,12 @@ func TestDatabase_Client_GetTypeSecretCount_Org(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -342,10 +358,12 @@ func TestDatabase_Client_GetTypeSecretCount_Repo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -383,10 +401,12 @@ func TestDatabase_Client_GetTypeSecretCount_Shared(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(sOne)
 	_ = db.CreateSecret(sTwo)
 
@@ -414,6 +434,7 @@ func TestDatabase_Client_CreateSecret(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
@@ -444,6 +465,7 @@ func TestDatabase_Client_CreateSecret_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
@@ -469,10 +491,12 @@ func TestDatabase_Client_UpdateSecret(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(want)
 
 	// run test
@@ -500,10 +524,12 @@ func TestDatabase_Client_UpdateSecret_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(s)
 
 	// run test
@@ -526,10 +552,12 @@ func TestDatabase_Client_DeleteSecret(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from secrets;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateSecret(want)
 
 	// run test
@@ -548,6 +576,7 @@ func testSecret() *library.Secret {
 	str := ""
 	arr := []string{}
 	booL := false
+
 	return &library.Secret{
 		ID:           &i64,
 		Org:          &str,

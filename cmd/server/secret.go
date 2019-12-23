@@ -20,12 +20,14 @@ import (
 // helper function to setup the secrets engines from the CLI arguments.
 func setupSecrets(c *cli.Context, d database.Service) (map[string]secret.Service, error) {
 	logrus.Debug("Creating secret clients from CLI configuration")
+
 	secrets := make(map[string]secret.Service)
 
 	native, err := setupNative(c, d)
 	if err != nil {
 		return nil, err
 	}
+
 	secrets[constants.DriverNative] = native
 
 	if c.Bool("vault-driver") {

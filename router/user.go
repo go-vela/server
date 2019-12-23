@@ -22,7 +22,6 @@ import (
 // POST   /api/v1/users/:user/token
 // DELETE /api/v1/users/:user/token
 func UserHandlers(base *gin.RouterGroup) {
-
 	// Users endpoints
 	users := base.Group("/users")
 	{
@@ -41,5 +40,4 @@ func UserHandlers(base *gin.RouterGroup) {
 		user.POST("/token", api.CreateToken)
 		user.DELETE("/token", api.DeleteToken)
 	} // end of user endpoints
-
 }

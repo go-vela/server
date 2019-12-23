@@ -35,10 +35,13 @@ func CreateService(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Service)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -49,6 +52,7 @@ func CreateService(c *gin.Context) {
 	if len(input.GetStatus()) == 0 {
 		input.SetStatus(constants.StatusPending)
 	}
+
 	if input.GetCreated() == 0 {
 		input.SetCreated(time.Now().UTC().Unix())
 	}
@@ -57,7 +61,9 @@ func CreateService(c *gin.Context) {
 	err = database.FromContext(c).CreateService(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -80,7 +86,9 @@ func GetServices(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -88,7 +96,9 @@ func GetServices(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -99,7 +109,9 @@ func GetServices(c *gin.Context) {
 	t, err := database.FromContext(c).GetBuildServiceCount(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get services count for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -107,7 +119,9 @@ func GetServices(c *gin.Context) {
 	s, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get services for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -150,10 +164,13 @@ func UpdateService(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Service)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -162,18 +179,22 @@ func UpdateService(c *gin.Context) {
 		// update status if set
 		s.SetStatus(input.GetStatus())
 	}
+
 	if len(input.GetError()) > 0 {
 		// update error if set
 		s.SetError(input.GetError())
 	}
+
 	if input.GetExitCode() > 0 {
 		// update exit_code if set
 		s.SetExitCode(input.GetExitCode())
 	}
+
 	if input.GetStarted() > 0 {
 		// update started if set
 		s.SetStarted(input.GetStarted())
 	}
+
 	if input.GetFinished() > 0 {
 		// update finished if set
 		s.SetFinished(input.GetFinished())
@@ -183,7 +204,9 @@ func UpdateService(c *gin.Context) {
 	err = database.FromContext(c).UpdateService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -207,7 +230,9 @@ func DeleteService(c *gin.Context) {
 	err := database.FromContext(c).DeleteService(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

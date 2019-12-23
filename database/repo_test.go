@@ -36,10 +36,12 @@ func TestDatabase_Client_GetRepo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(want)
 
 	// run test
@@ -74,10 +76,12 @@ func TestDatabase_Client_GetRepoList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(rOne)
 	_ = db.CreateRepo(rTwo)
 
@@ -113,10 +117,12 @@ func TestDatabase_Client_GetRepoCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(rOne)
 	_ = db.CreateRepo(rTwo)
 
@@ -157,10 +163,12 @@ func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(rOne)
 	_ = db.CreateRepo(rTwo)
 
@@ -201,10 +209,12 @@ func TestDatabase_Client_GetUserRepoCount(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(rOne)
 	_ = db.CreateRepo(rTwo)
 
@@ -231,6 +241,7 @@ func TestDatabase_Client_CreateRepo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
@@ -260,6 +271,7 @@ func TestDatabase_Client_CreateRepo_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
@@ -284,10 +296,12 @@ func TestDatabase_Client_UpdateRepo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(want)
 
 	// run test
@@ -314,10 +328,12 @@ func TestDatabase_Client_UpdateRepo_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(r)
 
 	// run test
@@ -326,7 +342,6 @@ func TestDatabase_Client_UpdateRepo_Invalid(t *testing.T) {
 	if err == nil {
 		t.Errorf("UpdateRepo should have returned err")
 	}
-
 }
 
 func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
@@ -342,10 +357,12 @@ func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(want)
 
 	// run test
@@ -376,10 +393,12 @@ func TestDatabase_Client_DeleteRepo(t *testing.T) {
 
 	// setup database
 	db, _ := NewTest()
+
 	defer func() {
 		db.Database.Exec("delete from repos;")
 		db.Database.Close()
 	}()
+
 	_ = db.CreateRepo(want)
 
 	// run test
@@ -397,6 +416,7 @@ func testRepo() *library.Repo {
 	i64 := int64(0)
 	str := ""
 	b := false
+
 	return &library.Repo{
 		ID:          &i64,
 		UserID:      &i64,

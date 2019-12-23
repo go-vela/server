@@ -35,10 +35,13 @@ func CreateStep(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Step)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new step for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -49,6 +52,7 @@ func CreateStep(c *gin.Context) {
 	if len(input.GetStatus()) == 0 {
 		input.SetStatus(constants.StatusPending)
 	}
+
 	if input.GetCreated() == 0 {
 		input.SetCreated(time.Now().UTC().Unix())
 	}
@@ -57,7 +61,9 @@ func CreateStep(c *gin.Context) {
 	err = database.FromContext(c).CreateStep(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create step for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -80,7 +86,9 @@ func GetSteps(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -88,7 +96,9 @@ func GetSteps(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -99,7 +109,9 @@ func GetSteps(c *gin.Context) {
 	t, err := database.FromContext(c).GetBuildStepCount(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get steps count for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -107,7 +119,9 @@ func GetSteps(c *gin.Context) {
 	s, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get steps for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -150,10 +164,13 @@ func UpdateStep(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Step)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -162,30 +179,37 @@ func UpdateStep(c *gin.Context) {
 		// update status if set
 		s.SetStatus(input.GetStatus())
 	}
+
 	if len(input.GetError()) > 0 {
 		// update error if set
 		s.SetError(input.GetError())
 	}
+
 	if input.GetExitCode() > 0 {
 		// update exit_code if set
 		s.SetExitCode(input.GetExitCode())
 	}
+
 	if input.GetStarted() > 0 {
 		// update started if set
 		s.SetStarted(input.GetStarted())
 	}
+
 	if input.GetFinished() > 0 {
 		// update finished if set
 		s.SetFinished(input.GetFinished())
 	}
+
 	if len(input.GetHost()) > 0 {
 		// update host if set
 		s.SetHost(input.GetHost())
 	}
+
 	if len(input.GetRuntime()) > 0 {
 		// update runtime if set
 		s.SetRuntime(input.GetRuntime())
 	}
+
 	if len(input.GetDistribution()) > 0 {
 		// update distribution if set
 		s.SetDistribution(input.GetDistribution())
@@ -195,7 +219,9 @@ func UpdateStep(c *gin.Context) {
 	err = database.FromContext(c).UpdateStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -219,7 +245,9 @@ func DeleteStep(c *gin.Context) {
 	err := database.FromContext(c).DeleteStep(s.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

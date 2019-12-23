@@ -143,15 +143,16 @@ func pingQueue(client *redis.Client) error {
 		// send ping request to queue
 		err := client.Ping().Err()
 		if err != nil {
-			logrus.Debugf("Error pinging Redis queue. Retrying in %v", (time.Duration(i) * time.Second))
+			logrus.Debugf("unable to ping Redis queue. Retrying in %v", (time.Duration(i) * time.Second))
 			time.Sleep(1 * time.Second)
+
 			continue
 		}
 
 		return nil
 	}
 
-	return fmt.Errorf("Error establishing Redis queue connection")
+	return fmt.Errorf("unable to establish Redis queue connection")
 }
 
 // NewTest returns a Queue implementation that

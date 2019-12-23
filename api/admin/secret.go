@@ -24,7 +24,9 @@ func AllSecrets(c *gin.Context) {
 	s, err := database.FromContext(c).GetSecretList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all secrets: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

@@ -44,6 +44,7 @@ func Secure(c *gin.Context) {
 	c.Header("X-Frame-Options", "DENY")
 	c.Header("X-Content-Type-Options", "nosniff")
 	c.Header("X-XSS-Protection", "1; mode=block")
+
 	if c.Request.TLS != nil {
 		c.Header("Strict-Transport-Security", "max-age=31536000")
 	}
@@ -65,6 +66,7 @@ func Cors(c *gin.Context) {
 // intended for debugging and troubleshooting.
 func RequestVersion(c *gin.Context) {
 	apiVersion := version.Version
+
 	if gin.Mode() == "debug" {
 		c.Request.Header.Set("X-Vela-Version", apiVersion.String())
 	} else { // in prod we don't want the build number metadata
@@ -78,6 +80,7 @@ func RequestVersion(c *gin.Context) {
 // intended for debugging and troubleshooting.
 func ResponseVersion(c *gin.Context) {
 	apiVersion := version.Version
+
 	if gin.Mode() == "debug" {
 		c.Header("X-Vela-Version", apiVersion.String())
 	} else { // in prod we don't want the build number metadata

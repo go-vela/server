@@ -29,8 +29,9 @@ func (c *client) Count(sType, org, name string) (i int64, err error) {
 	case constants.SecretShared:
 		vault, err = c.listShared(org, name)
 	default:
-		return 0, fmt.Errorf("Invalid secret type: %v", sType)
+		return 0, fmt.Errorf("invalid secret type: %v", sType)
 	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -38,7 +39,7 @@ func (c *client) Count(sType, org, name string) (i int64, err error) {
 	// cast the list of secrets to the expected type
 	keys, ok := vault.Data["keys"].([]interface{})
 	if !ok {
-		return 0, fmt.Errorf("Not a valid list of secrets from Vault")
+		return 0, fmt.Errorf("not a valid list of secrets from Vault")
 	}
 
 	// iterate through each element in the list of secrets
@@ -46,7 +47,7 @@ func (c *client) Count(sType, org, name string) (i int64, err error) {
 		// cast the secret to the expected type
 		_, ok := element.(string)
 		if !ok {
-			return 0, fmt.Errorf("Not a valid list of secrets from Vault")
+			return 0, fmt.Errorf("not a valid list of secrets from Vault")
 		}
 
 		count++

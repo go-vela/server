@@ -20,7 +20,6 @@ import (
 // PUT    /api/v1/secrets/:engine/:type/:org/:name/:secret
 // DELETE /api/v1/secrets/:engine/:type/:org/:name/:secret
 func SecretHandlers(base *gin.RouterGroup) {
-
 	// Secrets endpoints
 	secrets := base.Group("/secrets/:engine/:type/:org/:name", perm.MustSecretAdmin())
 	{
@@ -30,5 +29,4 @@ func SecretHandlers(base *gin.RouterGroup) {
 		secrets.PUT("/*secret", api.UpdateSecret)
 		secrets.DELETE("/*secret", api.DeleteSecret)
 	} // end of secrets endpoints
-
 }

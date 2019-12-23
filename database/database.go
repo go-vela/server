@@ -158,10 +158,12 @@ type Service interface {
 	// gets the count of steps by build ID.
 	GetBuildStepCount(*library.Build) (int64, error)
 	// GetStepImageCount defines a function that
-	// gets the count of an images occurance.
+	// gets a list of all step images and the
+	// count of their occurrence.
 	GetStepImageCount() (map[string]float64, error)
-	// GetStepImageCount defines a function that
-	// gets the count of an images occurance.
+	// GetStepStatusCount defines a function that
+	// gets a list of all step statuses and the
+	// count of their occurrence.
 	GetStepStatusCount() (map[string]float64, error)
 	// CreateStep defines a function that
 	// creates a new step.
@@ -188,7 +190,8 @@ type Service interface {
 	// that gets the count of steps by build ID.
 	GetBuildServiceCount(*library.Build) (int64, error)
 	// GetServiceImageCount defines a function that
-	// gets the count of an images occurance.
+	// gets a list of all service images and the
+	// count of their occurrence.
 	GetServiceImageCount() (map[string]float64, error)
 	// CreateService defines a function that
 	// creates a new step.

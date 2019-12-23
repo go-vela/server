@@ -24,7 +24,9 @@ func AllRepos(c *gin.Context) {
 	r, err := database.FromContext(c).GetRepoList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all repos: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

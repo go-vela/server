@@ -15,6 +15,7 @@ import (
 func TestVault_Delete_Org(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -22,6 +23,7 @@ func TestVault_Delete_Org(t *testing.T) {
 	engine.DELETE("/v1/secret/:type/:org/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -45,6 +47,7 @@ func TestVault_Delete_Org(t *testing.T) {
 func TestVault_Delete_Repo(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -52,6 +55,7 @@ func TestVault_Delete_Repo(t *testing.T) {
 	engine.DELETE("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
@@ -75,6 +79,7 @@ func TestVault_Delete_Repo(t *testing.T) {
 func TestVault_Delete_Shared(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -82,6 +87,7 @@ func TestVault_Delete_Shared(t *testing.T) {
 	engine.DELETE("/v1/secret/:type/:org/:team/:name", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
+
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 

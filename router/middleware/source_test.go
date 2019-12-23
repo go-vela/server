@@ -20,12 +20,15 @@ func TestMiddleware_Source(t *testing.T) {
 	// setup types
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
+
 	var got source.Service
+
 	want, _ := github.NewTest(s.URL)
 
 	// setup context
-	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 

@@ -20,13 +20,14 @@ import (
 // helper function to setup the source from the CLI arguments.
 func setupSource(c *cli.Context) (source.Service, error) {
 	logrus.Debug("Creating source client from CLI configuration")
+
 	switch c.String("source-driver") {
 	case constants.DriverGithub:
 		return setupGithub(c)
 	case constants.DriverGitlab:
 		return setupGitlab(c)
 	default:
-		return nil, fmt.Errorf("Unrecognized source driver: %s", c.String("source-driver"))
+		return nil, fmt.Errorf("invalid source driver: %s", c.String("source-driver"))
 	}
 }
 
@@ -40,5 +41,5 @@ func setupGithub(c *cli.Context) (source.Service, error) {
 func setupGitlab(c *cli.Context) (source.Service, error) {
 	logrus.Tracef("Creating %s source client from CLI configuration", constants.DriverGitlab)
 	// return gitlab.New(c)
-	return nil, fmt.Errorf("Unsupported source driver: %s", constants.DriverGitlab)
+	return nil, fmt.Errorf("unsupported source driver: %s", constants.DriverGitlab)
 }

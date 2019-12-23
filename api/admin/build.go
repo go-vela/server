@@ -24,7 +24,9 @@ func AllBuilds(c *gin.Context) {
 	b, err := database.FromContext(c).GetBuildList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all builds: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

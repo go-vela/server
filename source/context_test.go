@@ -17,10 +17,12 @@ import (
 func TestSource_FromContext(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, engine := gin.CreateTestContext(nil)
 
 	// setup mock server
 	engine.GET("/health", func(c *gin.Context) { c.String(http.StatusOK, "OK") })
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
@@ -39,6 +41,7 @@ func TestSource_FromContext(t *testing.T) {
 func TestSource_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set(key, nil)
 
@@ -53,6 +56,7 @@ func TestSource_FromContext_Bad(t *testing.T) {
 func TestSource_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 	context.Set(key, 1)
 
@@ -67,6 +71,7 @@ func TestSource_FromContext_WrongType(t *testing.T) {
 func TestSource_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, _ := gin.CreateTestContext(nil)
 
 	// run test
@@ -80,10 +85,12 @@ func TestSource_FromContext_Empty(t *testing.T) {
 func TestSource_ToContext(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	context, engine := gin.CreateTestContext(nil)
 
 	// setup mock server
 	engine.GET("/health", func(c *gin.Context) { c.String(http.StatusOK, "OK") })
+
 	s := httptest.NewServer(engine)
 	defer s.Close()
 

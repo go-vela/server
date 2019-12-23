@@ -30,10 +30,13 @@ func CreateHook(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Hook)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for new webhook for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -41,7 +44,9 @@ func CreateHook(c *gin.Context) {
 	lastHook, err := database.FromContext(c).GetLastHook(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -63,7 +68,9 @@ func CreateHook(c *gin.Context) {
 	err = database.FromContext(c).CreateHook(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -85,7 +92,9 @@ func GetHooks(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -93,7 +102,9 @@ func GetHooks(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -104,7 +115,9 @@ func GetHooks(c *gin.Context) {
 	t, err := database.FromContext(c).GetRepoHookCount(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get steps count for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -112,7 +125,9 @@ func GetHooks(c *gin.Context) {
 	h, err := database.FromContext(c).GetRepoHookList(r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get steps for repo %s: %w", r.GetFullName(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -139,8 +154,10 @@ func GetHook(c *gin.Context) {
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -148,7 +165,9 @@ func GetHook(c *gin.Context) {
 	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -166,17 +185,22 @@ func UpdateHook(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Hook)
+
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for webhook %s/%s: %w", r.GetFullName(), hook, err)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -184,7 +208,9 @@ func UpdateHook(c *gin.Context) {
 	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), number, err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -193,26 +219,32 @@ func UpdateHook(c *gin.Context) {
 		// update created if set
 		h.SetCreated(input.GetCreated())
 	}
+
 	if len(input.GetHost()) > 0 {
 		// update host if set
 		h.SetHost(input.GetHost())
 	}
+
 	if len(input.GetEvent()) > 0 {
 		// update event if set
 		h.SetEvent(input.GetEvent())
 	}
+
 	if len(input.GetBranch()) > 0 {
 		// update branch if set
 		h.SetBranch(input.GetBranch())
 	}
+
 	if len(input.GetError()) > 0 {
 		// update error if set
 		h.SetError(input.GetError())
 	}
+
 	if len(input.GetStatus()) > 0 {
 		// update status if set
 		h.SetStatus(input.GetStatus())
 	}
+
 	if len(input.GetLink()) > 0 {
 		// update link if set
 		h.SetLink(input.GetLink())
@@ -222,7 +254,9 @@ func UpdateHook(c *gin.Context) {
 	err = database.FromContext(c).UpdateHook(h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -243,8 +277,10 @@ func DeleteHook(c *gin.Context) {
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -252,7 +288,9 @@ func DeleteHook(c *gin.Context) {
 	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), number, err)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
@@ -260,7 +298,9 @@ func DeleteHook(c *gin.Context) {
 	err = database.FromContext(c).DeleteHook(h.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 

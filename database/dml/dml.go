@@ -43,6 +43,6 @@ func NewMap(name string) (*Map, error) {
 	case constants.DriverSqlite:
 		return mapFromSqlite(sqlite.NewMap()), nil
 	default:
-		return nil, fmt.Errorf("Unrecognized database driver: %s", name)
+		return nil, fmt.Errorf("unrecognized database driver: %s", name)
 	}
 }

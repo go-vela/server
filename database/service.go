@@ -100,7 +100,8 @@ func (c *client) GetBuildServiceCount(b *library.Build) (int64, error) {
 	return r[0], err
 }
 
-// GetServiceImageCount gets a count of an images occurance in the database.
+// GetServiceImageCount gets a list of all service images
+// and the count of their occurrence in the database.
 func (c *client) GetServiceImageCount() (map[string]float64, error) {
 	logrus.Tracef("Counting images for services in the database")
 
