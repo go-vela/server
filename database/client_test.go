@@ -75,11 +75,11 @@ func TestDatabase_New_Empty(t *testing.T) {
 func TestDatabase_NewTest(t *testing.T) {
 	// run test
 	database, err := NewTest()
-	defer database.Database.Close()
-
 	if err != nil {
 		t.Errorf("newTest returned err: %v", err)
 	}
+
+	defer database.Database.Close()
 
 	if database == nil {
 		t.Error("newTest returned nil database")

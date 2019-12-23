@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -110,7 +111,7 @@ func server(c *cli.Context) error {
 			select {
 			case <-tomb.Dying():
 				logrus.Info("Stopping HTTP server...")
-				return srv.Shutdown(nil)
+				return srv.Shutdown(context.Background())
 			}
 		}
 	})

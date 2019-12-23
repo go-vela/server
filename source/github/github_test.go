@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -66,7 +67,7 @@ func TestGithub_newClientToken(t *testing.T) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: "foobar"},
 	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	tc := oauth2.NewClient(context.Background(), ts)
 	want := github.NewClient(tc)
 	want.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
 

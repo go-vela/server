@@ -5,14 +5,13 @@
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/go-vela/server/random"
 
 	"github.com/go-vela/types/library"
-
-	"golang.org/x/oauth2"
 )
 
 // Authorize uses the given access token to authorize the user.
@@ -80,7 +79,7 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 	}
 
 	// exchange OAuth code for token
-	token, err := c.OConfig.Exchange(oauth2.NoContext, code)
+	token, err := c.OConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, err
 	}
