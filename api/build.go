@@ -195,7 +195,7 @@ func CreateBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = source.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for build %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
 
 	// publish the build to the queue
@@ -427,7 +427,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
@@ -530,13 +530,13 @@ func UpdateBuild(c *gin.Context) {
 		// send API call to capture the repo owner
 		u, err := database.FromContext(c).GetUser(r.GetUserID())
 		if err != nil {
-			logrus.Errorf("unable to get owner for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+			logrus.Errorf("unable to get owner for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
 
 		// send API call to set the status on the commit
 		err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("unable to set commit status for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+			logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
 	}
 }
@@ -553,7 +553,7 @@ func DeleteBuild(c *gin.Context) {
 	// send API call to remove the build
 	err := database.FromContext(c).DeleteBuild(b.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to delete build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -575,7 +575,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	if err != nil {
 		cleanBuild(database, b, nil, nil)
 
-		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
+		return fmt.Errorf("unable to create new build for %s: %v", r.GetFullName(), err)
 	}
 
 	// send API call to capture the created build
@@ -613,7 +613,7 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 	// send API call to update the build
 	err := database.UpdateBuild(b)
 	if err != nil {
-		logrus.Errorf("unable to kill build %d: %w", b.GetNumber(), err)
+		logrus.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}
 
 	for _, s := range services {
@@ -624,7 +624,7 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 		// send API call to update the service
 		err := database.UpdateService(s)
 		if err != nil {
-			logrus.Errorf("unable to kill service %s for build %d: %w", s.GetName(), b.GetNumber(), err)
+			logrus.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 	}
 
@@ -636,7 +636,7 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 		// send API call to update the step
 		err := database.UpdateStep(s)
 		if err != nil {
-			logrus.Errorf("unable to kill step %s for build %d: %w", s.GetName(), b.GetNumber(), err)
+			logrus.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 	}
 }

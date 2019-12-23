@@ -41,7 +41,7 @@ func PostWebhook(c *gin.Context) {
 	// process the webhook from the source control provider
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
-		retErr := fmt.Errorf("unable to parse webhook: %w", err)
+		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -52,7 +52,7 @@ func PostWebhook(c *gin.Context) {
 		// send API call to update the webhook
 		err = database.FromContext(c).UpdateHook(h)
 		if err != nil {
-			logrus.Errorf("unable to update webhook %s/%s: %w", r.GetFullName(), h.GetSourceID(), err)
+			logrus.Errorf("unable to update webhook %s/%s: %v", r.GetFullName(), h.GetSourceID(), err)
 		}
 	}()
 
@@ -79,7 +79,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture parsed repo from webhook
 	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get repo %s: %v", baseErr, r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -96,7 +96,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).GetLastHook(r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get last hook for repo %s: %v", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
@@ -112,7 +112,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to create the webhook
 	err = database.FromContext(c).CreateHook(h)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+		retErr := fmt.Errorf("unable to create webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -163,7 +163,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture repo owner
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get owner for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -175,7 +175,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the last build for the repo
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get last build for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get last build for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -211,7 +211,7 @@ func PostWebhook(c *gin.Context) {
 		// send API call to capture list of files changed for the commit
 		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
@@ -237,7 +237,7 @@ func PostWebhook(c *gin.Context) {
 			// capture number by scanning from string
 			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
 			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %w", baseErr, r.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				h.SetStatus(constants.StatusFailure)
@@ -250,7 +250,7 @@ func PostWebhook(c *gin.Context) {
 		// send API call to capture list of files changed for the pull request
 		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
@@ -263,7 +263,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).Config(u, r.GetOrg(), r.GetName(), b.GetCommit())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -281,7 +281,7 @@ func PostWebhook(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to compile pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to compile pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -312,7 +312,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
