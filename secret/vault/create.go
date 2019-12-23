@@ -36,7 +36,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	case constants.SecretShared:
 		return c.createShared(org, name, s.GetName(), vault.Data)
 	default:
-		return fmt.Errorf("Invalid secret type: %v", sType)
+		return fmt.Errorf("invalid secret type: %v", sType)
 	}
 }
 

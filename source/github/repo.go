@@ -59,7 +59,7 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 		return []byte(strData), nil
 	}
 
-	return nil, fmt.Errorf("No valid pipeline configuration file (.vela.yml or .vela.yaml) found")
+	return nil, fmt.Errorf("no valid pipeline configuration file (.vela.yml or .vela.yaml) found")
 }
 
 // Disable deactivates a repo by deleting the webhook.
@@ -125,9 +125,9 @@ func (c *client) Enable(u *library.User, org, name string) (string, error) {
 
 	switch resp.StatusCode {
 	case 422:
-		return "", fmt.Errorf("Repo already enabled")
+		return "", fmt.Errorf("repo already enabled")
 	case 404:
-		return "", fmt.Errorf("Repo not found")
+		return "", fmt.Errorf("repo not found")
 	}
 
 	// create the URL for the repo
@@ -203,7 +203,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 		// send API call to capture the user's repos
 		repos, resp, err := client.Repositories.List(ctx, "", opts)
 		if err != nil {
-			return nil, fmt.Errorf("Repositories.List returned error: %v", err)
+			return nil, fmt.Errorf("unable to list user repos: %v", err)
 		}
 
 		r = append(r, repos...)

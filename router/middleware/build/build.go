@@ -28,21 +28,21 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		r := repo.Retrieve(c)
 		if r == nil {
-			retErr := fmt.Errorf("Repo %s/%s not found", c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
 
 		bParam := c.Param("build")
 		if len(bParam) == 0 {
-			retErr := fmt.Errorf("No build parameter provided")
+			retErr := fmt.Errorf("no build parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
 
 		number, err := strconv.Atoi(bParam)
 		if err != nil {
-			retErr := fmt.Errorf("Invalid build parameter provided: %s", bParam)
+			retErr := fmt.Errorf("invalid build parameter provided: %s", bParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
@@ -50,7 +50,7 @@ func Establish() gin.HandlerFunc {
 		logrus.Debugf("Reading build %s/%d", r.GetFullName(), number)
 		b, err := database.FromContext(c).GetBuild(number, r)
 		if err != nil {
-			retErr := fmt.Errorf("Error while reading build %s/%d: %v", r.GetFullName(), number, err)
+			retErr := fmt.Errorf("unable to read build %s/%d: %v", r.GetFullName(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}

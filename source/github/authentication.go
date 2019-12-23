@@ -75,7 +75,7 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 	// verify the OAuth state
 	state := r.FormValue("state")
 	if state != oAuthState {
-		return nil, fmt.Errorf("Unexpected oauth state: want %s but got %s", oAuthState, state)
+		return nil, fmt.Errorf("unexpected oauth state: want %s but got %s", oAuthState, state)
 	}
 
 	// exchange OAuth code for token

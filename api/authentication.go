@@ -213,7 +213,7 @@ func AuthenticateCLI(c *gin.Context) {
 		// send API call to create the user in the database
 		err = database.FromContext(c).CreateUser(u)
 		if err != nil {
-			retErr := fmt.Errorf("Could not create user %s: %v", u.GetName(), err.Error())
+			retErr := fmt.Errorf("unable to create user %s: %v", u.GetName(), err.Error())
 
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
 
@@ -242,7 +242,7 @@ func AuthenticateCLI(c *gin.Context) {
 	// send API call to update the user in the database
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
-		retErr := fmt.Errorf("Could not update user %s: %v", u.GetName(), err.Error())
+		retErr := fmt.Errorf("unable to update user %s: %v", u.GetName(), err.Error())
 
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 
@@ -252,7 +252,7 @@ func AuthenticateCLI(c *gin.Context) {
 	// compose JWT token for user
 	t, err := token.Compose(u)
 	if err != nil {
-		retErr := fmt.Errorf("Could not compose token for user %s: %v", u.GetName(), err.Error())
+		retErr := fmt.Errorf("unable to compose token for user %s: %v", u.GetName(), err.Error())
 
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 

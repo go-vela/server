@@ -27,7 +27,7 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 	case constants.DriverRedis:
 		return setupRedis(c)
 	default:
-		return nil, fmt.Errorf("Unrecognized queue driver: %s", c.String("queue-driver"))
+		return nil, fmt.Errorf("invalid queue driver: %s", c.String("queue-driver"))
 	}
 }
 
@@ -35,7 +35,7 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 func setupKafka(c *cli.Context) (queue.Service, error) {
 	logrus.Tracef("Creating %s queue client from CLI configuration", constants.DriverKafka)
 	// return kafka.New(c.String("queue-config"), "vela")
-	return nil, fmt.Errorf("Unsupported queue driver: %s", constants.DriverKafka)
+	return nil, fmt.Errorf("unsupported queue driver: %s", constants.DriverKafka)
 }
 
 // helper function to setup the Redis queue from the CLI arguments.

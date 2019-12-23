@@ -153,7 +153,7 @@ func GetHook(c *gin.Context) {
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -195,7 +195,7 @@ func UpdateHook(c *gin.Context) {
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -269,7 +269,7 @@ func DeleteHook(c *gin.Context) {
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
-		retErr := fmt.Errorf("Invalid hook parameter provided: %s", hook)
+		retErr := fmt.Errorf("invalid hook parameter provided: %s", hook)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 

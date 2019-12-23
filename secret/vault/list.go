@@ -36,7 +36,7 @@ func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, err
 	case constants.SecretShared:
 		vault, err = c.listShared(org, name)
 	default:
-		return nil, fmt.Errorf("Invalid secret type: %v", sType)
+		return nil, fmt.Errorf("invalid secret type: %v", sType)
 	}
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, err
 	// cast the list of secrets to the expected type
 	keys, ok := vault.Data["keys"].([]interface{})
 	if !ok {
-		return nil, fmt.Errorf("Not a valid list of secrets from Vault")
+		return nil, fmt.Errorf("not a valid list of secrets from Vault")
 	}
 
 	// iterate through each element in the list of secrets
@@ -53,7 +53,7 @@ func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, err
 		// cast the secret to the expected type
 		key, ok := element.(string)
 		if !ok {
-			return nil, fmt.Errorf("Not a valid list of secrets from Vault")
+			return nil, fmt.Errorf("not a valid list of secrets from Vault")
 		}
 
 		// capture the secret from the Vault service

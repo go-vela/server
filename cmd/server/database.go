@@ -25,7 +25,7 @@ func setupDatabase(c *cli.Context) (database.Service, error) {
 	case constants.DriverSqlite, "sqlite":
 		return setupSqlite(c)
 	default:
-		return nil, fmt.Errorf("Unrecognized database driver: %s", c.String("database.driver"))
+		return nil, fmt.Errorf("invalid database driver: %s", c.String("database.driver"))
 	}
 }
 

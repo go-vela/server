@@ -115,5 +115,5 @@ func Retrieve(r *http.Request) (string, error) {
 	// 	return cookie.Value, nil
 	// }
 
-	return "", fmt.Errorf("No token provided in Authorization header")
+	return "", fmt.Errorf("no token provided in Authorization header")
 }

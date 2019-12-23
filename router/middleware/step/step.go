@@ -29,28 +29,28 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		r := repo.Retrieve(c)
 		if r == nil {
-			retErr := fmt.Errorf("Repo %s/%s not found", c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
 
 		b := build.Retrieve(c)
 		if b == nil {
-			retErr := fmt.Errorf("Build %s not found for repo %s/%s", c.Param("build"), c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("build %s not found for repo %s/%s", c.Param("build"), c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
 
 		sParam := c.Param("step")
 		if len(sParam) == 0 {
-			retErr := fmt.Errorf("No step parameter provided")
+			retErr := fmt.Errorf("no step parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
 
 		number, err := strconv.Atoi(sParam)
 		if err != nil {
-			retErr := fmt.Errorf("Malformed step parameter provided: %s", sParam)
+			retErr := fmt.Errorf("malformed step parameter provided: %s", sParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
@@ -58,7 +58,7 @@ func Establish() gin.HandlerFunc {
 		logrus.Debugf("Reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 		s, err := database.FromContext(c).GetStep(number, b)
 		if err != nil {
-			retErr := fmt.Errorf("Error while reading step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
+			retErr := fmt.Errorf("unable to read step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}

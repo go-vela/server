@@ -27,14 +27,14 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		oParam := c.Param("org")
 		if len(oParam) == 0 {
-			retErr := fmt.Errorf("No org parameter provided")
+			retErr := fmt.Errorf("no org parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
 
 		rParam := c.Param("repo")
 		if len(rParam) == 0 {
-			retErr := fmt.Errorf("No repo parameter provided")
+			retErr := fmt.Errorf("no repo parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
@@ -42,7 +42,7 @@ func Establish() gin.HandlerFunc {
 		logrus.Debugf("Reading repo %s/%s", oParam, rParam)
 		r, err := database.FromContext(c).GetRepo(oParam, rParam)
 		if err != nil {
-			retErr := fmt.Errorf("Error while reading repo %s/%s: %v", oParam, rParam, err)
+			retErr := fmt.Errorf("unable to read repo %s/%s: %v", oParam, rParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
