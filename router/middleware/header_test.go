@@ -296,7 +296,7 @@ func TestMiddleware_RequestVersion(t *testing.T) {
 	wantVersion := "0.2.0"
 
 	// setup context
-	gin.SetMode(gin.TestMode)
+	gin.SetMode(gin.DebugMode)
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
@@ -358,7 +358,7 @@ func TestMiddleware_ResponseVersion(t *testing.T) {
 	wantVersion := "0.2.0"
 
 	// setup context
-	gin.SetMode(gin.TestMode)
+	gin.SetMode(gin.DebugMode)
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
