@@ -66,8 +66,8 @@ linters:
   #   - unconvert
 
 # This section provides the configuration for each linter
-# we've instructed golangci to execute. Currently, we've
-# left this part empty as we're going to roll with the
-# linter specific default settings for now.
-#
-# linters-settings:
+# we've instructed golangci to execute.
+linters-settings:
+  funlen:
+    lines: 100
+    statements: 60
