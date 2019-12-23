@@ -47,11 +47,17 @@ func CreateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
+
 	if len(input.GetImages()) > 0 {
 		input.SetImages(unique(input.GetImages()))
 	}
+
 	if len(input.GetEvents()) > 0 {
 		input.SetEvents(unique(input.GetEvents()))
+	}
+
+	if !input.GetAllowCommand() {
+		input.SetAllowCommand(true)
 	}
 
 	// check if secret is a shared secret
@@ -210,11 +216,18 @@ func UpdateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
+
 	if len(input.GetImages()) > 0 {
 		input.SetImages(unique(input.GetImages()))
 	}
+
 	if len(input.GetEvents()) > 0 {
 		input.SetEvents(unique(input.GetEvents()))
+	}
+
+	if input.AllowCommand != nil {
+		// update allow_command if set
+		input.SetAllowCommand(input.GetAllowCommand())
 	}
 
 	// check if secret is a shared secret
