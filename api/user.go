@@ -224,20 +224,6 @@ func GetUserSourceRepos(c *gin.Context) {
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
 	}
 
-	// remove already enabled repos from the result set
-	// TODO: clean this up
-	for _, drepo := range dbRepos {
-		if lrepos, ok := output[drepo.GetOrg()]; ok {
-			for i, outputRepo := range lrepos {
-				if outputRepo.GetName() == drepo.GetName() {
-					if drepo.GetActive() {
-						output[drepo.GetOrg()] = append(output[drepo.GetOrg()][:i], output[drepo.GetOrg()][i+1:]...)
-					}
-				}
-			}
-		}
-	}
-
 	c.JSON(http.StatusOK, output)
 }
 
