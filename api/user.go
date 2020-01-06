@@ -160,7 +160,6 @@ func GetUserSourceRepos(c *gin.Context) {
 
 	// variables to capture requested data
 	srcRepos := []*library.Repo{}
-	// dbRepos := []*library.Repo{}
 	output := make(map[string][]library.Repo)
 	threads := new(errgroup.Group)
 
@@ -188,7 +187,6 @@ func GetUserSourceRepos(c *gin.Context) {
 	// create a map and if the repo exists in Vela attach the active status
 	// TODO: clean this up
 	for _, srepo := range srcRepos {
-
 		// local variables to avoid bad memory address de-referencing
 		org := srepo.Org
 		name := srepo.Name
@@ -217,7 +215,6 @@ func GetUserSourceRepos(c *gin.Context) {
 
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
 	}
-
 	c.JSON(http.StatusOK, output)
 }
 
