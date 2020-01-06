@@ -195,7 +195,6 @@ func GetUserSourceRepos(c *gin.Context) {
 		// if record does not exist, repo is considered inactive
 		dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
 		if err != nil && err.Error() != "record not found" {
-
 			util.HandleError(c, http.StatusInternalServerError, err)
 
 			return
