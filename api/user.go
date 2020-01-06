@@ -160,7 +160,7 @@ func GetUserSourceRepos(c *gin.Context) {
 
 	// variables to capture requested data
 	srcRepos := []*library.Repo{}
-	dbRepos := []*library.Repo{}
+	// dbRepos := []*library.Repo{}
 	output := make(map[string][]library.Repo)
 	threads := new(errgroup.Group)
 
@@ -177,29 +177,30 @@ func GetUserSourceRepos(c *gin.Context) {
 		return nil
 	})
 
+	// TODO: clean this up, user repos no longer needed by this function
 	// capture user's repos from the database backend
-	threads.Go(func() error {
-		page := 1
-		for page > 0 {
-			// send API call to capture the list of repos for the user
-			dbReposPart, err := database.FromContext(c).GetUserRepoList(u, page, 100)
-			if err != nil {
-				return fmt.Errorf("unable to get database repos for user %s: %w", u.GetName(), err)
-			}
+	// threads.Go(func() error {
+	// 	page := 1
+	// 	for page > 0 {
+	// 		// send API call to capture the list of repos for the user
+	// 		dbReposPart, err := database.FromContext(c).GetUserRepoList(u, page, 100)
+	// 		if err != nil {
+	// 			return fmt.Errorf("unable to get database repos for user %s: %w", u.GetName(), err)
+	// 		}
 
-			// add repos to list of database repos
-			dbRepos = append(dbRepos, dbReposPart...)
+	// 		// add repos to list of database repos
+	// 		dbRepos = append(dbRepos, dbReposPart...)
 
-			// making an assumption that 50 means there is another page
-			// TODO: redo when other paging capability is added
-			if len(dbReposPart) == 50 {
-				page++
-			} else {
-				page = 0
-			}
-		}
-		return nil
-	})
+	// 		// making an assumption that 50 means there is another page
+	// 		// TODO: redo when other paging capability is added
+	// 		if len(dbReposPart) == 50 {
+	// 			page++
+	// 		} else {
+	// 			page = 0
+	// 		}
+	// 	}
+	// 	return nil
+	// })
 
 	// wait for all threads to complete
 	err := threads.Wait()
@@ -209,18 +210,31 @@ func GetUserSourceRepos(c *gin.Context) {
 		return
 	}
 
-	// create a map
+	// create a map and if the repo exists in Vela attach the active status
 	// TODO: clean this up
 	for _, srepo := range srcRepos {
+
 		// local variables to avoid bad memory address de-referencing
 		org := srepo.Org
 		name := srepo.Name
+		active := false
+
+		// send API call to capture the source repo from the database, if it exists
+		dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
+
+			return
+		}
+		active = dbRepo.GetActive()
 
 		// library struct to omit optional fields
 		repo := library.Repo{
-			Org:  org,
-			Name: name,
+			Org:    org,
+			Name:   name,
+			Active: &active,
 		}
+
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
 	}
 
