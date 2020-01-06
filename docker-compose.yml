@@ -25,7 +25,7 @@ services:
       VELA_PORT: ":8080"
       VELA_SECRET: zB7mrKDTZqNeNTD8z47yG4DHywspAh
       VELA_SOURCE_DRIVER: github
-      VELA_SOURCE_URL: https://github.com/
+      VELA_SOURCE_URL: https://git.target.com/
       VELA_SECRET_VAULT: "true"
       VELA_SECRET_VAULT_ADDR: http://vault:8200
       VELA_SECRET_VAULT_TOKEN: vela

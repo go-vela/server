@@ -177,32 +177,6 @@ func GetUserSourceRepos(c *gin.Context) {
 		return nil
 	})
 
-	// TODO: clean this up, user repos no longer needed by this function
-
-	// // capture user's repos from the database backend
-	// threads.Go(func() error {
-	// 	page := 1
-	// 	for page > 0 {
-	// 		// send API call to capture the list of repos for the user
-	// 		dbReposPart, err := database.FromContext(c).GetUserRepoList(u, page, 100)
-	// 		if err != nil {
-	// 			return fmt.Errorf("unable to get database repos for user %s: %w", u.GetName(), err)
-	// 		}
-
-	// 		// add repos to list of database repos
-	// 		dbRepos = append(dbRepos, dbReposPart...)
-
-	// 		// making an assumption that 50 means there is another page
-	// 		// TODO: redo when other paging capability is added
-	// 		if len(dbReposPart) == 50 {
-	// 			page++
-	// 		} else {
-	// 			page = 0
-	// 		}
-	// 	}
-	// 	return nil
-	// })
-
 	// wait for all threads to complete
 	err := threads.Wait()
 	if err != nil {
@@ -218,22 +192,27 @@ func GetUserSourceRepos(c *gin.Context) {
 		// local variables to avoid bad memory address de-referencing
 		org := srepo.Org
 		name := srepo.Name
-		// active := false
+		active := false
 
-		// // send API call to capture the source repo from the database, if it exists
-		// dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
-		// if err != nil {
-		// 	util.HandleError(c, http.StatusInternalServerError, err)
+		// send API call to capture the source repo from the database, if it exists
+		dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
+		if err != nil {
+			// if record does not exist, repo is not active
+			if err.Error() != "record not found" {
+				util.HandleError(c, http.StatusInternalServerError, err)
 
-		// 	return
-		// }
-		// active = dbRepo.GetActive()
+				return
+			}
+		} else {
+			// repo exists
+			active = dbRepo.GetActive()
+		}
 
 		// library struct to omit optional fields
 		repo := library.Repo{
-			Org:  org,
-			Name: name,
-			// Active: &active,
+			Org:    org,
+			Name:   name,
+			Active: &active,
 		}
 
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
