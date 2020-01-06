@@ -212,9 +212,9 @@ func GetUserSourceRepos(c *gin.Context) {
 			Name:   name,
 			Active: &active,
 		}
-
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
 	}
+
 	c.JSON(http.StatusOK, output)
 }
 
