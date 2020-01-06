@@ -190,21 +190,18 @@ func GetUserSourceRepos(c *gin.Context) {
 		// local variables to avoid bad memory address de-referencing
 		org := srepo.Org
 		name := srepo.Name
-		active := false
 
 		// send API call to capture the source repo from the database, if it exists
+		// if record does not exist, repo is considered inactive
 		dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
-		if err != nil {
-			// if record does not exist, repo is not active
-			if err.Error() != "record not found" {
-				util.HandleError(c, http.StatusInternalServerError, err)
+		if err != nil && err.Error() != "record not found" {
 
-				return
-			}
-		} else {
-			// repo exists
-			active = dbRepo.GetActive()
+			util.HandleError(c, http.StatusInternalServerError, err)
+
+			return
 		}
+
+		active := dbRepo.GetActive()
 
 		// library struct to omit optional fields
 		repo := library.Repo{
