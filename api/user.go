@@ -178,7 +178,8 @@ func GetUserSourceRepos(c *gin.Context) {
 	})
 
 	// TODO: clean this up, user repos no longer needed by this function
-	// capture user's repos from the database backend
+
+	// // capture user's repos from the database backend
 	// threads.Go(func() error {
 	// 	page := 1
 	// 	for page > 0 {
@@ -217,22 +218,22 @@ func GetUserSourceRepos(c *gin.Context) {
 		// local variables to avoid bad memory address de-referencing
 		org := srepo.Org
 		name := srepo.Name
-		active := false
+		// active := false
 
-		// send API call to capture the source repo from the database, if it exists
-		dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
-		if err != nil {
-			util.HandleError(c, http.StatusInternalServerError, err)
+		// // send API call to capture the source repo from the database, if it exists
+		// dbRepo, err := database.FromContext(c).GetRepo(srepo.GetOrg(), srepo.GetName())
+		// if err != nil {
+		// 	util.HandleError(c, http.StatusInternalServerError, err)
 
-			return
-		}
-		active = dbRepo.GetActive()
+		// 	return
+		// }
+		// active = dbRepo.GetActive()
 
 		// library struct to omit optional fields
 		repo := library.Repo{
-			Org:    org,
-			Name:   name,
-			Active: &active,
+			Org:  org,
+			Name: name,
+			// Active: &active,
 		}
 
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
