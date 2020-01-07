@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
@@ -162,7 +160,6 @@ func GetUserSourceRepos(c *gin.Context) {
 	srcRepos := []*library.Repo{}
 	dbRepos := []*library.Repo{}
 	output := make(map[string][]library.Repo)
-	threads := new(errgroup.Group)
 
 	// send API call to capture the list of repos for the user
 	srcRepos, err := source.FromContext(c).ListUserRepos(u)
@@ -192,36 +189,29 @@ func GetUserSourceRepos(c *gin.Context) {
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
 	}
 
-	for org, _ := range output {
+	for org := range output {
 		// capture source repos from the database backend, grouped by org
-		threads.Go(func() error {
-			page := 1
-			for page > 0 {
-				// send API call to capture the list of repos for the org
-				dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, page, 100)
-				if err != nil {
-					return fmt.Errorf("unable to get database repos for org %s: %w", org, err)
-				}
+		page := 1
+		for page > 0 {
+			// send API call to capture the list of repos for the org
+			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, page, 100)
+			if err != nil {
+				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 
-				// add repos to list of database org repos
-				dbRepos = append(dbRepos, dbReposPart...)
+				util.HandleError(c, http.StatusNotFound, retErr)
 
-				// making an assumption that 50 means there is another page
-				if len(dbReposPart) == 50 {
-					page++
-				} else {
-					page = 0
-				}
+				return
 			}
-			return nil
-		})
 
-		// wait for all threads to complete
-		err = threads.Wait()
-		if err != nil {
-			util.HandleError(c, http.StatusInternalServerError, err)
+			// add repos to list of database org repos
+			dbRepos = append(dbRepos, dbReposPart...)
 
-			return
+			// making an assumption that 50 means there is another page
+			if len(dbReposPart) == 50 {
+				page++
+			} else {
+				page = 0
+			}
 		}
 
 		// apply org repos active status to output map
