@@ -161,7 +161,6 @@ func GetUserSourceRepos(c *gin.Context) {
 	// variables to capture requested data
 	srcRepos := []*library.Repo{}
 	dbRepos := []*library.Repo{}
-
 	output := make(map[string][]library.Repo)
 	threads := new(errgroup.Group)
 
