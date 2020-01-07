@@ -114,7 +114,7 @@ func GetHooks(c *gin.Context) {
 	// send API call to capture the total number of webhooks for the repo
 	t, err := database.FromContext(c).GetRepoHookCount(r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get steps count for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get hooks count for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -124,7 +124,7 @@ func GetHooks(c *gin.Context) {
 	// send API call to capture the list of steps for the build
 	h, err := database.FromContext(c).GetRepoHookList(r, page, perPage)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get steps for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get hooks for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

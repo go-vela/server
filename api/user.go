@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
@@ -162,49 +160,13 @@ func GetUserSourceRepos(c *gin.Context) {
 	srcRepos := []*library.Repo{}
 	dbRepos := []*library.Repo{}
 	output := make(map[string][]library.Repo)
-	threads := new(errgroup.Group)
 
-	// capture user's repos from the source backend
-	threads.Go(func() error {
-		// send API call to capture the list of repos for the user
-		r, err := source.FromContext(c).ListUserRepos(u)
-		if err != nil {
-			return fmt.Errorf("unable to get source repos for user %s: %w", u.GetName(), err)
-		}
-
-		// add repos to list of source repos
-		srcRepos = append(srcRepos, r...)
-		return nil
-	})
-
-	// capture user's repos from the database backend
-	threads.Go(func() error {
-		page := 1
-		for page > 0 {
-			// send API call to capture the list of repos for the user
-			dbReposPart, err := database.FromContext(c).GetUserRepoList(u, page, 100)
-			if err != nil {
-				return fmt.Errorf("unable to get database repos for user %s: %w", u.GetName(), err)
-			}
-
-			// add repos to list of database repos
-			dbRepos = append(dbRepos, dbReposPart...)
-
-			// making an assumption that 50 means there is another page
-			// TODO: redo when other paging capability is added
-			if len(dbReposPart) == 50 {
-				page++
-			} else {
-				page = 0
-			}
-		}
-		return nil
-	})
-
-	// wait for all threads to complete
-	err := threads.Wait()
+	// send API call to capture the list of repos for the user
+	srcRepos, err := source.FromContext(c).ListUserRepos(u)
 	if err != nil {
-		util.HandleError(c, http.StatusInternalServerError, err)
+		retErr := fmt.Errorf("unable to get source repos for user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
 	}
@@ -213,15 +175,56 @@ func GetUserSourceRepos(c *gin.Context) {
 	// TODO: clean this up
 	for _, srepo := range srcRepos {
 		// local variables to avoid bad memory address de-referencing
+		// initialize active to false
 		org := srepo.Org
 		name := srepo.Name
+		active := false
 
 		// library struct to omit optional fields
 		repo := library.Repo{
-			Org:  org,
-			Name: name,
+			Org:    org,
+			Name:   name,
+			Active: &active,
 		}
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
+	}
+
+	for org := range output {
+		// capture source repos from the database backend, grouped by org
+		page := 1
+		for page > 0 {
+			// send API call to capture the list of repos for the org
+			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, page, 100)
+			if err != nil {
+				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
+
+				util.HandleError(c, http.StatusNotFound, retErr)
+
+				return
+			}
+
+			// add repos to list of database org repos
+			dbRepos = append(dbRepos, dbReposPart...)
+
+			// making an assumption that 50 means there is another page
+			if len(dbReposPart) == 50 {
+				page++
+			} else {
+				page = 0
+			}
+		}
+
+		// apply org repos active status to output map
+		for _, dbRepo := range dbRepos {
+			if orgRepos, ok := output[dbRepo.GetOrg()]; ok {
+				for i := range orgRepos {
+					if orgRepos[i].GetName() == dbRepo.GetName() {
+						active := dbRepo.GetActive()
+						(&orgRepos[i]).Active = &active
+					}
+				}
+			}
+		}
 	}
 
 	c.JSON(http.StatusOK, output)

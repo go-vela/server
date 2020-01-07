@@ -137,7 +137,46 @@ func TestDatabase_Client_GetRepoCount(t *testing.T) {
 		t.Errorf("GetRepoCount is %v, want %v", got, want)
 	}
 }
+func TestDatabase_Client_GetOrgRepoList(t *testing.T) {
+	// setup types
+	rOne := testRepo()
+	rOne.SetID(1)
+	rOne.SetUserID(1)
+	rOne.SetOrg("foo")
+	rOne.SetName("bar")
+	rOne.SetFullName("foo/bar")
 
+	rTwo := testRepo()
+	rTwo.SetID(2)
+	rTwo.SetUserID(1)
+	rTwo.SetOrg("foo")
+	rTwo.SetName("baz")
+	rTwo.SetFullName("foo/baz")
+
+	want := []*library.Repo{rTwo, rOne}
+
+	// setup database
+	db, _ := NewTest()
+
+	defer func() {
+		db.Database.Exec("delete from repos;")
+		db.Database.Close()
+	}()
+
+	_ = db.CreateRepo(rOne)
+	_ = db.CreateRepo(rTwo)
+
+	// run test
+	got, err := db.GetOrgRepoList("foo", 1, 10)
+
+	if err != nil {
+		t.Errorf("GetOrgRepoList returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetOrgRepoList is %v, want %v", got, want)
+	}
+}
 func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 	// setup types
 	rOne := testRepo()
