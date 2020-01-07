@@ -100,6 +100,36 @@ func (c *client) GetUserRepoList(u *library.User, page, perPage int) ([]*library
 	return repos, err
 }
 
+// GetOrgRepoList gets a list of all repos by org from the database.
+func (c *client) GetOrgRepoList(org string, page, perPage int) ([]*library.Repo, error) {
+	logrus.Tracef("Getting repos for org %s from the database", org)
+
+	// variable to store query results
+	r := new([]database.Repo)
+
+	// calculate offset for pagination through results
+	offset := (perPage * (page - 1))
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableRepo).
+		Raw(c.DML.RepoService.List["org"], org, perPage, offset).
+		Scan(r).Error
+
+	// variable we want to return
+	repos := []*library.Repo{}
+	// iterate through all query results
+	for _, repo := range *r {
+		// https://golang.org/doc/faq#closures_and_goroutines
+		tmp := repo
+
+		// convert query result to library type
+		repos = append(repos, tmp.ToLibrary())
+	}
+
+	return repos, err
+}
+
 // GetUserRepoCount gets a count of all repos for a specific user from the database.
 func (c *client) GetUserRepoCount(u *library.User) (int64, error) {
 	logrus.Tracef("Counting repos for user %s in the database", u.GetName())

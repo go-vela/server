@@ -58,6 +58,7 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 			List: map[string]string{
 				"all":  postgres.ListRepos,
 				"user": postgres.ListUserRepos,
+				"org":  postgres.ListOrgRepos,
 			},
 			Select: map[string]string{
 				"repo":        postgres.SelectRepo,
@@ -177,6 +178,7 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 			List: map[string]string{
 				"all":  sqlite.ListRepos,
 				"user": sqlite.ListUserRepos,
+				"org":  sqlite.ListOrgRepos,
 			},
 			Select: map[string]string{
 				"repo":        sqlite.SelectRepo,

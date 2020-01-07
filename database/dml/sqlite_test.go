@@ -55,6 +55,7 @@ func TestDML_mapFromSqlite(t *testing.T) {
 			List: map[string]string{
 				"all":  sqlite.ListRepos,
 				"user": sqlite.ListUserRepos,
+				"org":  sqlite.ListOrgRepos,
 			},
 			Select: map[string]string{
 				"repo":        sqlite.SelectRepo,
