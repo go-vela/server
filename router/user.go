@@ -36,6 +36,7 @@ func UserHandlers(base *gin.RouterGroup) {
 	user := base.Group("/user")
 	{
 		user.GET("", api.GetCurrentUser)
+		user.PUT("", api.UpdateCurrentUser)
 		user.GET("/source/repos", api.GetUserSourceRepos)
 		user.POST("/token", api.CreateToken)
 		user.DELETE("/token", api.DeleteToken)

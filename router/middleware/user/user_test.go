@@ -51,6 +51,7 @@ func TestUser_Establish(t *testing.T) {
 	want.SetHash("baz")
 	want.SetActive(false)
 	want.SetAdmin(false)
+	want.SetFavorites([]string{})
 
 	got := new(library.User)
 

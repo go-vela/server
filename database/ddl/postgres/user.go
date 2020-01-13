@@ -11,12 +11,13 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 users (
-	id     SERIAL PRIMARY KEY,
-	name   VARCHAR(250),
-	token  VARCHAR(500),
-	hash   VARCHAR(500),
-	active BOOLEAN,
-	admin  BOOLEAN,
+	id        SERIAL PRIMARY KEY,
+	name      VARCHAR(250),
+	token     VARCHAR(500),
+	hash      VARCHAR(500),
+	favorites VARCHAR(1000),
+	active    BOOLEAN,
+	admin     BOOLEAN,
 	UNIQUE(name)
 );
 `

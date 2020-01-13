@@ -32,6 +32,7 @@ func TestDatabase_Client_GetUser(t *testing.T) {
 	want.SetName("foo")
 	want.SetToken("bar")
 	want.SetHash("baz")
+	want.SetFavorites([]string{"foo", "bar"})
 
 	// setup database
 	db, _ := NewTest()
@@ -62,6 +63,7 @@ func TestDatabase_Client_GetUserName(t *testing.T) {
 	want.SetName("foo")
 	want.SetToken("bar")
 	want.SetHash("baz")
+	want.SetFavorites([]string{"foo", "bar"})
 
 	// setup database
 	db, _ := NewTest()
@@ -92,12 +94,14 @@ func TestDatabase_Client_GetUserCount(t *testing.T) {
 	uOne.SetName("foo")
 	uOne.SetToken("bar")
 	uOne.SetHash("baz")
+	uOne.SetFavorites([]string{"foo", "bar"})
 
 	uTwo := testUser()
 	uTwo.SetID(2)
 	uTwo.SetName("bar")
 	uTwo.SetToken("foo")
 	uTwo.SetHash("baz")
+	uTwo.SetFavorites([]string{"baz"})
 
 	want := 2
 
@@ -131,12 +135,14 @@ func TestDatabase_Client_GetUserList(t *testing.T) {
 	uOne.SetName("foo")
 	uOne.SetToken("bar")
 	uOne.SetHash("baz")
+	uOne.SetFavorites([]string{"foo", "bar"})
 
 	uTwo := testUser()
 	uTwo.SetID(2)
 	uTwo.SetName("bar")
 	uTwo.SetToken("foo")
 	uTwo.SetHash("baz")
+	uTwo.SetFavorites([]string{"baz"})
 
 	want := []*library.User{uOne, uTwo}
 
@@ -170,20 +176,24 @@ func TestDatabase_Client_GetUserLiteList(t *testing.T) {
 	uOne.SetName("foo")
 	uOne.SetToken("bar")
 	uOne.SetHash("baz")
+	uOne.SetFavorites([]string{"foo"})
 
 	uTwo := testUser()
 	uTwo.SetID(2)
 	uTwo.SetName("bar")
 	uTwo.SetToken("foo")
 	uTwo.SetHash("baz")
+	uTwo.SetFavorites([]string{"baz"})
 
 	wOne := testUser()
 	wOne.SetID(1)
 	wOne.SetName("foo")
+	wOne.SetFavorites(nil)
 
 	wTwo := testUser()
 	wTwo.SetID(2)
 	wTwo.SetName("bar")
+	wTwo.SetFavorites(nil)
 
 	want := []*library.User{wTwo, wOne}
 
@@ -217,6 +227,7 @@ func TestDatabase_Client_CreateUser(t *testing.T) {
 	want.SetName("foo")
 	want.SetToken("bar")
 	want.SetHash("baz")
+	want.SetFavorites([]string{"foo"})
 
 	// setup database
 	db, _ := NewTest()
@@ -281,6 +292,9 @@ func TestDatabase_Client_UpdateUser(t *testing.T) {
 
 	_ = db.CreateUser(want)
 
+	// update favorites
+	want.SetFavorites([]string{"foo"})
+
 	// run test
 	err := db.UpdateUser(want)
 
@@ -301,6 +315,7 @@ func TestDatabase_Client_UpdateUser_Invalid(t *testing.T) {
 	u.SetID(1)
 	u.SetToken("bar")
 	u.SetHash("baz")
+	u.SetFavorites([]string{"foo"})
 
 	// setup database
 	db, _ := NewTest()
@@ -327,6 +342,7 @@ func TestDatabase_Client_DeleteUser(t *testing.T) {
 	want.SetName("foo")
 	want.SetToken("bar")
 	want.SetHash("baz")
+	want.SetFavorites([]string{"foo"})
 
 	// setup database
 	db, _ := NewTest()
@@ -353,13 +369,14 @@ func testUser() *library.User {
 	i64 := int64(0)
 	str := ""
 	b := false
-
+	arr := []string{}
 	return &library.User{
-		ID:     &i64,
-		Name:   &str,
-		Token:  &str,
-		Hash:   &str,
-		Active: &b,
-		Admin:  &b,
+		ID:        &i64,
+		Name:      &str,
+		Token:     &str,
+		Hash:      &str,
+		Favorites: &arr,
+		Active:    &b,
+		Admin:     &b,
 	}
 }

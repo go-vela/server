@@ -129,6 +129,63 @@ func GetCurrentUser(c *gin.Context) {
 	c.JSON(http.StatusOK, u)
 }
 
+// UpdateCurrentUser represents the API handler to capture and
+// update the currently authenticated user from the configured backend.
+func UpdateCurrentUser(c *gin.Context) {
+	// retrieve user from context
+	user := user.Retrieve(c)
+
+	logrus.Infof("Updating current user %s", user)
+
+	// capture body from API request
+	input := new(library.User)
+
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for user %s: %w", user, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the user
+	u, err := database.FromContext(c).GetUserName(user.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// update user fields if provided
+	if input.GetFavorites() != nil {
+		// update active if set
+		u.SetFavorites(input.GetFavorites())
+	}
+
+	if input.GetActive() {
+		// update active if set
+		u.SetActive(input.GetActive())
+	}
+
+	// send API call to update the user
+	err = database.FromContext(c).UpdateUser(u)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update user %s: %w", user, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// send API call to capture the updated user
+	u, _ = database.FromContext(c).GetUserName(user.GetName())
+
+	c.JSON(http.StatusOK, u)
+}
+
 // GetUser represents the API handler to capture a
 // user from the configured backend.
 func GetUser(c *gin.Context) {

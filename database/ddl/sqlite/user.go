@@ -11,12 +11,13 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 users (
-	id     INTEGER PRIMARY KEY AUTOINCREMENT,
-	name   TEXT,
-	token  TEXT,
-	hash   TEXT,
-	active BOOLEAN,
-	admin  BOOLEAN,
+	id          INTEGER PRIMARY KEY AUTOINCREMENT,
+	name        TEXT,
+	token       TEXT,
+	hash        TEXT,
+	favorites   TEXT,
+	active      BOOLEAN,
+	admin       BOOLEAN,
 	UNIQUE(name)
 );
 `
