@@ -187,7 +187,7 @@ func UpdateCurrentUser(c *gin.Context) {
 
 	// update user fields if provided
 	if input.GetFavorites() != nil {
-		// update active if set
+		// update favorites if set
 		u.SetFavorites(input.GetFavorites())
 	}
 
