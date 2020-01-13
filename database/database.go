@@ -100,6 +100,9 @@ type Service interface {
 	// GetRepoList defines a function that
 	// gets a list of all repos.
 	GetRepoList() ([]*library.Repo, error)
+	// GetOrgRepoList defines a function that
+	// gets a list of all repos by org.
+	GetOrgRepoList(string, int, int) ([]*library.Repo, error)
 	// GetRepoCount defines a function that
 	// gets the count of repos.
 	GetRepoCount() (int64, error)

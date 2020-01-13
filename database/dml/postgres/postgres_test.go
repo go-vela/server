@@ -53,6 +53,7 @@ func TestPostgres_NewMap(t *testing.T) {
 			List: map[string]string{
 				"all":  ListRepos,
 				"user": ListUserRepos,
+				"org":  ListOrgRepos,
 			},
 			Select: map[string]string{
 				"repo":        SelectRepo,

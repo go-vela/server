@@ -55,6 +55,7 @@ func TestDML_mapFromPostgres(t *testing.T) {
 			List: map[string]string{
 				"all":  postgres.ListRepos,
 				"user": postgres.ListUserRepos,
+				"org":  postgres.ListOrgRepos,
 			},
 			Select: map[string]string{
 				"repo":        postgres.SelectRepo,
