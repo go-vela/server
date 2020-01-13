@@ -159,15 +159,38 @@ func UpdateCurrentUser(c *gin.Context) {
 		return
 	}
 
+	// verify that a user token was provided
+	if user.Token == nil {
+		retErr := fmt.Errorf("unable to read provided user token")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	//verify that a user token exists in the database
+	if u.Token == nil {
+		retErr := fmt.Errorf("unable to get user token from the database")
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// verify that the provided user token matches the
+	// user token stored in the database
+	if user.Token != u.Token {
+		retErr := fmt.Errorf("provided token does not match user record")
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
 	// update user fields if provided
 	if input.GetFavorites() != nil {
 		// update active if set
 		u.SetFavorites(input.GetFavorites())
-	}
-
-	if input.GetActive() {
-		// update active if set
-		u.SetActive(input.GetActive())
 	}
 
 	// send API call to update the user
