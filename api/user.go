@@ -152,7 +152,7 @@ func UpdateCurrentUser(c *gin.Context) {
 	if user.GetName() != input.GetName() {
 		retErr := fmt.Errorf("updates only allowed on self")
 
-		util.HandleError(c, http.StatusUnauthorized, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
