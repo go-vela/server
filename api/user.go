@@ -147,8 +147,8 @@ func UpdateCurrentUser(c *gin.Context) {
 		return
 	}
 
-	// verify that the provided user token matches the
-	// user token stored in the database
+	// verify that the provided user name matches the
+	// user name stored in the database
 	if user.GetName() != input.GetName() {
 		retErr := fmt.Errorf("updates only allowed on self")
 
