@@ -147,6 +147,16 @@ func UpdateCurrentUser(c *gin.Context) {
 		return
 	}
 
+	// verify that the provided user token matches the
+	// user token stored in the database
+	if user.GetName() != input.GetName() {
+		retErr := fmt.Errorf("updates only allowed on self")
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
 	// update user fields if provided
 	if len(input.GetFavorites()) != 0 {
 		// update favorites if set
@@ -164,7 +174,14 @@ func UpdateCurrentUser(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	user, _ = database.FromContext(c).GetUserName(input.GetName())
+	user, err = database.FromContext(c).GetUserName(input.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get updated user %s: %w", user, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
 
 	c.JSON(http.StatusOK, user)
 }
