@@ -21,6 +21,11 @@ import (
 // GET    /api/v1/users/:user/source/repos
 // POST   /api/v1/users/:user/token
 // DELETE /api/v1/users/:user/token
+// GET    /api/v1/user
+// PUT    /api/v1/user
+// GET    /api/v1/user/source/repos
+// POST   /api/v1/user/token
+// DELETE /api/v1/user/token
 func UserHandlers(base *gin.RouterGroup) {
 	// Users endpoints
 	users := base.Group("/users")
@@ -36,6 +41,7 @@ func UserHandlers(base *gin.RouterGroup) {
 	user := base.Group("/user")
 	{
 		user.GET("", api.GetCurrentUser)
+		user.PUT("", api.UpdateCurrentUser)
 		user.GET("/source/repos", api.GetUserSourceRepos)
 		user.POST("/token", api.CreateToken)
 		user.DELETE("/token", api.DeleteToken)

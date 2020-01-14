@@ -56,6 +56,7 @@ func TestToken_Parse(t *testing.T) {
 	want.SetHash("baz")
 	want.SetActive(false)
 	want.SetAdmin(false)
+	want.SetFavorites([]string{})
 
 	tkn, err := Compose(want)
 	if err != nil {
