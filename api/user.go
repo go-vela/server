@@ -147,52 +147,14 @@ func UpdateCurrentUser(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the user
-	u, err := database.FromContext(c).GetUserName(user.GetName())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
-
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	// verify that a user token was provided
-	if user.Token == nil {
-		retErr := fmt.Errorf("unable to read provided user token")
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	//verify that a user token exists in the database
-	if u.Token == nil {
-		retErr := fmt.Errorf("unable to get user token from the database")
-
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	// verify that the provided user token matches the
-	// user token stored in the database
-	if user.Token != u.Token {
-		retErr := fmt.Errorf("provided token does not match user record")
-
-		util.HandleError(c, http.StatusUnauthorized, retErr)
-
-		return
-	}
-
 	// update user fields if provided
-	if input.GetFavorites() != nil {
+	if len(input.GetFavorites()) != 0 {
 		// update favorites if set
-		u.SetFavorites(input.GetFavorites())
+		user.SetFavorites(input.GetFavorites())
 	}
 
 	// send API call to update the user
-	err = database.FromContext(c).UpdateUser(u)
+	err = database.FromContext(c).UpdateUser(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", user, err)
 
@@ -202,9 +164,9 @@ func UpdateCurrentUser(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	u, _ = database.FromContext(c).GetUserName(user.GetName())
+	user, _ = database.FromContext(c).GetUserName(input.GetName())
 
-	c.JSON(http.StatusOK, u)
+	c.JSON(http.StatusOK, user)
 }
 
 // GetUser represents the API handler to capture a
