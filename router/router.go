@@ -30,14 +30,26 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	r.Use(options...)
 
-	r.GET("/health", api.Health)
-
-	r.GET("/logout", api.Login)
-	r.GET("/login", api.Login)
-	r.POST("/login", api.Login)
-	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
+	// Badge endpoint
 	r.GET("/badge/:org/:repo/status.svg", repo.Establish(), api.Badge)
 
+	// Health endpoint
+	r.GET("/health", api.Health)
+
+	// Login endpoints
+	r.GET("/login", api.Login)
+	r.POST("/login", api.Login)
+
+	// Logout endpoint
+	r.GET("/logout", api.Login)
+
+	// Metric endpoint
+	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
+
+	// Version endpoint
+	r.GET("/version", api.Version)
+
+	// Webhook endpoint
 	r.POST("/webhook", api.PostWebhook)
 
 	// Authentication endpoints
