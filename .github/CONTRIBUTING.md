@@ -52,7 +52,9 @@ cd $HOME/go-vela/server
 git remote add fork https://github.com/your_fork/server
 ```
 
-* Create secrets for local development:
+* Create [OAuth App](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) and obtain secrets for local development:
+  * Homepage URL = `<url of api server>`
+  * Authorization callback URL = `<url of web ui>/account/authenticate`
 
 **NOTE: This will work for GitHub or GitHub Enterprise.**
 
