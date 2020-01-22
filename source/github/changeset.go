@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/library"
+	"github.com/google/go-github/v26/github"
 )
 
 // Changeset captures the list of files changed for a commit.
@@ -35,16 +36,31 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 	s := []string{}
+	f := []*github.CommitFile{}
 
-	// send API call to capture the files from the pull request
-	files, _, err := client.PullRequests.ListFiles(ctx, r.GetOrg(), r.GetName(), number, nil)
-	if err != nil {
-		return nil, fmt.Errorf("PullRequests.ListFiles returned error: %v", err)
+	// set the max per page for the options to capture the list of repos
+	opts := github.ListOptions{PerPage: 100} // 100 is max
+
+	for {
+		// send API call to capture the files from the pull request
+		files, resp, err := client.PullRequests.ListFiles(ctx, r.GetOrg(), r.GetName(), number, &opts)
+		if err != nil {
+			return nil, fmt.Errorf("PullRequests.ListFiles returned error: %v", err)
+		}
+
+		f = append(f, files...)
+
+		// break the loop if there is no more results to page through
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
 	}
 
 	// iterate through each file in the pull request
-	for _, f := range files {
-		s = append(s, f.GetFilename())
+	for _, file := range f {
+		s = append(s, file.GetFilename())
 	}
 
 	return s, nil

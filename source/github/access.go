@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/types/library"
+	"github.com/google/go-github/v26/github"
 )
 
 // OrgAccess captures the user's access level for an org.
@@ -52,11 +53,26 @@ func (c *client) RepoAccess(u *library.User, org, repo string) (string, error) {
 func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
+	teams := []*github.Team{}
 
-	// send API call to list all teams for the user
-	teams, _, err := client.Teams.ListUserTeams(ctx, nil)
-	if err != nil {
-		return "", err
+	// set the max per page for the options to capture the list of repos
+	opts := github.ListOptions{PerPage: 100} // 100 is max
+
+	for {
+		// send API call to list all teams for the user
+		uTeams, resp, err := client.Teams.ListUserTeams(ctx, &opts)
+		if err != nil {
+			return "", err
+		}
+
+		teams = append(teams, uTeams...)
+
+		// break the loop if there is no more results to page through
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
 	}
 
 	// iterate through each element in the teams
