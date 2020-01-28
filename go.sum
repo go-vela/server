@@ -86,8 +86,8 @@ github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZp
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
-github.com/go-vela/compiler v0.2.1-0.20200127210438-6854f7562807 h1:I7at7PaFpG2X4lSCxsRlMtOjwE41zk5JcxlI2u20pno=
-github.com/go-vela/compiler v0.2.1-0.20200127210438-6854f7562807/go.mod h1:tp6Avl2Twy2J2NQCj6Q+1B63/AR348Ec1lfvubILISo=
+github.com/go-vela/compiler v0.2.1-0.20200128164732-8d5d2fb47267 h1:nfOaBHLIpjhWS7lnLXwy7mdq9xuY3y8Z0DTK78HAHHc=
+github.com/go-vela/compiler v0.2.1-0.20200128164732-8d5d2fb47267/go.mod h1:tp6Avl2Twy2J2NQCj6Q+1B63/AR348Ec1lfvubILISo=
 github.com/go-vela/types v0.2.0 h1:VHOlUqCratdthbOpI1l0CLvVEINYqndpqVYVQoPm1Ac=
 github.com/go-vela/types v0.2.0/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
 github.com/go-vela/types v0.2.1-0.20200113181744-517cf948034b h1:G6OSZwnp5J2BTC8pODDUzSXqurW7bFuCTub1PS6C2G0=
