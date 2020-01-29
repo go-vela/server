@@ -10,7 +10,7 @@ require (
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-redis/redis v6.15.6+incompatible
-	github.com/go-vela/compiler v0.2.0
+	github.com/go-vela/compiler v0.2.1-0.20200128164732-8d5d2fb47267
 	github.com/go-vela/types v0.2.1-0.20200129163552-33636d2e13a4
 	github.com/google/go-github/v26 v26.1.3
 	github.com/google/uuid v1.1.1
