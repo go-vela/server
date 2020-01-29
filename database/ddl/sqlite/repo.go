@@ -13,6 +13,7 @@ IF NOT EXISTS
 repos (
 	id           INTEGER PRIMARY KEY AUTOINCREMENT,
 	user_id      INTEGER,
+	hash         TEXT,
 	org          TEXT,
 	name         TEXT,
 	full_name    TEXT,

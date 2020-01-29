@@ -13,6 +13,7 @@ IF NOT EXISTS
 repos (
 	id           SERIAL PRIMARY KEY,
 	user_id      INTEGER,
+	hash         VARCHAR(500),
 	org          VARCHAR(250),
 	name         VARCHAR(250),
 	full_name    VARCHAR(500),

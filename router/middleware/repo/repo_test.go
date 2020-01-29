@@ -40,6 +40,7 @@ func TestRepo_Establish(t *testing.T) {
 	want := new(library.Repo)
 	want.SetID(1)
 	want.SetUserID(1)
+	want.SetHash("baz")
 	want.SetOrg("foo")
 	want.SetName("bar")
 	want.SetFullName("foo/bar")
