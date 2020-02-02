@@ -23,7 +23,7 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 		Ref: ref,
 	}
 
-	// send API call to capture the .carave.yml pipeline configuration
+	// send API call to capture the .vela.yml pipeline configuration
 	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
 	if err != nil {
 		if resp.StatusCode != http.StatusNotFound {
@@ -41,7 +41,7 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 		return []byte(strData), nil
 	}
 
-	// send API call to capture the .carave.yaml pipeline configuration
+	// send API call to capture the .vela.yaml pipeline configuration
 	data, _, resp, err = client.Repositories.GetContents(ctx, org, name, ".vela.yaml", opts)
 	if err != nil {
 		if resp.StatusCode != http.StatusNotFound {
