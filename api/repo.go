@@ -5,6 +5,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -20,6 +21,7 @@ import (
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -71,6 +73,22 @@ func CreateRepo(c *gin.Context) {
 		input.SetAllowPull(true)
 		input.SetAllowPush(true)
 	}
+
+	// create unique id for the repo
+	uid, err := uuid.NewRandom()
+	if err != nil {
+		retErr := fmt.Errorf("unable to create UID for repo %s: %w", input.GetFullName(), err)
+
+		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
+		return
+	}
+
+	input.SetHash(
+		base64.StdEncoding.EncodeToString(
+			[]byte(uid.String()),
+		),
+	)
 
 	// ensure repo is allowed to be activated
 	if !checkWhitelist(input, whitelist) {
@@ -309,6 +327,25 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowPush(true)
 	}
 
+	// set hash for repo if no hash is already set
+	if len(r.GetHash()) == 0 {
+		// create unique id for the repo
+		uid, err := uuid.NewRandom()
+		if err != nil {
+			retErr := fmt.Errorf("unable to create UID for repo %s: %w", input.GetFullName(), err)
+
+			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
+			return
+		}
+
+		r.SetHash(
+			base64.StdEncoding.EncodeToString(
+				[]byte(uid.String()),
+			),
+		)
+	}
+
 	// send API call to update the repo
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
@@ -394,7 +431,7 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	_, err = s.Enable(u, r.GetOrg(), r.GetName())
+	_, err = s.Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
