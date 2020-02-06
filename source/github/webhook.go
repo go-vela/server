@@ -52,6 +52,16 @@ func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.
 	return h, nil, nil, nil
 }
 
+// VerifyWebhook verifies the webhook from a repo.
+func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
+	_, err := github.ValidatePayload(request, []byte(r.GetHash()))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // processPushEvent is a helper function to process the push event
 func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook, *library.Repo, *library.Build, error) {
 	repo := payload.GetRepo()

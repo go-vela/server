@@ -508,3 +508,74 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 		t.Errorf("ProcessWebhook build is %v, want nil", gotBuild)
 	}
 }
+
+func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/push.json")
+	if err != nil {
+		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Host", "github.com")
+	request.Header.Set("X-GitHub-Version", "2.16.0")
+	request.Header.Set("X-GitHub-Event", "deployment")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	err = client.VerifyWebhook(request, new(library.Repo))
+	if err != nil {
+		t.Errorf("VerifyWebhook should have returned err")
+	}
+}
+
+func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	r := new(library.Repo)
+	r.SetOrg("Codertocat")
+	r.SetName("Hello-World")
+	r.SetFullName("Codertocat/Hello-World")
+	r.SetLink("https://github.com/Codertocat/Hello-World")
+	r.SetClone("https://github.com/Codertocat/Hello-World.git")
+	r.SetBranch("master")
+	r.SetPrivate(false)
+
+	// setup request
+	body, err := os.Open("testdata/push.json")
+	if err != nil {
+		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Host", "github.com")
+	request.Header.Set("X-GitHub-Version", "2.16.0")
+	request.Header.Set("X-GitHub-Event", "push")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	err = client.VerifyWebhook(request, r)
+	if err != nil {
+		t.Errorf("VerifyWebhook should have returned err")
+	}
+}
