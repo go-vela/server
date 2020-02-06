@@ -103,7 +103,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(u *library.User, org, name string) (string, error) {
+func (c *client) Enable(u *library.User, org, name, secret string) (string, error) {
 	client := c.newClientToken(*u.Token)
 
 	// create the hook object to make the API call
@@ -116,6 +116,7 @@ func (c *client) Enable(u *library.User, org, name string) (string, error) {
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.LocalHost),
 			"content_type": "form",
+			"secret":       secret,
 		},
 		Active: github.Bool(true),
 	}

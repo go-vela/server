@@ -373,7 +373,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.Enable(u, "foo", "bar")
+	_, err := client.Enable(u, "foo", "bar", "secret")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
