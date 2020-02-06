@@ -110,7 +110,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName())
+	url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName(), input.GetHash())
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -431,7 +431,7 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	_, err = s.Enable(u, r.GetOrg(), r.GetName())
+	_, err = s.Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 

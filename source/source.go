@@ -63,7 +63,7 @@ type Service interface {
 	Disable(*library.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(*library.User, string, string) (string, error)
+	Enable(*library.User, string, string, string) (string, error)
 	// Status defines a function that sends the
 	// commit status for the given SHA from a repo.
 	Status(*library.User, *library.Build, string, string) error
