@@ -42,7 +42,6 @@ func PostWebhook(c *gin.Context) {
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
-
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
@@ -80,7 +79,6 @@ func PostWebhook(c *gin.Context) {
 	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %v", baseErr, r.GetFullName(), err)
-
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -92,6 +90,18 @@ func PostWebhook(c *gin.Context) {
 	// set the RepoID fields
 	b.SetRepoID(r.GetID())
 	h.SetRepoID(r.GetID())
+
+	// process the webhook from the source control provider
+	err = source.FromContext(c).VerifyWebhook(c.Request, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to verify webhook: %v", err)
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
 
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).GetLastHook(r)
