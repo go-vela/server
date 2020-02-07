@@ -26,6 +26,7 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.GET("/hooks", admin.AllHooks)
 		_admin.GET("/repos", admin.AllRepos)
 		_admin.GET("/secrets", admin.AllSecrets)
+		_admin.GET("/services", admin.AllServices)
 		_admin.GET("/steps", admin.AllSteps)
 		_admin.GET("/users", admin.AllUsers)
 	} // end of admin endpoints
