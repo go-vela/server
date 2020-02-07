@@ -23,6 +23,7 @@ func AdminHandlers(base *gin.RouterGroup) {
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{
 		_admin.GET("/builds", admin.AllBuilds)
+		_admin.GET("/hooks", admin.AllHooks)
 		_admin.GET("/repos", admin.AllRepos)
 		_admin.GET("/secrets", admin.AllSecrets)
 		_admin.GET("/services", admin.AllServices)
