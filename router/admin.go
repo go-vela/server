@@ -14,8 +14,10 @@ import (
 // with the API handlers for admin functionality.
 //
 // GET    /api/v1/admin/builds
+// GET    /api/v1/admin/hooks
 // GET    /api/v1/admin/repos
 // GET    /api/v1/admin/secrets
+// GET    /api/v1/admin/services
 // GET    /api/v1/admin/steps
 // GET    /api/v1/admin/users
 func AdminHandlers(base *gin.RouterGroup) {

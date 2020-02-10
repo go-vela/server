@@ -20,7 +20,7 @@ import (
 func AllServices(c *gin.Context) {
 	logrus.Info("Reading all services")
 
-	// send API call to capture all steps
+	// send API call to capture all services
 	s, err := database.FromContext(c).GetServiceList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all services: %w", err)
