@@ -262,7 +262,8 @@ func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 	bTwo.SetNumber(2)
 	bTwo.SetStatus(constants.StatusRunning)
 
-	want := []*library.Build{bTwo, bOne}
+	want := []*library.Build{bTwo}
+	wantCount := int64(2)
 
 	// setup database
 	database, _ := NewTest()
@@ -276,14 +277,130 @@ func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 	_ = database.CreateBuild(bTwo)
 
 	// run test
-	got, err := database.GetRepoBuildList(r, 1, 10)
+	got, gotCount, err := database.GetRepoBuildList(r, 1, 1)
 
 	if err != nil {
 		t.Errorf("GetRepoBuildList returned err: %v", err)
 	}
 
+	if gotCount != wantCount {
+		t.Errorf("Count for GetRepoBuildList returned %v, want %v", gotCount, wantCount)
+	}
+
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("GetRepoBuildList is %v, want %v", got, want)
+	}
+}
+
+func TestDatabase_Client_GetRepoBuildListByEvent(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	bOne := testBuild()
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+	bOne.SetEvent("push")
+	bOne.SetStatus(constants.StatusPending)
+
+	bTwo := testBuild()
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+	bTwo.SetEvent("tag")
+	bTwo.SetStatus(constants.StatusRunning)
+
+	bThree := testBuild()
+	bThree.SetID(3)
+	bThree.SetRepoID(1)
+	bThree.SetNumber(3)
+	bThree.SetEvent("push")
+	bThree.SetStatus(constants.StatusPending)
+
+	want := []*library.Build{bThree}
+	wantCount := int64(2)
+
+	// setup database
+	database, _ := NewTest()
+
+	defer func() {
+		database.Database.Exec("delete from builds;")
+		database.Database.Close()
+	}()
+
+	_ = database.CreateBuild(bOne)
+	_ = database.CreateBuild(bTwo)
+	_ = database.CreateBuild(bThree)
+
+	// run test
+	got, gotCount, err := database.GetRepoBuildListByEvent(r, 1, 1, "push")
+
+	if err != nil {
+		t.Errorf("GetRepoBuildListByEvent returned err: %v", err)
+	}
+
+	if gotCount != wantCount {
+		t.Errorf("Count for GetRepoBuildListByEvent returned %v, want %v", gotCount, wantCount)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetRepoBuildListByEvent is %v, want %v", got, want)
+	}
+}
+
+func TestDatabase_Client_GetRepoBuildListByEvent_No_Results(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	bOne := testBuild()
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+	bOne.SetEvent("push")
+	bOne.SetStatus(constants.StatusPending)
+
+	bTwo := testBuild()
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+	bTwo.SetEvent("push")
+	bTwo.SetStatus(constants.StatusRunning)
+
+	want := []*library.Build{}
+	wantCount := int64(0)
+
+	// setup database
+	database, _ := NewTest()
+
+	defer func() {
+		database.Database.Exec("delete from builds;")
+		database.Database.Close()
+	}()
+
+	_ = database.CreateBuild(bOne)
+	_ = database.CreateBuild(bTwo)
+
+	// run test
+	got, gotCount, err := database.GetRepoBuildListByEvent(r, 1, 1, "tag")
+
+	if err != nil {
+		t.Errorf("GetRepoBuildListByEvent returned err: %v", err)
+	}
+
+	if gotCount != wantCount {
+		t.Errorf("Count for GetRepoBuildListByEvent returned %v, want %v", gotCount, wantCount)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetRepoBuildListByEvent is %v, want %v", got, want)
 	}
 }
 
@@ -333,6 +450,58 @@ func TestDatabase_Client_GetRepoBuildCount(t *testing.T) {
 
 	if got != int64(want) {
 		t.Errorf("GetRepoBuildCount is %v, want %v", got, want)
+	}
+}
+
+func TestDatabase_Client_GetRepoBuildCountByEvent(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	bOne := testBuild()
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+	bOne.SetEvent("push")
+
+	bTwo := testBuild()
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+	bTwo.SetEvent("tag")
+
+	bThree := testBuild()
+	bThree.SetID(3)
+	bThree.SetRepoID(1)
+	bThree.SetNumber(3)
+	bThree.SetEvent("push")
+
+	want := 2
+
+	// setup database
+	database, _ := NewTest()
+
+	defer func() {
+		database.Database.Exec("delete from builds;")
+		database.Database.Close()
+	}()
+
+	_ = database.CreateBuild(bOne)
+	_ = database.CreateBuild(bTwo)
+	_ = database.CreateBuild(bThree)
+
+	// run test
+	got, err := database.GetRepoBuildCountByEvent(r, "push")
+
+	if err != nil {
+		t.Errorf("GetRepoBuildCountByEvent returned err: %v", err)
+	}
+
+	if got != int64(want) {
+		t.Errorf("GetRepoBuildCountByEvent is %v, want %v", got, want)
 	}
 }
 

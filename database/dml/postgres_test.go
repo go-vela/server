@@ -16,15 +16,17 @@ func TestDML_mapFromPostgres(t *testing.T) {
 	want := &Map{
 		BuildService: &Service{
 			List: map[string]string{
-				"all":  postgres.ListBuilds,
-				"repo": postgres.ListRepoBuilds,
+				"all":         postgres.ListBuilds,
+				"repo":        postgres.ListRepoBuilds,
+				"repoByEvent": postgres.ListRepoBuildsByEvent,
 			},
 			Select: map[string]string{
-				"repo":          postgres.SelectRepoBuild,
-				"last":          postgres.SelectLastRepoBuild,
-				"count":         postgres.SelectBuildsCount,
-				"countByStatus": postgres.SelectBuildsCountByStatus,
-				"countByRepo":   postgres.SelectRepoBuildCount,
+				"repo":                postgres.SelectRepoBuild,
+				"last":                postgres.SelectLastRepoBuild,
+				"count":               postgres.SelectBuildsCount,
+				"countByStatus":       postgres.SelectBuildsCountByStatus,
+				"countByRepo":         postgres.SelectRepoBuildCount,
+				"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
 			},
 			Delete: postgres.DeleteBuild,
 		},
@@ -132,15 +134,17 @@ func TestDML_serviceFromPostgres(t *testing.T) {
 	// setup types
 	want := &Service{
 		List: map[string]string{
-			"all":  postgres.ListBuilds,
-			"repo": postgres.ListRepoBuilds,
+			"all":         postgres.ListBuilds,
+			"repo":        postgres.ListRepoBuilds,
+			"repoByEvent": postgres.ListRepoBuildsByEvent,
 		},
 		Select: map[string]string{
-			"repo":          postgres.SelectRepoBuild,
-			"last":          postgres.SelectLastRepoBuild,
-			"count":         postgres.SelectBuildsCount,
-			"countByStatus": postgres.SelectBuildsCountByStatus,
-			"countByRepo":   postgres.SelectRepoBuildCount,
+			"repo":                postgres.SelectRepoBuild,
+			"last":                postgres.SelectLastRepoBuild,
+			"count":               postgres.SelectBuildsCount,
+			"countByStatus":       postgres.SelectBuildsCountByStatus,
+			"countByRepo":         postgres.SelectRepoBuildCount,
+			"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
 		},
 		Delete: postgres.DeleteBuild,
 	}

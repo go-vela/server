@@ -23,6 +23,19 @@ LIMIT ?
 OFFSET ?;
 `
 
+	// ListRepoBuildsByEvent represents a query to select
+	// a build for a repo_id with a specific event type
+	// in the database.
+	ListRepoBuildsByEvent = `
+SELECT *
+FROM builds
+WHERE repo_id = ?
+AND event = ?
+ORDER BY number DESC
+LIMIT ?
+OFFSET ?;
+`
+
 	// SelectRepoBuild represents a query to select
 	// a build for a repo_id in the database.
 	SelectRepoBuild = `
@@ -58,6 +71,15 @@ FROM builds
 WHERE repo_id = ?;
 `
 
+	// SelectRepoBuildCountByEvent represents a query to select
+	// the count of builds for by repo and event type in the database.
+	SelectRepoBuildCountByEvent = `
+SELECT count(*) as count
+FROM builds
+WHERE repo_id = ?
+AND event = ?;
+`
+
 	// SelectBuildsCountByStatus represents a query to select
 	// the count of builds for a status in the database.
 	SelectBuildsCountByStatus = `
@@ -80,15 +102,17 @@ WHERE id = ?;
 func createBuildService() *Service {
 	return &Service{
 		List: map[string]string{
-			"all":  ListBuilds,
-			"repo": ListRepoBuilds,
+			"all":         ListBuilds,
+			"repo":        ListRepoBuilds,
+			"repoByEvent": ListRepoBuildsByEvent,
 		},
 		Select: map[string]string{
-			"repo":          SelectRepoBuild,
-			"last":          SelectLastRepoBuild,
-			"count":         SelectBuildsCount,
-			"countByStatus": SelectBuildsCountByStatus,
-			"countByRepo":   SelectRepoBuildCount,
+			"repo":                SelectRepoBuild,
+			"last":                SelectLastRepoBuild,
+			"count":               SelectBuildsCount,
+			"countByStatus":       SelectBuildsCountByStatus,
+			"countByRepo":         SelectRepoBuildCount,
+			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
 		},
 		Delete: DeleteBuild,
 	}

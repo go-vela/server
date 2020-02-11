@@ -19,15 +19,17 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 	want := &Map{
 		BuildService: &Service{
 			List: map[string]string{
-				"all":  postgres.ListBuilds,
-				"repo": postgres.ListRepoBuilds,
+				"all":         postgres.ListBuilds,
+				"repo":        postgres.ListRepoBuilds,
+				"repoByEvent": postgres.ListRepoBuildsByEvent,
 			},
 			Select: map[string]string{
-				"repo":          postgres.SelectRepoBuild,
-				"last":          postgres.SelectLastRepoBuild,
-				"count":         postgres.SelectBuildsCount,
-				"countByStatus": postgres.SelectBuildsCountByStatus,
-				"countByRepo":   postgres.SelectRepoBuildCount,
+				"repo":                postgres.SelectRepoBuild,
+				"last":                postgres.SelectLastRepoBuild,
+				"count":               postgres.SelectBuildsCount,
+				"countByStatus":       postgres.SelectBuildsCountByStatus,
+				"countByRepo":         postgres.SelectRepoBuildCount,
+				"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
 			},
 			Delete: postgres.DeleteBuild,
 		},
@@ -139,15 +141,17 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 	want := &Map{
 		BuildService: &Service{
 			List: map[string]string{
-				"all":  sqlite.ListBuilds,
-				"repo": sqlite.ListRepoBuilds,
+				"all":         sqlite.ListBuilds,
+				"repo":        sqlite.ListRepoBuilds,
+				"repoByEvent": sqlite.ListRepoBuildsByEvent,
 			},
 			Select: map[string]string{
-				"repo":          sqlite.SelectRepoBuild,
-				"last":          sqlite.SelectLastRepoBuild,
-				"count":         sqlite.SelectBuildsCount,
-				"countByStatus": sqlite.SelectBuildsCountByStatus,
-				"countByRepo":   sqlite.SelectRepoBuildCount,
+				"repo":                sqlite.SelectRepoBuild,
+				"last":                sqlite.SelectLastRepoBuild,
+				"count":               sqlite.SelectBuildsCount,
+				"countByStatus":       sqlite.SelectBuildsCountByStatus,
+				"countByRepo":         sqlite.SelectRepoBuildCount,
+				"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
 			},
 			Delete: sqlite.DeleteBuild,
 		},

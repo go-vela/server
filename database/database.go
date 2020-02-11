@@ -30,10 +30,16 @@ type Service interface {
 	GetBuildList() ([]*library.Build, error)
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
-	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, error)
+	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error)
+	// GetRepoBuildListByEvent defines a function that
+	// gets a list of builds by repo ID and event type.
+	GetRepoBuildListByEvent(*library.Repo, int, int, string) ([]*library.Build, int64, error)
 	// GetRepoBuildCount defines a function that
 	// gets the count of builds by repo ID.
 	GetRepoBuildCount(*library.Repo) (int64, error)
+	// GetRepoBuildCountByEvent defines a function that
+	// gets the count of builds by repo ID and event type.
+	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
 	// CreateBuild defines a function that
 	// creates a new build.
 	CreateBuild(*library.Build) error
