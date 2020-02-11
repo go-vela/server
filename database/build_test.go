@@ -292,6 +292,56 @@ func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 	}
 }
 
+func TestDatabase_Client_GetRepoBuildList_No_Result(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(2)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	bOne := testBuild()
+	bOne.SetID(1)
+	bOne.SetRepoID(1)
+	bOne.SetNumber(1)
+	bOne.SetStatus(constants.StatusPending)
+
+	bTwo := testBuild()
+	bTwo.SetID(2)
+	bTwo.SetRepoID(1)
+	bTwo.SetNumber(2)
+	bTwo.SetStatus(constants.StatusRunning)
+
+	want := []*library.Build{}
+	wantCount := int64(0)
+
+	// setup database
+	database, _ := NewTest()
+
+	defer func() {
+		database.Database.Exec("delete from builds;")
+		database.Database.Close()
+	}()
+
+	_ = database.CreateBuild(bOne)
+	_ = database.CreateBuild(bTwo)
+
+	// run test
+	got, gotCount, err := database.GetRepoBuildList(r, 1, 1)
+
+	if err != nil {
+		t.Errorf("GetRepoBuildList returned err: %v", err)
+	}
+
+	if gotCount != wantCount {
+		t.Errorf("Count for GetRepoBuildList returned %v, want %v", gotCount, wantCount)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetRepoBuildList is %v, want %v", got, want)
+	}
+}
+
 func TestDatabase_Client_GetRepoBuildListByEvent(t *testing.T) {
 	// setup types
 	r := testRepo()
