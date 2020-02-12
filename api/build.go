@@ -211,8 +211,16 @@ func CreateBuild(c *gin.Context) {
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
 func GetBuilds(c *gin.Context) {
+	// variables that will hold the build list and total count
+	var (
+		b []*library.Build
+		t int64
+	)
+
 	// capture middleware values
 	r := repo.Retrieve(c)
+	// capture the event type parameter
+	event := c.Query("event")
 
 	logrus.Infof("Reading builds for repo %s", r.GetFullName())
 
@@ -239,18 +247,13 @@ func GetBuilds(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the total number of builds for the repo
-	t, err := database.FromContext(c).GetRepoBuildCount(r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get build count for repo %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
+	// send API call to capture the list of builds for the repo (and event type if passed in)
+	if len(event) > 0 {
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event)
+	} else {
+		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	}
 
-	// send API call to capture the list of builds for the repo
-	b, err := database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 

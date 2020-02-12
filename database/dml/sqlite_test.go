@@ -16,15 +16,17 @@ func TestDML_mapFromSqlite(t *testing.T) {
 	want := &Map{
 		BuildService: &Service{
 			List: map[string]string{
-				"all":  sqlite.ListBuilds,
-				"repo": sqlite.ListRepoBuilds,
+				"all":         sqlite.ListBuilds,
+				"repo":        sqlite.ListRepoBuilds,
+				"repoByEvent": sqlite.ListRepoBuildsByEvent,
 			},
 			Select: map[string]string{
-				"repo":          sqlite.SelectRepoBuild,
-				"last":          sqlite.SelectLastRepoBuild,
-				"count":         sqlite.SelectBuildsCount,
-				"countByStatus": sqlite.SelectBuildsCountByStatus,
-				"countByRepo":   sqlite.SelectRepoBuildCount,
+				"repo":                sqlite.SelectRepoBuild,
+				"last":                sqlite.SelectLastRepoBuild,
+				"count":               sqlite.SelectBuildsCount,
+				"countByStatus":       sqlite.SelectBuildsCountByStatus,
+				"countByRepo":         sqlite.SelectRepoBuildCount,
+				"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
 			},
 			Delete: sqlite.DeleteBuild,
 		},
@@ -132,15 +134,17 @@ func TestDML_serviceFromSqlite(t *testing.T) {
 	// setup types
 	want := &Service{
 		List: map[string]string{
-			"all":  sqlite.ListBuilds,
-			"repo": sqlite.ListRepoBuilds,
+			"all":         sqlite.ListBuilds,
+			"repo":        sqlite.ListRepoBuilds,
+			"repoByEvent": sqlite.ListRepoBuildsByEvent,
 		},
 		Select: map[string]string{
-			"repo":          sqlite.SelectRepoBuild,
-			"last":          sqlite.SelectLastRepoBuild,
-			"count":         sqlite.SelectBuildsCount,
-			"countByStatus": sqlite.SelectBuildsCountByStatus,
-			"countByRepo":   sqlite.SelectRepoBuildCount,
+			"repo":                sqlite.SelectRepoBuild,
+			"last":                sqlite.SelectLastRepoBuild,
+			"count":               sqlite.SelectBuildsCount,
+			"countByStatus":       sqlite.SelectBuildsCountByStatus,
+			"countByRepo":         sqlite.SelectRepoBuildCount,
+			"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
 		},
 		Delete: sqlite.DeleteBuild,
 	}
