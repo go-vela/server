@@ -14,15 +14,17 @@ func TestPostgres_NewMap(t *testing.T) {
 	want := &Map{
 		BuildService: &Service{
 			List: map[string]string{
-				"all":  ListBuilds,
-				"repo": ListRepoBuilds,
+				"all":         ListBuilds,
+				"repo":        ListRepoBuilds,
+				"repoByEvent": ListRepoBuildsByEvent,
 			},
 			Select: map[string]string{
-				"repo":          SelectRepoBuild,
-				"last":          SelectLastRepoBuild,
-				"count":         SelectBuildsCount,
-				"countByStatus": SelectBuildsCountByStatus,
-				"countByRepo":   SelectRepoBuildCount,
+				"repo":                SelectRepoBuild,
+				"last":                SelectLastRepoBuild,
+				"count":               SelectBuildsCount,
+				"countByStatus":       SelectBuildsCountByStatus,
+				"countByRepo":         SelectRepoBuildCount,
+				"countByRepoAndEvent": SelectRepoBuildCountByEvent,
 			},
 			Delete: DeleteBuild,
 		},

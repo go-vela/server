@@ -13,15 +13,17 @@ func TestPostgres_createBuildService(t *testing.T) {
 	// setup types
 	want := &Service{
 		List: map[string]string{
-			"all":  ListBuilds,
-			"repo": ListRepoBuilds,
+			"all":         ListBuilds,
+			"repo":        ListRepoBuilds,
+			"repoByEvent": ListRepoBuildsByEvent,
 		},
 		Select: map[string]string{
-			"repo":          SelectRepoBuild,
-			"last":          SelectLastRepoBuild,
-			"count":         SelectBuildsCount,
-			"countByStatus": SelectBuildsCountByStatus,
-			"countByRepo":   SelectRepoBuildCount,
+			"repo":                SelectRepoBuild,
+			"last":                SelectLastRepoBuild,
+			"count":               SelectBuildsCount,
+			"countByStatus":       SelectBuildsCountByStatus,
+			"countByRepo":         SelectRepoBuildCount,
+			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
 		},
 		Delete: DeleteBuild,
 	}
