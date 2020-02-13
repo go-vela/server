@@ -38,6 +38,21 @@ func PostWebhook(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
 
+	// duplicate context so we can perform operations on the request body
+	//
+	// https://godoc.org/github.com/gin-gonic/gin#Context.Copy
+	dupCtx := c.Copy()
+
+	// TODO: Remove duplicate context in favor of duplicate request because it
+	// is a smaller object to duplicate and the object we really need.
+	//
+	// This code isn't implemented due to a known bug:
+	//
+	// * https://github.com/golang/go/issues/36095
+	//
+	// https://golang.org/pkg/net/http/#Request.Clone
+	// dupRequest := c.Request.Clone(context.TODO())
+
 	// process the webhook from the source control provider
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
@@ -92,7 +107,7 @@ func PostWebhook(c *gin.Context) {
 	h.SetRepoID(r.GetID())
 
 	// process the webhook from the source control provider
-	err = source.FromContext(c).VerifyWebhook(c.Request, r)
+	err = source.FromContext(c).VerifyWebhook(dupCtx.Request, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to verify webhook: %v", err)
 		util.HandleError(c, http.StatusUnauthorized, retErr)
