@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v26/github"
+	"github.com/google/go-github/v29/github"
 )
 
 // OrgAccess captures the user's access level for an org.

@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v26/github"
+	"github.com/google/go-github/v29/github"
 )
 
 // Changeset captures the list of files changed for a commit.

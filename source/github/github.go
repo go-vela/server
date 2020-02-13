@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v26/github"
+	"github.com/google/go-github/v29/github"
 	"golang.org/x/oauth2"
 
 	"github.com/urfave/cli"
