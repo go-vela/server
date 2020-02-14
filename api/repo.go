@@ -86,7 +86,7 @@ func CreateRepo(c *gin.Context) {
 
 	input.SetHash(
 		base64.StdEncoding.EncodeToString(
-			[]byte(uid.String()),
+			[]byte(strings.TrimSpace(uid.String())),
 		),
 	)
 
@@ -332,7 +332,7 @@ func UpdateRepo(c *gin.Context) {
 		// create unique id for the repo
 		uid, err := uuid.NewRandom()
 		if err != nil {
-			retErr := fmt.Errorf("unable to create UID for repo %s: %w", input.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create UID for repo %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusServiceUnavailable, retErr)
 
@@ -341,7 +341,7 @@ func UpdateRepo(c *gin.Context) {
 
 		r.SetHash(
 			base64.StdEncoding.EncodeToString(
-				[]byte(uid.String()),
+				[]byte(strings.TrimSpace(uid.String())),
 			),
 		)
 	}

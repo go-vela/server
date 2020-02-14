@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
@@ -77,7 +78,7 @@ func Authenticate(c *gin.Context) {
 		u.SetToken(newUser.GetToken())
 		u.SetHash(
 			base64.StdEncoding.EncodeToString(
-				[]byte(uid.String()),
+				[]byte(strings.TrimSpace(uid.String())),
 			),
 		)
 		u.SetActive(true)
@@ -182,7 +183,7 @@ func AuthenticateCLI(c *gin.Context) {
 		u.SetToken(newUser.GetToken())
 		u.SetHash(
 			base64.StdEncoding.EncodeToString(
-				[]byte(uid.String()),
+				[]byte(strings.TrimSpace(uid.String())),
 			),
 		)
 		u.SetActive(true)
