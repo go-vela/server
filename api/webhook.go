@@ -46,16 +46,30 @@ func PostWebhook(c *gin.Context) {
 	// https://golang.org/pkg/net/http/#Request.Clone
 	dupRequest := c.Request.Clone(context.TODO())
 
-	// TODO: Remove the below code once http.Request.Clone()
+	// -------------------- Start of TODO: --------------------
+	//
+	// Remove the below code once http.Request.Clone()
 	// actually performs a deep clone.
 	//
 	// This code is required due to a known bug:
 	//
 	// * https://github.com/golang/go/issues/36095
 	var buf bytes.Buffer
-	buf.ReadFrom(c.Request.Body)
+	_, err := buf.ReadFrom(c.Request.Body)
+	if err != nil {
+		retErr := fmt.Errorf("unable to read webhook body: %v", err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// add the request body to the original request
 	c.Request.Body = ioutil.NopCloser(&buf)
+
+	// add the request body to the duplicate request
 	dupRequest.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
+	//
+	// -------------------- End of TODO: --------------------
 
 	// process the webhook from the source control provider
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
