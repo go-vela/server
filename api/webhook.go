@@ -5,8 +5,11 @@
 package api
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -38,20 +41,39 @@ func PostWebhook(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
 
-	// duplicate context so we can perform operations on the request body
-	//
-	// https://godoc.org/github.com/gin-gonic/gin#Context.Copy
-	dupCtx := c.Copy()
-
-	// TODO: Remove duplicate context in favor of duplicate request because it
-	// is a smaller object to duplicate and the object we really need.
-	//
-	// This code isn't implemented due to a known bug:
-	//
-	// * https://github.com/golang/go/issues/36095
+	// duplicate request so we can perform operations on the request body
 	//
 	// https://golang.org/pkg/net/http/#Request.Clone
-	// dupRequest := c.Request.Clone(context.TODO())
+	dupRequest := c.Request.Clone(context.TODO())
+
+	// -------------------- Start of TODO: --------------------
+	//
+	// Remove the below code once http.Request.Clone()
+	// actually performs a deep clone.
+	//
+	// This code is required due to a known bug:
+	//
+	// * https://github.com/golang/go/issues/36095
+
+	// create buffer for reading request body
+	var buf bytes.Buffer
+
+	// read the request body for duplication
+	_, err := buf.ReadFrom(c.Request.Body)
+	if err != nil {
+		retErr := fmt.Errorf("unable to read webhook body: %v", err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// add the request body to the original request
+	c.Request.Body = ioutil.NopCloser(&buf)
+
+	// add the request body to the duplicate request
+	dupRequest.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
+	//
+	// -------------------- End of TODO: --------------------
 
 	// process the webhook from the source control provider
 	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
@@ -106,18 +128,6 @@ func PostWebhook(c *gin.Context) {
 	b.SetRepoID(r.GetID())
 	h.SetRepoID(r.GetID())
 
-	// process the webhook from the source control provider
-	err = source.FromContext(c).VerifyWebhook(dupCtx.Request, r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to verify webhook: %v", err)
-		util.HandleError(c, http.StatusUnauthorized, retErr)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return
-	}
-
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).GetLastHook(r)
 	if err != nil {
@@ -148,6 +158,18 @@ func PostWebhook(c *gin.Context) {
 
 	// send API call to capture the created webhook
 	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
+
+	// verify the webhook from the source control provider
+	err = source.FromContext(c).VerifyWebhook(dupRequest, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to verify webhook: %v", err)
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
 
 	// check if the repo is active
 	if !r.GetActive() {
