@@ -54,7 +54,11 @@ func PostWebhook(c *gin.Context) {
 	// This code is required due to a known bug:
 	//
 	// * https://github.com/golang/go/issues/36095
+
+	// create buffer for reading request body
 	var buf bytes.Buffer
+
+	// read the request body for duplication
 	_, err := buf.ReadFrom(c.Request.Body)
 	if err != nil {
 		retErr := fmt.Errorf("unable to read webhook body: %v", err)
