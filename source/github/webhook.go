@@ -14,10 +14,14 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+
+	"github.com/sirupsen/logrus"
 )
 
 // ProcessWebhook parses the webhook from a repo
 func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.Repo, *library.Build, error) {
+	logrus.Tracef("Processing GitHub webhook")
+
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
@@ -54,6 +58,8 @@ func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.
 
 // VerifyWebhook verifies the webhook from a repo.
 func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
+	logrus.Tracef("Verifying GitHub webhook for %s", r.GetFullName())
+
 	_, err := github.ValidatePayload(request, []byte(r.GetHash()))
 	if err != nil {
 		return err
@@ -64,6 +70,8 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 
 // processPushEvent is a helper function to process the push event
 func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook, *library.Repo, *library.Build, error) {
+	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPush, payload.GetRepo().GetFullName())
+
 	repo := payload.GetRepo()
 
 	// convert payload to library repo
@@ -131,6 +139,8 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*library.Hook
 
 // processPREvent is a helper function to process the pull_request event
 func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library.Hook, *library.Repo, *library.Build, error) {
+	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPull, payload.GetRepo().GetFullName())
+
 	// update the hook object
 	h.SetBranch(payload.GetPullRequest().GetBase().GetRef())
 	h.SetEvent(constants.EventPull)

@@ -12,10 +12,14 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Config gets the pipeline configuration from the GitHub repo.
 func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) {
+	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", org, name, ref)
+
 	client := c.newClientToken(*u.Token)
 
 	// set the reference for the options to capture the pipeline configuration
@@ -64,6 +68,8 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 
 // Disable deactivates a repo by deleting the webhook.
 func (c *client) Disable(u *library.User, org, name string) error {
+	logrus.Tracef("Deleting repository webhook for %s/%s", org, name)
+
 	client := c.newClientToken(*u.Token)
 
 	// send API call to capture the hooks for the repo
@@ -104,6 +110,8 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 // Enable activates a repo by creating the webhook.
 func (c *client) Enable(u *library.User, org, name, secret string) (string, error) {
+	logrus.Tracef("Creating repository webhook for %s/%s", org, name)
+
 	client := c.newClientToken(*u.Token)
 
 	// create the hook object to make the API call
@@ -139,6 +147,8 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 
 // Status sends the commit status for the given SHA from the GitHub repo.
 func (c *client) Status(u *library.User, b *library.Build, org, name string) error {
+	logrus.Tracef("Setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
+
 	client := c.newClientToken(*u.Token)
 
 	context := fmt.Sprintf("%s/%s", c.StatusContext, b.GetEvent())
@@ -189,6 +199,8 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 
 // ListUserRepos returns a list of all repos the user has 'admin' privileges to.
 func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
+	logrus.Tracef("Listing source repositories for %s", u.GetName())
+
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 	r := []*github.Repository{}

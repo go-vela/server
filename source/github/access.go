@@ -9,10 +9,14 @@ import (
 
 	"github.com/go-vela/types/library"
 	"github.com/google/go-github/v29/github"
+
+	"github.com/sirupsen/logrus"
 )
 
 // OrgAccess captures the user's access level for an org.
 func (c *client) OrgAccess(u *library.User, org string) (string, error) {
+	logrus.Tracef("Capturing %s access level to org %s", u.GetName(), org)
+
 	// if user is accessing personal org
 	if strings.EqualFold(org, *u.Name) {
 		return "admin", nil
@@ -37,6 +41,8 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 
 // RepoAccess captures the user's access level for a repo.
 func (c *client) RepoAccess(u *library.User, org, repo string) (string, error) {
+	logrus.Tracef("Capturing %s access level to repo %s/%s", u.GetName(), org, repo)
+
 	// create github oauth client with user's token
 	client := c.newClientToken(*u.Token)
 
@@ -51,6 +57,8 @@ func (c *client) RepoAccess(u *library.User, org, repo string) (string, error) {
 
 // TeamAccess captures the user's access level for a team.
 func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
+	logrus.Tracef("Capturing %s access level to team %s/%s", u.GetName(), org, team)
+
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 	teams := []*github.Team{}
