@@ -109,6 +109,12 @@ func CreateRepo(c *gin.Context) {
 		return
 	}
 
+	// check if the repo already has a hash created
+	if len(r.GetHash()) > 0 {
+		// overwrite the new repo hash with the existing repo hash
+		input.SetHash(r.GetHash())
+	}
+
 	// send API call to create the webhook
 	url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName(), input.GetHash())
 	if err != nil {
