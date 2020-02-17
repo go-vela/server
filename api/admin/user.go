@@ -11,6 +11,8 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types/library"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -18,7 +20,7 @@ import (
 // AllUsers represents the API handler to
 // captures all users stored in the database.
 func AllUsers(c *gin.Context) {
-	logrus.Info("Reading all users")
+	logrus.Info("Admin: reading all users")
 
 	// send API call to capture all users
 	u, err := database.FromContext(c).GetUserList()
@@ -31,4 +33,34 @@ func AllUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, u)
+}
+
+// UpdateUser represents the API handler to
+// update any user stored in the database.
+func UpdateUser(c *gin.Context) {
+	logrus.Info("Admin: updating user in database")
+
+	// capture body from API request
+	input := new(library.User)
+
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for user %d: %w", input.GetID(), err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// send API call to update the user
+	err = database.FromContext(c).UpdateUser(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update user %d: %w", input.GetID(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, input)
 }

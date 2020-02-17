@@ -11,6 +11,8 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types/library"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -18,7 +20,7 @@ import (
 // AllSecrets represents the API handler to
 // captures all secrets stored in the database.
 func AllSecrets(c *gin.Context) {
-	logrus.Info("Reading all secrets")
+	logrus.Info("Admin: reading all secrets")
 
 	// send API call to capture all secrets
 	s, err := database.FromContext(c).GetSecretList()
@@ -31,4 +33,34 @@ func AllSecrets(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, s)
+}
+
+// UpdateSecret represents the API handler to
+// update any secret stored in the database.
+func UpdateSecret(c *gin.Context) {
+	logrus.Info("Admin: updating secret in database")
+
+	// capture body from API request
+	input := new(library.Secret)
+
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for secret %d: %w", input.GetID(), err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// send API call to update the secret
+	err = database.FromContext(c).UpdateSecret(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update secret %d: %w", input.GetID(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, input)
 }
