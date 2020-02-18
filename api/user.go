@@ -315,6 +315,11 @@ func UpdateUser(c *gin.Context) {
 		u.SetActive(input.GetActive())
 	}
 
+	if input.GetAdmin() {
+		// update admin if set to true
+		u.SetAdmin(input.GetAdmin())
+	}
+
 	if input.Favorites != nil {
 		// update favorites if set
 		u.SetFavorites(input.GetFavorites())
