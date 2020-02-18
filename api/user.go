@@ -310,8 +310,8 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// update user fields if provided
-	if input.Active != nil {
-		// update active if set
+	if input.GetActive() {
+		// update active if set to true
 		u.SetActive(input.GetActive())
 	}
 
