@@ -315,6 +315,11 @@ func UpdateUser(c *gin.Context) {
 		u.SetActive(input.GetActive())
 	}
 
+	if input.Favorites != nil {
+		// update favorites if set
+		u.SetFavorites(input.GetFavorites())
+	}
+
 	// send API call to update the user
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
