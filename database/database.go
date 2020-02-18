@@ -19,6 +19,9 @@ type Service interface {
 	// GetLastBuild defines a function that
 	// gets the last build ran by repo ID.
 	GetLastBuild(*library.Repo) (*library.Build, error)
+	// GetLastBuildByBranch defines a function that
+	// gets the last build ran by repo ID and branch.
+	GetLastBuildByBranch(*library.Repo, string) (*library.Build, error)
 	// GetBuildCount defines a function that
 	// gets the count of builds.
 	GetBuildCount() (int64, error)

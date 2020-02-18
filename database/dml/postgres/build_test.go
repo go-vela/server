@@ -20,6 +20,7 @@ func TestPostgres_createBuildService(t *testing.T) {
 		Select: map[string]string{
 			"repo":                SelectRepoBuild,
 			"last":                SelectLastRepoBuild,
+			"lastByBranch":        SelectLastRepoBuildByBranch,
 			"count":               SelectBuildsCount,
 			"countByStatus":       SelectBuildsCountByStatus,
 			"countByRepo":         SelectRepoBuildCount,
