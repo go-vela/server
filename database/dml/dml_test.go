@@ -26,6 +26,7 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 			Select: map[string]string{
 				"repo":                postgres.SelectRepoBuild,
 				"last":                postgres.SelectLastRepoBuild,
+				"lastByBranch":        postgres.SelectLastRepoBuildByBranch,
 				"count":               postgres.SelectBuildsCount,
 				"countByStatus":       postgres.SelectBuildsCountByStatus,
 				"countByRepo":         postgres.SelectRepoBuildCount,
@@ -148,6 +149,7 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 			Select: map[string]string{
 				"repo":                sqlite.SelectRepoBuild,
 				"last":                sqlite.SelectLastRepoBuild,
+				"lastByBranch":        sqlite.SelectLastRepoBuildByBranch,
 				"count":               sqlite.SelectBuildsCount,
 				"countByStatus":       sqlite.SelectBuildsCountByStatus,
 				"countByRepo":         sqlite.SelectRepoBuildCount,

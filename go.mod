@@ -11,7 +11,7 @@ require (
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/go-vela/compiler v0.3.0-rc2
-	github.com/go-vela/types v0.3.0-rc2
+	github.com/go-vela/types v0.3.0-rc3
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect

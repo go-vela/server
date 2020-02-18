@@ -23,6 +23,7 @@ func TestDML_mapFromSqlite(t *testing.T) {
 			Select: map[string]string{
 				"repo":                sqlite.SelectRepoBuild,
 				"last":                sqlite.SelectLastRepoBuild,
+				"lastByBranch":        sqlite.SelectLastRepoBuildByBranch,
 				"count":               sqlite.SelectBuildsCount,
 				"countByStatus":       sqlite.SelectBuildsCountByStatus,
 				"countByRepo":         sqlite.SelectRepoBuildCount,
@@ -141,6 +142,7 @@ func TestDML_serviceFromSqlite(t *testing.T) {
 		Select: map[string]string{
 			"repo":                sqlite.SelectRepoBuild,
 			"last":                sqlite.SelectLastRepoBuild,
+			"lastByBranch":        sqlite.SelectLastRepoBuildByBranch,
 			"count":               sqlite.SelectBuildsCount,
 			"countByStatus":       sqlite.SelectBuildsCountByStatus,
 			"countByRepo":         sqlite.SelectRepoBuildCount,

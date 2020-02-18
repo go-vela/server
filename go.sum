@@ -90,6 +90,8 @@ github.com/go-vela/compiler v0.3.0-rc2 h1:S+KbcDshQabpwOhbeyol3B+WNml6l5TIPsLMXn
 github.com/go-vela/compiler v0.3.0-rc2/go.mod h1:58jRH4hlIu3dKCImBzTIbpM+RLdLL1I0qsDYpinCMgQ=
 github.com/go-vela/types v0.3.0-rc2 h1:FrDTX01K+2M6ertsv9GUAP76YWQANdcrA2N6oBIRX+E=
 github.com/go-vela/types v0.3.0-rc2/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
+github.com/go-vela/types v0.3.0-rc3 h1:G7+eKZBjN1cCvAKC2LzoDIDkmooLFfUoQPwt/7fT9AM=
+github.com/go-vela/types v0.3.0-rc3/go.mod h1:LNDrn7/nV38H0HmRfYv6YfPNb881R5NRE1YKXeVqpF4=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=
