@@ -129,6 +129,77 @@ func TestDatabase_Client_GetLastBuild_NotFound(t *testing.T) {
 	}
 }
 
+func TestDatabase_Client_GetLastBuildByBranch(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	want := testBuild()
+	want.SetID(1)
+	want.SetRepoID(1)
+	want.SetNumber(1)
+	want.SetBranch("pr42")
+
+	b := testBuild()
+	b.SetID(2)
+	b.SetRepoID(1)
+	b.SetNumber(2)
+	b.SetBranch("master")
+
+	// setup database
+	database, _ := NewTest()
+
+	defer func() {
+		database.Database.Exec("delete from builds;")
+		database.Database.Close()
+	}()
+
+	_ = database.CreateBuild(want)
+	_ = database.CreateBuild(b)
+
+	// run test
+	got, err := database.GetLastBuildByBranch(r, "pr42")
+
+	if err != nil {
+		t.Errorf("GetLastBuild returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetLastBuild is %v, want %v", got, want)
+	}
+}
+
+func TestDatabase_Client_GetLastBuildByBranch_NotFound(t *testing.T) {
+	// setup types
+	r := testRepo()
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	// setup database
+	database, _ := NewTest()
+
+	defer func() {
+		database.Database.Exec("delete from builds;")
+		database.Database.Close()
+	}()
+
+	// run test
+	got, err := database.GetLastBuildByBranch(r, "pr42")
+
+	if err != nil {
+		t.Errorf("GetLastBuild returned err: %v", err)
+	}
+
+	if got != nil {
+		t.Errorf("GetLastBuild is %v, want nil", got)
+	}
+}
+
 func TestDatabase_Client_GetBuildList(t *testing.T) {
 	// setup types
 	bOne := testBuild()

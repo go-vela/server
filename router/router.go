@@ -31,7 +31,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.Use(options...)
 
 	// Badge endpoint
-	r.GET("/badge/:org/:repo/status.svg", repo.Establish(), api.Badge)
+	r.GET("/badge/:org/:repo/status.svg", repo.Establish(), api.GetBadge)
 
 	// Health endpoint
 	r.GET("/health", api.Health)

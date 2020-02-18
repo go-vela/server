@@ -55,6 +55,17 @@ WHERE repo_id = ?
 ORDER BY number DESC
 LIMIT 1;
 `
+	// SelectLastRepoBuildByBranch represents a query to
+	// select the last build for a repo_id and branch name
+	// in the database
+	SelectLastRepoBuildByBranch = `
+SELECT *
+FROM builds
+WHERE repo_id = ?
+AND branch = ?
+ORDER BY number DESC
+LIMIT 1;
+`
 
 	// SelectBuildsCount represents a query to select
 	// the count of builds in the database.
@@ -109,6 +120,7 @@ func createBuildService() *Service {
 		Select: map[string]string{
 			"repo":                SelectRepoBuild,
 			"last":                SelectLastRepoBuild,
+			"lastByBranch":        SelectLastRepoBuildByBranch,
 			"count":               SelectBuildsCount,
 			"countByStatus":       SelectBuildsCountByStatus,
 			"countByRepo":         SelectRepoBuildCount,

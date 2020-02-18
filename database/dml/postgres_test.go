@@ -23,6 +23,7 @@ func TestDML_mapFromPostgres(t *testing.T) {
 			Select: map[string]string{
 				"repo":                postgres.SelectRepoBuild,
 				"last":                postgres.SelectLastRepoBuild,
+				"lastByBranch":        postgres.SelectLastRepoBuildByBranch,
 				"count":               postgres.SelectBuildsCount,
 				"countByStatus":       postgres.SelectBuildsCountByStatus,
 				"countByRepo":         postgres.SelectRepoBuildCount,
@@ -141,6 +142,7 @@ func TestDML_serviceFromPostgres(t *testing.T) {
 		Select: map[string]string{
 			"repo":                postgres.SelectRepoBuild,
 			"last":                postgres.SelectLastRepoBuild,
+			"lastByBranch":        postgres.SelectLastRepoBuildByBranch,
 			"count":               postgres.SelectBuildsCount,
 			"countByStatus":       postgres.SelectBuildsCountByStatus,
 			"countByRepo":         postgres.SelectRepoBuildCount,

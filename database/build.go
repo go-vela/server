@@ -50,6 +50,27 @@ func (c *client) GetLastBuild(r *library.Repo) (*library.Build, error) {
 	return b.ToLibrary(), err
 }
 
+// GetLastBuildByBranch gets the last build ran by repo ID and branch from the database.
+func (c *client) GetLastBuildByBranch(r *library.Repo, branch string) (*library.Build, error) {
+	logrus.Tracef("Getting last build for repo %s from the database", r.GetFullName())
+
+	// variable to store query results
+	b := new(database.Build)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.Select["lastByBranch"], r.GetID(), branch).
+		Scan(b).Error
+
+	// the record will not exist if it's a new repo
+	if gorm.IsRecordNotFoundError(err) {
+		return nil, nil
+	}
+
+	return b.ToLibrary(), err
+}
+
 // GetBuildCount gets the count of all builds from the database.
 func (c *client) GetBuildCount() (int64, error) {
 	logrus.Trace("Count of builds from the database")
