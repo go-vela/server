@@ -311,8 +311,18 @@ func UpdateUser(c *gin.Context) {
 
 	// update user fields if provided
 	if input.GetActive() {
-		// update active if set
+		// update active if set to true
 		u.SetActive(input.GetActive())
+	}
+
+	if input.GetAdmin() {
+		// update admin if set to true
+		u.SetAdmin(input.GetAdmin())
+	}
+
+	if input.Favorites != nil {
+		// update favorites if set
+		u.SetFavorites(input.GetFavorites())
 	}
 
 	// send API call to update the user
