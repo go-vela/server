@@ -17,8 +17,8 @@ services:
     environment:
       VELA_ADDR: "http://localhost:8080"
       VELA_DATABASE_DRIVER: postgres
-      VELA_DATABASE_CONFIG: postgres://postgres@postgres:5432/vela?sslmode=disable
-      VELA_LOG_LEVEL: debug
+      VELA_DATABASE_CONFIG: postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable
+      VELA_LOG_LEVEL: trace
       VELA_QUEUE_DRIVER: redis
       VELA_QUEUE_CONFIG: redis://redis:6379
       VELA_QUEUE_WORKER_ROUTES: large,small,docker,large:docker,small:docker
@@ -49,11 +49,13 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:11-alpine
+    image: postgres:12-alpine
     networks:
       - vela
     environment:
       POSTGRES_DB: vela
+      POSTGRES_PASSWORD: zB7mrKDTZqNeNTD8z47yG4DHywspAh
+      POSTGRES_USER: vela
     ports:
       - "5432:5432"
 
