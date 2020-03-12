@@ -51,6 +51,8 @@ func (c *client) ProcessWebhook(request *http.Request) (*library.Hook, *library.
 		return processPushEvent(h, event)
 	case *github.PullRequestEvent:
 		return processPREvent(h, event)
+	case *github.IssueCommentEvent:
+		return processIssueCommentEvent(h, event)
 	}
 
 	return h, nil, nil, nil
@@ -206,6 +208,44 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*library
 	if len(b.GetEmail()) == 0 {
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
+
+	return h, r, b, nil
+}
+
+// processIssueCommentEvent is a helper function to process the issue comment event
+func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*library.Hook, *library.Repo, *library.Build, error) {
+
+	// capture the repo from the payload
+	repo := payload.GetRepo()
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+	// convert payload to library build
+	b := new(library.Build)
+	b.SetEvent(constants.EventIssueComment)
+	b.SetClone(repo.GetCloneURL())
+	b.SetSource(payload.Issue.GetHTMLURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPush, repo.GetHTMLURL()))
+	b.SetMessage(payload.Issue.GetTitle())
+
+	// b.SetCommit(payload.GetHeadCommit().GetID())
+
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
+	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
+
+	// b.SetBranch(strings.Replace(payload.GetRef(), "refs/heads/", "", -1))
+
+	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
+
+	// b.SetBaseRef(payload.GetBaseRef())
+	// b.SetBaseRef(payload.)
 
 	return h, r, b, nil
 }

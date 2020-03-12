@@ -120,6 +120,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 			constants.EventPush,
 			constants.EventPull,
 			constants.EventDeploy,
+			constants.EventIssueComment,
 		},
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.LocalHost),

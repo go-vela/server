@@ -80,7 +80,6 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
-
 		return
 	}
 
@@ -185,6 +184,7 @@ func PostWebhook(c *gin.Context) {
 	// verify the build has a valid event and the repo allows that event type
 	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
 		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
+		(b.GetEvent() == constants.EventIssueComment && !r.GetAllowPull()) ||
 		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
@@ -253,38 +253,14 @@ func PostWebhook(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is not pull_request
-	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
-		// send API call to capture list of files changed for the commit
-		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
-		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return
-		}
-	}
-
-	// files is empty if the build event is pull_request
-	if len(files) == 0 {
-		// parse out pull request number from base ref
-		//
-		// pattern: refs/pull/1/head
-		var parts []string
-		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
-			parts = strings.Split(b.GetRef(), "/")
-		}
-
-		// capture number by converting from string
-		number, err := strconv.Atoi(parts[2])
-		if err != nil {
-			// capture number by scanning from string
-			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+	// check if the build event is not issue_comment
+	if !strings.EqualFold(b.GetEvent(), constants.EventIssueComment) {
+		// check if the build event is not pull_request
+		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
+			// send API call to capture list of files changed for the commit
+			files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				h.SetStatus(constants.StatusFailure)
@@ -294,16 +270,43 @@ func PostWebhook(c *gin.Context) {
 			}
 		}
 
-		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ChangesetPR(u, r, number)
-		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+		// files is empty if the build event is pull_request
+		if len(files) == 0 {
+			// parse out pull request number from base ref
+			//
+			// pattern: refs/pull/1/head
+			var parts []string
+			if strings.HasPrefix(b.GetRef(), "refs/pull/") {
+				parts = strings.Split(b.GetRef(), "/")
+			}
 
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
+			// capture number by converting from string
+			number, err := strconv.Atoi(parts[2])
+			if err != nil {
+				// capture number by scanning from string
+				_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+				if err != nil {
+					retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
 
-			return
+					h.SetStatus(constants.StatusFailure)
+					h.SetError(retErr.Error())
+
+					return
+				}
+			}
+
+			// send API call to capture list of files changed for the pull request
+			files, err = source.FromContext(c).ChangesetPR(u, r, number)
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
 		}
 	}
 
