@@ -165,6 +165,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -245,6 +246,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -325,6 +327,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -405,6 +408,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -485,6 +489,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -565,6 +570,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -645,6 +651,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -725,6 +732,7 @@ func TestPerm_MustRead(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -805,6 +813,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -885,6 +894,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -965,6 +975,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
 
 	u := new(library.User)
 	u.SetID(1)
@@ -1034,6 +1045,87 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	}
 }
 
+func TestPerm_MustRead_RepoPublic(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
+
+	tkn, err := token.Compose(u)
+	if err != nil {
+		t.Errorf("Unable to Compose token: %v", err)
+	}
+
+	// setup database
+	db, _ := database.NewTest()
+
+	defer func() {
+		db.Database.Exec("delete from repos;")
+		db.Database.Exec("delete from users;")
+		db.Database.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateUser(u)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+
+	// setup github mock server
+	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
+		c.String(http.StatusOK, permNonePayload)
+	})
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.String(http.StatusOK, userPayload)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := github.NewTest(s.URL)
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(user.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(MustRead())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
 func TestPerm_MustRead_NotRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -1045,6 +1137,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
 
 	u := new(library.User)
 	u.SetID(1)
