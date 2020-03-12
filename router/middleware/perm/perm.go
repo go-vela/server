@@ -162,6 +162,12 @@ func MustRead() gin.HandlerFunc {
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 
+		// check if the repo visibility field is set to public
+		if strings.EqualFold(r.GetVisibility(), constants.VisibilityPublic) {
+			logrus.Debugf("repo %s has %s visibility - skipping 'read' check for user %s", r.GetFullName(), r.GetVisibility(), u.GetName())
+			return
+		}
+
 		logrus.Debugf("Verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 		if globalPerms(u) {
 			return

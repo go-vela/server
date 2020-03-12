@@ -48,6 +48,7 @@ func TestStep_Establish(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	b := new(library.Build)
 	b.SetID(1)
@@ -154,6 +155,7 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -197,6 +199,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	b := new(library.Build)
 	b.SetID(1)
@@ -248,6 +251,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	b := new(library.Build)
 	b.SetID(1)
@@ -299,6 +303,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	b := new(library.Build)
 	b.SetID(1)
