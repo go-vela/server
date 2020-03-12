@@ -46,6 +46,7 @@ func TestBuild_Establish(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	want := new(library.Build)
 	want.SetID(1)
@@ -152,6 +153,7 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -195,6 +197,7 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	// setup database
 	db, _ := database.NewTest()
@@ -238,6 +241,7 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	// setup database
 	db, _ := database.NewTest()
