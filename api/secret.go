@@ -225,8 +225,7 @@ func UpdateSecret(c *gin.Context) {
 		input.SetImages(unique(input.GetImages()))
 	}
 
-	if input.Events != nil {
-		// update events if set
+	if len(input.GetEvents()) > 0 {
 		input.SetEvents(unique(input.GetEvents()))
 	}
 
