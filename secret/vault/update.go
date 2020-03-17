@@ -30,12 +30,16 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 		vault.Data["events"] = s.GetEvents()
 	}
 
-	if len(s.GetImages()) > 0 {
+	if s.Images != nil {
 		vault.Data["images"] = s.GetImages()
 	}
 
 	if len(s.GetValue()) > 0 {
 		vault.Data["value"] = s.GetValue()
+	}
+
+	if s.AllowCommand != nil {
+		vault.Data["allow_command"] = s.GetAllowCommand()
 	}
 
 	// validate the secret

@@ -26,13 +26,18 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 	}
 
 	// update the images if set
-	if len(s.GetImages()) > 0 {
+	if s.Images != nil {
 		sec.SetImages(s.GetImages())
 	}
 
 	// update the value if set
 	if len(s.GetValue()) > 0 {
 		sec.SetValue(s.GetValue())
+	}
+
+	// update allow_command if set
+	if s.AllowCommand != nil {
+		sec.SetAllowCommand(s.GetAllowCommand())
 	}
 
 	return c.Native.UpdateSecret(sec)

@@ -44,6 +44,7 @@ func TestVault_Update_Org(t *testing.T) {
 	sec.SetType("org")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -91,6 +92,7 @@ func TestVault_Update_Repo(t *testing.T) {
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -138,6 +140,7 @@ func TestVault_Update_Shared(t *testing.T) {
 	sec.SetType("shared")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
@@ -185,6 +188,7 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
 
 	// run test
 	s, err := New(fake.URL, "foo")
