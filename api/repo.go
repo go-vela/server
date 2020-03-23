@@ -58,7 +58,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	if len(input.GetVisibility()) == 0 {
-		input.SetVisibility("public")
+		input.SetVisibility(constants.VisibilityPublic)
 	}
 
 	if len(input.GetFullName()) == 0 {

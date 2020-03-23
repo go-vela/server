@@ -220,7 +220,8 @@ func UpdateSecret(c *gin.Context) {
 	input.SetRepo(n)
 	input.SetType(t)
 
-	if len(input.GetImages()) > 0 {
+	if input.Images != nil {
+		// update images if set
 		input.SetImages(unique(input.GetImages()))
 	}
 

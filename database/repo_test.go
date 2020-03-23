@@ -34,6 +34,7 @@ func TestDatabase_Client_GetRepo(t *testing.T) {
 	want.SetOrg("foo")
 	want.SetName("bar")
 	want.SetFullName("foo/bar")
+	want.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
@@ -66,6 +67,7 @@ func TestDatabase_Client_GetRepoList(t *testing.T) {
 	rOne.SetOrg("foo")
 	rOne.SetName("bar")
 	rOne.SetFullName("foo/bar")
+	rOne.SetVisibility("public")
 
 	rTwo := testRepo()
 	rTwo.SetID(2)
@@ -74,6 +76,7 @@ func TestDatabase_Client_GetRepoList(t *testing.T) {
 	rTwo.SetOrg("bar")
 	rTwo.SetName("foo")
 	rTwo.SetFullName("bar/foo")
+	rTwo.SetVisibility("public")
 
 	want := []*library.Repo{rOne, rTwo}
 
@@ -109,6 +112,7 @@ func TestDatabase_Client_GetRepoCount(t *testing.T) {
 	rOne.SetOrg("foo")
 	rOne.SetName("bar")
 	rOne.SetFullName("foo/bar")
+	rOne.SetVisibility("public")
 
 	rTwo := testRepo()
 	rTwo.SetID(2)
@@ -117,6 +121,7 @@ func TestDatabase_Client_GetRepoCount(t *testing.T) {
 	rTwo.SetOrg("bar")
 	rTwo.SetName("foo")
 	rTwo.SetFullName("bar/foo")
+	rTwo.SetVisibility("public")
 
 	want := 2
 
@@ -142,6 +147,7 @@ func TestDatabase_Client_GetRepoCount(t *testing.T) {
 		t.Errorf("GetRepoCount is %v, want %v", got, want)
 	}
 }
+
 func TestDatabase_Client_GetOrgRepoList(t *testing.T) {
 	// setup types
 	rOne := testRepo()
@@ -151,6 +157,7 @@ func TestDatabase_Client_GetOrgRepoList(t *testing.T) {
 	rOne.SetOrg("foo")
 	rOne.SetName("bar")
 	rOne.SetFullName("foo/bar")
+	rOne.SetVisibility("public")
 
 	rTwo := testRepo()
 	rTwo.SetID(2)
@@ -159,6 +166,7 @@ func TestDatabase_Client_GetOrgRepoList(t *testing.T) {
 	rTwo.SetOrg("foo")
 	rTwo.SetName("baz")
 	rTwo.SetFullName("foo/baz")
+	rTwo.SetVisibility("public")
 
 	want := []*library.Repo{rTwo, rOne}
 
@@ -184,6 +192,7 @@ func TestDatabase_Client_GetOrgRepoList(t *testing.T) {
 		t.Errorf("GetOrgRepoList is %v, want %v", got, want)
 	}
 }
+
 func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 	// setup types
 	rOne := testRepo()
@@ -193,6 +202,7 @@ func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 	rOne.SetOrg("foo")
 	rOne.SetName("bar")
 	rOne.SetFullName("foo/bar")
+	rOne.SetVisibility("public")
 
 	rTwo := testRepo()
 	rTwo.SetID(2)
@@ -201,6 +211,7 @@ func TestDatabase_Client_GetUserRepoList(t *testing.T) {
 	rTwo.SetOrg("bar")
 	rTwo.SetName("foo")
 	rTwo.SetFullName("bar/foo")
+	rTwo.SetVisibility("public")
 
 	u := testUser()
 	u.SetID(1)
@@ -241,6 +252,7 @@ func TestDatabase_Client_GetUserRepoCount(t *testing.T) {
 	rOne.SetOrg("foo")
 	rOne.SetName("bar")
 	rOne.SetFullName("foo/bar")
+	rOne.SetVisibility("public")
 
 	rTwo := testRepo()
 	rTwo.SetID(2)
@@ -249,6 +261,7 @@ func TestDatabase_Client_GetUserRepoCount(t *testing.T) {
 	rTwo.SetOrg("bar")
 	rTwo.SetName("foo")
 	rTwo.SetFullName("bar/foo")
+	rTwo.SetVisibility("public")
 
 	u := testUser()
 	u.SetID(1)
@@ -289,6 +302,7 @@ func TestDatabase_Client_CreateRepo(t *testing.T) {
 	want.SetOrg("foo")
 	want.SetName("bar")
 	want.SetFullName("foo/bar")
+	want.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
@@ -320,6 +334,7 @@ func TestDatabase_Client_CreateRepo_Invalid(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
@@ -346,6 +361,7 @@ func TestDatabase_Client_UpdateRepo(t *testing.T) {
 	want.SetOrg("foo")
 	want.SetName("bar")
 	want.SetFullName("foo/bar")
+	want.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
@@ -379,6 +395,7 @@ func TestDatabase_Client_UpdateRepo_Invalid(t *testing.T) {
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
@@ -409,6 +426,7 @@ func TestDatabase_Client_UpdateRepo_Boolean(t *testing.T) {
 	want.SetFullName("foo/bar")
 	want.SetAllowPull(true)
 	want.SetActive(false)
+	want.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
@@ -446,6 +464,7 @@ func TestDatabase_Client_DeleteRepo(t *testing.T) {
 	want.SetOrg("foo")
 	want.SetName("bar")
 	want.SetFullName("foo/bar")
+	want.SetVisibility("public")
 
 	// setup database
 	db, _ := NewTest()
