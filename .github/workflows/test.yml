@@ -16,10 +16,6 @@ jobs:
     - name: clone
       uses: actions/checkout@v1
 
-    - name: install
-      run: |
-        go get github.com/mattn/goveralls
-
     - name: test
       run: |
         go test -race -covermode=atomic -coverprofile=coverage.out ./...
