@@ -25,7 +25,7 @@ build:
 	######    Build Binary     ######
 	#################################
 
-	GOOS=linux CGO_ENABLED=0 go build -o release/vela-server github.com/go-vela/server/cmd/server
+	GOOS=linux CGO_ENABLED=0 go build -o release/vela-server github.com/go-vela/server/cmd/vela-server
 
 compose-up:
 	#################################

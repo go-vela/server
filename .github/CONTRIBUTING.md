@@ -84,7 +84,7 @@ cd $HOME/go-vela/server
 make build
 
 # Build the code with `go`
-GOOS=linux CGO_ENABLED=0 go build -o release/vela-server github.com/go-vela/server/cmd/server
+GOOS=linux CGO_ENABLED=0 go build -o release/vela-server github.com/go-vela/server/cmd/vela-server
 ```
 
 * Run the repository code:
