@@ -24,7 +24,7 @@ jobs:
         go build -a \
           -ldflags '-s -w -extldflags "-static"' \
           -o release/vela-server \
-          github.com/go-vela/server/cmd/server
+          github.com/go-vela/server/cmd/vela-server
 
     - name: publish
       uses: elgohr/Publish-Docker-Github-Action@master
