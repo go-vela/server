@@ -76,7 +76,7 @@ func PostWebhook(c *gin.Context) {
 	// -------------------- End of TODO: --------------------
 
 	// process the webhook from the source control provider
-	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
+	number, h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -217,6 +217,22 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		return
+	}
+
+	if b.GetEvent() == constants.EventIssueComment {
+		commit, branch, baseref, err := source.FromContext(c).GetPullRequest(u, r, number)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+			return
+		}
+
+		b.SetCommit(commit)
+		b.SetBranch(strings.Replace(branch, "refs/heads/", "", -1))
+		b.SetBaseRef(baseref)
 	}
 
 	// send API call to capture the last build for the repo

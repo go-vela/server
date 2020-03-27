@@ -72,7 +72,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 	wantBuild.SetBaseRef("")
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -149,7 +149,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 	wantBuild.SetBaseRef("")
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -226,7 +226,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetRef("refs/pull/1/head")
 	wantBuild.SetBaseRef("master")
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -280,7 +280,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -334,7 +334,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -386,7 +386,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetEvent("pull_request")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err == nil {
 		t.Errorf("ProcessWebhook should have returned err")
@@ -438,7 +438,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetEvent("foobar")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err == nil {
 		t.Errorf("ProcessWebhook should have returned err")
@@ -490,7 +490,7 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	wantHook.SetEvent("deployment")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	_, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
