@@ -19,7 +19,7 @@ import (
 )
 
 // ProcessWebhook parses the webhook from a repo
-func (c *client) ProcessWebhook(request *http.Request) (int, *library.Hook, *library.Repo, *library.Build, error) {
+func (c *client) ProcessWebhook(request *http.Request) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
 	logrus.Tracef("Processing GitHub webhook")
 
 	h := new(library.Hook)
@@ -36,13 +36,13 @@ func (c *client) ProcessWebhook(request *http.Request) (int, *library.Hook, *lib
 
 	payload, err := github.ValidatePayload(request, nil)
 	if err != nil {
-		return 0, h, nil, nil, err
+		return "", 0, h, nil, nil, err
 	}
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
 	if err != nil {
-		return 0, h, nil, nil, err
+		return "", 0, h, nil, nil, err
 	}
 
 	// process the event from the webhook
@@ -55,7 +55,7 @@ func (c *client) ProcessWebhook(request *http.Request) (int, *library.Hook, *lib
 		return processIssueCommentEvent(h, event)
 	}
 
-	return 0, h, nil, nil, nil
+	return "", 0, h, nil, nil, nil
 }
 
 // VerifyWebhook verifies the webhook from a repo.
@@ -71,7 +71,7 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 }
 
 // processPushEvent is a helper function to process the push event
-func processPushEvent(h *library.Hook, payload *github.PushEvent) (int, *library.Hook, *library.Repo, *library.Build, error) {
+func processPushEvent(h *library.Hook, payload *github.PushEvent) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
 	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPush, payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
@@ -136,11 +136,11 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (int, *library
 		}
 	}
 
-	return 0, h, r, b, nil
+	return "", 0, h, r, b, nil
 }
 
 // processPREvent is a helper function to process the pull_request event
-func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (int, *library.Hook, *library.Repo, *library.Build, error) {
+func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
 	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPull, payload.GetRepo().GetFullName())
 
 	// update the hook object
@@ -152,13 +152,13 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (int, *li
 
 	// if the pull request state isn't open we ignore it
 	if payload.GetPullRequest().GetState() != "open" {
-		return 0, h, nil, nil, nil
+		return "", 0, h, nil, nil, nil
 	}
 
 	// skip if the pull request action is not opened or synchronize
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") {
-		return 0, h, nil, nil, nil
+		return "", 0, h, nil, nil, nil
 	}
 
 	// capture the repo from the payload
@@ -209,11 +209,11 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (int, *li
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
-	return 0, h, r, b, nil
+	return "", 0, h, r, b, nil
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event
-func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (int, *library.Hook, *library.Repo, *library.Build, error) {
+func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 	// convert payload to library repo
@@ -227,7 +227,7 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	r.SetPrivate(repo.GetPrivate())
 	// convert payload to library build
 	b := new(library.Build)
-	b.SetEvent(constants.EventIssueComment)
+	b.SetEvent(constants.EventComment)
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.Issue.GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPush, repo.GetHTMLURL()))
@@ -237,7 +237,8 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
 	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
+	comment := payload.GetComment().GetBody()
 	number := *payload.GetIssue().Number
 
-	return number, h, r, b, nil
+	return comment, number, h, r, b, nil
 }

@@ -21,12 +21,11 @@ import (
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -76,7 +75,7 @@ func PostWebhook(c *gin.Context) {
 	// -------------------- End of TODO: --------------------
 
 	// process the webhook from the source control provider
-	number, h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
+	comment, number, h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -184,7 +183,7 @@ func PostWebhook(c *gin.Context) {
 	// verify the build has a valid event and the repo allows that event type
 	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
 		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
-		(b.GetEvent() == constants.EventIssueComment && !r.GetAllowPull()) ||
+		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
 		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
@@ -219,7 +218,7 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	if b.GetEvent() == constants.EventIssueComment {
+	if b.GetEvent() == constants.EventComment {
 		commit, branch, baseref, err := source.FromContext(c).GetPullRequest(u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
@@ -270,7 +269,7 @@ func PostWebhook(c *gin.Context) {
 	// variable to store changeset files
 	var files []string
 	// check if the build event is not issue_comment
-	if !strings.EqualFold(b.GetEvent(), constants.EventIssueComment) {
+	if !strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		// check if the build event is not pull_request
 		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 			// send API call to capture list of files changed for the commit
@@ -341,6 +340,7 @@ func PostWebhook(c *gin.Context) {
 	// parse and compile the pipeline configuration file
 	p, err := compiler.FromContext(c).
 		WithBuild(b).
+		WithComment(comment).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).

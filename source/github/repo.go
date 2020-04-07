@@ -117,10 +117,10 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: []string{
-			constants.EventPush,
-			constants.EventPull,
-			constants.EventDeploy,
-			constants.EventIssueComment,
+			eventPush,
+			eventPullRequest,
+			eventDeployment,
+			eventIssueComment,
 		},
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.LocalHost),

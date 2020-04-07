@@ -78,7 +78,7 @@ type Service interface {
 
 	// ProcessWebhook defines a function that
 	// parses the webhook from a repo.
-	ProcessWebhook(*http.Request) (int, *library.Hook, *library.Repo, *library.Build, error)
+	ProcessWebhook(*http.Request) (string, int, *library.Hook, *library.Repo, *library.Build, error)
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
 	VerifyWebhook(*http.Request, *library.Repo) error
