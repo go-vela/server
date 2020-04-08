@@ -227,6 +227,13 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.W
 
 // processIssueCommentEvent is a helper function to process the issue comment event
 func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
+
+	// update the hook object
+	h.SetEvent(constants.EventComment)
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
+	)
+
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 	// convert payload to library repo
@@ -243,7 +250,7 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	b.SetEvent(constants.EventComment)
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.Issue.GetHTMLURL())
-	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPush, repo.GetHTMLURL()))
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventComment, repo.GetHTMLURL()))
 	b.SetMessage(payload.Issue.GetTitle())
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())

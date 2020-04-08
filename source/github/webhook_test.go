@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestGithub_ProcessWebhook_Push(t *testing.T) {
@@ -578,5 +579,81 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	err = client.VerifyWebhook(request, r)
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
+	}
+}
+
+func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/issue_comment.json")
+	if err != nil {
+		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Host", "github.com")
+	request.Header.Set("X-GitHub-Version", "2.16.0")
+	request.Header.Set("X-GitHub-Event", "issue_comment")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("comment")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
+
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("comment")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild.SetTitle("comment received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("Update the README with new information")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetEmail("")
+	wantBuild.SetRef("refs/pull/1/head")
+
+	want := &types.Webhook{
+		Comment:  "ok to test",
+		PRNumber: 1,
+		Hook:     wantHook,
+		Repo:     wantRepo,
+		Build:    wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("MakeGatewayInfo() mismatch (-want +got):\n%s", diff)
+		}
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
