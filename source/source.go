@@ -7,6 +7,7 @@ package source
 import (
 	"net/http"
 
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -78,7 +79,7 @@ type Service interface {
 
 	// ProcessWebhook defines a function that
 	// parses the webhook from a repo.
-	ProcessWebhook(*http.Request) (string, int, *library.Hook, *library.Repo, *library.Build, error)
+	ProcessWebhook(*http.Request) (*types.Webhook, error)
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
 	VerifyWebhook(*http.Request, *library.Repo) error

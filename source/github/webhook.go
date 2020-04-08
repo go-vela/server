@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/go-github/v29/github"
 
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
@@ -19,7 +20,7 @@ import (
 )
 
 // ProcessWebhook parses the webhook from a repo
-func (c *client) ProcessWebhook(request *http.Request) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
+func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	logrus.Tracef("Processing GitHub webhook")
 
 	h := new(library.Hook)
@@ -36,13 +37,13 @@ func (c *client) ProcessWebhook(request *http.Request) (string, int, *library.Ho
 
 	payload, err := github.ValidatePayload(request, nil)
 	if err != nil {
-		return "", 0, h, nil, nil, err
+		return &types.Webhook{Hook: h}, nil
 	}
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
 	if err != nil {
-		return "", 0, h, nil, nil, err
+		return &types.Webhook{Hook: h}, nil
 	}
 
 	// process the event from the webhook
@@ -55,7 +56,7 @@ func (c *client) ProcessWebhook(request *http.Request) (string, int, *library.Ho
 		return processIssueCommentEvent(h, event)
 	}
 
-	return "", 0, h, nil, nil, nil
+	return &types.Webhook{Hook: h}, nil
 }
 
 // VerifyWebhook verifies the webhook from a repo.
@@ -71,7 +72,7 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 }
 
 // processPushEvent is a helper function to process the push event
-func processPushEvent(h *library.Hook, payload *github.PushEvent) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
+func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
 	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPush, payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
@@ -136,11 +137,17 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (string, int, 
 		}
 	}
 
-	return "", 0, h, r, b, nil
+	return &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     h,
+		Repo:     r,
+		Build:    b,
+	}, nil
 }
 
 // processPREvent is a helper function to process the pull_request event
-func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
+func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
 	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPull, payload.GetRepo().GetFullName())
 
 	// update the hook object
@@ -152,13 +159,13 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (string, 
 
 	// if the pull request state isn't open we ignore it
 	if payload.GetPullRequest().GetState() != "open" {
-		return "", 0, h, nil, nil, nil
+		return &types.Webhook{Hook: h}, nil
 	}
 
 	// skip if the pull request action is not opened or synchronize
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") {
-		return "", 0, h, nil, nil, nil
+		return &types.Webhook{Hook: h}, nil
 	}
 
 	// capture the repo from the payload
@@ -209,11 +216,17 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (string, 
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
-	return "", 0, h, r, b, nil
+	return &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     h,
+		Repo:     r,
+		Build:    b,
+	}, nil
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event
-func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (string, int, *library.Hook, *library.Repo, *library.Build, error) {
+func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
 	// capture the repo from the payload
 	repo := payload.GetRepo()
 	// convert payload to library repo
@@ -237,8 +250,11 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
 	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
-	comment := payload.GetComment().GetBody()
-	number := *payload.GetIssue().Number
-
-	return comment, number, h, r, b, nil
+	return &types.Webhook{
+		Comment:  payload.GetComment().GetBody(),
+		PRNumber: *payload.GetIssue().Number,
+		Hook:     h,
+		Repo:     r,
+		Build:    b,
+	}, nil
 }

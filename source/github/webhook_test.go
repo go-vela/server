@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
@@ -72,22 +73,22 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 	wantBuild.SetBaseRef("")
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     wantRepo,
+		Build:    wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
-	}
-
-	if !reflect.DeepEqual(gotRepo, wantRepo) {
-		t.Errorf("ProcessWebhook repo is %v, want %v", gotRepo, wantRepo)
-	}
-
-	if !reflect.DeepEqual(gotBuild, wantBuild) {
-		t.Errorf("ProcessWebhook build is %v, want %v", gotBuild, wantBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -149,22 +150,22 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 	wantBuild.SetBaseRef("")
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     wantRepo,
+		Build:    wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
-	}
-
-	if !reflect.DeepEqual(gotRepo, wantRepo) {
-		t.Errorf("ProcessWebhook repo is %v, want %v", gotRepo, wantRepo)
-	}
-
-	if !reflect.DeepEqual(gotBuild, wantBuild) {
-		t.Errorf("ProcessWebhook build is %v, want %v", gotBuild, wantBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -226,22 +227,22 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetRef("refs/pull/1/head")
 	wantBuild.SetBaseRef("master")
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     wantRepo,
+		Build:    wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
-	}
-
-	if !reflect.DeepEqual(gotRepo, wantRepo) {
-		t.Errorf("ProcessWebhook repo is %v, want %v", gotRepo, wantRepo)
-	}
-
-	if !reflect.DeepEqual(gotBuild, wantBuild) {
-		t.Errorf("ProcessWebhook build is %v, want %v", gotBuild, wantBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -280,22 +281,22 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     nil,
+		Build:    nil,
+	}
+
+	got, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
-	}
-
-	if gotRepo != nil {
-		t.Errorf("ProcessWebhook repo is %v, want nil", gotRepo)
-	}
-
-	if gotBuild != nil {
-		t.Errorf("ProcessWebhook build is %v, want nil", gotBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -334,22 +335,22 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     nil,
+		Build:    nil,
+	}
+
+	got, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
-	}
-
-	if gotRepo != nil {
-		t.Errorf("ProcessWebhook repo is %v, want nil", gotRepo)
-	}
-
-	if gotBuild != nil {
-		t.Errorf("ProcessWebhook build is %v, want nil", gotBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -386,22 +387,22 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetEvent("pull_request")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
-
-	if err == nil {
-		t.Errorf("ProcessWebhook should have returned err")
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     nil,
+		Build:    nil,
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if gotRepo != nil {
-		t.Errorf("ProcessWebhook repo is %v, want nil", gotRepo)
-	}
-
-	if gotBuild != nil {
-		t.Errorf("ProcessWebhook build is %v, want nil", gotBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -438,22 +439,22 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetEvent("foobar")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
-
-	if err == nil {
-		t.Errorf("ProcessWebhook should have returned err")
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     nil,
+		Build:    nil,
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if gotRepo != nil {
-		t.Errorf("ProcessWebhook repo is %v, want nil", gotRepo)
-	}
-
-	if gotBuild != nil {
-		t.Errorf("ProcessWebhook build is %v, want nil", gotBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 
@@ -490,22 +491,22 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	wantHook.SetEvent("deployment")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	_, _, gotHook, gotRepo, gotBuild, err := client.ProcessWebhook(request)
+	want := &types.Webhook{
+		Comment:  "",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     nil,
+		Build:    nil,
+	}
+
+	got, err := client.ProcessWebhook(request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(gotHook, wantHook) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", gotHook, wantHook)
-	}
-
-	if gotRepo != nil {
-		t.Errorf("ProcessWebhook repo is %v, want nil", gotRepo)
-	}
-
-	if gotBuild != nil {
-		t.Errorf("ProcessWebhook build is %v, want nil", gotBuild)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }
 

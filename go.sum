@@ -94,6 +94,8 @@ github.com/go-vela/types v0.3.1-0.20200406195903-8be24be6c8f1 h1:md0MMNSgLfvAQ4y
 github.com/go-vela/types v0.3.1-0.20200406195903-8be24be6c8f1/go.mod h1:vph+YTAkIw0fJr7gmlIjXRIuc4QXUnQvdDvH2/Oh7ts=
 github.com/go-vela/types v0.3.1-0.20200407182900-32a3adaddcc9 h1:0h1TU6Jpb8MXh5a2tof8koEMbOYdmHTYMrJyiluai7Q=
 github.com/go-vela/types v0.3.1-0.20200407182900-32a3adaddcc9/go.mod h1:vph+YTAkIw0fJr7gmlIjXRIuc4QXUnQvdDvH2/Oh7ts=
+github.com/go-vela/types v0.3.1-0.20200408173233-5d497d4af1ce h1:HTvPPFQ9azLyC/jJ/JjrTbO6sLXh7duGNVd2xYIuSQM=
+github.com/go-vela/types v0.3.1-0.20200408173233-5d497d4af1ce/go.mod h1:vph+YTAkIw0fJr7gmlIjXRIuc4QXUnQvdDvH2/Oh7ts=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=
