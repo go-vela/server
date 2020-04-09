@@ -138,11 +138,10 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhoo
 	}
 
 	return &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		Comment: "",
+		Hook:    h,
+		Repo:    r,
+		Build:   b,
 	}, nil
 }
 
@@ -217,17 +216,15 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.W
 	}
 
 	return &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		Comment: "",
+		Hook:    h,
+		Repo:    r,
+		Build:   b,
 	}, nil
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event
 func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
-
 	// update the hook object
 	h.SetEvent(constants.EventComment)
 	h.SetLink(
@@ -258,10 +255,9 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
 	return &types.Webhook{
-		Comment:  payload.GetComment().GetBody(),
-		PRNumber: *payload.GetIssue().Number,
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		Comment: payload.GetComment().GetBody(),
+		Hook:    h,
+		Repo:    r,
+		Build:   b,
 	}, nil
 }

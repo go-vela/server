@@ -74,11 +74,10 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+		Build:   wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -151,11 +150,10 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+		Build:   wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -228,11 +226,10 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBaseRef("master")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+		Build:   wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -282,11 +279,10 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    nil,
+		Build:   nil,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -336,11 +332,10 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    nil,
+		Build:   nil,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -388,11 +383,10 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    nil,
+		Build:   nil,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -440,11 +434,10 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    nil,
+		Build:   nil,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -492,11 +485,10 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    nil,
+		Build:   nil,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -636,11 +628,10 @@ func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
 	wantBuild.SetRef("refs/pull/1/head")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: 1,
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		Comment: "ok to test",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+		Build:   wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(request)
