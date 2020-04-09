@@ -432,7 +432,6 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 
 // helper function to parse the PR number out of a build ref
 func parsePRNumberFromRef(ref string) (int, error) {
-
 	// parse out pull request number from base ref
 	//
 	// pattern: refs/pull/1/head

@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestGithub_ProcessWebhook_Push(t *testing.T) {
@@ -651,9 +650,6 @@ func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		if diff := cmp.Diff(want, got); diff != "" {
-			t.Errorf("MakeGatewayInfo() mismatch (-want +got):\n%s", diff)
-		}
 		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
 	}
 }

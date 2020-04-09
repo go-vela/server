@@ -12,7 +12,6 @@ require (
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/go-vela/compiler v0.3.1-0.20200406211920-283d1770ee4a
 	github.com/go-vela/types v0.3.1-0.20200408173233-5d497d4af1ce
-	github.com/google/go-cmp v0.3.1
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
