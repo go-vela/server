@@ -434,17 +434,20 @@ func testService() *library.Service {
 	str := ""
 
 	return &library.Service{
-		ID:       &i64,
-		BuildID:  &i64,
-		RepoID:   &i64,
-		Number:   &i,
-		Name:     &str,
-		Image:    &str,
-		Status:   &str,
-		Error:    &str,
-		ExitCode: &i,
-		Created:  &i64,
-		Started:  &i64,
-		Finished: &i64,
+		ID:           &i64,
+		BuildID:      &i64,
+		RepoID:       &i64,
+		Number:       &i,
+		Name:         &str,
+		Image:        &str,
+		Status:       &str,
+		Error:        &str,
+		ExitCode:     &i,
+		Created:      &i64,
+		Started:      &i64,
+		Finished:     &i64,
+		Host:         &str,
+		Runtime:      &str,
+		Distribution: &str,
 	}
 }

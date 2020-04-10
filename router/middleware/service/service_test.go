@@ -67,6 +67,9 @@ func TestService_Establish(t *testing.T) {
 	want.SetCreated(0)
 	want.SetStarted(0)
 	want.SetFinished(0)
+	want.SetHost("")
+	want.SetRuntime("")
+	want.SetDistribution("")
 
 	got := new(library.Service)
 

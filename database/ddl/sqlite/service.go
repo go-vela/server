@@ -23,6 +23,9 @@ services (
 	created       INTEGER,
 	started       INTEGER,
 	finished      INTEGER,
+	host          TEXT,
+	runtime       TEXT,
+	distribution  TEXT,
 	UNIQUE(build_id, number)
 );
 `
