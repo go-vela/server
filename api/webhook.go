@@ -135,6 +135,9 @@ func PostWebhook(c *gin.Context) {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %v", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
 		return
 	}
 
