@@ -13,7 +13,7 @@ var (
 	VersionMinor int64 = 4
 	// VersionPatch is for backwards-compatible bug fixes
 	VersionPatch int64
-	// VersionDev indicates drone build number. Releases will be empty string.
+	// VersionDev indicates build metadata. Releases will be empty string.
 	VersionDev string
 )
 
