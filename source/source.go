@@ -7,6 +7,7 @@ package source
 import (
 	"net/http"
 
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -70,12 +71,15 @@ type Service interface {
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
 	ListUserRepos(*library.User) ([]*library.Repo, error)
+	// GetPullRequest defines a function that retrieves
+	// a pull request for a repo.
+	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, error)
 
 	// Webhook Source Interface Functions
 
 	// ProcessWebhook defines a function that
 	// parses the webhook from a repo.
-	ProcessWebhook(*http.Request) (*library.Hook, *library.Repo, *library.Build, error)
+	ProcessWebhook(*http.Request) (*types.Webhook, error)
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
 	VerifyWebhook(*http.Request, *library.Repo) error

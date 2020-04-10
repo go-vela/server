@@ -117,9 +117,10 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: []string{
-			constants.EventPush,
-			constants.EventPull,
-			constants.EventDeploy,
+			eventPush,
+			eventPullRequest,
+			eventDeployment,
+			eventIssueComment,
 		},
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.LocalHost),
@@ -259,4 +260,24 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 		Branch:   gr.DefaultBranch,
 		Private:  gr.Private,
 	}
+}
+
+// GetPullRequest defines a function that retrieves
+// a pull request for a repo.
+func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, error) {
+	logrus.Tracef("Listing source repositories for %s", u.GetName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	pull, _, err := client.PullRequests.Get(ctx, r.GetOrg(), r.GetName(), number)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	commit := pull.GetHead().GetSHA()
+	branch := pull.GetBase().GetRef()
+	baseref := pull.GetBase().GetRef()
+
+	return commit, branch, baseref, nil
 }
