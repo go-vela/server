@@ -14,7 +14,7 @@ import (
 	"github.com/google/go-github/v29/github"
 	"golang.org/x/oauth2"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const (

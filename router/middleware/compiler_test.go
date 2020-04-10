@@ -16,7 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func TestMiddleware_CompilerNative(t *testing.T) {

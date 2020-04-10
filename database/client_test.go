@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/constants"
 
 	"github.com/jinzhu/gorm"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func TestDatabase_New(t *testing.T) {
