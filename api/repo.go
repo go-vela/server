@@ -69,7 +69,9 @@ func CreateRepo(c *gin.Context) {
 		input.SetBranch("master")
 	}
 
-	if !input.GetAllowPull() && !input.GetAllowPush() && !input.GetAllowDeploy() && !input.GetAllowTag() {
+	if !input.GetAllowPull() && !input.GetAllowPush() &&
+		!input.GetAllowDeploy() && !input.GetAllowTag() &&
+		!input.GetAllowComment() {
 		input.SetAllowPull(true)
 		input.SetAllowPush(true)
 	}
@@ -326,9 +328,15 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowTag(input.GetAllowTag())
 	}
 
+	if input.AllowComment != nil {
+		// update allow_comment if set
+		r.SetAllowComment(input.GetAllowComment())
+	}
+
 	// set default events if no events are enabled
 	if !r.GetAllowPull() && !r.GetAllowPush() &&
-		!r.GetAllowDeploy() && !r.GetAllowTag() {
+		!r.GetAllowDeploy() && !r.GetAllowTag() &&
+		!r.GetAllowComment() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
 	}

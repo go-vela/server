@@ -56,6 +56,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowPush(false)
 	want.SetAllowDeploy(false)
 	want.SetAllowTag(false)
+	want.SetAllowComment(false)
 
 	got := new(library.Repo)
 

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -686,5 +687,57 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Repo list is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_GetPullRequest(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo/pulls/:pull_number", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/get_pull_request.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("octocat")
+	r.SetName("Hello-World")
+
+	wantCommit := "6dcb09b5b57875f334f61aebed695e2e4193db5e"
+	wantBranch := "master"
+	wantBaseRef := "master"
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	gotCommit, gotBranch, gotBaseRef, err := client.GetPullRequest(u, r, 1)
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	if !strings.EqualFold(gotCommit, wantCommit) {
+		t.Errorf("Commit is %v, want %v", gotCommit, wantCommit)
+	}
+
+	if !strings.EqualFold(gotBranch, wantBranch) {
+		t.Errorf("Branch is %v, want %v", gotCommit, wantCommit)
+	}
+
+	if !strings.EqualFold(gotBaseRef, wantBaseRef) {
+		t.Errorf("BaseRef is %v, want %v", gotCommit, wantCommit)
 	}
 }

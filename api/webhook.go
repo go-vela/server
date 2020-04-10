@@ -21,12 +21,11 @@ import (
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -76,13 +75,15 @@ func PostWebhook(c *gin.Context) {
 	// -------------------- End of TODO: --------------------
 
 	// process the webhook from the source control provider
-	h, r, b, err := source.FromContext(c).ProcessWebhook(c.Request)
+	// comment, number, h, r, b
+	webhook, err := source.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
-
 		return
 	}
+
+	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
 	defer func() {
 		// send API call to update the webhook
@@ -133,6 +134,9 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %v", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
 
 		return
 	}
@@ -185,6 +189,7 @@ func PostWebhook(c *gin.Context) {
 	// verify the build has a valid event and the repo allows that event type
 	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
 		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
+		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
 		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
@@ -217,6 +222,34 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		return
+	}
+
+	if b.GetEvent() == constants.EventComment {
+		number, err := parsePRNumberFromRef(b.GetRef())
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		commit, branch, baseref, err := source.FromContext(c).GetPullRequest(u, r, number)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		b.SetCommit(commit)
+		b.SetBranch(strings.Replace(branch, "refs/heads/", "", -1))
+		b.SetBaseRef(baseref)
 	}
 
 	// send API call to capture the last build for the repo
@@ -253,38 +286,14 @@ func PostWebhook(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is not pull_request
-	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
-		// send API call to capture list of files changed for the commit
-		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
-		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return
-		}
-	}
-
-	// files is empty if the build event is pull_request
-	if len(files) == 0 {
-		// parse out pull request number from base ref
-		//
-		// pattern: refs/pull/1/head
-		var parts []string
-		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
-			parts = strings.Split(b.GetRef(), "/")
-		}
-
-		// capture number by converting from string
-		number, err := strconv.Atoi(parts[2])
-		if err != nil {
-			// capture number by scanning from string
-			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
+	// check if the build event is not issue_comment
+	if !strings.EqualFold(b.GetEvent(), constants.EventComment) {
+		// check if the build event is not pull_request
+		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
+			// send API call to capture list of files changed for the commit
+			files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				h.SetStatus(constants.StatusFailure)
@@ -294,16 +303,30 @@ func PostWebhook(c *gin.Context) {
 			}
 		}
 
-		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ChangesetPR(u, r, number)
-		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+		// files is empty if the build event is pull_request
+		if len(files) == 0 {
+			number, err := parsePRNumberFromRef(b.GetRef())
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
 
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
 
-			return
+				return
+			}
+
+			// send API call to capture list of files changed for the pull request
+			files, err = source.FromContext(c).ChangesetPR(u, r, number)
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
 		}
 	}
 
@@ -322,6 +345,7 @@ func PostWebhook(c *gin.Context) {
 	// parse and compile the pipeline configuration file
 	p, err := compiler.FromContext(c).
 		WithBuild(b).
+		WithComment(webhook.Comment).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).
@@ -408,4 +432,27 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 			return
 		}
 	}
+}
+
+// helper function to parse the PR number out of a build ref
+func parsePRNumberFromRef(ref string) (int, error) {
+	// parse out pull request number from base ref
+	//
+	// pattern: refs/pull/1/head
+	var parts []string
+	if strings.HasPrefix(ref, "refs/pull/") {
+		parts = strings.Split(ref, "/")
+	}
+
+	// capture number by converting from string
+	number, err := strconv.Atoi(parts[2])
+	if err != nil {
+		// capture number by scanning from string
+		_, err := fmt.Sscanf(ref, "%s/%s/%d/%s", nil, nil, &number, nil)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return number, nil
 }
