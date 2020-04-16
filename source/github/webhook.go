@@ -98,7 +98,7 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhoo
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
 	b.SetEmail(payload.GetHeadCommit().GetAuthor().GetEmail())
-	b.SetBranch(strings.Replace(payload.GetRef(), "refs/heads/", "", -1))
+	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
 	b.SetRef(payload.GetRef())
 	b.SetBaseRef(payload.GetBaseRef())
 
@@ -133,7 +133,7 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhoo
 
 		// set the proper branch from the base ref
 		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
-			b.SetBranch(strings.Replace(payload.GetBaseRef(), "refs/heads/", "", -1))
+			b.SetBranch(strings.TrimPrefix(payload.GetBaseRef(), "refs/heads/"))
 		}
 	}
 
