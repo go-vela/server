@@ -65,6 +65,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Admin endpoints
 		AdminHandlers(baseAPI)
 
+		// Deployment endpoints
+		DeploymentHandlers(baseAPI)
+
 		// Hook endpoints
 		HookHandlers(baseAPI)
 
