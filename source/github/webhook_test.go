@@ -25,7 +25,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/push.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -87,7 +87,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
@@ -99,7 +99,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/pushNoSender.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -163,7 +163,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
@@ -175,7 +175,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/pull.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -239,7 +239,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
@@ -251,7 +251,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/pullClosedAction.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -292,7 +292,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
@@ -304,7 +304,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/pullClosedState.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -345,30 +345,30 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
-func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
+func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	// setup router
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pull.json")
+	body, err := os.Open("testdata/deployment.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
-	request.Header.Set("Content-Type", "foobar")
+	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
-	request.Header.Set("X-GitHub-Event", "pull_request")
+	request.Header.Set("X-GitHub-Event", "deployment")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -378,15 +378,40 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetBranch("master")
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
-	wantHook.SetEvent("pull_request")
+	wantHook.SetEvent("deployment")
 	wantHook.SetStatus(constants.StatusSuccess)
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
+
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("deployment")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetDeploy("production")
+	wantBuild.SetSource("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
+	wantBuild.SetTitle("deployment received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("")
+	wantBuild.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetEmail("")
+	wantBuild.SetBranch("master")
+	wantBuild.SetRef("refs/heads/master")
 
 	want := &types.Webhook{
 		Comment: "",
 		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Repo:    wantRepo,
+		Build:   wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(request)
@@ -396,7 +421,83 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/deployment_commit.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Host", "github.com")
+	request.Header.Set("X-GitHub-Version", "2.16.0")
+	request.Header.Set("X-GitHub-Event", "deployment")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetBranch("master")
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("deployment")
+	wantHook.SetStatus(constants.StatusSuccess)
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
+
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("deployment")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetDeploy("production")
+	wantBuild.SetSource("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
+	wantBuild.SetTitle("deployment received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("")
+	wantBuild.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetEmail("")
+	wantBuild.SetBranch("master")
+	wantBuild.SetRef("refs/heads/master")
+
+	want := &types.Webhook{
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+		Build:   wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
@@ -408,7 +509,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/pull.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -447,11 +548,11 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
-func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
+func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	// setup router
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
@@ -459,18 +560,18 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/pull.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
 
 	request, _ := http.NewRequest(http.MethodGet, "/test", body)
-	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Content-Type", "foobar")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
-	request.Header.Set("X-GitHub-Event", "deployment")
+	request.Header.Set("X-GitHub-Event", "pull_request")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -481,7 +582,7 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
-	wantHook.SetEvent("deployment")
+	wantHook.SetEvent("pull_request")
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
@@ -498,7 +599,7 @@ func TestGithub_ProcessWebhook_UnsupportedGithubEvent(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }
 
@@ -510,7 +611,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/push.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -581,7 +682,7 @@ func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
 	// setup request
 	body, err := os.Open("testdata/issue_comment.json")
 	if err != nil {
-		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
+		t.Errorf("unable to open file: %v", err)
 	}
 
 	defer body.Close()
@@ -641,6 +742,6 @@ func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook webhook is %v, want %v", got, want)
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
 	}
 }

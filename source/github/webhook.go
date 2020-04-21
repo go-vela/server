@@ -52,6 +52,8 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		return processPushEvent(h, event)
 	case *github.PullRequestEvent:
 		return processPREvent(h, event)
+	case *github.DeploymentEvent:
+		return processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
 		return processIssueCommentEvent(h, event)
 	}
@@ -73,7 +75,7 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 
 // processPushEvent is a helper function to process the push event
 func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
-	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPush, payload.GetRepo().GetFullName())
+	logrus.Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
 
@@ -147,7 +149,7 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhoo
 
 // processPREvent is a helper function to process the pull_request event
 func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
-	logrus.Tracef("Processing %s GitHub webhook for %s", constants.EventPull, payload.GetRepo().GetFullName())
+	logrus.Tracef("processing pull_request GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	// update the hook object
 	h.SetBranch(payload.GetPullRequest().GetBase().GetRef())
@@ -223,16 +225,13 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.W
 	}, nil
 }
 
-// processIssueCommentEvent is a helper function to process the issue comment event
-func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
-	// update the hook object
-	h.SetEvent(constants.EventComment)
-	h.SetLink(
-		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
-	)
+// processDeploymentEvent is a helper function to process the deployment event
+func processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
+	logrus.Tracef("processing deployment GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
+
 	// convert payload to library repo
 	r := new(library.Repo)
 	r.SetOrg(repo.GetOwner().GetLogin())
@@ -242,6 +241,74 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+
+	// convert payload to library build
+	b := new(library.Build)
+	b.SetEvent(constants.EventDeploy)
+	b.SetClone(repo.GetCloneURL())
+	b.SetDeploy(payload.GetDeployment().GetEnvironment())
+	b.SetSource(payload.GetDeployment().GetURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDeploy, repo.GetHTMLURL()))
+	b.SetMessage(payload.GetDeployment().GetDescription())
+	b.SetCommit(payload.GetDeployment().GetSHA())
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetDeployment().GetCreator().GetLogin())
+	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
+	b.SetBranch(payload.GetDeployment().GetRef())
+	b.SetRef(payload.GetDeployment().GetRef())
+
+	// handle when the ref is a sha or short sha
+	if strings.HasPrefix(b.GetCommit(), b.GetRef()) || b.GetCommit() == b.GetRef() {
+		// set the proper branch for the build
+		b.SetBranch(r.GetBranch())
+		// set the proper ref for the build
+		b.SetRef(fmt.Sprintf("refs/heads/%s", b.GetBranch()))
+	}
+
+	// handle when the ref is a branch
+	if !strings.HasPrefix(b.GetRef(), "refs/") {
+		// set the proper ref for the build
+		b.SetRef(fmt.Sprintf("refs/heads/%s", b.GetBranch()))
+	}
+
+	// update the hook object
+	h.SetBranch(b.GetBranch())
+	h.SetEvent(constants.EventDeploy)
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	return &types.Webhook{
+		Comment: "",
+		Hook:    h,
+		Repo:    r,
+		Build:   b,
+	}, nil
+}
+
+// processIssueCommentEvent is a helper function to process the issue comment event
+func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
+	logrus.Tracef("processing issue_comment GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	// update the hook object
+	h.SetEvent(constants.EventComment)
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
+	)
+
+	// capture the repo from the payload
+	repo := payload.GetRepo()
+
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventComment)
