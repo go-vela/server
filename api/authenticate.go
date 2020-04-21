@@ -78,7 +78,7 @@ func Authenticate(c *gin.Context) {
 		u.SetToken(newUser.GetToken())
 		u.SetHash(
 			base64.StdEncoding.EncodeToString(
-				[]byte(strings.TrimSpace(uid.String())),
+				[]byte(uid.String()),
 			),
 		)
 		u.SetActive(true)
