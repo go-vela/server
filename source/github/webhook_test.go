@@ -23,7 +23,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/push.json")
+	body, err := os.Open("testdata/hooks/push.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -97,7 +97,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pushNoSender.json")
+	body, err := os.Open("testdata/hooks/push_no_sender.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -173,7 +173,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pull.json")
+	body, err := os.Open("testdata/hooks/pull_request.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -249,7 +249,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pullClosedAction.json")
+	body, err := os.Open("testdata/hooks/pull_request_closed_action.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -302,7 +302,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pullClosedState.json")
+	body, err := os.Open("testdata/hooks/pull_request_closed_state.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -355,7 +355,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/deployment.json")
+	body, err := os.Open("testdata/hooks/deployment.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -431,7 +431,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/deployment_commit.json")
+	body, err := os.Open("testdata/hooks/deployment_commit.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -507,7 +507,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pull.json")
+	body, err := os.Open("testdata/hooks/pull_request.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -558,7 +558,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/pull.json")
+	body, err := os.Open("testdata/hooks/pull_request.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -609,7 +609,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/push.json")
+	body, err := os.Open("testdata/hooks/push.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -649,7 +649,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	r.SetPrivate(false)
 
 	// setup request
-	body, err := os.Open("testdata/push.json")
+	body, err := os.Open("testdata/hooks/push.json")
 	if err != nil {
 		t.Errorf("Opening file for ProcessWebhook returned err: %v", err)
 	}
@@ -680,7 +680,7 @@ func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/issue_comment.json")
+	body, err := os.Open("testdata/hooks/issue_comment.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
