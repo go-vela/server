@@ -51,8 +51,6 @@ func CreateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
-	// set default events to enable for the secret
-	input.SetEvents(defaultEvents)
 
 	if len(input.GetImages()) > 0 {
 		input.SetImages(unique(input.GetImages()))
@@ -60,6 +58,11 @@ func CreateSecret(c *gin.Context) {
 
 	if len(input.GetEvents()) > 0 {
 		input.SetEvents(unique(input.GetEvents()))
+	}
+
+	if len(input.GetEvents()) == 0 {
+		// set default events to enable for the secret
+		input.SetEvents(defaultEvents)
 	}
 
 	if !input.GetAllowCommand() {
