@@ -1,0 +1,111 @@
+// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
+package github
+
+import (
+	"github.com/google/go-github/v29/github"
+
+	"github.com/go-vela/types/library"
+
+	"github.com/sirupsen/logrus"
+)
+
+// GetDeployment gets a deployment from the GitHub repo.
+func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
+	logrus.Tracef("capturing deployment %d for %s", id, r.GetFullName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+
+	// send API call to capture the deployment
+	deployment, _, err := client.Repositories.GetDeployment(ctx, r.GetOrg(), r.GetName(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &library.Deployment{
+		ID:          deployment.ID,
+		RepoID:      r.ID,
+		URL:         deployment.URL,
+		User:        deployment.Creator.Login,
+		Commit:      deployment.SHA,
+		Ref:         deployment.Ref,
+		Task:        deployment.Task,
+		Target:      deployment.Environment,
+		Description: deployment.Description,
+	}, nil
+}
+
+// GetDeployment gets a list of deployments from the GitHub repo.
+func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
+	logrus.Tracef("capturing deployments for %s", r.GetFullName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+
+	// set pagination options for listing deployments
+	opts := &github.DeploymentsListOptions{
+		ListOptions: github.ListOptions{
+			Page:    page,
+			PerPage: perPage,
+		},
+	}
+
+	// send API call to capture the list of deployments
+	d, _, err := client.Repositories.ListDeployments(ctx, r.GetOrg(), r.GetName(), opts)
+	if err != nil {
+		return nil, err
+	}
+
+	// variable we want to return
+	deployments := []*library.Deployment{}
+
+	// iterate through all API results
+	for _, deployment := range d {
+		// convert query result to library type
+		deployments = append(deployments, &library.Deployment{
+			ID:          deployment.ID,
+			RepoID:      r.ID,
+			URL:         deployment.URL,
+			User:        deployment.Creator.Login,
+			Commit:      deployment.SHA,
+			Ref:         deployment.Ref,
+			Task:        deployment.Task,
+			Target:      deployment.Environment,
+			Description: deployment.Description,
+		})
+	}
+
+	return deployments, nil
+}
+
+// CreateDeployment creates a new deployment for the GitHub repo.
+func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.Deployment) error {
+	logrus.Tracef("creating deployment for %s", r.GetFullName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+
+	// create the hook object to make the API call
+	deployment := &github.DeploymentRequest{
+		Ref:                   d.Ref,
+		Task:                  d.Task,
+		AutoMerge:             github.Bool(true),
+		RequiredContexts:      &[]string{""},
+		Payload:               github.String(""),
+		Environment:           d.Target,
+		Description:           d.Description,
+		TransientEnvironment:  github.Bool(false),
+		ProductionEnvironment: github.Bool(false),
+	}
+
+	// send API call to create the deployment
+	_, _, err := client.Repositories.CreateDeployment(ctx, r.GetOrg(), r.GetName(), deployment)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

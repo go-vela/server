@@ -54,6 +54,18 @@ type Service interface {
 	// https://en.wikipedia.org/wiki/Changeset.
 	ChangesetPR(*library.User, *library.Repo, int) ([]string, error)
 
+	// Deployment Source Interface Functions
+
+	// GetDeployment defines a function that
+	// gets a deployment by number and repo.
+	GetDeployment(*library.User, *library.Repo, int64) (*library.Deployment, error)
+	// GetDeploymentList defines a function that gets
+	// a list of all deployments for a repo.
+	GetDeploymentList(*library.User, *library.Repo, int, int) ([]*library.Deployment, error)
+	// CreateDeployment defines a function that
+	// creates a new deployment.
+	CreateDeployment(*library.User, *library.Repo, *library.Deployment) error
+
 	// Repo Source Interface Functions
 
 	// Config defines a function that captures
