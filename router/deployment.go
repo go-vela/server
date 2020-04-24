@@ -16,8 +16,6 @@ import (
 // POST   /api/v1/deployments/:org/:repo
 // GET    /api/v1/deployments/:org/:repo
 // GET    /api/v1/deployments/:org/:repo/:deployment
-// PUT    /api/v1/deployments/:org/:repo/:deployment
-// DELETE /api/v1/deployments/:org/:repo/:deployment
 func DeploymentHandlers(base *gin.RouterGroup) {
 	// Deployments endpoints
 	deployments := base.Group("/deployments/:org/:repo")
@@ -25,7 +23,5 @@ func DeploymentHandlers(base *gin.RouterGroup) {
 		deployments.POST("", perm.MustAdmin(), api.CreateDeployment)
 		deployments.GET("", perm.MustAdmin(), api.GetDeployments)
 		deployments.GET("/:deployment", perm.MustAdmin(), api.GetDeployment)
-		deployments.PUT("/:deployment", perm.MustAdmin(), api.UpdateDeployment)
-		deployments.DELETE("/:deployment", perm.MustAdmin(), api.DeleteDeployment)
 	} // end of deployments endpoints
 }

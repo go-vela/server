@@ -27,15 +27,3 @@ func GetDeployments(c *gin.Context) {
 func GetDeployment(c *gin.Context) {
 	c.JSON(http.StatusNotImplemented, "The server does not support the functionality required to fulfill the request.")
 }
-
-// UpdateDeployment represents the API handler to
-// update a deployment in the configured backend.
-func UpdateDeployment(c *gin.Context) {
-	c.JSON(http.StatusNotImplemented, "The server does not support the functionality required to fulfill the request.")
-}
-
-// DeleteDeployment represents the API handler to
-// remove a deployment from the configured backend.
-func DeleteDeployment(c *gin.Context) {
-	c.JSON(http.StatusNotImplemented, "The server does not support the functionality required to fulfill the request.")
-}
