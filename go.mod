@@ -10,8 +10,8 @@ require (
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-redis/redis v6.15.6+incompatible
-	github.com/go-vela/compiler v0.4.0-rc1
-	github.com/go-vela/types v0.4.0-rc1.0.20200423134744-338fccc2db97
+	github.com/go-vela/compiler v0.4.0-rc2
+	github.com/go-vela/types v0.4.0-rc2
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
@@ -34,5 +34,4 @@ require (
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.0 // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
-	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
