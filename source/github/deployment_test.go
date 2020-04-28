@@ -125,6 +125,54 @@ func TestGithub_GetDeployment(t *testing.T) {
 	}
 }
 
+func TestGithub_GetDeploymentCount(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/deployments", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/deployments.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	want := int64(2)
+
+	client, _ := NewTest(s.URL, "https://foo.bar.com")
+
+	// run test
+	got, err := client.GetDeploymentCount(u, r)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("GetDeployment returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("GetDeployment returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetDeployment is %v, want %v", got, want)
+	}
+}
+
 func TestGithub_GetDeploymentList(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -153,18 +201,29 @@ func TestGithub_GetDeploymentList(t *testing.T) {
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 
-	d := new(library.Deployment)
-	d.SetID(1)
-	d.SetRepoID(1)
-	d.SetURL("https://api.github.com/repos/foo/bar/deployments/1")
-	d.SetUser("octocat")
-	d.SetCommit("a84d88e7554fc1fa21bcbc4efae3c782a70d2b9d")
-	d.SetRef("topic-branch")
-	d.SetTask("deploy")
-	d.SetTarget("production")
-	d.SetDescription("Deploy request from Vela")
+	d1 := new(library.Deployment)
+	d1.SetID(1)
+	d1.SetRepoID(1)
+	d1.SetURL("https://api.github.com/repos/foo/bar/deployments/1")
+	d1.SetUser("octocat")
+	d1.SetCommit("a84d88e7554fc1fa21bcbc4efae3c782a70d2b9d")
+	d1.SetRef("topic-branch")
+	d1.SetTask("deploy")
+	d1.SetTarget("production")
+	d1.SetDescription("Deploy request from Vela")
 
-	want := []*library.Deployment{d}
+	d2 := new(library.Deployment)
+	d2.SetID(2)
+	d2.SetRepoID(1)
+	d2.SetURL("https://api.github.com/repos/foo/bar/deployments/2")
+	d2.SetUser("octocat")
+	d2.SetCommit("a84d88e7554fc1fa21bcbc4efae3c782a70d2b9d")
+	d2.SetRef("topic-branch")
+	d2.SetTask("deploy")
+	d2.SetTarget("production")
+	d2.SetDescription("Deploy request from Vela")
+
+	want := []*library.Deployment{d2, d1}
 
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
