@@ -38,7 +38,45 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 	}, nil
 }
 
-// GetDeployment gets a list of deployments from the GitHub repo.
+// GetDeploymentCount counts a list of deployments from the GitHub repo.
+func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, error) {
+	logrus.Tracef("counting deployments for %s", r.GetFullName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+	// create variable to track the deployments
+	deployments := []*github.Deployment{}
+
+	// set pagination options for listing deployments
+	opts := &github.DeploymentsListOptions{
+		// set the max per page for the options
+		// to capture the list of deployments
+		ListOptions: github.ListOptions{
+			PerPage: 100, // 100 is max
+		},
+	}
+
+	for {
+		// send API call to capture the list of deployments
+		d, resp, err := client.Repositories.ListDeployments(ctx, r.GetOrg(), r.GetName(), opts)
+		if err != nil {
+			return 0, err
+		}
+
+		deployments = append(deployments, d...)
+
+		// break the loop if there is no more results to page through
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	return int64(len(deployments)), nil
+}
+
+// GetDeploymentList gets a list of deployments from the GitHub repo.
 func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
 	logrus.Tracef("capturing deployments for %s", r.GetFullName())
 
@@ -90,22 +128,30 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 
 	// create the hook object to make the API call
 	deployment := &github.DeploymentRequest{
-		Ref:                   d.Ref,
-		Task:                  d.Task,
-		AutoMerge:             github.Bool(true),
-		RequiredContexts:      &[]string{""},
-		Payload:               github.String(""),
-		Environment:           d.Target,
-		Description:           d.Description,
-		TransientEnvironment:  github.Bool(false),
-		ProductionEnvironment: github.Bool(false),
+		Ref:              d.Ref,
+		Task:             d.Task,
+		AutoMerge:        github.Bool(false),
+		RequiredContexts: &[]string{},
+		Payload:          github.String(""),
+		Environment:      d.Target,
+		Description:      d.Description,
 	}
 
 	// send API call to create the deployment
-	_, _, err := client.Repositories.CreateDeployment(ctx, r.GetOrg(), r.GetName(), deployment)
+	deploy, _, err := client.Repositories.CreateDeployment(ctx, r.GetOrg(), r.GetName(), deployment)
 	if err != nil {
 		return err
 	}
+
+	d.SetID(deploy.GetID())
+	d.SetRepoID(r.GetID())
+	d.SetURL(deploy.GetURL())
+	d.SetUser(deploy.GetCreator().GetLogin())
+	d.SetCommit(deploy.GetSHA())
+	d.SetRef(deploy.GetRef())
+	d.SetTask(deploy.GetTask())
+	d.SetTarget(deploy.GetEnvironment())
+	d.SetDescription(deploy.GetDescription())
 
 	return nil
 }
