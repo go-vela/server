@@ -6,8 +6,10 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware/perm"
+	"github.com/go-vela/server/router/middleware/repo"
 )
 
 // DeploymentHandlers is a function that extends the provided base router group
@@ -18,10 +20,10 @@ import (
 // GET    /api/v1/deployments/:org/:repo/:deployment
 func DeploymentHandlers(base *gin.RouterGroup) {
 	// Deployments endpoints
-	deployments := base.Group("/deployments/:org/:repo")
+	deployments := base.Group("/deployments/:org/:repo", repo.Establish())
 	{
-		deployments.POST("", perm.MustAdmin(), api.CreateDeployment)
-		deployments.GET("", perm.MustAdmin(), api.GetDeployments)
-		deployments.GET("/:deployment", perm.MustAdmin(), api.GetDeployment)
+		deployments.POST("", perm.MustWrite(), api.CreateDeployment)
+		deployments.GET("", perm.MustRead(), api.GetDeployments)
+		deployments.GET("/:deployment", perm.MustRead(), api.GetDeployment)
 	} // end of deployments endpoints
 }
