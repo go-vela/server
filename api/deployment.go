@@ -46,7 +46,7 @@ func CreateDeployment(c *gin.Context) {
 	input.SetUser(u.GetName())
 
 	if len(input.GetDescription()) == 0 {
-		input.SetDescription("Deploy request from Vela")
+		input.SetDescription("Deployment request from Vela")
 	}
 
 	if len(input.GetTask()) == 0 {
