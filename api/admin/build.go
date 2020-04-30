@@ -17,6 +17,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/builds admin AllBuilds
+//
+// Get all of the builds in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully retrieved all builds from the database
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve all builds from the database
+//     schema:
+//       type: string
+
 // AllBuilds represents the API handler to
 // captures all builds stored in the database.
 func AllBuilds(c *gin.Context) {
@@ -34,6 +54,30 @@ func AllBuilds(c *gin.Context) {
 
 	c.JSON(http.StatusOK, b)
 }
+
+// swagger:operation PUT /api/v1/admin/build admin UpdateBuild
+//
+// Update a build in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully updated the build in the database
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to update the build in the database
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the build in the database
+//     schema:
+//       type: string
 
 // UpdateBuild represents the API handler to
 // update any build stored in the database.

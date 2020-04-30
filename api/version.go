@@ -14,6 +14,21 @@ import (
 
 // Version represents the API handler to
 // report the version number for Vela.
+// swagger:operation GET /version router Version
+//
+// Get the version of the Vela API
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successful retrieval of the Vela API version
+//     schema:
+//       type: string
 func Version(c *gin.Context) {
 	c.JSON(http.StatusOK, version.Version.String())
 }

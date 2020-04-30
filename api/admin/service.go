@@ -17,6 +17,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/services admin AllServices
+//
+// Get all of the services in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully retrieved all services from the database
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve all services from the database
+//     schema:
+//       type: string
+
 // AllServices represents the API handler to
 // captures all services stored in the database.
 func AllServices(c *gin.Context) {
@@ -34,6 +54,30 @@ func AllServices(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation PUT /api/v1/admin/service admin UpdateService
+//
+// Update a hook in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully updated the service in the database
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to update the service in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the service in the database
+//     schema:
+//       type: string
 
 // UpdateService represents the API handler to
 // update any service stored in the database.

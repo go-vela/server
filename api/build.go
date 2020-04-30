@@ -29,6 +29,44 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds builds CreateBuild
+//
+// Create a build in the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the build
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to create the build
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to create the build
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the build
+//     schema:
+//       type: string
+
 // CreateBuild represents the API handler to
 // create a build in the configured backend.
 func CreateBuild(c *gin.Context) {
@@ -208,6 +246,40 @@ func CreateBuild(c *gin.Context) {
 	)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds GetBuilds
+//
+// Create a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the build
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
 func GetBuilds(c *gin.Context) {
@@ -274,6 +346,37 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
+//
+// Get a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to restart
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully restarted the build
+//     schema:
+//       type: string
+
 // GetBuild represents the API handler to capture
 // a build for a repo from the configured backend.
 func GetBuild(c *gin.Context) {
@@ -287,6 +390,49 @@ func GetBuild(c *gin.Context) {
 
 	c.JSON(http.StatusOK, b)
 }
+
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds RestartBuild
+//
+// Restart a build in the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to restart
+//   required: true
+//   type: integer
+// responses:
+//   '201':
+//     description: Successfully restarted the build
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to restart the build
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to restart the build
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to restart the build
+//     schema:
+//       type: string
 
 // RestartBuild represents the API handler to
 // restart an existing build in the configured backend.
@@ -443,6 +589,45 @@ func RestartBuild(c *gin.Context) {
 	)
 }
 
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build} builds UpdateBuild
+//
+// Updates a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to restart
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully restarted the build
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to restart the build
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to restart the build
+//     schema:
+//       type: string
+
 // UpdateBuild represents the API handler to update
 // a build for a repo in the configured backend.
 func UpdateBuild(c *gin.Context) {
@@ -543,6 +728,41 @@ func UpdateBuild(c *gin.Context) {
 		}
 	}
 }
+
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build} builds DeleteBuild
+//
+// Delete a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to restart
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully restarted the build
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to restart the build
+//     schema:
+//       type: string
 
 // DeleteBuild represents the API handler to remove
 // a build for a repo from the configured backend.

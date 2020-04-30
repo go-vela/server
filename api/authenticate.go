@@ -24,6 +24,29 @@ import (
 // Authenticate represents the API handler to
 // process a user logging in to Vela from
 // the API or UI.
+// swagger:operation GET /authenticate authenticate Authenticate
+//
+// Authenticate with the Vela API
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successful authenticate
+//     schema:
+//       type: string
+//   '401':
+//     description: Unable to authenticate
+//     schema:
+//       type: string
+//   '503':
+//     description: Service unavailable
+//     schema:
+//       type: string
 func Authenticate(c *gin.Context) {
 	var err error
 	// capture the OAuth state if present

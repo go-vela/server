@@ -17,6 +17,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/users admin AllUsers
+//
+// Get all of the users in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully retrieved all users from the database
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve all users from the database
+//     schema:
+//       type: string
+
 // AllUsers represents the API handler to
 // captures all users stored in the database.
 func AllUsers(c *gin.Context) {
@@ -34,6 +54,30 @@ func AllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, u)
 }
+
+// swagger:operation PUT /api/v1/admin/user admin UpdateUser
+//
+// Update a user in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully updated the user in the database
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to update the user in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the user in the database
+//     schema:
+//       type: string
 
 // UpdateUser represents the API handler to
 // update any user stored in the database.

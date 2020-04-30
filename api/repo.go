@@ -25,6 +25,42 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/repos repos CreateRepo
+//
+// Create a repo in the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '201':
+//     description: Successfully created the repo
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '403':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '409':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '503':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
 func CreateRepo(c *gin.Context) {
@@ -178,6 +214,30 @@ func CreateRepo(c *gin.Context) {
 	c.JSON(http.StatusCreated, r)
 }
 
+// swagger:operation GET /api/v1/repos repos GetRepos
+//
+// Get all repos in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully retrieved the repo
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to retrieve the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the repo
+//     schema:
+//       type: string
+
 // GetRepos represents the API handler to capture a list
 // of repos for a user from the configured backend.
 func GetRepos(c *gin.Context) {
@@ -241,6 +301,32 @@ func GetRepos(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo} repos GetRepo
+//
+// Get a repo in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the repo
+//     schema:
+//       type: string
+
 // GetRepo represents the API handler to
 // capture a repo from the configured backend.
 func GetRepo(c *gin.Context) {
@@ -251,6 +337,48 @@ func GetRepo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, r)
 }
+
+// swagger:operation PUT /api/v1/repos/{org}/{repo} repos UpdateRepo
+//
+// Update a repo in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the repo
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
+//   '503':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
+//   '510':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
@@ -376,6 +504,40 @@ func UpdateRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
+// swagger:operation DELETE /api/v1/repos/{org}/{repo} repos DeleteRepo
+//
+// Delete a repo in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to  deleted the repo
+//     schema:
+//       type: string
+//   '510':
+//     description: Unable to  deleted the repo
+//     schema:
+//       type: string
+
 // DeleteRepo represents the API handler to remove
 // a repo from the configured backend.
 func DeleteRepo(c *gin.Context) {
@@ -424,6 +586,36 @@ func DeleteRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s deleted", r.GetFullName()))
 }
 
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/repair repos RepairRepo
+//
+// Remove and recreate the webhook for a repo
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to  deleted the repo
+//     schema:
+//       type: string
+
 // RepairRepo represents the API handler to remove
 // and then create a webhook for a repo.
 func RepairRepo(c *gin.Context) {
@@ -456,6 +648,36 @@ func RepairRepo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s repaired", r.GetFullName()))
 }
+
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/chown repos ChownRepo
+//
+// Remove and recreate the webhook for a repo
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to  deleted the repo
+//     schema:
+//       type: string
 
 // ChownRepo represents the API handler to change
 // the owner of a repo in the configured backend.

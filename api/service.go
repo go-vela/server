@@ -24,6 +24,45 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/services services CreateService
+//
+// Create a service for a build in the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// responses:
+//   '201':
+//     description: Successfully created the service
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to create the service
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the service
+//     schema:
+//       type: string
+
 // CreateService represents the API handler to create
 // a service for a build in the configured backend.
 func CreateService(c *gin.Context) {
@@ -72,6 +111,45 @@ func CreateService(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, s)
 }
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} services GetServices
+//
+// Get a list of all services for a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully retrieved the list of services
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to retrieve the list of services
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to restart the list of services
+//     schema:
+//       type: string
 
 // GetServices represents the API handler to capture a list
 // of services for a build from the configured backend.
@@ -137,6 +215,50 @@ func GetServices(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services GetService
+//
+// Get a service for a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully retrieved the service
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to retrieve the service
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to restart the service
+//     schema:
+//       type: string
+
 // GetService represents the API handler to capture a
 // service for a build from the configured backend.
 func GetService(c *gin.Context) {
@@ -151,6 +273,50 @@ func GetService(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services UpdateService
+//
+// Update a service for a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully retrieved the service
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to retrieve the service
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to restart the service
+//     schema:
+//       type: string
 
 // UpdateService represents the API handler to update
 // a service for a build in the configured backend.
@@ -215,6 +381,46 @@ func UpdateService(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services DeleteService
+//
+// Delete a service for a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// responses:
+//   '200':
+//     description: Successfully retrieved the service
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to restart the service
+//     schema:
+//       type: string
 
 // DeleteService represents the API handler to remove
 // a service for a build from the configured backend.

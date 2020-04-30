@@ -16,7 +16,32 @@ import (
 )
 
 // GetBadge represents the API handler to
-// return a build status badge.
+// report the health status for Vela.
+// swagger:operation GET /badge/{org}/{repo}/status.svg router GetBadge
+//
+// Get a badge for the repo
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo to get the badge for
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org the repo belongs to
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieve a status Badge of the recent Vela jobs
+//     schema:
+//       type: string
 func GetBadge(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)

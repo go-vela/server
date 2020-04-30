@@ -21,6 +21,56 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret
+//
+// Create a secret
+//
+// ---
+// x-success_http_code: '201'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: engine
+//   description: Secret engine to create a secret in
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   required: true
+//   type: string
+// - in: path
+//   name: name
+//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   required: true
+//   type: string
+// - in: body
+//   name: body
+//   description: Payload containing secret to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/secret"
+// responses:
+//   '200':
+//     description: Successfully created the secret
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to create the secret
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the secret
+//     schema:
+//       type: string
+
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
 func CreateSecret(c *gin.Context) {
@@ -81,6 +131,50 @@ func CreateSecret(c *gin.Context) {
 	s, _ := secret.FromContext(c, e).Get(t, o, n, input.GetName())
 	c.JSON(http.StatusOK, s.Sanitize())
 }
+
+// swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets GetSecrets
+//
+// Retrieve a list of secrets from the configured backend.
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: engine
+//   description: Secret engine to create a secret in
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   required: true
+//   type: string
+// - in: path
+//   name: name
+//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the list of secrets
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to retrieve the list of secrets
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of secrets
+//     schema:
+//       type: string
 
 // GetSecrets represents the API handler to capture
 // a list of secrets from the configured backend.
@@ -159,6 +253,51 @@ func GetSecrets(c *gin.Context) {
 	c.JSON(http.StatusOK, secrets)
 }
 
+// swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets GetSecret
+//
+// Retrieve a secret from the configured backend.
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: engine
+//   description: Secret engine to create a secret in
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   required: true
+//   type: string
+// - in: path
+//   name: name
+//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   required: true
+//   type: string
+// - in: path
+//   name: secret
+//   description: Name of the secret
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the secret
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the secret
+//     schema:
+//       type: string
+
 // GetSecret gets a secret from the provided secrets service.
 func GetSecret(c *gin.Context) {
 	// capture middleware values
@@ -190,6 +329,61 @@ func GetSecret(c *gin.Context) {
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
+
+// swagger:operation PUT /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets UpdateSecrets
+//
+// Update a secret from the configured backend.
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: engine
+//   description: Secret engine to create a secret in
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   required: true
+//   type: string
+// - in: path
+//   name: name
+//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   required: true
+//   type: string
+// - in: path
+//   name: secret
+//   description: Name of the secret
+//   required: true
+//   type: string
+// - in: body
+//   name: body
+//   description: Payload containing secret to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/secret"
+// responses:
+//   '200':
+//     description: Successfully updated the secret
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to update the secret
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the secret
+//     schema:
+//       type: string
 
 // UpdateSecret updates a secret for the provided secrets service.
 func UpdateSecret(c *gin.Context) {
@@ -256,6 +450,57 @@ func UpdateSecret(c *gin.Context) {
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
+
+// swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecrets
+//
+// Update a secret from the configured backend.
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: engine
+//   description: Secret engine to create a secret in
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   required: true
+//   type: string
+// - in: path
+//   name: name
+//   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
+//   required: true
+//   type: string
+// - in: path
+//   name: secret
+//   description: Name of the secret
+//   required: true
+//   type: string
+// - in: body
+//   name: body
+//   description: Payload containing secret to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/secret"
+// responses:
+//   '200':
+//     description: Successfully updated the secret
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the secret
+//     schema:
+//       type: string
 
 // DeleteSecret deletes a secret from the provided secrets service.
 func DeleteSecret(c *gin.Context) {

@@ -17,6 +17,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/hooks admin AllHooks
+//
+// Get all of the webhooks stored in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully retrieved all hooks from the database
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve all hooks
+//     schema:
+//       type: string
+
 // AllHooks represents the API handler to
 // captures all hooks stored in the database.
 func AllHooks(c *gin.Context) {
@@ -34,6 +54,30 @@ func AllHooks(c *gin.Context) {
 
 	c.JSON(http.StatusOK, r)
 }
+
+// swagger:operation PUT /api/v1/admin/hook admin UpdateHook
+//
+// Update a hook in the database
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully updated the hook in the database
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to update the hook in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the hook in the database
+//     schema:
+//       type: string
 
 // UpdateHook represents the API handler to
 // update any hook stored in the database.

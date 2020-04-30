@@ -11,6 +11,50 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// swagger:operation GET /login router Login
+//
+// Log into the Vela api
+//
+// ---
+// x-success_http_code: '307'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '307':
+//     description: Redirected to /authenticate
+//     schema:
+//       type: string
+
+// swagger:operation POST /login router Login
+//
+// Log into the Vela api
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successful login to the Vela API
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to login to the Vela API
+//     schema:
+//       type: string
+//   '401':
+//     description: Unable to login to the Vela API
+//     schema:
+//       type: string
+//   '503':
+//     description: Unable to login to the Vela API
+//     schema:
+//       type: string
+
 // Login represents the API handler to
 // process a user logging in to Vela.
 func Login(c *gin.Context) {

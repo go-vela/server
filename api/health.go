@@ -12,6 +12,21 @@ import (
 
 // Health represents the API handler to
 // report the health status for Vela.
+// swagger:operation GET /health router Health
+//
+// Check if the Vela API is available
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successful 'ping' of Vela API
+//     schema:
+//       type: string
 func Health(c *gin.Context) {
 	c.JSON(http.StatusOK, "ok")
 }
