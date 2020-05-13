@@ -349,6 +349,52 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	}
 }
 
+func TestGithub_Disable_MultipleHooks(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+	count := 0
+	wantCount := 2
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/hooks", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/hooks_multi.json")
+	})
+	engine.DELETE("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		count++
+		c.Status(http.StatusNoContent)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL, "https://foo.bar.com")
+
+	// run test
+	err := client.Disable(u, "foo", "bar")
+
+	if count != wantCount {
+		t.Errorf("Count returned %d, want %d", count, wantCount)
+	}
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Disable returned err: %v", err)
+	}
+}
+
 func TestGithub_Enable(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
