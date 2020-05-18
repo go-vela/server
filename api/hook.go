@@ -20,7 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation PUT /api/v1/hooks/{org}/{repo} deployment CreateHook
+// swagger:operation POST /api/v1/hooks/{org}/{repo} webhook CreateHook
 //
 // Create a webhook for the configured backend
 //
@@ -30,6 +30,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Webhook payload that we expect from the user or VCS
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -281,7 +287,7 @@ func GetHook(c *gin.Context) {
 	c.JSON(http.StatusOK, h)
 }
 
-// swagger:operation PUT /api/v1/hooks/{org}/{repo}/{hook} deployment UpdateHook
+// swagger:operation PUT /api/v1/hooks/{org}/{repo}/{hook} webhook UpdateHook
 //
 // Update a webhook for the configured backend
 //
@@ -291,6 +297,12 @@ func GetHook(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Webhook payload that we expect from the user or VCS
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
 // - in: path
 //   name: repo
 //   description: Name of the repo

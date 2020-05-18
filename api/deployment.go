@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation PUT /api/v1/deployments/{org}/{repo} deployment CreateDeployment
+// swagger:operation POST /api/v1/deployments/{org}/{repo} deployment UpdateDeployment
 //
 // Create a deployment for the configured backend
 //

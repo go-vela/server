@@ -65,6 +65,12 @@ func AllServices(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing service to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Service"
 // responses:
 //   '200':
 //     description: Successfully updated the service in the database

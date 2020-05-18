@@ -65,6 +65,12 @@ func AllSecrets(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing secret to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Secret"
 // responses:
 //   '200':
 //     description: Successfully updated the secret in the database

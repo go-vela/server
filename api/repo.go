@@ -35,6 +35,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the repo to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Repo"
 // responses:
 //   '201':
 //     description: Successfully created the repo
@@ -348,6 +354,12 @@ func GetRepo(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the repo to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Repo"
 // - in: path
 //   name: repo
 //   description: Name of the repo

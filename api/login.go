@@ -27,9 +27,25 @@ import (
 //     schema:
 //       type: string
 
-// swagger:operation POST /login router Login
+// swagger:operation GET /logout router Login
 //
 // Log into the Vela api
+//
+// ---
+// x-success_http_code: '307'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '307':
+//     description: Redirected to /authenticate
+//     schema:
+//       type: string
+
+// swagger:operation POST /login router Login
+//
+// Login to the Vela api
 //
 // ---
 // x-success_http_code: '200'
@@ -37,6 +53,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Login payload that we expect from the user
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Login"
 // responses:
 //   '200':
 //     description: Successful login to the Vela API

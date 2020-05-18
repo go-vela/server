@@ -65,6 +65,12 @@ func AllHooks(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing hook to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
 // responses:
 //   '200':
 //     description: Successfully updated the hook in the database

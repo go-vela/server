@@ -65,6 +65,12 @@ func AllUsers(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing user to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
 // responses:
 //   '200':
 //     description: Successfully updated the user in the database

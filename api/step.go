@@ -34,6 +34,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the step to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -51,7 +57,7 @@ import (
 //   type: integer
 // responses:
 //   '201':
-//     // description: Successfully created the step
+//     description: Successfully created the step
 //     schema:
 //       type: string
 //   '400':
@@ -139,7 +145,7 @@ func CreateStep(c *gin.Context) {
 //   type: integer
 // responses:
 //   '200a':
-//     // description: Successfully retrieved the list of steps
+//     description: Successfully retrieved the list of steps
 //     schema:
 //       type: string
 //   '400':
@@ -247,7 +253,7 @@ func GetSteps(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     // description: Successfully retrieved the step
+//     description: Successfully retrieved the step
 //     schema:
 //       type: string
 
@@ -276,6 +282,12 @@ func GetStep(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the step to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -298,15 +310,15 @@ func GetStep(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     // description: Successfully updated the step
+//     description: Successfully updated the step
 //     schema:
 //       type: string
 //   '400':
-//     // description: Unable to update the step
+//     description: Unable to update the step
 //     schema:
 //       type: string
 //   '500':
-//     // description: Unable to update the step
+//     description: Unable to update the step
 //     schema:
 //       type: string
 
@@ -421,11 +433,11 @@ func UpdateStep(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     // description: Successfully deleted the step
+//     description: Successfully deleted the step
 //     schema:
 //       type: string
 //   '500':
-//     // description: Successfully deleted the step
+//     description: Successfully deleted the step
 //     schema:
 //       type: string
 

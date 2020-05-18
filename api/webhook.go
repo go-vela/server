@@ -31,6 +31,40 @@ import (
 
 var baseErr = "unable to process webhook"
 
+// swagger:operation POST /webhook router PostWebhook
+//
+// Deliver a webhook to the vela api
+//
+// ---
+// x-success_http_code: '200'
+// x-incident_priority: P4
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Webhook payload that we expect from the user or VCS
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
+// responses:
+//   '200':
+//     description: Successfully received the webhook
+//     schema:
+//       type: string
+//   '400':
+//     description: Malformed webhook payload
+//     schema:
+//       type: string
+//   '401':
+//     description: Unauthenticated
+//     schema:
+//       type: string
+//   '503':
+//     description: Unable to receive the webhook
+//     schema:
+//       type: string
+
 // PostWebhook represents the API handler to capture
 // a webhook from a source control provider and
 // publish it to the configure queue.

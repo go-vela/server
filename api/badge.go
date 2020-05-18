@@ -15,8 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetBadge represents the API handler to
-// report the health status for Vela.
 // swagger:operation GET /badge/{org}/{repo}/status.svg router GetBadge
 //
 // Get a badge for the repo
@@ -42,6 +40,9 @@ import (
 //     description: Successfully retrieve a status Badge of the recent Vela jobs
 //     schema:
 //       type: string
+
+// GetBadge represents the API handler to
+// return a build status badge.
 func GetBadge(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)

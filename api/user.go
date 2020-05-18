@@ -33,6 +33,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the user to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
 // responses:
 //   '201':
 //     description: Successfully created the user
@@ -201,6 +207,12 @@ func GetCurrentUser(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the user to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
 // responses:
 //   '200':
 //     description: Successfully updated the current user
@@ -426,6 +438,12 @@ func GetUserSourceRepos(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the user to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
 // - in: path
 //   name: user
 //   description: Name of the user

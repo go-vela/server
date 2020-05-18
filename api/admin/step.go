@@ -65,6 +65,12 @@ func AllSteps(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing step to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
 // responses:
 //   '200':
 //     description: Successfully updated the step in the database

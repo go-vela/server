@@ -34,6 +34,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the service to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Service"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -284,6 +290,12 @@ func GetService(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the service to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Service"
 // - in: path
 //   name: repo
 //   description: Name of the repo

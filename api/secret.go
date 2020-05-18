@@ -31,6 +31,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the secret to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Secret"
 // - in: path
 //   name: engine
 //   description: Secret engine to create a secret in
@@ -51,12 +57,6 @@ import (
 //   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
 //   required: true
 //   type: string
-// - in: body
-//   name: body
-//   description: Payload containing secret to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/secret"
 // responses:
 //   '200':
 //     description: Successfully created the secret
@@ -340,6 +340,12 @@ func GetSecret(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the secret to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Secret"
 // - in: path
 //   name: engine
 //   description: Secret engine to create a secret in
@@ -365,12 +371,6 @@ func GetSecret(c *gin.Context) {
 //   description: Name of the secret
 //   required: true
 //   type: string
-// - in: body
-//   name: body
-//   description: Payload containing secret to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/secret"
 // responses:
 //   '200':
 //     description: Successfully updated the secret
@@ -451,9 +451,9 @@ func UpdateSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
 
-// swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecrets
+// swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecret
 //
-// Update a secret from the configured backend.
+// Delete a secret from the configured backend.
 //
 // ---
 // x-success_http_code: '200'
@@ -491,7 +491,7 @@ func UpdateSecret(c *gin.Context) {
 //   description: Payload containing secret to update
 //   required: true
 //   schema:
-//     "$ref": "#/definitions/secret"
+//     "$ref": "#/definitions/Secret"
 // responses:
 //   '200':
 //     description: Successfully updated the secret

@@ -34,6 +34,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing login information
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Login"
 // responses:
 //   '200':
 //     description: Successful authenticate

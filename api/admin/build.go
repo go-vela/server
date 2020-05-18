@@ -65,6 +65,12 @@ func AllBuilds(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing build to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Build"
 // responses:
 //   '200':
 //     description: Successfully updated the build in the database

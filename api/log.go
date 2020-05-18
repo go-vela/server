@@ -46,6 +46,7 @@ import (
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// responses:
 //   '200':
 //     description: Successfully restarted the build
 //     schema:
@@ -87,6 +88,12 @@ func GetBuildLogs(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -227,7 +234,7 @@ func GetServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
-// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLogs
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLog
 //
 // Update the logs for a service
 //
@@ -237,6 +244,12 @@ func GetServiceLog(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -398,6 +411,12 @@ func DeleteServiceLog(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -544,6 +563,12 @@ func GetStepLog(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // - in: path
 //   name: repo
 //   description: Name of the repo

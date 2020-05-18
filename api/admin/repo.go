@@ -65,6 +65,12 @@ func AllRepos(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing repo to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Repo"
 // responses:
 //   '200':
 //     description: Successfully updated the repo in the database

@@ -39,6 +39,12 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the build to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Build"
 // - in: path
 //   name: repo
 //   description: Name of the repo
@@ -599,6 +605,12 @@ func RestartBuild(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the build to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Build"
 // - in: path
 //   name: repo
 //   description: Name of the repo
