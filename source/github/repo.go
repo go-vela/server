@@ -80,13 +80,15 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		return err
 	}
 
-	// since 0 might be a real value (though unlikely?)
-	var id *int64
+	// accounting for situations in which multiple hooks have been
+	// associated with this vela instance, which causes some
+	// disable, repair, enable operations to act in undesirable ways
+	var ids []int64
 
 	// iterate through each element in the hooks
 	for _, hook := range hooks {
 		// skip if the hook has no ID
-		if hook.ID == nil {
+		if hook.GetID() == 0 {
 			continue
 		}
 
@@ -95,17 +97,20 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 		// capture hook ID if the hook url matches
 		if hookURL == fmt.Sprintf("%s/webhook", c.LocalHost) {
-			id = hook.ID
+			ids = append(ids, hook.GetID())
 		}
 	}
 
-	// skip if we got no hook ID
-	if id == nil {
+	// skip if we have no hook IDs
+	if len(ids) == 0 {
 		return nil
 	}
 
-	// send API call to delete the webhook
-	_, err = client.Repositories.DeleteHook(ctx, org, name, *id)
+	// go through all found hook IDs and delete them
+	for _, id := range ids {
+		// send API call to delete the webhook
+		_, err = client.Repositories.DeleteHook(ctx, org, name, id)
+	}
 
 	return err
 }
