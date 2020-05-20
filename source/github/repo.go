@@ -20,6 +20,7 @@ import (
 func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) {
 	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", org, name, ref)
 
+	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
 	// set the reference for the options to capture the pipeline configuration
@@ -70,6 +71,7 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 func (c *client) Disable(u *library.User, org, name string) error {
 	logrus.Tracef("Deleting repository webhook for %s/%s", org, name)
 
+	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
 	// send API call to capture the hooks for the repo
@@ -78,13 +80,15 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		return err
 	}
 
-	// since 0 might be a real value (though unlikely?)
-	var id *int64
+	// accounting for situations in which multiple hooks have been
+	// associated with this vela instance, which causes some
+	// disable, repair, enable operations to act in undesirable ways
+	var ids []int64
 
 	// iterate through each element in the hooks
 	for _, hook := range hooks {
 		// skip if the hook has no ID
-		if hook.ID == nil {
+		if hook.GetID() == 0 {
 			continue
 		}
 
@@ -93,17 +97,20 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 		// capture hook ID if the hook url matches
 		if hookURL == fmt.Sprintf("%s/webhook", c.LocalHost) {
-			id = hook.ID
+			ids = append(ids, hook.GetID())
 		}
 	}
 
-	// skip if we got no hook ID
-	if id == nil {
+	// skip if we have no hook IDs
+	if len(ids) == 0 {
 		return nil
 	}
 
-	// send API call to delete the webhook
-	_, err = client.Repositories.DeleteHook(ctx, org, name, *id)
+	// go through all found hook IDs and delete them
+	for _, id := range ids {
+		// send API call to delete the webhook
+		_, err = client.Repositories.DeleteHook(ctx, org, name, id)
+	}
 
 	return err
 }
@@ -112,6 +119,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 func (c *client) Enable(u *library.User, org, name, secret string) (string, error) {
 	logrus.Tracef("Creating repository webhook for %s/%s", org, name)
 
+	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
 	// create the hook object to make the API call
@@ -150,6 +158,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 func (c *client) Status(u *library.User, b *library.Build, org, name string) error {
 	logrus.Tracef("Setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
+	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
 	context := fmt.Sprintf("%s/%s", c.StatusContext, b.GetEvent())
@@ -204,6 +213,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
+
 	r := []*github.Repository{}
 	f := []*library.Repo{}
 

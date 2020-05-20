@@ -74,6 +74,9 @@ import (
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
 func CreateSecret(c *gin.Context) {
+	// define the default events to enable for a secret
+	defaultEvents := []string{constants.EventPush, constants.EventTag, constants.EventDeploy}
+
 	// capture middleware values
 	e := c.Param("engine")
 	t := c.Param("type")
@@ -105,6 +108,11 @@ func CreateSecret(c *gin.Context) {
 
 	if len(input.GetEvents()) > 0 {
 		input.SetEvents(unique(input.GetEvents()))
+	}
+
+	if len(input.GetEvents()) == 0 {
+		// set default events to enable for the secret
+		input.SetEvents(defaultEvents)
 	}
 
 	if !input.GetAllowCommand() {
