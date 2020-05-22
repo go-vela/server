@@ -26,7 +26,6 @@ import (
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -131,7 +130,6 @@ func CreateHook(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -233,7 +231,6 @@ func GetHooks(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -308,7 +305,6 @@ func GetHook(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -454,7 +450,6 @@ func UpdateHook(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:

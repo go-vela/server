@@ -30,7 +30,6 @@ import (
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -129,7 +128,6 @@ func CreateStep(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -237,7 +235,6 @@ func GetSteps(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -293,7 +290,6 @@ func GetStep(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -427,7 +423,6 @@ func UpdateStep(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:

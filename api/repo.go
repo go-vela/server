@@ -31,7 +31,6 @@ import (
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -231,7 +230,6 @@ func CreateRepo(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -323,7 +321,6 @@ func GetRepos(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -365,7 +362,6 @@ func GetRepo(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -542,7 +538,6 @@ func UpdateRepo(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -629,7 +624,6 @@ func DeleteRepo(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -712,7 +706,6 @@ func RepairRepo(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:

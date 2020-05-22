@@ -26,7 +26,6 @@ import (
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -111,7 +110,6 @@ func CreateDeployment(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -206,7 +204,6 @@ func GetDeployments(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '501'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:

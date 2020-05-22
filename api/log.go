@@ -27,7 +27,6 @@ import (
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -89,7 +88,6 @@ func GetBuildLogs(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -187,7 +185,6 @@ func CreateServiceLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -255,7 +252,6 @@ func GetServiceLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -364,7 +360,6 @@ func UpdateServiceLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -432,7 +427,6 @@ func DeleteServiceLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '201'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -530,7 +524,6 @@ func CreateStepLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -594,7 +587,6 @@ func GetStepLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
@@ -703,7 +695,6 @@ func UpdateStepLog(c *gin.Context) {
 //
 // ---
 // x-success_http_code: '200'
-// x-incident_priority: P4
 // produces:
 // - application/json
 // parameters:
