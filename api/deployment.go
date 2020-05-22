@@ -40,6 +40,11 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully created the deployment
@@ -118,6 +123,11 @@ func CreateDeployment(c *gin.Context) {
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
@@ -213,6 +223,11 @@ func GetDeployments(c *gin.Context) {
 // - in: path
 //   name: deployment
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:

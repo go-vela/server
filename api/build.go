@@ -55,6 +55,11 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully created the build
@@ -272,6 +277,11 @@ func CreateBuild(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved the build
@@ -377,6 +387,11 @@ func GetBuilds(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully restarted the build
@@ -422,6 +437,11 @@ func GetBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully restarted the build
@@ -626,6 +646,11 @@ func RestartBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully restarted the build
@@ -766,6 +791,11 @@ func UpdateBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully restarted the build

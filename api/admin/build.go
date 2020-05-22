@@ -27,6 +27,11 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved all builds from the database
@@ -71,6 +76,11 @@ func AllBuilds(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully updated the build in the database

@@ -46,6 +46,11 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: The webhook has been created
@@ -138,6 +143,11 @@ func CreateHook(c *gin.Context) {
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
@@ -242,6 +252,11 @@ func GetHooks(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved the webhook
@@ -316,6 +331,11 @@ func GetHook(c *gin.Context) {
 // - in: path
 //   name: hook
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
@@ -451,6 +471,11 @@ func UpdateHook(c *gin.Context) {
 // - in: path
 //   name: hook
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:

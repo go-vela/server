@@ -46,6 +46,11 @@ import (
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully restarted the build
@@ -114,6 +119,11 @@ func GetBuildLogs(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully created the service logs
@@ -201,6 +211,11 @@ func CreateServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully retrieved the service logs
@@ -270,6 +285,11 @@ func GetServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully updated the service logs
@@ -368,6 +388,11 @@ func UpdateServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully deleted the service logs
@@ -435,6 +460,11 @@ func DeleteServiceLog(c *gin.Context) {
 // - in: path
 //   name: step
 //   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
@@ -524,6 +554,11 @@ func CreateStepLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved the logs for step
@@ -587,6 +622,11 @@ func GetStepLog(c *gin.Context) {
 // - in: path
 //   name: step
 //   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
@@ -685,6 +725,11 @@ func UpdateStepLog(c *gin.Context) {
 // - in: path
 //   name: step
 //   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:

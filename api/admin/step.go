@@ -27,6 +27,11 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved all steps from the database
@@ -71,6 +76,11 @@ func AllSteps(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Step"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully updated the step in the database

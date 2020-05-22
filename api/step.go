@@ -55,6 +55,11 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '201':
 //     description: Successfully created the step
@@ -143,6 +148,11 @@ func CreateStep(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200a':
 //     description: Successfully retrieved the list of steps
@@ -251,6 +261,11 @@ func GetSteps(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved the step
@@ -306,6 +321,11 @@ func GetStep(c *gin.Context) {
 // - in: path
 //   name: step
 //   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
@@ -429,6 +449,11 @@ func UpdateStep(c *gin.Context) {
 // - in: path
 //   name: step
 //   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
 //   required: true
 //   type: string
 // responses:
