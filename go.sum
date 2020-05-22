@@ -90,15 +90,9 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/go-vela/compiler v0.4.0 h1:mu5mNuYEO6c/iuJS6WjFzY5sdYLQH7svhDTR2Smbgsw=
 github.com/go-vela/compiler v0.4.0/go.mod h1:xSwR92izpiR6zs+FjSim/ic7BbKumMz0QlAjnVKKvRA=
-github.com/go-vela/compiler v0.4.1/go.mod h1:e8DKedX+jeToGKGFjbU+mLrGVOlYf9YHVHPpjPjnNKc=
-github.com/go-vela/compiler v0.4.2/go.mod h1:v/Ey7edOBwldinSrm9srTpZzrJ2TK0KT0AuXtE7Z7A4=
-github.com/go-vela/compiler v0.4.3 h1:NGek9GX94F21iqQ9UxZJaV5P/WNzEz2JpmKA03YwQa0=
-github.com/go-vela/compiler v0.4.3/go.mod h1:icFuaC+TsCdZBLajFW3qGtpL9nEc0WDAu3vvBSnY8ds=
 github.com/go-vela/types v0.4.0/go.mod h1:ig7fC+MKGsgAlKqovkFsUQlbZtLDLhl/djiedHmsL5s=
-github.com/go-vela/types v0.4.1-0.20200506160400-a8208e5c632c h1:MWEd4qA/qejoM3Q7nBqVGjaPcLkJwQ0DBkSoO+Xuacc=
-github.com/go-vela/types v0.4.1-0.20200506160400-a8208e5c632c/go.mod h1:ig7fC+MKGsgAlKqovkFsUQlbZtLDLhl/djiedHmsL5s=
-github.com/go-vela/types v0.4.3 h1:AMAbCyaoLCPAlxgae4myCKJQq1xIvc9hy+nCEL6l/+E=
-github.com/go-vela/types v0.4.3/go.mod h1:ig7fC+MKGsgAlKqovkFsUQlbZtLDLhl/djiedHmsL5s=
+github.com/go-vela/types v0.4.4-0.20200522121339-b268fe02615a h1:9Ek6lu73qrvwyve8ILDAqQIxWHpDOg7RaOL/8H4C1mk=
+github.com/go-vela/types v0.4.4-0.20200522121339-b268fe02615a/go.mod h1:ig7fC+MKGsgAlKqovkFsUQlbZtLDLhl/djiedHmsL5s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=
