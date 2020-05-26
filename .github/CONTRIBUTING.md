@@ -2,13 +2,13 @@
 
 We'd love to accept your contributions to this project! There are just a few guidelines you need to follow.
 
+## Bugs
+
+Bug reports should be opened up as [issues](https://help.github.com/en/github/managing-your-work-on-github/about-issues) on the [go-vela/community](https://github.com/go-vela/community) repository!
+
 ## Feature Requests
 
-Feature Requests should be opened up as [Issues](/issues/new/) on this repository!
-
-## Issues
-
-[Issues](/issues/new/) are always welcome!
+Feature Requests should be opened up as [issues](https://help.github.com/en/github/managing-your-work-on-github/about-issues) on the [go-vela/community](https://github.com/go-vela/community) repository!
 
 ## Pull Requests
 
