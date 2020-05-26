@@ -33,7 +33,7 @@
           "200": {
             "description": "Successfully updated the build in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "404": {
@@ -75,7 +75,7 @@
           "200": {
             "description": "Successfully retrieved all builds from the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "500": {
@@ -203,9 +203,7 @@
         "responses": {
           "200": {
             "description": "Successfully retrieved all hooks from the database",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           },
           "500": {
             "description": "Unable to retrieve all hooks",
@@ -3782,13 +3780,6 @@
             "description": "Name of the user",
             "name": "user",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           },
           {

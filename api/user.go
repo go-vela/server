@@ -315,11 +315,6 @@ func UpdateCurrentUser(c *gin.Context) {
 //   description: Vela bearer token
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
 // responses:
 //   '200':
 //     description: Successfully retrieved the user

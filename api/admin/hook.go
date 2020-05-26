@@ -35,7 +35,7 @@ import (
 //   '200':
 //     description: Successfully retrieved all hooks from the database
 //     schema:
-//       type: string
+//       $ref: #/definitions/Build
 //   '500':
 //     description: Unable to retrieve all hooks
 //     schema:
