@@ -51,8 +51,9 @@ import (
 //       type: string
 //   '400':
 //     description: Successfully created the deployment
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Deployment"
 //   '500':
 //     description: Successfully created the deployment
 //     schema:
