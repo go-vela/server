@@ -48,8 +48,9 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the repo
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to create the repo
 //     schema:
@@ -241,8 +242,9 @@ func CreateRepo(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to retrieve the repo
 //     schema:
@@ -342,8 +344,9 @@ func GetRepos(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 
 // GetRepo represents the API handler to
 // capture a repo from the configured backend.
@@ -389,8 +392,9 @@ func GetRepo(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the repo
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to update the repo
 //     schema:

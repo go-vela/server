@@ -46,8 +46,9 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to create the user
 //     schema:
@@ -107,8 +108,9 @@ func CreateUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of users
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to retrieve the list of users
 //     schema:
@@ -195,8 +197,9 @@ func GetUsers(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the current user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 
 // GetCurrentUser represents the API handler to capture the
 // currently authenticated user from the configured backend.
@@ -232,8 +235,9 @@ func GetCurrentUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the current user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to update the current user
 //     schema:
@@ -318,8 +322,9 @@ func UpdateCurrentUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to retrieve the user
 //     schema:
@@ -363,8 +368,9 @@ func GetUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved a list of repos for the current user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 //   '404':
 //     description: Unable to retrieve a list of repos for the current user
 //     schema:
@@ -480,8 +486,9 @@ func GetUserSourceRepos(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to update the user
 //     schema:
@@ -638,8 +645,9 @@ func DeleteUser(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully created a token for the current user
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Login"
 //   '500':
 //     description: Unable to create a token for the current user
 //     schema:

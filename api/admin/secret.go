@@ -34,8 +34,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all secrets from the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Secret"
 //   '500':
 //     description: Unable to retrieve all secrets from the database
 //     schema:
@@ -82,8 +83,9 @@ func AllSecrets(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the secret in the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Secret"
 //   '404':
 //     description: Unable to update the secret in the database
 //     schema:

@@ -34,8 +34,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all users from the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '500':
 //     description: Unable to retrieve all users from the database
 //     schema:
@@ -82,8 +83,9 @@ func AllUsers(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the user in the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/User"
 //   '404':
 //     description: Unable to update the user in the database
 //     schema:

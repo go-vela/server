@@ -53,8 +53,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully restarted the build
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 //   '500':
 //     description: Unable to restart the build
 //     schema:
@@ -125,8 +126,9 @@ func GetBuildLogs(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully created the service logs
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to create the service logs
 //     schema:
@@ -184,7 +186,7 @@ func CreateServiceLog(c *gin.Context) {
 // Retrieve the logs for a service
 //
 // ---
-// x-success_http_code: '201'
+// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -214,10 +216,11 @@ func CreateServiceLog(c *gin.Context) {
 //   required: true
 //   type: string
 // responses:
-//   '201':
+//   '200':
 //     description: Successfully retrieved the service logs
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 //   '500':
 //     description: Unable to restart the service logs
 //     schema:
@@ -287,10 +290,11 @@ func GetServiceLog(c *gin.Context) {
 //   required: true
 //   type: string
 // responses:
-//   '201':
+//   '200':
 //     description: Successfully updated the service logs
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to updated the service logs
 //     schema:
@@ -464,8 +468,9 @@ func DeleteServiceLog(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully created the logs for step
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to create the logs for a step
 //     schema:
@@ -555,8 +560,9 @@ func CreateStepLog(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the logs for step
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 
 // GetStepLog represents the API handler to capture
 // the logs for a step from the configured backend.
@@ -624,8 +630,9 @@ func GetStepLog(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the logs for step
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to updated the logs for a step
 //     schema:

@@ -53,8 +53,9 @@ import (
 // responses:
 //   '201':
 //     description: The webhook has been created
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: The webhook was unable to be created
 //     schema:
@@ -151,8 +152,9 @@ func CreateHook(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully retrieved webhooks
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: Unable to retrieve webhooks
 //     schema:
@@ -257,8 +259,9 @@ func GetHooks(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the webhook
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: Unable to retrieve the webhook
 //     schema:
@@ -337,8 +340,9 @@ func GetHook(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the webhook
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: The webhook was unable to be updated
 //     schema:

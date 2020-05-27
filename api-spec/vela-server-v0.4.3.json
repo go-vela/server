@@ -162,7 +162,7 @@
           "200": {
             "description": "Successfully updated the hook in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Webhook"
             }
           },
           "404": {
@@ -203,7 +203,9 @@
         "responses": {
           "200": {
             "description": "Successfully retrieved all hooks from the database",
-            "schema": {}
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
           },
           "500": {
             "description": "Unable to retrieve all hooks",
@@ -247,11 +249,11 @@
           "200": {
             "description": "Successfully updated the repo in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           },
           "404": {
-            "description": "Unable to update the repo in the database",
+            "description": "unable to update the repo in the database",
             "schema": {
               "type": "string"
             }
@@ -289,7 +291,7 @@
           "200": {
             "description": "Successfully retrieved all repos from the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           },
           "500": {
@@ -334,7 +336,7 @@
           "200": {
             "description": "Successfully updated the secret in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Secret"
             }
           },
           "404": {
@@ -376,7 +378,7 @@
           "200": {
             "description": "Successfully retrieved all secrets from the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Secret"
             }
           },
           "500": {
@@ -421,7 +423,7 @@
           "200": {
             "description": "Successfully updated the service in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Service"
             }
           },
           "404": {
@@ -463,7 +465,7 @@
           "200": {
             "description": "Successfully retrieved all services from the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Service"
             }
           },
           "500": {
@@ -508,7 +510,7 @@
           "200": {
             "description": "Successfully updated the step in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Step"
             }
           },
           "404": {
@@ -550,7 +552,7 @@
           "200": {
             "description": "Successfully retrieved all steps from the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Step"
             }
           },
           "500": {
@@ -595,7 +597,7 @@
           "200": {
             "description": "Successfully updated the user in the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "404": {
@@ -637,7 +639,7 @@
           "200": {
             "description": "Successfully retrieved all users from the database",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "500": {
@@ -687,6 +689,18 @@
           "200": {
             "description": "Successfully retrieved the list of deployments",
             "schema": {
+              "$ref": "#/definitions/Deployment"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of deployments",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of deployments",
+            "schema": {
               "type": "string"
             }
           }
@@ -729,17 +743,17 @@
           "201": {
             "description": "Successfully created the deployment",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "400": {
-            "description": "Successfully created the deployment",
+            "description": "Unable to create the deployment",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Deployment"
             }
           },
           "500": {
-            "description": "Successfully created the deployment",
+            "description": "Unable to create the deployment",
             "schema": {
               "type": "string"
             }
@@ -789,8 +803,8 @@
           }
         ],
         "responses": {
-          "502": {
-            "description": "Successfully retrieved the deployment",
+          "200": {
+            "description": "Unable to retrieve the deployment",
             "schema": {
               "type": "string"
             }
@@ -836,7 +850,7 @@
           "201": {
             "description": "Successfully retrieved webhooks",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Webhook"
             }
           },
           "400": {
@@ -899,7 +913,7 @@
           "201": {
             "description": "The webhook has been created",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Webhook"
             }
           },
           "400": {
@@ -962,7 +976,7 @@
           "200": {
             "description": "Successfully retrieved the webhook",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Webhook"
             }
           },
           "400": {
@@ -1032,7 +1046,7 @@
           "200": {
             "description": "Successfully updated the webhook",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Webhook"
             }
           },
           "400": {
@@ -1147,7 +1161,7 @@
           "200": {
             "description": "Successfully retrieved the repo",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           },
           "400": {
@@ -1196,7 +1210,7 @@
           "201": {
             "description": "Successfully created the repo",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           },
           "400": {
@@ -1270,7 +1284,7 @@
           "200": {
             "description": "Successfully retrieved the repo",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           }
         },
@@ -1321,7 +1335,7 @@
           "200": {
             "description": "Successfully updated the repo",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           },
           "400": {
@@ -1443,7 +1457,7 @@
           "200": {
             "description": "Successfully retrieved the build",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "400": {
@@ -1506,7 +1520,7 @@
           "201": {
             "description": "Successfully created the build",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "400": {
@@ -1575,7 +1589,7 @@
           "200": {
             "description": "Successfully retrieved the list of services",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Service"
             }
           },
           "400": {
@@ -1645,7 +1659,7 @@
           "200": {
             "description": "Successfully restarted the build",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "404": {
@@ -1706,7 +1720,7 @@
           "201": {
             "description": "Successfully restarted the build",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           },
           "400": {
@@ -1830,7 +1844,7 @@
           "200": {
             "description": "Successfully restarted the build",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           },
           "500": {
@@ -1896,7 +1910,7 @@
           "201": {
             "description": "Successfully created the service",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Service"
             }
           },
           "400": {
@@ -1966,7 +1980,7 @@
           "200": {
             "description": "Successfully retrieved the service",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Service"
             }
           },
           "400": {
@@ -2043,7 +2057,7 @@
           "200": {
             "description": "Successfully retrieved the service",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Service"
             }
           },
           "400": {
@@ -2172,10 +2186,10 @@
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Successfully retrieved the service logs",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           },
           "500": {
@@ -2185,7 +2199,7 @@
             }
           }
         },
-        "x-success_http_code": "201"
+        "x-success_http_code": "200"
       },
       "put": {
         "description": "Update the logs for a service",
@@ -2243,10 +2257,10 @@
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Successfully updated the service logs",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           },
           "400": {
@@ -2323,7 +2337,7 @@
           "201": {
             "description": "Successfully created the service logs",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           },
           "400": {
@@ -2445,6 +2459,12 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of steps",
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          },
           "400": {
             "description": "Unable to retrieve the list of steps",
             "schema": {
@@ -2512,7 +2532,7 @@
           "201": {
             "description": "Successfully created the step",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Step"
             }
           },
           "400": {
@@ -2582,7 +2602,7 @@
           "200": {
             "description": "Successfully retrieved the step",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Step"
             }
           }
         },
@@ -2647,7 +2667,7 @@
           "200": {
             "description": "Successfully updated the step",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Step"
             }
           },
           "400": {
@@ -2779,7 +2799,7 @@
           "200": {
             "description": "Successfully retrieved the logs for step",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           }
         },
@@ -2844,7 +2864,7 @@
           "200": {
             "description": "Successfully updated the logs for step",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           },
           "400": {
@@ -2921,7 +2941,7 @@
           "201": {
             "description": "Successfully created the logs for step",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Log"
             }
           },
           "400": {
@@ -3153,7 +3173,7 @@
           "200": {
             "description": "Successfully retrieved the list of secrets",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Secret"
             }
           },
           "400": {
@@ -3230,7 +3250,7 @@
           "200": {
             "description": "Successfully created the secret",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Secret"
             }
           },
           "400": {
@@ -3307,7 +3327,7 @@
           "200": {
             "description": "Successfully retrieved the secret",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Secret"
             }
           },
           "500": {
@@ -3385,7 +3405,7 @@
           "200": {
             "description": "Successfully updated the secret",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Secret"
             }
           },
           "400": {
@@ -3505,7 +3525,7 @@
           "200": {
             "description": "Successfully retrieved the current user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           }
         },
@@ -3542,7 +3562,7 @@
           "200": {
             "description": "Successfully updated the current user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -3590,7 +3610,7 @@
           "200": {
             "description": "Successfully retrieved a list of repos for the current user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Repo"
             }
           },
           "404": {
@@ -3626,7 +3646,7 @@
           "201": {
             "description": "Successfully created a token for the current user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Login"
             }
           },
           "500": {
@@ -3696,7 +3716,7 @@
           "200": {
             "description": "Successfully retrieved the list of users",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -3745,7 +3765,7 @@
           "201": {
             "description": "Successfully created the user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -3794,7 +3814,7 @@
           "200": {
             "description": "Successfully retrieved the user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -3844,7 +3864,7 @@
           "200": {
             "description": "Successfully updated the user",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -4321,6 +4341,51 @@
         "title": {
           "type": "string",
           "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Deployment": {
+      "type": "object",
+      "title": "Deployment is the library representation of a deployment.",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "x-go-name": "Commit"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "ref": {
+          "type": "string",
+          "x-go-name": "Ref"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "target": {
+          "type": "string",
+          "x-go-name": "Target"
+        },
+        "task": {
+          "type": "string",
+          "x-go-name": "Task"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "user": {
+          "type": "string",
+          "x-go-name": "User"
         }
       },
       "x-go-package": "github.com/go-vela/types/library"

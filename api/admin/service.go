@@ -34,8 +34,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all services from the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Service"
 //   '500':
 //     description: Unable to retrieve all services from the database
 //     schema:
@@ -82,8 +83,9 @@ func AllServices(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the service in the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Service"
 //   '404':
 //     description: Unable to update the service in the database
 //     schema:

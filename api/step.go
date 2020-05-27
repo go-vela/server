@@ -62,8 +62,9 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the step
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Step"
 //   '400':
 //     description: Unable to create the step
 //     schema:
@@ -152,10 +153,11 @@ func CreateStep(c *gin.Context) {
 //   required: true
 //   type: string
 // responses:
-//   '200a':
+//   '200':
 //     description: Successfully retrieved the list of steps
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Step"
 //   '400':
 //     description: Unable to retrieve the list of steps
 //     schema:
@@ -266,8 +268,9 @@ func GetSteps(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the step
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Step"
 
 // GetStep represents the API handler to capture a
 // step for a build from the configured backend.
@@ -327,8 +330,9 @@ func GetStep(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the step
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Step"
 //   '400':
 //     description: Unable to update the step
 //     schema:

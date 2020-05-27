@@ -34,8 +34,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all hooks from the database
+//     type: json
 //     schema:
-//       $ref: #/definitions/Build
+//       "$ref": "#/definitions/Webhook"
 //   '500':
 //     description: Unable to retrieve all hooks
 //     schema:
@@ -82,8 +83,9 @@ func AllHooks(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the hook in the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Webhook"
 //   '404':
 //     description: Unable to update the hook in the database
 //     schema:

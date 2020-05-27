@@ -34,8 +34,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all steps from the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Step"
 //   '500':
 //     description: Unable to retrieve all steps from the database
 //     schema:
@@ -82,8 +83,9 @@ func AllSteps(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the step in the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Step"
 //   '404':
 //     description: Unable to update the step in the database
 //     schema:

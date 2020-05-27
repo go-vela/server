@@ -34,8 +34,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all repos from the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 //   '500':
 //     description: Unable to retrieve all repos from the database
 //     schema:
@@ -82,10 +83,11 @@ func AllRepos(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the repo in the database
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Repo"
 //   '404':
-//     description: Unable to update the repo in the database
+//     description: unable to update the repo in the database
 //     schema:
 //       type: string
 //   '501':

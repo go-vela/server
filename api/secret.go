@@ -64,8 +64,9 @@ import (
 // responses:
 //   '200':
 //     description: Successfully created the secret
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to create the secret
 //     schema:
@@ -181,8 +182,9 @@ func CreateSecret(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of secrets
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to retrieve the list of secrets
 //     schema:
@@ -311,8 +313,9 @@ func GetSecrets(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the secret
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Secret"
 //   '500':
 //     description: Unable to retrieve the secret
 //     schema:
@@ -398,8 +401,9 @@ func GetSecret(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the secret
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to update the secret
 //     schema:

@@ -34,7 +34,7 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all builds from the database
-//     type: array
+//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '500':
@@ -83,6 +83,7 @@ func AllBuilds(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the build in the database
+//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '404':

@@ -47,15 +47,16 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the deployment
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Successfully created the deployment
+//     description: Unable to create the deployment
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Deployment"
 //   '500':
-//     description: Successfully created the deployment
+//     description: Unable to create the deployment
 //     schema:
 //       type: string
 
@@ -132,6 +133,15 @@ func CreateDeployment(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of deployments
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Deployment"
+//   '400':
+//     description: Unable to retrieve the list of deployments
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of deployments
 //     schema:
 //       type: string
 
@@ -229,8 +239,17 @@ func GetDeployments(c *gin.Context) {
 //   required: true
 //   type: string
 // responses:
-//   '502':
+//   '200':
 //     description: Successfully retrieved the deployment
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Deployment"
+//   '200':
+//     description: Unable to retrieve the deployment
+//     schema:
+//       type: string
+//   '200':
+//     description: Unable to retrieve the deployment
 //     schema:
 //       type: string
 

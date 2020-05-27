@@ -62,8 +62,9 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the build
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to create the build
 //     schema:
@@ -283,8 +284,9 @@ func CreateBuild(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the build
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to retrieve the list of builds
 //     schema:
@@ -392,8 +394,9 @@ func GetBuilds(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully restarted the build
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 
 // GetBuild represents the API handler to capture
 // a build for a repo from the configured backend.
@@ -441,8 +444,9 @@ func GetBuild(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully restarted the build
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to restart the build
 //     schema:
@@ -649,8 +653,9 @@ func RestartBuild(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully restarted the build
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '404':
 //     description: Unable to restart the build
 //     schema:

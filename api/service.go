@@ -62,8 +62,9 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the service
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to create the service
 //     schema:
@@ -154,8 +155,9 @@ func CreateService(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of services
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to retrieve the list of services
 //     schema:
@@ -266,8 +268,9 @@ func GetServices(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the service
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to retrieve the service
 //     schema:
@@ -335,8 +338,9 @@ func GetService(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the service
+//     type: json
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to retrieve the service
 //     schema:
