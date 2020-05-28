@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation GET /login router Login
+// swagger:operation GET /login router GETGetLogin
 //
 // Log into the Vela api
 //
@@ -26,7 +26,7 @@ import (
 //     schema:
 //       type: string
 
-// swagger:operation GET /logout router Login
+// swagger:operation GET /logout router GETLogout
 //
 // Log into the Vela api
 //
@@ -41,7 +41,7 @@ import (
 //     schema:
 //       type: string
 
-// swagger:operation POST /login router Login
+// swagger:operation POST /login router POSTLogin
 //
 // Login to the Vela api
 //
