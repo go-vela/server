@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/hooks admin AllHooks
+// swagger:operation GET /api/v1/admin/hooks admin AdminAllHooks
 //
 // Get all of the webhooks stored in the database
 //
@@ -60,7 +60,7 @@ func AllHooks(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
-// swagger:operation PUT /api/v1/admin/hook admin UpdateHook
+// swagger:operation PUT /api/v1/admin/hook admin AdminUpdateHook
 //
 // Update a hook in the database
 //

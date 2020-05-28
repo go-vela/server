@@ -10,7 +10,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateBuild",
+        "operationId": "AdminUpdateBuild",
         "parameters": [
           {
             "description": "Payload containing build to update",
@@ -61,7 +61,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllBuilds",
+        "operationId": "AdminAllBuilds",
         "parameters": [
           {
             "type": "string",
@@ -97,7 +97,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateDeployment",
+        "operationId": "AdminUpdateDeployment",
         "responses": {
           "501": {
             "description": "This endpoint is not implemented",
@@ -118,7 +118,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllDeployments",
+        "operationId": "AdminAllDeployments",
         "responses": {
           "501": {
             "description": "This endpoint is not implemented",
@@ -139,7 +139,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateHook",
+        "operationId": "AdminUpdateHook",
         "parameters": [
           {
             "description": "Payload containing hook to update",
@@ -190,7 +190,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllHooks",
+        "operationId": "AdminAllHooks",
         "parameters": [
           {
             "type": "string",
@@ -226,7 +226,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateRepo",
+        "operationId": "AdminUpdateRepo",
         "parameters": [
           {
             "description": "Payload containing repo to update",
@@ -277,7 +277,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllRepos",
+        "operationId": "AdminAllRepos",
         "parameters": [
           {
             "type": "string",
@@ -313,7 +313,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateSecret",
+        "operationId": "AdminUpdateSecret",
         "parameters": [
           {
             "description": "Payload containing secret to update",
@@ -364,7 +364,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllSecrets",
+        "operationId": "AdminAllSecrets",
         "parameters": [
           {
             "type": "string",
@@ -400,7 +400,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateService",
+        "operationId": "AdminUpdateService",
         "parameters": [
           {
             "description": "Payload containing service to update",
@@ -451,7 +451,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllServices",
+        "operationId": "AdminAllServices",
         "parameters": [
           {
             "type": "string",
@@ -487,7 +487,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateStep",
+        "operationId": "AdminUpdateStep",
         "parameters": [
           {
             "description": "Payload containing step to update",
@@ -538,7 +538,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllSteps",
+        "operationId": "AdminAllSteps",
         "parameters": [
           {
             "type": "string",
@@ -574,7 +574,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "UpdateUser",
+        "operationId": "AdminUpdateUser",
         "parameters": [
           {
             "description": "Payload containing user to update",
@@ -625,7 +625,7 @@
         "tags": [
           "admin"
         ],
-        "operationId": "AllUsers",
+        "operationId": "AdminAllUsers",
         "parameters": [
           {
             "type": "string",

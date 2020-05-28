@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/steps admin AllSteps
+// swagger:operation GET /api/v1/admin/steps admin AdminAllSteps
 //
 // Get all of the steps in the database
 //
@@ -60,7 +60,7 @@ func AllSteps(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// swagger:operation PUT /api/v1/admin/step admin UpdateStep
+// swagger:operation PUT /api/v1/admin/step admin AdminUpdateStep
 //
 // Update a step in the database
 //

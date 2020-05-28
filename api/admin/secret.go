@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/secrets admin AllSecrets
+// swagger:operation GET /api/v1/admin/secrets admin AdminAllSecrets
 //
 // Get all of the secrets in the database
 //
@@ -60,7 +60,7 @@ func AllSecrets(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// swagger:operation PUT /api/v1/admin/secret admin UpdateSecret
+// swagger:operation PUT /api/v1/admin/secret admin AdminUpdateSecret
 //
 // Update a secret in the database
 //

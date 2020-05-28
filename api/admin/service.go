@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/services admin AllServices
+// swagger:operation GET /api/v1/admin/services admin AdminAllServices
 //
 // Get all of the services in the database
 //
@@ -60,7 +60,7 @@ func AllServices(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// swagger:operation PUT /api/v1/admin/service admin UpdateService
+// swagger:operation PUT /api/v1/admin/service admin AdminUpdateService
 //
 // Update a hook in the database
 //
