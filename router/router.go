@@ -2,6 +2,28 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
+// Package router Vela server
+//
+// API for the Vela server
+//
+//     Version: 0.4.3
+//     Schemes: http, https
+//     Host: localhost
+//     BasePath: /api/v1
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     SecurityDefinitions:
+//       ApiKeyAuth:
+//         type: apiKey
+//         in: header
+//         name: Authorization
+//
+// swagger:meta
 package router
 
 import (
