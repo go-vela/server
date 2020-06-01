@@ -704,7 +704,7 @@ func RepairRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s repaired", r.GetFullName()))
 }
 
-// swagger:operation DELETE /api/v1/repos/{org}/{repo}/chown repos ChownRepo
+// swagger:operation PATCH /api/v1/repos/{org}/{repo}/chown repos ChownRepo
 //
 // Remove and recreate the webhook for a repo
 //
