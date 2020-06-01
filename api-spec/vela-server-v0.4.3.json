@@ -1,5 +1,22 @@
 {
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
   "swagger": "2.0",
+  "info": {
+    "description": "API for the Vela server",
+    "title": "Vela server",
+    "version": "0.4.3"
+  },
+  "host": "localhost",
+  "basePath": "/api/v1",
   "paths": {
     "/api/v1/admin/build": {
       "put": {
@@ -3023,7 +3040,7 @@
       }
     },
     "/api/v1/repos/{org}/{repo}/chown": {
-      "delete": {
+      "patch": {
         "description": "Remove and recreate the webhook for a repo",
         "produces": [
           "application/json"
@@ -4047,7 +4064,7 @@
         "tags": [
           "router"
         ],
-        "operationId": "Login",
+        "operationId": "GETGetLogin",
         "responses": {
           "307": {
             "description": "Redirected to /authenticate",
@@ -4066,7 +4083,7 @@
         "tags": [
           "router"
         ],
-        "operationId": "Login",
+        "operationId": "POSTLogin",
         "parameters": [
           {
             "description": "Login payload that we expect from the user",
@@ -4116,7 +4133,7 @@
         "tags": [
           "router"
         ],
-        "operationId": "Login",
+        "operationId": "GETLogout",
         "responses": {
           "307": {
             "description": "Redirected to /authenticate",
@@ -4838,6 +4855,13 @@
       },
       "x-go-name": "Hook",
       "x-go-package": "github.com/go-vela/types/library"
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }
