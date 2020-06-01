@@ -12,8 +12,6 @@ import (
 	"github.com/go-vela/server/version"
 )
 
-// Version represents the API handler to
-// report the version number for Vela.
 // swagger:operation GET /version router Version
 //
 // Get the version of the Vela API
@@ -28,6 +26,9 @@ import (
 //     description: Successful retrieval of the Vela API version
 //     schema:
 //       type: string
+
+// Version represents the API handler to
+// report the version number for Vela.
 func Version(c *gin.Context) {
 	c.JSON(http.StatusOK, version.Version.String())
 }

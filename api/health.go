@@ -10,8 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Health represents the API handler to
-// report the health status for Vela.
 // swagger:operation GET /health router Health
 //
 // Check if the Vela API is available
@@ -26,6 +24,9 @@ import (
 //     description: Successful 'ping' of Vela API
 //     schema:
 //       type: string
+
+// Health represents the API handler to
+// report the health status for Vela.
 func Health(c *gin.Context) {
 	c.JSON(http.StatusOK, "ok")
 }

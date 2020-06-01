@@ -21,9 +21,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// Authenticate represents the API handler to
-// process a user logging in to Vela from
-// the API or UI.
 // swagger:operation GET /authenticate authenticate Authenticate
 //
 // Authenticate with the Vela API
@@ -52,6 +49,10 @@ import (
 //     description: Service unavailable
 //     schema:
 //       type: string
+
+// Authenticate represents the API handler to
+// process a user logging in to Vela from
+// the API or UI.
 func Authenticate(c *gin.Context) {
 	var err error
 	// capture the OAuth state if present
