@@ -622,7 +622,7 @@ func DeleteRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s deleted", r.GetFullName()))
 }
 
-// swagger:operation DELETE /api/v1/repos/{org}/{repo}/repair repos RepairRepo
+// swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
 //
 // Remove and recreate the webhook for a repo
 //
