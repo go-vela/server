@@ -648,11 +648,11 @@ func DeleteRepo(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully deleted the repo
+//     description: Successfully repaired the repo
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to  deleted the repo
+//     description: Unable to repair the repo
 //     schema:
 //       type: string
 
@@ -706,7 +706,7 @@ func RepairRepo(c *gin.Context) {
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/chown repos ChownRepo
 //
-// Remove and recreate the webhook for a repo
+// Change the owner of the webhook for a repo
 //
 // ---
 // x-success_http_code: '200'
@@ -730,11 +730,11 @@ func RepairRepo(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully deleted the repo
+//     description: Successfully changed the owner for the repo
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to  deleted the repo
+//     description: Unable to change the owner for the repo
 //     schema:
 //       type: string
 

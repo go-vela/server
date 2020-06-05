@@ -87,7 +87,7 @@ func AllRepos(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '404':
-//     description: unable to update the repo in the database
+//     description: Unable to update the repo in the database
 //     schema:
 //       type: string
 //   '501':

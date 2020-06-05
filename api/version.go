@@ -23,7 +23,7 @@ import (
 // parameters:
 // responses:
 //   '200':
-//     description: Successful retrieval of the Vela API version
+//     description: Successfully retrieved the Vela API version
 //     schema:
 //       type: string
 

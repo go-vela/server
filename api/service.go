@@ -276,7 +276,7 @@ func GetServices(c *gin.Context) {
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to restart the service
+//     description: Unable to retrieve the service
 //     schema:
 //       type: string
 
@@ -337,16 +337,16 @@ func GetService(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved the service
+//     description: Successfully updated the service
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
-//     description: Unable to retrieve the service
+//     description: Unable to update the service
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to restart the service
+//     description: Unable to update the service
 //     schema:
 //       type: string
 
@@ -450,11 +450,11 @@ func UpdateService(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved the service
+//     description: Successfully deleted the service
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to restart the service
+//     description: Unable to delete the service
 //     schema:
 //       type: string
 

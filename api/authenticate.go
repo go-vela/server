@@ -38,7 +38,7 @@ import (
 //     "$ref": "#/definitions/Login"
 // responses:
 //   '200':
-//     description: Successful authenticate
+//     description: Successfully authenticated
 //     schema:
 //       type: string
 //   '401':

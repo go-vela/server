@@ -21,7 +21,7 @@ import (
 // parameters:
 // responses:
 //   '200':
-//     description: Successful 'ping' of Vela API
+//     description: Successfully 'ping'-ed Vela API
 //     schema:
 //       type: string
 

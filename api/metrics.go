@@ -55,7 +55,7 @@ var (
 // parameters:
 // responses:
 //   '200':
-//     description: Successful retrieval of the Vela metrics
+//     description: Successfully retrieved the Vela metrics
 //     schema:
 //       type: string
 
