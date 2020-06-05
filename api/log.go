@@ -52,12 +52,12 @@ import (
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully restarted the build
+//     description: Successfully retrieved logs for the build
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '500':
-//     description: Unable to restart the build
+//     description: Unable to retrieve logs for the build
 //     schema:
 //       type: string
 
@@ -222,7 +222,7 @@ func CreateServiceLog(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '500':
-//     description: Unable to restart the service logs
+//     description: Unable to retrieve the service logs
 //     schema:
 //       type: string
 
@@ -698,7 +698,7 @@ func UpdateStepLog(c *gin.Context) {
 
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps DeleteStepLog
 //
-// Retrieve the logs for a step
+// Delete the logs for a step
 //
 // ---
 // x-success_http_code: '200'
@@ -732,11 +732,11 @@ func UpdateStepLog(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved the logs for step
+//     description: Successfully deleted the logs for the step
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to retrieve the logs for a step
+//     description: Unable to delete the logs for the step
 //     schema:
 //       type: string
 

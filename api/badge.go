@@ -36,7 +36,7 @@ import (
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieve a status Badge of the recent Vela jobs
+//     description: Successfully retrieved a status Badge
 //     schema:
 //       type: string
 
