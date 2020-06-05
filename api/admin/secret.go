@@ -17,6 +17,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/secrets admin AdminAllSecrets
+//
+// Get all of the secrets in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved all secrets from the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Secret"
+//   '500':
+//     description: Unable to retrieve all secrets from the database
+//     schema:
+//       type: string
+
 // AllSecrets represents the API handler to
 // captures all secrets stored in the database.
 func AllSecrets(c *gin.Context) {
@@ -34,6 +59,41 @@ func AllSecrets(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation PUT /api/v1/admin/secret admin AdminUpdateSecret
+//
+// Update a secret in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing secret to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Secret"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the secret in the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Secret"
+//   '404':
+//     description: Unable to update the secret in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the secret in the database
+//     schema:
+//       type: string
 
 // UpdateSecret represents the API handler to
 // update any secret stored in the database.

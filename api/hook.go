@@ -20,6 +20,51 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/hooks/{org}/{repo} webhook CreateHook
+//
+// Create a webhook for the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Webhook payload that we expect from the user or VCS
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: The webhook has been created
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Webhook"
+//   '400':
+//     description: The webhook was unable to be created
+//     schema:
+//       type: string
+//   '500':
+//     description: The webhook was unable to be created
+//     schema:
+//       type: string
+
 // CreateHook represents the API handler to create
 // a webhook in the configured backend.
 func CreateHook(c *gin.Context) {
@@ -79,6 +124,45 @@ func CreateHook(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, h)
 }
+
+// swagger:operation GET /api/v1/hooks/{org}/{repo} deployment GetHooks
+//
+// Create a webhook for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully retrieved webhooks
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Webhook"
+//   '400':
+//     description: Unable to retrieve webhooks
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve webhooks
+//     schema:
+//       type: string
 
 // GetHooks represents the API handler to capture a list
 // of webhooks from the configured backend.
@@ -143,6 +227,50 @@ func GetHooks(c *gin.Context) {
 	c.JSON(http.StatusOK, h)
 }
 
+// swagger:operation GET /api/v1/hooks/{org}/{repo}/{hook} deployment GetHook
+//
+// Create a webhook for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: hook
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the webhook
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Webhook"
+//   '400':
+//     description: Unable to retrieve the webhook
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the webhook
+//     schema:
+//       type: string
+
 // GetHook represents the API handler to capture a
 // webhook from the configured backend.
 func GetHook(c *gin.Context) {
@@ -173,6 +301,60 @@ func GetHook(c *gin.Context) {
 
 	c.JSON(http.StatusOK, h)
 }
+
+// swagger:operation PUT /api/v1/hooks/{org}/{repo}/{hook} webhook UpdateHook
+//
+// Update a webhook for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Webhook payload that we expect from the user or VCS
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: hook
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the webhook
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Webhook"
+//   '400':
+//     description: The webhook was unable to be updated
+//     schema:
+//       type: string
+//   '404':
+//     description: The webhook was unable to be updated
+//     schema:
+//       type: string
+//   '500':
+//     description: The webhook was unable to be updated
+//     schema:
+//       type: string
 
 // UpdateHook represents the API handler to update
 // a webhook in the configured backend.
@@ -265,6 +447,53 @@ func UpdateHook(c *gin.Context) {
 
 	c.JSON(http.StatusOK, h)
 }
+
+// swagger:operation DELETE /api/v1/hooks/{org}/{repo}/{hook} deployment DeleteHooks
+//
+// Delete a webhook for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: hook
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the webhook
+//     schema:
+//       type: string
+//   '400':
+//     description: The webhook was unable to be updated
+//     schema:
+//       type: string
+//   '404':
+//     description: The webhook was unable to be updated
+//     schema:
+//       type: string
+//   '500':
+//     description: The webhook was unable to be updated
+//     schema:
+//       type: string
 
 // DeleteHook represents the API handler to remove
 // a webhook from the configured backend.

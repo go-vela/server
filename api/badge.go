@@ -15,6 +15,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// swagger:operation GET /badge/{org}/{repo}/status.svg router GetBadge
+//
+// Get a badge for the repo
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo to get the badge for
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org the repo belongs to
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved a status Badge
+//     schema:
+//       type: string
+
 // GetBadge represents the API handler to
 // return a build status badge.
 func GetBadge(c *gin.Context) {

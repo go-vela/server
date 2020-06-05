@@ -44,6 +44,21 @@ var (
 	)
 )
 
+// swagger:operation GET /metrics router BaseMetrics
+//
+// Retrieve metrics from the  Vela api
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// responses:
+//   '200':
+//     description: Successfully retrieved the Vela metrics
+//     schema:
+//       type: string
+
 // BaseMetrics returns a Prometheus handler for serving go metrics
 func BaseMetrics() http.Handler {
 	return promhttp.Handler()

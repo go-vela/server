@@ -17,6 +17,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/steps admin AdminAllSteps
+//
+// Get all of the steps in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved all steps from the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Step"
+//   '500':
+//     description: Unable to retrieve all steps from the database
+//     schema:
+//       type: string
+
 // AllSteps represents the API handler to
 // captures all steps stored in the database.
 func AllSteps(c *gin.Context) {
@@ -34,6 +59,41 @@ func AllSteps(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation PUT /api/v1/admin/step admin AdminUpdateStep
+//
+// Update a step in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing step to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the step in the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Step"
+//   '404':
+//     description: Unable to update the step in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the step in the database
+//     schema:
+//       type: string
 
 // UpdateStep represents the API handler to
 // update any step stored in the database.

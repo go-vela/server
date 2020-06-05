@@ -90,8 +90,9 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/go-vela/compiler v0.4.3 h1:NGek9GX94F21iqQ9UxZJaV5P/WNzEz2JpmKA03YwQa0=
 github.com/go-vela/compiler v0.4.3/go.mod h1:icFuaC+TsCdZBLajFW3qGtpL9nEc0WDAu3vvBSnY8ds=
-github.com/go-vela/types v0.4.3 h1:AMAbCyaoLCPAlxgae4myCKJQq1xIvc9hy+nCEL6l/+E=
 github.com/go-vela/types v0.4.3/go.mod h1:ig7fC+MKGsgAlKqovkFsUQlbZtLDLhl/djiedHmsL5s=
+github.com/go-vela/types v0.4.4-0.20200526220432-d5510d5b7ed7 h1:qC8za2yJSaK1DbIIezgLSrMxzydDlzZ4cog/A6TAV0Y=
+github.com/go-vela/types v0.4.4-0.20200526220432-d5510d5b7ed7/go.mod h1:ig7fC+MKGsgAlKqovkFsUQlbZtLDLhl/djiedHmsL5s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=

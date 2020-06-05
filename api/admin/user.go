@@ -17,6 +17,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/users admin AdminAllUsers
+//
+// Get all of the users in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved all users from the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '500':
+//     description: Unable to retrieve all users from the database
+//     schema:
+//       type: string
+
 // AllUsers represents the API handler to
 // captures all users stored in the database.
 func AllUsers(c *gin.Context) {
@@ -34,6 +59,41 @@ func AllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, u)
 }
+
+// swagger:operation PUT /api/v1/admin/user admin AdminUpdateUser
+//
+// Update a user in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing user to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the user in the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '404':
+//     description: Unable to update the user in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the user in the database
+//     schema:
+//       type: string
 
 // UpdateUser represents the API handler to
 // update any user stored in the database.

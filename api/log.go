@@ -21,6 +21,46 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/logs builds GetBuildLogs
+//
+// Get logs for a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to restart
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved logs for the build
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '500':
+//     description: Unable to retrieve logs for the build
+//     schema:
+//       type: string
+
 // GetBuildLogs represents the API handler to capture a
 // list of logs for a build from the configured backend.
 func GetBuildLogs(c *gin.Context) {
@@ -42,6 +82,61 @@ func GetBuildLogs(c *gin.Context) {
 
 	c.JSON(http.StatusOK, l)
 }
+
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services CreateServiceLogs
+//
+// Create the logs for a service
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the service logs
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Unable to create the service logs
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the service logs
+//     schema:
+//       type: string
 
 // CreateServiceLog represents the API handler to create
 // the logs for a service in the configured backend.
@@ -86,6 +181,51 @@ func CreateServiceLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, l)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services GetServiceLogs
+//
+// Retrieve the logs for a service
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the service logs
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '500':
+//     description: Unable to retrieve the service logs
+//     schema:
+//       type: string
+
 // GetServiceLog represents the API handler to capture
 // the logs for a service from the configured backend.
 func GetServiceLog(c *gin.Context) {
@@ -108,6 +248,61 @@ func GetServiceLog(c *gin.Context) {
 
 	c.JSON(http.StatusOK, l)
 }
+
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLog
+//
+// Update the logs for a service
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the service logs
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Unable to updated the service logs
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to updates the service logs
+//     schema:
+//       type: string
 
 // UpdateServiceLog represents the API handler to update
 // the logs for a service in the configured backend.
@@ -163,6 +358,50 @@ func UpdateServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services DeleteServiceLogs
+//
+// Delete the logs for a service
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Name of the service
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully deleted the service logs
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to delete the service logs
+//     schema:
+//       type: string
+
 // DeleteServiceLog represents the API handler to remove
 // the logs for a service from the configured backend.
 func DeleteServiceLog(c *gin.Context) {
@@ -185,6 +424,61 @@ func DeleteServiceLog(c *gin.Context) {
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Logs deleted for service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }
+
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps CreateStepLog
+//
+// Create the logs for a step
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the logs for step
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Unable to create the logs for a step
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the logs for a step
+//     schema:
+//       type: string
 
 // CreateStepLog represents the API handler to create
 // the logs for a step in the configured backend.
@@ -229,6 +523,47 @@ func CreateStepLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, l)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps GetStepLog
+//
+// Retrieve the logs for a step
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the logs for step
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+
 // GetStepLog represents the API handler to capture
 // the logs for a step from the configured backend.
 func GetStepLog(c *gin.Context) {
@@ -251,6 +586,61 @@ func GetStepLog(c *gin.Context) {
 
 	c.JSON(http.StatusOK, l)
 }
+
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps UpdateStepLog
+//
+// Update the logs for a step
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the logs for step
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Unable to updated the logs for a step
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to updated the logs for a step
+//     schema:
+//       type: string
 
 // UpdateStepLog represents the API handler to update
 // the logs for a step in the configured backend.
@@ -305,6 +695,50 @@ func UpdateStepLog(c *gin.Context) {
 
 	c.JSON(http.StatusOK, l)
 }
+
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps DeleteStepLog
+//
+// Delete the logs for a step
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted the logs for the step
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to delete the logs for the step
+//     schema:
+//       type: string
 
 // DeleteStepLog represents the API handler to remove
 // the logs for a step from the configured backend.

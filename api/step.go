@@ -24,6 +24,56 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps steps CreateStep
+//
+// Create a step for a build
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the step to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the step
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Step"
+//   '400':
+//     description: Unable to create the step
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the step
+//     schema:
+//       type: string
+
 // CreateStep represents the API handler to create
 // a step for a build in the configured backend.
 func CreateStep(c *gin.Context) {
@@ -72,6 +122,50 @@ func CreateStep(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, s)
 }
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps steps GetSteps
+//
+// Retrieve a list of steps for a build
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the list of steps
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Step"
+//   '400':
+//     description: Unable to retrieve the list of steps
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of steps
+//     schema:
+//       type: string
 
 // GetSteps represents the API handler to capture a list
 // of steps for a build from the configured backend.
@@ -137,6 +231,47 @@ func GetSteps(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step} steps GetStep
+//
+// Retrieve a step for a build
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the step
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Step"
+
 // GetStep represents the API handler to capture a
 // step for a build from the configured backend.
 func GetStep(c *gin.Context) {
@@ -151,6 +286,61 @@ func GetStep(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step} steps UpdateStep
+//
+// Update a step for a build
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the step to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the step
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Step"
+//   '400':
+//     description: Unable to update the step
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the step
+//     schema:
+//       type: string
 
 // UpdateStep represents the API handler to update
 // a step for a build in the configured backend.
@@ -230,6 +420,50 @@ func UpdateStep(c *gin.Context) {
 
 	c.JSON(http.StatusOK, s)
 }
+
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step} steps DeleteStep
+//
+// Delete a step for a build
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Build number
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted the step
+//     schema:
+//       type: string
+//   '500':
+//     description: Successfully deleted the step
+//     schema:
+//       type: string
 
 // DeleteStep represents the API handler to remove
 // a step for a build from the configured backend.

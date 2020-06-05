@@ -17,6 +17,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation GET /api/v1/admin/repos admin AdminAllRepos
+//
+// Get all of the repos in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved all repos from the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '500':
+//     description: Unable to retrieve all repos from the database
+//     schema:
+//       type: string
+
 // AllRepos represents the API handler to
 // captures all repos stored in the database.
 func AllRepos(c *gin.Context) {
@@ -34,6 +59,41 @@ func AllRepos(c *gin.Context) {
 
 	c.JSON(http.StatusOK, r)
 }
+
+// swagger:operation PUT /api/v1/admin/repo admin AdminUpdateRepo
+//
+// Update a repo in the database
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing repo to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Repo"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the repo in the database
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '404':
+//     description: Unable to update the repo in the database
+//     schema:
+//       type: string
+//   '501':
+//     description: Unable to update the repo in the database
+//     schema:
+//       type: string
 
 // UpdateRepo represents the API handler to
 // update any repo stored in the database.
