@@ -153,13 +153,13 @@ func pingQueue(client *redis.Client) error {
 		return nil
 	}
 
-	return fmt.Errorf("unable to establish Redis queue connection - %v", err)
+	return fmt.Errorf("unable to establish Redis queue connection - %w", err)
 }
 
 // NewTest returns a Queue implementation that
 // integrates with a local Redis instance.
 //
-// It's possible to overide this with env variables,
+// It's possible to override this with env variables,
 // which gets used as a part of integration testing
 // with the different supported backends.
 //
