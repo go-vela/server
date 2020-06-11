@@ -138,12 +138,13 @@ func setupQueue(client *redis.Client) error {
 // connection to the Redis queue instance before
 // we try to set it up.
 func pingQueue(client *redis.Client) error {
+	var err error
 	// attempt 10 times
 	for i := 0; i < 10; i++ {
 		// send ping request to queue
-		err := client.Ping().Err()
+		err = client.Ping().Err()
 		if err != nil {
-			logrus.Debugf("unable to ping Redis queue. Retrying in %v", (time.Duration(i) * time.Second))
+			logrus.Debugf("unable to ping Redis queue. Retrying in %v", time.Duration(i) * time.Second)
 			time.Sleep(1 * time.Second)
 
 			continue
@@ -152,7 +153,7 @@ func pingQueue(client *redis.Client) error {
 		return nil
 	}
 
-	return fmt.Errorf("unable to establish Redis queue connection")
+	return fmt.Errorf("unable to establish Redis queue connection - %s", err)
 }
 
 // NewTest returns a Queue implementation that
