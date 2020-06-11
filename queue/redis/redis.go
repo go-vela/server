@@ -144,7 +144,7 @@ func pingQueue(client *redis.Client) error {
 		// send ping request to queue
 		err = client.Ping().Err()
 		if err != nil {
-			logrus.Debugf("unable to ping Redis queue. Retrying in %v", time.Duration(i) * time.Second)
+			logrus.Debugf("unable to ping Redis queue. Retrying in %v", time.Duration(i)*time.Second)
 			time.Sleep(1 * time.Second)
 
 			continue
