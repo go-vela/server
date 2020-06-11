@@ -153,7 +153,7 @@ func pingQueue(client *redis.Client) error {
 		return nil
 	}
 
-	return fmt.Errorf("unable to establish Redis queue connection - %s", err)
+	return fmt.Errorf("unable to establish Redis queue connection - %v", err)
 }
 
 // NewTest returns a Queue implementation that
