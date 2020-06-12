@@ -7,6 +7,7 @@ package github
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/google/go-github/v29/github"
 
@@ -28,14 +29,20 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 		Ref: ref,
 	}
 
-	// send API call to capture the .vela.yml pipeline configuration
-	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
-	if err != nil {
-		if resp.StatusCode != http.StatusNotFound {
-			return nil, err
+	for i := 0; i < 5; i++ {
+		// send API call to capture the .vela.yml pipeline configuration
+		data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
+		select {
+		case <-time.After(time.Second * time.Duration(i)):
+			if err != nil {
+				if resp.StatusCode != http.StatusNotFound {
+					return nil, err
+				}
+
+			}
 		}
 	}
-
+	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
 	// data is not nil if .vela.yml exists
 	if data != nil {
 		strData, err := data.GetContent()

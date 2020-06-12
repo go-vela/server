@@ -71,7 +71,7 @@ type Service interface {
 
 	// Repo Source Interface Functions
 
-	// Config defines a function that captures
+	// oConfig defines a function that captures
 	// the pipeline configuration from a repo.
 	Config(user *library.User, org, name, ref string) ([]byte, error)
 	// Disable defines a function that deactivates
