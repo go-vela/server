@@ -28,7 +28,8 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 	opts := &github.RepositoryContentGetOptions{
 		Ref: ref,
 	}
-
+	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
+	if err != nil {
 	for i := 0; i < 5; i++ {
 		// send API call to capture the .vela.yml pipeline configuration
 
@@ -44,7 +45,7 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 			}
 		}
 	}
-	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
+}
 	// data is not nil if .vela.yml exists
 	if data != nil {
 		strData, err := data.GetContent()
