@@ -28,22 +28,19 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 	opts := &github.RepositoryContentGetOptions{
 		Ref: ref,
 	}
+	// send API call to capture the .vela.yml pipeline configuration
 	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
 	if err != nil {
 		for i := 0; i < 5; i++ {
-			// send API call to capture the .vela.yml pipeline configuration
-
-			select {
-			case <-time.After(time.Second * time.Duration(i)):
-				data, _, resp, err = client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
-				if err != nil {
-					if resp.StatusCode != http.StatusNotFound {
-						return nil, err
-					} else {
-						break
-					}
+			data, _, resp, err = client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
+			if err != nil {
+				if resp.StatusCode != http.StatusNotFound {
+					return nil, err
+				} else {
+					break
 				}
 			}
+			time.Sleep(5 * time.Second)
 		}
 	}
 	// data is not nil if .vela.yml exists
