@@ -40,6 +40,7 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 					break
 				}
 			}
+
 			time.Sleep(5 * time.Second)
 		}
 	}
