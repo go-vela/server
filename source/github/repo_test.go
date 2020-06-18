@@ -68,6 +68,56 @@ func TestGithub_Config_YML(t *testing.T) {
 	}
 }
 
+func TestGithub_ConfigBackoff_YML(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		if c.Param("path") == ".vela.yaml" {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/yml.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	if err != nil {
+		t.Errorf("Config reading file returned err: %v", err)
+	}
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ConfigBackoff(u, "foo", "bar", "")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Config returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Config is %v, want %v", got, want)
+	}
+}
+
 func TestGithub_Config_YML_BadRequest(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

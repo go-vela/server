@@ -17,6 +17,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
+	for i := 0; i < 5; i++ {
+		data, err = c.Config(u, org, name, ref)
+		if err != nil {
+			return
+		}
+		time.Sleep(5 * time.Second)
+	}
+	return
+}
+
 // Config gets the pipeline configuration from the GitHub repo.
 func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) {
 	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", org, name, ref)
@@ -28,22 +39,15 @@ func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) 
 	opts := &github.RepositoryContentGetOptions{
 		Ref: ref,
 	}
+
 	// send API call to capture the .vela.yml pipeline configuration
 	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
 	if err != nil {
-		for i := 0; i < 5; i++ {
-			data, _, resp, err = client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
-			if err != nil {
-				if resp.StatusCode != http.StatusNotFound {
-					return nil, err
-				} else {
-					break
-				}
-			}
-
-			time.Sleep(5 * time.Second)
+		if resp.StatusCode != http.StatusNotFound {
+			return nil, err
 		}
 	}
+
 	// data is not nil if .vela.yml exists
 	if data != nil {
 		strData, err := data.GetContent()

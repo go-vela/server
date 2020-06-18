@@ -364,7 +364,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).Config(u, r.GetOrg(), r.GetName(), b.GetCommit())
+	config, err := source.FromContext(c).CoConfigBackoffnfig(u, r.GetOrg(), r.GetName(), b.GetCommit())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusNotFound, retErr)
