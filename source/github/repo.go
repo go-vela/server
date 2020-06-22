@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ConfigBackoff is a wrapper for config that checks if yaml/yml file is valid.
+// ConfigBackoff is a wrapper for Config that will retry five times if the function fails to retrieve the yaml/yml file.
 func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
 	for i := 0; i < 5; i++ {
 		data, err = c.Config(u, org, name, ref)

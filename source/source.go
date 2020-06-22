@@ -74,9 +74,9 @@ type Service interface {
 	// Config defines a function that captures
 	// the pipeline configuration from a repo.
 	Config(user *library.User, org, name, ref string) ([]byte, error)
-	// ConfigBackoff is a truncated constant backoff wrapper.
-	// Calls Config to check if yml/yaml is valid.
-	// Retries every five seconds and returns an error after five tries.
+	// ConfigBackoff is a truncated constant backoff wrapper for Config.
+	// Retry again in five seconds if Config fails to retreive yaml/yml file.
+	// Will return an error after five failed attempts.
 	ConfigBackoff(user *library.User, org, name, ref string) ([]byte, error)
 	// Disable defines a function that deactivates
 	// a repo by destroying the webhook.
