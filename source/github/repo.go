@@ -25,6 +25,7 @@ func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []b
 		if err != nil {
 			return
 		}
+
 		time.Sleep(time.Duration(i+1) * time.Second)
 	}
 
