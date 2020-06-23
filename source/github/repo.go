@@ -7,6 +7,7 @@ package github
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/google/go-github/v29/github"
 
@@ -15,6 +16,21 @@ import (
 
 	"github.com/sirupsen/logrus"
 )
+
+// ConfigBackoff is a wrapper for Config that will retry five times if the function fails to retrieve the yaml/yml file.
+func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
+	retryLimit := 5
+	for i := 0; i < retryLimit; i++ {
+		data, err = c.Config(u, org, name, ref)
+		if err != nil {
+			return
+		}
+
+		time.Sleep(time.Duration(i+1) * time.Second)
+	}
+
+	return
+}
 
 // Config gets the pipeline configuration from the GitHub repo.
 func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) {
