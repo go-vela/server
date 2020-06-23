@@ -75,7 +75,7 @@ type Service interface {
 	// the pipeline configuration from a repo.
 	Config(user *library.User, org, name, ref string) ([]byte, error)
 	// ConfigBackoff is a truncated constant backoff wrapper for Config.
-	// Retry again in five seconds if Config fails to retreive yaml/yml file.
+	// Retry again in five seconds if Config fails to retrieve yaml/yml file.
 	// Will return an error after five failed attempts.
 	ConfigBackoff(user *library.User, org, name, ref string) ([]byte, error)
 	// Disable defines a function that deactivates
