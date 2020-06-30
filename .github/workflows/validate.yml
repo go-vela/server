@@ -14,7 +14,7 @@ jobs:
       image: golang:latest
     steps:
     - name: clone
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: validate
       run: |
@@ -24,3 +24,5 @@ jobs:
         go vet ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
         # Check that go fmt ./... produces a zero diff; clean up any changes afterwards.
         go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+        # Check that go fix ./... produces a zero diff; clean up any changes afterwards.
+        go fix ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)

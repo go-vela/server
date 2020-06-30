@@ -2,14 +2,64 @@
 # some defaults explicitly provided. There is a large number of
 # linters we've enabled that are usually disabled by default.
 #
-# https://github.com/golangci/golangci-lint#config-file
+# https://golangci-lint.run/usage/configuration/#config-file
 
 # This section provides the configuration for how golangci
 # outputs it results from the linters it executes.
 output:
+  # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
   format: colored-line-number
+
+  # print lines of code with issue, default is true
   print-issued-lines: true
+
+  # print linter name in the end of issue text, default is true
   print-linter-name: true
+
+  # make issues output unique by line, default is true
+  uniq-by-line: true
+
+# This section provides the configuration for each linter
+# we've instructed golangci to execute.
+linters-settings:
+  # https://github.com/mibk/dupl
+  dupl:
+    threshold: 100
+
+  # https://github.com/ultraware/funlen
+  funlen:
+    lines: 100
+    statements: 50
+
+  # https://github.com/golang/lint
+  golint:
+    min-confidence: 0
+
+  # https://github.com/tommy-muehle/go-mnd
+  gomnd:
+    settings:
+      mnd:
+        # don't include the "operation" and "assign"
+        checks: argument,case,condition,return
+
+  # https://github.com/walle/lll
+  lll:
+    line-length: 100
+
+  # https://github.com/mdempsky/maligned
+  maligned:
+    suggest-new: true
+
+  # https://github.com/client9/misspell
+  misspell:
+    locale: US
+
+  # https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/nolintlint
+  nolintlint:
+    allow-leading-space: true # don't require machine-readable nolint directives (i.e. with no leading space)
+    allow-unused: false # report any unused nolint directives
+    require-explanation: false # don't require an explanation for nolint directives
+    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
 
 # This section provides the configuration for which linters
 # golangci will execute. Several of them were disabled by
@@ -17,57 +67,71 @@ output:
 linters:
   # disable all linters as new linters might be added to golangci
   disable-all: true
-  enable:
-    # linters enabled by default
-    - deadcode
-    - errcheck
-    - govet
-    - gosimple # a.k.a. megacheck
-    - ineffassign
-    - staticcheck
-    - structcheck
-    - typecheck
-    - unused
-    - varcheck
 
-    # linters disabled by default
+  # enable a specific set of linters to run
+  enable:
     - bodyclose
-    - gocognit
+    - deadcode # enabled by default
+    - dupl
+    - errcheck # enabled by default
+    - funlen
     - goconst
     - gocyclo
+    - godot
+    - gofmt
     - goimports
+    - golint
+    - gomnd
+    - goprintffuncname
     - gosec
-    - funlen
+    - gosimple # enabled by default
+    - govet # enabled by default
+    - ineffassign # enabled by default
+    - lll
     - maligned
     - misspell
+    - nakedret
+    - nolintlint
+    - staticcheck # enabled by default
+    - structcheck # enabled by default
     - stylecheck
+    - typecheck # enabled by default
+    - unconvert
     - unparam
+    - unused # enabled by default
+    - varcheck # enabled by default
     - whitespace
-    - wsl
 
   # static list of linters we know golangci can run but we've
   # chosen to leave disabled for now
-  #
-  # disable:
-  #   - depguard
-  #   - dogsled
-  #   - dupl
-  #   - gocritic
-  #   - gochecknoinits
-  #   - gochecknoglobals
-  #   - godox
-  #   - gofmt
-  #   - golint
-  #   - gomnd
-  #   - interfacer
-  #   - lll
-  #   - nakedret
-  #   - scopelint
-  #   - unconvert
+  # - asciicheck
+  # - depguard
+  # - dogsled
+  # - exhaustive
+  # - gochecknoinits
+  # - gochecknoglobals
+  # - gocognit
+  # - gocritic
+  # - godox
+  # - goerr113
+  # - interfacer
+  # - nestif
+  # - noctx
+  # - prealloc
+  # - rowserrcheck
+  # - scopelint
+  # - testpackage
+  # - wsl
 
-# This section provides the configuration for each linter
-# we've instructed golangci to execute.
-linters-settings:
-  funlen:
-    lines: 100
-    statements: 60
+# This section provides the configuration for how golangci
+# will report the issues it finds.
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    # prevent linters from running on *_test.go files
+    - path: _test\.go
+      linters:
+        - funlen
+        - goconst
+        - gocyclo
+        - gomnd
