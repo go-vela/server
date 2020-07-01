@@ -19,14 +19,27 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function fails to retrieve the yaml/yml file.
 func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
+	// number of times to retry
 	retryLimit := 5
+
 	for i := 0; i < retryLimit; i++ {
+
+		// attempt to fetch the config
 		data, err = c.Config(u, org, name, ref)
-		if err != nil {
+
+		// return err if the last attempt returns error
+		if err != nil && i == retryLimit-1 {
 			return
 		}
 
-		time.Sleep(time.Duration(i+1) * time.Second)
+		// if data is valid break the retry loop
+		if data != nil {
+			break
+		}
+
+		// sleep in between retries
+		sleep := time.Duration(i+1) * time.Second
+		time.Sleep(sleep)
 	}
 
 	return
