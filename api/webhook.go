@@ -452,7 +452,7 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 		return
 	}
 
-	logrus.Infof("Publishing item for build %d for %s to queue", b.GetNumber(), r.GetFullName())
+	logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
 
 	err = queue.Publish(route, byteItem)
 	if err != nil {
