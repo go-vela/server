@@ -27,7 +27,7 @@ type Service interface {
 	Login(http.ResponseWriter, *http.Request) (string, error)
 	// LoginCLI defines a function that begins
 	// the OAuth workflow for the session.
-	LoginCLI(string, string, string) (*library.User, error)
+	LoginCLI(string, string, string, string) (*library.User, error)
 
 	// Access Source Interface Functions
 

@@ -184,7 +184,7 @@ func AuthenticateCLI(c *gin.Context) {
 	}
 
 	// register user with OAuth application
-	newUser, err := source.FromContext(c).LoginCLI(input.GetUsername(), input.GetPassword(), input.GetOTP())
+	newUser, err := source.FromContext(c).LoginCLI(input.GetUsername(), input.GetPassword(), input.GetOTP(), input.GetToken())
 	if err != nil {
 		retErr := fmt.Errorf("unable to login user: %w", err)
 

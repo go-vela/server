@@ -48,27 +48,37 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	return oAuthState, nil
 }
 
-func (c *client) LoginCLI(username, password, otp string) (*library.User, error) {
+func (c *client) LoginCLI(username, password, otp, token string) (*library.User, error) {
 	logrus.Trace("Processing CLI login request")
+	var u string
+	var err error
+	// Check if token is provided
+	if token == "" {
+		// create GitHub Basic auth client with user's credentials
+		client := c.newClientBasicAuth(username, password, otp)
 
-	// create GitHub Basic auth client with user's credentials
-	client := c.newClientBasicAuth(username, password, otp)
-
-	// create authorization for user
-	authorization, _, err := client.Authorizations.Create(ctx, c.AuthReq)
-	if err != nil {
-		return nil, err
-	}
-
-	// authorize the user for the token
-	u, err := c.Authorize(authorization.GetToken())
-	if err != nil {
-		return nil, err
+		// create authorization for user
+		authorization, _, err := client.Authorizations.Create(ctx, c.AuthReq)
+		if err != nil {
+			return nil, err
+		}
+		// authorize the user for the token
+		u, err = c.Authorize(authorization.GetToken())
+		token = authorization.GetToken()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Use the provided token to get user info
+		u, err = c.Authorize(token)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &library.User{
 		Name:  &u,
-		Token: authorization.Token,
+		Token: &token,
 	}, nil
 }
 
