@@ -257,7 +257,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// if this is a comment on a pull_request event
-	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber != 0 {
+	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
 		commit, branch, baseref, err := source.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
@@ -327,7 +327,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if the build event is a pull_request
-	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber != 0 {
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
 		// send API call to capture list of files changed for the pull request
 		files, err = source.FromContext(c).ChangesetPR(u, r, webhook.PRNumber)
 		if err != nil {
