@@ -218,10 +218,11 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.W
 	}
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Comment:  "",
+		PRNumber: payload.GetNumber(),
+		Hook:     h,
+		Repo:     r,
+		Build:    b,
 	}, nil
 }
 
@@ -319,12 +320,23 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
-	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
+	// treat as non-pull-request comment by default and
+	// set ref to default branch for the repo
+	b.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
+
+	pr := 0
+	// override ref and pull request number if this is
+	// a comment on a pull request
+	if payload.GetIssue().IsPullRequest() {
+		b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
+		pr = payload.GetIssue().GetNumber()
+	}
 
 	return &types.Webhook{
-		Comment: payload.GetComment().GetBody(),
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Comment:  payload.GetComment().GetBody(),
+		PRNumber: pr,
+		Hook:     h,
+		Repo:     r,
+		Build:    b,
 	}, nil
 }
