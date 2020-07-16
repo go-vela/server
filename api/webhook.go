@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -257,19 +256,9 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	if b.GetEvent() == constants.EventComment {
-		number, err := parsePRNumberFromRef(b.GetRef())
-		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return
-		}
-
-		commit, branch, baseref, err := source.FromContext(c).GetPullRequest(u, r, number)
+	// if this is a comment on a pull_request event
+	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
+		commit, branch, baseref, err := source.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -335,31 +324,20 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 		}
+	}
 
-		// files is empty if the build event is pull_request
-		if len(files) == 0 {
-			number, err := parsePRNumberFromRef(b.GetRef())
-			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get pull_request number for %s: %v", baseErr, r.GetFullName(), err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+	// check if the build event is a pull_request
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
+		// send API call to capture list of files changed for the pull request
+		files, err = source.FromContext(c).ChangesetPR(u, r, webhook.PRNumber)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
 
-				return
-			}
-
-			// send API call to capture list of files changed for the pull request
-			files, err = source.FromContext(c).ChangesetPR(u, r, number)
-			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
-
-				return
-			}
+			return
 		}
 	}
 
@@ -465,27 +443,4 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 			return
 		}
 	}
-}
-
-// helper function to parse the PR number out of a build ref
-func parsePRNumberFromRef(ref string) (int, error) {
-	// parse out pull request number from base ref
-	//
-	// pattern: refs/pull/1/head
-	var parts []string
-	if strings.HasPrefix(ref, "refs/pull/") {
-		parts = strings.Split(ref, "/")
-	}
-
-	// capture number by converting from string
-	number, err := strconv.Atoi(parts[2])
-	if err != nil {
-		// capture number by scanning from string
-		_, err := fmt.Sscanf(ref, "%s/%s/%d/%s", nil, nil, &number, nil)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	return number, nil
 }

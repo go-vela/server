@@ -6,7 +6,7 @@
     "labels_url": "https://api.github.com/repos/Codertocat/Hello-World/issues/1/labels{/name}",
     "comments_url": "https://api.github.com/repos/Codertocat/Hello-World/issues/1/comments",
     "events_url": "https://api.github.com/repos/Codertocat/Hello-World/issues/1/events",
-    "html_url": "https://github.com/Codertocat/Hello-World/issues/1",
+    "html_url": "https://github.com/Codertocat/Hello-World/pull/1",
     "id": 1803663,
     "node_id": "MDExOlB1bGxSZXF1ZXN0MTUzNDgxNw==",
     "number": 1,
@@ -46,6 +46,12 @@
     "updated_at": "2020-04-07T20:01:57Z",
     "closed_at": null,
     "author_association": "OWNER",
+    "pull_request": {
+      "url": "https://api.github.com/repos/Codertocat/Hello-World/pulls/1",
+      "html_url": "https://github.com/Codertocat/Hello-World/pull/1",
+      "diff_url": "https://github.com/Codertocat/Hello-World/pull/1.diff",
+      "patch_url": "https://github.com/Codertocat/Hello-World/pull/1.patch"
+    },
     "body": ""
   },
   "comment": {
