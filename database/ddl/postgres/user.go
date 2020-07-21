@@ -15,7 +15,7 @@ users (
 	name      VARCHAR(250),
 	token     VARCHAR(500),
 	hash      VARCHAR(500),
-	favorites VARCHAR(1000),
+	favorites VARCHAR(5000),
 	active    BOOLEAN,
 	admin     BOOLEAN,
 	UNIQUE(name)
