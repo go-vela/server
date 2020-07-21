@@ -7,6 +7,8 @@ package github
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v29/github"
@@ -216,6 +218,43 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	default:
 		state = "error"
 		description = "there was an error"
+	}
+
+	// check if the build event is deployment
+	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		// parse out deployment number from build source URL
+		//
+		// pattern: <org>/<repo>/deployments/<deployment_id>
+		var parts []string
+		if strings.Contains(b.GetSource(), "/deployments/") {
+			parts = strings.Split(b.GetSource(), "/deployments/")
+		}
+
+		// capture number by converting from string
+		number, err := strconv.Atoi(parts[1])
+		if err != nil {
+			// capture number by scanning from string
+			_, err := fmt.Sscanf(b.GetSource(), "%s/%d", nil, &number)
+			if err != nil {
+				return err
+			}
+		}
+
+		// create the status object to make the API call
+		status := &github.DeploymentStatusRequest{
+			Description: github.String(description),
+			Environment: github.String(b.GetDeploy()),
+			State:       github.String(state),
+		}
+
+		// provide "Details" link in GitHub UI if server was configured with it
+		if len(c.WebUIHost) > 0 {
+			status.LogURL = github.String(url)
+		}
+
+		_, _, err = client.Repositories.CreateDeploymentStatus(ctx, org, name, int64(number), status)
+
+		return err
 	}
 
 	// create the status object to make the API call
