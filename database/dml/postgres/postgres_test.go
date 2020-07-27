@@ -113,9 +113,10 @@ func TestPostgres_NewMap(t *testing.T) {
 				"lite": ListLiteUsers,
 			},
 			Select: map[string]string{
-				"user":  SelectUser,
-				"name":  SelectUserName,
-				"count": SelectUsersCount,
+				"user":          SelectUser,
+				"name":          SelectUserName,
+				"count":         SelectUsersCount,
+				"refresh_token": SelectRefreshToken,
 			},
 			Delete: DeleteUser,
 		},

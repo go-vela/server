@@ -54,6 +54,21 @@ func main() {
 			Value:   &cli.StringSlice{},
 		},
 
+		// Security Flags
+
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
+			Name:    "access-token-duration",
+			Usage:   "sets the duration of the access token",
+			Value:   15 * time.Minute,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
+			Name:    "refresh-token-duration",
+			Usage:   "sets the duration of the refresh token",
+			Value:   8 * time.Hour,
+		},
+
 		// Compiler Flags
 
 		&cli.BoolFlag{

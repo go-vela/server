@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -22,6 +23,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const accessTokenDuration = time.Minute * 15
+
 func TestPerm_MustPlatformAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
@@ -33,10 +36,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -53,8 +53,9 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
+
 	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/user", func(c *gin.Context) {
@@ -99,10 +100,13 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -114,13 +118,8 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/user", func(c *gin.Context) {
@@ -174,10 +173,13 @@ func TestPerm_MustAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -191,13 +193,8 @@ func TestPerm_MustAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -255,10 +252,13 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -272,13 +272,8 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -336,10 +331,13 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -353,13 +351,8 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -417,10 +410,13 @@ func TestPerm_MustWrite(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -434,13 +430,8 @@ func TestPerm_MustWrite(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -498,10 +489,13 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -515,13 +509,8 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -579,10 +568,13 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -596,13 +588,8 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -660,10 +647,13 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -677,13 +667,8 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -741,10 +726,13 @@ func TestPerm_MustRead(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -758,13 +746,8 @@ func TestPerm_MustRead(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -822,10 +805,13 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -839,13 +825,8 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -903,10 +884,13 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -920,13 +904,8 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -984,10 +963,13 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -1001,13 +983,8 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -1065,10 +1042,13 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -1082,13 +1062,8 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {
@@ -1146,10 +1121,13 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tkn, err := token.Compose(u)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
 	db, _ := database.NewTest()
@@ -1163,13 +1141,8 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	_ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/collaborators/:username/permission", func(c *gin.Context) {

@@ -47,7 +47,7 @@ func TestPostgres_NewMap(t *testing.T) {
 		},
 		UserService: &Service{
 			Create:  CreateUserTable,
-			Indexes: []string{CreateUserNameIndex},
+			Indexes: []string{CreateUserNameIndex, CreateRefreshIndex},
 		},
 	}
 

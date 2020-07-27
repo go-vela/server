@@ -72,6 +72,7 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 			Create: postgres.CreateUserTable,
 			Indexes: []string{
 				postgres.CreateUserNameIndex,
+				postgres.CreateRefreshIndex,
 			},
 		},
 	}
@@ -146,6 +147,7 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			Create: sqlite.CreateUserTable,
 			Indexes: []string{
 				sqlite.CreateUserNameIndex,
+				sqlite.CreateRefreshIndex,
 			},
 		},
 	}

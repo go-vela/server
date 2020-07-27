@@ -662,7 +662,7 @@ func CreateToken(c *gin.Context) {
 	logrus.Infof("Composing token for user %s", u.GetName())
 
 	// compose JWT token for user
-	t, err := token.Compose(u)
+	rt, at, err := token.Compose(c, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
@@ -671,7 +671,19 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
+	u.SetRefreshToken(rt)
+
+	// send API call to update the user
+	err = database.FromContext(c).UpdateUser(u)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, library.Login{Token: &at})
 }
 
 // swagger:operation DELETE /api/v1/user/token users DeleteToken
@@ -722,6 +734,18 @@ func DeleteToken(c *gin.Context) {
 		),
 	)
 
+	// compose JWT token for user
+	rt, at, err := token.Compose(c, u)
+	if err != nil {
+		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
+		return
+	}
+
+	u.SetRefreshToken(rt)
+
 	// send API call to update the user
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
@@ -732,15 +756,5 @@ func DeleteToken(c *gin.Context) {
 		return
 	}
 
-	// compose JWT token for user
-	t, err := token.Compose(u)
-	if err != nil {
-		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
+	c.JSON(http.StatusOK, library.Login{Token: &at})
 }

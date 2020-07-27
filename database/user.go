@@ -44,6 +44,22 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 	return u.ToLibrary(), err
 }
 
+// GetUserRefreshToken gets a user by refresh token from the database.
+func (c *client) GetUserRefreshToken(token string) (*library.User, error) {
+	logrus.Trace("Getting user by refresh token from the database")
+
+	// variable to store query results
+	u := new(database.User)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableUser).
+		Raw(c.DML.UserService.Select["refresh_token"], token).
+		Scan(u).Error
+
+	return u.ToLibrary(), err
+}
+
 // GetUserList gets a list of all users from the database.
 func (c *client) GetUserList() ([]*library.User, error) {
 	logrus.Trace("Listing users from the database")

@@ -223,6 +223,9 @@ type Service interface {
 	// GetUserName defines a function that
 	// gets a user by name.
 	GetUserName(string) (*library.User, error)
+	// GetUserRefreshToken defines a function that
+	// gets a user by refresh token.
+	GetUserRefreshToken(string) (*library.User, error)
 	// GetUserList defines a function that
 	// gets a list of all users.
 	GetUserList() ([]*library.User, error)

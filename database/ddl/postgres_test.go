@@ -69,6 +69,7 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 			Create: postgres.CreateUserTable,
 			Indexes: []string{
 				postgres.CreateUserNameIndex,
+				postgres.CreateRefreshIndex,
 			},
 		},
 	}

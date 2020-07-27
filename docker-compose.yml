@@ -29,6 +29,8 @@ services:
       VELA_SECRET_VAULT: "true"
       VELA_SECRET_VAULT_ADDR: http://vault:8200
       VELA_SECRET_VAULT_TOKEN: vela
+      VELA_REFRESH_TOKEN_DURATION: 5m
+      VELA_ACCESS_TOKEN_DURATION: 1m
     env_file:
       - secrets.env
     restart: always

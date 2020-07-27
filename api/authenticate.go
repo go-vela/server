@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
@@ -55,6 +54,7 @@ import (
 // the API or UI.
 func Authenticate(c *gin.Context) {
 	var err error
+
 	// capture the OAuth state if present
 	oAuthState := c.Request.FormValue("state")
 
@@ -113,6 +113,19 @@ func Authenticate(c *gin.Context) {
 		u.SetActive(true)
 		u.SetAdmin(false)
 
+		// compose JWT token for user
+		rt, at, err := token.Compose(c, u)
+		if err != nil {
+			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
+			util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
+			return
+		}
+
+		// store the refresh token with the user object
+		u.SetRefreshToken(rt)
+
 		// send API call to create the user in the database
 		err = database.FromContext(c).CreateUser(u)
 		if err != nil {
@@ -123,18 +136,8 @@ func Authenticate(c *gin.Context) {
 			return
 		}
 
-		// compose JWT token for user
-		t, err := token.Compose(u)
-		if err != nil {
-			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
-
-			util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-			return
-		}
-
-		// return the user with their JWT token
-		c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
+		// return the jwt token
+		c.JSON(http.StatusOK, library.Login{Token: &at})
 
 		return
 	}
@@ -142,6 +145,18 @@ func Authenticate(c *gin.Context) {
 	// update the user account
 	u.SetToken(newUser.GetToken())
 	u.SetActive(true)
+
+	// compose JWT token for user
+	rt, at, err := token.Compose(c, u)
+	if err != nil {
+		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+
+		return
+	}
+
+	u.SetRefreshToken(rt)
 
 	// send API call to update the user in the database
 	err = database.FromContext(c).UpdateUser(u)
@@ -153,120 +168,6 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
-	// compose JWT token for user
-	t, err := token.Compose(u)
-	if err != nil {
-		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-		return
-	}
-
 	// return the user with their JWT token
-	c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
-}
-
-// AuthenticateCLI represents the API handler to
-// process a user logging in to Vela from
-// the CLI.
-func AuthenticateCLI(c *gin.Context) {
-	// capture body from API request
-	input := new(library.Login)
-
-	err := c.Bind(input)
-	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON: %w", err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// register user with OAuth application
-	newUser, err := source.FromContext(c).LoginCLI(input.GetUsername(), input.GetPassword(), input.GetOTP())
-	if err != nil {
-		retErr := fmt.Errorf("unable to login user: %w", err)
-
-		util.HandleError(c, http.StatusUnauthorized, retErr)
-
-		return
-	}
-
-	// send API call to capture the user logging in
-	u, err := database.FromContext(c).GetUserName(newUser.GetName())
-	if len(u.GetName()) == 0 || err != nil {
-		// create unique id for the user
-		uid, err := uuid.NewRandom()
-		if err != nil {
-			retErr := fmt.Errorf("unable to create UID for user %s: %w", u.GetName(), err)
-
-			util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-			return
-		}
-
-		// create the user account
-		u := new(library.User)
-		u.SetName(newUser.GetName())
-		u.SetToken(newUser.GetToken())
-		u.SetHash(
-			base64.StdEncoding.EncodeToString(
-				[]byte(strings.TrimSpace(uid.String())),
-			),
-		)
-		u.SetActive(true)
-		u.SetAdmin(false)
-
-		// send API call to create the user in the database
-		err = database.FromContext(c).CreateUser(u)
-		if err != nil {
-			retErr := fmt.Errorf("unable to create user %s: %v", u.GetName(), err.Error())
-
-			util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-			return
-		}
-
-		// compose JWT token for user
-		t, err := token.Compose(u)
-		if err != nil {
-			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
-
-			util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-			return
-		}
-
-		c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
-
-		return
-	}
-
-	// update the user account
-	u.SetToken(newUser.GetToken())
-	u.SetActive(true)
-
-	// send API call to update the user in the database
-	err = database.FromContext(c).UpdateUser(u)
-	if err != nil {
-		retErr := fmt.Errorf("unable to update user %s: %v", u.GetName(), err.Error())
-
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-		return
-	}
-
-	// compose JWT token for user
-	t, err := token.Compose(u)
-	if err != nil {
-		retErr := fmt.Errorf("unable to compose token for user %s: %v", u.GetName(), err.Error())
-
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-		return
-	}
-
-	// return the user with their JWT token
-	c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
+	c.JSON(http.StatusOK, library.Login{Token: &at})
 }

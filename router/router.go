@@ -60,10 +60,12 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	// Login endpoints
 	r.GET("/login", api.Login)
-	r.POST("/login", api.Login)
 
 	// Logout endpoint
-	r.GET("/logout", api.Login)
+	r.GET("/logout", api.Logout)
+
+	// Refresh Access Token endpoint
+	r.GET("/token-refresh", api.RefreshAccessToken)
 
 	// Metric endpoint
 	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))

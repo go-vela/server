@@ -48,30 +48,6 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	return oAuthState, nil
 }
 
-func (c *client) LoginCLI(username, password, otp string) (*library.User, error) {
-	logrus.Trace("Processing CLI login request")
-
-	// create GitHub Basic auth client with user's credentials
-	client := c.newClientBasicAuth(username, password, otp)
-
-	// create authorization for user
-	authorization, _, err := client.Authorizations.Create(ctx, c.AuthReq)
-	if err != nil {
-		return nil, err
-	}
-
-	// authorize the user for the token
-	u, err := c.Authorize(authorization.GetToken())
-	if err != nil {
-		return nil, err
-	}
-
-	return &library.User{
-		Name:  &u,
-		Token: authorization.Token,
-	}, nil
-}
-
 // Authenticate completes the authentication workflow for the session and returns the remote user details.
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
 	logrus.Trace("Authenticating user")

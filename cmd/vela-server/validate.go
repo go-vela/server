@@ -86,6 +86,10 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
+	if c.Duration("refresh-token-duration").Seconds() <= c.Duration("access-token-duration").Seconds() {
+		return fmt.Errorf("refresh-token-duration (VELA_REFRESH_TOKEN_DURATION) must be larger than the access-token-duration (VELA_ACCESS_TOKEN_DURATION)")
+	}
+
 	return nil
 }
 

@@ -7,38 +7,66 @@ package token
 import (
 	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 	"github.com/sirupsen/logrus"
 )
 
-// Compose generates the token unique to the provided user.
-// It uses a secret hash, which is unique for every user, to
-// sign the token which guarantees the signature is unique
-// per token. The signed token is returned as a string.
-func Compose(u *library.User) (string, error) {
-	// generate a token using dgrijalva/jwt-go
-	t := jwt.New(jwt.SigningMethodHS256)
+type Claims struct {
+	IsAdmin  bool `json:"is_admin"`
+	IsActive bool `json:"is_active"`
+	jwt.StandardClaims
+}
 
-	// extract the claims from the token
-	claims := t.Claims.(jwt.MapClaims)
+// Compose generates an refresh and access token pair unique
+// to the provided user and sets a secure cookie.
+// It uses a secret hash, which is unique for every user.
+// The hash signs the token to guarantee the signature is unique
+// per token. The refresh token is returned to store with the user
+// in the database.
+func Compose(c *gin.Context, u *library.User) (string, string, error) {
+	// grab the metadata from the context to pull in provided
+	// cookie duration information
+	m := c.MustGet("metadata").(*types.Metadata)
 
-	// append extra metadata to token claims
-	claims["active"] = u.GetActive()
-	claims["admin"] = u.GetAdmin()
-	claims["name"] = u.GetName()
-
-	// sign the token using our secret key
-	token, err := t.SignedString([]byte(u.GetHash()))
+	// create a refresh with the provided duration
+	refreshToken, refreshExpiry, err := CreateRefreshToken(u, m.Vela.RefreshTokenDuration)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return token, nil
+	// create an access token with the provided duration
+	accessToken, err := CreateAccessToken(u, m.Vela.AccessTokenDuration)
+	if err != nil {
+		return "", "", err
+	}
+
+	// parse the address for the backend server
+	// so we can set it for the cookie domain
+	addr, err := url.Parse(m.Vela.Address)
+	if err != nil {
+		return "", "", err
+	}
+
+	// set the SameSite value for the cookie
+	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#samesite-attribute
+	c.SetSameSite(http.SameSiteStrictMode)
+	// set the cookie with the refresh token as a HttpOnly, Secure cookie
+	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#httponly-attribute
+	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#secure-attribute
+	c.SetCookie(constants.RefreshTokenName, refreshToken, refreshExpiry, "/", addr.Hostname(), false, true)
+
+	// return the refresh and access tokens
+	return refreshToken, accessToken, nil
 }
 
 // Parse scans the signed JWT token as a string and extracts
@@ -51,13 +79,20 @@ func Compose(u *library.User) (string, error) {
 func Parse(t string, db database.Service) (*library.User, error) {
 	u := new(library.User)
 
+	// create a new JWT parser
+	p := &jwt.Parser{
+		// explicitly only allow these signing methods
+		ValidMethods: []string{jwt.SigningMethodHS256.Name},
+	}
+
 	// parse the signed JWT token string
-	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+	// parse also validates the claims and token by default.
+	_, err := p.ParseWithClaims(t, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		var err error
 
 		// extract the claims from the token
-		claims := token.Claims.(jwt.MapClaims)
-		name := claims["name"].(string)
+		claims := token.Claims.(*Claims)
+		name := claims.Subject
 
 		// lookup the user in the database
 		logrus.Debugf("Reading user %s", name)
@@ -65,55 +100,99 @@ func Parse(t string, db database.Service) (*library.User, error) {
 		return []byte(u.GetHash()), err
 	})
 
+	// there will be an error if we're not able to parse
+	// the token, eg. due to expiration, invalid signature, etc
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse JWT token: %v", err)
-	}
-
-	// validate the correct signing method is being used
-	if token.Method != jwt.SigningMethodHS256 {
-		return nil, jwt.ErrSignatureInvalid
-	}
-
-	// ensure the token is valid
-	if !token.Valid {
-		return nil, fmt.Errorf("invalid JWT token provided for %s", u.GetName())
+		return nil, fmt.Errorf("invalid token provided for %s: %w", u.GetName(), err)
 	}
 
 	return u, nil
 }
 
-// Retrieve gets the token from the provided request http.Request
-// to be parsed and validated. This is called on every request
-// to enable capturing the user making the request and validating
-// they have the proper access. The following methods of providing
-// authentication to Vela are supported:
-//
-// * Bearer token in `Authorization` header
-func Retrieve(r *http.Request) (string, error) {
-	// get the token from the `Authorization` header
-	token := r.Header.Get("Authorization")
-	if len(token) > 0 {
-		if strings.Contains(token, "Bearer") {
-			return strings.Split(token, "Bearer ")[1], nil
-		}
+// RetrieveAccessToken gets the passed in access token from the header in the request
+func RetrieveAccessToken(r *http.Request) (accessToken string, err error) {
+	accessToken, err = request.AuthorizationHeaderExtractor.ExtractToken(r)
+
+	return
+}
+
+// RetrieveRefreshToken gets the refresh token sent along with the request as a cookie
+func RetrieveRefreshToken(r *http.Request) (string, error) {
+	refreshToken, err := r.Cookie(constants.RefreshTokenName)
+
+	if refreshToken == nil || len(refreshToken.Value) == 0 {
+		return "", fmt.Errorf("refresh token must not be empty")
 	}
 
-	// This code is commented out to reduce the amount of methods
-	// Vela supports for authentication. If these other methods of
-	// providing authentication are found valuable, we're willing
-	// to enable those use cases.
-	//
-	// // get the token from the `access_token` query parameter
-	// token = r.FormValue("access_token")
-	// if len(token) > 0 {
-	// 	return token, nil
-	// }
-	//
-	// // get the token from the `vela_session` browser cookie
-	// cookie, err := r.Cookie("vela_session")
-	// if err == nil {
-	// 	return cookie.Value, nil
-	// }
+	return refreshToken.Value, err
+}
 
-	return "", fmt.Errorf("no token provided in Authorization header")
+// CreaCreateAccessToken creates a new access token for the given user and duration
+func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
+	now := time.Now()
+	exp := now.Add(d)
+
+	claims := &Claims{
+		IsActive: u.GetActive(),
+		IsAdmin:  u.GetAdmin(),
+		StandardClaims: jwt.StandardClaims{
+			Subject:   u.GetName(),
+			IssuedAt:  now.Unix(),
+			ExpiresAt: exp.Unix(),
+		},
+	}
+
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := t.SignedString([]byte(u.GetHash()))
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+// CreateCreateRefreshToken creates a new refresh token for the given user and duration
+func CreateRefreshToken(u *library.User, d time.Duration) (string, int, error) {
+	exp := time.Now().Add(d)
+
+	claims := jwt.StandardClaims{}
+	claims.Subject = u.GetName()
+	claims.ExpiresAt = exp.Unix()
+
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	refreshToken, err := t.SignedString([]byte(u.GetHash()))
+	if err != nil {
+		return "", 0, err
+	}
+
+	return refreshToken, int(d.Seconds()), nil
+}
+
+// Refresh returns a new access token, if the provided refreshToken is valid
+func Refresh(c *gin.Context, refreshToken string, db database.Service) (string, error) {
+	m := c.MustGet("metadata").(*types.Metadata)
+
+	// check to see if a user exists with that refresh token
+	// we are comparing with db to allow for leverage in
+	// invalidating a refresh token in the DB
+	u, err := db.GetUserRefreshToken(refreshToken)
+	if err != nil {
+		return "", fmt.Errorf("refresh token not valid - please log in")
+	}
+
+	// parse (which also validates) the token
+	_, err = Parse(refreshToken, db)
+	if err != nil {
+		return "", err
+	}
+
+	// create a new access token
+	at, err := CreateAccessToken(u, m.Vela.AccessTokenDuration)
+	if err != nil {
+		return "", err
+	}
+
+	return at, nil
 }

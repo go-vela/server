@@ -115,9 +115,10 @@ func TestDML_mapFromPostgres(t *testing.T) {
 				"lite": postgres.ListLiteUsers,
 			},
 			Select: map[string]string{
-				"user":  postgres.SelectUser,
-				"name":  postgres.SelectUserName,
-				"count": postgres.SelectUsersCount,
+				"user":          postgres.SelectUser,
+				"name":          postgres.SelectUserName,
+				"count":         postgres.SelectUsersCount,
+				"refresh_token": postgres.SelectRefreshToken,
 			},
 			Delete: postgres.DeleteUser,
 		},
