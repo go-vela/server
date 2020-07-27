@@ -58,7 +58,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Health endpoint
 	r.GET("/health", api.Health)
 
-	// Login endpoints
+	// Login endpoint
 	r.GET("/login", api.Login)
 
 	// Logout endpoint
