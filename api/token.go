@@ -30,7 +30,7 @@ func RefreshAccessToken(c *gin.Context) {
 		return
 	}
 
-	// capture the refresh token to validate and return a new access token
+	// validate the refresh token and return a new access token
 	newAccessToken, err := token.Refresh(c, rt, db)
 	if err != nil {
 		retErr := fmt.Errorf("unable to refresh token: %w", err)
