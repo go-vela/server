@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/go-vela/compiler v0.4.3
-	github.com/go-vela/types v0.4.4-0.20200526220432-d5510d5b7ed7
+	github.com/go-vela/types v0.4.4-0.20200727213839-8de69b697417
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect

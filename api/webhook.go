@@ -115,6 +115,13 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// check if the hook should be skipped
+	if skip, skipReason := webhook.ShouldSkip(); skip {
+		c.JSON(http.StatusOK, fmt.Sprintf("skipping build: %s", skipReason))
+
+		return
+	}
+
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
 	defer func() {
