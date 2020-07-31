@@ -5,6 +5,7 @@
 package github
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -54,6 +55,56 @@ func TestGithub_Config_YML(t *testing.T) {
 
 	// run test
 	got, err := client.Config(u, "foo", "bar", "")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Config returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Config is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_ConfigBackoff_YML(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		if c.Param("path") == ".vela.yaml" {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/yml.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	if err != nil {
+		t.Errorf("Config reading file returned err: %v", err)
+	}
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ConfigBackoff(u, "foo", "bar", "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -349,6 +400,52 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	}
 }
 
+func TestGithub_Disable_MultipleHooks(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+	count := 0
+	wantCount := 2
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/hooks", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/hooks_multi.json")
+	})
+	engine.DELETE("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		count++
+		c.Status(http.StatusNoContent)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL, "https://foo.bar.com")
+
+	// run test
+	err := client.Disable(u, "foo", "bar")
+
+	if count != wantCount {
+		t.Errorf("Count returned %d, want %d", count, wantCount)
+	}
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Disable returned err: %v", err)
+	}
+}
+
 func TestGithub_Enable(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -382,6 +479,51 @@ func TestGithub_Enable(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Enable returned err: %v", err)
+	}
+}
+
+func TestGithub_Status_Deployment(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.POST("/api/v3/repos/:org/:repo/deployments/:deployment/statuses", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/status.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventDeploy)
+	b.SetStatus(constants.StatusRunning)
+	b.SetCommit("abcd1234")
+	b.SetSource(fmt.Sprintf("%s/%s/%s/deployments/1", s.URL, "foo", "bar"))
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	err := client.Status(u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
 	}
 }
 

@@ -7,6 +7,9 @@ package github
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/google/go-github/v29/github"
 
@@ -15,6 +18,34 @@ import (
 
 	"github.com/sirupsen/logrus"
 )
+
+// ConfigBackoff is a wrapper for Config that will retry five times if the function fails to retrieve the yaml/yml file.
+func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
+	// number of times to retry
+	retryLimit := 5
+
+	for i := 0; i < retryLimit; i++ {
+
+		// attempt to fetch the config
+		data, err = c.Config(u, org, name, ref)
+
+		// return err if the last attempt returns error
+		if err != nil && i == retryLimit-1 {
+			return
+		}
+
+		// if data is valid break the retry loop
+		if data != nil {
+			break
+		}
+
+		// sleep in between retries
+		sleep := time.Duration(i+1) * time.Second
+		time.Sleep(sleep)
+	}
+
+	return
+}
 
 // Config gets the pipeline configuration from the GitHub repo.
 func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) {
@@ -80,13 +111,15 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		return err
 	}
 
-	// since 0 might be a real value (though unlikely?)
-	var id *int64
+	// accounting for situations in which multiple hooks have been
+	// associated with this vela instance, which causes some
+	// disable, repair, enable operations to act in undesirable ways
+	var ids []int64
 
 	// iterate through each element in the hooks
 	for _, hook := range hooks {
 		// skip if the hook has no ID
-		if hook.ID == nil {
+		if hook.GetID() == 0 {
 			continue
 		}
 
@@ -95,17 +128,20 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 		// capture hook ID if the hook url matches
 		if hookURL == fmt.Sprintf("%s/webhook", c.LocalHost) {
-			id = hook.ID
+			ids = append(ids, hook.GetID())
 		}
 	}
 
-	// skip if we got no hook ID
-	if id == nil {
+	// skip if we have no hook IDs
+	if len(ids) == 0 {
 		return nil
 	}
 
-	// send API call to delete the webhook
-	_, err = client.Repositories.DeleteHook(ctx, org, name, *id)
+	// go through all found hook IDs and delete them
+	for _, id := range ids {
+		// send API call to delete the webhook
+		_, err = client.Repositories.DeleteHook(ctx, org, name, id)
+	}
 
 	return err
 }
@@ -182,6 +218,43 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	default:
 		state = "error"
 		description = "there was an error"
+	}
+
+	// check if the build event is deployment
+	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		// parse out deployment number from build source URL
+		//
+		// pattern: <org>/<repo>/deployments/<deployment_id>
+		var parts []string
+		if strings.Contains(b.GetSource(), "/deployments/") {
+			parts = strings.Split(b.GetSource(), "/deployments/")
+		}
+
+		// capture number by converting from string
+		number, err := strconv.Atoi(parts[1])
+		if err != nil {
+			// capture number by scanning from string
+			_, err := fmt.Sscanf(b.GetSource(), "%s/%d", nil, &number)
+			if err != nil {
+				return err
+			}
+		}
+
+		// create the status object to make the API call
+		status := &github.DeploymentStatusRequest{
+			Description: github.String(description),
+			Environment: github.String(b.GetDeploy()),
+			State:       github.String(state),
+		}
+
+		// provide "Details" link in GitHub UI if server was configured with it
+		if len(c.WebUIHost) > 0 {
+			status.LogURL = github.String(url)
+		}
+
+		_, _, err = client.Repositories.CreateDeploymentStatus(ctx, org, name, int64(number), status)
+
+		return err
 	}
 
 	// create the status object to make the API call

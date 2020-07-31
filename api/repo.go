@@ -25,6 +25,53 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/repos repos CreateRepo
+//
+// Create a repo in the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the repo to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Repo"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the repo
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '400':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '403':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '409':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+//   '503':
+//     description: Unable to create the repo
+//     schema:
+//       type: string
+
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
 func CreateRepo(c *gin.Context) {
@@ -178,6 +225,35 @@ func CreateRepo(c *gin.Context) {
 	c.JSON(http.StatusCreated, r)
 }
 
+// swagger:operation GET /api/v1/repos repos GetRepos
+//
+// Get all repos in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the repo
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '400':
+//     description: Unable to retrieve the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the repo
+//     schema:
+//       type: string
+
 // GetRepos represents the API handler to capture a list
 // of repos for a user from the configured backend.
 func GetRepos(c *gin.Context) {
@@ -241,6 +317,37 @@ func GetRepos(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
+// swagger:operation GET /api/v1/repos/{org}/{repo} repos GetRepo
+//
+// Get a repo in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the repo
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+
 // GetRepo represents the API handler to
 // capture a repo from the configured backend.
 func GetRepo(c *gin.Context) {
@@ -251,6 +358,59 @@ func GetRepo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, r)
 }
+
+// swagger:operation PUT /api/v1/repos/{org}/{repo} repos UpdateRepo
+//
+// Update a repo in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the repo to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Repo"
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the repo
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '400':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
+//   '503':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
+//   '510':
+//     description: Unable to update the repo
+//     schema:
+//       type: string
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
@@ -376,6 +536,44 @@ func UpdateRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
+// swagger:operation DELETE /api/v1/repos/{org}/{repo} repos DeleteRepo
+//
+// Delete a repo in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to  deleted the repo
+//     schema:
+//       type: string
+//   '510':
+//     description: Unable to  deleted the repo
+//     schema:
+//       type: string
+
 // DeleteRepo represents the API handler to remove
 // a repo from the configured backend.
 func DeleteRepo(c *gin.Context) {
@@ -424,6 +622,40 @@ func DeleteRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s deleted", r.GetFullName()))
 }
 
+// swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
+//
+// Remove and recreate the webhook for a repo
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully repaired the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to repair the repo
+//     schema:
+//       type: string
+
 // RepairRepo represents the API handler to remove
 // and then create a webhook for a repo.
 func RepairRepo(c *gin.Context) {
@@ -454,8 +686,57 @@ func RepairRepo(c *gin.Context) {
 		return
 	}
 
+	// if the repo was previously inactive, mark it as active
+	if !r.GetActive() {
+		r.SetActive(true)
+
+		// send API call to update the repo
+		err = database.FromContext(c).UpdateRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s repaired", r.GetFullName()))
 }
+
+// swagger:operation PATCH /api/v1/repos/{org}/{repo}/chown repos ChownRepo
+//
+// Change the owner of the webhook for a repo
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully changed the owner for the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to change the owner for the repo
+//     schema:
+//       type: string
 
 // ChownRepo represents the API handler to change
 // the owner of a repo in the configured backend.

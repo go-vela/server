@@ -23,6 +23,41 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/users users CreateUser
+//
+// Create a user for the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the user to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '400':
+//     description: Unable to create the user
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to create the user
+//     schema:
+//       type: string
+
 // CreateUser represents the API handler to create
 // a user in the configured backend.
 func CreateUser(c *gin.Context) {
@@ -55,6 +90,35 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, u)
 }
+
+// swagger:operation GET /api/v1/users users GetUsers
+//
+// Retrieve a list of users for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the list of users
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '400':
+//     description: Unable to retrieve the list of users
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of users
+//     schema:
+//       type: string
 
 // GetUsers represents the API handler to capture a list
 // of users from the configured backend.
@@ -116,6 +180,27 @@ func GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, u)
 }
 
+// swagger:operation GET /api/v1/user users GetCurrentUser
+//
+// Retrieve the current authenticated user from the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the current user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+
 // GetCurrentUser represents the API handler to capture the
 // currently authenticated user from the configured backend.
 func GetCurrentUser(c *gin.Context) {
@@ -126,6 +211,45 @@ func GetCurrentUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, u)
 }
+
+// swagger:operation PUT /api/v1/user users UpdateCurrentUser
+//
+// Update the current authenticated user in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the user to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the current user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '400':
+//     description: Unable to update the current user
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to update the current user
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the current user
+//     schema:
+//       type: string
 
 // UpdateCurrentUser represents the API handler to capture and
 // update the currently authenticated user from the configured backend.
@@ -176,6 +300,36 @@ func UpdateCurrentUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// swagger:operation GET /api/v1/users/{user} users GetUser
+//
+// Retrieve a user for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: user
+//   description: Name of the user
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '400':
+//     description: Unable to retrieve the user
+//     schema:
+//       type: string
+
 // GetUser represents the API handler to capture a
 // user from the configured backend.
 func GetUser(c *gin.Context) {
@@ -196,6 +350,31 @@ func GetUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, u)
 }
+
+// swagger:operation GET /api/v1/user/source/repos users GetUserSourceRepos
+//
+// Retrieve a list of repos for the current authenticated user
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved a list of repos for the current user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Repo"
+//   '404':
+//     description: Unable to retrieve a list of repos for the current user
+//     schema:
+//       type: string
 
 // GetUserSourceRepos represents the API handler to capture
 // the list of repos for a user from the configured backend.
@@ -279,6 +458,50 @@ func GetUserSourceRepos(c *gin.Context) {
 	c.JSON(http.StatusOK, output)
 }
 
+// swagger:operation PUT /api/v1/users/{user} users UpdateUser
+//
+// Update a user for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing the user to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/User"
+// - in: path
+//   name: user
+//   description: Name of the user
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully updated the user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/User"
+//   '400':
+//     description: Unable to update the user
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to update the user
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to update the user
+//     schema:
+//       type: string
+
 // UpdateUser represents the API handler to update
 // a user in the configured backend.
 func UpdateUser(c *gin.Context) {
@@ -341,6 +564,39 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, u)
 }
 
+// swagger:operation DELETE /api/v1/users/{user} users DeleteUser
+//
+// Delete a user for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: user
+//   description: Name of the user
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully deleted of user
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to delete user
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to delete user
+//     schema:
+//       type: string
+
 // DeleteUser represents the API handler to remove
 // a user from the configured backend.
 func DeleteUser(c *gin.Context) {
@@ -372,6 +628,31 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("User %s deleted", u.GetName()))
 }
 
+// swagger:operation POST /api/v1/user/token users CreateToken
+//
+// Create a token for the current authenticated user
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created a token for the current user
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Login"
+//   '500':
+//     description: Unable to create a token for the current user
+//     schema:
+//       type: string
+
 // CreateToken represents the API handler to create
 // a user token in the configured backend.
 func CreateToken(c *gin.Context) {
@@ -392,6 +673,30 @@ func CreateToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
 }
+
+// swagger:operation DELETE /api/v1/user/token users DeleteToken
+//
+// Delete a token for the current authenticated user
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully delete a token for the current user
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to delete a token for the current user
+//     schema:
+//       type: string
 
 // DeleteToken represents the API handler to revoke
 // and recreate a user token in the configured backend.

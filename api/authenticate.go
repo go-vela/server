@@ -21,6 +21,35 @@ import (
 	"github.com/google/uuid"
 )
 
+// swagger:operation GET /authenticate authenticate Authenticate
+//
+// Authenticate with the Vela API
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing login information
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Login"
+// responses:
+//   '200':
+//     description: Successfully authenticated
+//     schema:
+//       type: string
+//   '401':
+//     description: Unable to authenticate
+//     schema:
+//       type: string
+//   '503':
+//     description: Service unavailable
+//     schema:
+//       type: string
+
 // Authenticate represents the API handler to
 // process a user logging in to Vela from
 // the API or UI.

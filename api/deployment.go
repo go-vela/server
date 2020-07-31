@@ -20,6 +20,46 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// swagger:operation POST /api/v1/deployments/{org}/{repo} deployment CreateDeployment
+//
+// Create a deployment for the configured backend
+//
+// ---
+// x-success_http_code: '201'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '201':
+//     description: Successfully created the deployment
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Unable to create the deployment
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Deployment"
+//   '500':
+//     description: Unable to create the deployment
+//     schema:
+//       type: string
+
 // CreateDeployment represents the API handler to
 // create a deployment in the configured backend.
 func CreateDeployment(c *gin.Context) {
@@ -65,6 +105,45 @@ func CreateDeployment(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, input)
 }
+
+// swagger:operation GET /api/v1/deployments/{org}/{repo} deployment GetDeployments
+//
+// Get a list of deployments for the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the list of deployments
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Deployment"
+//   '400':
+//     description: Unable to retrieve the list of deployments
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of deployments
+//     schema:
+//       type: string
 
 // GetDeployments represents the API handler to capture
 // a list of deployments from the configured backend.
@@ -129,6 +208,50 @@ func GetDeployments(c *gin.Context) {
 
 	c.JSON(http.StatusOK, d)
 }
+
+// swagger:operation GET /api/v1/deployments/{org}/{repo}/{deployment} deployment GetDeployment
+//
+// Get a deployment from the configured backend
+//
+// ---
+// x-success_http_code: '501'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: deployment
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the deployment
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Deployment"
+//   '200':
+//     description: Unable to retrieve the deployment
+//     schema:
+//       type: string
+//   '200':
+//     description: Unable to retrieve the deployment
+//     schema:
+//       type: string
 
 // GetDeployment represents the API handler to
 // capture a deployment from the configured backend.
