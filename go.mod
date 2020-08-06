@@ -10,10 +10,9 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/go-redis/redis v6.15.8+incompatible
-	github.com/go-vela/compiler v0.4.3
-	github.com/go-vela/types v0.4.4-0.20200727213839-8de69b697417
+	github.com/go-vela/compiler v0.5.0-rc1
+	github.com/go-vela/types v0.5.0-rc1
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
@@ -21,8 +20,6 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.6.6 // indirect
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
 	github.com/hashicorp/vault/api v1.0.4
-	github.com/huandu/xstrings v1.3.2 // indirect
-	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/jinzhu/gorm v1.9.14
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
@@ -33,14 +30,8 @@ require (
 	github.com/prometheus/client_golang v1.7.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/urfave/cli/v2 v2.2.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
-	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200622214017-ed371f2e16b4 // indirect
-	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
-	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )
