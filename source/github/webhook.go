@@ -196,6 +196,7 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.W
 	b.SetBranch(payload.GetPullRequest().GetBase().GetRef())
 	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetNumber()))
 	b.SetBaseRef(payload.GetPullRequest().GetBase().GetRef())
+	b.SetHeadRef(payload.GetPullRequest().GetHead().GetRef())
 
 	// ensure the build reference is set
 	if payload.GetPullRequest().GetMerged() {

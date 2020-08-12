@@ -802,6 +802,7 @@ func testBuild() *library.Build {
 		Branch:       &str,
 		Ref:          &str,
 		BaseRef:      &str,
+		HeadRef:      &str,
 		Host:         &str,
 		Runtime:      &str,
 		Distribution: &str,
