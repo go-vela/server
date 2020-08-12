@@ -92,7 +92,7 @@ type Service interface {
 	ListUserRepos(*library.User) ([]*library.Repo, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
-	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, error)
+	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, string, error)
 
 	// Webhook Source Interface Functions
 

@@ -10,7 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/go-vela/compiler v0.5.0-rc1
-	github.com/go-vela/types v0.5.0-rc1
+	github.com/go-vela/types v0.5.0-rc1.0.20200811135328-b06ed6c89cb2
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
