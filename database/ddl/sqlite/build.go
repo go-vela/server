@@ -35,6 +35,7 @@ builds (
 	branch        TEXT,
 	ref           TEXT,
 	base_ref      TEXT,
+	head_ref      TEXT,
 	host          TEXT,
 	runtime       TEXT,
 	distribution  TEXT,

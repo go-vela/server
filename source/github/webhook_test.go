@@ -224,6 +224,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBranch("master")
 	wantBuild.SetRef("refs/pull/1/head")
 	wantBuild.SetBaseRef("master")
+	wantBuild.SetHeadRef("changes")
 
 	want := &types.Webhook{
 		Comment:  "",
