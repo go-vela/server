@@ -6,6 +6,7 @@ package vault
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -72,24 +73,32 @@ func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, err
 // listOrg is a helper function to capture the
 // list of org secrets for the provided path.
 func (c *client) listOrg(org string) (*api.Secret, error) {
-	return c.list(fmt.Sprintf("secret/%s/%s", constants.SecretOrg, org))
+	return c.list(fmt.Sprintf("%s/%s/%s", c.Prefix, constants.SecretOrg, org))
 }
 
 // listRepo is a helper function to capture the
 // list of repo secrets for the provided path.
 func (c *client) listRepo(org, repo string) (*api.Secret, error) {
-	return c.list(fmt.Sprintf("secret/%s/%s/%s", constants.SecretRepo, org, repo))
+	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.Prefix, constants.SecretRepo, org, repo))
 }
 
 // listShared is a helper function to capture the
 // list of shared secrets for the provided path.
 func (c *client) listShared(org, team string) (*api.Secret, error) {
-	return c.list(fmt.Sprintf("secret/%s/%s/%s", constants.SecretShared, org, team))
+	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.Prefix, constants.SecretShared, org, team))
 }
 
 // list is a helper function to capture the
 // list of secrets for the provided path.
 func (c *client) list(path string) (*api.Secret, error) {
+	// handle k/v v2
+	if strings.HasPrefix(path, "secret/data/") {
+		// remove secret/data/ prefix
+		path = strings.TrimPrefix(path, "secret/data/")
+		// add secret/metadata/ prefix
+		path = fmt.Sprintf("secret/metadata/%s", path)
+	}
+
 	// send API call to capture the list of secrets
 	vault, err := c.Vault.Logical().List(path)
 	if err != nil {

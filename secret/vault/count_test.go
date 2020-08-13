@@ -38,7 +38,7 @@ func TestVault_Count_Org(t *testing.T) {
 	want := 1
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestVault_Count_Repo(t *testing.T) {
 	want := 1
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestVault_Count_Shared(t *testing.T) {
 	want := 1
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -156,7 +156,7 @@ func TestVault_Count_InvalidType(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -177,7 +177,7 @@ func TestVault_Count_ClosedServer(t *testing.T) {
 	fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -210,7 +210,7 @@ func TestVault_Count_EmptyList(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -248,7 +248,7 @@ func TestVault_Count_InvalidList(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

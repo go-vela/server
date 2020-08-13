@@ -43,7 +43,7 @@ func TestVault_Get_Org(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -91,7 +91,7 @@ func TestVault_Get_Repo(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -139,7 +139,7 @@ func TestVault_Get_Shared(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestVault_Get_InvalidType(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -186,7 +186,7 @@ func TestVault_Get_ClosedServer(t *testing.T) {
 	fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

@@ -146,6 +146,12 @@ func main() {
 			Name:    "vault-token",
 			Usage:   "vault token for storing secrets",
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SECRET_VAULT_VERSION", "SECRET_VAULT_VERSION"},
+			Name:    "vault-version",
+			Usage:   "vault k/v backend version to utilize",
+			Value:   "1",
+		},
 
 		// Source Flags
 

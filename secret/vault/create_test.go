@@ -42,7 +42,7 @@ func TestVault_Create_Org(t *testing.T) {
 	sec.SetAllowCommand(false)
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -86,7 +86,7 @@ func TestVault_Create_Repo(t *testing.T) {
 	sec.SetAllowCommand(false)
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestVault_Create_Shared(t *testing.T) {
 	sec.SetAllowCommand(false)
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -174,7 +174,7 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	sec.SetAllowCommand(false)
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -208,7 +208,7 @@ func TestVault_Create_InvalidType(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -237,7 +237,7 @@ func TestVault_Create_ClosedServer(t *testing.T) {
 	fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

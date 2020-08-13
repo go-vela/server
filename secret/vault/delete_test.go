@@ -28,7 +28,7 @@ func TestVault_Delete_Org(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -60,7 +60,7 @@ func TestVault_Delete_Repo(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -92,7 +92,7 @@ func TestVault_Delete_Shared(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -114,7 +114,7 @@ func TestVault_Delete_InvalidType(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -131,7 +131,7 @@ func TestVault_Delete_ClosedServer(t *testing.T) {
 	fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

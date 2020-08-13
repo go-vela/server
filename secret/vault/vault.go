@@ -5,17 +5,27 @@
 package vault
 
 import (
+	"fmt"
 	"github.com/go-vela/types/library"
-
 	"github.com/hashicorp/vault/api"
 )
 
 type client struct {
-	Vault *api.Client
+	Vault  *api.Client
+	Prefix string
 }
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-func New(addr, token string) (*client, error) {
+func New(addr, token, version string) (*client, error) {
+	var prefix string
+	switch version {
+	case "1":
+		prefix = "secret"
+	case "2":
+		prefix = "secret/data"
+	default:
+		return nil, fmt.Errorf("unrecognized vault version of %s", version)
+	}
 	conf := api.Config{Address: addr}
 
 	// create Vault client
@@ -28,7 +38,8 @@ func New(addr, token string) (*client, error) {
 	c.SetToken(token)
 
 	client := &client{
-		Vault: c,
+		Vault:  c,
+		Prefix: prefix,
 	}
 
 	return client, nil
@@ -37,8 +48,16 @@ func New(addr, token string) (*client, error) {
 func secretFromVault(vault *api.Secret) *library.Secret {
 	s := new(library.Secret)
 
+	var data map[string]interface{}
+	// handle k/v v2
+	if _, ok := vault.Data["data"]; ok  {
+		data = vault.Data["data"].(map[string]interface{})
+	} else {
+		data = vault.Data
+	}
+
 	// set events if found in Vault secret
-	v, ok := vault.Data["events"]
+	v, ok := data["events"]
 	if ok {
 		events, ok := v.([]interface{})
 		if ok {
@@ -52,7 +71,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set images if found in Vault secret
-	v, ok = vault.Data["images"]
+	v, ok = data["images"]
 	if ok {
 		images, ok := v.([]interface{})
 		if ok {
@@ -66,7 +85,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set name if found in Vault secret
-	v, ok = vault.Data["name"]
+	v, ok = data["name"]
 	if ok {
 		name, ok := v.(string)
 		if ok {
@@ -75,7 +94,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set org if found in Vault secret
-	v, ok = vault.Data["org"]
+	v, ok = data["org"]
 	if ok {
 		org, ok := v.(string)
 		if ok {
@@ -84,7 +103,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set repo if found in Vault secret
-	v, ok = vault.Data["repo"]
+	v, ok = data["repo"]
 	if ok {
 		repo, ok := v.(string)
 		if ok {
@@ -93,7 +112,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set team if found in Vault secret
-	v, ok = vault.Data["team"]
+	v, ok = data["team"]
 	if ok {
 		team, ok := v.(string)
 		if ok {
@@ -102,7 +121,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set type if found in Vault secret
-	v, ok = vault.Data["type"]
+	v, ok = data["type"]
 	if ok {
 		secretType, ok := v.(string)
 		if ok {
@@ -111,7 +130,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set value if found in Vault secret
-	v, ok = vault.Data["value"]
+	v, ok = data["value"]
 	if ok {
 		value, ok := v.(string)
 		if ok {

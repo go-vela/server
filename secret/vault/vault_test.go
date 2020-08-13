@@ -21,7 +21,7 @@ func TestVault_New(t *testing.T) {
 	defer fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo")
+	s, err := New(fake.URL, "foo", "1")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -33,7 +33,7 @@ func TestVault_New(t *testing.T) {
 
 func TestVault_New_Error(t *testing.T) {
 	// run test
-	s, err := New("!@#$%^&*()", "")
+	s, err := New("!@#$%^&*()", "", "1")
 	if err == nil {
 		t.Errorf("New should have returned err")
 	}
