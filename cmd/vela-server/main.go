@@ -152,6 +152,11 @@ func main() {
 			Usage:   "vault k/v backend version to utilize",
 			Value:   "1",
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SECRET_VAULT_PREFIX", "SECRET_VAULT_PREFIX"},
+			Name:    "vault-prefix",
+			Usage:   "vault prefix for k/v secrets. e.g. secret/data/<prefix>/<path>",
+		},
 
 		// Source Flags
 

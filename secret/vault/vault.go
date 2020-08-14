@@ -16,7 +16,7 @@ type client struct {
 }
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-func New(addr, token, version string) (*client, error) {
+func New(addr, token, version, pathPrefix string) (*client, error) {
 	var prefix string
 	switch version {
 	case "1":
@@ -26,6 +26,12 @@ func New(addr, token, version string) (*client, error) {
 	default:
 		return nil, fmt.Errorf("unrecognized vault version of %s", version)
 	}
+
+	// append admin defined prefix if not empty
+	if pathPrefix != "" {
+		prefix = fmt.Sprintf("%s/%s", prefix, pathPrefix)
+	}
+
 	conf := api.Config{Address: addr}
 
 	// create Vault client
@@ -50,7 +56,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 
 	var data map[string]interface{}
 	// handle k/v v2
-	if _, ok := vault.Data["data"]; ok  {
+	if _, ok := vault.Data["data"]; ok {
 		data = vault.Data["data"].(map[string]interface{})
 	} else {
 		data = vault.Data

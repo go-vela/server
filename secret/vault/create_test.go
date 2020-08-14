@@ -22,7 +22,15 @@ func TestVault_Create_Org(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.PUT("/v1/secret/:type/:org/:name", func(c *gin.Context) {
+	engine.PUT("/v1/secret/org/foo/bar", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+
+	engine.PUT("/v1/secret/data/org/foo/bar", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+
+	engine.PUT("/v1/secret/data/prefix/org/foo/bar", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
 
@@ -41,20 +49,34 @@ func TestVault_Create_Org(t *testing.T) {
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	err = s.Create("org", "foo", "*", sec)
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			err = s.Create("org", "foo", "*", sec)
 
-	if err != nil {
-		t.Errorf("Create returned err: %v", err)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err != nil {
+				t.Errorf("Create returned err: %v", err)
+			}
+		})
 	}
 }
 
@@ -66,7 +88,15 @@ func TestVault_Create_Repo(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.PUT("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
+	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+
+	engine.PUT("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+
+	engine.PUT("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
 
@@ -85,20 +115,34 @@ func TestVault_Create_Repo(t *testing.T) {
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	err = s.Create("repo", "foo", "bar", sec)
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			err = s.Create("repo", "foo", "bar", sec)
 
-	if err != nil {
-		t.Errorf("Create returned err: %v", err)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err != nil {
+				t.Errorf("Create returned err: %v", err)
+			}
+		})
 	}
 }
 
@@ -110,7 +154,13 @@ func TestVault_Create_Shared(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.PUT("/v1/secret/:type/:org/:team/:name", func(c *gin.Context) {
+	engine.PUT("/v1/secret/shared/foo/bar/baz", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+	engine.PUT("/v1/secret/data/shared/foo/bar/baz", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+	engine.PUT("/v1/secret/data/prefix/shared/foo/bar/baz", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
 
@@ -129,20 +179,34 @@ func TestVault_Create_Shared(t *testing.T) {
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	err = s.Create("shared", "foo", "bar", sec)
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			err = s.Create("shared", "foo", "bar", sec)
 
-	if err != nil {
-		t.Errorf("Create returned err: %v", err)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err != nil {
+				t.Errorf("Create returned err: %v", err)
+			}
+		})
 	}
 }
 
@@ -154,7 +218,15 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.PUT("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
+	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+
+	engine.PUT("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
+		c.String(http.StatusNoContent, "")
+	})
+
+	engine.PUT("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 	})
 
@@ -173,20 +245,34 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	err = s.Create("repo", "foo", "bar", sec)
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			err = s.Create("repo", "foo", "bar", sec)
 
-	if err == nil {
-		t.Errorf("Create should have returned err")
+			if resp.Code != http.StatusOK {
+				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err == nil {
+				t.Errorf("Create should have returned err")
+			}
+		})
 	}
 }
 
@@ -207,15 +293,30 @@ func TestVault_Create_InvalidType(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	defer fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	err = s.Create("invalid", "foo", "bar", sec)
-	if err == nil {
-		t.Errorf("Create should have returned err")
+			err = s.Create("invalid", "foo", "bar", sec)
+			if err == nil {
+				t.Errorf("Create should have returned err")
+			}
+		})
 	}
 }
 
@@ -236,14 +337,29 @@ func TestVault_Create_ClosedServer(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	err = s.Create("repo", "foo", "bar", sec)
-	if err == nil {
-		t.Errorf("Create should have returned err")
+			err = s.Create("repo", "foo", "bar", sec)
+			if err == nil {
+				t.Errorf("Create should have returned err")
+			}
+		})
 	}
 }

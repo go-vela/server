@@ -20,15 +20,37 @@ func TestVault_Count_Org(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:name", func(c *gin.Context) {
+	engine.GET("/v1/secret/org/foo/foo", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/org.json")
+		c.File("testdata/v1/org.json")
 	})
-	engine.GET("/v1/secret/:type/:org", func(c *gin.Context) {
+	engine.GET("/v1/secret/org/foo", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/list.json")
+		c.File("testdata/v1/list.json")
+	})
+
+	engine.GET("/v1/secret/data/org/foo/foo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/org.json")
+	})
+	engine.GET("/v1/secret/metadata/org/foo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/list.json")
+	})
+
+	engine.GET("/v1/secret/data/prefix/org/foo/foo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/org.json")
+	})
+	engine.GET("/v1/secret/metadata/prefix/org/foo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/list.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -37,24 +59,39 @@ func TestVault_Count_Org(t *testing.T) {
 	// setup types
 	want := 1
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("org", "foo", "*")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if err != nil {
-		t.Errorf("Count returned err: %v", err)
-	}
+			got, err := s.Count("org", "foo", "*")
 
-	if got != int64(want) {
-		t.Errorf("Count is %v, want %v", got, want)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err != nil {
+				t.Errorf("Count returned err: %v", err)
+			}
+
+			if got != int64(want) {
+				t.Errorf("Count is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -66,15 +103,37 @@ func TestVault_Count_Repo(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
+	engine.GET("/v1/secret/repo/foo/bar/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/repo.json")
+		c.File("testdata/v1/repo.json")
 	})
-	engine.GET("/v1/secret/:type/:org/:repo", func(c *gin.Context) {
+	engine.GET("/v1/secret/repo/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/list.json")
+		c.File("testdata/v1/list.json")
+	})
+
+	engine.GET("/v1/secret/data/repo/foo/bar/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/repo.json")
+	})
+	engine.GET("/v1/secret/metadata/repo/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/list.json")
+	})
+
+	engine.GET("/v1/secret/data/prefix/repo/foo/bar/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/repo.json")
+	})
+	engine.GET("/v1/secret/metadata/prefix/repo/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/list.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -83,24 +142,39 @@ func TestVault_Count_Repo(t *testing.T) {
 	// setup types
 	want := 1
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("repo", "foo", "bar")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if err != nil {
-		t.Errorf("Count returned err: %v", err)
-	}
+			got, err := s.Count("repo", "foo", "bar")
 
-	if got != int64(want) {
-		t.Errorf("Count is %v, want %v", got, want)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err != nil {
+				t.Errorf("Count returned err: %v", err)
+			}
+
+			if got != int64(want) {
+				t.Errorf("Count is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -112,15 +186,37 @@ func TestVault_Count_Shared(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:team/:name", func(c *gin.Context) {
+	engine.GET("/v1/secret/shared/foo/bar/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/shared.json")
+		c.File("testdata/v1/shared.json")
 	})
-	engine.GET("/v1/secret/:type/:org/:team", func(c *gin.Context) {
+	engine.GET("/v1/secret/shared/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/list.json")
+		c.File("testdata/v1/list.json")
+	})
+
+	engine.GET("/v1/secret/data/shared/foo/bar/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/shared.json")
+	})
+	engine.GET("/v1/secret/metadata/shared/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/list.json")
+	})
+
+	engine.GET("/v1/secret/data/prefix/shared/foo/bar/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/shared.json")
+	})
+	engine.GET("/v1/secret/metadata/prefix/shared/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/list.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -129,24 +225,39 @@ func TestVault_Count_Shared(t *testing.T) {
 	// setup types
 	want := 1
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("shared", "foo", "bar")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if err != nil {
-		t.Errorf("List returned err: %v", err)
-	}
+			got, err := s.Count("shared", "foo", "bar")
 
-	if got != int64(want) {
-		t.Errorf("Count is %v, want %v", got, want)
+			if resp.Code != http.StatusOK {
+				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err != nil {
+				t.Errorf("List returned err: %v", err)
+			}
+
+			if got != int64(want) {
+				t.Errorf("Count is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -155,19 +266,34 @@ func TestVault_Count_InvalidType(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	defer fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("invalid", "foo", "bar")
-	if err == nil {
-		t.Errorf("Count should have returned err")
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if got != 0 {
-		t.Errorf("Count is %v, want 0", got)
+			got, err := s.Count("invalid", "foo", "bar")
+			if err == nil {
+				t.Errorf("Count should have returned err")
+			}
+
+			if got != 0 {
+				t.Errorf("Count is %v, want 0", got)
+			}
+		})
 	}
 }
 
@@ -176,19 +302,34 @@ func TestVault_Count_ClosedServer(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("repo", "foo", "bar")
-	if err == nil {
-		t.Errorf("Count should have returned err")
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if got != 0 {
-		t.Errorf("Count is %v, want 0", got)
+			got, err := s.Count("repo", "foo", "bar")
+			if err == nil {
+				t.Errorf("Count should have returned err")
+			}
+
+			if got != 0 {
+				t.Errorf("Count is %v, want 0", got)
+			}
+		})
 	}
 }
 
@@ -200,33 +341,60 @@ func TestVault_Count_EmptyList(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:team", func(c *gin.Context) {
+	engine.GET("/v1/secret/repo/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/empty_list.json")
+		c.File("testdata/v1/empty_list.json")
+	})
+
+	engine.GET("/v1/secret/metadata/repo/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/empty_list.json")
+	})
+
+	engine.GET("/v1/secret/metadata/prefix/repo/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/empty_list.json")
 	})
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("repo", "foo", "bar")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if err == nil {
-		t.Errorf("Count should have returned err")
-	}
+			got, err := s.Count("repo", "foo", "bar")
 
-	if got != 0 {
-		t.Errorf("Count is %v, want 0", got)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err == nil {
+				t.Errorf("Count should have returned err")
+			}
+
+			if got != 0 {
+				t.Errorf("Count is %v, want 0", got)
+			}
+		})
 	}
 }
 
@@ -238,32 +406,59 @@ func TestVault_Count_InvalidList(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:team", func(c *gin.Context) {
+	engine.GET("/v1/secret/repo/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/invalid_list.json")
+		c.File("testdata/v1/invalid_list.json")
+	})
+
+	engine.GET("/v1/secret/metadata/repo/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v1/invalid_list.json")
+	})
+
+	engine.GET("/v1/secret/metadata/prefix/repo/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v1/invalid_list.json")
 	})
 
 	fake := httptest.NewServer(engine)
 	defer fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Count("repo", "foo", "bar")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if err == nil {
-		t.Errorf("Count should have returned err")
-	}
+			got, err := s.Count("repo", "foo", "bar")
 
-	if got != 0 {
-		t.Errorf("Count is %v, want 0", got)
+			if resp.Code != http.StatusOK {
+				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
+			}
+
+			if err == nil {
+				t.Errorf("Count should have returned err")
+			}
+
+			if got != 0 {
+				t.Errorf("Count is %v, want 0", got)
+			}
+		})
 	}
 }

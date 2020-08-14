@@ -23,10 +23,22 @@ func TestVault_Get_Org(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:name", func(c *gin.Context) {
+	engine.GET("/v1/secret/org/foo/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/org.json")
+		c.File("testdata/v1/org.json")
+	})
+
+	engine.GET("/v1/secret/data/org/foo/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/org.json")
+	})
+
+	engine.GET("/v1/secret/data/prefix/org/foo/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/org.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -42,24 +54,38 @@ func TestVault_Get_Org(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Get("org", "foo", "bar", "baz")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			got, err := s.Get("org", "foo", "bar", "baz")
 
-	if err != nil {
-		t.Errorf("Get returned err: %v", err)
-	}
+			if resp.Code != http.StatusOK {
+				t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
+			}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Get is %v, want %v", got, want)
+			if err != nil {
+				t.Errorf("Get returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("Get is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -71,10 +97,22 @@ func TestVault_Get_Repo(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:repo/:name", func(c *gin.Context) {
+	engine.GET("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/repo.json")
+		c.File("testdata/v1/repo.json")
+	})
+
+	engine.GET("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/repo.json")
+	})
+
+	engine.GET("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/repo.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -90,24 +128,38 @@ func TestVault_Get_Repo(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Get("repo", "foo", "bar", "baz")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			got, err := s.Get("repo", "foo", "bar", "baz")
 
-	if err != nil {
-		t.Errorf("Get returned err: %v", err)
-	}
+			if resp.Code != http.StatusOK {
+				t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
+			}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Get is %v, want %v", got, want)
+			if err != nil {
+				t.Errorf("Get returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("Get is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -119,10 +171,22 @@ func TestVault_Get_Shared(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/:type/:org/:team/:name", func(c *gin.Context) {
+	engine.GET("/v1/secret/shared/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/shared.json")
+		c.File("testdata/v1/shared.json")
+	})
+
+	engine.GET("/v1/secret/data/shared/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/shared.json")
+	})
+
+	engine.GET("/v1/secret/data/prefix/shared/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/shared.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -138,24 +202,38 @@ func TestVault_Get_Shared(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Get("shared", "foo", "bar", "baz")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			got, err := s.Get("shared", "foo", "bar", "baz")
 
-	if err != nil {
-		t.Errorf("Get returned err: %v", err)
-	}
+			if resp.Code != http.StatusOK {
+				t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
+			}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Get is %v, want %v", got, want)
+			if err != nil {
+				t.Errorf("Get returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("Get is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -164,19 +242,33 @@ func TestVault_Get_InvalidType(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	defer fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Get("invalid", "foo", "bar", "foob")
-	if err == nil {
-		t.Errorf("Get should have returned err")
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			got, err := s.Get("invalid", "foo", "bar", "foob")
+			if err == nil {
+				t.Errorf("Get should have returned err")
+			}
 
-	if got != nil {
-		t.Errorf("Get is %v, want nil", got)
+			if got != nil {
+				t.Errorf("Get is %v, want nil", got)
+			}
+		})
 	}
 }
 
@@ -185,18 +277,32 @@ func TestVault_Get_ClosedServer(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo", "1")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
-
-	got, err := s.Get("repo", "foo", "bar", "foob")
-	if err == nil {
-		t.Errorf("Get should have returned err")
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+			got, err := s.Get("repo", "foo", "bar", "foob")
+			if err == nil {
+				t.Errorf("Get should have returned err")
+			}
 
-	if got != nil {
-		t.Errorf("Get is %v, want nil", got)
+			if got != nil {
+				t.Errorf("Get is %v, want nil", got)
+			}
+		})
 	}
 }

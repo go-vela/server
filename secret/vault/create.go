@@ -6,11 +6,10 @@ package vault
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
