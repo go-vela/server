@@ -415,13 +415,13 @@ func TestVault_Count_InvalidList(t *testing.T) {
 	engine.GET("/v1/secret/metadata/repo/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/v1/invalid_list.json")
+		c.File("testdata/v2/invalid_list.json")
 	})
 
 	engine.GET("/v1/secret/metadata/prefix/repo/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
-		c.File("testdata/v1/invalid_list.json")
+		c.File("testdata/v2/invalid_list.json")
 	})
 
 	fake := httptest.NewServer(engine)
