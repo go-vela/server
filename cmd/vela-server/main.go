@@ -150,7 +150,7 @@ func main() {
 			EnvVars: []string{"VELA_SECRET_VAULT_VERSION", "SECRET_VAULT_VERSION"},
 			Name:    "vault-version",
 			Usage:   "vault k/v backend version to utilize",
-			Value:   "1",
+			Value:   "2",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SECRET_VAULT_PREFIX", "SECRET_VAULT_PREFIX"},

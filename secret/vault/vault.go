@@ -15,14 +15,17 @@ type client struct {
 	Prefix string
 }
 
+const PrefixVaultV1 = "secret"
+const PrefixVaultV2 = "secret/data"
+
 // New returns a Secret implementation that integrates with a Vault secrets engine.
 func New(addr, token, version, pathPrefix string) (*client, error) {
 	var prefix string
 	switch version {
 	case "1":
-		prefix = "secret"
+		prefix = PrefixVaultV1
 	case "2":
-		prefix = "secret/data"
+		prefix = PrefixVaultV2
 	default:
 		return nil, fmt.Errorf("unrecognized vault version of %s", version)
 	}
