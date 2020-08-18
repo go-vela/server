@@ -2,7 +2,7 @@ module github.com/go-vela/server
 
 go 1.13
 
-replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20200817234448-4421bb944025
+replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20200818133900-c4a5e4bebff2
 
 replace github.com/go-vela/types => github.com/JordanSussman/types v0.1.2-0.20200817233341-2853ce2956de
 

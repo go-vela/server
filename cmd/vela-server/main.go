@@ -179,12 +179,12 @@ func main() {
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",
-			Usage: "modification address, used by compiler, endpoint to send pipeline for modification",
+			Usage:   "modification address, used by compiler, endpoint to send pipeline for modification",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
 			Name:    "modification-secret",
-			Usage: "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
+			Usage:   "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},

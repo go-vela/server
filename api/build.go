@@ -219,7 +219,7 @@ func CreateBuild(c *gin.Context) {
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
-		Compile(config)
+		Compile(config, input, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
@@ -577,7 +577,7 @@ func RestartBuild(c *gin.Context) {
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
-		Compile(config)
+		Compile(config, b, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
