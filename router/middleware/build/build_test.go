@@ -73,6 +73,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetBranch("")
 	want.SetRef("")
 	want.SetBaseRef("")
+	want.SetHeadRef("")
 	want.SetHost("")
 	want.SetRuntime("")
 	want.SetDistribution("")
