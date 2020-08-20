@@ -12,7 +12,7 @@ var (
 	// VersionMinor is for functionality in a backwards-compatible manner
 	VersionMinor int64 = 5
 	// VersionPatch is for backwards-compatible bug fixes
-	VersionPatch int64
+	VersionPatch int64 = 1
 	// VersionDev indicates build metadata. Releases will be empty string.
 	VersionDev string
 )
