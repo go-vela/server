@@ -337,7 +337,7 @@ func GetBuilds(c *gin.Context) {
 
 	// send API call to capture the list of builds for the repo (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event)
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event) //[here] step 4
 	} else {
 		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	}
@@ -359,7 +359,71 @@ func GetBuilds(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, b)
+	c.JSON(http.StatusOK, b) //[here] I believe this is where post is made.
+}
+
+func GetBuildsOrg(c *gin.Context) { //[here] Note: Function names are subject to change.
+	// variables that will hold the build list and total count
+	var (
+		b []*library.Build
+		t int64
+	)
+
+	// capture middleware values
+	r := repo.Retrieve(c)
+	// capture the event type parameter
+	event := c.Query("event")
+
+	logrus.Infof("Reading builds for repo %s", r.GetFullName())
+
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+
+	// send API call to capture the list of builds for the repo (and event type if passed in)
+	if len(event) > 0 {
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event) //[here] step 4.5
+	} else {
+		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
+	}
+
+	if err != nil {
+		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
+
+	c.JSON(http.StatusOK, b) //[here] I believe this is where post is made.
 }
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild

@@ -36,6 +36,8 @@ OFFSET $3;
 
 	// SelectRepo represents a query to select a
 	// repo for an org and name in the database.
+
+	//[here] This is the query for badges.
 	SelectRepo = `
 SELECT *
 FROM repos

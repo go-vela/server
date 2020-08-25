@@ -41,7 +41,7 @@ const (
 // Load is a server function that returns the engine for processing web requests
 // on the host it's running on
 func Load(options ...gin.HandlerFunc) *gin.Engine {
-	r := gin.New()
+	r := gin.New() //[here] instantiate router gin group.
 	r.Use(gin.Recovery())
 
 	r.Use(middleware.RequestVersion)
@@ -57,6 +57,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	// Health endpoint
 	r.GET("/health", api.Health)
+
+	r.GET("/orgfinder/:org", api.Orgfinder())
 
 	// Login endpoints
 	r.GET("/login", api.Login)
@@ -83,7 +85,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	// API endpoints
 	baseAPI := r.Group(base, user.Establish())
-	{
+	{ //[here] What are these curly brackets associated with?
 		// Admin endpoints
 		AdminHandlers(baseAPI)
 
@@ -99,7 +101,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		//     * Log endpoints
 		//   * Step endpoints
 		//     * Log endpoints
-		RepoHandlers(baseAPI)
+		RepoHandlers(baseAPI) //[here] Step 1
+
+		OrgHandlers(baseAPI) //[here] step 1.5
 
 		// Secret endpoints
 		SecretHandlers(baseAPI)

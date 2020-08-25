@@ -55,8 +55,8 @@ func RepoHandlers(base *gin.RouterGroup) {
 		repos.GET("", api.GetRepos)
 
 		// Repo endpoints
-		repo := repos.Group("/:org/:repo", repo.Establish())
-		{
+		repo := repos.Group("/:org/:repo", repo.Establish()) //[here] instantiate(spellcheck) router gin group "repo"
+		{                                                    //[here] Adds things to router group
 			repo.GET("", perm.MustRead(), api.GetRepo)
 			repo.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
 			repo.DELETE("", perm.MustAdmin(), api.DeleteRepo)
@@ -68,7 +68,7 @@ func RepoHandlers(base *gin.RouterGroup) {
 			//   * Log endpoints
 			// * Step endpoints
 			//   * Log endpoints
-			BuildHandlers(repo)
+			BuildHandlers(repo) //[here] step 2
 		} // end of repo endpoints
 	} // end of repos endpoints
 }

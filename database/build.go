@@ -197,7 +197,48 @@ func (c *client) GetRepoBuildListByEvent(r *library.Repo, page, perPage int, eve
 	// send query to the database and store result in variable
 	err = c.Database.
 		Table(constants.TableBuild).
-		Raw(c.DML.BuildService.List["repoByEvent"], r.GetID(), event, perPage, offset).
+		Raw(c.DML.BuildService.List["repoByEvent"], r.GetID(), event, perPage, offset). //[here] step 6
+		Scan(b).Error
+
+	// iterate through all query results
+	for _, build := range *b {
+		// https://golang.org/doc/faq#closures_and_goroutines
+		tmp := build
+
+		// convert query result to library type
+		builds = append(builds, tmp.ToLibrary())
+	}
+
+	return builds, count, err
+}
+
+//////////////////////////////////
+func (c *client) GetRepoBuildListByOrg(r *library.Repo, page, perPage int, event string) ([]*library.Build, int64, error) {
+	logrus.Tracef("Listing builds for repo %s from the database by event '%s'", r.GetFullName(), event)
+
+	// variables to store query results
+	b := new([]database.Build)
+	builds := []*library.Build{}
+	count := int64(0)
+
+	// count the results
+	count, err := c.GetRepoBuildCountByEvent(r, event)
+	if err != nil {
+		return builds, 0, err
+	}
+
+	// short-circuit if there are no results
+	if count == 0 {
+		return builds, 0, nil
+	}
+
+	// calculate offset for pagination through results
+	offset := (perPage * (page - 1))
+
+	// send query to the database and store result in variable
+	err = c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.List["org"], r.GetID(), event, perPage, offset). //[here] step 6.5
 		Scan(b).Error
 
 	// iterate through all query results

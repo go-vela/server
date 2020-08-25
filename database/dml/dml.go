@@ -38,7 +38,7 @@ func NewMap(name string) (*Map, error) {
 	switch name {
 	// handle postgres data manipulation language
 	case constants.DriverPostgres:
-		return mapFromPostgres(postgres.NewMap()), nil
+		return mapFromPostgres(postgres.NewMap()), nil //[here] step 7
 	// handle sqlite data manipulation language
 	case constants.DriverSqlite:
 		return mapFromSqlite(sqlite.NewMap()), nil

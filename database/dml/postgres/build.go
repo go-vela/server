@@ -26,6 +26,7 @@ OFFSET $3;
 	// ListRepoBuildsByEvent represents a query to select
 	// a build for a repo_id with a specific event type
 	// in the database.
+	//[here] This is the query being used for.
 	ListRepoBuildsByEvent = `
 SELECT *
 FROM builds
@@ -55,6 +56,10 @@ WHERE repo_id = $1
 ORDER BY number DESC
 LIMIT 1;
 `
+
+	selectBuildByOrg = `
+		<<<<<Add query later>>>>> 
+	`
 
 	// SelectLastRepoBuildByBranch represents a query to
 	// select the last build for a repo_id and branch name
@@ -111,12 +116,13 @@ WHERE id = $1;
 
 // createBuildService is a helper function to return
 // a service for interacting with the builds table.
-func createBuildService() *Service {
+func createBuildService() *Service { //[here] step 9. This is where it ends.
 	return &Service{
 		List: map[string]string{
 			"all":         ListBuilds,
 			"repo":        ListRepoBuilds,
 			"repoByEvent": ListRepoBuildsByEvent,
+			"org":         selectBuildByOrg,
 		},
 		Select: map[string]string{
 			"repo":                SelectRepoBuild,

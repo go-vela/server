@@ -36,7 +36,10 @@ type Service interface {
 	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error)
 	// GetRepoBuildListByEvent defines a function that
 	// gets a list of builds by repo ID and event type.
-	GetRepoBuildListByEvent(*library.Repo, int, int, string) ([]*library.Build, int64, error)
+	GetRepoBuildListByEvent(*library.Repo, int, int, string) ([]*library.Build, int64, error) //[here] step 5. Picked up at database/build.go
+
+	GetRepoBuildListByOrg(*library.Repo, int, int, string) ([]*library.Build, int64, error) //[here] 5.5
+
 	// GetRepoBuildCount defines a function that
 	// gets the count of builds by repo ID.
 	GetRepoBuildCount(*library.Repo) (int64, error)
@@ -106,6 +109,10 @@ type Service interface {
 	// GetRepo defines a function that
 	// gets a repo by org and name.
 	GetRepo(string, string) (*library.Repo, error)
+
+	//[here] Make sure this is passing everything it needs. And that it may be redunent with GetRepoList
+	GetRepoOrg(string) (*library.Repo, error)
+
 	// GetRepoList defines a function that
 	// gets a list of all repos.
 	GetRepoList() ([]*library.Repo, error)

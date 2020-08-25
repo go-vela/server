@@ -45,7 +45,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 	builds := base.Group("/builds")
 	{
 		builds.POST("", perm.MustAdmin(), middleware.Payload(), api.CreateBuild)
-		builds.GET("", perm.MustRead(), api.GetBuilds)
+		builds.GET("", perm.MustRead(), api.GetBuilds) //[here] step 3
 
 		// Build endpoints
 		build := builds.Group("/:build", build.Establish())
