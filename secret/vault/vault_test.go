@@ -85,6 +85,7 @@ func TestVault_secretFromVault(t *testing.T) {
 			"team":   "foob",
 			"type":   "org",
 			"value":  "baz",
+			"allow_command": true,
 		},
 	}
 
@@ -99,6 +100,7 @@ func TestVault_secretFromVault(t *testing.T) {
 				"team":   "foob",
 				"type":   "org",
 				"value":  "baz",
+				"allow_command": true,
 			},
 		},
 	}
@@ -110,6 +112,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	value := "baz"
 	typee := "org"
 	arr := []string{"foo", "bar"}
+	commands := true
 	want := &library.Secret{
 		Org:    &org,
 		Repo:   &repo,
@@ -119,6 +122,7 @@ func TestVault_secretFromVault(t *testing.T) {
 		Type:   &typee,
 		Images: &arr,
 		Events: &arr,
+		AllowCommand: &commands,
 	}
 
 	type args struct {
@@ -151,6 +155,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	value := "baz"
 	typee := "org"
 	arr := []string{"foo", "bar"}
+	commands := true
 	s := &library.Secret{
 		Org:    &org,
 		Repo:   &repo,
@@ -160,6 +165,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 		Type:   &typee,
 		Images: &arr,
 		Events: &arr,
+		AllowCommand: &commands,
 	}
 
 	want := &api.Secret{
@@ -172,6 +178,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 			"team":   "foob",
 			"type":   "org",
 			"value":  "baz",
+			"allow_command": true,
 		},
 	}
 
