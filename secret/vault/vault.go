@@ -147,6 +147,15 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		}
 	}
 
+	// set allow_command if found in Vault secret
+	v, ok = data["allow_command"]
+	if ok {
+		command, ok := v.(bool)
+		if ok {
+			s.SetAllowCommand(command)
+		}
+	}
+
 	return s
 }
 
@@ -193,6 +202,11 @@ func vaultFromSecret(s *library.Secret) *api.Secret {
 	// set value if found in Database secret
 	if len(s.GetValue()) > 0 {
 		vault.Data["value"] = s.GetValue()
+	}
+
+	// set allow_command if found in Database secret
+	if s.AllowCommand != nil {
+		vault.Data["allow_command"] = s.GetAllowCommand()
 	}
 
 	return vault
