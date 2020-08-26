@@ -77,14 +77,14 @@ func TestVault_secretFromVault(t *testing.T) {
 	// setup types
 	inputV1 := &api.Secret{
 		Data: map[string]interface{}{
-			"events": []interface{}{"foo", "bar"},
-			"images": []interface{}{"foo", "bar"},
-			"name":   "bar",
-			"org":    "foo",
-			"repo":   "*",
-			"team":   "foob",
-			"type":   "org",
-			"value":  "baz",
+			"events":        []interface{}{"foo", "bar"},
+			"images":        []interface{}{"foo", "bar"},
+			"name":          "bar",
+			"org":           "foo",
+			"repo":          "*",
+			"team":          "foob",
+			"type":          "org",
+			"value":         "baz",
 			"allow_command": true,
 		},
 	}
@@ -92,14 +92,14 @@ func TestVault_secretFromVault(t *testing.T) {
 	inputV2 := &api.Secret{
 		Data: map[string]interface{}{
 			"data": map[string]interface{}{
-				"events": []interface{}{"foo", "bar"},
-				"images": []interface{}{"foo", "bar"},
-				"name":   "bar",
-				"org":    "foo",
-				"repo":   "*",
-				"team":   "foob",
-				"type":   "org",
-				"value":  "baz",
+				"events":        []interface{}{"foo", "bar"},
+				"images":        []interface{}{"foo", "bar"},
+				"name":          "bar",
+				"org":           "foo",
+				"repo":          "*",
+				"team":          "foob",
+				"type":          "org",
+				"value":         "baz",
 				"allow_command": true,
 			},
 		},
@@ -114,14 +114,14 @@ func TestVault_secretFromVault(t *testing.T) {
 	arr := []string{"foo", "bar"}
 	commands := true
 	want := &library.Secret{
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
 		AllowCommand: &commands,
 	}
 
@@ -157,27 +157,27 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	arr := []string{"foo", "bar"}
 	commands := true
 	s := &library.Secret{
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
 		AllowCommand: &commands,
 	}
 
 	want := &api.Secret{
 		Data: map[string]interface{}{
-			"events": []string{"foo", "bar"},
-			"images": []string{"foo", "bar"},
-			"name":   "bar",
-			"org":    "foo",
-			"repo":   "*",
-			"team":   "foob",
-			"type":   "org",
-			"value":  "baz",
+			"events":        []string{"foo", "bar"},
+			"images":        []string{"foo", "bar"},
+			"name":          "bar",
+			"org":           "foo",
+			"repo":          "*",
+			"team":          "foob",
+			"type":          "org",
+			"value":         "baz",
 			"allow_command": true,
 		},
 	}
