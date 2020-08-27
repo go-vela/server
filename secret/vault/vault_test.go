@@ -20,41 +20,88 @@ func TestVault_New(t *testing.T) {
 	fake := httptest.NewServer(http.NotFoundHandler())
 	defer fake.Close()
 
-	// run test
-	s, err := New(fake.URL, "foo")
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	type args struct {
+		version string
+		prefix  string
 	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
 
-	if s == nil {
-		t.Error("New returned nil client")
+			if s == nil {
+				t.Error("New returned nil client")
+			}
+		})
 	}
 }
 
 func TestVault_New_Error(t *testing.T) {
-	// run test
-	s, err := New("!@#$%^&*()", "")
-	if err == nil {
-		t.Errorf("New should have returned err")
+	type args struct {
+		version string
+		prefix  string
 	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{version: "1", prefix: ""}},
+		{"v2", args{version: "2", prefix: ""}},
+		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s, err := New("!@#$%^&*()", "", tt.args.version, tt.args.prefix)
+			if err == nil {
+				t.Errorf("New should have returned err")
+			}
 
-	if s != nil {
-		t.Error("New should have returned nil client")
+			if s != nil {
+				t.Error("New should have returned nil client")
+			}
+		})
 	}
 }
 
 func TestVault_secretFromVault(t *testing.T) {
 	// setup types
-	v := &api.Secret{
+	inputV1 := &api.Secret{
 		Data: map[string]interface{}{
-			"events": []interface{}{"foo", "bar"},
-			"images": []interface{}{"foo", "bar"},
-			"name":   "bar",
-			"org":    "foo",
-			"repo":   "*",
-			"team":   "foob",
-			"type":   "org",
-			"value":  "baz",
+			"events":        []interface{}{"foo", "bar"},
+			"images":        []interface{}{"foo", "bar"},
+			"name":          "bar",
+			"org":           "foo",
+			"repo":          "*",
+			"team":          "foob",
+			"type":          "org",
+			"value":         "baz",
+			"allow_command": true,
+		},
+	}
+
+	inputV2 := &api.Secret{
+		Data: map[string]interface{}{
+			"data": map[string]interface{}{
+				"events":        []interface{}{"foo", "bar"},
+				"images":        []interface{}{"foo", "bar"},
+				"name":          "bar",
+				"org":           "foo",
+				"repo":          "*",
+				"team":          "foob",
+				"type":          "org",
+				"value":         "baz",
+				"allow_command": true,
+			},
 		},
 	}
 
@@ -65,22 +112,37 @@ func TestVault_secretFromVault(t *testing.T) {
 	value := "baz"
 	typee := "org"
 	arr := []string{"foo", "bar"}
+	commands := true
 	want := &library.Secret{
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &commands,
 	}
 
-	// run test
-	got := secretFromVault(v)
+	type args struct {
+		secret *api.Secret
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"v1", args{secret: inputV1}},
+		{"v2", args{secret: inputV2}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := secretFromVault(tt.args.secret)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("secretFromVault is %v, want %v", got, want)
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("secretFromVault is %v, want %v", got, want)
+			}
+		})
 	}
 }
 
@@ -93,27 +155,30 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	value := "baz"
 	typee := "org"
 	arr := []string{"foo", "bar"}
+	commands := true
 	s := &library.Secret{
-		Org:    &org,
-		Repo:   &repo,
-		Team:   &team,
-		Name:   &name,
-		Value:  &value,
-		Type:   &typee,
-		Images: &arr,
-		Events: &arr,
+		Org:          &org,
+		Repo:         &repo,
+		Team:         &team,
+		Name:         &name,
+		Value:        &value,
+		Type:         &typee,
+		Images:       &arr,
+		Events:       &arr,
+		AllowCommand: &commands,
 	}
 
 	want := &api.Secret{
 		Data: map[string]interface{}{
-			"events": []string{"foo", "bar"},
-			"images": []string{"foo", "bar"},
-			"name":   "bar",
-			"org":    "foo",
-			"repo":   "*",
-			"team":   "foob",
-			"type":   "org",
-			"value":  "baz",
+			"events":        []string{"foo", "bar"},
+			"images":        []string{"foo", "bar"},
+			"name":          "bar",
+			"org":           "foo",
+			"repo":          "*",
+			"team":          "foob",
+			"type":          "org",
+			"value":         "baz",
+			"allow_command": true,
 		},
 	}
 
