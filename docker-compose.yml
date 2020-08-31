@@ -60,7 +60,7 @@ services:
       - "5432:5432"
 
   vault:
-    image: vault:0.9.6
+    image: vault:latest
     container_name: vault
     command: server -dev
     networks:

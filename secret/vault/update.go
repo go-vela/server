@@ -6,6 +6,7 @@ package vault
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -64,24 +65,30 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 // updateOrg is a helper function to update
 // the org secret for the provided path.
 func (c *client) updateOrg(org, path string, data map[string]interface{}) error {
-	return c.update(fmt.Sprintf("secret/%s/%s/%s", constants.SecretOrg, org, path), data)
+	return c.update(fmt.Sprintf("%s/%s/%s/%s", c.Prefix, constants.SecretOrg, org, path), data)
 }
 
 // updateRepo is a helper function to update
 // the repo secret for the provided path.
 func (c *client) updateRepo(org, repo, path string, data map[string]interface{}) error {
-	return c.update(fmt.Sprintf("secret/%s/%s/%s/%s", constants.SecretRepo, org, repo, path), data)
+	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.Prefix, constants.SecretRepo, org, repo, path), data)
 }
 
 // updateShared is a helper function to update
 // the shared secret for the provided path.
 func (c *client) updateShared(org, team, path string, data map[string]interface{}) error {
-	return c.update(fmt.Sprintf("secret/%s/%s/%s/%s", constants.SecretShared, org, team, path), data)
+	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.Prefix, constants.SecretShared, org, team, path), data)
 }
 
 // update is a helper function to update
 // the secret for the provided path.
 func (c *client) update(path string, data map[string]interface{}) error {
+	if strings.HasPrefix("secret/data", c.Prefix) {
+		data = map[string]interface{}{
+			"data": data,
+		}
+	}
+
 	_, err := c.Vault.Logical().Write(path, data)
 	if err != nil {
 		return err
