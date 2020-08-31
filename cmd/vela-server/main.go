@@ -201,7 +201,13 @@ func main() {
 			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
 			Name:    "modification-timeout",
 			Usage:   "modification timeout, used by compiler, duration that the modification http request will timeout after",
-			Value:   10 * time.Second,
+			Value:   8 * time.Second,
+		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
+			Name:    "modification-retries",
+			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
+			Value:   5,
 		},
 	}
 

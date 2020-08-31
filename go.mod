@@ -2,7 +2,7 @@ module github.com/go-vela/server
 
 go 1.13
 
-replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20200818133900-c4a5e4bebff2
+replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20200831142232-3b6e2fb2a8b3
 
 replace github.com/go-vela/types => github.com/JordanSussman/types v0.1.2-0.20200817233341-2853ce2956de
 
@@ -19,7 +19,6 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
-	github.com/hashicorp/go-retryablehttp v0.6.6 // indirect
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
 	github.com/hashicorp/vault/api v1.0.4
 	github.com/jinzhu/gorm v1.9.14

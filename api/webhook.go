@@ -369,7 +369,7 @@ func PostWebhook(c *gin.Context) {
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
-		Compile(config, b, r)
+		Compile(config)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to compile pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
