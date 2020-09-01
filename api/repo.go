@@ -96,7 +96,7 @@ func CreateRepo(c *gin.Context) {
 	// update fields in repo object
 	input.SetUserID(u.GetID())
 
-	if input.Active != nil {
+	if input.Active == nil {
 		input.SetActive(true)
 	}
 
