@@ -54,7 +54,7 @@ func (c *client) GetRepoOrg(org string) (*library.Repo, error) { //[here] This i
 	// send query to the database and store result in variable
 	err := c.Database.
 		Table(constants.TableRepo).
-		Raw(c.DML.RepoService.Select["repo"], org).
+		Raw(c.DML.BuildService.Select["org"], org).
 		Scan(r).Error
 
 	return r.ToLibrary(), err

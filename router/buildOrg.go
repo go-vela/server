@@ -44,7 +44,6 @@ func BuildOrgHandlers(base *gin.RouterGroup) {
 	// Builds endpoints
 	builds := base.Group("/builds")
 	{
-		builds.POST("", perm.MustAdmin(), middleware.Payload(), api.CreateBuild)
 		builds.GET("", perm.MustRead(), api.GetBuildsOrg) //[here] step 3.5
 
 		// Build endpoints

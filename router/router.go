@@ -58,8 +58,6 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Health endpoint
 	r.GET("/health", api.Health)
 
-	r.GET("/orgfinder/:org", api.Orgfinder())
-
 	// Login endpoints
 	r.GET("/login", api.Login)
 	r.POST("/login", api.Login)

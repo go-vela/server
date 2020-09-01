@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
 )
 
@@ -48,14 +49,15 @@ import (
 // DELETE /api/v1/orgs/:org/:org/builds/:build/steps/:step/logs
 func OrgHandlers(base *gin.RouterGroup) {
 	// orgs endpoints
-	orgs := base.Group("/orgs")
+	orgs := base.Group("/org")
 	{
 		orgs.POST("", middleware.Payload(), api.CreateRepo)
 		orgs.GET("", api.GetRepos)
 
 		// org endpoints
-		org := orgs.Group("/:org/:org", org.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
-		{                                                //[here] Adds things to router group
+		// org := orgs.Group("/:org") //[here] Removed 'repo.Establish()' for the moment. Should prob add that back in.
+		org := orgs.Group("/:org", org.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
+		{                                           //[here] Adds things to router group
 			org.GET("", perm.MustRead(), api.GetRepo)
 			org.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
 			org.DELETE("", perm.MustAdmin(), api.DeleteRepo)

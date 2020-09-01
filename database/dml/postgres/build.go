@@ -14,6 +14,9 @@ FROM builds;
 
 	// ListRepoBuilds represents a query to list
 	// all builds for a repo_id in the database.
+	//
+	//[here] This is the query being used for.
+	//
 	ListRepoBuilds = `
 SELECT *
 FROM builds
@@ -26,7 +29,6 @@ OFFSET $3;
 	// ListRepoBuildsByEvent represents a query to select
 	// a build for a repo_id with a specific event type
 	// in the database.
-	//[here] This is the query being used for.
 	ListRepoBuildsByEvent = `
 SELECT *
 FROM builds
@@ -56,9 +58,15 @@ WHERE repo_id = $1
 ORDER BY number DESC
 LIMIT 1;
 `
-
+	//[here] Made by Jen. Note: Will add in more details later.
 	selectBuildByOrg = `
-		<<<<<Add query later>>>>> 
+SELECT builds.* 
+FROM builds JOIN repos 
+ON repos.id=builds.repo_id 
+WHERE repos.org = $1
+ORDER BY id DESC
+LIMIT $2
+OFFSET $3;
 	`
 
 	// SelectLastRepoBuildByBranch represents a query to
