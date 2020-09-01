@@ -2,10 +2,6 @@ module github.com/go-vela/server
 
 go 1.13
 
-replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20200831142232-3b6e2fb2a8b3
-
-replace github.com/go-vela/types => github.com/JordanSussman/types v0.1.2-0.20200817233341-2853ce2956de
-
 require (
 	github.com/coreos/go-semver v0.3.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
@@ -13,8 +9,8 @@ require (
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis v6.15.8+incompatible
-	github.com/go-vela/compiler v0.5.1
-	github.com/go-vela/types v0.5.1
+	github.com/go-vela/compiler v0.5.2-0.20200901125600-0cae6c75ef10
+	github.com/go-vela/types v0.5.2
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
