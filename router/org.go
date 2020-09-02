@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
+	"github.com/go-vela/server/router/middleware/repo"
 )
 
 // orgHandlers is a function that extends the provided base router group
@@ -56,8 +56,8 @@ func OrgHandlers(base *gin.RouterGroup) {
 
 		// org endpoints
 		// org := orgs.Group("/:org") //[here] Removed 'repo.Establish()' for the moment. Should prob add that back in.
-		org := orgs.Group("/:org", org.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
-		{                                           //[here] Adds things to router group
+		org := orgs.Group("/:org", repo.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
+		{                                            //[here] Adds things to router group
 			org.GET("", perm.MustRead(), api.GetRepo)
 			org.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
 			org.DELETE("", perm.MustAdmin(), api.DeleteRepo)
