@@ -12,7 +12,7 @@ import (
 
 //[here] Delete later when confirmed if unneeded.
 
-func Orgfinder() gin.HandlerFunc {
+func finOrgfinder() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// oParam := c.Param("org")
 		// // c.JSON(http.StatusOK, "hello "+oParam)
@@ -25,8 +25,7 @@ func Orgfinder() gin.HandlerFunc {
 		// 	return
 		// }
 		// c.JSON(http.StatusOK, r)
-		c.JSON(http.StatusOK, "ok")
-
+		c.JSON(http.StatusOK, "hello")
 	}
 }
 

@@ -364,66 +364,66 @@ func GetBuilds(c *gin.Context) {
 
 func GetBuildsOrg(c *gin.Context) { //[here] Note: Function names are subject to change.
 	// variables that will hold the build list and total count
-	// var (
-	// 	b []*library.Build
-	// 	t int64
-	// )
+	var (
+		b []*library.Build
+		t int64
+	)
 
-	// // capture middleware values
-	// r := repo.Retrieve(c)
-	// // capture the event type parameter
-	// event := c.Query("event")
+	// capture middleware values
+	r := repo.Retrieve(c)
+	// capture the event type parameter
+	event := c.Query("event")
 
-	// logrus.Infof("Reading builds for repo %s", r.GetFullName())
+	logrus.Infof("Reading builds for repo %s", r.GetFullName())
 
-	// // capture page query parameter if present
-	// page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
 
-	// 	util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
-	// 	return
-	// }
+		return
+	}
 
-	// // capture per_page query parameter if present
-	// perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
 
-	// 	util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
-	// 	return
-	// }
+		return
+	}
 
-	// // ensure per_page isn't above or below allowed values
-	// perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// // send API call to capture the list of builds for the repo (and event type if passed in)
-	// if len(event) > 0 {
-	// 	b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event)
-	// } else {
-	// 	b, t, err = database.FromContext(c).GetOrgBuildList(r, page, perPage) //[here] step 4.5
-	// }
+	// send API call to capture the list of builds for the repo (and event type if passed in)
+	if len(event) > 0 {
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event) //[here] needs to be replaced.
+	} else {
+		b, t, err = database.FromContext(c).GetOrgBuildList(r, page, perPage) //[here] step 4.5
+	}
 
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
-	// 	util.HandleError(c, http.StatusInternalServerError, retErr)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-	// 	return
-	// }
+		return
+	}
 
-	// // create pagination object
-	// pagination := Pagination{
-	// 	Page:    page,
-	// 	PerPage: perPage,
-	// 	Total:   t,
-	// }
-	// // set pagination headers
-	// pagination.SetHeaderLink(c)
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, "You did it!") //[here] this is where post is made.
+	c.JSON(http.StatusOK, b) //[here] this is where post is made.
 }
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild

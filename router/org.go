@@ -7,9 +7,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
-	"github.com/go-vela/server/router/middleware"
-	"github.com/go-vela/server/router/middleware/perm"
-	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/org"
 )
 
 // orgHandlers is a function that extends the provided base router group
@@ -51,25 +49,25 @@ func OrgHandlers(base *gin.RouterGroup) {
 	// orgs endpoints
 	orgs := base.Group("/org")
 	{
-		orgs.POST("", middleware.Payload(), api.CreateRepo)
-		orgs.GET("", api.GetRepos)
+		// orgs.POST("", middleware.Payload(), api.CreateRepo)
+		// orgs.GET("", api.GetRepos)
 
 		// org endpoints
 		// org := orgs.Group("/:org") //[here] Removed 'repo.Establish()' for the moment. Should prob add that back in.
-		org := orgs.Group("/:org", repo.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
-		{                                            //[here] Adds things to router group
-			org.GET("", perm.MustRead(), api.GetRepo)
-			org.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
-			org.DELETE("", perm.MustAdmin(), api.DeleteRepo)
-			org.PATCH("/repair", perm.MustAdmin(), api.RepairRepo)
-			org.PATCH("/chown", perm.MustAdmin(), api.ChownRepo)
+		org := orgs.Group("/:org", org.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
+		{                                           //[here] Adds things to router group
+			org.GET("", api.GetBuildsOrg)
+			// org.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
+			// org.DELETE("", perm.MustAdmin(), api.DeleteRepo)
+			// org.PATCH("/repair", perm.MustAdmin(), api.RepairRepo)
+			// org.PATCH("/chown", perm.MustAdmin(), api.ChownRepo)
 
 			// Build endpoints
 			// * Service endpoints
 			//   * Log endpoints
 			// * Step endpoints
 			//   * Log endpoints
-			BuildOrgHandlers(org) //[here] step 2.5
+			//[here] step 2.5
 		} // end of org endpoints
 	} // end of orgs endpoints
 }
