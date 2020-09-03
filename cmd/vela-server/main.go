@@ -186,6 +186,29 @@ func main() {
 			Usage:   "source commit status context",
 			Value:   "continuous-integration/vela",
 		},
+
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
+			Name:    "modification-addr",
+			Usage:   "modification address, used by compiler, endpoint to send pipeline for modification",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
+			Name:    "modification-secret",
+			Usage:   "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
+			Name:    "modification-timeout",
+			Usage:   "modification timeout, used by compiler, duration that the modification http request will timeout after",
+			Value:   8 * time.Second,
+		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
+			Name:    "modification-retries",
+			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
+			Value:   5,
+		},
 	}
 
 	// set logrus to log in JSON format
