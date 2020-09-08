@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
@@ -362,24 +363,26 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b) //[here] this is where post is made.
 }
 
-func GetBuildsOrg(c *gin.Context) { //[here] Note: Function names are subject to change.
+func GetBuildOrgs(c *gin.Context) { //[here] Note: Function names are subject to change. rename from GetBuildOrg to getOrgBuilds
 	// variables that will hold the build list and total count
 	var (
 		b []*library.Build
 		t int64
 	)
 
+	// o = c.Param("org")
+
 	// capture middleware values
-	r := repo.Retrieve(c)
+	o := org.Retrieve(c)
 	// capture the event type parameter
 	event := c.Query("event")
 
-	logrus.Infof("Reading builds for repo %s", r.GetFullName())
+	logrus.Infof("Reading builds for org %s", o.GetFullName()) //[here] change getfullname to org or something later.
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to convert page query parameter for org %s: %w", o.GetOrg(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -389,7 +392,7 @@ func GetBuildsOrg(c *gin.Context) { //[here] Note: Function names are subject to
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to convert per_page query parameter for Org %s: %w", o.GetOrg(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -401,13 +404,13 @@ func GetBuildsOrg(c *gin.Context) { //[here] Note: Function names are subject to
 
 	// send API call to capture the list of builds for the repo (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event) //[here] needs to be replaced.
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(o, page, perPage, event) //[here] needs to be replaced with org version.
 	} else {
-		b, t, err = database.FromContext(c).GetOrgBuildList(r, page, perPage) //[here] step 4.5
+		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage) //[here] step 4.5
 	}
 
 	if err != nil {
-		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get builds for org %s: %w", o.GetOrg(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

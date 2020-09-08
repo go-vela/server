@@ -56,7 +56,7 @@ func OrgHandlers(base *gin.RouterGroup) {
 		// org := orgs.Group("/:org") //[here] Removed 'repo.Establish()' for the moment. Should prob add that back in.
 		org := orgs.Group("/:org", org.Establish()) //[here] instantiate(spellcheck) router gin group "org" (formmally repo)
 		{                                           //[here] Adds things to router group
-			org.GET("", api.GetBuildsOrg)
+			org.GET("", api.GetBuildOrgs)
 			// org.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
 			// org.DELETE("", perm.MustAdmin(), api.DeleteRepo)
 			// org.PATCH("/repair", perm.MustAdmin(), api.RepairRepo)

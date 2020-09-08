@@ -29,7 +29,7 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) { //[here] Thi
 }
 
 //[here] This is where we're making our own query for just org.
-func (c *client) GetRepoOrg(org string) (*library.Repo, error) { //[here] This is for the DB query
+func (c *client) GetRepoOrg(org string) (*library.Repo, error) { //[here] This is for the DB query- This is actually useful.
 	logrus.Tracef("Getting repo %s/%s from the database", org)
 
 	// variable to store query results

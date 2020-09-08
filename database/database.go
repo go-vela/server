@@ -35,7 +35,7 @@ type Service interface {
 	// gets a list of builds by repo ID.
 	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error) //[here] step 5. Picked up at database/build.go
 
-	GetOrgBuildList(*library.Repo, int, int) ([]*library.Build, int64, error) //[here] step 5. Picked up at database/build.go
+	GetOrgBuildList(*library.Repo, int, int) ([]*library.Build, int64, error) //[here] step 5.5 Picked up at database/build.go
 
 	// GetRepoBuildListByEvent defines a function that
 	// gets a list of builds by repo ID and event type.

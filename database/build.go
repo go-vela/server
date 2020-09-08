@@ -171,8 +171,8 @@ func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*librar
 	return builds, count, err
 }
 
-func (c *client) GetOrgBuildList(r *library.Repo, page, perPage int) ([]*library.Build, int64, error) {
-	logrus.Tracef("Listing builds for repo %s from the database", r.GetFullName())
+func (c *client) GetOrgBuildList(o *library.Repo, page, perPage int) ([]*library.Build, int64, error) {
+	logrus.Tracef("Listing builds for repo %s from the database", o.GetFullName())
 
 	// variable to store query results
 	b := new([]database.Build)
@@ -180,7 +180,7 @@ func (c *client) GetOrgBuildList(r *library.Repo, page, perPage int) ([]*library
 	count := int64(0)
 
 	// count the results
-	count, err := c.GetRepoBuildCount(r)
+	count, err := c.GetRepoBuildCount(o) //[here] Does this need a rename? I think its use is pretty universal.
 	if err != nil {
 		return builds, 0, err
 	}
@@ -196,7 +196,7 @@ func (c *client) GetOrgBuildList(r *library.Repo, page, perPage int) ([]*library
 	// send query to the database and store result in variable
 	err = c.Database.
 		Table(constants.TableBuild).
-		Raw(c.DML.BuildService.List["org"], r.GetOrg(), perPage, offset). //[here] step 6.5
+		Raw(c.DML.BuildService.List["org"], o.GetOrg(), perPage, offset). //[here] step 6.5
 		Scan(b).Error
 
 	// iterate through all query results

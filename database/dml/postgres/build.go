@@ -58,7 +58,7 @@ WHERE repo_id = $1
 ORDER BY number DESC
 LIMIT 1;
 `
-	//[here] Made by Jen. Note: Will add in more details later.
+	//[here] End of route. Made by Jen. Note: Will add in more details later.
 	selectBuildByOrg = `
 SELECT builds.* 
 FROM builds JOIN repos 

@@ -5,11 +5,11 @@
 package org
 
 import (
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 
 	"fmt"
 	"net/http"
@@ -18,12 +18,12 @@ import (
 )
 
 // Retrieve gets the repo in the given context
-func Retrieve(c *gin.Context) *library.Repo {
+func Retrieve(c *gin.Context) *library.Repo { //[here] if string/point doesn't work, try creating an org struct
 	return FromContext(c)
 }
 
 // Establish sets the repo in the given context
-func Establish() gin.HandlerFunc {
+func Establish() gin.HandlerFunc { //[here] Note: Without this function, the data will not parse and API returns an empty set.
 	return func(c *gin.Context) {
 		oParam := c.Param("org")
 		if len(oParam) == 0 { //[here] Checks if org is present. Sends error if not. Note: May not be needed.
@@ -32,15 +32,15 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Reading repo %s/%s", oParam)
-		r, err := database.FromContext(c).GetRepoOrg(oParam) //[here] Checks DB for orgs. Sends error if not in DB.
+		logrus.Debugf("Reading org %s/%s", oParam)
+		o, err := database.FromContext(c).GetRepoOrg(oParam) //[here] Checks DB for orgs. Sends error if not in DB.
 		if err != nil {
 			retErr := fmt.Errorf("unable to read org %s: %v", oParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
 
-		ToContext(c, r)
+		ToContext(c, o)
 		c.Next()
 	}
 }
