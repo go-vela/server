@@ -119,19 +119,24 @@ func recordGauges(c *gin.Context) {
 		logrus.Errorf("Error while reading all error builds: %v", err)
 	}
 
-	stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
-	if err != nil {
-		logrus.Errorf("Error while reading all error builds: %v", err)
-	}
-
 	stepImageMap, err := database.FromContext(c).GetStepImageCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all images: %v", err)
+		logrus.Errorf("Error while reading all step images: %v", err)
+	}
+
+	stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
+	if err != nil {
+		logrus.Errorf("Error while reading all step statuses: %v", err)
 	}
 
 	serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all images: %v", err)
+		logrus.Errorf("Error while reading all service images: %v", err)
+	}
+
+	serviceStatusMap, err := database.FromContext(c).GetServiceStatusCount()
+	if err != nil {
+		logrus.Errorf("Error while reading all service statuses: %v", err)
 	}
 
 	// Add platform metrics
@@ -147,9 +152,14 @@ func recordGauges(c *gin.Context) {
 	totals.WithLabelValues("build", "status", "success").Set(float64(bSucc))
 	totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
 
-	// Add step metrics
+	// Add step status metrics
 	for status, count := range stepStatusMap {
 		totals.WithLabelValues("steps", "status", status).Set(count)
+	}
+
+	// Add service status metrics
+	for status, count := range serviceStatusMap {
+		totals.WithLabelValues("services", "status", status).Set(count)
 	}
 
 	// Add image metrics

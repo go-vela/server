@@ -127,6 +127,33 @@ func (c *client) GetServiceImageCount() (map[string]float64, error) {
 	return counts, err
 }
 
+// GetServiceStatusCount gets a list of all service statuses
+// and the count of their occurrence in the database.
+func (c *client) GetServiceStatusCount() (map[string]float64, error) {
+	logrus.Trace("Counting the total of each status for services in the database")
+
+	type statusCount struct {
+		Status string
+		Count  int
+	}
+
+	// variable to store query results
+	s := new([]statusCount)
+	counts := make(map[string]float64)
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableService).
+		Raw(c.DML.ServiceService.Select["count-statuses"]).
+		Scan(s).Error
+
+	for _, status := range *s {
+		counts[status.Status] = float64(status.Count)
+	}
+
+	return counts, err
+}
+
 // CreateService creates a new service in the database.
 func (c *client) CreateService(s *library.Service) error {
 	logrus.Tracef("Creating service %s in the database", s.GetName())

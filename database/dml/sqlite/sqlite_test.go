@@ -88,9 +88,10 @@ func TestSqlite_NewMap(t *testing.T) {
 				"build": ListBuildServices,
 			},
 			Select: map[string]string{
-				"build":        SelectBuildService,
-				"count":        SelectBuildServicesCount,
-				"count-images": SelectServiceImagesCount,
+				"build":          SelectBuildService,
+				"count":          SelectBuildServicesCount,
+				"count-images":   SelectServiceImagesCount,
+				"count-statuses": SelectServiceStatusesCount,
 			},
 			Delete: DeleteService,
 		},
