@@ -22,6 +22,8 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 				"all":         postgres.ListBuilds,
 				"repo":        postgres.ListRepoBuilds,
 				"repoByEvent": postgres.ListRepoBuildsByEvent,
+				"org":         postgres.selectBuildByOrg,
+				"orgByEvent":  postgres.ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                postgres.SelectRepoBuild,
@@ -31,6 +33,8 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 				"countByStatus":       postgres.SelectBuildsCountByStatus,
 				"countByRepo":         postgres.SelectRepoBuildCount,
 				"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
+				"countByOrg":          postgres.SelectOrgBuildCount,
+				"countByOrgAndEvent":  postgres.SelectOrgBuildCountByEvent,
 			},
 			Delete: postgres.DeleteBuild,
 		},
