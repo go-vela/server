@@ -33,19 +33,28 @@ type Service interface {
 	GetBuildList() ([]*library.Build, error)
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
-	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error) //[here] step 5. Picked up at database/build.go
-
-	GetOrgBuildList(*library.Repo, int, int) ([]*library.Build, int64, error) //[here] step 5.5 Picked up at database/build.go
-
+	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error)
+	// GetOrgBuildList defines a function that
+	// gets a list of builds by org name.
+	GetOrgBuildList(string, int, int) ([]*library.Build, int64, error) //[here] step 4.5 Picked up at database/build.go
 	// GetRepoBuildListByEvent defines a function that
 	// gets a list of builds by repo ID and event type.
 	GetRepoBuildListByEvent(*library.Repo, int, int, string) ([]*library.Build, int64, error)
+	// GetOrgBuildListByEvent defines a function that
+	// gets a list of builds by org name and event type.
+	GetOrgBuildListByEvent(string, int, int, string) ([]*library.Build, int64, error) //[here] new
 	// GetRepoBuildCount defines a function that
 	// gets the count of builds by repo ID.
 	GetRepoBuildCount(*library.Repo) (int64, error)
+	// GetOrgBuildCount defines a function that
+	// gets the count of builds by org name.
+	GetOrgBuildCount(string) (int64, error) //[here] new
 	// GetRepoBuildCountByEvent defines a function that
 	// gets the count of builds by repo ID and event type.
 	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
+	// GetRepoBuildCountByEvent defines a function that
+	// gets the count of builds by org name and event type.
+	GetOrgBuildCountByEvent(string, string) (int64, error) //[here] new
 	// CreateBuild defines a function that
 	// creates a new build.
 	CreateBuild(*library.Build) error

@@ -83,7 +83,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 	// API endpoints
 	baseAPI := r.Group(base, user.Establish())
-	{ //[here] What are these curly brackets associated with?
+	{
 		// Admin endpoints
 		AdminHandlers(baseAPI)
 
@@ -99,8 +99,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		//     * Log endpoints
 		//   * Step endpoints
 		//     * Log endpoints
-		RepoHandlers(baseAPI) //[here] Step 1
+		RepoHandlers(baseAPI)
 
+		// Org endpoint.
 		OrgHandlers(baseAPI) //[here] step 1.5
 
 		// Secret endpoints

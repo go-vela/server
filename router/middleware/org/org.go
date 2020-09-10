@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 
 	"fmt"
 	"net/http"
@@ -18,11 +17,11 @@ import (
 )
 
 // Retrieve gets the repo in the given context
-func Retrieve(c *gin.Context) *library.Repo { //[here] if string/point doesn't work, try creating an org struct
-	return FromContext(c)
-}
+// func Retrieve(c *gin.Context) *library.Repo { //[here] if string/point doesn't work, try creating an org struct
+// 	return FromContext(c)
+// }
 
-// Establish sets the repo in the given context
+// Establish sets the org in the given context
 func Establish() gin.HandlerFunc { //[here] Note: Without this function, the data will not parse and API returns an empty set.
 	return func(c *gin.Context) {
 		oParam := c.Param("org")
@@ -32,6 +31,7 @@ func Establish() gin.HandlerFunc { //[here] Note: Without this function, the dat
 			return
 		}
 
+		//[here] This is technically not used.
 		logrus.Debugf("Reading org %s/%s", oParam)
 		o, err := database.FromContext(c).GetRepoOrg(oParam) //[here] Checks DB for orgs. Sends error if not in DB.
 		if err != nil {
@@ -40,7 +40,7 @@ func Establish() gin.HandlerFunc { //[here] Note: Without this function, the dat
 			return
 		}
 
-		ToContext(c, o)
+		ToContext(c, o) //[here] 100% needs to be changes. Uses repo struct.
 		c.Next()
 	}
 }

@@ -14,9 +14,6 @@ FROM builds;
 
 	// ListRepoBuilds represents a query to list
 	// all builds for a repo_id in the database.
-	//
-	//[here] This is the query being used for.
-	//
 	ListRepoBuilds = `
 SELECT *
 FROM builds
@@ -35,6 +32,20 @@ FROM builds
 WHERE repo_id = $1
 AND event = $2
 ORDER BY number DESC
+LIMIT $3
+OFFSET $4;
+`
+	// ListOrgBuildsByEvent represents a joined query
+	// between the builds & repos table to select
+	// a build for an org with a specific event type
+	// in the database.
+	ListOrgBuildsByEvent = `
+SELECT builds.* 
+FROM builds JOIN repos 
+ON repos.id=builds.repo_id 
+WHERE repos.org = $1
+AND builds.event = $2
+ORDER BY id DESC
 LIMIT $3
 OFFSET $4;
 `
@@ -58,20 +69,22 @@ WHERE repo_id = $1
 ORDER BY number DESC
 LIMIT 1;
 `
-	//[here] End of route. Made by Jen. Note: Will add in more details later.
+	// selectBuildByOrg represents a joined query
+	// between the builds & repos table to select
+	// the last build for a org name in the database.
 	selectBuildByOrg = `
-SELECT builds.* 
-FROM builds JOIN repos 
-ON repos.id=builds.repo_id 
+SELECT builds.*
+FROM builds JOIN repos
+ON repos.id=builds.repo_id
 WHERE repos.org = $1
 ORDER BY id DESC
 LIMIT $2
 OFFSET $3;
-	`
+		`
 
 	// SelectLastRepoBuildByBranch represents a query to
 	// select the last build for a repo_id and branch name
-	// in the database
+	// in the database.
 	SelectLastRepoBuildByBranch = `
 SELECT *
 FROM builds
@@ -95,13 +108,32 @@ SELECT count(*) as count
 FROM builds
 WHERE repo_id = $1;
 `
-
+	// SelectOrgBuildCount represents a joined query
+	// between the builds & repos table to select
+	// the count of builds for an org name in the database.
+	SelectOrgBuildCount = `
+SELECT count(*) as count
+FROM builds JOIN repos
+ON repos.id = builds.repo_id 
+WHERE repos.org = $1;
+`
 	// SelectRepoBuildCountByEvent represents a query to select
 	// the count of builds for by repo and event type in the database.
 	SelectRepoBuildCountByEvent = `
 SELECT count(*) as count
 FROM builds
 WHERE repo_id = $1
+AND event = $2;
+`
+
+	// SelectOrgBuildCountByEvent represents a joined query
+	// between the builds & repos table to select
+	// the count of builds for by org name and event type in the database.
+	SelectOrgBuildCountByEvent = `
+SELECT count(*) as count
+FROM builds JOIN repos
+ON repos.id = builds.repo_id 
+WHERE repos.org = $1
 AND event = $2;
 `
 
@@ -124,13 +156,14 @@ WHERE id = $1;
 
 // createBuildService is a helper function to return
 // a service for interacting with the builds table.
-func createBuildService() *Service { //[here] step 9. This is where it ends.
+func createBuildService() *Service {
 	return &Service{
 		List: map[string]string{
 			"all":         ListBuilds,
 			"repo":        ListRepoBuilds,
 			"repoByEvent": ListRepoBuildsByEvent,
 			"org":         selectBuildByOrg,
+			"orgByEvent":  ListOrgBuildsByEvent,
 		},
 		Select: map[string]string{
 			"repo":                SelectRepoBuild,
@@ -140,6 +173,8 @@ func createBuildService() *Service { //[here] step 9. This is where it ends.
 			"countByStatus":       SelectBuildsCountByStatus,
 			"countByRepo":         SelectRepoBuildCount,
 			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
+			"countByOrg":          SelectOrgBuildCount,
+			"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
 		},
 		Delete: DeleteBuild,
 	}

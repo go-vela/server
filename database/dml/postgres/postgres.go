@@ -24,7 +24,7 @@ type Map struct {
 }
 
 // NewMap returns the Postgres Map for DML lookups.
-func NewMap() *Map { //[here] step 8
+func NewMap() *Map {
 	return &Map{
 		BuildService:   createBuildService(),
 		HookService:    createHookService(),
