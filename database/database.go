@@ -35,26 +35,26 @@ type Service interface {
 	// gets a list of builds by repo ID.
 	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error)
 	// GetOrgBuildList defines a function that
-	// gets a list of builds by org name.
-	GetOrgBuildList(string, int, int) ([]*library.Build, int64, error) //[here] step 4.5 Picked up at database/build.go
+	// gets a list of builds by org.
+	GetOrgBuildList(string, int, int) ([]*library.Build, int64, error)
 	// GetRepoBuildListByEvent defines a function that
 	// gets a list of builds by repo ID and event type.
 	GetRepoBuildListByEvent(*library.Repo, int, int, string) ([]*library.Build, int64, error)
 	// GetOrgBuildListByEvent defines a function that
-	// gets a list of builds by org name and event type.
-	GetOrgBuildListByEvent(string, int, int, string) ([]*library.Build, int64, error) //[here] new
+	// gets a list of builds by org and event type.
+	GetOrgBuildListByEvent(string, int, int, string) ([]*library.Build, int64, error)
 	// GetRepoBuildCount defines a function that
 	// gets the count of builds by repo ID.
 	GetRepoBuildCount(*library.Repo) (int64, error)
 	// GetOrgBuildCount defines a function that
-	// gets the count of builds by org name.
-	GetOrgBuildCount(string) (int64, error) //[here] new
+	// gets the count of builds by org.
+	GetOrgBuildCount(string) (int64, error)
 	// GetRepoBuildCountByEvent defines a function that
 	// gets the count of builds by repo ID and event type.
 	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
-	// GetRepoBuildCountByEvent defines a function that
-	// gets the count of builds by org name and event type.
-	GetOrgBuildCountByEvent(string, string) (int64, error) //[here] new
+	// GetOrgBuildCountByEvent defines a function that
+	// gets the count of builds by org and event type.
+	GetOrgBuildCountByEvent(string, string) (int64, error)
 	// CreateBuild defines a function that
 	// creates a new build.
 	CreateBuild(*library.Build) error
@@ -118,10 +118,6 @@ type Service interface {
 	// GetRepo defines a function that
 	// gets a repo by org and name.
 	GetRepo(string, string) (*library.Repo, error)
-
-	//[here] Make sure this is passing everything it needs. And that it may be redunent with GetRepoList
-	GetRepoOrg(string) (*library.Repo, error)
-
 	// GetRepoList defines a function that
 	// gets a list of all repos.
 	GetRepoList() ([]*library.Repo, error)

@@ -41,7 +41,7 @@ const (
 // Load is a server function that returns the engine for processing web requests
 // on the host it's running on
 func Load(options ...gin.HandlerFunc) *gin.Engine {
-	r := gin.New() //[here] instantiate router gin group.
+	r := gin.New()
 	r.Use(gin.Recovery())
 
 	r.Use(middleware.RequestVersion)
@@ -102,7 +102,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		RepoHandlers(baseAPI)
 
 		// Org endpoint.
-		OrgHandlers(baseAPI) //[here] step 1.5
+		OrgHandlers(baseAPI)
 
 		// Secret endpoints
 		SecretHandlers(baseAPI)

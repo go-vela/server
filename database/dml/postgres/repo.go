@@ -36,8 +36,6 @@ OFFSET $3;
 
 	// SelectRepo represents a query to select a
 	// repo for an org and name in the database.
-
-	//[here] This is the query for badges.
 	SelectRepo = `
 SELECT *
 FROM repos
@@ -45,13 +43,6 @@ WHERE org = $1
 AND name = $2
 LIMIT 1;
 `
-	//[here] Note: Rename this query in the future to avoid confusion.
-	SelectRepoOrg = `
-SELECT *
-FROM repos
-WHERE org = $1
-LIMIT 1;
-	`
 
 	// SelectUserReposCount represents a query to select
 	// the count of repos for a user_id in the database.
@@ -90,7 +81,6 @@ func createRepoService() *Service {
 			"repo":        SelectRepo,
 			"count":       SelectReposCount,
 			"countByUser": SelectUserReposCount,
-			"rename":      SelectRepoOrg,
 		},
 		Delete: DeleteRepo,
 	}

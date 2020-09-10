@@ -68,7 +68,7 @@ func RepoHandlers(base *gin.RouterGroup) {
 			//   * Log endpoints
 			// * Step endpoints
 			//   * Log endpoints
-			BuildHandlers(repo) //[here] step 2
+			BuildHandlers(repo)
 		} // end of repo endpoints
 	} // end of repos endpoints
 }

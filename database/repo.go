@@ -13,7 +13,7 @@ import (
 )
 
 // GetRepo gets a repo by org and name from the database.
-func (c *client) GetRepo(org, name string) (*library.Repo, error) { //[here] This is for the DB query
+func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 	logrus.Tracef("Getting repo %s/%s from the database", org, name)
 
 	// variable to store query results
@@ -23,22 +23,6 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) { //[here] Thi
 	err := c.Database.
 		Table(constants.TableRepo).
 		Raw(c.DML.RepoService.Select["repo"], org, name).
-		Scan(r).Error
-
-	return r.ToLibrary(), err
-}
-
-//[here] This is where we're making our own query for just org.
-func (c *client) GetRepoOrg(org string) (*library.Repo, error) { //[here] This is for the DB query- This is actually useful.
-	logrus.Tracef("Getting repo %s/%s from the database", org)
-
-	// variable to store query results
-	r := new(database.Repo)
-
-	// send query to the database and store result in variable
-	err := c.Database.
-		Table(constants.TableRepo).
-		Raw(c.DML.RepoService.Select["rename"], org).
 		Scan(r).Error
 
 	return r.ToLibrary(), err

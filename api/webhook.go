@@ -202,18 +202,17 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the created webhook
 	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
 
-	//[here] Uncomment later.
-	// // verify the webhook from the source control provider
-	// err = source.FromContext(c).VerifyWebhook(dupRequest, r)
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to verify webhook: %v", err)
-	// 	util.HandleError(c, http.StatusUnauthorized, retErr)
+	// verify the webhook from the source control provider
+	err = source.FromContext(c).VerifyWebhook(dupRequest, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to verify webhook: %v", err)
+		util.HandleError(c, http.StatusUnauthorized, retErr)
 
-	// 	h.SetStatus(constants.StatusFailure)
-	// 	h.SetError(retErr.Error())
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
 
-	// 	return
-	// }
+		return
+	}
 
 	// check if the repo is active
 	if !r.GetActive() {

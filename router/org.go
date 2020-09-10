@@ -7,6 +7,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/router/middleware/org"
 )
 
 // orgHandlers is a function that extends the provided base router group
@@ -48,10 +49,9 @@ func OrgHandlers(base *gin.RouterGroup) {
 	// org endpoint.
 	orgs := base.Group("/org")
 	{
-		// org := orgs.Group("/:org", org.Establish())
-		org := orgs.Group("/:org")
+		org := orgs.Group("/:org", org.Establish())
 		{
-			org.GET("", api.GetBuildOrgs) //[here] step 2.5
+			org.GET("", api.GetBuildOrgs)
 		} // end of org endpoints
 	} // end of orgs endpoints
 }

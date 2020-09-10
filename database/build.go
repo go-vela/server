@@ -156,7 +156,7 @@ func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*librar
 	// send query to the database and store result in variable
 	err = c.Database.
 		Table(constants.TableBuild).
-		Raw(c.DML.BuildService.List["repo"], r.GetID(), perPage, offset). //[here] step 6
+		Raw(c.DML.BuildService.List["repo"], r.GetID(), perPage, offset).
 		Scan(b).Error
 
 	// iterate through all query results
@@ -199,7 +199,7 @@ func (c *client) GetOrgBuildList(o string, page, perPage int) ([]*library.Build,
 	// send query to the database and store result in variable
 	err = c.Database.
 		Table(constants.TableBuild).
-		Raw(c.DML.BuildService.List["org"], o, perPage, offset). //[here] step 5.5
+		Raw(c.DML.BuildService.List["org"], o, perPage, offset).
 		Scan(b).Error
 
 	// iterate through all query results

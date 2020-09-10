@@ -339,7 +339,7 @@ func GetBuilds(c *gin.Context) {
 	if len(event) > 0 {
 		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event)
 	} else {
-		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage) //[here] step 4
+		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	}
 
 	if err != nil {
@@ -359,7 +359,7 @@ func GetBuilds(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, b) //[here] this is where post is made.
+	c.JSON(http.StatusOK, b)
 }
 
 // GetBuildOrgs represents the API handler to capture a
@@ -405,7 +405,7 @@ func GetBuildOrgs(c *gin.Context) {
 	if len(event) > 0 {
 		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, page, perPage, event)
 	} else {
-		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage) //[here] step 3.5
+		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
 	}
 
 	if err != nil {

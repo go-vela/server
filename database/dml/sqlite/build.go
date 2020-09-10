@@ -26,7 +26,6 @@ OFFSET ?;
 	// ListRepoBuildsByEvent represents a query to select
 	// a build for a repo_id with a specific event type
 	// in the database.
-	//[here] This is the query being used for sqlite.
 	ListRepoBuildsByEvent = `
 SELECT *
 FROM builds
