@@ -72,71 +72,82 @@ func CustomMetrics(c *gin.Context) {
 
 // helper function to get the totals of resource types
 func recordGauges(c *gin.Context) {
-	// return the total number of users in the application
+	// send API call to capture the total number of users
 	u, err := database.FromContext(c).GetUserCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all users: %v", err)
+		logrus.Errorf("unable to get count of all users: %v", err)
 	}
 
-	// return the total number of users in the application
+	// send API call to capture the total number of repos
 	r, err := database.FromContext(c).GetRepoCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all repos: %v", err)
+		logrus.Errorf("unable to get count of all repos: %v", err)
 	}
 
+	// send API call to capture the total number of builds
 	b, err := database.FromContext(c).GetBuildCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all builds: %v", err)
+		logrus.Errorf("unable to get count of all builds: %v", err)
 	}
 
+	// send API call to capture the total number of running builds
 	bRun, err := database.FromContext(c).GetBuildCountByStatus("running")
 	if err != nil {
-		logrus.Errorf("Error while reading all running builds: %v", err)
+		logrus.Errorf("unable to get count of all running builds: %v", err)
 	}
 
+	// send API call to capture the total number of pending builds
 	bPen, err := database.FromContext(c).GetBuildCountByStatus("pending")
 	if err != nil {
-		logrus.Errorf("Error while reading all pending builds: %v", err)
+		logrus.Errorf("unable to get count of all pending builds: %v", err)
 	}
 
+	// send API call to capture the total number of failure builds
 	bFail, err := database.FromContext(c).GetBuildCountByStatus("failure")
 	if err != nil {
-		logrus.Errorf("Error while reading all failed builds: %v", err)
+		logrus.Errorf("unable to get count of all failure builds: %v", err)
 	}
 
+	// send API call to capture the total number of killed builds
 	bKill, err := database.FromContext(c).GetBuildCountByStatus("killed")
 	if err != nil {
-		logrus.Errorf("Error while reading all killed builds: %v", err)
+		logrus.Errorf("unable to get count of all killed builds: %v", err)
 	}
 
+	// send API call to capture the total number of success builds
 	bSucc, err := database.FromContext(c).GetBuildCountByStatus("success")
 	if err != nil {
-		logrus.Errorf("Error while reading all success builds: %v", err)
+		logrus.Errorf("unable to get count of all success builds: %v", err)
 	}
 
+	// send API call to capture the total number of error builds
 	bErr, err := database.FromContext(c).GetBuildCountByStatus("error")
 	if err != nil {
-		logrus.Errorf("Error while reading all error builds: %v", err)
+		logrus.Errorf("unable to get count of all error builds: %v", err)
 	}
 
+	// send API call to capture the total number of step images
 	stepImageMap, err := database.FromContext(c).GetStepImageCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all step images: %v", err)
+		logrus.Errorf("unable to get count of all step images: %v", err)
 	}
 
+	// send API call to capture the total number of step statuses
 	stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all step statuses: %v", err)
+		logrus.Errorf("unable to get count of all step statuses: %v", err)
 	}
 
+	// send API call to capture the total number of service images
 	serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all service images: %v", err)
+		logrus.Errorf("unable to get count of all service images: %v", err)
 	}
 
+	// send API call to capture the total number of service statuses
 	serviceStatusMap, err := database.FromContext(c).GetServiceStatusCount()
 	if err != nil {
-		logrus.Errorf("Error while reading all service statuses: %v", err)
+		logrus.Errorf("unable to get count of all service statuses: %v", err)
 	}
 
 	// Add platform metrics
@@ -162,11 +173,12 @@ func recordGauges(c *gin.Context) {
 		totals.WithLabelValues("services", "status", status).Set(count)
 	}
 
-	// Add image metrics
+	// Add step image metrics
 	for image, count := range stepImageMap {
 		stepImages.WithLabelValues(image).Set(count)
 	}
 
+	// Add service image metrics
 	for image, count := range serviceImageMap {
 		serviceImages.WithLabelValues(image).Set(count)
 	}
