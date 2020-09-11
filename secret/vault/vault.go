@@ -5,17 +5,36 @@
 package vault
 
 import (
+	"fmt"
 	"github.com/go-vela/types/library"
-
 	"github.com/hashicorp/vault/api"
 )
 
 type client struct {
-	Vault *api.Client
+	Vault  *api.Client
+	Prefix string
 }
 
+const PrefixVaultV1 = "secret"
+const PrefixVaultV2 = "secret/data"
+
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-func New(addr, token string) (*client, error) {
+func New(addr, token, version, pathPrefix string) (*client, error) {
+	var prefix string
+	switch version {
+	case "1":
+		prefix = PrefixVaultV1
+	case "2":
+		prefix = PrefixVaultV2
+	default:
+		return nil, fmt.Errorf("unrecognized vault version of %s", version)
+	}
+
+	// append admin defined prefix if not empty
+	if pathPrefix != "" {
+		prefix = fmt.Sprintf("%s/%s", prefix, pathPrefix)
+	}
+
 	conf := api.Config{Address: addr}
 
 	// create Vault client
@@ -28,7 +47,8 @@ func New(addr, token string) (*client, error) {
 	c.SetToken(token)
 
 	client := &client{
-		Vault: c,
+		Vault:  c,
+		Prefix: prefix,
 	}
 
 	return client, nil
@@ -37,8 +57,16 @@ func New(addr, token string) (*client, error) {
 func secretFromVault(vault *api.Secret) *library.Secret {
 	s := new(library.Secret)
 
+	var data map[string]interface{}
+	// handle k/v v2
+	if _, ok := vault.Data["data"]; ok {
+		data = vault.Data["data"].(map[string]interface{})
+	} else {
+		data = vault.Data
+	}
+
 	// set events if found in Vault secret
-	v, ok := vault.Data["events"]
+	v, ok := data["events"]
 	if ok {
 		events, ok := v.([]interface{})
 		if ok {
@@ -52,7 +80,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set images if found in Vault secret
-	v, ok = vault.Data["images"]
+	v, ok = data["images"]
 	if ok {
 		images, ok := v.([]interface{})
 		if ok {
@@ -66,7 +94,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set name if found in Vault secret
-	v, ok = vault.Data["name"]
+	v, ok = data["name"]
 	if ok {
 		name, ok := v.(string)
 		if ok {
@@ -75,7 +103,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set org if found in Vault secret
-	v, ok = vault.Data["org"]
+	v, ok = data["org"]
 	if ok {
 		org, ok := v.(string)
 		if ok {
@@ -84,7 +112,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set repo if found in Vault secret
-	v, ok = vault.Data["repo"]
+	v, ok = data["repo"]
 	if ok {
 		repo, ok := v.(string)
 		if ok {
@@ -93,7 +121,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set team if found in Vault secret
-	v, ok = vault.Data["team"]
+	v, ok = data["team"]
 	if ok {
 		team, ok := v.(string)
 		if ok {
@@ -102,7 +130,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set type if found in Vault secret
-	v, ok = vault.Data["type"]
+	v, ok = data["type"]
 	if ok {
 		secretType, ok := v.(string)
 		if ok {
@@ -111,11 +139,20 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 	}
 
 	// set value if found in Vault secret
-	v, ok = vault.Data["value"]
+	v, ok = data["value"]
 	if ok {
 		value, ok := v.(string)
 		if ok {
 			s.SetValue(value)
+		}
+	}
+
+	// set allow_command if found in Vault secret
+	v, ok = data["allow_command"]
+	if ok {
+		command, ok := v.(bool)
+		if ok {
+			s.SetAllowCommand(command)
 		}
 	}
 
@@ -165,6 +202,11 @@ func vaultFromSecret(s *library.Secret) *api.Secret {
 	// set value if found in Database secret
 	if len(s.GetValue()) > 0 {
 		vault.Data["value"] = s.GetValue()
+	}
+
+	// set allow_command if found in Database secret
+	if s.AllowCommand != nil {
+		vault.Data["allow_command"] = s.GetAllowCommand()
 	}
 
 	return vault

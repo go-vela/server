@@ -6,10 +6,10 @@ package vault
 
 import (
 	"fmt"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -43,24 +43,30 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 // createOrg is a helper function to create
 // the org secret for the provided path.
 func (c *client) createOrg(org, path string, data map[string]interface{}) error {
-	return c.create(fmt.Sprintf("secret/org/%s/%s", org, path), data)
+	return c.create(fmt.Sprintf("%s/org/%s/%s", c.Prefix, org, path), data)
 }
 
 // createRepo is a helper function to create
 // the repo secret for the provided path.
 func (c *client) createRepo(org, repo, path string, data map[string]interface{}) error {
-	return c.create(fmt.Sprintf("secret/repo/%s/%s/%s", org, repo, path), data)
+	return c.create(fmt.Sprintf("%s/repo/%s/%s/%s", c.Prefix, org, repo, path), data)
 }
 
 // createShared is a helper function to create
 // the shared secret for the provided path.
 func (c *client) createShared(org, team, path string, data map[string]interface{}) error {
-	return c.create(fmt.Sprintf("secret/shared/%s/%s/%s", org, team, path), data)
+	return c.create(fmt.Sprintf("%s/shared/%s/%s/%s", c.Prefix, org, team, path), data)
 }
 
 // create is a helper function to create
 // the secret for the provided path.
 func (c *client) create(path string, data map[string]interface{}) error {
+	if strings.HasPrefix("secret/data", c.Prefix) {
+		data = map[string]interface{}{
+			"data": data,
+		}
+	}
+
 	// send API call to create the secret
 	_, err := c.Vault.Logical().Write(path, data)
 	if err != nil {

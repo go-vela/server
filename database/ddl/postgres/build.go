@@ -35,6 +35,7 @@ builds (
 	branch        VARCHAR(500),
 	ref           VARCHAR(500),
 	base_ref      VARCHAR(500),
+	head_ref      VARCHAR(500),
 	host          VARCHAR(250),
 	runtime       VARCHAR(250),
 	distribution  VARCHAR(250),

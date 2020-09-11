@@ -861,11 +861,12 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	wantCommit := "6dcb09b5b57875f334f61aebed695e2e4193db5e"
 	wantBranch := "master"
 	wantBaseRef := "master"
+	wantHeadRef := "new-topic"
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotCommit, gotBranch, gotBaseRef, err := client.GetPullRequest(u, r, 1)
+	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(u, r, 1)
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
@@ -876,10 +877,14 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	}
 
 	if !strings.EqualFold(gotBranch, wantBranch) {
-		t.Errorf("Branch is %v, want %v", gotCommit, wantCommit)
+		t.Errorf("Branch is %v, want %v", gotBranch, wantBranch)
 	}
 
 	if !strings.EqualFold(gotBaseRef, wantBaseRef) {
-		t.Errorf("BaseRef is %v, want %v", gotCommit, wantCommit)
+		t.Errorf("BaseRef is %v, want %v", gotBaseRef, wantBaseRef)
+	}
+
+	if !strings.EqualFold(gotHeadRef, wantHeadRef) {
+		t.Errorf("HeadRef is %v, want %v", gotHeadRef, wantHeadRef)
 	}
 }

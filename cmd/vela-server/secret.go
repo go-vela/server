@@ -51,5 +51,5 @@ func setupNative(c *cli.Context, d database.Service) (secret.Service, error) {
 // helper function to setup the Vault secret engine from the CLI arguments.
 func setupVault(c *cli.Context) (secret.Service, error) {
 	logrus.Tracef("Creating %s secret client from CLI configuration", constants.DriverVault)
-	return vault.New(c.String("vault-addr"), c.String("vault-token"))
+	return vault.New(c.String("vault-addr"), c.String("vault-token"), c.String("vault-version"), c.String("vault-prefix"))
 }
