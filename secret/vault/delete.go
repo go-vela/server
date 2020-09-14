@@ -32,19 +32,19 @@ func (c *client) Delete(sType, org, name, path string) error {
 // deleteOrg is a helper function to delete
 // the org secret for the provided path.
 func (c *client) deleteOrg(org, path string) error {
-	return c.delete(fmt.Sprintf("secret/org/%s/%s", org, path))
+	return c.delete(fmt.Sprintf("%s/org/%s/%s", c.Prefix, org, path))
 }
 
 // deleteRepo is a helper function to delete
 // the repo secret for the provided path.
 func (c *client) deleteRepo(org, repo, path string) error {
-	return c.delete(fmt.Sprintf("secret/repo/%s/%s/%s", org, repo, path))
+	return c.delete(fmt.Sprintf("%s/repo/%s/%s/%s", c.Prefix, org, repo, path))
 }
 
 // deleteShared is a helper function to delete
 // the shared secret for the provided path.
 func (c *client) deleteShared(org, team, path string) error {
-	return c.delete(fmt.Sprintf("secret/shared/%s/%s/%s", org, team, path))
+	return c.delete(fmt.Sprintf("%s/shared/%s/%s/%s", c.Prefix, org, team, path))
 }
 
 // delete is a helper function to delete

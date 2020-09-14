@@ -120,7 +120,7 @@ func CreateSecret(c *gin.Context) {
 		input.SetEvents(defaultEvents)
 	}
 
-	if !input.GetAllowCommand() {
+	if input.AllowCommand == nil {
 		input.SetAllowCommand(true)
 	}
 
