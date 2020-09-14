@@ -17,7 +17,7 @@ func TestPostgres_NewMap(t *testing.T) {
 				"all":         ListBuilds,
 				"repo":        ListRepoBuilds,
 				"repoByEvent": ListRepoBuildsByEvent,
-				"org":         selectBuildByOrg,
+				"org":         SelectBuildByOrg,
 				"orgByEvent":  ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
