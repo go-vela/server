@@ -39,6 +39,14 @@ FROM services
 GROUP BY image
 `
 
+	// SelectServiceStatusesCount represents a query to select
+	// the count of service status appearances in the database.
+	SelectServiceStatusesCount = `
+SELECT status, count(status) as count
+FROM services
+GROUP BY status;
+`
+
 	// SelectBuildService represents a query to select a
 	// service for a build_id and number in the database.
 	SelectBuildService = `
@@ -67,9 +75,10 @@ func createServiceService() *Service {
 			"build": ListBuildServices,
 		},
 		Select: map[string]string{
-			"build":        SelectBuildService,
-			"count":        SelectBuildServicesCount,
-			"count-images": SelectServiceImagesCount,
+			"build":          SelectBuildService,
+			"count":          SelectBuildServicesCount,
+			"count-images":   SelectServiceImagesCount,
+			"count-statuses": SelectServiceStatusesCount,
 		},
 		Delete: DeleteService,
 	}
