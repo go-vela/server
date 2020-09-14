@@ -51,3 +51,16 @@ func Establish() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// EstablishLite used to check if org param is used only.
+func EstablishLite() gin.HandlerFunc { //Note: Func same subject to change and/or moved elsewhere.
+	return func(c *gin.Context) {
+		oParam := c.Param("org")
+		if len(oParam) == 0 {
+			retErr := fmt.Errorf("no org parameter provided")
+			util.HandleError(c, http.StatusBadRequest, retErr)
+			return
+		}
+		c.Next()
+	}
+}

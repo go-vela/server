@@ -101,9 +101,6 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		//     * Log endpoints
 		RepoHandlers(baseAPI)
 
-		// Org endpoint.
-		OrgHandlers(baseAPI)
-
 		// Secret endpoints
 		SecretHandlers(baseAPI)
 

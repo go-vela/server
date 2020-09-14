@@ -50,12 +50,16 @@ import (
 func RepoHandlers(base *gin.RouterGroup) {
 	// Repos endpoints
 	repos := base.Group("/repos")
+	orgs := base.Group("/repos")
 	{
 		repos.POST("", middleware.Payload(), api.CreateRepo)
 		repos.GET("", api.GetRepos)
-
+		org := orgs.Group("/:org", repo.EstablishLite()) //Note: name is temporary.
+		{
+			org.GET("", api.GetBuildOrgs)
+		} // end of org endpoints
 		// Repo endpoints
-		repo := repos.Group("/:org/:repo", repo.Establish())
+		repo := repos.Group("/:org/:repo/", repo.Establish())
 		{
 			repo.GET("", perm.MustRead(), api.GetRepo)
 			repo.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)

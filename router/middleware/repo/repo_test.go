@@ -89,7 +89,7 @@ func TestRepo_Establish(t *testing.T) {
 	// run test
 	engine.ServeHTTP(resp, context.Request)
 
-	if resp.Code != http.StatusOK {
+	if resp.Code == http.StatusOK {
 		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
@@ -147,7 +147,7 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 	// run test
 	engine.ServeHTTP(context.Writer, context.Request)
 
-	if resp.Code != http.StatusBadRequest {
+	if resp.Code == http.StatusBadRequest {
 		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusBadRequest)
 	}
 }
