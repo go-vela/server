@@ -359,11 +359,6 @@ func GetRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
-func ffff(c *gin.Context) {
-
-	c.JSON(http.StatusOK, "eee")
-}
-
 // swagger:operation PUT /api/v1/repos/{org}/{repo} repos UpdateRepo
 //
 // Update a repo in the configured backend
