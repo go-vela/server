@@ -94,9 +94,10 @@ func TestDML_mapFromPostgres(t *testing.T) {
 				"build": postgres.ListBuildServices,
 			},
 			Select: map[string]string{
-				"build":        postgres.SelectBuildService,
-				"count":        postgres.SelectBuildServicesCount,
-				"count-images": postgres.SelectServiceImagesCount,
+				"build":          postgres.SelectBuildService,
+				"count":          postgres.SelectBuildServicesCount,
+				"count-images":   postgres.SelectServiceImagesCount,
+				"count-statuses": postgres.SelectServiceStatusesCount,
 			},
 			Delete: postgres.DeleteService,
 		},
