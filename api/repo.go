@@ -259,7 +259,6 @@ func CreateRepo(c *gin.Context) {
 func GetRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-
 	logrus.Infof("Reading repos for user %s", u.GetName())
 
 	// capture page query parameter if present
