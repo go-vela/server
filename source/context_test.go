@@ -89,7 +89,7 @@ func TestSource_ToContext(t *testing.T) {
 	context, engine := gin.CreateTestContext(nil)
 
 	// setup mock server
-	engine.GET("/health", func(c *gin.Context) { c.String(http.StatusOK, "OK,") })
+	engine.GET("/health", func(c *gin.Context) { c.String(http.StatusOK, "OK") })
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
