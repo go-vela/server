@@ -72,7 +72,7 @@ LIMIT 1;
 	// SelectBuildByOrg represents a joined query
 	// between the builds & repos table to select
 	// the last build for a org name in the database.
-	SelectBuildByOrg = `
+	ListOrgBuilds = `
 SELECT builds.*
 FROM builds JOIN repos
 ON repos.id=builds.repo_id
@@ -162,7 +162,7 @@ func createBuildService() *Service {
 			"all":         ListBuilds,
 			"repo":        ListRepoBuilds,
 			"repoByEvent": ListRepoBuildsByEvent,
-			"org":         SelectBuildByOrg,
+			"org":         ListOrgBuilds,
 			"orgByEvent":  ListOrgBuildsByEvent,
 		},
 		Select: map[string]string{

@@ -362,9 +362,9 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
-// GetBuildOrgs represents the API handler to capture a
+// GetBuildsByOrgs represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
-func GetBuildOrgs(c *gin.Context) {
+func GetBuildsByOrgs(c *gin.Context) {
 	// variables that will hold the build list and total count
 	var (
 		b []*library.Build

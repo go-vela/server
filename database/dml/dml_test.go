@@ -22,7 +22,7 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 				"all":         postgres.ListBuilds,
 				"repo":        postgres.ListRepoBuilds,
 				"repoByEvent": postgres.ListRepoBuildsByEvent,
-				"org":         postgres.SelectBuildByOrg,
+				"org":         postgres.ListOrgBuilds,
 				"orgByEvent":  postgres.ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
