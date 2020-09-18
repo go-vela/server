@@ -69,13 +69,13 @@ WHERE repo_id = $1
 ORDER BY number DESC
 LIMIT 1;
 `
-	// SelectBuildByOrg represents a joined query
+	// ListOrgBuilds represents a joined query
 	// between the builds & repos table to select
 	// the last build for a org name in the database.
 	ListOrgBuilds = `
 SELECT builds.*
 FROM builds JOIN repos
-ON repos.id=builds.repo_id
+ON repos.id=builds.repo_id 
 WHERE repos.org = $1
 ORDER BY id DESC
 LIMIT $2
