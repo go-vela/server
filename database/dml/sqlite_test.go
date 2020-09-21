@@ -19,6 +19,8 @@ func TestDML_mapFromSqlite(t *testing.T) {
 				"all":         sqlite.ListBuilds,
 				"repo":        sqlite.ListRepoBuilds,
 				"repoByEvent": sqlite.ListRepoBuildsByEvent,
+				"org":         sqlite.ListOrgBuilds,
+				"orgByEvent":  sqlite.ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                sqlite.SelectRepoBuild,
@@ -28,6 +30,8 @@ func TestDML_mapFromSqlite(t *testing.T) {
 				"countByStatus":       sqlite.SelectBuildsCountByStatus,
 				"countByRepo":         sqlite.SelectRepoBuildCount,
 				"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
+				"countByOrg":          sqlite.SelectOrgBuildCount,
+				"countByOrgAndEvent":  sqlite.SelectOrgBuildCountByEvent,
 			},
 			Delete: sqlite.DeleteBuild,
 		},
@@ -139,6 +143,8 @@ func TestDML_serviceFromSqlite(t *testing.T) {
 			"all":         sqlite.ListBuilds,
 			"repo":        sqlite.ListRepoBuilds,
 			"repoByEvent": sqlite.ListRepoBuildsByEvent,
+			"org":         sqlite.ListOrgBuilds,
+			"orgByEvent":  sqlite.ListOrgBuildsByEvent,
 		},
 		Select: map[string]string{
 			"repo":                sqlite.SelectRepoBuild,
@@ -148,6 +154,8 @@ func TestDML_serviceFromSqlite(t *testing.T) {
 			"countByStatus":       sqlite.SelectBuildsCountByStatus,
 			"countByRepo":         sqlite.SelectRepoBuildCount,
 			"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
+			"countByOrg":          sqlite.SelectOrgBuildCount,
+			"countByOrgAndEvent":  sqlite.SelectOrgBuildCountByEvent,
 		},
 		Delete: sqlite.DeleteBuild,
 	}
