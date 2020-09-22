@@ -26,7 +26,7 @@ Workers (
 CREATE INDEX
 IF NOT EXISTS
 secrets_type_org_repo
-ON secrets (type, org, repo);
+ON workers (type, org, repo);
 `
 )
 

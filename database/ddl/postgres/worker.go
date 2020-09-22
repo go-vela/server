@@ -27,7 +27,7 @@ workers (
 CREATE INDEX
 IF NOT EXISTS
 workers_hostname_address
-ON repos (hostname, address);
+ON workers (hostname, address);
 `
 )
 
