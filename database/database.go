@@ -241,4 +241,22 @@ type Service interface {
 	// DeleteUser defines a function that
 	// deletes a user by unique ID.
 	DeleteUser(int64) error
+
+	// Worker Database Interface Functions
+
+	// GetWorker defines a function that
+	// gets a worker by hostname.
+	GetWorker(string) (*library.Worker, error)
+	// GetWorkerAddress defines a function that
+	// gets a worker by address.
+	GetWorkerByAddress(string) (*library.Worker, error)
+	// GetWorkerList defines a function that
+	// gets a list of all workers.
+	GetWorkerList() ([]*library.Worker, error)
+	// GetWorkerCount defines a function that
+	// gets the count of workers.
+	GetWorkerCount() (int64, error)
+	// DeleteWorker defines a function that
+	// deletes a worker by hostname.
+	DeleteWorker(int64) error
 }

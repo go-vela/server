@@ -227,6 +227,12 @@ func createTables(db *sql.DB, ddlMap *ddl.Map) error {
 		return fmt.Errorf("unable to create %s table: %v", constants.TableUser, err)
 	}
 
+	// create the worker table
+	_, err = db.Exec(ddlMap.WorkerService.Create)
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableWorker, err)
+	}
+
 	return nil
 }
 
@@ -294,6 +300,14 @@ func createIndexes(db *sql.DB, ddlMap *ddl.Map) error {
 		_, err := db.Exec(index)
 		if err != nil {
 			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableUser, err)
+		}
+	}
+
+	// create the worker table indexes
+	for _, index := range ddlMap.WorkerService.Indexes {
+		_, err := db.Exec(index)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table indexes: %v", constants.TableWorker, err)
 		}
 	}
 
