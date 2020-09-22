@@ -205,6 +205,10 @@ type Service interface {
 	// gets a list of all service images and the
 	// count of their occurrence.
 	GetServiceImageCount() (map[string]float64, error)
+	// GetServiceStatusCount defines a function that
+	// gets a list of all service statuses and the
+	// count of their occurrence.
+	GetServiceStatusCount() (map[string]float64, error)
 	// CreateService defines a function that
 	// creates a new step.
 	CreateService(*library.Service) error
