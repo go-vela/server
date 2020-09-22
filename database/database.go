@@ -260,6 +260,12 @@ type Service interface {
 	// GetWorkerCount defines a function that
 	// gets the count of workers.
 	GetWorkerCount() (int64, error)
+	// CreateWorker defines a function that
+	// creates a new worker.
+	CreateWorker(*library.Worker) error
+	// UpdateWorker defines a function that
+	// updates a worker by unique ID.
+	UpdateWorker(*library.Worker) error
 	// DeleteWorker defines a function that
 	// deletes a worker by hostname.
 	DeleteWorker(int64) error
