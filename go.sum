@@ -87,8 +87,8 @@ github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr6
 github.com/go-vela/compiler v0.5.2-0.20200918133711-83a4bb35e614 h1:lE8y8/eD3Gx31Ch77ejouHzHTqVGM2Z4bqgA5uxT980=
 github.com/go-vela/compiler v0.5.2-0.20200918133711-83a4bb35e614/go.mod h1:jTbvwSWSCUGmPkJlKoLjypBfxHb+uyW6UjfaqTEdr8U=
 github.com/go-vela/types v0.5.3-0.20200915182859-26f35b0bc7f1/go.mod h1:G1Qp0JFtXV+QRNTEWXht+WdllOhjAGapg9vBZKdj6N0=
-github.com/go-vela/types v0.5.3-0.20200921233241-b56aad3a05f9 h1:Jb5stcPrPJcar+TuqyX3o0plcK+spCccpm6uV0IvUjo=
-github.com/go-vela/types v0.5.3-0.20200921233241-b56aad3a05f9/go.mod h1:G1Qp0JFtXV+QRNTEWXht+WdllOhjAGapg9vBZKdj6N0=
+github.com/go-vela/types v0.5.3-0.20200922171246-24f0a72a5856 h1:JqQScuRF9dk/R59NvplepV+nekvE0TH2q7QBlPsbafs=
+github.com/go-vela/types v0.5.3-0.20200922171246-24f0a72a5856/go.mod h1:G1Qp0JFtXV+QRNTEWXht+WdllOhjAGapg9vBZKdj6N0=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe/go.mod h1:8vg3r2VgvsThLBIFL93Qb5yWzgyZWhEmBwUJWevAkK0=
