@@ -1273,7 +1273,7 @@
         "tags": [
           "builds"
         ],
-        "operationId": "GetBuildsByOrgs",
+        "operationId": "GetOrgBuilds",
         "parameters": [
           {
             "type": "string",

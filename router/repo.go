@@ -58,7 +58,7 @@ func RepoHandlers(base *gin.RouterGroup) {
 		repos.GET("", api.GetRepos)
 		org := orgs.Group("/:org", org.Establish()) //Note: name is temporary.
 		{
-			org.GET("", api.GetBuildsByOrgs)
+			org.GET("", api.GetOrgBuilds)
 		} // end of org endpoints
 		// Repo endpoints
 		repo := repos.Group("/:org/:repo", repo.Establish())

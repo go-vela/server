@@ -362,7 +362,7 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
-// swagger:operation GET /api/v1/repos/{org} builds GetBuildsByOrgs
+// swagger:operation GET /api/v1/repos/{org} builds GetOrgBuilds
 //
 // Create a build in the configured backend
 //
@@ -396,9 +396,9 @@ func GetBuilds(c *gin.Context) {
 //     schema:
 //       type: string
 
-// GetBuildsByOrgs represents the API handler to capture a
+// GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
-func GetBuildsByOrgs(c *gin.Context) {
+func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list and total count
 	var (
 		b []*library.Build
