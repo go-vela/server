@@ -10,7 +10,7 @@ const (
 	CreateWorkerTable = `
 CREATE TABLE
 IF NOT EXISTS
-Workers (
+workers (
 	id              INTEGER PRIMARY KEY AUTOINCREMENT,
 	hostname        TEXT,
 	address         TEXT,
