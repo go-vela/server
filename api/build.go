@@ -169,7 +169,7 @@ func CreateBuild(c *gin.Context) {
 
 	// handle getting changeset from a pull_request
 	if strings.EqualFold(input.GetEvent(), constants.EventPull) {
-		// capture number by converting from string
+		// capture number from build
 		number, err := getPRNumberFromBuild(input)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
@@ -515,6 +515,7 @@ func RestartBuild(c *gin.Context) {
 
 	// handle getting changeset from a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		// capture number from build
 		number, err := getPRNumberFromBuild(b)
 		if err != nil {
 			retErr := fmt.Errorf("unable to restart build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
