@@ -172,6 +172,7 @@ func CreateBuild(c *gin.Context) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(input)
 		if err != nil {
+			// nolint:lll // long log message
 			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -518,6 +519,7 @@ func RestartBuild(c *gin.Context) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(b)
 		if err != nil {
+			// nolint:lll // long log message
 			retErr := fmt.Errorf("unable to restart build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -815,6 +817,7 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 	}
 
 	// just being safe to avoid out of range index errors
+	// nolint:gomnd // magic number of 3 used once
 	if len(parts) < 3 {
 		return 0, fmt.Errorf("invalid ref: %s", b.GetRef())
 	}
