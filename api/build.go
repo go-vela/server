@@ -362,6 +362,40 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
+// swagger:operation GET /api/v1/repos/{org} builds GetBuildsByOrgs
+//
+// Create a build in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the build
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+
 // GetBuildsByOrgs represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
 func GetBuildsByOrgs(c *gin.Context) {
