@@ -167,28 +167,16 @@ func CreateBuild(c *gin.Context) {
 		}
 	}
 
-	// files is empty if the build event is pull_request
-	if len(files) == 0 {
-		// parse out pull request number from base ref
-		//
-		// pattern: refs/pull/1/head
-		var parts []string
-		if strings.HasPrefix(input.GetRef(), "refs/pull/") {
-			parts = strings.Split(input.GetRef(), "/")
-		}
-
+	// handle getting changeset from a pull_request
+	if strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// capture number by converting from string
-		number, err := strconv.Atoi(parts[2])
+		number, err := getPRNumberFromBuild(input)
 		if err != nil {
-			// capture number by scanning from string
-			_, err := fmt.Sscanf(input.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
-			if err != nil {
-				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				return
-			}
+			return
 		}
 
 		// send API call to capture list of files changed for the pull request
@@ -525,28 +513,15 @@ func RestartBuild(c *gin.Context) {
 		}
 	}
 
-	// files is empty if the build event is pull_request
-	if len(files) == 0 {
-		// parse out pull request number from base ref
-		//
-		// pattern: refs/pull/1/head
-		var parts []string
-		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
-			parts = strings.Split(b.GetRef(), "/")
-		}
-
-		// capture number by converting from string
-		number, err := strconv.Atoi(parts[2])
+	// handle getting changeset from a pull_request
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		number, err := getPRNumberFromBuild(b)
 		if err != nil {
-			// capture number by scanning from string
-			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
-			if err != nil {
-				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to restart build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				return
-			}
+			return
 		}
 
 		// send API call to capture list of files changed for the pull request
@@ -825,6 +800,26 @@ func DeleteBuild(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Build %s/%d deleted", r.GetFullName(), b.GetNumber()))
+}
+
+// getPRNumberFromBuild is a helper function to
+// extract the pull request number from a Build.
+func getPRNumberFromBuild(b *library.Build) (int, error) {
+	// parse out pull request number from base ref
+	//
+	// pattern: refs/pull/1/head
+	var parts []string
+	if strings.HasPrefix(b.GetRef(), "refs/pull/") {
+		parts = strings.Split(b.GetRef(), "/")
+	}
+
+	// just being safe to avoid out of range index errors
+	if len(parts) < 3 {
+		return 0, fmt.Errorf("invalid ref: %s", b.GetRef())
+	}
+
+	// return the results of converting number to string
+	return strconv.Atoi(parts[2])
 }
 
 // planBuild is a helper function to plan the build for
