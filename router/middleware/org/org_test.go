@@ -80,7 +80,6 @@ func TestOrg_Establish(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(Establish())
 	engine.GET("/:org", func(c *gin.Context) {
-
 		got = Retrieve(c)
 
 		c.Status(http.StatusOK)
