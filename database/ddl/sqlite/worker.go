@@ -11,9 +11,9 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 Workers (
-	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	hostname		TEXT,
-	address			TEXT,
+	id              INTEGER PRIMARY KEY AUTOINCREMENT,
+	hostname        TEXT,
+	address         TEXT,
 	routes          TEXT,
 	active          TEXT,
 	last_checked_in	INTEGER

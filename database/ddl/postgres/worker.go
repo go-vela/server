@@ -11,12 +11,12 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 workers (
-	id					SERIAL PRIMARY KEY,
-	hostname			VARCHAR(250),
-	address				VARCHAR(250),
-	routes				VARCHAR(1000),
-	active     			BOOLEAN,
-	last_checked_in		INTEGER,
+	id               SERIAL PRIMARY KEY,
+	hostname         VARCHAR(250),
+	address          VARCHAR(250),
+	routes           VARCHAR(1000),
+	active           BOOLEAN,
+	last_checked_in  INTEGER,
 	UNIQUE(hostname, address)
 );
 `
