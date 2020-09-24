@@ -18,7 +18,7 @@ import (
 //
 // POST   /api/v1/repos
 // GET    /api/v1/repos
-// GET 	  /api/v1/repos/:org
+// GET    /api/v1/repos/:org
 // GET    /api/v1/repos/:org/:repo
 // PUT    /api/v1/repos/:org/:repo
 // DELETE /api/v1/repos/:org/:repo
