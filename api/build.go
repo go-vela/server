@@ -832,11 +832,12 @@ func DeleteBuild(c *gin.Context) {
 // and services, for the build in the configured backend.
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
-	b.SetEnqueued(time.Now().UTC().Unix())
+	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
 	err := database.CreateBuild(b)
 	if err != nil {
+		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, nil, nil)
 
 		return fmt.Errorf("unable to create new build for %s: %v", r.GetFullName(), err)
@@ -848,6 +849,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	// plan all services for the build
 	services, err := planServices(database, p, b)
 	if err != nil {
+		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, services, nil)
 
 		return err
@@ -856,6 +858,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	// plan all steps for the build
 	steps, err := planSteps(database, p, b)
 	if err != nil {
+		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, services, steps)
 
 		return err
