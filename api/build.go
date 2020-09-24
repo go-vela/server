@@ -383,7 +383,7 @@ func GetBuilds(c *gin.Context) {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved the build
+//     description: Successfully retrieved build list
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
