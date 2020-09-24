@@ -215,7 +215,7 @@ func (c *client) GetOrgBuildList(o string, page, perPage int) ([]*library.Build,
 }
 
 // GetRepoBuildListByEvent gets a list of all builds by repo ID and event type from the database.
-func (c *client) GetRepoBuildListByEvent(r *library.Repo, page, perPage int, event string) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildListByEvent(r *library.Repo, page, perPage int, event string) ([]*library.Build, int64, error) { //nolint:lll
 	logrus.Tracef("Listing builds for repo %s from the database by event '%s'", r.GetFullName(), event)
 
 	// variables to store query results
