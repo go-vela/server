@@ -84,7 +84,11 @@ func (c *client) GetWorkerCount() (int64, error) {
 		Raw(c.DML.WorkerService.Select["count"]).
 		Pluck("count", &w).Error
 
-	return w[0], err
+	if err != nil {
+		return 0, err
+	}
+
+	return w[0], nil
 }
 
 // CreateWorker creates a new worker in the database.
