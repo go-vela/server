@@ -131,7 +131,7 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 }
 
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
-func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*library.Build, int64, error) { //nolint
 	logrus.Tracef("Listing builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
