@@ -364,7 +364,7 @@ func GetBuilds(c *gin.Context) {
 
 // swagger:operation GET /api/v1/repos/{org} builds GetOrgBuilds
 //
-// Create a build in the configured backend
+// Get a list of builds by org in the configured backend
 //
 // ---
 // x-success_http_code: '200'
