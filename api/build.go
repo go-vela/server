@@ -422,7 +422,7 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+	perPage = util.MaxInt(1, util.MinInt(100, perPage)) //nolint:gomnd
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	if len(event) > 0 {
