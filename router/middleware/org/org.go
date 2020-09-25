@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Retrieve gets the repo in the given context
+// Retrieve gets the org in the given context
 func Retrieve(c *gin.Context) string {
 	return FromContext(c)
 }
