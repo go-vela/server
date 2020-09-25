@@ -386,7 +386,7 @@ func GetBuilds(c *gin.Context) {
 //       type: string
 
 // GetOrgBuilds represents the API handler to capture a
-// list of builds associated with an org from the configured backend.
+// list of builds associated with an org from the configured backend
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list and total count
 	var (
