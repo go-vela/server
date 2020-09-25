@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestRepo_FromContext(t *testing.T) {
+func TestOrg_FromContext(t *testing.T) {
 	// setup types
 	want := "foo"
 
@@ -27,7 +27,7 @@ func TestRepo_FromContext(t *testing.T) {
 	}
 }
 
-func TestRepo_FromContext_Bad(t *testing.T) {
+func TestOrg_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -41,7 +41,7 @@ func TestRepo_FromContext_Bad(t *testing.T) {
 	}
 }
 
-func TestRepo_FromContext_WrongType(t *testing.T) {
+func TestOrg_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -55,7 +55,7 @@ func TestRepo_FromContext_WrongType(t *testing.T) {
 	}
 }
 
-func TestRepo_FromContext_Empty(t *testing.T) {
+func TestOrg_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -68,7 +68,7 @@ func TestRepo_FromContext_Empty(t *testing.T) {
 	}
 }
 
-func TestRepo_ToContext(t *testing.T) {
+func TestOrg_ToContext(t *testing.T) {
 	// setup types
 	want := "foo"
 

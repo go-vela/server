@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestRepo_Retrieve(t *testing.T) {
+func TestOrg_Retrieve(t *testing.T) {
 	// setup types
 	want := ""
 
@@ -97,7 +97,7 @@ func TestOrg_Establish(t *testing.T) {
 	}
 }
 
-func TestRepo_Establish_NoOrgParameter(t *testing.T) {
+func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 	// setup database
 	db, _ := database.NewTest()
 	defer db.Database.Close()
