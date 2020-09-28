@@ -27,7 +27,6 @@ require (
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/prometheus/client_golang v1.7.1
 	github.com/sirupsen/logrus v1.6.0
-	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
