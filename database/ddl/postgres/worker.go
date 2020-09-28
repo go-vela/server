@@ -22,7 +22,7 @@ workers (
 `
 
 	// CreateWorkersHostnameAddressIndex represents a query to create an
-	// index on the repos table for the hostname and address columns.
+	// index on the workers table for the hostname and address columns.
 	CreateWorkersHostnameAddressIndex = `
 CREATE INDEX
 IF NOT EXISTS

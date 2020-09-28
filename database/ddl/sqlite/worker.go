@@ -21,17 +21,17 @@ workers (
 `
 
 	// CreateWorkersHostnameAddressIndex represents a query to create an
-	// index on the repos table for the hostname and address columns.
+	// index on the workers table for the hostname and address columns.
 	CreateWorkersHostnameAddressIndex = `
 CREATE INDEX
 IF NOT EXISTS
-secrets_type_org_repo
-ON workers (type, org, repo);
+workers_hostname_address
+ON workers (hostname, address);
 `
 )
 
-// createSecretService is a helper function to return
-// a service for interacting with the secrets table.
+// createWorkerService is a helper function to return
+// a service for interacting with the workers table.
 func createWorkerService() *Service {
 	return &Service{
 		Create:  CreateWorkerTable,
