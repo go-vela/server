@@ -6,20 +6,32 @@ package vault
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
+	"time"
 )
 
+type awsCfg struct {
+	Role      string
+	StsClient stsiface.STSAPI
+}
+
 type client struct {
-	Vault  *api.Client
-	Prefix string
+	Vault      *api.Client
+	Prefix     string
+	AuthMethod string
+	Aws        awsCfg
+	Renewal    time.Duration
+	TTL        time.Duration
+	Finished   chan struct{}
 }
 
 const PrefixVaultV1 = "secret"
 const PrefixVaultV2 = "secret/data"
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-func New(addr, token, version, pathPrefix string) (*client, error) {
+func New(addr, token, version, pathPrefix, authMethod, awsRole string, renewal time.Duration) (*client, error) {
 	var prefix string
 	switch version {
 	case "1":
@@ -42,13 +54,29 @@ func New(addr, token, version, pathPrefix string) (*client, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// set Vault API token in client
-	c.SetToken(token)
+	if token != "" {
+		c.SetToken(token)
+	}
 
 	client := &client{
-		Vault:  c,
-		Prefix: prefix,
+		Vault:      c,
+		Prefix:     prefix,
+		AuthMethod: authMethod,
+		Renewal:    renewal,
+		Aws: awsCfg{
+			Role: awsRole,
+		},
+	}
+
+	if authMethod != "" {
+		err = client.initialize()
+		if err != nil {
+			return nil, err
+		}
+
+		// start the routine to refresh the token
+		//client.Finished = make(chan struct{})
+		go client.refreshToken()
 	}
 
 	return client, nil
