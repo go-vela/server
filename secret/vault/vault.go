@@ -24,7 +24,6 @@ type client struct {
 	Aws        awsCfg
 	Renewal    time.Duration
 	TTL        time.Duration
-	Finished   chan struct{}
 }
 
 const PrefixVaultV1 = "secret"
@@ -75,7 +74,6 @@ func New(addr, token, version, pathPrefix, authMethod, awsRole string, renewal t
 		}
 
 		// start the routine to refresh the token
-		//client.Finished = make(chan struct{})
 		go client.refreshToken()
 	}
 

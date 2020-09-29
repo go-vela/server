@@ -121,8 +121,6 @@ func (c *client) refreshToken() {
 			} else {
 				logrus.Trace("successfully refreshed vault token")
 			}
-			//case <-c.Finished:
-			//	return
 		}
 	}
 }
