@@ -85,7 +85,7 @@ func TestVault_List_Org(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -206,7 +206,7 @@ func TestVault_List_Repo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -312,7 +312,7 @@ func TestVault_List_Shared(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -352,7 +352,7 @@ func TestVault_List_InvalidType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -375,7 +375,7 @@ func TestVault_List_ClosedServer(t *testing.T) {
 	fake.Close()
 
 	// run test
-	s, err := New(fake.URL, "foo", "1", "")
+	s, err := New(fake.URL, "foo", "1", "","", "", 0)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -433,7 +433,7 @@ func TestVault_List_EmptyList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -498,7 +498,7 @@ func TestVault_List_InvalidList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -572,7 +572,7 @@ func TestVault_List_NoRead(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
