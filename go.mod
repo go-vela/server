@@ -9,8 +9,8 @@ require (
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis v6.15.8+incompatible
-	github.com/go-vela/compiler v0.6.0-rc2
-	github.com/go-vela/types v0.6.0-rc2
+	github.com/go-vela/compiler v0.6.0
+	github.com/go-vela/types v0.6.0
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
