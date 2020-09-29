@@ -78,7 +78,7 @@ func TestVault_Update_Org(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -159,7 +159,7 @@ func TestVault_Update_Repo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -240,7 +240,7 @@ func TestVault_Update_Shared(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -321,7 +321,7 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -368,7 +368,7 @@ func TestVault_Update_InvalidType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -410,7 +410,7 @@ func TestVault_Update_ClosedServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -485,7 +485,7 @@ func TestVault_Update_NoWrite(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix,"", "", 0)
+			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix, "", "", 0)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
