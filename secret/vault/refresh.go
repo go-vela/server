@@ -3,12 +3,13 @@ package vault
 import (
 	"encoding/base64"
 	"encoding/json"
+	"io/ioutil"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 )
@@ -50,7 +51,7 @@ func (c *client) initialize() error {
 	return nil
 }
 
-// getAwsToken retrieve a Vault token for the given IAM principal
+// getAwsToken will retrieve a Vault token for the given IAM principal
 //
 // docs: https://www.vaultproject.io/docs/auth/aws
 func (c *client) getAwsToken() (string, time.Duration, error) {
@@ -68,14 +69,14 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 	return secret.Auth.ClientToken, time.Duration(secret.Auth.LeaseDuration) * time.Second, nil
 }
 
-// generateAwsAuthHeader generate the necessary data to send to the Vault server for generating a token
+// generateAwsAuthHeader will generate the necessary data to send to the Vault server for generating a token
 func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	logrus.Trace("generating auth headers for vault")
 	req, _ := c.Aws.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
 
 	// sign the request
-	// will return error is credentials are invalid or expired
 	err := req.Sign()
+	// will return error if credentials are invalid or expired
 	if err != nil {
 		return nil, err
 	}
@@ -93,12 +94,13 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	}
 
 	// construct the vault STS auth header
-	loginData := make(map[string]interface{})
-	loginData["role"] = c.Aws.Role
-	loginData["iam_http_request_method"] = req.HTTPRequest.Method
-	loginData["iam_request_url"] = base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String()))
-	loginData["iam_request_headers"] = base64.StdEncoding.EncodeToString(headersJSON)
-	loginData["iam_request_body"] = base64.StdEncoding.EncodeToString(requestBody)
+	loginData := map[string]interface{}{
+		"role":                    c.Aws.Role,
+		"iam_http_request_method": req.HTTPRequest.Method,
+		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String())),
+		"iam_request_headers":     base64.StdEncoding.EncodeToString(headersJSON),
+		"iam_request_body":        base64.StdEncoding.EncodeToString(requestBody),
+	}
 
 	return loginData, nil
 }
@@ -106,21 +108,18 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 // refreshToken will refresh the given token if possible or generate a new one entirely
 func (c *client) refreshToken() {
 	for {
-		select {
-		case <-time.After(c.Renewal):
-			// token refresh ttl varies depending on the auth method
-			// aws method provides a variety of config options https://www.vaultproject.io/docs/auth/aws#expiration-times-and-tidying-of-blacklist-and-whitelist-entries
-			_, err := c.Vault.Auth().Token().RenewSelf(int(c.TTL / time.Second))
-			// fall back to obtaining a new token if the refresh fails
-			if err != nil {
-				err = c.initialize()
-			}
+		time.Sleep(c.Renewal)
+		// token refresh may fail since the allowable refresh timeframe varies depending on the auth method
+		_, err := c.Vault.Auth().Token().RenewSelf(int(c.TTL / time.Second))
+		// fall back to obtaining a new token if the refresh fails
+		if err != nil {
+			err = c.initialize()
+		}
 
-			if err != nil {
-				logrus.Errorf("failed to refresh vault token: %s", err)
-			} else {
-				logrus.Trace("successfully refreshed vault token")
-			}
+		if err != nil {
+			logrus.Errorf("failed to refresh vault token: %s", err)
+		} else {
+			logrus.Trace("successfully refreshed vault token")
 		}
 	}
 }
