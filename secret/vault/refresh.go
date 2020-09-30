@@ -3,6 +3,7 @@ package vault
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -64,6 +65,10 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 	secret, err := c.Vault.Logical().Write("auth/aws/login", headers)
 	if err != nil {
 		return "", 0, err
+	}
+
+	if secret.Auth.ClientToken == "" {
+		return "", 0, fmt.Errorf("vault failed to return a token")
 	}
 
 	return secret.Auth.ClientToken, time.Duration(secret.Auth.LeaseDuration) * time.Second, nil
