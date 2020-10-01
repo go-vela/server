@@ -17,12 +17,12 @@ workers (
 	routes           VARCHAR(1000),
 	active           BOOLEAN,
 	last_checked_in  INTEGER,
-	UNIQUE(hostname, address)
+	UNIQUE(hostname)
 );
 `
 
 	// CreateWorkersHostnameAddressIndex represents a query to create an
-	// index on the repos table for the hostname and address columns.
+	// index on the workers table for the hostname and address columns.
 	CreateWorkersHostnameAddressIndex = `
 CREATE INDEX
 IF NOT EXISTS
