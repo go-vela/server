@@ -275,7 +275,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	return err
 }
 
-// ListUserRepos returns a list of all repos the user has 'admin' privileges to.
+// ListUserRepos returns a list of all repos the user has access to.
 func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	logrus.Tracef("Listing source repositories for %s", u.GetName())
 
@@ -312,12 +312,6 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	for _, repo := range r {
 		// skip if the repo is archived or disabled
 		if repo.GetArchived() || repo.GetDisabled() {
-			continue
-		}
-
-		// skip if the user does not have admin access to the repo
-		val, ok := repo.GetPermissions()["admin"]
-		if !ok || !val {
 			continue
 		}
 
