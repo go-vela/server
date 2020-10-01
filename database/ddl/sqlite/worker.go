@@ -16,8 +16,8 @@ workers (
 	address         TEXT,
 	routes          TEXT,
 	active          TEXT,
-	last_checked_in	INTEGER
-	unique(hostname)
+	last_checked_in	INTEGER,
+	UNIQUE(hostname)
 );
 `
 
