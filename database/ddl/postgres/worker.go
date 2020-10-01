@@ -17,7 +17,7 @@ workers (
 	routes           VARCHAR(1000),
 	active           BOOLEAN,
 	last_checked_in  INTEGER,
-	UNIQUE(hostname, address)
+	UNIQUE(hostname)
 );
 `
 

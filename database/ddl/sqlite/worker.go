@@ -17,6 +17,7 @@ workers (
 	routes          TEXT,
 	active          TEXT,
 	last_checked_in	INTEGER
+	unique(hostname)
 );
 `
 
