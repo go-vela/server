@@ -4495,7 +4495,7 @@
           "x-go-name": "Privileged"
         },
         "pull": {
-          "type": "boolean",
+          "type": "string",
           "x-go-name": "Pull"
         },
         "ruleset": {
@@ -5251,6 +5251,42 @@
         }
       },
       "x-go-name": "Hook",
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Worker": {
+      "type": "object",
+      "title": "Worker is the library representation of a worker.",
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "x-go-name": "Active"
+        },
+        "address": {
+          "type": "string",
+          "x-go-name": "Address"
+        },
+        "hostname": {
+          "type": "string",
+          "x-go-name": "Hostname"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "last_checked_in": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "LastCheckedIn"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Routes"
+        }
+      },
       "x-go-package": "github.com/go-vela/types/library"
     }
   },
