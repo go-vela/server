@@ -337,7 +337,7 @@ func PostWebhook(c *gin.Context) {
 	// variable to store pipeline
 	var p *pipeline.Build
 	// number of times to retry
-	retryLimit := 5
+	retryLimit := 3
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
