@@ -402,12 +402,6 @@ func PostWebhook(c *gin.Context) {
 			// log the error for traceability
 			logrus.Error(err.Error())
 
-			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				// continue to the next iteration of the loop
-				continue
-			}
-
 			retErr := fmt.Errorf("%s: %v", baseErr, err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
