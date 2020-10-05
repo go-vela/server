@@ -437,7 +437,14 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the triggered build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, err = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %v", baseErr, r.GetFullName(), b.GetNumber(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+	}
 
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
