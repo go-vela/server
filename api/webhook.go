@@ -337,7 +337,7 @@ func PostWebhook(c *gin.Context) {
 	// variable to store pipeline
 	var p *pipeline.Build
 	// number of times to retry
-	retryLimit := 5
+	retryLimit := 3
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
@@ -402,12 +402,6 @@ func PostWebhook(c *gin.Context) {
 			// log the error for traceability
 			logrus.Error(err.Error())
 
-			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				// continue to the next iteration of the loop
-				continue
-			}
-
 			retErr := fmt.Errorf("%s: %v", baseErr, err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -443,7 +437,14 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the triggered build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, err = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %v", baseErr, r.GetFullName(), b.GetNumber(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+	}
 
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
