@@ -29,6 +29,7 @@ type Map struct {
 	ServiceService *Service
 	StepService    *Service
 	UserService    *Service
+	WorkerService  *Service
 }
 
 // NewMap returns the Map for DDL lookups.
