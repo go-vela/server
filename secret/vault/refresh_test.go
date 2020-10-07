@@ -134,7 +134,15 @@ func Test_client_getAwsToken(t *testing.T) {
 				_, _ = w.Write(data)
 			}))
 			defer ts.Close()
-			c, err := New(ts.URL, "", "2", "", "", tt.vaultRole, 5*time.Minute)
+			c, err := New(Config{
+				Address:    ts.URL,
+				Token:      "",
+				Version:    "2",
+				Prefix:     "",
+				AuthMethod: "",
+				AwsRole:    tt.vaultRole,
+				Renewal:    5 * time.Minute,
+			})
 			if err != nil {
 				t.Error(err)
 			}

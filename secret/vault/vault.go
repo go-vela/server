@@ -13,62 +13,74 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
-type awsCfg struct {
-	Role      string
-	StsClient stsiface.STSAPI
-}
+type (
+	awsCfg struct {
+		Role      string
+		StsClient stsiface.STSAPI
+	}
 
-type client struct {
-	Vault      *api.Client
-	Prefix     string
-	AuthMethod string
-	Aws        awsCfg
-	Renewal    time.Duration
-	TTL        time.Duration
-}
+	client struct {
+		Vault      *api.Client
+		Prefix     string
+		AuthMethod string
+		Aws        awsCfg
+		Renewal    time.Duration
+		TTL        time.Duration
+	}
+
+	Config struct {
+		Address    string
+		Token      string
+		Version    string
+		Prefix     string
+		AuthMethod string
+		AwsRole    string
+		Renewal    time.Duration
+	}
+)
 
 const PrefixVaultV1 = "secret"
 const PrefixVaultV2 = "secret/data"
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-func New(addr, token, version, pathPrefix, authMethod, awsRole string, renewal time.Duration) (*client, error) {
+func New(config Config) (*client, error) {
 	var prefix string
-	switch version {
+	switch config.Version {
 	case "1":
 		prefix = PrefixVaultV1
 	case "2":
 		prefix = PrefixVaultV2
 	default:
-		return nil, fmt.Errorf("unrecognized vault version of %s", version)
+		return nil, fmt.Errorf("unrecognized vault version of %s", config.Version)
 	}
 
 	// append admin defined prefix if not empty
-	if pathPrefix != "" {
-		prefix = fmt.Sprintf("%s/%s", prefix, pathPrefix)
+	if config.Prefix != "" {
+		prefix = fmt.Sprintf("%s/%s", prefix, config.Prefix)
 	}
 
-	conf := api.Config{Address: addr}
+	conf := api.Config{Address: config.Address}
 
 	// create Vault client
 	c, err := api.NewClient(&conf)
 	if err != nil {
 		return nil, err
 	}
-	if token != "" {
-		c.SetToken(token)
+	if config.Token != "" {
+		c.SetToken(config.Token)
 	}
 
 	client := &client{
 		Vault:      c,
 		Prefix:     prefix,
-		AuthMethod: authMethod,
-		Renewal:    renewal,
+		AuthMethod: config.AuthMethod,
+		Renewal:    config.Renewal,
 		Aws: awsCfg{
-			Role: awsRole,
+			Role: config.AwsRole,
 		},
 	}
 
-	if authMethod != "" {
+	if config.AuthMethod != "" {
 		err = client.initialize()
 		if err != nil {
 			return nil, err

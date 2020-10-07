@@ -168,7 +168,7 @@ func main() {
 			Usage:   "vault role to connect to the auth/aws/login endpoint with",
 		},
 		&cli.DurationFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_RENEWAL", "VELA_SECRET_VAULT_RENEWAL"},
+			EnvVars: []string{"VELA_SECRET_VAULT_RENEWAL", "SECRET_VAULT_RENEWAL"},
 			Name:    "vault-renewal",
 			Usage:   "frequency which the vault token should be renewed",
 			Value:   30 * time.Minute,
