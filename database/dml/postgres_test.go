@@ -122,6 +122,17 @@ func TestDML_mapFromPostgres(t *testing.T) {
 			},
 			Delete: postgres.DeleteUser,
 		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": postgres.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  postgres.SelectWorker,
+				"address": postgres.SelectWorkerByAddress,
+				"count":   postgres.SelectWorkersCount,
+			},
+			Delete: postgres.DeleteWorker,
+		},
 	}
 
 	// run test

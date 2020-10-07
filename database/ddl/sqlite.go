@@ -18,6 +18,7 @@ func mapFromSqlite(from *sqlite.Map) *Map {
 		ServiceService: serviceFromSqlite(from.ServiceService),
 		StepService:    serviceFromSqlite(from.StepService),
 		UserService:    serviceFromSqlite(from.UserService),
+		WorkerService:  serviceFromSqlite(from.WorkerService),
 	}
 }
 

@@ -125,6 +125,17 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 			},
 			Delete: postgres.DeleteUser,
 		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": postgres.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  postgres.SelectWorker,
+				"address": postgres.SelectWorkerByAddress,
+				"count":   postgres.SelectWorkersCount,
+			},
+			Delete: postgres.DeleteWorker,
+		},
 	}
 	// run test
 	got, err := NewMap(constants.DriverPostgres)
@@ -248,6 +259,17 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 				"count": sqlite.SelectUsersCount,
 			},
 			Delete: sqlite.DeleteUser,
+		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": sqlite.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  sqlite.SelectWorker,
+				"address": sqlite.SelectWorkerByAddress,
+				"count":   sqlite.SelectWorkersCount,
+			},
+			Delete: sqlite.DeleteWorker,
 		},
 	}
 

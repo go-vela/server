@@ -21,6 +21,7 @@ type Map struct {
 	ServiceService *Service
 	StepService    *Service
 	UserService    *Service
+	WorkerService  *Service
 }
 
 // NewMap returns the Postgres Map for DML lookups.
@@ -34,5 +35,6 @@ func NewMap() *Map {
 		ServiceService: createServiceService(),
 		StepService:    createStepService(),
 		UserService:    createUserService(),
+		WorkerService:  createWorkerService(),
 	}
 }
