@@ -126,6 +126,17 @@ func TestDML_mapFromSqlite(t *testing.T) {
 			},
 			Delete: sqlite.DeleteUser,
 		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": sqlite.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  sqlite.SelectWorker,
+				"address": sqlite.SelectWorkerByAddress,
+				"count":   sqlite.SelectWorkersCount,
+			},
+			Delete: sqlite.DeleteWorker,
+		},
 	}
 
 	// run test
