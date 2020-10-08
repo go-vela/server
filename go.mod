@@ -3,6 +3,7 @@ module github.com/go-vela/server
 go 1.13
 
 require (
+	github.com/aws/aws-sdk-go v1.34.33
 	github.com/coreos/go-semver v0.3.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -25,6 +26,7 @@ require (
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.5.1 // indirect
