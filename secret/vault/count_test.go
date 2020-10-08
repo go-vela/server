@@ -73,7 +73,15 @@ func TestVault_Count_Org(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -156,7 +164,15 @@ func TestVault_Count_Repo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -239,7 +255,15 @@ func TestVault_Count_Shared(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -280,7 +304,15 @@ func TestVault_Count_InvalidType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -316,7 +348,15 @@ func TestVault_Count_ClosedServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -376,7 +416,15 @@ func TestVault_Count_EmptyList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -441,7 +489,15 @@ func TestVault_Count_InvalidList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(fake.URL, "foo", tt.args.version, tt.args.prefix)
+			s, err := New(Config{
+				Address:    fake.URL,
+				Token:      "foo",
+				Version:    tt.args.version,
+				Prefix:     tt.args.prefix,
+				AuthMethod: "",
+				AwsRole:    "",
+				Renewal:    0,
+			})
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
