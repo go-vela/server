@@ -71,6 +71,12 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 				postgres.CreateUserNameIndex,
 			},
 		},
+		WorkerService: &Service{
+			Create: postgres.CreateWorkerTable,
+			Indexes: []string{
+				postgres.CreateWorkersHostnameAddressIndex,
+			},
+		},
 	}
 
 	// run test

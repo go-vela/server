@@ -124,6 +124,17 @@ func TestPostgres_NewMap(t *testing.T) {
 			},
 			Delete: DeleteUser,
 		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  SelectWorker,
+				"address": SelectWorkerByAddress,
+				"count":   SelectWorkersCount,
+			},
+			Delete: DeleteWorker,
+		},
 	}
 
 	// run test

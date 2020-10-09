@@ -9,7 +9,6 @@ import (
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/secret/native"
 	"github.com/go-vela/server/secret/vault"
-
 	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
@@ -51,5 +50,13 @@ func setupNative(c *cli.Context, d database.Service) (secret.Service, error) {
 // helper function to setup the Vault secret engine from the CLI arguments.
 func setupVault(c *cli.Context) (secret.Service, error) {
 	logrus.Tracef("Creating %s secret client from CLI configuration", constants.DriverVault)
-	return vault.New(c.String("vault-addr"), c.String("vault-token"), c.String("vault-version"), c.String("vault-prefix"))
+	return vault.New(vault.Config{
+		Address:    c.String("vault-addr"),
+		Token:      c.String("vault-token"),
+		Version:    c.String("vault-version"),
+		Prefix:     c.String("vault-prefix"),
+		AuthMethod: c.String("vault-auth-method"),
+		AwsRole:    c.String("vault-aws-role"),
+		Renewal:    c.Duration("vault-renewal"),
+	})
 }
