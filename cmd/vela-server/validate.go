@@ -149,15 +149,17 @@ func validateSecret(c *cli.Context) error {
 			return fmt.Errorf("vault-token (VELA_SECRET_VAULT_TOKEN or SECRET_VAULT_TOKEN) or vault-auth-method (VELA_SECRET_VAULT_AUTH_METHOD or SECRET_VAULT_AUTH_METHOD) flag not specified")
 		}
 
-		switch c.String("vault-auth-method") {
-		case "aws":
-		default:
-			return fmt.Errorf("vault auth method of '%s' is unsupported", c.String("vault-auth-method"))
-		}
+		if len(c.String("vault-token")) == 0 {
+			switch c.String("vault-auth-method") {
+			case "aws":
+			default:
+				return fmt.Errorf("vault auth method of '%s' is unsupported", c.String("vault-auth-method"))
+			}
 
-		if c.String("vault-auth-method") == "aws" {
-			if len(c.String("vault-aws-role")) == 0 {
-				return fmt.Errorf("vault-aws-role (VELA_SECRET_VAULT_AWS_ROLE or SECRET_VAULT_AWS_ROLE) flag not specified")
+			if c.String("vault-auth-method") == "aws" {
+				if len(c.String("vault-aws-role")) == 0 {
+					return fmt.Errorf("vault-aws-role (VELA_SECRET_VAULT_AWS_ROLE or SECRET_VAULT_AWS_ROLE) flag not specified")
+				}
 			}
 		}
 	}
