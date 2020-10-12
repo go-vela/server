@@ -77,7 +77,7 @@ import (
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	whitelist := c.Value("whitelist").([]string)
+	allowlist := c.Value("allowlist").([]string)
 
 	logrus.Info("Creating new repo")
 
@@ -140,8 +140,8 @@ func CreateRepo(c *gin.Context) {
 	)
 
 	// ensure repo is allowed to be activated
-	if !checkWhitelist(input, whitelist) {
-		retErr := fmt.Errorf("unable to activate repo: %s is not on whitelist", input.GetFullName())
+	if !checkAllowlist(input, allowlist) {
+		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", input.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)
 
@@ -763,16 +763,16 @@ func ChownRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s changed owner", r.GetFullName()))
 }
 
-// checkWhitelist is a helper function to ensure only repos in the
-// whitelist are allowed to enable repos. If the whitelist is
+// checkAllowlist is a helper function to ensure only repos in the
+// allowlist are allowed to enable repos. If the allowlist is
 // empty then any repo can be enabled.
-func checkWhitelist(r *library.Repo, whitelist []string) bool {
-	// if the whitelist is not set or empty allow any repo to be enabled
-	if len(whitelist) == 0 {
+func checkAllowlist(r *library.Repo, allowlist []string) bool {
+	// if the allowlist is not set or empty allow any repo to be enabled
+	if len(allowlist) == 0 {
 		return true
 	}
 
-	for _, repo := range whitelist {
+	for _, repo := range allowlist {
 		// allow all repos in org
 		if strings.Contains(repo, "/*") {
 			if strings.HasPrefix(repo, r.GetOrg()) {
