@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/router/middleware/perm"
 	"github.com/go-vela/server/router/middleware/worker"
 )
 
@@ -19,15 +20,15 @@ func WorkerHandlers(base *gin.RouterGroup) {
 	// Workers endpoints
 	workers := base.Group("/workers")
 	{
-		workers.POST("", middleware.Payload(), api.CreateWorker)
+		workers.POST("", perm.MustPlatformAdmin(), middleware.Payload(), api.CreateWorker)
 		workers.GET("", api.GetWorkers)
 
 		// Worker endpoints
 		w := workers.Group("/:worker")
 		{
 			w.GET("", worker.Establish(), api.GetWorker)
-			w.PUT("", worker.Establish(), api.UpdateWorker)
-			w.DELETE("", worker.Establish(), api.DeleteWorker)
+			w.PUT("", perm.MustPlatformAdmin(), worker.Establish(), api.UpdateWorker)
+			w.DELETE("", perm.MustPlatformAdmin(), worker.Establish(), api.DeleteWorker)
 		} // end of worker endpoints
 	} // end of workers endpoints
 }
