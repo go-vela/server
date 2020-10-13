@@ -117,7 +117,7 @@ func GetWorkers(c *gin.Context) {
 }
 
 // GetWorker represents the API handler to capture a
-// list of workers from the configured backend.
+// worker from the configured backend.
 func GetWorker(c *gin.Context) {
 	w := worker.Retrieve(c)
 	w, err := database.FromContext(c).GetWorker(w.GetHostname())
@@ -133,7 +133,7 @@ func GetWorker(c *gin.Context) {
 }
 
 // DeleteWorker represents the API handler to remove
-// a worker for a build from the configured backend.
+// a worker from the configured backend.
 func DeleteWorker(c *gin.Context) {
 	// capture middleware values
 	w := worker.Retrieve(c)
