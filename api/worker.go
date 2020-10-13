@@ -7,7 +7,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -81,9 +80,9 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
-	if input.GetActive() {
-		// update active if set
-		w.SetLastCheckedIn(time.Now().Unix())
+	if input.GetLastCheckedIn() > 0 {
+		// update LastCheckedIn if set
+		w.SetLastCheckedIn(input.GetLastCheckedIn())
 	}
 
 	// send API call to update the worker
