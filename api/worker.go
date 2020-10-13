@@ -24,9 +24,6 @@ func CreateWorker(c *gin.Context) {
 
 	err := c.Bind(input)
 
-	// set LastCheckedIn to now
-	input.SetLastCheckedIn(time.Now().Unix())
-
 	err = database.FromContext(c).CreateWorker(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create worker: %w", err)
@@ -84,8 +81,10 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
-	// update LastCheckedIn to now
-	w.SetLastCheckedIn(time.Now().Unix())
+	if input.GetActive() {
+		// update active if set
+		w.SetLastCheckedIn(time.Now().Unix())
+	}
 
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
