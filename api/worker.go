@@ -54,9 +54,19 @@ import (
 // CreateWorker represents the API handler to
 // create a worker in the configured backend
 func CreateWorker(c *gin.Context) {
+	logrus.Info("Creating new worker")
+
+	// capture body from API request
 	input := new(library.Worker)
 
 	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for new worker: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
 
 	err = database.FromContext(c).CreateWorker(input)
 	if err != nil {
