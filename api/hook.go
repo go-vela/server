@@ -45,11 +45,8 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: The webhook has been created
@@ -144,11 +141,8 @@ func CreateHook(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully retrieved webhooks
@@ -251,11 +245,8 @@ func GetHooks(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the webhook
@@ -332,11 +323,8 @@ func GetHook(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the webhook
@@ -472,11 +460,8 @@ func UpdateHook(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the webhook
