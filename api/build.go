@@ -345,6 +345,106 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
+// swagger:operation GET /api/v1/repos/{org} builds GetOrgBuilds
+//
+// Get a list of builds by org in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved build list
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+
+// GetOrgBuilds represents the API handler to capture a
+// list of builds associated with an org from the configured backend
+func GetOrgBuilds(c *gin.Context) {
+	// variables that will hold the build list and total count
+	var (
+		b []*library.Build
+		t int64
+	)
+
+	// capture middleware values
+	o := c.Param("org")
+	// capture the event type parameter
+	event := c.Query("event")
+
+	logrus.Infof("Reading builds for org %s", o)
+
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert page query parameter for org %s: %w", o, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for Org %s: %w", o, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(100, perPage)) //nolint:gomnd
+
+	// send API call to capture the list of builds for the org (and event type if passed in)
+	if len(event) > 0 {
+		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, page, perPage, event)
+	} else {
+		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
+	}
+
+	if err != nil {
+		retErr := fmt.Errorf("unable to get builds for org %s: %w", o, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
+
+	c.JSON(http.StatusOK, b)
+}
+
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
 //
 // Get a build in the configured backend

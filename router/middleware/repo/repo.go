@@ -5,16 +5,16 @@
 package repo
 
 import (
-	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
 
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the repo in the given context
