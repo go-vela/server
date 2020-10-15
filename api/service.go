@@ -120,7 +120,7 @@ func CreateService(c *gin.Context) {
 	c.JSON(http.StatusCreated, s)
 }
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} services GetServices
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services services GetServices
 //
 // Get a list of all services for a build in the configured backend
 //

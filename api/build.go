@@ -345,7 +345,7 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
-// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
 //
 // Get a build in the configured backend
 //
