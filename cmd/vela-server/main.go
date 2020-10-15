@@ -48,9 +48,9 @@ func main() {
 			Usage:   "secret used for server <-> agent communication",
 		},
 		&cli.StringSliceFlag{
-			EnvVars: []string{"VELA_REPO_WHITELIST"},
-			Name:    "vela-repo-whitelist",
-			Usage:   "whitelist is used to limit which repos can be activated within the system",
+			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
+			Name:    "vela-repo-allowlist",
+			Usage:   "allowlist is used to limit which repos can be activated within the system",
 			Value:   &cli.StringSlice{},
 		},
 

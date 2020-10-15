@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestMiddleware_Whitelist(t *testing.T) {
+func TestMiddleware_Allowlist(t *testing.T) {
 	// setup types
 	got := []string{""}
 	want := []string{"foobar"}
@@ -26,9 +26,9 @@ func TestMiddleware_Whitelist(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Whitelist(want))
+	engine.Use(Allowlist(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("whitelist").([]string)
+		got = c.Value("allowlist").([]string)
 
 		c.Status(http.StatusOK)
 	})

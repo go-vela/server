@@ -91,7 +91,7 @@ func server(c *cli.Context) error {
 		middleware.Secret(c.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Source(source),
-		middleware.Whitelist(c.StringSlice("vela-repo-whitelist")),
+		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 	)
 
 	var tomb tomb.Tomb
