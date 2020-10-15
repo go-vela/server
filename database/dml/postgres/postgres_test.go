@@ -17,6 +17,8 @@ func TestPostgres_NewMap(t *testing.T) {
 				"all":         ListBuilds,
 				"repo":        ListRepoBuilds,
 				"repoByEvent": ListRepoBuildsByEvent,
+				"org":         ListOrgBuilds,
+				"orgByEvent":  ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                SelectRepoBuild,
@@ -26,6 +28,8 @@ func TestPostgres_NewMap(t *testing.T) {
 				"countByStatus":       SelectBuildsCountByStatus,
 				"countByRepo":         SelectRepoBuildCount,
 				"countByRepoAndEvent": SelectRepoBuildCountByEvent,
+				"countByOrg":          SelectOrgBuildCount,
+				"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
 			},
 			Delete: DeleteBuild,
 		},
