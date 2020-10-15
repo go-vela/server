@@ -54,11 +54,8 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the service
@@ -147,11 +144,8 @@ func CreateService(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of services
@@ -260,11 +254,8 @@ func GetServices(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the service
@@ -330,11 +321,8 @@ func GetService(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the service
@@ -443,11 +431,8 @@ func UpdateService(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted the service

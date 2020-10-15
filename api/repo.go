@@ -40,11 +40,8 @@ import (
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the repo
@@ -233,12 +230,8 @@ func CreateRepo(c *gin.Context) {
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
@@ -336,11 +329,8 @@ func GetRepos(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
@@ -384,11 +374,8 @@ func GetRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the repo
@@ -555,11 +542,8 @@ func UpdateRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted the repo
@@ -641,11 +625,8 @@ func DeleteRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully repaired the repo
@@ -723,11 +704,8 @@ func RepairRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully changed the owner for the repo
