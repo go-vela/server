@@ -152,7 +152,7 @@ build-static:
 #
 # Usage: `make build-static-ci`
 .PHONY: build-static-ci
-build-static:
+build-static-ci:
 	@echo
 	@echo "### Building CI static release/vela-server binary"
 	@go build -a \
