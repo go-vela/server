@@ -71,11 +71,8 @@ func AllSecrets(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Secret"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the secret in the database
