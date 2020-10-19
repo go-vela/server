@@ -45,11 +45,8 @@ import (
 //   description: Build number to restart
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved logs for the build
@@ -118,11 +115,8 @@ func GetBuildLogs(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the service logs
@@ -210,11 +204,8 @@ func CreateServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the service logs
@@ -284,11 +275,8 @@ func GetServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the service logs
@@ -387,11 +375,8 @@ func UpdateServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully deleted the service logs
@@ -460,11 +445,8 @@ func DeleteServiceLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the logs for step
@@ -552,11 +534,8 @@ func CreateStepLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the logs for step
@@ -622,11 +601,8 @@ func GetStepLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the logs for step
@@ -725,11 +701,8 @@ func UpdateStepLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted the logs for the step

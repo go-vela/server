@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Whitelist is a middleware function that attaches the whitelist used
+// Allowlist is a middleware function that attaches the allowlist used
 // to limit which repos can be activated within the system.
-func Whitelist(whitelist []string) gin.HandlerFunc {
+func Allowlist(allowlist []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("whitelist", whitelist)
+		c.Set("allowlist", allowlist)
 		c.Next()
 	}
 }
