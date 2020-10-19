@@ -21,10 +21,7 @@ jobs:
         GOOS: linux
         CGO_ENABLED: '1'
       run: |
-        go build -a \
-          -ldflags '-s -w -extldflags "-static"' \
-          -o release/vela-server \
-          github.com/go-vela/server/cmd/vela-server
+        make build-static-ci
 
     - name: publish
       uses: elgohr/Publish-Docker-Github-Action@master

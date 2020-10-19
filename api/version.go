@@ -30,5 +30,5 @@ import (
 // Version represents the API handler to
 // report the version number for Vela.
 func Version(c *gin.Context) {
-	c.JSON(http.StatusOK, version.Version.String())
+	c.JSON(http.StatusOK, version.New())
 }

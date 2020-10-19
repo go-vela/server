@@ -17,7 +17,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "vela-server"
 	app.Action = server
-	app.Version = version.Version.String()
+	app.Version = version.New().Semantic()
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
