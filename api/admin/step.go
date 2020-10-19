@@ -71,11 +71,8 @@ func AllSteps(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Step"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the step in the database
