@@ -54,11 +54,8 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the step
@@ -147,11 +144,8 @@ func CreateStep(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of steps
@@ -260,11 +254,8 @@ func GetSteps(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the step
@@ -322,11 +313,8 @@ func GetStep(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the step
@@ -450,11 +438,8 @@ func UpdateStep(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted the step
