@@ -17,15 +17,17 @@ jobs:
     - name: clone
       uses: actions/checkout@v2
 
+    - name: setup
+      run: |
+        # setup git tag in Actions environment
+        echo "GITHUB_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
     - name: build
       env:
         GOOS: linux
         CGO_ENABLED: '1'
       run: |
-        go build -a \
-          -ldflags '-s -w -extldflags "-static"' \
-          -o release/vela-server \
-          github.com/go-vela/server/cmd/vela-server
+        make build-static-ci
 
     - name: publish
       uses: elgohr/Publish-Docker-Github-Action@master
