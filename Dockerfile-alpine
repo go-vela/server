@@ -1,0 +1,15 @@
+# Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+#
+# Use of this source code is governed by the LICENSE file in this repository.
+
+FROM alpine
+
+RUN apk add --update --no-cache ca-certificates
+
+EXPOSE 8080
+
+ENV GODEBUG=netdns=go
+
+ADD release/vela-server /bin/
+
+CMD ["/bin/vela-server"]
