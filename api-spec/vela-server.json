@@ -13,13 +13,18 @@
   "info": {
     "description": "API for the Vela server",
     "title": "Vela server",
-    "version": "0.4.3"
+    "version": "0.6.1"
   },
   "host": "localhost",
   "basePath": "/api/v1",
   "paths": {
     "/api/v1/admin/build": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a build in the database",
         "produces": [
           "application/json"
@@ -37,13 +42,6 @@
             "schema": {
               "$ref": "#/definitions/Build"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -71,6 +69,11 @@
     },
     "/api/v1/admin/builds": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the builds in the database",
         "produces": [
           "application/json"
@@ -79,15 +82,6 @@
           "admin"
         ],
         "operationId": "AdminAllBuilds",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all builds from the database",
@@ -149,6 +143,11 @@
     },
     "/api/v1/admin/hook": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a hook in the database",
         "produces": [
           "application/json"
@@ -166,13 +165,6 @@
             "schema": {
               "$ref": "#/definitions/Webhook"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -200,6 +192,11 @@
     },
     "/api/v1/admin/hooks": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the webhooks stored in the database",
         "produces": [
           "application/json"
@@ -208,15 +205,6 @@
           "admin"
         ],
         "operationId": "AdminAllHooks",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all hooks from the database",
@@ -236,6 +224,11 @@
     },
     "/api/v1/admin/repo": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a repo in the database",
         "produces": [
           "application/json"
@@ -253,13 +246,6 @@
             "schema": {
               "$ref": "#/definitions/Repo"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -287,6 +273,11 @@
     },
     "/api/v1/admin/repos": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the repos in the database",
         "produces": [
           "application/json"
@@ -295,15 +286,6 @@
           "admin"
         ],
         "operationId": "AdminAllRepos",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all repos from the database",
@@ -374,6 +356,11 @@
     },
     "/api/v1/admin/secrets": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the secrets in the database",
         "produces": [
           "application/json"
@@ -382,15 +369,6 @@
           "admin"
         ],
         "operationId": "AdminAllSecrets",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all secrets from the database",
@@ -461,6 +439,11 @@
     },
     "/api/v1/admin/services": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the services in the database",
         "produces": [
           "application/json"
@@ -469,15 +452,6 @@
           "admin"
         ],
         "operationId": "AdminAllServices",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all services from the database",
@@ -548,6 +522,11 @@
     },
     "/api/v1/admin/steps": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the steps in the database",
         "produces": [
           "application/json"
@@ -556,15 +535,6 @@
           "admin"
         ],
         "operationId": "AdminAllSteps",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all steps from the database",
@@ -584,6 +554,11 @@
     },
     "/api/v1/admin/user": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a user in the database",
         "produces": [
           "application/json"
@@ -601,13 +576,6 @@
             "schema": {
               "$ref": "#/definitions/User"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -635,6 +603,11 @@
     },
     "/api/v1/admin/users": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all of the users in the database",
         "produces": [
           "application/json"
@@ -643,15 +616,6 @@
           "admin"
         ],
         "operationId": "AdminAllUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all users from the database",
@@ -671,6 +635,11 @@
     },
     "/api/v1/deployments/{org}/{repo}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get a list of deployments for the configured backend",
         "produces": [
           "application/json"
@@ -692,13 +661,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -725,6 +687,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a deployment for the configured backend",
         "produces": [
           "application/json"
@@ -746,13 +713,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -781,6 +741,11 @@
     },
     "/api/v1/deployments/{org}/{repo}/{deployment}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get a deployment from the configured backend",
         "produces": [
           "application/json"
@@ -810,13 +775,6 @@
             "name": "deployment",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -832,6 +790,11 @@
     },
     "/api/v1/hooks/{org}/{repo}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a webhook for the configured backend",
         "produces": [
           "application/json"
@@ -853,13 +816,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -886,6 +842,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a webhook for the configured backend",
         "produces": [
           "application/json"
@@ -917,13 +878,6 @@
             "name": "org",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -951,6 +905,11 @@
     },
     "/api/v1/hooks/{org}/{repo}/{hook}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a webhook for the configured backend",
         "produces": [
           "application/json"
@@ -980,13 +939,6 @@
             "name": "hook",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1012,6 +964,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a webhook for the configured backend",
         "produces": [
           "application/json"
@@ -1050,13 +1007,6 @@
             "name": "hook",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1088,6 +1038,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a webhook for the configured backend",
         "produces": [
           "application/json"
@@ -1116,13 +1071,6 @@
             "description": "Name of the org",
             "name": "hook",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -1157,6 +1105,11 @@
     },
     "/api/v1/repos": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get all repos in the configured backend",
         "produces": [
           "application/json"
@@ -1165,15 +1118,6 @@
           "repos"
         ],
         "operationId": "GetRepos",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the repo",
@@ -1197,6 +1141,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a repo in the configured backend",
         "produces": [
           "application/json"
@@ -1214,13 +1163,6 @@
             "schema": {
               "$ref": "#/definitions/Repo"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1315,6 +1257,11 @@
     },
     "/api/v1/repos/{org}/{repo}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get a repo in the configured backend",
         "produces": [
           "application/json"
@@ -1337,13 +1284,6 @@
             "name": "org",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1357,6 +1297,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a repo in the configured backend",
         "produces": [
           "application/json"
@@ -1387,13 +1332,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -1432,6 +1370,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a repo in the configured backend",
         "produces": [
           "application/json"
@@ -1453,13 +1396,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -1488,6 +1424,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a build in the configured backend",
         "produces": [
           "application/json"
@@ -1509,13 +1450,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -1542,6 +1476,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a build in the configured backend",
         "produces": [
           "application/json"
@@ -1572,13 +1511,6 @@
             "description": "Name of the org",
             "name": "org",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -1613,14 +1545,19 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}": {
       "get": {
-        "description": "Get a list of all services for a build in the configured backend",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a build in the configured backend",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "services"
+          "builds"
         ],
-        "operationId": "GetServices",
+        "operationId": "GetBuild",
         "parameters": [
           {
             "type": "string",
@@ -1638,42 +1575,28 @@
           },
           {
             "type": "integer",
-            "description": "Build number",
+            "description": "Build number to restart",
             "name": "build",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved the list of services",
+            "description": "Successfully restarted the build",
             "schema": {
-              "$ref": "#/definitions/Service"
-            }
-          },
-          "400": {
-            "description": "Unable to retrieve the list of services",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "500": {
-            "description": "Unable to restart the list of services",
-            "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Build"
             }
           }
         },
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Updates a build in the configured backend",
         "produces": [
           "application/json"
@@ -1712,13 +1635,6 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1744,6 +1660,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Restart a build in the configured backend",
         "produces": [
           "application/json"
@@ -1772,13 +1693,6 @@
             "description": "Build number to restart",
             "name": "build",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -1811,6 +1725,11 @@
         "x-success_http_code": "201"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a build in the configured backend",
         "produces": [
           "application/json"
@@ -1840,13 +1759,6 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1868,6 +1780,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/logs": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get logs for a build in the configured backend",
         "produces": [
           "application/json"
@@ -1897,13 +1814,6 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1924,7 +1834,71 @@
       }
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/services": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a list of all services for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "GetServices",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of services",
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of services",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to restart the list of services",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a service for a build in the configured backend",
         "produces": [
           "application/json"
@@ -1963,13 +1937,6 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1997,6 +1964,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/services/{service}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Get a service for a build in the configured backend",
         "produces": [
           "application/json"
@@ -2033,13 +2005,6 @@
             "name": "service",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2065,6 +2030,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a service for a build in the configured backend",
         "produces": [
           "application/json"
@@ -2110,13 +2080,6 @@
             "name": "service",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2142,6 +2105,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a service for a build in the configured backend",
         "produces": [
           "application/json"
@@ -2178,13 +2146,6 @@
             "name": "service",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2206,6 +2167,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve the logs for a service",
         "produces": [
           "application/json"
@@ -2242,13 +2208,6 @@
             "name": "service",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2268,6 +2227,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update the logs for a service",
         "produces": [
           "application/json"
@@ -2313,13 +2277,6 @@
             "name": "service",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2345,6 +2302,11 @@
         "x-success_http_code": "201"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create the logs for a service",
         "produces": [
           "application/json"
@@ -2390,13 +2352,6 @@
             "name": "service",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2422,6 +2377,11 @@
         "x-success_http_code": "201"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete the logs for a service",
         "produces": [
           "application/json"
@@ -2457,13 +2417,6 @@
             "description": "Name of the service",
             "name": "service",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -2816,6 +2769,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve the logs for a step",
         "produces": [
           "application/json"
@@ -2852,13 +2810,6 @@
             "name": "step",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2872,6 +2823,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update the logs for a step",
         "produces": [
           "application/json"
@@ -2917,13 +2873,6 @@
             "name": "step",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2949,6 +2898,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create the logs for a step",
         "produces": [
           "application/json"
@@ -2994,13 +2948,6 @@
             "name": "step",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3026,6 +2973,11 @@
         "x-success_http_code": "201"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete the logs for a step",
         "produces": [
           "application/json"
@@ -3062,13 +3014,6 @@
             "name": "step",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3090,6 +3035,11 @@
     },
     "/api/v1/repos/{org}/{repo}/chown": {
       "patch": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Change the owner of the webhook for a repo",
         "produces": [
           "application/json"
@@ -3112,13 +3062,6 @@
             "name": "org",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3140,6 +3083,11 @@
     },
     "/api/v1/repos/{org}/{repo}/repair": {
       "patch": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Remove and recreate the webhook for a repo",
         "produces": [
           "application/json"
@@ -3162,13 +3110,6 @@
             "name": "org",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3190,6 +3131,11 @@
     },
     "/api/v1/secrets/{engine}/{type}/{org}/{name}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "produces": [
           "application/json"
         ],
@@ -3226,13 +3172,6 @@
             "name": "name",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3258,6 +3197,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a secret",
         "produces": [
           "application/json"
@@ -3303,13 +3247,6 @@
             "name": "name",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3337,6 +3274,11 @@
     },
     "/api/v1/secrets/{engine}/{type}/{org}/{name}/{secret}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "produces": [
           "application/json"
         ],
@@ -3380,13 +3322,6 @@
             "name": "secret",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3406,6 +3341,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "produces": [
           "application/json"
         ],
@@ -3458,13 +3398,6 @@
             "name": "secret",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3490,6 +3423,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "produces": [
           "application/json"
         ],
@@ -3542,13 +3480,6 @@
             "schema": {
               "$ref": "#/definitions/Secret"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3994,6 +3925,243 @@
           },
           "500": {
             "description": "Unable to delete user",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
+    "/api/v1/workers": {
+      "get": {
+        "description": "Retrieve a list of workers for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "GetWorkers",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Vela bearer token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of workers",
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of workers",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      },
+      "post": {
+        "description": "Create a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "CreateWorker",
+        "parameters": [
+          {
+            "description": "Payload containing the worker to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Vela bearer token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the worker",
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          "400": {
+            "description": "Unable to create the worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to create the worker",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "201"
+      }
+    },
+    "/api/v1/workers/{worker}": {
+      "get": {
+        "description": "Retrieve a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "GetWorker",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Hostname of the worker",
+            "name": "worker",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Vela bearer token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the worker",
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the worker",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      },
+      "put": {
+        "description": "Update a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "UpdateWorker",
+        "parameters": [
+          {
+            "description": "Payload containing the worker to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Name of the worker",
+            "name": "worker",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Vela bearer token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the worker",
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          "400": {
+            "description": "Unable to update the worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to update the worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to update the worker",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      },
+      "delete": {
+        "description": "Delete a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "DeleteWorker",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the worker",
+            "name": "worker",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Vela bearer token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted of worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to delete worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete worker",
             "schema": {
               "type": "string"
             }
