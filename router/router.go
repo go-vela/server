@@ -106,6 +106,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// User endpoints
 		UserHandlers(baseAPI)
+
+		// Worker endpoints
+		WorkerHandlers(baseAPI)
 	} // end of api
 
 	return r
