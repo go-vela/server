@@ -16,6 +16,9 @@ jobs:
     steps:
     - name: clone
       uses: actions/checkout@v2
+      with:
+        # ensures we fetch tag history for the repository
+        fetch-depth: 0
 
     - name: setup
       run: |
