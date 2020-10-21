@@ -53,6 +53,12 @@ func main() {
 			Usage:   "allowlist is used to limit which repos can be activated within the system",
 			Value:   &cli.StringSlice{},
 		},
+		&cli.BoolFlag{
+			EnvVars: []string{"VELA_DISABLE_WEBHOOK_VALIDATION"},
+			Name:    "vela-disable-webhook-validation",
+			Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
+			Value:   false,
+		},
 
 		// Compiler Flags
 

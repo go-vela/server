@@ -162,31 +162,33 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName(), input.GetHash())
-	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+	if c.Value("webhookvalidation").(bool) {
+		url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName(), input.GetHash())
+		if err != nil {
+			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
-		switch err.Error() {
-		case "Repo already enabled":
-			util.HandleError(c, http.StatusConflict, retErr)
-			return
-		case "Repo not found":
-			util.HandleError(c, http.StatusNotFound, retErr)
+			switch err.Error() {
+			case "Repo already enabled":
+				util.HandleError(c, http.StatusConflict, retErr)
+				return
+			case "Repo not found":
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		// TODO: build these from the source client
+		if len(input.GetLink()) == 0 {
+			input.SetLink(url)
+		}
 
-		return
-	}
-
-	// TODO: build these from the source client
-	if len(input.GetLink()) == 0 {
-		input.SetLink(url)
-	}
-
-	if len(input.GetClone()) == 0 {
-		input.SetClone(fmt.Sprintf("%s.git", url))
+		if len(input.GetClone()) == 0 {
+			input.SetClone(fmt.Sprintf("%s.git", url))
+		}
 	}
 
 	if len(r.GetOrg()) > 0 && !r.GetActive() {

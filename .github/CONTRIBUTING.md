@@ -64,6 +64,9 @@ echo "VELA_SOURCE_CLIENT=<Github Client ID>" >> secrets.env
 
 # Add Github Client Secret to local secrets file for `docker-compose`
 echo "VELA_SOURCE_SECRET=<Github Client Secret>" >> secrets.env
+
+# Disable webhook validation
+echo "VELA_DISABLE_WEBHOOK_VALIDATION=true" >> secrets.env
 ```
 
 ### Running Locally
