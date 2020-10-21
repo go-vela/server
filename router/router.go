@@ -109,6 +109,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// Worker endpoints
 		WorkerHandlers(baseAPI)
+
+		// todo rename expand
+		baseAPI.POST("pipelines/:org/:repo/expand", repo.Establish(), api.Compile)
+
 	} // end of api
 
 	return r
