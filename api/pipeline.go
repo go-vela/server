@@ -99,6 +99,7 @@ func GetTemplates(c *gin.Context) {
 
 	// capture output query parameter
 	output := c.DefaultQuery("output", "yaml")
+	ref := c.DefaultQuery("ref", r.GetBranch())
 
 	// send API call to capture the repo owner
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
@@ -117,7 +118,7 @@ func GetTemplates(c *gin.Context) {
 		WithUser(u)
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), "master")
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
 
