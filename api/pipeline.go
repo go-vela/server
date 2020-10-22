@@ -153,6 +153,62 @@ func GetTemplates(c *gin.Context) {
 	}
 }
 
+func GetPipeline(c *gin.Context) {
+	// capture middleware values
+	// m := c.MustGet("metadata").(*types.Metadata)
+	r := repo.Retrieve(c)
+
+	// capture query parameters
+	output := c.DefaultQuery("output", "yaml")
+	ref := c.DefaultQuery("ref", r.GetBranch())
+
+	// send API call to capture the repo owner
+	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the pipeline configuration file
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	m := c.MustGet("metadata").(*types.Metadata)
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
+	// parse the pipeline configuration file
+	p, err := comp.Parse(config)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case "json":
+		c.JSON(http.StatusOK, p)
+	case "yaml":
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, p)
+	}
+}
+
 // helper function that creates a map of templates from a yaml configuration.
 func mapFromTemplates(templates []*yaml.Template) map[string]*yaml.Template {
 	m := make(map[string]*yaml.Template)

@@ -113,7 +113,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// todo rename expand
 		pipelines := baseAPI.Group("pipelines/:org/:repo", repo.Establish())
 		{
-			pipelines.GET("", api.Health)                 // return the pipeline for the org/repo (raw YAML)
+			pipelines.GET("", api.GetPipeline)            // return the pipeline for the org/repo (raw YAML)
 			pipelines.POST("/compile", api.Health)        // compile and return the pipeline for the org/repo (fully rendered YAML - includes env vars, extra vars etc)
 			pipelines.POST("/expand", api.ExpandPipeline) // expand the templates for the pipeline and return the YAML
 			pipelines.GET("/templates", api.GetTemplates) // return the templates from the pipeline
