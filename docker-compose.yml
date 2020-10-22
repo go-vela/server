@@ -6,16 +6,16 @@ version: '3'
 
 services:
 
-  vela:
-    container_name: vela
+  server:
+    container_name: server
     build:
       context: .
       dockerfile: Dockerfile
-    image: vela:local
     networks:
       - vela
     environment:
-      VELA_ADDR: "http://localhost:8080"
+      VELA_ADDR: 'http://localhost:8080'
+      VELA_WEBUI_ADDR: 'http://ui:80'
       VELA_DATABASE_DRIVER: postgres
       VELA_DATABASE_CONFIG: postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable
       VELA_LOG_LEVEL: trace
@@ -39,6 +39,41 @@ services:
       - postgres
       - redis
       - vault
+
+  worker:
+    container_name: worker
+    image: target/vela-worker:v0.6.0
+    networks:
+      - vela
+    environment:
+      VELA_BUILD_LIMIT: 1
+      VELA_BUILD_TIMEOUT: 30m
+      VELA_LOG_LEVEL: trace
+      VELA_QUEUE_DRIVER: redis
+      VELA_QUEUE_CONFIG: redis://redis:6379
+      VELA_QUEUE_WORKER_ROUTES: large,docker,large:docker
+      VELA_RUNTIME_DRIVER: docker
+      VELA_SERVER_ADDR: http://server:8080
+      VELA_SERVER_SECRET: zB7mrKDTZqNeNTD8z47yG4DHywspAh
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    depends_on:
+      - server
+
+  ui:
+    container_name: ui
+    image: target/vela-ui
+    networks:
+      - vela
+    ports:
+      - "8888:80"
+    environment:
+      VELA_API: "http://localhost:8080"
+    depends_on:
+      - server
 
   redis:
     container_name: redis
