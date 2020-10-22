@@ -23,6 +23,9 @@ func ExpandPipeline(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
 	r := repo.Retrieve(c)
 
+	// capture query parameters
+	ref := c.DefaultQuery("ref", r.GetBranch())
+
 	// send API call to capture the repo owner
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
@@ -40,9 +43,9 @@ func ExpandPipeline(c *gin.Context) {
 		WithUser(u)
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), "master")
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -51,9 +54,8 @@ func ExpandPipeline(c *gin.Context) {
 
 	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
-
 	if err != nil {
-		retErr := fmt.Errorf("unable to parse pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -68,7 +70,7 @@ func ExpandPipeline(c *gin.Context) {
 		// inject the templates into the stages
 		p.Stages, err = comp.ExpandStages(p.Stages, t)
 		if err != nil {
-			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -82,7 +84,7 @@ func ExpandPipeline(c *gin.Context) {
 	// inject the templates into the stages
 	p.Steps, err = comp.ExpandSteps(p.Steps, t)
 	if err != nil {
-		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -97,7 +99,7 @@ func GetTemplates(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
 	r := repo.Retrieve(c)
 
-	// capture output query parameter
+	// capture query parameters
 	output := c.DefaultQuery("output", "yaml")
 	ref := c.DefaultQuery("ref", r.GetBranch())
 
@@ -120,7 +122,7 @@ func GetTemplates(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -130,7 +132,7 @@ func GetTemplates(c *gin.Context) {
 	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 	if err != nil {
-		retErr := fmt.Errorf("unable to parse pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
