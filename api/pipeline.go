@@ -18,6 +18,63 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func CompilePipeline(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
+	r := repo.Retrieve(c)
+
+	// capture query parameters
+	output := c.DefaultQuery("output", "yaml")
+	ref := c.DefaultQuery("ref", r.GetBranch())
+
+	// send API call to capture the repo owner
+	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the pipeline configuration file
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
+
+	// parse the pipeline configuration file
+	p, err := comp.Compile(config)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case "json":
+		c.JSON(http.StatusOK, p)
+	case "yaml":
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, p)
+	}
+
+}
+
 func ExpandPipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
