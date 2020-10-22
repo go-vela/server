@@ -800,6 +800,41 @@ func TestGithub_GetRepo(t *testing.T) {
 	}
 }
 
+func TestGithub_GetRepo_Fail(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("octocat")
+	r.SetName("Hello-World")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	_, err := client.GetRepo(u, r)
+
+	if err == nil {
+		t.Error("GetRepo should return error")
+	}
+}
+
 func TestGithub_ListUserRepos(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
