@@ -116,8 +116,7 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(constants.VisibilityPublic)
 	}
 
-	// subscribe to pull request and push events by default
-	// if no events were provided
+	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
