@@ -116,7 +116,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 			pipelines.GET("", api.Health)                 // return the pipeline for the org/repo (raw YAML)
 			pipelines.POST("/compile", api.Health)        // compile and return the pipeline for the org/repo (fully rendered YAML - includes env vars, extra vars etc)
 			pipelines.POST("/expand", api.ExpandPipeline) // expand the templates for the pipeline and return the YAML
-			pipelines.GET("/templates", api.Health)       // return the templates from the pipeline
+			pipelines.GET("/templates", api.GetTemplates) // return the templates from the pipeline
 			pipelines.POST("/validate", api.Health)       // validate the pipeline
 		}
 	} // end of api

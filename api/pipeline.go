@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-vela/compiler/compiler"
 
@@ -48,11 +49,11 @@ func ExpandPipeline(c *gin.Context) {
 		return
 	}
 
-	// parse and compile the pipeline configuration file
+	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 
 	if err != nil {
-		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -60,14 +61,14 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	// create map of templates for easy lookup
-	tmpls := mapFromTemplates(p.Templates)
+	t := mapFromTemplates(p.Templates)
 
 	// check if the pipeline contains stages
 	if len(p.Stages) > 0 {
 		// inject the templates into the stages
-		p.Stages, err = comp.ExpandStages(p.Stages, tmpls)
+		p.Stages, err = comp.ExpandStages(p.Stages, t)
 		if err != nil {
-			retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -79,9 +80,9 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	// inject the templates into the stages
-	p.Steps, err = comp.ExpandSteps(p.Steps, tmpls)
+	p.Steps, err = comp.ExpandSteps(p.Steps, t)
 	if err != nil {
-		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -89,6 +90,64 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	c.YAML(http.StatusOK, p)
+}
+
+func GetTemplates(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
+	r := repo.Retrieve(c)
+
+	// capture output query parameter
+	output := c.DefaultQuery("output", "yaml")
+
+	// send API call to capture the repo owner
+	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
+
+	// send API call to capture the pipeline configuration file
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), "master")
+	if err != nil {
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// parse the pipeline configuration file
+	p, err := comp.Parse(config)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// create map of templates for response body
+	t := mapFromTemplates(p.Templates)
+
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case "json":
+		c.JSON(http.StatusOK, t)
+	case "yaml":
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, t)
+	}
 }
 
 // helper function that creates a map of templates from a yaml configuration.
