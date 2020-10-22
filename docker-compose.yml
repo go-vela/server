@@ -29,6 +29,7 @@ services:
       VELA_SECRET_VAULT: "true"
       VELA_SECRET_VAULT_ADDR: http://vault:8200
       VELA_SECRET_VAULT_TOKEN: vela
+      VELA_DISABLE_WEBHOOK_VALIDATION: "true"
     env_file:
       - secrets.env
     restart: always
