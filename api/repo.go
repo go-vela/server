@@ -172,10 +172,10 @@ func CreateRepo(c *gin.Context) {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
 		switch err.Error() {
-		case "Repo already enabled":
+		case "repo already enabled":
 			util.HandleError(c, http.StatusConflict, retErr)
 			return
-		case "Repo not found":
+		case "repo not found":
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
