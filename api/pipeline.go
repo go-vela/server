@@ -17,7 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Compile(c *gin.Context) {
+func ExpandPipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
 	r := repo.Retrieve(c)
@@ -32,6 +32,12 @@ func Compile(c *gin.Context) {
 		return
 	}
 
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
+
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), "master")
 	if err != nil {
@@ -43,15 +49,7 @@ func Compile(c *gin.Context) {
 	}
 
 	// parse and compile the pipeline configuration file
-	p, err := compiler.FromContext(c).
-		// WithBuild(input).
-		// WithFiles(files).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u).
-		// Compile(config)
-		// parse the object into a yaml configuration
-		Parse(config)
+	p, err := comp.Parse(config)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
@@ -64,17 +62,10 @@ func Compile(c *gin.Context) {
 	// create map of templates for easy lookup
 	tmpls := mapFromTemplates(p.Templates)
 
+	// check if the pipeline contains stages
 	if len(p.Stages) > 0 {
 		// inject the templates into the stages
-		p.Stages, err = compiler.FromContext(c).
-			// WithBuild(input).
-			// WithFiles(files).
-			WithMetadata(m).
-			WithRepo(r).
-			WithUser(u).
-			// Compile(config)
-			// parse the object into a yaml configuration
-			ExpandStages(p.Stages, tmpls)
+		p.Stages, err = comp.ExpandStages(p.Stages, tmpls)
 		if err != nil {
 			retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -82,20 +73,13 @@ func Compile(c *gin.Context) {
 
 			return
 		}
-		c.YAML(http.StatusEarlyHints, p)
+
+		c.YAML(http.StatusOK, p)
 		return
 	}
 
 	// inject the templates into the stages
-	p.Steps, err = compiler.FromContext(c).
-		// WithBuild(input).
-		// WithFiles(files).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u).
-		// Compile(config)
-		// parse the object into a yaml configuration
-		ExpandSteps(p.Steps, tmpls)
+	p.Steps, err = comp.ExpandSteps(p.Steps, tmpls)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -104,7 +88,7 @@ func Compile(c *gin.Context) {
 		return
 	}
 
-	c.YAML(http.StatusCreated, p)
+	c.YAML(http.StatusOK, p)
 }
 
 // helper function that creates a map of templates from a yaml configuration.
