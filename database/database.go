@@ -34,15 +34,27 @@ type Service interface {
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
 	GetRepoBuildList(*library.Repo, int, int) ([]*library.Build, int64, error)
+	// GetOrgBuildList defines a function that
+	// gets a list of builds by org.
+	GetOrgBuildList(string, int, int) ([]*library.Build, int64, error)
 	// GetRepoBuildListByEvent defines a function that
 	// gets a list of builds by repo ID and event type.
 	GetRepoBuildListByEvent(*library.Repo, int, int, string) ([]*library.Build, int64, error)
+	// GetOrgBuildListByEvent defines a function that
+	// gets a list of builds by org and event type.
+	GetOrgBuildListByEvent(string, int, int, string) ([]*library.Build, int64, error)
 	// GetRepoBuildCount defines a function that
 	// gets the count of builds by repo ID.
 	GetRepoBuildCount(*library.Repo) (int64, error)
+	// GetOrgBuildCount defines a function that
+	// gets the count of builds by org.
+	GetOrgBuildCount(string) (int64, error)
 	// GetRepoBuildCountByEvent defines a function that
 	// gets the count of builds by repo ID and event type.
 	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
+	// GetOrgBuildCountByEvent defines a function that
+	// gets the count of builds by org and event type.
+	GetOrgBuildCountByEvent(string, string) (int64, error)
 	// CreateBuild defines a function that
 	// creates a new build.
 	CreateBuild(*library.Build) error
@@ -245,4 +257,28 @@ type Service interface {
 	// DeleteUser defines a function that
 	// deletes a user by unique ID.
 	DeleteUser(int64) error
+
+	// Worker Database Interface Functions
+
+	// GetWorker defines a function that
+	// gets a worker by hostname.
+	GetWorker(string) (*library.Worker, error)
+	// GetWorkerAddress defines a function that
+	// gets a worker by address.
+	GetWorkerByAddress(string) (*library.Worker, error)
+	// GetWorkerList defines a function that
+	// gets a list of all workers.
+	GetWorkerList() ([]*library.Worker, error)
+	// GetWorkerCount defines a function that
+	// gets the count of workers.
+	GetWorkerCount() (int64, error)
+	// CreateWorker defines a function that
+	// creates a new worker.
+	CreateWorker(*library.Worker) error
+	// UpdateWorker defines a function that
+	// updates a worker by unique ID.
+	UpdateWorker(*library.Worker) error
+	// DeleteWorker defines a function that
+	// deletes a worker by hostname.
+	DeleteWorker(int64) error
 }

@@ -19,6 +19,8 @@ func TestDML_mapFromPostgres(t *testing.T) {
 				"all":         postgres.ListBuilds,
 				"repo":        postgres.ListRepoBuilds,
 				"repoByEvent": postgres.ListRepoBuildsByEvent,
+				"org":         postgres.ListOrgBuilds,
+				"orgByEvent":  postgres.ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                postgres.SelectRepoBuild,
@@ -28,6 +30,8 @@ func TestDML_mapFromPostgres(t *testing.T) {
 				"countByStatus":       postgres.SelectBuildsCountByStatus,
 				"countByRepo":         postgres.SelectRepoBuildCount,
 				"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
+				"countByOrg":          postgres.SelectOrgBuildCount,
+				"countByOrgAndEvent":  postgres.SelectOrgBuildCountByEvent,
 			},
 			Delete: postgres.DeleteBuild,
 		},
@@ -122,6 +126,17 @@ func TestDML_mapFromPostgres(t *testing.T) {
 			},
 			Delete: postgres.DeleteUser,
 		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": postgres.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  postgres.SelectWorker,
+				"address": postgres.SelectWorkerByAddress,
+				"count":   postgres.SelectWorkersCount,
+			},
+			Delete: postgres.DeleteWorker,
+		},
 	}
 
 	// run test
@@ -139,6 +154,8 @@ func TestDML_serviceFromPostgres(t *testing.T) {
 			"all":         postgres.ListBuilds,
 			"repo":        postgres.ListRepoBuilds,
 			"repoByEvent": postgres.ListRepoBuildsByEvent,
+			"org":         postgres.ListOrgBuilds,
+			"orgByEvent":  postgres.ListOrgBuildsByEvent,
 		},
 		Select: map[string]string{
 			"repo":                postgres.SelectRepoBuild,
@@ -148,6 +165,8 @@ func TestDML_serviceFromPostgres(t *testing.T) {
 			"countByStatus":       postgres.SelectBuildsCountByStatus,
 			"countByRepo":         postgres.SelectRepoBuildCount,
 			"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
+			"countByOrg":          postgres.SelectOrgBuildCount,
+			"countByOrgAndEvent":  postgres.SelectOrgBuildCountByEvent,
 		},
 		Delete: postgres.DeleteBuild,
 	}

@@ -6,7 +6,7 @@
 //
 // API for the Vela server
 //
-//     Version: 0.4.3
+//     Version: 0.6.1
 //     Schemes: http, https
 //     Host: localhost
 //     BasePath: /api/v1
@@ -106,6 +106,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// User endpoints
 		UserHandlers(baseAPI)
+
+		// Worker endpoints
+		WorkerHandlers(baseAPI)
 	} // end of api
 
 	return r

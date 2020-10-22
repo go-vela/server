@@ -22,6 +22,8 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 				"all":         postgres.ListBuilds,
 				"repo":        postgres.ListRepoBuilds,
 				"repoByEvent": postgres.ListRepoBuildsByEvent,
+				"org":         postgres.ListOrgBuilds,
+				"orgByEvent":  postgres.ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                postgres.SelectRepoBuild,
@@ -31,6 +33,8 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 				"countByStatus":       postgres.SelectBuildsCountByStatus,
 				"countByRepo":         postgres.SelectRepoBuildCount,
 				"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
+				"countByOrg":          postgres.SelectOrgBuildCount,
+				"countByOrgAndEvent":  postgres.SelectOrgBuildCountByEvent,
 			},
 			Delete: postgres.DeleteBuild,
 		},
@@ -125,6 +129,17 @@ func TestDML_NewMap_Postgres(t *testing.T) {
 			},
 			Delete: postgres.DeleteUser,
 		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": postgres.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  postgres.SelectWorker,
+				"address": postgres.SelectWorkerByAddress,
+				"count":   postgres.SelectWorkersCount,
+			},
+			Delete: postgres.DeleteWorker,
+		},
 	}
 	// run test
 	got, err := NewMap(constants.DriverPostgres)
@@ -146,6 +161,8 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 				"all":         sqlite.ListBuilds,
 				"repo":        sqlite.ListRepoBuilds,
 				"repoByEvent": sqlite.ListRepoBuildsByEvent,
+				"org":         sqlite.ListOrgBuilds,
+				"orgByEvent":  sqlite.ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                sqlite.SelectRepoBuild,
@@ -155,6 +172,8 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 				"countByStatus":       sqlite.SelectBuildsCountByStatus,
 				"countByRepo":         sqlite.SelectRepoBuildCount,
 				"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
+				"countByOrg":          sqlite.SelectOrgBuildCount,
+				"countByOrgAndEvent":  sqlite.SelectOrgBuildCountByEvent,
 			},
 			Delete: sqlite.DeleteBuild,
 		},
@@ -248,6 +267,17 @@ func TestDML_NewMap_Sqlite(t *testing.T) {
 				"count": sqlite.SelectUsersCount,
 			},
 			Delete: sqlite.DeleteUser,
+		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": sqlite.ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  sqlite.SelectWorker,
+				"address": sqlite.SelectWorkerByAddress,
+				"count":   sqlite.SelectWorkersCount,
+			},
+			Delete: sqlite.DeleteWorker,
 		},
 	}
 

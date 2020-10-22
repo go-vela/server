@@ -171,8 +171,53 @@ func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*librar
 	return builds, count, err
 }
 
+// GetOrgBuildList gets a list of all builds by org name from the database.
+func (c *client) GetOrgBuildList(o string,
+	page, perPage int) ([]*library.Build, int64, error) {
+
+	logrus.Tracef("Listing builds for org %s from the database", o)
+
+	// variable to store query results
+	b := new([]database.Build)
+	builds := []*library.Build{}
+	count := int64(0)
+
+	// // count the results
+	count, err := c.GetOrgBuildCount(o)
+
+	if err != nil {
+		return builds, 0, err
+	}
+
+	// short-circuit if there are no results
+	if count == 0 {
+		return builds, 0, nil
+	}
+
+	// calculate offset for pagination through results
+	offset := (perPage * (page - 1))
+
+	// send query to the database and store result in variable
+	err = c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.List["org"], o, perPage, offset).
+		Scan(b).Error
+
+	// iterate through all query results
+	for _, build := range *b {
+		// https://golang.org/doc/faq#closures_and_goroutines
+		tmp := build
+
+		// convert query result to library type
+		builds = append(builds, tmp.ToLibrary())
+	}
+
+	return builds, count, err
+}
+
 // GetRepoBuildListByEvent gets a list of all builds by repo ID and event type from the database.
-func (c *client) GetRepoBuildListByEvent(r *library.Repo, page, perPage int, event string) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildListByEvent(
+	r *library.Repo, page, perPage int, event string) ([]*library.Build, int64, error) { //nolint:lll
 	logrus.Tracef("Listing builds for repo %s from the database by event '%s'", r.GetFullName(), event)
 
 	// variables to store query results
@@ -212,6 +257,48 @@ func (c *client) GetRepoBuildListByEvent(r *library.Repo, page, perPage int, eve
 	return builds, count, err
 }
 
+// GetOrgBuildListByEvent gets a list of all builds by org name and event type from the database.
+func (c *client) GetOrgBuildListByEvent(org string,
+	page, perPage int, event string) ([]*library.Build, int64, error) {
+	logrus.Tracef("Listing builds for repo %s from the database by event '%s'", org, event) //nolint:whitespace:lll
+
+	// variables to store query results
+	b := new([]database.Build)
+	builds := []*library.Build{}
+	count := int64(0)
+
+	// count the results
+	count, err := c.GetOrgBuildCountByEvent(org, event)
+	if err != nil {
+		return builds, 0, err
+	}
+
+	// short-circuit if there are no results
+	if count == 0 {
+		return builds, 0, nil
+	}
+
+	// calculate offset for pagination through results
+	offset := (perPage * (page - 1))
+
+	// send query to the database and store result in variable
+	err = c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.List["orgByEvent"], org, event, perPage, offset).
+		Scan(b).Error
+
+	// iterate through all query results
+	for _, build := range *b {
+		// https://golang.org/doc/faq#closures_and_goroutines
+		tmp := build
+
+		// convert query result to library type
+		builds = append(builds, tmp.ToLibrary())
+	}
+
+	return builds, count, err
+}
+
 // GetRepoBuildCount gets the count of all builds by repo ID from the database.
 func (c *client) GetRepoBuildCount(r *library.Repo) (int64, error) {
 	logrus.Trace("Count of builds from the database")
@@ -228,6 +315,22 @@ func (c *client) GetRepoBuildCount(r *library.Repo) (int64, error) {
 	return b[0], err
 }
 
+// GetOrgBuildCount gets the count of all builds by repo ID from the database.
+func (c *client) GetOrgBuildCount(org string) (int64, error) {
+	logrus.Trace("Count of builds from the database")
+
+	// variable to store query results
+	var b []int64
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.Select["countByOrg"], org).
+		Pluck("count", &b).Error
+
+	return b[0], err
+}
+
 // GetRepoBuildCountByEvent gets the count of all builds by repo ID and event from the database.
 func (c *client) GetRepoBuildCountByEvent(r *library.Repo, event string) (int64, error) {
 	logrus.Trace("Count of builds from the database")
@@ -239,6 +342,22 @@ func (c *client) GetRepoBuildCountByEvent(r *library.Repo, event string) (int64,
 	err := c.Database.
 		Table(constants.TableBuild).
 		Raw(c.DML.BuildService.Select["countByRepoAndEvent"], r.GetID(), event).
+		Pluck("count", &b).Error
+
+	return b[0], err
+}
+
+// GetOrgBuildCountByEvent gets the count of all builds by org name and event from the database.
+func (c *client) GetOrgBuildCountByEvent(org string, event string) (int64, error) {
+	logrus.Trace("Count of builds from the database")
+
+	// variable to store query results
+	var b []int64
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.Select["countByOrgAndEvent"], org, event).
 		Pluck("count", &b).Error
 
 	return b[0], err

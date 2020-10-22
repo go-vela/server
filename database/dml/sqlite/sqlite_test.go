@@ -17,6 +17,8 @@ func TestSqlite_NewMap(t *testing.T) {
 				"all":         ListBuilds,
 				"repo":        ListRepoBuilds,
 				"repoByEvent": ListRepoBuildsByEvent,
+				"org":         ListOrgBuilds,
+				"orgByEvent":  ListOrgBuildsByEvent,
 			},
 			Select: map[string]string{
 				"repo":                SelectRepoBuild,
@@ -26,6 +28,8 @@ func TestSqlite_NewMap(t *testing.T) {
 				"countByStatus":       SelectBuildsCountByStatus,
 				"countByRepo":         SelectRepoBuildCount,
 				"countByRepoAndEvent": SelectRepoBuildCountByEvent,
+				"countByOrg":          SelectOrgBuildCount,
+				"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
 			},
 			Delete: DeleteBuild,
 		},
@@ -119,6 +123,17 @@ func TestSqlite_NewMap(t *testing.T) {
 				"count": SelectUsersCount,
 			},
 			Delete: DeleteUser,
+		},
+		WorkerService: &Service{
+			List: map[string]string{
+				"all": ListWorkers,
+			},
+			Select: map[string]string{
+				"worker":  SelectWorker,
+				"address": SelectWorkerByAddress,
+				"count":   SelectWorkersCount,
+			},
+			Delete: DeleteWorker,
 		},
 	}
 

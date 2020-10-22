@@ -40,11 +40,8 @@ import (
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the repo
@@ -77,7 +74,7 @@ import (
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	whitelist := c.Value("whitelist").([]string)
+	allowlist := c.Value("allowlist").([]string)
 
 	logrus.Info("Creating new repo")
 
@@ -140,8 +137,8 @@ func CreateRepo(c *gin.Context) {
 	)
 
 	// ensure repo is allowed to be activated
-	if !checkWhitelist(input, whitelist) {
-		retErr := fmt.Errorf("unable to activate repo: %s is not on whitelist", input.GetFullName())
+	if !checkAllowlist(input, allowlist) {
+		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", input.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)
 
@@ -233,12 +230,8 @@ func CreateRepo(c *gin.Context) {
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
@@ -259,7 +252,6 @@ func CreateRepo(c *gin.Context) {
 func GetRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-
 	logrus.Infof("Reading repos for user %s", u.GetName())
 
 	// capture page query parameter if present
@@ -336,11 +328,8 @@ func GetRepos(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
@@ -384,11 +373,8 @@ func GetRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the repo
@@ -555,11 +541,8 @@ func UpdateRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted the repo
@@ -641,11 +624,8 @@ func DeleteRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully repaired the repo
@@ -723,11 +703,8 @@ func RepairRepo(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully changed the owner for the repo
@@ -763,16 +740,16 @@ func ChownRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s changed owner", r.GetFullName()))
 }
 
-// checkWhitelist is a helper function to ensure only repos in the
-// whitelist are allowed to enable repos. If the whitelist is
+// checkAllowlist is a helper function to ensure only repos in the
+// allowlist are allowed to enable repos. If the allowlist is
 // empty then any repo can be enabled.
-func checkWhitelist(r *library.Repo, whitelist []string) bool {
-	// if the whitelist is not set or empty allow any repo to be enabled
-	if len(whitelist) == 0 {
+func checkAllowlist(r *library.Repo, allowlist []string) bool {
+	// if the allowlist is not set or empty allow any repo to be enabled
+	if len(allowlist) == 0 {
 		return true
 	}
 
-	for _, repo := range whitelist {
+	for _, repo := range allowlist {
 		// allow all repos in org
 		if strings.Contains(repo, "/*") {
 			if strings.HasPrefix(repo, r.GetOrg()) {
