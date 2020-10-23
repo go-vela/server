@@ -7,34 +7,35 @@ version: '3'
 services:
 
   server:
-    container_name: server
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: server
+    image: vela:local
     networks:
       - vela
     environment:
       VELA_ADDR: 'http://localhost:8080'
       VELA_WEBUI_ADDR: 'http://ui:80'
       VELA_DATABASE_DRIVER: postgres
-      VELA_DATABASE_CONFIG: postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable
+      VELA_DATABASE_CONFIG: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
       VELA_LOG_LEVEL: trace
       VELA_QUEUE_DRIVER: redis
-      VELA_QUEUE_CONFIG: redis://redis:6379
-      VELA_QUEUE_WORKER_ROUTES: large,small,docker,large:docker,small:docker
-      VELA_PORT: ":8080"
-      VELA_SECRET: zB7mrKDTZqNeNTD8z47yG4DHywspAh
+      VELA_QUEUE_CONFIG: 'redis://redis:6379'
+      VELA_QUEUE_WORKER_ROUTES: 'docker,local,docker:local'
+      VELA_PORT: ':8080'
+      VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       VELA_SOURCE_DRIVER: github
-      VELA_SOURCE_URL: https://github.com/
-      VELA_SECRET_VAULT: "true"
-      VELA_SECRET_VAULT_ADDR: http://vault:8200
+      VELA_SOURCE_URL: 'https://github.com/'
+      VELA_SECRET_VAULT: 'true'
+      VELA_SECRET_VAULT_ADDR: 'http://vault:8200'
       VELA_SECRET_VAULT_TOKEN: vela
-      VELA_DISABLE_WEBHOOK_VALIDATION: "true"
+      VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
     env_file:
       - secrets.env
     restart: always
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       - postgres
       - redis
@@ -42,7 +43,7 @@ services:
 
   worker:
     container_name: worker
-    image: target/vela-worker:v0.6.0
+    image: target/vela-worker:latest
     networks:
       - vela
     environment:
@@ -50,28 +51,29 @@ services:
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace
       VELA_QUEUE_DRIVER: redis
-      VELA_QUEUE_CONFIG: redis://redis:6379
-      VELA_QUEUE_WORKER_ROUTES: large,docker,large:docker
+      VELA_QUEUE_CONFIG: 'redis://redis:6379'
+      VELA_QUEUE_WORKER_ROUTES: 'docker,local,docker:local'
       VELA_RUNTIME_DRIVER: docker
-      VELA_SERVER_ADDR: http://server:8080
-      VELA_SERVER_SECRET: zB7mrKDTZqNeNTD8z47yG4DHywspAh
+      VELA_SERVER_ADDR: 'http://server:8080'
+      VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
     restart: always
     ports:
-      - "8081:8080"
+      - '8081:8080'
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - '/var/run/docker.sock:/var/run/docker.sock'
     depends_on:
       - server
 
   ui:
     container_name: ui
-    image: target/vela-ui
+    image: target/vela-ui:latest
     networks:
       - vela
-    ports:
-      - "8888:80"
     environment:
-      VELA_API: "http://localhost:8080"
+      VELA_API: 'http://localhost:8080'
+    restart: always
+    ports:
+      - '8888:80'
     depends_on:
       - server
 
@@ -81,7 +83,7 @@ services:
     networks:
       - vela
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   postgres:
     container_name: postgres
@@ -90,10 +92,10 @@ services:
       - vela
     environment:
       POSTGRES_DB: vela
-      POSTGRES_PASSWORD: zB7mrKDTZqNeNTD8z47yG4DHywspAh
+      POSTGRES_PASSWORD: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       POSTGRES_USER: vela
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   vault:
     image: vault:latest
@@ -105,7 +107,7 @@ services:
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
       VAULT_DEV_ROOT_TOKEN_ID: vela
     ports:
-      - "8200:8200"
+      - '8200:8200'
     cap_add:
       - IPC_LOCK
 
