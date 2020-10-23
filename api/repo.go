@@ -166,22 +166,24 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	_, err = source.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
-	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+	if c.Value("webhookvalidation").(bool) {
+		_, err = source.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+		if err != nil {
+			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
-		switch err.Error() {
-		case "repo already enabled":
-			util.HandleError(c, http.StatusConflict, retErr)
-			return
-		case "repo not found":
-			util.HandleError(c, http.StatusNotFound, retErr)
+			switch err.Error() {
+			case "repo already enabled":
+				util.HandleError(c, http.StatusConflict, retErr)
+				return
+			case "repo not found":
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
 			return
 		}
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
 	}
 
 	// if the repo exists but is inactive

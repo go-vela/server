@@ -107,6 +107,8 @@ make rebuild
 docker-compose -f docker-compose.yml build
 ```
 
+* Accessing the Web UI: http://localhost:8888
+
 ### Development
 
 **Please see our [local development documentation](DOCS.md) for more information.**

@@ -92,6 +92,7 @@ func server(c *cli.Context) error {
 		middleware.Secrets(secrets),
 		middleware.Source(source),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
+		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
 	)
 
 	var tomb tomb.Tomb
