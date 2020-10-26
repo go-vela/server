@@ -71,6 +71,7 @@ import (
 
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
+// nolint:funlen // function is long
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -90,65 +91,68 @@ func CreateRepo(c *gin.Context) {
 		return
 	}
 
+	// get repo information from the source
+	r, err := source.FromContext(c).GetRepo(u, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// update fields in repo object
-	input.SetUserID(u.GetID())
+	r.SetUserID(u.GetID())
 
 	if input.Active == nil {
-		input.SetActive(true)
+		r.SetActive(true)
 	}
 
 	if input.GetTimeout() == 0 {
-		input.SetTimeout(constants.BuildTimeoutMin)
+		r.SetTimeout(constants.BuildTimeoutMin)
 	}
 
 	if len(input.GetVisibility()) == 0 {
-		input.SetVisibility(constants.VisibilityPublic)
+		r.SetVisibility(constants.VisibilityPublic)
 	}
 
-	if len(input.GetFullName()) == 0 {
-		input.SetFullName(fmt.Sprintf("%s/%s", input.GetOrg(), input.GetName()))
-	}
-
-	if len(input.GetBranch()) == 0 {
-		input.SetBranch("master")
-	}
-
+	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
-		input.SetAllowPull(true)
-		input.SetAllowPush(true)
+		r.SetAllowPull(true)
+		r.SetAllowPush(true)
 	}
 
 	// create unique id for the repo
 	uid, err := uuid.NewRandom()
 	if err != nil {
-		retErr := fmt.Errorf("unable to create UID for repo %s: %w", input.GetFullName(), err)
+		retErr := fmt.Errorf("unable to create UID for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 
 		return
 	}
 
-	input.SetHash(
+	r.SetHash(
 		base64.StdEncoding.EncodeToString(
 			[]byte(strings.TrimSpace(uid.String())),
 		),
 	)
 
 	// ensure repo is allowed to be activated
-	if !checkAllowlist(input, allowlist) {
-		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", input.GetFullName())
+	if !checkAllowlist(r, allowlist) {
+		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", r.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)
 
 		return
 	}
 
-	// send API call to capture the repo
-	r, err := database.FromContext(c).GetRepo(input.GetOrg(), input.GetName())
-	if err == nil && r.GetActive() {
-		retErr := fmt.Errorf("unable to activate repo: %s is already active", input.GetFullName())
+	// send API call to capture the repo from the database
+	dbRepo, err := database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+	if err == nil && dbRepo.GetActive() {
+		retErr := fmt.Errorf("unable to activate repo: %s is already active", r.GetFullName())
 
 		util.HandleError(c, http.StatusConflict, retErr)
 
@@ -156,22 +160,22 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// check if the repo already has a hash created
-	if len(r.GetHash()) > 0 {
+	if len(dbRepo.GetHash()) > 0 {
 		// overwrite the new repo hash with the existing repo hash
-		input.SetHash(r.GetHash())
+		r.SetHash(dbRepo.GetHash())
 	}
 
 	// send API call to create the webhook
 	if c.Value("webhookvalidation").(bool) {
-		url, err := source.FromContext(c).Enable(u, input.GetOrg(), input.GetName(), input.GetHash())
+		_, err = source.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
 			switch err.Error() {
-			case "Repo already enabled":
+			case "repo already enabled":
 				util.HandleError(c, http.StatusConflict, retErr)
 				return
-			case "Repo not found":
+			case "repo not found":
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
@@ -180,24 +184,17 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
-
-		// TODO: build these from the source client
-		if len(input.GetLink()) == 0 {
-			input.SetLink(url)
-		}
-
-		if len(input.GetClone()) == 0 {
-			input.SetClone(fmt.Sprintf("%s.git", url))
-		}
 	}
 
-	if len(r.GetOrg()) > 0 && !r.GetActive() {
-		r.SetActive(true)
+	// if the repo exists but is inactive
+	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
+		// activate the repo
+		dbRepo.SetActive(true)
 
 		// send API call to update the repo
-		err = database.FromContext(c).UpdateRepo(r)
+		err = database.FromContext(c).UpdateRepo(dbRepo)
 		if err != nil {
-			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to set repo %s to active: %w", dbRepo.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -205,12 +202,12 @@ func CreateRepo(c *gin.Context) {
 		}
 
 		// send API call to capture the updated repo
-		r, _ = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+		r, _ = database.FromContext(c).GetRepo(dbRepo.GetOrg(), dbRepo.GetName())
 	} else {
 		// send API call to create the repo
-		err = database.FromContext(c).CreateRepo(input)
+		err = database.FromContext(c).CreateRepo(r)
 		if err != nil {
-			retErr := fmt.Errorf("unable to create new repo %s: %w", input.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new repo %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -218,7 +215,7 @@ func CreateRepo(c *gin.Context) {
 		}
 
 		// send API call to capture the created repo
-		r, _ = database.FromContext(c).GetRepo(input.GetOrg(), input.GetName())
+		r, _ = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
 	}
 
 	c.JSON(http.StatusCreated, r)
