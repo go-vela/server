@@ -238,12 +238,6 @@ func ExpandPipeline(c *gin.Context) {
 		return
 	}
 
-	// create the compiler with extra information embedded into it
-	comp := compiler.FromContext(c).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u)
-
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
 	if err != nil {
@@ -253,6 +247,12 @@ func ExpandPipeline(c *gin.Context) {
 
 		return
 	}
+
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
 
 	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
