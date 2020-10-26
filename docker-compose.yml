@@ -6,6 +6,13 @@ version: '3'
 
 services:
 
+  # The `server` compose service hosts the Vela server and API.
+  #
+  # This component is used for processing web requests and
+  # managing resources in the database and publishing
+  # builds to the FIFO queue.
+  #
+  # https://go-vela.github.io/docs/concepts/infrastructure/server/
   server:
     build:
       context: .
@@ -26,7 +33,6 @@ services:
       VELA_PORT: ':8080'
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       VELA_SOURCE_DRIVER: github
-      VELA_SOURCE_URL: 'https://github.com/'
       VELA_SECRET_VAULT: 'true'
       VELA_SECRET_VAULT_ADDR: 'http://vault:8200'
       VELA_SECRET_VAULT_TOKEN: vela
@@ -41,6 +47,12 @@ services:
       - redis
       - vault
 
+  # The `worker` compose service hosts the Vela build daemon.
+  #
+  # This component is used for pulling builds from the FIFO
+  # queue and executing them based off their configuration.
+  #
+  # https://go-vela.github.io/docs/concepts/infrastructure/worker/
   worker:
     container_name: worker
     image: target/vela-worker:latest
@@ -64,6 +76,12 @@ services:
     depends_on:
       - server
 
+  # The `ui` compose service hosts the Vela UI.
+  #
+  # This component is used for providing a user-friendly
+  # interface for triggering actions in the Vela system.
+  #
+  # https://go-vela.github.io/docs/concepts/infrastructure/ui/
   ui:
     container_name: ui
     image: target/vela-ui:latest
@@ -77,6 +95,11 @@ services:
     depends_on:
       - server
 
+  # The `redis` compose service hosts the Redis database.
+  #
+  # This component is used for publishing builds to a FIFO queue.
+  #
+  # https://redis.io/
   redis:
     container_name: redis
     image: redis:5-alpine
@@ -85,6 +108,11 @@ services:
     ports:
       - '6379:6379'
 
+  # The `postgres` compose service hosts the Postgresql database.
+  #
+  # This component is used for storing data at rest.
+  #
+  # https://www.postgresql.org/
   postgres:
     container_name: postgres
     image: postgres:12-alpine
@@ -97,6 +125,11 @@ services:
     ports:
       - '5432:5432'
 
+  # The `vault` compose service hosts the HashiCorp Vault instance.
+  #
+  # This component is used for storing sensitive data like secrets.
+  #
+  # https://www.vaultproject.io/
   vault:
     image: vault:latest
     container_name: vault
