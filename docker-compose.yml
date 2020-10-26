@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: server
-    image: vela:local
+    image: server:local
     networks:
       - vela
     environment:
