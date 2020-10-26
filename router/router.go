@@ -114,10 +114,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		pipelines := baseAPI.Group("pipelines/:org/:repo", repo.Establish())
 		{
 			pipelines.GET("", api.GetPipeline)
-			pipelines.POST("/compile", api.CompilePipeline)
-			pipelines.POST("/expand", api.ExpandPipeline)
 			pipelines.GET("/templates", api.GetTemplates)
+			pipelines.POST("/expand", api.ExpandPipeline)
 			pipelines.POST("/validate", api.ValidatePipeline)
+			pipelines.POST("/compile", api.CompilePipeline)
 		}
 	} // end of api
 

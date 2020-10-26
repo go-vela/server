@@ -18,7 +18,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CompilePipeline(c *gin.Context) {
+// swagger:operation GET /api/v1/pipelines/{org}/{repo} pipeline GetPipeline
+//
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved the pipeline
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Pipeline"
+
+// GetPipeline represents the API handler to capture a
+// pipeline configuration for a repo from the the source provider.
+func GetPipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
 	r := repo.Retrieve(c)
@@ -54,7 +83,7 @@ func CompilePipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Compile(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -72,9 +101,125 @@ func CompilePipeline(c *gin.Context) {
 	default:
 		c.YAML(http.StatusOK, p)
 	}
-
 }
 
+// swagger:operation GET /api/v1/pipelines/{org}/{repo}/templates templates GetTemplates
+//
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved the list of pipeline templates
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Template"
+
+// GetTemplates represents the API handler to capture a
+// list of templates utilized by a pipeline configuration.
+func GetTemplates(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
+	r := repo.Retrieve(c)
+
+	// capture query parameters
+	output := c.DefaultQuery("output", "yaml")
+	ref := c.DefaultQuery("ref", r.GetBranch())
+
+	// send API call to capture the repo owner
+	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the pipeline configuration file
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
+
+	// parse the pipeline configuration file
+	p, err := comp.Parse(config)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// create map of templates for response body
+	t := mapFromTemplates(p.Templates)
+
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case "json":
+		c.JSON(http.StatusOK, t)
+	case "yaml":
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, t)
+	}
+}
+
+// swagger:operation POST /api/v1/pipelines/{org}/{repo}/expand pipeline ExpandPipeline
+//
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved and expanded the pipeline
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Pipeline"
+
+// ExpandPipeline represents the API handler to capture and
+// expand a pipeline configuration.
 func ExpandPipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -114,7 +259,7 @@ func ExpandPipeline(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
@@ -129,143 +274,54 @@ func ExpandPipeline(c *gin.Context) {
 		if err != nil {
 			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			return
 		}
+	} else {
+		// inject the templates into the steps
+		p.Steps, err = comp.ExpandSteps(p.Steps, t)
+		if err != nil {
+			retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
-		c.YAML(http.StatusOK, p)
-		return
-	}
+			util.HandleError(c, http.StatusBadRequest, retErr)
 
-	// inject the templates into the stages
-	p.Steps, err = comp.ExpandSteps(p.Steps, t)
-	if err != nil {
-		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
+			return
+		}
 	}
 
 	c.YAML(http.StatusOK, p)
 }
 
-func GetTemplates(c *gin.Context) {
-	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
-	r := repo.Retrieve(c)
+// swagger:operation POST /api/v1/pipelines/{org}/{repo}/validate pipeline ValidatePipeline
+//
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved and validated the pipeline
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Pipeline"
 
-	// capture query parameters
-	output := c.DefaultQuery("output", "yaml")
-	ref := c.DefaultQuery("ref", r.GetBranch())
-
-	// send API call to capture the repo owner
-	u, err := database.FromContext(c).GetUser(r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// create the compiler with extra information embedded into it
-	comp := compiler.FromContext(c).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u)
-
-	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
-	if err != nil {
-		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	// create map of templates for response body
-	t := mapFromTemplates(p.Templates)
-
-	// format response body based off output query parameter
-	switch strings.ToLower(output) {
-	case "json":
-		c.JSON(http.StatusOK, t)
-	case "yaml":
-		fallthrough
-	default:
-		c.YAML(http.StatusOK, t)
-	}
-}
-
-func GetPipeline(c *gin.Context) {
-	// capture middleware values
-	// m := c.MustGet("metadata").(*types.Metadata)
-	r := repo.Retrieve(c)
-
-	// capture query parameters
-	output := c.DefaultQuery("output", "yaml")
-	ref := c.DefaultQuery("ref", r.GetBranch())
-
-	// send API call to capture the repo owner
-	u, err := database.FromContext(c).GetUser(r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	m := c.MustGet("metadata").(*types.Metadata)
-	// create the compiler with extra information embedded into it
-	comp := compiler.FromContext(c).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u)
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
-	if err != nil {
-		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	// format response body based off output query parameter
-	switch strings.ToLower(output) {
-	case "json":
-		c.JSON(http.StatusOK, p)
-	case "yaml":
-		fallthrough
-	default:
-		c.YAML(http.StatusOK, p)
-	}
-}
-
+// ValidatePipeline represents the API handler to capture, expand and
+// validate a pipeline configuration.
 func ValidatePipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -352,6 +408,92 @@ func ValidatePipeline(c *gin.Context) {
 
 	// pipeline is valid, respond to user
 	c.JSON(http.StatusOK, "pipeline is valid")
+}
+
+// swagger:operation POST /api/v1/pipelines/{org}/{repo}/compile pipeline CompilePipeline
+//
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved and compiled the pipeline
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Pipeline"
+
+// CompilePipeline represents the API handler to capture, expand and
+// compile a pipeline configuration.
+func CompilePipeline(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
+	r := repo.Retrieve(c)
+
+	// capture query parameters
+	output := c.DefaultQuery("output", "yaml")
+	ref := c.DefaultQuery("ref", r.GetBranch())
+
+	// send API call to capture the repo owner
+	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the pipeline configuration file
+	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m).
+		WithRepo(r).
+		WithUser(u)
+
+	// parse the pipeline configuration file
+	p, err := comp.Compile(config)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case "json":
+		c.JSON(http.StatusOK, p)
+	case "yaml":
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, p)
+	}
+
 }
 
 // helper function that creates a map of templates from a yaml configuration.
