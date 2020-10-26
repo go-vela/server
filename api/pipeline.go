@@ -493,7 +493,6 @@ func CompilePipeline(c *gin.Context) {
 	default:
 		c.YAML(http.StatusOK, p)
 	}
-
 }
 
 // helper function that creates a map of templates from a yaml configuration.
