@@ -54,11 +54,8 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the build
@@ -167,28 +164,17 @@ func CreateBuild(c *gin.Context) {
 		}
 	}
 
-	// files is empty if the build event is pull_request
-	if len(files) == 0 {
-		// parse out pull request number from base ref
-		//
-		// pattern: refs/pull/1/head
-		var parts []string
-		if strings.HasPrefix(input.GetRef(), "refs/pull/") {
-			parts = strings.Split(input.GetRef(), "/")
-		}
-
-		// capture number by converting from string
-		number, err := strconv.Atoi(parts[2])
+	// handle getting changeset from a pull_request
+	if strings.EqualFold(input.GetEvent(), constants.EventPull) {
+		// capture number from build
+		number, err := getPRNumberFromBuild(input)
 		if err != nil {
-			// capture number by scanning from string
-			_, err := fmt.Sscanf(input.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
-			if err != nil {
-				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+			// nolint:lll // long log message
+			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				return
-			}
+			return
 		}
 
 		// send API call to capture list of files changed for the pull request
@@ -276,11 +262,8 @@ func CreateBuild(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the build
@@ -362,7 +345,107 @@ func GetBuilds(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 }
 
-// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
+// swagger:operation GET /api/v1/repos/{org} builds GetOrgBuilds
+//
+// Get a list of builds by org in the configured backend
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved build list
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the list of builds
+//     schema:
+//       type: string
+
+// GetOrgBuilds represents the API handler to capture a
+// list of builds associated with an org from the configured backend
+func GetOrgBuilds(c *gin.Context) {
+	// variables that will hold the build list and total count
+	var (
+		b []*library.Build
+		t int64
+	)
+
+	// capture middleware values
+	o := c.Param("org")
+	// capture the event type parameter
+	event := c.Query("event")
+
+	logrus.Infof("Reading builds for org %s", o)
+
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert page query parameter for org %s: %w", o, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for Org %s: %w", o, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(100, perPage)) //nolint:gomnd
+
+	// send API call to capture the list of builds for the org (and event type if passed in)
+	if len(event) > 0 {
+		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, page, perPage, event)
+	} else {
+		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
+	}
+
+	if err != nil {
+		retErr := fmt.Errorf("unable to get builds for org %s: %w", o, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
+
+	c.JSON(http.StatusOK, b)
+}
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build} builds GetBuild
 //
 // Get a build in the configured backend
 //
@@ -386,11 +469,8 @@ func GetBuilds(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully restarted the build
@@ -436,11 +516,8 @@ func GetBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully restarted the build
@@ -525,28 +602,17 @@ func RestartBuild(c *gin.Context) {
 		}
 	}
 
-	// files is empty if the build event is pull_request
-	if len(files) == 0 {
-		// parse out pull request number from base ref
-		//
-		// pattern: refs/pull/1/head
-		var parts []string
-		if strings.HasPrefix(b.GetRef(), "refs/pull/") {
-			parts = strings.Split(b.GetRef(), "/")
-		}
-
-		// capture number by converting from string
-		number, err := strconv.Atoi(parts[2])
+	// handle getting changeset from a pull_request
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		// capture number from build
+		number, err := getPRNumberFromBuild(b)
 		if err != nil {
-			// capture number by scanning from string
-			_, err := fmt.Sscanf(b.GetRef(), "%s/%s/%d/%s", nil, nil, &number, nil)
-			if err != nil {
-				retErr := fmt.Errorf("unable to process webhook: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+			// nolint:lll // long log message
+			retErr := fmt.Errorf("unable to restart build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				return
-			}
+			return
 		}
 
 		// send API call to capture list of files changed for the pull request
@@ -645,11 +711,8 @@ func RestartBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully restarted the build
@@ -790,11 +853,8 @@ func UpdateBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully restarted the build
@@ -827,16 +887,38 @@ func DeleteBuild(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Build %s/%d deleted", r.GetFullName(), b.GetNumber()))
 }
 
+// getPRNumberFromBuild is a helper function to
+// extract the pull request number from a Build.
+func getPRNumberFromBuild(b *library.Build) (int, error) {
+	// parse out pull request number from base ref
+	//
+	// pattern: refs/pull/1/head
+	var parts []string
+	if strings.HasPrefix(b.GetRef(), "refs/pull/") {
+		parts = strings.Split(b.GetRef(), "/")
+	}
+
+	// just being safe to avoid out of range index errors
+	// nolint:gomnd // magic number of 3 used once
+	if len(parts) < 3 {
+		return 0, fmt.Errorf("invalid ref: %s", b.GetRef())
+	}
+
+	// return the results of converting number to string
+	return strconv.Atoi(parts[2])
+}
+
 // planBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
-	b.SetEnqueued(time.Now().UTC().Unix())
+	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
 	err := database.CreateBuild(b)
 	if err != nil {
+		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, nil, nil)
 
 		return fmt.Errorf("unable to create new build for %s: %v", r.GetFullName(), err)
@@ -848,6 +930,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	// plan all services for the build
 	services, err := planServices(database, p, b)
 	if err != nil {
+		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, services, nil)
 
 		return err
@@ -856,6 +939,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	// plan all steps for the build
 	steps, err := planSteps(database, p, b)
 	if err != nil {
+		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, services, steps)
 
 		return err

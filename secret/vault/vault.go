@@ -6,49 +6,88 @@ package vault
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
 )
 
-type client struct {
-	Vault  *api.Client
-	Prefix string
-}
+type (
+	awsCfg struct {
+		Role      string
+		StsClient stsiface.STSAPI
+	}
+
+	client struct {
+		Vault      *api.Client
+		Prefix     string
+		AuthMethod string
+		Aws        awsCfg
+		Renewal    time.Duration
+		TTL        time.Duration
+	}
+
+	Config struct {
+		Address    string
+		Token      string
+		Version    string
+		Prefix     string
+		AuthMethod string
+		AwsRole    string
+		Renewal    time.Duration
+	}
+)
 
 const PrefixVaultV1 = "secret"
 const PrefixVaultV2 = "secret/data"
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
-func New(addr, token, version, pathPrefix string) (*client, error) {
+func New(config Config) (*client, error) {
 	var prefix string
-	switch version {
+	switch config.Version {
 	case "1":
 		prefix = PrefixVaultV1
 	case "2":
 		prefix = PrefixVaultV2
 	default:
-		return nil, fmt.Errorf("unrecognized vault version of %s", version)
+		return nil, fmt.Errorf("unrecognized vault version of %s", config.Version)
 	}
 
 	// append admin defined prefix if not empty
-	if pathPrefix != "" {
-		prefix = fmt.Sprintf("%s/%s", prefix, pathPrefix)
+	if config.Prefix != "" {
+		prefix = fmt.Sprintf("%s/%s", prefix, config.Prefix)
 	}
 
-	conf := api.Config{Address: addr}
+	conf := api.Config{Address: config.Address}
 
 	// create Vault client
 	c, err := api.NewClient(&conf)
 	if err != nil {
 		return nil, err
 	}
-
-	// set Vault API token in client
-	c.SetToken(token)
+	if config.Token != "" {
+		c.SetToken(config.Token)
+	}
 
 	client := &client{
-		Vault:  c,
-		Prefix: prefix,
+		Vault:      c,
+		Prefix:     prefix,
+		AuthMethod: config.AuthMethod,
+		Renewal:    config.Renewal,
+		Aws: awsCfg{
+			Role: config.AwsRole,
+		},
+	}
+
+	if config.AuthMethod != "" {
+		err = client.initialize()
+		if err != nil {
+			return nil, err
+		}
+
+		// start the routine to refresh the token
+		go client.refreshToken()
 	}
 
 	return client, nil

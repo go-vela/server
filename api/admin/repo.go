@@ -25,12 +25,8 @@ import (
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved all repos from the database
@@ -75,11 +71,8 @@ func AllRepos(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the repo in the database

@@ -38,11 +38,8 @@ import (
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the user
@@ -99,12 +96,8 @@ func CreateUser(c *gin.Context) {
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of users
@@ -188,12 +181,8 @@ func GetUsers(c *gin.Context) {
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the current user
@@ -227,11 +216,8 @@ func GetCurrentUser(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the current user
@@ -314,11 +300,8 @@ func UpdateCurrentUser(c *gin.Context) {
 //   description: Name of the user
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the user
@@ -359,12 +342,8 @@ func GetUser(c *gin.Context) {
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved a list of repos for the current user
@@ -478,11 +457,8 @@ func GetUserSourceRepos(c *gin.Context) {
 //   description: Name of the user
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the user
@@ -578,11 +554,8 @@ func UpdateUser(c *gin.Context) {
 //   description: Name of the user
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted of user
@@ -636,12 +609,8 @@ func DeleteUser(c *gin.Context) {
 // x-success_http_code: '201'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created a token for the current user
@@ -694,12 +663,8 @@ func CreateToken(c *gin.Context) {
 // x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully delete a token for the current user

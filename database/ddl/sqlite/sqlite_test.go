@@ -49,6 +49,10 @@ func TestSqlite_NewMap(t *testing.T) {
 			Create:  CreateUserTable,
 			Indexes: []string{CreateUserNameIndex, CreateRefreshIndex},
 		},
+		WorkerService: &Service{
+			Create:  CreateWorkerTable,
+			Indexes: []string{CreateWorkersHostnameAddressIndex},
+		},
 	}
 
 	// run test

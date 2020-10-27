@@ -35,3 +35,6 @@ release/
 
 # Secrets environment file
 secrets.env
+
+# Files to be excluded.
+.DS_Store

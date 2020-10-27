@@ -203,15 +203,17 @@ func PostWebhook(c *gin.Context) {
 	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
 
 	// verify the webhook from the source control provider
-	err = source.FromContext(c).VerifyWebhook(dupRequest, r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to verify webhook: %v", err)
-		util.HandleError(c, http.StatusUnauthorized, retErr)
+	if c.Value("webhookvalidation").(bool) {
+		err = source.FromContext(c).VerifyWebhook(dupRequest, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to verify webhook: %v", err)
+			util.HandleError(c, http.StatusUnauthorized, retErr)
 
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
 
-		return
+			return
+		}
 	}
 
 	// check if the repo is active
@@ -263,6 +265,11 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// update fields in build object
+	b.SetNumber(1)
+	b.SetParent(b.GetNumber())
+	b.SetStatus(constants.StatusPending)
+
 	// if this is a comment on a pull_request event
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
 		commit, branch, baseref, headref, err := source.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
@@ -280,38 +287,6 @@ func PostWebhook(c *gin.Context) {
 		b.SetBranch(strings.Replace(branch, "refs/heads/", "", -1))
 		b.SetBaseRef(baseref)
 		b.SetHeadRef(headref)
-	}
-
-	// send API call to capture the last build for the repo
-	lastBuild, err := database.FromContext(c).GetLastBuild(r)
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get last build for %s: %v", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return
-	}
-
-	// update fields in build object
-	b.SetNumber(1)
-	b.SetParent(b.GetNumber())
-	b.SetStatus(constants.StatusPending)
-	b.SetCreated(time.Now().UTC().Unix())
-
-	if lastBuild != nil {
-		b.SetNumber(
-			lastBuild.GetNumber() + 1,
-		)
-		b.SetParent(lastBuild.GetNumber())
-	}
-
-	// populate the build link if a web address is provided
-	if len(m.Vela.WebAddress) > 0 {
-		b.SetLink(
-			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
-		)
 	}
 
 	// variable to store changeset files
@@ -361,38 +336,117 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	// parse and compile the pipeline configuration file
-	p, err := compiler.FromContext(c).
-		WithBuild(b).
-		WithComment(webhook.Comment).
-		WithFiles(files).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u).
-		Compile(config)
+	// variable to store pipeline
+	var p *pipeline.Build
+	// number of times to retry
+	retryLimit := 3
+
+	// iterate through with a retryLimit
+	for i := 0; i < retryLimit; i++ {
+		// check if we're on the first iteration of the loop
+		if i > 0 {
+			// incrementally sleep in between retries
+			time.Sleep(time.Duration(i) * time.Second)
+		}
+
+		// send API call to capture the last build for the repo
+		lastBuild, err := database.FromContext(c).GetLastBuild(r)
+		if err != nil {
+			// format the error message with extra information
+			err = fmt.Errorf("unable to get last build for %s: %v", r.GetFullName(), err)
+
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			// check if the retry limit has been exceeded
+			if i < retryLimit {
+				// continue to the next iteration of the loop
+				continue
+			}
+
+			retErr := fmt.Errorf("%s: %v", baseErr, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		// populate the build numbers based off the last build
+		if lastBuild != nil {
+			b.SetNumber(
+				lastBuild.GetNumber() + 1,
+			)
+			b.SetParent(lastBuild.GetNumber())
+		}
+
+		// populate the build link if a web address is provided
+		if len(m.Vela.WebAddress) > 0 {
+			b.SetLink(
+				fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+			)
+		}
+
+		// parse and compile the pipeline configuration file
+		p, err = compiler.FromContext(c).
+			WithBuild(b).
+			WithComment(webhook.Comment).
+			WithFiles(files).
+			WithMetadata(m).
+			WithRepo(r).
+			WithUser(u).
+			Compile(config)
+		if err != nil {
+			// format the error message with extra information
+			err = fmt.Errorf("unable to compile pipeline configuration for %s: %v", r.GetFullName(), err)
+
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			retErr := fmt.Errorf("%s: %v", baseErr, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		// create the objects from the pipeline in the database
+		err = planBuild(database.FromContext(c), p, b, r)
+		if err != nil {
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			// check if the retry limit has been exceeded
+			if i < retryLimit {
+				// continue to the next iteration of the loop
+				continue
+			}
+
+			retErr := fmt.Errorf("%s: %v", baseErr, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		// break the loop because everything was successful
+		break
+	}
+
+	// send API call to capture the triggered build
+	b, err = database.FromContext(c).GetBuild(b.GetNumber(), r)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to compile pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %v", baseErr, r.GetFullName(), b.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
-
-		return
 	}
-
-	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), p, b, r)
-	if err != nil {
-		util.HandleError(c, http.StatusInternalServerError, err)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(err.Error())
-
-		return
-	}
-
-	// send API call to capture the triggered build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
 
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
@@ -418,6 +472,9 @@ func PostWebhook(c *gin.Context) {
 // publishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
 func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
+	// update fields in build object
+	b.SetEnqueued(time.Now().UTC().Unix())
+
 	item := types.ToItem(p, b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())

@@ -269,6 +269,68 @@ func TestDatabase_Client_GetServiceImageCount(t *testing.T) {
 	}
 }
 
+func TestDatabase_Client_GetServiceStatusCount(t *testing.T) {
+	// setup types
+	b := testBuild()
+	b.SetID(2)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	sOne := testService()
+	sOne.SetID(1)
+	sOne.SetRepoID(1)
+	sOne.SetBuildID(1)
+	sOne.SetNumber(1)
+	sOne.SetName("foo")
+	sOne.SetImage("baz")
+	sOne.SetStatus("success")
+
+	sTwo := testService()
+	sTwo.SetID(2)
+	sTwo.SetRepoID(2)
+	sTwo.SetBuildID(2)
+	sTwo.SetNumber(1)
+	sTwo.SetName("foo")
+	sTwo.SetImage("baz")
+	sTwo.SetStatus("success")
+
+	sThree := testService()
+	sThree.SetID(3)
+	sThree.SetRepoID(2)
+	sThree.SetBuildID(2)
+	sThree.SetNumber(2)
+	sThree.SetName("bar")
+	sThree.SetImage("bazian:latest")
+	sThree.SetStatus("failure")
+
+	want := make(map[string]float64)
+	want["success"] = 2
+	want["failure"] = 1
+
+	// setup database
+	db, _ := NewTest()
+
+	defer func() {
+		db.Database.Exec("delete from services;")
+		db.Database.Close()
+	}()
+
+	_ = db.CreateService(sOne)
+	_ = db.CreateService(sTwo)
+	_ = db.CreateService(sThree)
+
+	// run test
+	got, err := db.GetServiceStatusCount()
+
+	if err != nil {
+		t.Errorf("GetServiceStatusCount returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetServiceStatusCount is %v, want %v", got, want)
+	}
+}
+
 func TestDatabase_Client_CreateService(t *testing.T) {
 	// setup types
 	b := testBuild()

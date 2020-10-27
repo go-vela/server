@@ -19,13 +19,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ConfigBackoff is a wrapper for Config that will retry five times if the function fails to retrieve the yaml/yml file.
+// ConfigBackoff is a wrapper for Config that will retry five times if the function
+// fails to retrieve the yaml/yml file.
 func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
-
 		// attempt to fetch the config
 		data, err = c.Config(u, org, name, ref)
 
@@ -173,9 +173,9 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 	_, resp, err := client.Repositories.CreateHook(ctx, org, name, hook)
 
 	switch resp.StatusCode {
-	case 422:
+	case http.StatusUnprocessableEntity:
 		return "", fmt.Errorf("repo already enabled")
-	case 404:
+	case http.StatusNotFound:
 		return "", fmt.Errorf("repo not found")
 	}
 
@@ -275,7 +275,23 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	return err
 }
 
-// ListUserRepos returns a list of all repos the user has 'admin' privileges to.
+// GetRepo gets repo information from Github.
+func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error) {
+	logrus.Tracef("Retrieving repository information for %s", r.GetFullName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	// send an API call to get the repo info
+	repo, _, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
+	if err != nil {
+		return nil, err
+	}
+
+	return toLibraryRepo(*repo), nil
+}
+
+// ListUserRepos returns a list of all repos the user has access to.
 func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	logrus.Tracef("Listing source repositories for %s", u.GetName())
 
@@ -315,12 +331,6 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 			continue
 		}
 
-		// skip if the user does not have admin access to the repo
-		val, ok := repo.GetPermissions()["admin"]
-		if !ok || !val {
-			continue
-		}
-
 		f = append(f, toLibraryRepo(*repo))
 	}
 
@@ -342,6 +352,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
+// nolint:lll // function signature is lengthy
 func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
 	logrus.Tracef("Listing source repositories for %s", u.GetName())
 

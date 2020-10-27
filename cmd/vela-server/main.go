@@ -17,7 +17,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "vela-server"
 	app.Action = server
-	app.Version = version.Version.String()
+	app.Version = version.New().Semantic()
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
@@ -48,10 +48,16 @@ func main() {
 			Usage:   "secret used for server <-> agent communication",
 		},
 		&cli.StringSliceFlag{
-			EnvVars: []string{"VELA_REPO_WHITELIST"},
-			Name:    "vela-repo-whitelist",
-			Usage:   "whitelist is used to limit which repos can be activated within the system",
+			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
+			Name:    "vela-repo-allowlist",
+			Usage:   "allowlist is used to limit which repos can be activated within the system",
 			Value:   &cli.StringSlice{},
+		},
+		&cli.BoolFlag{
+			EnvVars: []string{"VELA_DISABLE_WEBHOOK_VALIDATION"},
+			Name:    "vela-disable-webhook-validation",
+			Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
+			Value:   false,
 		},
 
 		// Security Flags
@@ -172,6 +178,22 @@ func main() {
 			Name:    "vault-prefix",
 			Usage:   "vault prefix for k/v secrets. e.g. secret/data/<prefix>/<path>",
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SECRET_VAULT_AUTH_METHOD", "SECRET_VAULT_AUTH_METHOD"},
+			Name:    "vault-auth-method",
+			Usage:   "auth method to utilize to obtain token",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SECRET_VAULT_AWS_ROLE", "SECRET_VAULT_AWS_ROLE"},
+			Name:    "vault-aws-role",
+			Usage:   "vault role to connect to the auth/aws/login endpoint with",
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_SECRET_VAULT_RENEWAL", "SECRET_VAULT_RENEWAL"},
+			Name:    "vault-renewal",
+			Usage:   "frequency which the vault token should be renewed",
+			Value:   30 * time.Minute,
+		},
 
 		// Source Flags
 
@@ -200,6 +222,29 @@ func main() {
 			Name:    "source-context",
 			Usage:   "source commit status context",
 			Value:   "continuous-integration/vela",
+		},
+
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
+			Name:    "modification-addr",
+			Usage:   "modification address, used by compiler, endpoint to send pipeline for modification",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
+			Name:    "modification-secret",
+			Usage:   "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
+			Name:    "modification-timeout",
+			Usage:   "modification timeout, used by compiler, duration that the modification http request will timeout after",
+			Value:   8 * time.Second,
+		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
+			Name:    "modification-retries",
+			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
+			Value:   5,
 		},
 	}
 

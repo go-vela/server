@@ -56,11 +56,8 @@ import (
 //   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully created the secret
@@ -174,11 +171,8 @@ func CreateSecret(c *gin.Context) {
 //   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of secrets
@@ -305,11 +299,8 @@ func GetSecrets(c *gin.Context) {
 //   description: Name of the secret
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the secret
@@ -393,11 +384,8 @@ func GetSecret(c *gin.Context) {
 //   description: Name of the secret
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the secret
@@ -519,11 +507,8 @@ func UpdateSecret(c *gin.Context) {
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Secret"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the secret

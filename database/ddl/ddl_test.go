@@ -75,6 +75,12 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 				postgres.CreateRefreshIndex,
 			},
 		},
+		WorkerService: &Service{
+			Create: postgres.CreateWorkerTable,
+			Indexes: []string{
+				postgres.CreateWorkersHostnameAddressIndex,
+			},
+		},
 	}
 
 	// run test
@@ -148,6 +154,12 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			Indexes: []string{
 				sqlite.CreateUserNameIndex,
 				sqlite.CreateRefreshIndex,
+			},
+		},
+		WorkerService: &Service{
+			Create: sqlite.CreateWorkerTable,
+			Indexes: []string{
+				sqlite.CreateWorkersHostnameAddressIndex,
 			},
 		},
 	}

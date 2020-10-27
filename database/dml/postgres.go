@@ -18,6 +18,7 @@ func mapFromPostgres(from *postgres.Map) *Map {
 		ServiceService: serviceFromPostgres(from.ServiceService),
 		StepService:    serviceFromPostgres(from.StepService),
 		UserService:    serviceFromPostgres(from.UserService),
+		WorkerService:  serviceFromPostgres(from.WorkerService),
 	}
 }
 

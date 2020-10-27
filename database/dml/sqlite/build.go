@@ -67,11 +67,60 @@ ORDER BY number DESC
 LIMIT 1;
 `
 
+	// ListOrgBuilds represents a joined query
+	// between the builds & repos table to select
+	// the last build for a org name in the database.
+	ListOrgBuilds = `
+SELECT builds.*
+FROM builds JOIN repos
+ON repos.id=builds.repo_id
+WHERE repos.org = $1
+ORDER BY id DESC
+LIMIT $2
+OFFSET $3;
+		`
+
+	// ListOrgBuildsByEvent represents a joined query
+	// between the builds & repos table to select
+	// a build for an org with a specific event type
+	// in the database.
+	ListOrgBuildsByEvent = `
+SELECT builds.* 
+FROM builds JOIN repos 
+ON repos.id=builds.repo_id 
+WHERE repos.org = $1
+AND builds.event = $2
+ORDER BY id DESC
+LIMIT $3
+OFFSET $4;
+`
+
 	// SelectBuildsCount represents a query to select
 	// the count of builds in the database.
 	SelectBuildsCount = `
 SELECT count(*) as count
 FROM builds;
+`
+
+	// SelectOrgBuildCount represents a joined query
+	// between the builds & repos table to select
+	// the count of builds for an org name in the database.
+	SelectOrgBuildCount = `
+SELECT count(*) as count
+FROM builds JOIN repos
+ON repos.id = builds.repo_id 
+WHERE repos.org = $1;
+`
+
+	// SelectOrgBuildCountByEvent represents a joined query
+	// between the builds & repos table to select
+	// the count of builds for by org name and event type in the database.
+	SelectOrgBuildCountByEvent = `
+SELECT count(*) as count
+FROM builds JOIN repos
+ON repos.id = builds.repo_id 
+WHERE repos.org = $1
+AND event = $2;
 `
 
 	// SelectRepoBuildCount represents a query to select
@@ -116,6 +165,8 @@ func createBuildService() *Service {
 			"all":         ListBuilds,
 			"repo":        ListRepoBuilds,
 			"repoByEvent": ListRepoBuildsByEvent,
+			"org":         ListOrgBuilds,
+			"orgByEvent":  ListOrgBuildsByEvent,
 		},
 		Select: map[string]string{
 			"repo":                SelectRepoBuild,
@@ -125,6 +176,8 @@ func createBuildService() *Service {
 			"countByStatus":       SelectBuildsCountByStatus,
 			"countByRepo":         SelectRepoBuildCount,
 			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
+			"countByOrg":          SelectOrgBuildCount,
+			"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
 		},
 		Delete: DeleteBuild,
 	}

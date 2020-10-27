@@ -418,6 +418,32 @@ func TestDatabase_createTables_BadUserTable(t *testing.T) {
 	}
 }
 
+func TestDatabase_createTables_BadWorkerTable(t *testing.T) {
+	// setup types
+	name := os.Getenv("VELA_DATABASE_DRIVER")
+	if len(name) == 0 {
+		name = constants.DriverSqlite
+	}
+
+	config := os.Getenv("VELA_DATABASE_CONFIG")
+	if len(config) == 0 {
+		config = ":memory:"
+	}
+
+	// setup database
+	database, _ := gorm.Open(name, config)
+
+	ddlMap, _ := ddl.NewMap(name)
+
+	// run test
+	ddlMap.WorkerService.Create = "#"
+
+	err := createTables(database.DB(), ddlMap)
+	if err == nil {
+		t.Errorf("createTables should have returned err")
+	}
+}
+
 func TestDatabase_createIndexes(t *testing.T) {
 	// setup types
 	name := os.Getenv("VELA_DATABASE_DRIVER")
@@ -605,6 +631,34 @@ func TestDatabase_createIndexes_BadUserIndex(t *testing.T) {
 
 	// run test
 	ddlMap.UserService.Indexes = []string{"#"}
+
+	err := createIndexes(database.DB(), ddlMap)
+	if err == nil {
+		t.Errorf("createIndexes should have returned err")
+	}
+}
+
+func TestDatabase_createIndexes_BadWorkerIndex(t *testing.T) {
+	// setup types
+	name := os.Getenv("VELA_DATABASE_DRIVER")
+	if len(name) == 0 {
+		name = constants.DriverSqlite
+	}
+
+	config := os.Getenv("VELA_DATABASE_CONFIG")
+	if len(config) == 0 {
+		config = ":memory:"
+	}
+
+	// setup database
+	database, _ := gorm.Open(name, config)
+	defer database.Close()
+
+	ddlMap, _ := ddl.NewMap(name)
+	_ = createTables(database.DB(), ddlMap)
+
+	// run test
+	ddlMap.WorkerService.Indexes = []string{"#"}
 
 	err := createIndexes(database.DB(), ddlMap)
 	if err == nil {
