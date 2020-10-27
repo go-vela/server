@@ -18,8 +18,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation GET /api/v1/pipelines/{org}/{repo} pipeline GetPipeline
+// swagger:operation GET /api/v1/pipelines/{org}/{repo} pipelines GetPipeline
 //
+// Get a pipeline configuration from the source provider
 //
 // ---
 // x-success_http_code: '200'
@@ -35,16 +36,6 @@ import (
 //   name: org
 //   description: Name of the org
 //   required: true
-//   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
-//   required: true
-//   type: string
-// - in: query
-//   name: output
-//   description: Output string for specifying output format (default: yaml)
-//   required: false
 //   type: string
 // security:
 //   - ApiKeyAuth: []
@@ -127,6 +118,7 @@ func GetPipeline(c *gin.Context) {
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/templates templates GetTemplates
 //
+// Get a map of templates utilized by a pipeline configuration from the source provider
 //
 // ---
 // x-success_http_code: '200'
@@ -142,16 +134,6 @@ func GetPipeline(c *gin.Context) {
 //   name: org
 //   description: Name of the org
 //   required: true
-//   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
-//   required: true
-//   type: string
-// - in: query
-//   name: output
-//   description: Output string for specifying output format (default: yaml)
-//   required: false
 //   type: string
 // security:
 //   - ApiKeyAuth: []
@@ -237,6 +219,7 @@ func GetTemplates(c *gin.Context) {
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/expand pipeline ExpandPipeline
 //
+// Get and expand a pipeline configuration from the source provider
 //
 // ---
 // x-success_http_code: '200'
@@ -252,16 +235,6 @@ func GetTemplates(c *gin.Context) {
 //   name: org
 //   description: Name of the org
 //   required: true
-//   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
-//   required: true
-//   type: string
-// - in: query
-//   name: output
-//   description: Output string for specifying output format (default: yaml)
-//   required: false
 //   type: string
 // security:
 //   - ApiKeyAuth: []
@@ -370,6 +343,7 @@ func ExpandPipeline(c *gin.Context) {
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/validate pipeline ValidatePipeline
 //
+// Get, expand and validate a pipeline configuration from the source provider
 //
 // ---
 // x-success_http_code: '200'
@@ -385,21 +359,6 @@ func ExpandPipeline(c *gin.Context) {
 //   name: org
 //   description: Name of the org
 //   required: true
-//   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
-//   required: true
-//   type: string
-// - in: query
-//   name: template
-//   description: Template boolean for expanding templates (default: true)
-//   required: false
-//   type: bool
-// - in: query
-//   name: output
-//   description: Output string for specifying output format (default: yaml)
-//   required: false
 //   type: string
 // security:
 //   - ApiKeyAuth: []
@@ -513,6 +472,7 @@ func ValidatePipeline(c *gin.Context) {
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/compile pipeline CompilePipeline
 //
+// Get, expand and compile a pipeline configuration from the source provider
 //
 // ---
 // x-success_http_code: '200'
@@ -528,16 +488,6 @@ func ValidatePipeline(c *gin.Context) {
 //   name: org
 //   description: Name of the org
 //   required: true
-//   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
-//   required: true
-//   type: string
-// - in: query
-//   name: output
-//   description: Output string for specifying output format (default: yaml)
-//   required: false
 //   type: string
 // security:
 //   - ApiKeyAuth: []

@@ -110,7 +110,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Worker endpoints
 		WorkerHandlers(baseAPI)
 
-		// todo rename expand
+		// Pipeline endpoints
 		pipelines := baseAPI.Group("pipelines/:org/:repo", repo.Establish())
 		{
 			pipelines.GET("", api.GetPipeline)

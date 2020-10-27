@@ -305,6 +305,11 @@
     },
     "/api/v1/admin/secret": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a secret in the database",
         "produces": [
           "application/json"
@@ -322,13 +327,6 @@
             "schema": {
               "$ref": "#/definitions/Secret"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -388,6 +386,11 @@
     },
     "/api/v1/admin/service": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a hook in the database",
         "produces": [
           "application/json"
@@ -405,13 +408,6 @@
             "schema": {
               "$ref": "#/definitions/Service"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -471,6 +467,11 @@
     },
     "/api/v1/admin/step": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a step in the database",
         "produces": [
           "application/json"
@@ -488,13 +489,6 @@
             "schema": {
               "$ref": "#/definitions/Step"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1110,11 +1104,12 @@
             "ApiKeyAuth": []
           }
         ],
+        "description": "Get a pipeline configuration from the source provider",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "pipeline"
+          "pipelines"
         ],
         "operationId": "GetPipeline",
         "parameters": [
@@ -1137,7 +1132,25 @@
           "200": {
             "description": "Successfully retrieved the pipeline",
             "schema": {
-              "$ref": "#/definitions/PipelineBuild"
+              "$ref": "#/definitions/Pipeline"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
             }
           }
         },
@@ -1151,6 +1164,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "description": "Get, expand and compile a pipeline configuration from the source provider",
         "produces": [
           "application/json"
         ],
@@ -1178,7 +1192,25 @@
           "200": {
             "description": "Successfully retrieved and compiled the pipeline",
             "schema": {
-              "$ref": "#/definitions/PipelineBuild"
+              "$ref": "#/definitions/Pipeline"
+            }
+          },
+          "400": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
             }
           }
         },
@@ -1192,6 +1224,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "description": "Get and expand a pipeline configuration from the source provider",
         "produces": [
           "application/json"
         ],
@@ -1219,7 +1252,25 @@
           "200": {
             "description": "Successfully retrieved and expanded the pipeline",
             "schema": {
-              "$ref": "#/definitions/PipelineBuild"
+              "$ref": "#/definitions/Pipeline"
+            }
+          },
+          "400": {
+            "description": "Unable to expand the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to expand the pipeline configuration",
+            "schema": {
+              "type": "string"
             }
           }
         },
@@ -1233,6 +1284,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "description": "Get a map of templates utilized by a pipeline configuration from the source provider",
         "produces": [
           "application/json"
         ],
@@ -1258,9 +1310,27 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved the list of pipeline templates",
+            "description": "Successfully retrieved the map of pipeline templates",
             "schema": {
               "$ref": "#/definitions/Template"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
             }
           }
         },
@@ -1274,6 +1344,7 @@
             "ApiKeyAuth": []
           }
         ],
+        "description": "Get, expand and validate a pipeline configuration from the source provider",
         "produces": [
           "application/json"
         ],
@@ -1299,9 +1370,27 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved and validated the pipeline",
+            "description": "Successfully retrieved, expanded and validated the pipeline",
             "schema": {
-              "$ref": "#/definitions/PipelineBuild"
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
             }
           }
         },
@@ -2644,6 +2733,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/steps": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a list of steps for a build",
         "produces": [
           "application/json"
@@ -2673,13 +2767,6 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2705,6 +2792,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a step for a build",
         "produces": [
           "application/json"
@@ -2743,13 +2835,6 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2777,6 +2862,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a step for a build",
         "produces": [
           "application/json"
@@ -2813,13 +2903,6 @@
             "name": "step",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2833,6 +2916,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a step for a build",
         "produces": [
           "application/json"
@@ -2878,13 +2966,6 @@
             "name": "step",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2910,6 +2991,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a step for a build",
         "produces": [
           "application/json"
@@ -2945,13 +3031,6 @@
             "description": "Build number",
             "name": "step",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -3706,6 +3785,11 @@
     },
     "/api/v1/user": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve the current authenticated user from the configured backend",
         "produces": [
           "application/json"
@@ -3714,15 +3798,6 @@
           "users"
         ],
         "operationId": "GetCurrentUser",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the current user",
@@ -3734,6 +3809,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update the current authenticated user in the configured backend",
         "produces": [
           "application/json"
@@ -3751,13 +3831,6 @@
             "schema": {
               "$ref": "#/definitions/User"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3791,6 +3864,11 @@
     },
     "/api/v1/user/source/repos": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a list of repos for the current authenticated user",
         "produces": [
           "application/json"
@@ -3799,15 +3877,6 @@
           "users"
         ],
         "operationId": "GetUserSourceRepos",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved a list of repos for the current user",
@@ -3827,6 +3896,11 @@
     },
     "/api/v1/user/token": {
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a token for the current authenticated user",
         "produces": [
           "application/json"
@@ -3835,15 +3909,6 @@
           "users"
         ],
         "operationId": "CreateToken",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "201": {
             "description": "Successfully created a token for the current user",
@@ -3861,6 +3926,11 @@
         "x-success_http_code": "201"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a token for the current authenticated user",
         "produces": [
           "application/json"
@@ -3869,15 +3939,6 @@
           "users"
         ],
         "operationId": "DeleteToken",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully delete a token for the current user",
@@ -3897,6 +3958,11 @@
     },
     "/api/v1/users": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a list of users for the configured backend",
         "produces": [
           "application/json"
@@ -3905,15 +3971,6 @@
           "users"
         ],
         "operationId": "GetUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the list of users",
@@ -3937,6 +3994,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a user for the configured backend",
         "produces": [
           "application/json"
@@ -3954,13 +4016,6 @@
             "schema": {
               "$ref": "#/definitions/User"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3988,6 +4043,11 @@
     },
     "/api/v1/users/{user}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a user for the configured backend",
         "produces": [
           "application/json"
@@ -4002,13 +4062,6 @@
             "description": "Name of the user",
             "name": "user",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -4029,6 +4082,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a user for the configured backend",
         "produces": [
           "application/json"
@@ -4052,13 +4110,6 @@
             "description": "Name of the user",
             "name": "user",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -4091,6 +4142,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a user for the configured backend",
         "produces": [
           "application/json"
@@ -4105,13 +4161,6 @@
             "description": "Name of the user",
             "name": "user",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -5477,25 +5526,6 @@
         "$ref": "#/definitions/StepSecret"
       },
       "x-go-package": "github.com/go-vela/types/pipeline"
-    },
-    "Template": {
-      "type": "object",
-      "title": "Template is the object representation of a template for a pipeline.",
-      "properties": {
-        "name": {
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "source": {
-          "type": "string",
-          "x-go-name": "Source"
-        },
-        "type": {
-          "type": "string",
-          "x-go-name": "Type"
-        }
-      },
-      "x-go-package": "github.com/go-vela/types/yaml"
     },
     "Ulimit": {
       "type": "object",
