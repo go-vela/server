@@ -18,6 +18,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	outputJSON = "json"
+	outputYAML = "yaml"
+)
+
 // swagger:operation GET /api/v1/pipelines/{org}/{repo} pipelines GetPipeline
 //
 // Get a pipeline configuration from the source provider
@@ -107,9 +112,9 @@ func GetPipeline(c *gin.Context) {
 
 	// format response body based off output query parameter
 	switch strings.ToLower(output) {
-	case "json":
+	case outputJSON:
 		c.JSON(http.StatusOK, p)
-	case "yaml":
+	case outputYAML:
 		fallthrough
 	default:
 		c.YAML(http.StatusOK, p)
@@ -164,7 +169,7 @@ func GetTemplates(c *gin.Context) {
 	r := repo.Retrieve(c)
 
 	// capture query parameters
-	output := c.DefaultQuery("output", "yaml")
+	output := c.DefaultQuery("output", outputYAML)
 	ref := c.DefaultQuery("ref", r.GetBranch())
 
 	// send API call to capture the repo owner
@@ -208,9 +213,9 @@ func GetTemplates(c *gin.Context) {
 
 	// format response body based off output query parameter
 	switch strings.ToLower(output) {
-	case "json":
+	case outputJSON:
 		c.JSON(http.StatusOK, t)
-	case "yaml":
+	case outputYAML:
 		fallthrough
 	default:
 		c.YAML(http.StatusOK, t)
@@ -265,7 +270,7 @@ func ExpandPipeline(c *gin.Context) {
 	r := repo.Retrieve(c)
 
 	// capture query parameters
-	output := c.DefaultQuery("output", "yaml")
+	output := c.DefaultQuery("output", outputYAML)
 	ref := c.DefaultQuery("ref", r.GetBranch())
 
 	// send API call to capture the repo owner
@@ -332,9 +337,9 @@ func ExpandPipeline(c *gin.Context) {
 
 	// format response body based off output query parameter
 	switch strings.ToLower(output) {
-	case "json":
+	case outputJSON:
 		c.JSON(http.StatusOK, p)
-	case "yaml":
+	case outputYAML:
 		fallthrough
 	default:
 		c.YAML(http.StatusOK, p)
@@ -518,7 +523,7 @@ func CompilePipeline(c *gin.Context) {
 	r := repo.Retrieve(c)
 
 	// capture query parameters
-	output := c.DefaultQuery("output", "yaml")
+	output := c.DefaultQuery("output", outputYAML)
 	ref := c.DefaultQuery("ref", r.GetBranch())
 
 	// send API call to capture the repo owner
@@ -559,9 +564,9 @@ func CompilePipeline(c *gin.Context) {
 
 	// format response body based off output query parameter
 	switch strings.ToLower(output) {
-	case "json":
+	case outputJSON:
 		c.JSON(http.StatusOK, p)
-	case "yaml":
+	case outputYAML:
 		fallthrough
 	default:
 		c.YAML(http.StatusOK, p)
