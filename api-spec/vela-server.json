@@ -1137,7 +1137,7 @@
           "200": {
             "description": "Successfully retrieved the pipeline",
             "schema": {
-              "$ref": "#/definitions/Pipeline"
+              "$ref": "#/definitions/PipelineBuild"
             }
           }
         },
@@ -1178,7 +1178,7 @@
           "200": {
             "description": "Successfully retrieved and compiled the pipeline",
             "schema": {
-              "$ref": "#/definitions/Pipeline"
+              "$ref": "#/definitions/PipelineBuild"
             }
           }
         },
@@ -1219,7 +1219,7 @@
           "200": {
             "description": "Successfully retrieved and expanded the pipeline",
             "schema": {
-              "$ref": "#/definitions/Pipeline"
+              "$ref": "#/definitions/PipelineBuild"
             }
           }
         },
@@ -1301,7 +1301,7 @@
           "200": {
             "description": "Successfully retrieved and validated the pipeline",
             "schema": {
-              "$ref": "#/definitions/Pipeline"
+              "$ref": "#/definitions/PipelineBuild"
             }
           }
         },
@@ -5477,6 +5477,25 @@
         "$ref": "#/definitions/StepSecret"
       },
       "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "Template": {
+      "type": "object",
+      "title": "Template is the object representation of a template for a pipeline.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/yaml"
     },
     "Ulimit": {
       "type": "object",

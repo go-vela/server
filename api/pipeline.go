@@ -36,6 +36,16 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   required: true
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format (default: yaml)
+//   required: false
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -44,6 +54,18 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Pipeline"
+//   '400':
+//     description: Unable to retrieve the pipeline configuration templates
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to retrieve the pipeline configuration templates
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the pipeline configuration templates
+//     schema:
+//       type: string
 
 // GetPipeline represents the API handler to capture a
 // pipeline configuration for a repo from the the source provider.
@@ -121,17 +143,39 @@ func GetPipeline(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   required: true
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format (default: yaml)
+//   required: false
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the list of pipeline templates
+//     description: Successfully retrieved the map of pipeline templates
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Template"
+//   '400':
+//     description: Unable to retrieve the pipeline configuration templates
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to retrieve the pipeline configuration templates
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to retrieve the pipeline configuration templates
+//     schema:
+//       type: string
 
 // GetTemplates represents the API handler to capture a
-// list of templates utilized by a pipeline configuration.
+// map of templates utilized by a pipeline configuration.
 func GetTemplates(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -209,6 +253,16 @@ func GetTemplates(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   required: true
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format (default: yaml)
+//   required: false
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -217,6 +271,18 @@ func GetTemplates(c *gin.Context) {
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Pipeline"
+//   '400':
+//     description: Unable to expand the pipeline configuration
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to retrieve the pipeline configuration
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to expand the pipeline configuration
+//     schema:
+//       type: string
 
 // ExpandPipeline represents the API handler to capture and
 // expand a pipeline configuration.
@@ -226,6 +292,7 @@ func ExpandPipeline(c *gin.Context) {
 	r := repo.Retrieve(c)
 
 	// capture query parameters
+	output := c.DefaultQuery("output", "yaml")
 	ref := c.DefaultQuery("ref", r.GetBranch())
 
 	// send API call to capture the repo owner
@@ -290,7 +357,15 @@ func ExpandPipeline(c *gin.Context) {
 		}
 	}
 
-	c.YAML(http.StatusOK, p)
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case "json":
+		c.JSON(http.StatusOK, p)
+	case "yaml":
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, p)
+	}
 }
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/validate pipeline ValidatePipeline
@@ -311,14 +386,40 @@ func ExpandPipeline(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   required: true
+//   type: string
+// - in: query
+//   name: template
+//   description: Template boolean for expanding templates (default: true)
+//   required: false
+//   type: bool
+// - in: query
+//   name: output
+//   description: Output string for specifying output format (default: yaml)
+//   required: false
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved and validated the pipeline
-//     type: json
+//     description: Successfully retrieved, expanded and validated the pipeline
 //     schema:
-//       "$ref": "#/definitions/Pipeline"
+//       type: string
+//   '400':
+//     description: Unable to validate the pipeline configuration
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to retrieve the pipeline configuration
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to validate the pipeline configuration
+//     schema:
+//       type: string
 
 // ValidatePipeline represents the API handler to capture, expand and
 // validate a pipeline configuration.
@@ -428,6 +529,16 @@ func ValidatePipeline(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   required: true
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format (default: yaml)
+//   required: false
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -436,6 +547,18 @@ func ValidatePipeline(c *gin.Context) {
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Pipeline"
+//   '400':
+//     description: Unable to validate the pipeline configuration
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to retrieve the pipeline configuration
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to validate the pipeline configuration
+//     schema:
+//       type: string
 
 // CompilePipeline represents the API handler to capture, expand and
 // compile a pipeline configuration.
