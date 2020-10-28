@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all repos from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Repo"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Repo"
 //   '500':
 //     description: Unable to retrieve all repos from the database
 //     schema:

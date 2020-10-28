@@ -371,7 +371,9 @@ func GetBuilds(c *gin.Context) {
 //     description: Successfully retrieved build list
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to retrieve the list of builds
 //     schema:
