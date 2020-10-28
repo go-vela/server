@@ -89,6 +89,8 @@ services:
       - vela
     environment:
       VELA_API: 'http://localhost:8080'
+    env_file:
+      - secrets.env
     restart: always
     ports:
       - '8888:80'
