@@ -76,7 +76,12 @@ cd $HOME/go-vela/server
 make up
 ```
 
-* Navigate to the Web UI @ http://localhost:8888
+* Navigate to the web UI:
+
+```bash
+# opens a browser window to the page http://localhost:8888
+open http://localhost:8888
+```
 
 ## Repo
 
