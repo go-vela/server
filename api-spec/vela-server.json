@@ -86,7 +86,10 @@
           "200": {
             "description": "Successfully retrieved all builds from the database",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
             }
           },
           "500": {
@@ -209,7 +212,10 @@
           "200": {
             "description": "Successfully retrieved all hooks from the database",
             "schema": {
-              "$ref": "#/definitions/Webhook"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Webhook"
+              }
             }
           },
           "500": {
@@ -290,7 +296,10 @@
           "200": {
             "description": "Successfully retrieved all repos from the database",
             "schema": {
-              "$ref": "#/definitions/Repo"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
             }
           },
           "500": {
@@ -371,7 +380,10 @@
           "200": {
             "description": "Successfully retrieved all secrets from the database",
             "schema": {
-              "$ref": "#/definitions/Secret"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Secret"
+              }
             }
           },
           "500": {
@@ -452,7 +464,10 @@
           "200": {
             "description": "Successfully retrieved all services from the database",
             "schema": {
-              "$ref": "#/definitions/Service"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Service"
+              }
             }
           },
           "500": {
@@ -533,7 +548,10 @@
           "200": {
             "description": "Successfully retrieved all steps from the database",
             "schema": {
-              "$ref": "#/definitions/Step"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Step"
+              }
             }
           },
           "500": {
@@ -614,7 +632,10 @@
           "200": {
             "description": "Successfully retrieved all users from the database",
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
             }
           },
           "500": {
@@ -662,7 +683,10 @@
           "200": {
             "description": "Successfully retrieved the list of deployments",
             "schema": {
-              "$ref": "#/definitions/Deployment"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Deployment"
+              }
             }
           },
           "400": {
@@ -714,7 +738,7 @@
           "201": {
             "description": "Successfully created the deployment",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "$ref": "#/definitions/Deployment"
             }
           },
           "400": {
@@ -817,7 +841,10 @@
           "201": {
             "description": "Successfully retrieved webhooks",
             "schema": {
-              "$ref": "#/definitions/Webhook"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Webhook"
+              }
             }
           },
           "400": {
@@ -1116,7 +1143,10 @@
           "200": {
             "description": "Successfully retrieved the repo",
             "schema": {
-              "$ref": "#/definitions/Repo"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
             }
           },
           "400": {
@@ -1230,7 +1260,10 @@
           "200": {
             "description": "Successfully retrieved build list",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
             }
           },
           "400": {
@@ -1872,7 +1905,10 @@
           "200": {
             "description": "Successfully retrieved the list of services",
             "schema": {
-              "$ref": "#/definitions/Service"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Service"
+              }
             }
           },
           "400": {
@@ -2476,7 +2512,10 @@
           "200": {
             "description": "Successfully retrieved the list of steps",
             "schema": {
-              "$ref": "#/definitions/Step"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Step"
+              }
             }
           },
           "400": {
@@ -3165,7 +3204,10 @@
           "200": {
             "description": "Successfully retrieved the list of secrets",
             "schema": {
-              "$ref": "#/definitions/Secret"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Secret"
+              }
             }
           },
           "400": {
@@ -3678,7 +3720,10 @@
           "200": {
             "description": "Successfully retrieved the list of users",
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
             }
           },
           "400": {
@@ -3913,7 +3958,10 @@
           "200": {
             "description": "Successfully retrieved the list of workers",
             "schema": {
-              "$ref": "#/definitions/Worker"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Worker"
+              }
             }
           },
           "500": {
