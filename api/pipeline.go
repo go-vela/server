@@ -557,9 +557,65 @@ func CompilePipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Compile(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// create map of templates for easy lookup
+	t := mapFromTemplates(p.Templates)
+
+	// check if the pipeline contains stages
+	if len(p.Stages) > 0 {
+		// inject the templates into the stages
+		p.Stages, err = comp.ExpandStages(p.Stages, t)
+		if err != nil {
+			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+	} else {
+		// inject the templates into the steps
+		p.Steps, err = comp.ExpandSteps(p.Steps, t)
+		if err != nil {
+			retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+	}
+	// validate the yaml configuration
+	err = comp.Validate(p)
+	if err != nil {
+		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// inject the environment variables into the steps
+	p.Steps, err = comp.EnvironmentSteps(p.Steps)
+	if err != nil {
+
+		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// inject the substituted environment variables into the steps
+	p.Steps, err = comp.SubstituteSteps(p.Steps)
+	if err != nil {
+		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
