@@ -580,6 +580,17 @@ func CompilePipeline(c *gin.Context) {
 
 			return
 		}
+
+		// inject the substituted environment variables into the stages
+		p.Stages, err = comp.SubstituteStages(p.Stages)
+		if err != nil {
+			retErr := fmt.Errorf("unable to substitute stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
 	} else {
 		// inject the templates into the steps
 		p.Steps, err = comp.ExpandSteps(p.Steps, t)
@@ -590,32 +601,23 @@ func CompilePipeline(c *gin.Context) {
 
 			return
 		}
+
+		// inject the substituted environment variables into the steps
+		p.Steps, err = comp.SubstituteSteps(p.Steps)
+		if err != nil {
+			retErr := fmt.Errorf("unable to substitute steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
 	}
+
 	// validate the yaml configuration
 	err = comp.Validate(p)
 	if err != nil {
-		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// inject the environment variables into the steps
-	p.Steps, err = comp.EnvironmentSteps(p.Steps)
-	if err != nil {
-
-		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// inject the substituted environment variables into the steps
-	p.Steps, err = comp.SubstituteSteps(p.Steps)
-	if err != nil {
-		retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+		retErr := fmt.Errorf("unable to validate pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
