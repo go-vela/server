@@ -112,9 +112,7 @@ func CreateRepo(c *gin.Context) {
 		r.SetTimeout(constants.BuildTimeoutMin)
 	}
 
-	if len(input.GetVisibility()) == 0 {
-		r.SetVisibility(constants.VisibilityPublic)
-	}
+	r.SetVisibility(constants.VisibilityPublic)
 
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
