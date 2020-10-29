@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation GET /login router GETGetLogin
+// swagger:operation GET /login authenticate GetLogin
 //
 // Log into the Vela api
 //
@@ -26,7 +26,7 @@ import (
 //     schema:
 //       type: string
 
-// swagger:operation GET /logout router GETLogout
+// swagger:operation GET /logout authenticate Logout
 //
 // Log into the Vela api
 //
@@ -41,7 +41,7 @@ import (
 //     schema:
 //       type: string
 
-// swagger:operation POST /login router POSTLogin
+// swagger:operation POST /login authenticate PostLogin
 //
 // Login to the Vela api
 //
@@ -60,7 +60,7 @@ import (
 //   '200':
 //     description: Successful login to the Vela API
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Login"
 //   '400':
 //     description: Unable to login to the Vela API
 //     schema:
