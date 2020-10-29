@@ -27,5 +27,5 @@ func PipelineHandlers(base *gin.RouterGroup) {
 		pipelines.POST("/expand", api.ExpandPipeline)
 		pipelines.POST("/validate", api.ValidatePipeline)
 		pipelines.POST("/compile", api.CompilePipeline)
-	} // end of hooks endpoints
+	} // end of pipelines endpoints
 }
