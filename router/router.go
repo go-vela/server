@@ -111,14 +111,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		WorkerHandlers(baseAPI)
 
 		// Pipeline endpoints
-		pipelines := baseAPI.Group("pipelines/:org/:repo", repo.Establish())
-		{
-			pipelines.GET("", api.GetPipeline)
-			pipelines.GET("/templates", api.GetTemplates)
-			pipelines.POST("/expand", api.ExpandPipeline)
-			pipelines.POST("/validate", api.ValidatePipeline)
-			pipelines.POST("/compile", api.CompilePipeline)
-		}
+		PipelineHandlers(baseAPI)
 	} // end of api
 
 	return r
