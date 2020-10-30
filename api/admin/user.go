@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all users from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/User"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/User"
 //   '500':
 //     description: Unable to retrieve all users from the database
 //     schema:

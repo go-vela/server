@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all services from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Service"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Service"
 //   '500':
 //     description: Unable to retrieve all services from the database
 //     schema:

@@ -151,7 +151,9 @@ func CreateStep(c *gin.Context) {
 //     description: Successfully retrieved the list of steps
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Step"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Step"
 //   '400':
 //     description: Unable to retrieve the list of steps
 //     schema:

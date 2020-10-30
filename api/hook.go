@@ -148,7 +148,9 @@ func CreateHook(c *gin.Context) {
 //     description: Successfully retrieved webhooks
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Webhook"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: Unable to retrieve webhooks
 //     schema:
