@@ -178,7 +178,9 @@ func CreateSecret(c *gin.Context) {
 //     description: Successfully retrieved the list of secrets
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Secret"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to retrieve the list of secrets
 //     schema:

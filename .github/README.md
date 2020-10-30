@@ -17,7 +17,7 @@ Vela uses a syntax similar to [Docker Compose](https://docs.docker.com/compose/)
 
 For installation and usage, please [visit our user docs](https://go-vela.github.io/docs).
 
-For local development, please [visit our repo docs](DOCS.md).
+For local development, please [visit our repo docs](../DOCS.md).
 
 ## Contributing
 

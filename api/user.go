@@ -103,7 +103,9 @@ func CreateUser(c *gin.Context) {
 //     description: Successfully retrieved the list of users
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/User"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to retrieve the list of users
 //     schema:

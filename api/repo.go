@@ -238,7 +238,9 @@ func CreateRepo(c *gin.Context) {
 //     description: Successfully retrieved the repo
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Repo"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to retrieve the repo
 //     schema:
