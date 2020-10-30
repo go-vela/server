@@ -114,6 +114,8 @@ func CreateRepo(c *gin.Context) {
 
 	if len(input.GetVisibility()) == 0 {
 		r.SetVisibility(constants.VisibilityPublic)
+	} else {
+		r.SetVisibility(input.GetVisibility())
 	}
 
 	// set default events if no events are passed in
