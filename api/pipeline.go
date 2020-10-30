@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/compiler/registry/github"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -17,6 +18,7 @@ import (
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
 
 	"github.com/gin-gonic/gin"
@@ -229,7 +231,14 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// create map of templates for response body
-	t := mapFromTemplates(p.Templates)
+	t, err := setTemplateLinks(c, u, p.Templates)
+	if err != nil {
+		retErr := fmt.Errorf("unable to set template links for %s@%s: %w", r.GetFullName(), ref, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
 
 	// format response body based off output query parameter
 	switch strings.ToLower(output) {
@@ -338,7 +347,7 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	// create map of templates for easy lookup
-	t := mapFromTemplates(p.Templates)
+	t := p.Templates.Map()
 
 	// check if the pipeline contains stages
 	if len(p.Stages) > 0 {
@@ -472,7 +481,7 @@ func ValidatePipeline(c *gin.Context) {
 	// check optional template query parameter
 	if strings.ToLower(template) == "true" {
 		// create map of templates for easy lookup
-		t := mapFromTemplates(p.Templates)
+		t := p.Templates.Map()
 
 		// check if the pipeline contains stages
 		if len(p.Stages) > 0 {
@@ -607,7 +616,7 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	// create map of templates for easy lookup
-	t := mapFromTemplates(p.Templates)
+	t := p.Templates.Map()
 
 	// check if the pipeline contains stages
 	if len(p.Stages) > 0 {
@@ -675,13 +684,45 @@ func CompilePipeline(c *gin.Context) {
 	}
 }
 
-// helper function that creates a map of templates from a yaml configuration.
-func mapFromTemplates(templates []*yaml.Template) map[string]*yaml.Template {
-	m := make(map[string]*yaml.Template)
+// setTemplateLinks helper function that retrieves source provider links for a list of templates and returns a map of library templates.
+func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
+	m := make(map[string]*library.Template)
 
-	for _, tmpl := range templates {
-		m[tmpl.Name] = tmpl
+	for _, t := range templates {
+
+		// convert to library type
+		tmpl := t.ToLibrary()
+
+		// create a new compiler github client for parsing,
+		// no address or token needed for Parse
+		cl, err := github.New("", "")
+		if err != nil {
+			retErr := fmt.Errorf("unable to create compiler github client: %w", err)
+
+			return nil, retErr
+		}
+
+		// parse template source
+		src, err := cl.Parse(tmpl.GetSource())
+		if err != nil {
+			retErr := fmt.Errorf("unable to parse source for %s: %w", tmpl.GetSource(), err)
+
+			return nil, retErr
+		}
+
+		// retrieve link to template file from github
+		link, err := source.FromContext(c).GetHTMLURL(u, src.Org, src.Repo, src.Name, src.Ref)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get html url for %s/%s/%s/@%s: %w", src.Org, src.Repo, src.Name, src.Ref, err)
+
+			return nil, retErr
+		}
+
+		// set link to template file
+		tmpl.SetLink(link)
+
+		m[tmpl.GetName()] = tmpl
 	}
 
-	return m
+	return m, nil
 }
