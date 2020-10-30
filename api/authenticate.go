@@ -21,9 +21,36 @@ import (
 	"github.com/google/uuid"
 )
 
-// swagger:operation GET /authenticate authenticate Authenticate
+// swagger:operation GET /authenticate authenticate GetAuthenticate
 //
-// Authenticate with the Vela API
+// Start the OAuth flow with the Vela API
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// responses:
+//   '200':
+//     description: Successfully authenticated
+//     schema:
+//       type: string
+// responses:
+//   '307':
+//     description: Redirected for authentication
+//     schema:
+//       type: string
+//   '401':
+//     description: Unable to authenticate
+//     schema:
+//       type: string
+//   '503':
+//     description: Service unavailable
+//     schema:
+//       type: string
+
+// swagger:operation POST /authenticate authenticate PostAuthenticate
+//
+// Complete the OAuth flow with the Vela API
 //
 // ---
 // x-success_http_code: '200'
@@ -39,6 +66,10 @@ import (
 // responses:
 //   '200':
 //     description: Successfully authenticated
+//     schema:
+//       type: string
+//   '307':
+//     description: Redirected for authentication
 //     schema:
 //       type: string
 //   '401':

@@ -46,7 +46,7 @@ import (
 //     description: Successfully created the deployment
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       "$ref": "#/definitions/Deployment"
 //   '400':
 //     description: Unable to create the deployment
 //     type: json
@@ -129,7 +129,9 @@ func CreateDeployment(c *gin.Context) {
 //     description: Successfully retrieved the list of deployments
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Deployment"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Deployment"
 //   '400':
 //     description: Unable to retrieve the list of deployments
 //     schema:

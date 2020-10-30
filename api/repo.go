@@ -112,7 +112,11 @@ func CreateRepo(c *gin.Context) {
 		r.SetTimeout(constants.BuildTimeoutMin)
 	}
 
-	r.SetVisibility(constants.VisibilityPublic)
+	if len(input.GetVisibility()) == 0 {
+		r.SetVisibility(constants.VisibilityPublic)
+	} else {
+		r.SetVisibility(input.GetVisibility())
+	}
 
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
@@ -234,7 +238,9 @@ func CreateRepo(c *gin.Context) {
 //     description: Successfully retrieved the repo
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Repo"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to retrieve the repo
 //     schema:

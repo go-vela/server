@@ -46,6 +46,14 @@ const (
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -53,7 +61,7 @@ const (
 //     description: Successfully retrieved the pipeline
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Pipeline"
+//       "$ref": "#/definitions/PipelineBuild"
 //   '400':
 //     description: Unable to retrieve the pipeline configuration templates
 //     schema:
@@ -75,7 +83,7 @@ func GetPipeline(c *gin.Context) {
 	r := repo.Retrieve(c)
 
 	// capture query parameters
-	output := c.DefaultQuery("output", "yaml")
+	output := c.DefaultQuery("output", outputYAML)
 	ref := c.DefaultQuery("ref", r.GetBranch())
 
 	// send API call to capture the repo owner
@@ -143,6 +151,14 @@ func GetPipeline(c *gin.Context) {
 //   name: org
 //   description: Name of the org
 //   required: true
+//   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format
 //   type: string
 // security:
 //   - ApiKeyAuth: []
@@ -245,6 +261,14 @@ func GetTemplates(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -252,7 +276,7 @@ func GetTemplates(c *gin.Context) {
 //     description: Successfully retrieved and expanded the pipeline
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Pipeline"
+//       "$ref": "#/definitions/PipelineBuild"
 //   '400':
 //     description: Unable to expand the pipeline configuration
 //     schema:
@@ -368,6 +392,14 @@ func ExpandPipeline(c *gin.Context) {
 //   name: org
 //   description: Name of the org
 //   required: true
+//   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format
 //   type: string
 // security:
 //   - ApiKeyAuth: []
@@ -498,6 +530,14 @@ func ValidatePipeline(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: query
+//   name: ref
+//   description: Ref for retrieving pipeline configuration file
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -505,7 +545,7 @@ func ValidatePipeline(c *gin.Context) {
 //     description: Successfully retrieved and compiled the pipeline
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Pipeline"
+//       "$ref": "#/definitions/PipelineBuild"
 //   '400':
 //     description: Unable to validate the pipeline configuration
 //     schema:

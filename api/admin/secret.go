@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all secrets from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Secret"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Secret"
 //   '500':
 //     description: Unable to retrieve all secrets from the database
 //     schema:

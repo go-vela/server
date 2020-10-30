@@ -16,7 +16,7 @@ Please see our [documentation](https://go-vela.github.io/docs) site for more inf
 
 ## Local Development
 
-Please see our [local development documentation](DOCS.md) for more information.
+Please see our [local development documentation](../DOCS.md) for more information.
 
 ## Questions
 

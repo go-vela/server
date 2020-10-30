@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all builds from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Build"
 //   '500':
 //     description: Unable to retrieve all builds from the database
 //     schema:
