@@ -99,7 +99,9 @@ func CreateWorker(c *gin.Context) {
 //     description: Successfully retrieved the list of workers
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Worker"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Worker"
 //   '500':
 //     description: Unable to retrieve the list of workers
 //     schema:
