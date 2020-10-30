@@ -4477,14 +4477,45 @@
     },
     "/authenticate": {
       "get": {
-        "description": "Authenticate with the Vela API",
+        "description": "Start the OAuth flow with the Vela API",
         "produces": [
           "application/json"
         ],
         "tags": [
           "authenticate"
         ],
-        "operationId": "Authenticate",
+        "operationId": "GetAuthenticate",
+        "responses": {
+          "307": {
+            "description": "Redirected for authentication",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unable to authenticate",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      },
+      "post": {
+        "description": "Complete the OAuth flow with the Vela API",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "PostAuthenticate",
         "parameters": [
           {
             "description": "Payload containing login information",
@@ -4499,6 +4530,12 @@
         "responses": {
           "200": {
             "description": "Successfully authenticated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "307": {
+            "description": "Redirected for authentication",
             "schema": {
               "type": "string"
             }
@@ -4584,9 +4621,9 @@
           "application/json"
         ],
         "tags": [
-          "router"
+          "authenticate"
         ],
-        "operationId": "GETGetLogin",
+        "operationId": "GetLogin",
         "responses": {
           "307": {
             "description": "Redirected to /authenticate",
@@ -4603,9 +4640,9 @@
           "application/json"
         ],
         "tags": [
-          "router"
+          "authenticate"
         ],
-        "operationId": "POSTLogin",
+        "operationId": "PostLogin",
         "parameters": [
           {
             "description": "Login payload that we expect from the user",
@@ -4621,7 +4658,7 @@
           "200": {
             "description": "Successful login to the Vela API",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Login"
             }
           },
           "400": {
@@ -4653,9 +4690,9 @@
           "application/json"
         ],
         "tags": [
-          "router"
+          "authenticate"
         ],
-        "operationId": "GETLogout",
+        "operationId": "Logout",
         "responses": {
           "307": {
             "description": "Redirected to /authenticate",
