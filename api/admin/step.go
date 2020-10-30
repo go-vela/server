@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all steps from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Step"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Step"
 //   '500':
 //     description: Unable to retrieve all steps from the database
 //     schema:

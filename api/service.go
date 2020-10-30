@@ -151,7 +151,9 @@ func CreateService(c *gin.Context) {
 //     description: Successfully retrieved the list of services
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Service"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to retrieve the list of services
 //     schema:
