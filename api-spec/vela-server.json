@@ -1210,7 +1210,7 @@
           "application/json"
         ],
         "tags": [
-          "pipeline"
+          "pipelines"
         ],
         "operationId": "CompilePipeline",
         "parameters": [
@@ -1283,7 +1283,7 @@
           "application/json"
         ],
         "tags": [
-          "pipeline"
+          "pipelines"
         ],
         "operationId": "ExpandPipeline",
         "parameters": [
@@ -1428,7 +1428,7 @@
           "application/json"
         ],
         "tags": [
-          "pipeline"
+          "pipelines"
         ],
         "operationId": "ValidatePipeline",
         "parameters": [

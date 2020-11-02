@@ -253,7 +253,7 @@ func GetTemplates(c *gin.Context) {
 	}
 }
 
-// swagger:operation POST /api/v1/pipelines/{org}/{repo}/expand pipeline ExpandPipeline
+// swagger:operation POST /api/v1/pipelines/{org}/{repo}/expand pipelines ExpandPipeline
 //
 // Get and expand a pipeline configuration from the source provider
 //
@@ -386,7 +386,7 @@ func ExpandPipeline(c *gin.Context) {
 	}
 }
 
-// swagger:operation POST /api/v1/pipelines/{org}/{repo}/validate pipeline ValidatePipeline
+// swagger:operation POST /api/v1/pipelines/{org}/{repo}/validate pipelines ValidatePipeline
 //
 // Get, expand and validate a pipeline configuration from the source provider
 //
@@ -523,7 +523,7 @@ func ValidatePipeline(c *gin.Context) {
 	c.JSON(http.StatusOK, "pipeline is valid")
 }
 
-// swagger:operation POST /api/v1/pipelines/{org}/{repo}/compile pipeline CompilePipeline
+// swagger:operation POST /api/v1/pipelines/{org}/{repo}/compile pipelines CompilePipeline
 //
 // Get, expand and compile a pipeline configuration from the source provider
 //
