@@ -568,8 +568,8 @@ func ValidatePipeline(c *gin.Context) {
 //     schema:
 //       type: string
 
-// CompilePipeline represents the API handler to capture, expand and
-// compile a pipeline configuration.
+// CompilePipeline represents the API handler to capture,
+// expand and compile a pipeline configuration.
 func CompilePipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -639,7 +639,6 @@ func CompilePipeline(c *gin.Context) {
 
 			return
 		}
-
 	} else {
 		// inject the templates into the steps
 		p.Steps, err = comp.ExpandSteps(p.Steps, t)
@@ -660,7 +659,6 @@ func CompilePipeline(c *gin.Context) {
 
 			return
 		}
-
 	}
 
 	// validate the yaml configuration
