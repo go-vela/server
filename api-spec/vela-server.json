@@ -1356,7 +1356,7 @@
           "application/json"
         ],
         "tags": [
-          "templates"
+          "pipelines"
         ],
         "operationId": "GetTemplates",
         "parameters": [

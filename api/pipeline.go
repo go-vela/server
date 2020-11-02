@@ -136,7 +136,7 @@ func GetPipeline(c *gin.Context) {
 	}
 }
 
-// swagger:operation GET /api/v1/pipelines/{org}/{repo}/templates templates GetTemplates
+// swagger:operation GET /api/v1/pipelines/{org}/{repo}/templates pipelines GetTemplates
 //
 // Get a map of templates utilized by a pipeline configuration from the source provider
 //
