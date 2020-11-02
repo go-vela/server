@@ -1133,6 +1133,7 @@
         ],
         "description": "Get a pipeline configuration from the source provider",
         "produces": [
+          "application/x-yaml",
           "application/json"
         ],
         "tags": [
@@ -1205,6 +1206,7 @@
         ],
         "description": "Get, expand and compile a pipeline configuration from the source provider",
         "produces": [
+          "application/x-yaml",
           "application/json"
         ],
         "tags": [
@@ -1277,6 +1279,7 @@
         ],
         "description": "Get and expand a pipeline configuration from the source provider",
         "produces": [
+          "application/x-yaml",
           "application/json"
         ],
         "tags": [
@@ -1349,6 +1352,7 @@
         ],
         "description": "Get a map of templates utilized by a pipeline configuration from the source provider",
         "produces": [
+          "application/x-yaml",
           "application/json"
         ],
         "tags": [
@@ -5674,6 +5678,29 @@
         "$ref": "#/definitions/StepSecret"
       },
       "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "Template": {
+      "type": "object",
+      "title": "Template is the library representation of a template for a pipeline.",
+      "properties": {
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
     },
     "Ulimit": {
       "type": "object",

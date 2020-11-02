@@ -36,6 +36,7 @@ const (
 // ---
 // x-success_http_code: '200'
 // produces:
+// - application/x-yaml
 // - application/json
 // parameters:
 // - in: path
@@ -142,6 +143,7 @@ func GetPipeline(c *gin.Context) {
 // ---
 // x-success_http_code: '200'
 // produces:
+// - application/x-yaml
 // - application/json
 // parameters:
 // - in: path
@@ -258,6 +260,7 @@ func GetTemplates(c *gin.Context) {
 // ---
 // x-success_http_code: '200'
 // produces:
+// - application/x-yaml
 // - application/json
 // parameters:
 // - in: path
@@ -527,6 +530,7 @@ func ValidatePipeline(c *gin.Context) {
 // ---
 // x-success_http_code: '200'
 // produces:
+// - application/x-yaml
 // - application/json
 // parameters:
 // - in: path
