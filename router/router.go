@@ -79,6 +79,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	{
 		authenticate.GET("", api.Authenticate)
 		authenticate.POST("", api.Authenticate)
+		authenticate.POST("/token", api.AuthenticateToken)
 	}
 
 	// API endpoints
