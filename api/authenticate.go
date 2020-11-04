@@ -122,6 +122,9 @@ func Authenticate(c *gin.Context) {
 	c.JSON(http.StatusOK, performUserOperation(c, newUser.GetName(), newUser.GetToken()))
 }
 
+// AuthenticateToken represents the API handler to
+// process a user logging in using PAT to Vela from
+// the API
 func AuthenticateToken(c *gin.Context) {
 	authToken := c.Request.Header.Get("Token")
 	userName, err := source.FromContext(c).Authorize(authToken)
@@ -238,6 +241,8 @@ func AuthenticateCLI(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Login{Username: u.Name, Token: &t})
 }
 
+// performUserOperation add or update user in database
+// Also, return the login user as response
 func performUserOperation(c *gin.Context, userName, authToken string) *library.Login {
 	u, err := database.FromContext(c).GetUserName(userName)
 	if len(u.GetName()) == 0 || err != nil {
@@ -306,7 +311,6 @@ func performUserOperation(c *gin.Context, userName, authToken string) *library.L
 
 		return nil
 	}
-
 
 	return &library.Login{Username: u.Name, Token: &t}
 }
