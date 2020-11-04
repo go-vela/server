@@ -60,6 +60,47 @@ func TestGithub_Authenticate(t *testing.T) {
 	}
 }
 
+func TestGithub_Authenticate_Token(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
+	context.Request.Header.Set("Token", "foo")
+
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/user.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	want := new(library.User)
+	want.SetName("octocat")
+	want.SetToken("foo")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.AuthenticateToken(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Authenticate returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Authenticate is %v, want %v", got, want)
+	}
+}
+
 func TestGithub_Authenticate_NoCode(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
