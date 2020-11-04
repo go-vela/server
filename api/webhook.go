@@ -388,6 +388,9 @@ func PostWebhook(c *gin.Context) {
 			)
 		}
 
+		// set build created timestamp to now
+		b.SetCreated(time.Now().UTC().Unix())
+
 		// parse and compile the pipeline configuration file
 		p, err = compiler.FromContext(c).
 			WithBuild(b).
