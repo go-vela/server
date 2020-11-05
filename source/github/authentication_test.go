@@ -115,7 +115,6 @@ func TestGithub_Authenticate_Invalid_Token(t *testing.T) {
 		c.Status(http.StatusNotFound)
 	})
 
-
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
