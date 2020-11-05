@@ -101,6 +101,43 @@ func TestGithub_Authenticate_Token(t *testing.T) {
 	}
 }
 
+func TestGithub_Authenticate_Invalid_Token(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
+	context.Request.Header.Set("Token", "foo")
+
+	// setup mock server
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.Status(http.StatusNotFound)
+	})
+
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.AuthenticateToken(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err == nil {
+		t.Errorf("Authenticate did not return err")
+	}
+
+	if got != nil {
+		t.Errorf("Authenticate is %v, want nil", got)
+	}
+}
+
 func TestGithub_Authenticate_NoCode(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
