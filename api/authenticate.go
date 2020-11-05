@@ -126,15 +126,16 @@ func Authenticate(c *gin.Context) {
 // process a user logging in using PAT to Vela from
 // the API
 func AuthenticateToken(c *gin.Context) {
-	authToken := c.Request.Header.Get("Token")
-	userName, err := source.FromContext(c).Authorize(authToken)
+	newUser, err := source.FromContext(c).AuthenticateToken(c.Writer, c.Request)
 	if err != nil {
-		retErr := fmt.Errorf("unable to process request : %v", err)
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+		retErr := fmt.Errorf("unable to authenticate user: %w", err)
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
 		return
 	}
 
-	c.JSON(http.StatusOK, performUserOperation(c, userName, authToken))
+	c.JSON(http.StatusOK, performUserOperation(c, newUser.GetName(), newUser.GetToken()))
 }
 
 // AuthenticateCLI represents the API handler to
