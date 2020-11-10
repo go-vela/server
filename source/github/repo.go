@@ -379,18 +379,18 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
-	// set the reference for the options to capture the pipeline configuration
+	// set the reference for the options to capture the repository contents
 	opts := &github.RepositoryContentGetOptions{
 		Ref: ref,
 	}
 
-	// send API call to capture the .vela.yml pipeline configuration
+	// send API call to capture the repository contents for org/repo/name at the ref provided
 	data, _, _, err := client.Repositories.GetContents(ctx, org, repo, name, opts)
 	if err != nil {
 		return "", err
 	}
 
-	// data is not nil if .vela.yml exists
+	// data is not nil if the file exists
 	if data != nil {
 		URL := data.GetHTMLURL()
 		if err != nil {
