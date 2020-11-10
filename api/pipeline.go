@@ -689,7 +689,6 @@ func CompilePipeline(c *gin.Context) {
 // setTemplateLinks helper function that retrieves source provider links for a list of templates and returns a map of library templates.
 func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
 	m := make(map[string]*library.Template)
-
 	for _, t := range templates {
 
 		// convert to library type
