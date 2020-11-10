@@ -27,6 +27,8 @@ func TestNative_Get(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
+	passphrase := "go-vela"
+
 	// setup database
 	d, _ := database.NewTest()
 
@@ -35,13 +37,16 @@ func TestNative_Get(t *testing.T) {
 		d.Database.Close()
 	}()
 
-	_ = d.CreateSecret(want)
-
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
+
+	_ = s.Create("repo", "foo", "bar", want)
+
+	value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	want.Value = &value
 
 	got, err := s.Get("repo", "foo", "bar", "baz")
 	if err != nil {
@@ -58,8 +63,10 @@ func TestNative_Get_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
+	passphrase := "go-vela"
+
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

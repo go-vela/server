@@ -20,5 +20,16 @@ func (c *client) List(sType, org, name string, page, perPage int) ([]*library.Se
 		return nil, err
 	}
 
+	for _, secret := range s {
+		// encrypt secret value
+		value, err := decrypt([]byte(secret.GetValue()), c.passphrase)
+		if err != nil {
+			return nil, err
+		}
+
+		// update value of secret to be encrypted
+		secret.Value = &value
+	}
+
 	return s, nil
 }

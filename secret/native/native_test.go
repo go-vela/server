@@ -14,9 +14,10 @@ func TestNative_New(t *testing.T) {
 	// setup types
 	d, _ := database.NewTest()
 	defer d.Database.Close()
+	passphrase := "go-vela"
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -28,7 +29,7 @@ func TestNative_New(t *testing.T) {
 
 func TestNative_New_Error(t *testing.T) {
 	// run test
-	s, err := New(nil)
+	s, err := New(nil, "")
 	if err == nil {
 		t.Errorf("New should have returned err")
 	}

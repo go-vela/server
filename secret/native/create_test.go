@@ -27,6 +27,8 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
+	passphrase := "go-vela"
+
 	// setup database
 	d, _ := database.NewTest()
 
@@ -36,7 +38,7 @@ func TestNative_Create_Org(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -45,6 +47,9 @@ func TestNative_Create_Org(t *testing.T) {
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
+
+	value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	want.Value = &value
 
 	got, _ := s.Get("org", "foo", "*", "bar")
 
@@ -67,6 +72,8 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
+	passphrase := "go-vela"
+
 	// setup database
 	d, _ := database.NewTest()
 
@@ -76,7 +83,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -85,6 +92,9 @@ func TestNative_Create_Repo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
+
+	value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	want.Value = &value
 
 	got, _ := s.Get("repo", "foo", "bar", "baz")
 
@@ -107,6 +117,8 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
+	passphrase := "go-vela"
+
 	// setup database
 	d, _ := database.NewTest()
 
@@ -116,7 +128,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -125,6 +137,9 @@ func TestNative_Create_Shared(t *testing.T) {
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
+
+	value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	want.Value = &value
 
 	got, _ := s.Get("shared", "foo", "bar", "baz")
 
@@ -156,7 +171,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, "")
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

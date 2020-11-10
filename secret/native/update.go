@@ -33,6 +33,15 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 	// update the value if set
 	if len(s.GetValue()) > 0 {
 		sec.SetValue(s.GetValue())
+
+		// encrypt secret value
+		value, err := encrypt([]byte(sec.GetValue()), c.passphrase)
+		if err != nil {
+			return err
+		}
+
+		// update value of secret to be encrypted
+		sec.Value = &value
 	}
 
 	// update allow_command if set

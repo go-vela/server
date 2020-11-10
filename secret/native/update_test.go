@@ -27,6 +27,8 @@ func TestNative_Update(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
+	passphrase := "go-vela"
+
 	// setup database
 	d, _ := database.NewTest()
 
@@ -38,7 +40,7 @@ func TestNative_Update(t *testing.T) {
 	_ = d.CreateSecret(want)
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -61,12 +63,14 @@ func TestNative_Update_Invalid(t *testing.T) {
 	sec.SetName("baz")
 	sec.SetValue("foob")
 
+	passphrase := "go-vela"
+
 	// setup database
 	d, _ := database.NewTest()
 	d.Database.Close()
 
 	// run test
-	s, err := New(d)
+	s, err := New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

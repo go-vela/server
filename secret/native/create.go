@@ -17,6 +17,15 @@ import (
 func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	logrus.Tracef("Creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
+	// encrypt secret value
+	value, err := encrypt([]byte(s.GetValue()), c.passphrase)
+	if err != nil {
+		return err
+	}
+
+	// update value of secret to be encrypted
+	s.Value = &value
+
 	// create the secret for the native service
 	switch sType {
 	case constants.SecretOrg:

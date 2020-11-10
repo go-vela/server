@@ -140,6 +140,11 @@ func validateQueue(c *cli.Context) error {
 func validateSecret(c *cli.Context) error {
 	logrus.Trace("Validating secret CLI configuration")
 
+	// nolint // ignoring line length
+	if len(c.String("native-passphrase")) == 0 {
+		return fmt.Errorf("native-passphrase (VELA_SECRET_NATIVE_PASSPHRASE or SECRET_NATIVE_PASSPHRASE) flag not specified")
+	}
+
 	if c.Bool("vault-driver") {
 		if len(c.String("vault-addr")) == 0 {
 			return fmt.Errorf("vault-addr (VELA_SECRET_VAULT_ADDR or SECRET_VAULT_ADDR) flag not specified")
