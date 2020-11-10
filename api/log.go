@@ -52,7 +52,9 @@ import (
 //     description: Successfully retrieved logs for the build
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Log"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Log"
 //   '500':
 //     description: Unable to retrieve logs for the build
 //     schema:
