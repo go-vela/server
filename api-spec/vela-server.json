@@ -1850,7 +1850,10 @@
           "200": {
             "description": "Successfully retrieved logs for the build",
             "schema": {
-              "$ref": "#/definitions/Log"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Log"
+              }
             }
           },
           "500": {
