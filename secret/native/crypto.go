@@ -7,9 +7,7 @@ package native
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
 	"io"
 )
 
@@ -18,16 +16,14 @@ import (
 // library package is used for encryption with AES ciphers:
 //
 // https://golang.org/pkg/crypto/aes/
-func encrypt(data []byte, passphrase string) (string, error) {
-	// create new md5 type hasher
-	hasher := md5.New()
-
-	_, err := hasher.Write([]byte(passphrase))
-	if err != nil {
-		return "", err
-	}
-
-	block, err := aes.NewCipher([]byte(hex.EncodeToString(hasher.Sum(nil))))
+//
+// This function is based on methods that exist in the Vault project:
+// https://github.com/hashicorp/vault/blob/v1.6.0/helper/dhutil/dhutil.go#L99
+func encrypt(data []byte, key string) (string, error) {
+	// within the validate process we enforce a 64 bit key which
+	// ensures all secrets are encrypted with AES-256:
+	// https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
 	}
@@ -37,6 +33,9 @@ func encrypt(data []byte, passphrase string) (string, error) {
 		return "", err
 	}
 
+	// nonce is an arbitrary number used to to ensure that
+	// old communications cannot be reused in replay attacks.
+	// https://en.wikipedia.org/wiki/Cryptographic_nonce
 	nonce := make([]byte, gcm.NonceSize())
 
 	_, err = io.ReadFull(rand.Reader, nonce)
@@ -52,16 +51,14 @@ func encrypt(data []byte, passphrase string) (string, error) {
 // library package is used for encryption with AES ciphers:
 //
 // https://golang.org/pkg/crypto/aes/
-func decrypt(data []byte, passphrase string) (string, error) {
-	// create new md5 type hasher
-	hasher := md5.New()
-
-	_, err := hasher.Write([]byte(passphrase))
-	if err != nil {
-		return "", err
-	}
-
-	block, err := aes.NewCipher([]byte(hex.EncodeToString(hasher.Sum(nil))))
+//
+// This function is based on methods that exist in the Vault project:
+// https://github.com/hashicorp/vault/blob/v1.6.0/helper/dhutil/dhutil.go#L132
+func decrypt(data []byte, key string) (string, error) {
+	// within the validate process we enforce a 64 bit key which
+	// ensures all secrets are decrypted with AES-256:
+	// https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
 	}
@@ -71,6 +68,9 @@ func decrypt(data []byte, passphrase string) (string, error) {
 		return "", err
 	}
 
+	// nonce is an arbitrary number used to to ensure that
+	// old communications cannot be reused in replay attacks.
+	// https://en.wikipedia.org/wiki/Cryptographic_nonce
 	nonceSize := gcm.NonceSize()
 
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
