@@ -448,17 +448,17 @@ func GetUserSourceRepos(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: path
+//   name: user
+//   description: Name of the user
+//   required: true
+//   type: string
 // - in: body
 //   name: body
 //   description: Payload containing the user to update
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/User"
-// - in: path
-//   name: user
-//   description: Name of the user
-//   required: true
-//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
