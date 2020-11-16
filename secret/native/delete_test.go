@@ -26,7 +26,7 @@ func TestNative_Delete(t *testing.T) {
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
-	passphrase := "go-vela"
+	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// setup database
 	d, _ := database.NewTest()
@@ -55,7 +55,7 @@ func TestNative_Delete_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
-	passphrase := "go-vela"
+	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// run test
 	s, err := New(d, passphrase)

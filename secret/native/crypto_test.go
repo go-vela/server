@@ -19,13 +19,13 @@ func TestNative_encrypt(t *testing.T) {
 		{
 			name:       "success when encrypting a value with a passphrase",
 			data:       []byte("hello, world"),
-			passphrase: "go-vela",
+			passphrase: "C639A572E14D5075C526FDDD43E4ECF6",
 			wantErr:    false,
 		},
 		{
 			name:       "success when encrypting a value with a special characters",
 			data:       []byte("!@#$%^&*()"),
-			passphrase: "go-vela",
+			passphrase: "C639A572E14D5075C526FDDD43E4ECF6",
 			wantErr:    false,
 		},
 	}
@@ -58,13 +58,13 @@ func TestNative_decrypt(t *testing.T) {
 		{
 			name:       "success when decrypting a value with a passphrase",
 			data:       []byte("hello, world"),
-			passphrase: "go-vela",
+			passphrase: "C639A572E14D5075C526FDDD43E4ECF6",
 			wantErr:    false,
 		},
 		{
 			name:       "success when decrypting a value with a special characters",
 			data:       []byte("!@#$%^&*()"),
-			passphrase: "go-vela",
+			passphrase: "C639A572E14D5075C526FDDD43E4ECF6",
 			wantErr:    false,
 		},
 	}

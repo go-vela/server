@@ -27,7 +27,7 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
-	passphrase := "go-vela"
+	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// setup database
 	d, _ := database.NewTest()
@@ -72,7 +72,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
-	passphrase := "go-vela"
+	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// setup database
 	d, _ := database.NewTest()
@@ -117,7 +117,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
-	passphrase := "go-vela"
+	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// setup database
 	d, _ := database.NewTest()
