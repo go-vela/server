@@ -371,3 +371,34 @@ func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (s
 
 	return commit, branch, baseref, headref, nil
 }
+
+// GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
+func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (string, error) {
+	logrus.Tracef("Capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+
+	// set the reference for the options to capture the repository contents
+	opts := &github.RepositoryContentGetOptions{
+		Ref: ref,
+	}
+
+	// send API call to capture the repository contents for org/repo/name at the ref provided
+	data, _, _, err := client.Repositories.GetContents(ctx, org, repo, name, opts)
+	if err != nil {
+		return "", err
+	}
+
+	// data is not nil if the file exists
+	if data != nil {
+		URL := data.GetHTMLURL()
+		if err != nil {
+			return "", err
+		}
+
+		return URL, nil
+	}
+
+	return "", fmt.Errorf("no valid repository contents found")
+}
