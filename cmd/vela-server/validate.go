@@ -140,14 +140,9 @@ func validateQueue(c *cli.Context) error {
 func validateSecret(c *cli.Context) error {
 	logrus.Trace("Validating secret CLI configuration")
 
-	// nolint // ignoring line length
-	if len(c.String("native-key")) == 0 {
-		// enforce AES-256, so check explicitly for 32 bytes on the key
-		if len(c.String("native-key")) != 32 {
-			return fmt.Errorf("native-key invalid length: %d", len(c.String("native-key")))
-		}
-
-		return fmt.Errorf("native-key (VELA_SECRET_NATIVE_KEY or SECRET_NATIVE_KEY) flag not specified")
+	// enforce AES-256, so check explicitly for 32 bytes on the key
+	if len(c.String("native-key")) != 32 {
+		return fmt.Errorf("native-key invalid length: %d", len(c.String("native-key")))
 	}
 
 	if c.Bool("vault-driver") {
