@@ -10,12 +10,16 @@ import (
 	"github.com/go-vela/server/database"
 )
 
+// client represents a struct to hold native secret setup.
 type client struct {
+	// client to interact with database for secret operations
 	Native database.Service
+	// key to use for encrypting and decrypting secret values
+	passphrase string
 }
 
 // New returns a Secret implementation that integrates with a Native secrets engine.
-func New(d database.Service) (*client, error) {
+func New(d database.Service, passphrase string) (*client, error) {
 	// immediately return if a nil database Service is provided
 	if d == nil {
 		return nil, fmt.Errorf("empty Database client passed to native secret engine")
@@ -23,7 +27,8 @@ func New(d database.Service) (*client, error) {
 
 	// create the client object
 	client := &client{
-		Native: d,
+		Native:     d,
+		passphrase: passphrase,
 	}
 
 	return client, nil

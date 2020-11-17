@@ -18,7 +18,9 @@ func TestSecret_FromContext(t *testing.T) {
 	d, _ := database.NewTest()
 	defer d.Database.Close()
 
-	want, err := native.New(d)
+	passphrase := "go-vela"
+
+	want, err := native.New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -82,7 +84,9 @@ func TestSecret_ToContext(t *testing.T) {
 	d, _ := database.NewTest()
 	defer d.Database.Close()
 
-	want, err := native.New(d)
+	passphrase := "go-vela"
+
+	want, err := native.New(d, passphrase)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
