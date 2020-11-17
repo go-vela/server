@@ -38,7 +38,7 @@ services:
       VELA_SECRET_VAULT_TOKEN: vela
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
     env_file:
-      - secrets.env
+      - .env
     restart: always
     ports:
       - '8080:8080'
@@ -87,10 +87,8 @@ services:
     image: target/vela-ui:latest
     networks:
       - vela
-    environment:
-      VELA_API: 'http://localhost:8080'
     env_file:
-      - secrets.env
+      - .env
     restart: always
     ports:
       - '8888:80'
