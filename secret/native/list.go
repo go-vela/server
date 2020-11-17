@@ -28,7 +28,7 @@ func (c *client) List(sType, org, name string, page, perPage int) ([]*library.Se
 		}
 
 		// update value of secret to be encrypted
-		secret.Value = &value
+		secret.SetValue(value)
 	}
 
 	return s, nil

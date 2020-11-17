@@ -24,7 +24,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	}
 
 	// update value of secret to be encrypted
-	s.Value = &value
+	s.SetValue(value)
 
 	// create the secret for the native service
 	switch sType {

@@ -49,7 +49,7 @@ func TestNative_Create_Org(t *testing.T) {
 	}
 
 	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.Value = &value
+	want.SetValue(value)
 
 	got, _ := s.Get("org", "foo", "*", "bar")
 
@@ -94,7 +94,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	}
 
 	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.Value = &value
+	want.SetValue(value)
 
 	got, _ := s.Get("repo", "foo", "bar", "baz")
 
@@ -139,7 +139,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	}
 
 	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.Value = &value
+	want.SetValue(value)
 
 	got, _ := s.Get("shared", "foo", "bar", "baz")
 

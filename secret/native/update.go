@@ -41,7 +41,7 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 		}
 
 		// update value of secret to be encrypted
-		sec.Value = &value
+		sec.SetValue(value)
 	}
 
 	// update allow_command if set

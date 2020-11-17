@@ -27,7 +27,7 @@ func (c *client) Get(sType, org, name, path string) (*library.Secret, error) {
 	}
 
 	// update value of secret to be encrypted
-	s.Value = &value
+	s.SetValue(value)
 
 	return s, nil
 }
