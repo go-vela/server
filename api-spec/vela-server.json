@@ -5177,11 +5177,8 @@
           "x-go-name": "BuildID"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "uint8"
-          },
+          "type": "string",
+          "format": "base64",
           "x-go-name": "Data"
         },
         "id": {
