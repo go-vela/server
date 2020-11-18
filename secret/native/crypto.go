@@ -8,6 +8,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"io"
 )
 
@@ -43,7 +44,13 @@ func encrypt(data []byte, key string) (string, error) {
 		return "", err
 	}
 
-	return string(gcm.Seal(nonce, nonce, data, nil)), nil
+	// encrypt the data with the randomly generated nonce
+	encData := gcm.Seal(nonce, nonce, data, nil)
+
+	// encode the encrypt data to make it network safe
+	sEnc := base64.StdEncoding.EncodeToString(encData)
+
+	return sEnc, nil
 }
 
 // decrypt represents a function that is used for decrypting the value
@@ -55,6 +62,12 @@ func encrypt(data []byte, key string) (string, error) {
 // This function is based on methods that exist in the Vault project:
 // https://github.com/hashicorp/vault/blob/v1.6.0/helper/dhutil/dhutil.go#L132
 func decrypt(data []byte, key string) (string, error) {
+	// decode the encrypted data
+	dDec, err := base64.StdEncoding.DecodeString(string(data))
+	if err != nil {
+		return "", err
+	}
+
 	// within the validate process we enforce a 64 bit key which
 	// ensures all secrets are decrypted with AES-256:
 	// https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
@@ -73,7 +86,7 @@ func decrypt(data []byte, key string) (string, error) {
 	// https://en.wikipedia.org/wiki/Cryptographic_nonce
 	nonceSize := gcm.NonceSize()
 
-	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
+	nonce, ciphertext := dDec[:nonceSize], dDec[nonceSize:]
 
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
