@@ -36,5 +36,9 @@ release/
 # Secrets environment file
 secrets.env
 
+# Dotenv environment file
+.env
+.env.test
+
 # Files to be excluded.
 .DS_Store

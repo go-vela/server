@@ -33,12 +33,13 @@ services:
       VELA_PORT: ':8080'
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       VELA_SOURCE_DRIVER: github
+      VELA_SECRET_NATIVE_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       VELA_SECRET_VAULT: 'true'
       VELA_SECRET_VAULT_ADDR: 'http://vault:8200'
       VELA_SECRET_VAULT_TOKEN: vela
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
     env_file:
-      - secrets.env
+      - .env
     restart: always
     ports:
       - '8080:8080'
@@ -87,10 +88,8 @@ services:
     image: target/vela-ui:latest
     networks:
       - vela
-    environment:
-      VELA_API: 'http://localhost:8080'
     env_file:
-      - secrets.env
+      - .env
     restart: always
     ports:
       - '8888:80'

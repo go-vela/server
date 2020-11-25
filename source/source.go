@@ -101,6 +101,9 @@ type Service interface {
 	// GetRepo defines a function that retrieves
 	// details for a repo.
 	GetRepo(*library.User, *library.Repo) (*library.Repo, error)
+	// GetHTMLURL defines a function that retrieves
+	// a repository file's html_url.
+	GetHTMLURL(*library.User, string, string, string, string) (string, error)
 
 	// Webhook Source Interface Functions
 

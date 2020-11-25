@@ -25,13 +25,13 @@ import (
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo to get the badge for
+//   name: org
+//   description: Name of the org the repo belongs to
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org the repo belongs to
+//   name: repo
+//   description: Name of the repo to get the badge for
 //   required: true
 //   type: string
 // responses:

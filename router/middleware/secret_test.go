@@ -55,9 +55,11 @@ func TestMiddleware_Secrets(t *testing.T) {
 	d, _ := database.NewTest()
 	defer d.Database.Close()
 
+	passphrase := "go-vela"
+
 	var got secret.Service
 
-	want, _ := native.New(d)
+	want, _ := native.New(d, passphrase)
 	s := map[string]secret.Service{"native": want}
 
 	// setup context

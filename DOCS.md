@@ -34,11 +34,11 @@ git clone git@github.com:go-vela/server.git $HOME/go-vela/server
 cd $HOME/go-vela/server
 ```
 
-* If using GitHub Enterprise (default: `https://github.com/`), add the Web URL to a local `secrets.env` file:
+* If using GitHub Enterprise (default: `https://github.com/`), add the Web URL to a local `.env` file:
 
 ```bash
-# add Github Enterprise Web URL to local secrets file for `docker-compose`
-echo "VELA_SOURCE_URL=<GitHub Enterprise Web URL>" >> secrets.env
+# add Github Enterprise Web URL to local `.env` file for `docker-compose`
+echo "VELA_SOURCE_URL=<GitHub Enterprise Web URL>" >> .env
 ```
 
 * Create an [OAuth App](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) and obtain secrets for local development:
@@ -46,14 +46,14 @@ echo "VELA_SOURCE_URL=<GitHub Enterprise Web URL>" >> secrets.env
   * `Homepage URL` = `http://localhost:8080` (base URL of the server)
   * `Authorization callback URL` = `http://localhost:8888/account/authenticate` (authenticate endpoint of the base URL of the UI)
 
-* Add OAuth client secrets to a local `secrets.env` file:
+* Add OAuth client secrets to a local `.env` file:
 
 ```bash
-# add Github Client ID to local secrets file for `docker-compose`
-echo "VELA_SOURCE_CLIENT=<Github OAuth Client ID>" >> secrets.env
+# add Github Client ID to local `.env` file for `docker-compose`
+echo "VELA_SOURCE_CLIENT=<Github OAuth Client ID>" >> .env
 
-# add Github Client Secret to local secrets file for `docker-compose`
-echo "VELA_SOURCE_SECRET=<Github OAuth Client Secret>" >> secrets.env
+# add Github Client Secret to local `.env` file for `docker-compose`
+echo "VELA_SOURCE_SECRET=<Github OAuth Client Secret>" >> .env
 ```
 
 ## Start
