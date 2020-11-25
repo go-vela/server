@@ -414,3 +414,46 @@ func TestGithub_LoginWCreds(t *testing.T) {
 		t.Errorf("Login returned err: %v", err)
 	}
 }
+
+func TestCLI_Login(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock servers
+	engine.POST("/api/v3/authorizations", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/user_authorizations.json")
+	})
+
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/user.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	want := "octocat"
+	got, err := client.LoginCLI("octocat", "password", "foobar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Authorize returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Authorize returned err: %v", err)
+	}
+
+	if *got.Name != want {
+		t.Errorf("Authorize is %v, want %v", got, want)
+	}
+}
