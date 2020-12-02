@@ -23,7 +23,7 @@ builds (
 	started        INTEGER,
 	finished       INTEGER,
 	deploy         TEXT,
-    deploy_payload TEXT,
+	deploy_payload TEXT,
 	clone          TEXT,
 	source         TEXT,
 	title          TEXT,
@@ -44,8 +44,6 @@ builds (
 	UNIQUE(repo_id, number)
 );
 `
-
-// TODO: figure out way to add column if not exists for deploy_payload
 
 	// CreateBuildRepoIDNumberIndex represents a query to create an
 	// index on the builds table for the repo_id and number columns.
