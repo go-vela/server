@@ -59,7 +59,9 @@ func Compose(c *gin.Context, u *library.User) (string, string, error) {
 
 	// set the SameSite value for the cookie
 	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#samesite-attribute
-	c.SetSameSite(http.SameSiteStrictMode)
+	// We set to Lax because we will have links from source provider web UI.
+	// Setting this to Strict would force a login when navigating via source provider web UI links.
+	c.SetSameSite(http.SameSiteLaxMode)
 	// set the cookie with the refresh token as a HttpOnly, Secure cookie
 	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#httponly-attribute
 	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#secure-attribute
@@ -121,7 +123,8 @@ func RetrieveRefreshToken(r *http.Request) (string, error) {
 	refreshToken, err := r.Cookie(constants.RefreshTokenName)
 
 	if refreshToken == nil || len(refreshToken.Value) == 0 {
-		return "", fmt.Errorf("refresh token must not be empty")
+		// cookie will not be sent if it has expired
+		return "", fmt.Errorf("refresh token expired or not provided")
 	}
 
 	return refreshToken.Value, err

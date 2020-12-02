@@ -46,7 +46,7 @@ func Logout(c *gin.Context) {
 	}
 
 	// remove the refresh token from the cookies, Max-Age value -1 will do it
-	c.SetCookie(constants.RefreshTokenName, "", -1, "/", addr.Hostname(), true, true)
+	c.SetCookie(constants.RefreshTokenName, "", -1, "/", addr.Hostname(), false, true)
 
 	// return 200 for successful logout
 	c.JSON(http.StatusOK, "ok")

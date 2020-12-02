@@ -42,6 +42,12 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 		return "", err
 	}
 
+	redirect := r.FormValue("redirect_uri")
+	if len(redirect) > 0 {
+		logrus.Trace("redirect detected")
+		c.OConfig.RedirectURL = redirect
+	}
+
 	// temporarily redirect request to Github to begin workflow
 	http.Redirect(w, r, c.OConfig.AuthCodeURL(oAuthState), http.StatusTemporaryRedirect)
 
@@ -50,7 +56,7 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 
 // Authenticate completes the authentication workflow for the session and returns the remote user details.
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
-	logrus.Trace("Authenticating user")
+	logrus.Tracef("Authenticating user : %+v", r)
 
 	// get the OAuth code
 	code := r.FormValue("code")
@@ -62,6 +68,12 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 	state := r.FormValue("state")
 	if state != oAuthState {
 		return nil, fmt.Errorf("unexpected oauth state: want %s but got %s", oAuthState, state)
+	}
+
+	redirect := r.FormValue("redirect_uri")
+	if len(redirect) > 0 {
+		logrus.Trace("Got redirect URI")
+		c.OConfig.RedirectURL = redirect
 	}
 
 	// exchange OAuth code for token

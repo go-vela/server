@@ -5,9 +5,13 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types"
 )
 
 // swagger:operation GET /login router GetLogin
@@ -28,6 +32,8 @@ import (
 // Login represents the API handler to
 // process a user logging in to Vela.
 func Login(c *gin.Context) {
+	// load the metadata
+	m := c.MustGet("metadata").(*types.Metadata)
 	// capture an error if present
 	err := c.Request.FormValue("error")
 	if len(err) > 0 {
@@ -36,5 +42,23 @@ func Login(c *gin.Context) {
 	}
 
 	// redirect to our authentication handler
-	c.Redirect(http.StatusTemporaryRedirect, "/authenticate")
+	t := c.Request.FormValue("type")
+	p := c.Request.FormValue("port")
+	r := ""
+	path := "/authenticate"
+
+	switch t {
+	case "web":
+		r = fmt.Sprintf("%s/authenticate/%s", m.Vela.Address, t)
+	case "cli":
+		if len(p) > 0 {
+			r = fmt.Sprintf("%s/authenticate/%s/%s", m.Vela.Address, t, p)
+		}
+	}
+
+	if len(r) > 0 {
+		path += fmt.Sprintf("?redirect_uri=%s", url.QueryEscape(r))
+	}
+
+	c.Redirect(http.StatusTemporaryRedirect, path)
 }

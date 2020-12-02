@@ -8,11 +8,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 
 	"github.com/go-vela/types/library"
 
@@ -170,4 +172,32 @@ func Authenticate(c *gin.Context) {
 
 	// return the user with their JWT token
 	c.JSON(http.StatusOK, library.Login{Token: &at})
+}
+
+// AuthenticateType handles the redirect to the right destination
+// to finish the auth process
+func AuthenticateType(c *gin.Context) {
+	// load the metadata
+	m := c.MustGet("metadata").(*types.Metadata)
+
+	t := c.Param("type")
+	p := c.Param("port")
+
+	// we have to append the code and state
+	q := c.Request.URL.Query()
+
+	// deal with CLI
+	if t == "cli" && len(p) > 0 {
+		if _, err := strconv.Atoi(p); err != nil {
+			c.Redirect(http.StatusTemporaryRedirect, "/authenticate")
+		}
+
+		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("http://127.0.0.1:%s?%s", p, q.Encode()))
+	}
+
+	if t == "web" {
+		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/account/authenticate?%s", m.Vela.WebAddress, q.Encode()))
+	}
+
+	// need to have catchall to redirect to headless server with auth codes
 }

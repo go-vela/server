@@ -44,13 +44,12 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
+	r.Use(options...)
 	r.Use(middleware.RequestVersion)
 	r.Use(middleware.NoCache)
 	r.Use(middleware.Options)
 	r.Use(middleware.Cors)
 	r.Use(middleware.Secure)
-
-	r.Use(options...)
 
 	// Badge endpoint
 	r.GET("/badge/:org/:repo/status.svg", repo.Establish(), api.GetBadge)
@@ -80,7 +79,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	authenticate := r.Group("/authenticate")
 	{
 		authenticate.GET("", api.Authenticate)
-		authenticate.POST("", api.Authenticate)
+		authenticate.GET("/:type", api.AuthenticateType)
+		authenticate.GET("/:type/:port", api.AuthenticateType)
 	}
 
 	// API endpoints

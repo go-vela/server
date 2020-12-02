@@ -23,9 +23,9 @@ func RefreshAccessToken(c *gin.Context) {
 	// capture the refresh token
 	rt, err := token.RetrieveRefreshToken(c.Request)
 	if err != nil {
-		retErr := fmt.Errorf("unable to retrieve token for user: %w", err)
+		retErr := fmt.Errorf("refresh token error: %w", err)
 
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+		util.HandleError(c, http.StatusUnauthorized, retErr)
 
 		return
 	}
