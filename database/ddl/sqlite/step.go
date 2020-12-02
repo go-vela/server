@@ -45,7 +45,7 @@ ON steps (build_id, number);
 // a service for interacting with the steps table.
 func createStepService() *Service {
 	return &Service{
-		Create:  CreateStepTable,
+		Create:  []string{CreateStepTable},
 		Indexes: []string{CreateStepBuildIDNumberIndex},
 	}
 }

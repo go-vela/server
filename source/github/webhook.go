@@ -5,7 +5,9 @@
 package github
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/go-vela/types/raw"
 	"net/http"
 	"strings"
 	"time"
@@ -258,6 +260,22 @@ func processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*
 	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
 	b.SetBranch(payload.GetDeployment().GetRef())
 	b.SetRef(payload.GetDeployment().GetRef())
+
+	// check if payload is provided within request
+	if payload.GetDeployment().Payload != nil {
+		deployPayload := raw.StringSliceMap{}
+		// unmarshal the payload into the expected map[string]string format
+		err := json.Unmarshal(payload.GetDeployment().Payload, &deployPayload)
+		if err != nil {
+			return nil, err
+		}
+
+		// check if the map is empty
+		if len(deployPayload) != 0 {
+			// set the payload info on the build
+			b.SetDeployPayload(deployPayload)
+		}
+	}
 
 	// handle when the ref is a sha or short sha
 	if strings.HasPrefix(b.GetCommit(), b.GetRef()) || b.GetCommit() == b.GetRef() {

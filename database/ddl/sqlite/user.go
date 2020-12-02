@@ -36,7 +36,7 @@ ON users (name);
 // a service for interacting with the users table.
 func createUserService() *Service {
 	return &Service{
-		Create:  CreateUserTable,
+		Create:  []string{CreateUserTable},
 		Indexes: []string{CreateUserNameIndex},
 	}
 }

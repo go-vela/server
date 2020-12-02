@@ -5,6 +5,7 @@
 package github
 
 import (
+	"github.com/go-vela/types/raw"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -408,6 +409,10 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetEmail("")
 	wantBuild.SetBranch("master")
 	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetDeployPayload(raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	})
 
 	want := &types.Webhook{
 		Comment: "",

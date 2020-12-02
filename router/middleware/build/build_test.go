@@ -77,6 +77,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetHost("")
 	want.SetRuntime("")
 	want.SetDistribution("")
+	want.SetDeployPayload(nil)
 
 	got := new(library.Build)
 

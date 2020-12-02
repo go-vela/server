@@ -75,7 +75,7 @@ func New(c *cli.Context) (*client, error) {
 // NewTest returns a Database implementation that
 // integrates with an in-memory Sqlite database instance.
 //
-// It's possible to overide this with env variables,
+// It's possible to override this with env variables,
 // which gets used as a part of integration testing
 // with the different supported backends.
 //
@@ -179,58 +179,76 @@ func pingDatabase(db *sql.DB) error {
 // createTables is a helper function to setup
 // the database with the necessary tables.
 func createTables(db *sql.DB, ddlMap *ddl.Map) error {
-	// create the build table
-	_, err := db.Exec(ddlMap.BuildService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableBuild, err)
+	// run the build queries
+	for _, query := range ddlMap.BuildService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableBuild, err)
+		}
 	}
 
-	// create the hook table
-	_, err = db.Exec(ddlMap.HookService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableHook, err)
+	// run the hook queries
+	for _, query := range ddlMap.HookService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableHook, err)
+		}
 	}
 
-	// create the log table
-	_, err = db.Exec(ddlMap.LogService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableLog, err)
+	// create the log queries
+	for _, query := range ddlMap.LogService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableLog, err)
+		}
 	}
 
-	// create the repo table
-	_, err = db.Exec(ddlMap.RepoService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableRepo, err)
+	// create the repo queries
+	for _, query := range ddlMap.RepoService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableRepo, err)
+		}
 	}
 
-	// create the secret table
-	_, err = db.Exec(ddlMap.SecretService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableSecret, err)
+	// create the secret queries
+	for _, query := range ddlMap.SecretService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableSecret, err)
+		}
 	}
 
-	// create the step table
-	_, err = db.Exec(ddlMap.StepService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableStep, err)
+	// create the step queries
+	for _, query := range ddlMap.StepService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableStep, err)
+		}
 	}
 
-	// create the service table
-	_, err = db.Exec(ddlMap.ServiceService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableService, err)
+	// create the service queries
+	for _, query := range ddlMap.ServiceService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableService, err)
+		}
 	}
 
-	// create the user table
-	_, err = db.Exec(ddlMap.UserService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableUser, err)
+	// create the user queries
+	for _, query := range ddlMap.UserService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableUser, err)
+		}
 	}
 
-	// create the worker table
-	_, err = db.Exec(ddlMap.WorkerService.Create)
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableWorker, err)
+	// create the worker queries
+	for _, query := range ddlMap.WorkerService.Create {
+		_, err := db.Exec(query)
+		if err != nil {
+			return fmt.Errorf("unable to create %s table: %v", constants.TableWorker, err)
+		}
 	}
 
 	return nil

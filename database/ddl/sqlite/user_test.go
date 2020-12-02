@@ -12,7 +12,7 @@ import (
 func TestSqlite_createUserService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  CreateUserTable,
+		Create:  []string{CreateUserTable},
 		Indexes: []string{CreateUserNameIndex},
 	}
 

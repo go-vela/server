@@ -12,7 +12,7 @@ import (
 func TestPostgres_createSecretService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create: CreateSecretTable,
+		Create: []string{CreateSecretTable},
 		Indexes: []string{
 			CreateSecretTypeOrgRepo,
 			CreateSecretTypeOrgTeam,

@@ -12,7 +12,7 @@ import (
 func TestSqlite_createRepoService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  CreateRepoTable,
+		Create:  []string{CreateRepoTable},
 		Indexes: []string{CreateRepoOrgNameIndex, CreateRepoFullNameIndex},
 	}
 

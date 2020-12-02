@@ -67,7 +67,7 @@ ON secrets (type);
 // a service for interacting with the secrets table.
 func createSecretService() *Service {
 	return &Service{
-		Create: CreateSecretTable,
+		Create: []string{CreateSecretTable},
 		Indexes: []string{
 			CreateSecretTypeOrgRepo,
 			CreateSecretTypeOrgTeam,

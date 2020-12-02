@@ -8,6 +8,8 @@
     "ref": "master",
     "task": "deploy",
     "payload": {
+      "foo": "test1",
+      "bar": "test2"
     },
     "original_environment": "production",
     "environment": "production",

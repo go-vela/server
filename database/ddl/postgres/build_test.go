@@ -12,7 +12,7 @@ import (
 func TestPostgres_createBuildService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  CreateBuildTable,
+		Create:  []string{CreateBuildTable, CreatePayloadColumn},
 		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
 	}
 

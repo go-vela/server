@@ -11,38 +11,41 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 builds (
-	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	repo_id       INTEGER,
-	number        INTEGER,
-	parent        INTEGER,
-	event         TEXT,
-	status        TEXT,
-	error         TEXT,
-	enqueued      INTEGER,
-	created       INTEGER,
-	started       INTEGER,
-	finished      INTEGER,
-	deploy        TEXT,
-	clone         TEXT,
-	source        TEXT,
-	title         TEXT,
-	message       TEXT,
-	'commit'      TEXT,
-	sender        TEXT,
-	author        TEXT,
-	email         TEXT,
-	link          TEXT,
-	branch        TEXT,
-	ref           TEXT,
-	base_ref      TEXT,
-	head_ref      TEXT,
-	host          TEXT,
-	runtime       TEXT,
-	distribution  TEXT,
-	timestamp     INTEGER,
+	id             INTEGER PRIMARY KEY AUTOINCREMENT,
+	repo_id        INTEGER,
+	number         INTEGER,
+	parent         INTEGER,
+	event          TEXT,
+	status         TEXT,
+	error          TEXT,
+	enqueued       INTEGER,
+	created        INTEGER,
+	started        INTEGER,
+	finished       INTEGER,
+	deploy         TEXT,
+    deploy_payload TEXT,
+	clone          TEXT,
+	source         TEXT,
+	title          TEXT,
+	message        TEXT,
+	'commit'       TEXT,
+	sender         TEXT,
+	author         TEXT,
+	email          TEXT,
+	link           TEXT,
+	branch         TEXT,
+	ref            TEXT,
+	base_ref       TEXT,
+	head_ref       TEXT,
+	host           TEXT,
+	runtime        TEXT,
+	distribution   TEXT,
+	timestamp      INTEGER,
 	UNIQUE(repo_id, number)
 );
 `
+
+// TODO: figure out way to add column if not exists for deploy_payload
 
 	// CreateBuildRepoIDNumberIndex represents a query to create an
 	// index on the builds table for the repo_id and number columns.
@@ -76,7 +79,7 @@ ON builds (status);
 // a service for interacting with the builds table.
 func createBuildService() *Service {
 	return &Service{
-		Create:  CreateBuildTable,
+		Create:  []string{CreateBuildTable},
 		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
 	}
 }

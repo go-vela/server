@@ -12,7 +12,7 @@ import (
 func TestSqlite_createWorkerService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  CreateWorkerTable,
+		Create:  []string{CreateWorkerTable},
 		Indexes: []string{CreateWorkersHostnameAddressIndex},
 	}
 

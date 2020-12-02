@@ -15,7 +15,7 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 	// setup types
 	want := &Map{
 		BuildService: &Service{
-			Create: postgres.CreateBuildTable,
+			Create: []string{postgres.CreateBuildTable, postgres.CreatePayloadColumn},
 			Indexes: []string{
 				postgres.CreateBuildRepoIDIndex,
 				postgres.CreateBuildRepoIDNumberIndex,
@@ -23,14 +23,14 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 			},
 		},
 		HookService: &Service{
-			Create: postgres.CreateHookTable,
+			Create: []string{postgres.CreateHookTable},
 			Indexes: []string{
 				postgres.CreateHookRepoIDNumberIndex,
 				postgres.CreateHookRepoIDIndex,
 			},
 		},
 		LogService: &Service{
-			Create: postgres.CreateLogTable,
+			Create: []string{postgres.CreateLogTable},
 			Indexes: []string{
 				postgres.CreateLogBuildIDIndex,
 				postgres.CreateLogStepIDIndex,
@@ -38,14 +38,14 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 			},
 		},
 		RepoService: &Service{
-			Create: postgres.CreateRepoTable,
+			Create: []string{postgres.CreateRepoTable},
 			Indexes: []string{
 				postgres.CreateRepoOrgNameIndex,
 				postgres.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
-			Create: postgres.CreateSecretTable,
+			Create: []string{postgres.CreateSecretTable},
 			Indexes: []string{
 				postgres.CreateSecretTypeOrgRepo,
 				postgres.CreateSecretTypeOrgTeam,
@@ -54,25 +54,25 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 			},
 		},
 		ServiceService: &Service{
-			Create: postgres.CreateServiceTable,
+			Create: []string{postgres.CreateServiceTable},
 			Indexes: []string{
 				postgres.CreateServiceBuildIDNumberIndex,
 			},
 		},
 		StepService: &Service{
-			Create: postgres.CreateStepTable,
+			Create: []string{postgres.CreateStepTable},
 			Indexes: []string{
 				postgres.CreateStepBuildIDNumberIndex,
 			},
 		},
 		UserService: &Service{
-			Create: postgres.CreateUserTable,
+			Create: []string{postgres.CreateUserTable},
 			Indexes: []string{
 				postgres.CreateUserNameIndex,
 			},
 		},
 		WorkerService: &Service{
-			Create: postgres.CreateWorkerTable,
+			Create: []string{postgres.CreateWorkerTable},
 			Indexes: []string{
 				postgres.CreateWorkersHostnameAddressIndex,
 			},
@@ -90,7 +90,7 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 func TestDDL_serviceFromPostgres(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create: postgres.CreateBuildTable,
+		Create: []string{postgres.CreateBuildTable, postgres.CreatePayloadColumn},
 		Indexes: []string{
 			postgres.CreateBuildRepoIDIndex,
 			postgres.CreateBuildRepoIDNumberIndex,

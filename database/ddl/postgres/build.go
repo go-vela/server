@@ -11,37 +11,44 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 builds (
-	id            SERIAL PRIMARY KEY,
-	repo_id       INTEGER,
-	number        INTEGER,
-	parent        INTEGER,
-	event         VARCHAR(250),
-	status        VARCHAR(250),
-	error         VARCHAR(500),
-	enqueued      INTEGER,
-	created       INTEGER,
-	started       INTEGER,
-	finished      INTEGER,
-	deploy        VARCHAR(500),
-	clone         VARCHAR(1000),
-	source        VARCHAR(1000),
-	title         VARCHAR(1000),
-	message       VARCHAR(2000),
-	commit        VARCHAR(500),
-	sender        VARCHAR(250),
-	author        VARCHAR(250),
-	email         VARCHAR(500),
-	link          VARCHAR(1000),
-	branch        VARCHAR(500),
-	ref           VARCHAR(500),
-	base_ref      VARCHAR(500),
-	head_ref      VARCHAR(500),
-	host          VARCHAR(250),
-	runtime       VARCHAR(250),
-	distribution  VARCHAR(250),
-	timestamp     INTEGER,
+	id             SERIAL PRIMARY KEY,
+	repo_id        INTEGER,
+	number         INTEGER,
+	parent         INTEGER,
+	event          VARCHAR(250),
+	status         VARCHAR(250),
+	error          VARCHAR(500),
+	enqueued       INTEGER,
+	created        INTEGER,
+	started        INTEGER,
+	finished       INTEGER,
+	deploy         VARCHAR(500),
+	deploy_payload VARCHAR(2000),
+	clone          VARCHAR(1000),
+	source         VARCHAR(1000),
+	title          VARCHAR(1000),
+	message        VARCHAR(2000),
+	commit         VARCHAR(500),
+	sender         VARCHAR(250),
+	author         VARCHAR(250),
+	email          VARCHAR(500),
+	link           VARCHAR(1000),
+	branch         VARCHAR(500),
+	ref            VARCHAR(500),
+	base_ref       VARCHAR(500),
+	head_ref       VARCHAR(500),
+	host           VARCHAR(250),
+	runtime        VARCHAR(250),
+	distribution   VARCHAR(250),
+	timestamp      INTEGER,
 	UNIQUE(repo_id, number)
 );
+`
+	// CreatePayloadColumn represents a query to
+	// create the payload column within the build stable for Vela
+	CreatePayloadColumn = `
+ALTER TABLE builds
+ADD COLUMN IF NOT EXISTS deploy_payload VARCHAR(2000)
 `
 
 	// CreateBuildRepoIDNumberIndex represents a query to create an
@@ -76,7 +83,7 @@ ON builds (status);
 // a service for interacting with the builds table.
 func createBuildService() *Service {
 	return &Service{
-		Create:  CreateBuildTable,
+		Create:  []string{CreateBuildTable, CreatePayloadColumn},
 		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
 	}
 }

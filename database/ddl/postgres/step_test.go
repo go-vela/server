@@ -12,7 +12,7 @@ import (
 func TestPostgres_createStepService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  CreateStepTable,
+		Create:  []string{CreateStepTable},
 		Indexes: []string{CreateStepBuildIDNumberIndex},
 	}
 
