@@ -86,7 +86,10 @@
           "200": {
             "description": "Successfully retrieved all builds from the database",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
             }
           },
           "500": {
@@ -209,7 +212,10 @@
           "200": {
             "description": "Successfully retrieved all hooks from the database",
             "schema": {
-              "$ref": "#/definitions/Webhook"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Webhook"
+              }
             }
           },
           "500": {
@@ -290,7 +296,10 @@
           "200": {
             "description": "Successfully retrieved all repos from the database",
             "schema": {
-              "$ref": "#/definitions/Repo"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
             }
           },
           "500": {
@@ -305,6 +314,11 @@
     },
     "/api/v1/admin/secret": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a secret in the database",
         "produces": [
           "application/json"
@@ -322,13 +336,6 @@
             "schema": {
               "$ref": "#/definitions/Secret"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -373,7 +380,10 @@
           "200": {
             "description": "Successfully retrieved all secrets from the database",
             "schema": {
-              "$ref": "#/definitions/Secret"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Secret"
+              }
             }
           },
           "500": {
@@ -388,6 +398,11 @@
     },
     "/api/v1/admin/service": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a hook in the database",
         "produces": [
           "application/json"
@@ -405,13 +420,6 @@
             "schema": {
               "$ref": "#/definitions/Service"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -456,7 +464,10 @@
           "200": {
             "description": "Successfully retrieved all services from the database",
             "schema": {
-              "$ref": "#/definitions/Service"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Service"
+              }
             }
           },
           "500": {
@@ -471,6 +482,11 @@
     },
     "/api/v1/admin/step": {
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a step in the database",
         "produces": [
           "application/json"
@@ -488,13 +504,6 @@
             "schema": {
               "$ref": "#/definitions/Step"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -539,7 +548,10 @@
           "200": {
             "description": "Successfully retrieved all steps from the database",
             "schema": {
-              "$ref": "#/definitions/Step"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Step"
+              }
             }
           },
           "500": {
@@ -620,7 +632,10 @@
           "200": {
             "description": "Successfully retrieved all users from the database",
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
             }
           },
           "500": {
@@ -651,15 +666,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -668,7 +683,10 @@
           "200": {
             "description": "Successfully retrieved the list of deployments",
             "schema": {
-              "$ref": "#/definitions/Deployment"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Deployment"
+              }
             }
           },
           "400": {
@@ -703,15 +721,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -720,7 +738,7 @@
           "201": {
             "description": "Successfully created the deployment",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "$ref": "#/definitions/Deployment"
             }
           },
           "400": {
@@ -757,15 +775,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -806,15 +824,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -823,7 +841,10 @@
           "201": {
             "description": "Successfully retrieved webhooks",
             "schema": {
-              "$ref": "#/definitions/Webhook"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Webhook"
+              }
             }
           },
           "400": {
@@ -867,15 +888,15 @@
           },
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -921,15 +942,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -979,13 +1000,11 @@
         "operationId": "UpdateHook",
         "parameters": [
           {
-            "description": "Webhook payload that we expect from the user or VCS",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Webhook"
-            }
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
           },
           {
             "type": "string",
@@ -997,16 +1016,18 @@
           {
             "type": "string",
             "description": "Name of the org",
-            "name": "org",
+            "name": "hook",
             "in": "path",
             "required": true
           },
           {
-            "type": "string",
-            "description": "Name of the org",
-            "name": "hook",
-            "in": "path",
-            "required": true
+            "description": "Webhook payload that we expect from the user or VCS",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
           }
         ],
         "responses": {
@@ -1054,15 +1075,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -1103,6 +1124,370 @@
         "x-success_http_code": "200"
       }
     },
+    "/api/v1/pipelines/{org}/{repo}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "GetPipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the pipeline",
+            "schema": {
+              "$ref": "#/definitions/PipelineBuild"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/compile": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get, expand and compile a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "CompilePipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved and compiled the pipeline",
+            "schema": {
+              "$ref": "#/definitions/PipelineBuild"
+            }
+          },
+          "400": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/expand": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get and expand a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "ExpandPipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved and expanded the pipeline",
+            "schema": {
+              "$ref": "#/definitions/PipelineBuild"
+            }
+          },
+          "400": {
+            "description": "Unable to expand the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to expand the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/templates": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a map of templates utilized by a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "GetTemplates",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the map of pipeline templates",
+            "schema": {
+              "$ref": "#/definitions/Template"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/validate": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get, expand and validate a pipeline configuration from the source provider",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "ValidatePipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved, expanded and validated the pipeline",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
     "/api/v1/repos": {
       "get": {
         "security": [
@@ -1122,7 +1507,10 @@
           "200": {
             "description": "Successfully retrieved the repo",
             "schema": {
-              "$ref": "#/definitions/Repo"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
             }
           },
           "400": {
@@ -1236,7 +1624,10 @@
           "200": {
             "description": "Successfully retrieved build list",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
             }
           },
           "400": {
@@ -1273,15 +1664,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -1312,13 +1703,11 @@
         "operationId": "UpdateRepo",
         "parameters": [
           {
-            "description": "Payload containing the repo to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Repo"
-            }
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
           },
           {
             "type": "string",
@@ -1328,11 +1717,13 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Name of the org",
-            "name": "org",
-            "in": "path",
-            "required": true
+            "description": "Payload containing the repo to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
           }
         ],
         "responses": {
@@ -1386,15 +1777,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -1440,15 +1831,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -1457,7 +1848,10 @@
           "200": {
             "description": "Successfully retrieved the build",
             "schema": {
-              "$ref": "#/definitions/Build"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
             }
           },
           "400": {
@@ -1491,13 +1885,11 @@
         "operationId": "CreateBuild",
         "parameters": [
           {
-            "description": "Payload containing the build to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Build"
-            }
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
           },
           {
             "type": "string",
@@ -1507,11 +1899,13 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Name of the org",
-            "name": "org",
-            "in": "path",
-            "required": true
+            "description": "Payload containing the build to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
           }
         ],
         "responses": {
@@ -1561,15 +1955,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -1607,13 +2001,11 @@
         "operationId": "UpdateBuild",
         "parameters": [
           {
-            "description": "Payload containing the build to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Build"
-            }
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
           },
           {
             "type": "string",
@@ -1623,18 +2015,20 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Name of the org",
-            "name": "org",
-            "in": "path",
-            "required": true
-          },
-          {
             "type": "integer",
             "description": "Build number to restart",
             "name": "build",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the build to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
           }
         ],
         "responses": {
@@ -1676,15 +2070,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -1741,15 +2135,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -1796,15 +2190,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -1820,7 +2214,10 @@
           "200": {
             "description": "Successfully retrieved logs for the build",
             "schema": {
-              "$ref": "#/definitions/Log"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Log"
+              }
             }
           },
           "500": {
@@ -1851,15 +2248,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -1875,7 +2272,10 @@
           "200": {
             "description": "Successfully retrieved the list of services",
             "schema": {
-              "$ref": "#/definitions/Service"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Service"
+              }
             }
           },
           "400": {
@@ -1909,13 +2309,11 @@
         "operationId": "CreateService",
         "parameters": [
           {
-            "description": "Payload containing the service to create",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Service"
-            }
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
           },
           {
             "type": "string",
@@ -1925,18 +2323,20 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Name of the org",
-            "name": "org",
-            "in": "path",
-            "required": true
-          },
-          {
             "type": "integer",
             "description": "Build number",
             "name": "build",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the service to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
           }
         ],
         "responses": {
@@ -1980,15 +2380,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2045,25 +2445,16 @@
         "operationId": "UpdateService",
         "parameters": [
           {
-            "description": "Payload containing the service to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Service"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2080,6 +2471,15 @@
             "name": "service",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the service to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
           }
         ],
         "responses": {
@@ -2121,15 +2521,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2183,15 +2583,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2204,7 +2604,7 @@
           },
           {
             "type": "integer",
-            "description": "Name of the service",
+            "description": "ID of the service",
             "name": "service",
             "in": "path",
             "required": true
@@ -2242,25 +2642,16 @@
         "operationId": "UpdateServiceLog",
         "parameters": [
           {
-            "description": "Payload containing the log to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Log"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2277,6 +2668,15 @@
             "name": "service",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the log to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
           }
         ],
         "responses": {
@@ -2317,25 +2717,16 @@
         "operationId": "CreateServiceLogs",
         "parameters": [
           {
-            "description": "Payload containing the log to create",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Log"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2348,10 +2739,19 @@
           },
           {
             "type": "integer",
-            "description": "Name of the service",
+            "description": "ID of the service",
             "name": "service",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the log to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
           }
         ],
         "responses": {
@@ -2393,15 +2793,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2414,7 +2814,7 @@
           },
           {
             "type": "integer",
-            "description": "Name of the service",
+            "description": "ID of the service",
             "name": "service",
             "in": "path",
             "required": true
@@ -2439,6 +2839,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/steps": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a list of steps for a build",
         "produces": [
           "application/json"
@@ -2450,15 +2855,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2468,20 +2873,16 @@
             "name": "build",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the list of steps",
             "schema": {
-              "$ref": "#/definitions/Step"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Step"
+              }
             }
           },
           "400": {
@@ -2500,6 +2901,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a step for a build",
         "produces": [
           "application/json"
@@ -2510,25 +2916,16 @@
         "operationId": "CreateStep",
         "parameters": [
           {
-            "description": "Payload containing the step to create",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Step"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2540,11 +2937,13 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
+            "description": "Payload containing the step to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
           }
         ],
         "responses": {
@@ -2572,6 +2971,11 @@
     },
     "/api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a step for a build",
         "produces": [
           "application/json"
@@ -2583,15 +2987,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2607,13 +3011,6 @@
             "description": "Build number",
             "name": "step",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -2628,6 +3025,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a step for a build",
         "produces": [
           "application/json"
@@ -2638,25 +3040,16 @@
         "operationId": "UpdateStep",
         "parameters": [
           {
-            "description": "Payload containing the step to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Step"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2675,11 +3068,13 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
+            "description": "Payload containing the step to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
           }
         ],
         "responses": {
@@ -2705,6 +3100,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a step for a build",
         "produces": [
           "application/json"
@@ -2716,15 +3116,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2740,13 +3140,6 @@
             "description": "Build number",
             "name": "step",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -2785,15 +3178,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2838,25 +3231,16 @@
         "operationId": "UpdateStepLog",
         "parameters": [
           {
-            "description": "Payload containing the log to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Log"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2873,6 +3257,15 @@
             "name": "step",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the log to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
           }
         ],
         "responses": {
@@ -2913,25 +3306,16 @@
         "operationId": "CreateStepLog",
         "parameters": [
           {
-            "description": "Payload containing the log to create",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Log"
-            }
-          },
-          {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -2948,6 +3332,15 @@
             "name": "step",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the log to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
           }
         ],
         "responses": {
@@ -2989,15 +3382,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           },
@@ -3051,15 +3444,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -3099,15 +3492,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo",
-            "name": "repo",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Name of the repo",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -3154,15 +3547,15 @@
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
+            "name": "type",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
-            "name": "type",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
@@ -3178,7 +3571,10 @@
           "200": {
             "description": "Successfully retrieved the list of secrets",
             "schema": {
-              "$ref": "#/definitions/Secret"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Secret"
+              }
             }
           },
           "400": {
@@ -3212,25 +3608,9 @@
         "operationId": "CreateSecret",
         "parameters": [
           {
-            "description": "Payload containing the secret to create",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Secret"
-            }
-          },
-          {
             "type": "string",
             "description": "Secret engine to create a secret in",
             "name": "engine",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Name of the org",
-            "name": "org",
             "in": "path",
             "required": true
           },
@@ -3243,10 +3623,26 @@
           },
           {
             "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
             "description": "Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret",
             "name": "name",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the secret to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
           }
         ],
         "responses": {
@@ -3297,15 +3693,15 @@
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
+            "name": "type",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
-            "name": "type",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
@@ -3356,15 +3752,6 @@
         "operationId": "UpdateSecrets",
         "parameters": [
           {
-            "description": "Payload containing the secret to create",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Secret"
-            }
-          },
-          {
             "type": "string",
             "description": "Secret engine to create a secret in",
             "name": "engine",
@@ -3373,15 +3760,15 @@
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
+            "name": "type",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
-            "name": "type",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
@@ -3398,6 +3785,15 @@
             "name": "secret",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "Payload containing the secret to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
           }
         ],
         "responses": {
@@ -3446,15 +3842,15 @@
           },
           {
             "type": "string",
-            "description": "Name of the org",
-            "name": "org",
+            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
+            "name": "type",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Secret type to create. Options 'org', 'repo', or 'shared'",
-            "name": "type",
+            "description": "Name of the org",
+            "name": "org",
             "in": "path",
             "required": true
           },
@@ -3501,6 +3897,11 @@
     },
     "/api/v1/user": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve the current authenticated user from the configured backend",
         "produces": [
           "application/json"
@@ -3509,15 +3910,6 @@
           "users"
         ],
         "operationId": "GetCurrentUser",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the current user",
@@ -3529,6 +3921,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update the current authenticated user in the configured backend",
         "produces": [
           "application/json"
@@ -3546,13 +3943,6 @@
             "schema": {
               "$ref": "#/definitions/User"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3586,6 +3976,11 @@
     },
     "/api/v1/user/source/repos": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a list of repos for the current authenticated user",
         "produces": [
           "application/json"
@@ -3594,15 +3989,6 @@
           "users"
         ],
         "operationId": "GetUserSourceRepos",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved a list of repos for the current user",
@@ -3622,6 +4008,11 @@
     },
     "/api/v1/user/token": {
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a token for the current authenticated user",
         "produces": [
           "application/json"
@@ -3630,15 +4021,6 @@
           "users"
         ],
         "operationId": "CreateToken",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "201": {
             "description": "Successfully created a token for the current user",
@@ -3656,6 +4038,11 @@
         "x-success_http_code": "201"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a token for the current authenticated user",
         "produces": [
           "application/json"
@@ -3664,15 +4051,6 @@
           "users"
         ],
         "operationId": "DeleteToken",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully delete a token for the current user",
@@ -3692,6 +4070,11 @@
     },
     "/api/v1/users": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a list of users for the configured backend",
         "produces": [
           "application/json"
@@ -3700,20 +4083,14 @@
           "users"
         ],
         "operationId": "GetUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved the list of users",
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
             }
           },
           "400": {
@@ -3732,6 +4109,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a user for the configured backend",
         "produces": [
           "application/json"
@@ -3749,13 +4131,6 @@
             "schema": {
               "$ref": "#/definitions/User"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -3783,6 +4158,11 @@
     },
     "/api/v1/users/{user}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a user for the configured backend",
         "produces": [
           "application/json"
@@ -3797,13 +4177,6 @@
             "description": "Name of the user",
             "name": "user",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -3824,6 +4197,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a user for the configured backend",
         "produces": [
           "application/json"
@@ -3834,15 +4212,6 @@
         "operationId": "UpdateUser",
         "parameters": [
           {
-            "description": "Payload containing the user to update",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
-          },
-          {
             "type": "string",
             "description": "Name of the user",
             "name": "user",
@@ -3850,11 +4219,13 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
+            "description": "Payload containing the user to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
           }
         ],
         "responses": {
@@ -3886,6 +4257,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a user for the configured backend",
         "produces": [
           "application/json"
@@ -3900,13 +4276,6 @@
             "description": "Name of the user",
             "name": "user",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -3956,7 +4325,10 @@
           "200": {
             "description": "Successfully retrieved the list of workers",
             "schema": {
-              "$ref": "#/definitions/Worker"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Worker"
+              }
             }
           },
           "500": {
@@ -3969,6 +4341,11 @@
         "x-success_http_code": "200"
       },
       "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Create a worker for the configured backend",
         "produces": [
           "application/json"
@@ -3986,13 +4363,6 @@
             "schema": {
               "$ref": "#/definitions/Worker"
             }
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -4020,6 +4390,11 @@
     },
     "/api/v1/workers/{worker}": {
       "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Retrieve a worker for the configured backend",
         "produces": [
           "application/json"
@@ -4034,13 +4409,6 @@
             "description": "Hostname of the worker",
             "name": "worker",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -4061,6 +4429,11 @@
         "x-success_http_code": "200"
       },
       "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Update a worker for the configured backend",
         "produces": [
           "application/json"
@@ -4084,13 +4457,6 @@
             "description": "Name of the worker",
             "name": "worker",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -4123,6 +4489,11 @@
         "x-success_http_code": "200"
       },
       "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "description": "Delete a worker for the configured backend",
         "produces": [
           "application/json"
@@ -4137,13 +4508,6 @@
             "description": "Name of the worker",
             "name": "worker",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Vela bearer token",
-            "name": "Authorization",
-            "in": "header",
             "required": true
           }
         ],
@@ -4172,14 +4536,45 @@
     },
     "/authenticate": {
       "get": {
-        "description": "Authenticate with the Vela API",
+        "description": "Start the OAuth flow with the Vela API",
         "produces": [
           "application/json"
         ],
         "tags": [
           "authenticate"
         ],
-        "operationId": "Authenticate",
+        "operationId": "GetAuthenticate",
+        "responses": {
+          "307": {
+            "description": "Redirected for authentication",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unable to authenticate",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      },
+      "post": {
+        "description": "Complete the OAuth flow with the Vela API",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "PostAuthenticate",
         "parameters": [
           {
             "description": "Payload containing login information",
@@ -4194,6 +4589,12 @@
         "responses": {
           "200": {
             "description": "Successfully authenticated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "307": {
+            "description": "Redirected for authentication",
             "schema": {
               "type": "string"
             }
@@ -4227,15 +4628,15 @@
         "parameters": [
           {
             "type": "string",
-            "description": "Name of the repo to get the badge for",
-            "name": "repo",
+            "description": "Name of the org the repo belongs to",
+            "name": "org",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Name of the org the repo belongs to",
-            "name": "org",
+            "description": "Name of the repo to get the badge for",
+            "name": "repo",
             "in": "path",
             "required": true
           }
@@ -4279,9 +4680,9 @@
           "application/json"
         ],
         "tags": [
-          "router"
+          "authenticate"
         ],
-        "operationId": "GETGetLogin",
+        "operationId": "GetLogin",
         "responses": {
           "307": {
             "description": "Redirected to /authenticate",
@@ -4298,9 +4699,9 @@
           "application/json"
         ],
         "tags": [
-          "router"
+          "authenticate"
         ],
-        "operationId": "POSTLogin",
+        "operationId": "PostLogin",
         "parameters": [
           {
             "description": "Login payload that we expect from the user",
@@ -4316,7 +4717,7 @@
           "200": {
             "description": "Successful login to the Vela API",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Login"
             }
           },
           "400": {
@@ -4348,9 +4749,9 @@
           "application/json"
         ],
         "tags": [
-          "router"
+          "authenticate"
         ],
-        "operationId": "GETLogout",
+        "operationId": "Logout",
         "responses": {
           "307": {
             "description": "Redirected to /authenticate",
@@ -4776,11 +5177,8 @@
           "x-go-name": "BuildID"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "uint8"
-          },
+          "type": "string",
+          "format": "base64",
           "x-go-name": "Data"
         },
         "id": {
@@ -5272,6 +5670,29 @@
         "$ref": "#/definitions/StepSecret"
       },
       "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "Template": {
+      "type": "object",
+      "title": "Template is the library representation of a template for a pipeline.",
+      "properties": {
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
     },
     "Ulimit": {
       "type": "object",

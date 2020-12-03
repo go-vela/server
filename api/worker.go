@@ -31,11 +31,8 @@ import (
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Worker"
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '201':
 //     description: Successfully created the worker
@@ -99,7 +96,9 @@ func CreateWorker(c *gin.Context) {
 //     description: Successfully retrieved the list of workers
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Worker"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Worker"
 //   '500':
 //     description: Unable to retrieve the list of workers
 //     schema:
@@ -134,11 +133,8 @@ func GetWorkers(c *gin.Context) {
 //   description: Hostname of the worker
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the worker
@@ -186,11 +182,8 @@ func GetWorker(c *gin.Context) {
 //   description: Name of the worker
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the worker
@@ -290,11 +283,8 @@ func UpdateWorker(c *gin.Context) {
 //   description: Name of the worker
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully deleted of worker

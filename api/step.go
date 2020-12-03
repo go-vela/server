@@ -33,20 +33,14 @@ import (
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the step to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Step"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -54,6 +48,12 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the step to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -130,13 +130,13 @@ func CreateStep(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -151,7 +151,9 @@ func CreateStep(c *gin.Context) {
 //     description: Successfully retrieved the list of steps
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Step"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Step"
 //   '400':
 //     description: Unable to retrieve the list of steps
 //     schema:
@@ -235,13 +237,13 @@ func GetSteps(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -287,20 +289,14 @@ func GetStep(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the step to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Step"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -313,6 +309,12 @@ func GetStep(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Payload containing the step to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Step"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -419,13 +421,13 @@ func UpdateStep(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path

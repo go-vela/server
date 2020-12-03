@@ -104,24 +104,43 @@ func CreateRepo(c *gin.Context) {
 	// update fields in repo object
 	r.SetUserID(u.GetID())
 
+	// set the active field based off the input provided
 	if input.Active == nil {
+		// default active field to true
 		r.SetActive(true)
+	} else {
+		r.SetActive(input.GetActive())
 	}
 
+	// set the timeout field based off the input provided
 	if input.GetTimeout() == 0 {
+		// default build timeout to 30m
 		r.SetTimeout(constants.BuildTimeoutMin)
+	} else {
+		r.SetTimeout(input.GetTimeout())
 	}
 
+	// set the visibility field based off the input provided
 	if len(input.GetVisibility()) == 0 {
+		// default visibility field to public
 		r.SetVisibility(constants.VisibilityPublic)
+	} else {
+		r.SetVisibility(input.GetVisibility())
 	}
 
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
+		// default events to push and pull_request
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
+	} else {
+		r.SetAllowComment(input.GetAllowComment())
+		r.SetAllowDeploy(input.GetAllowDeploy())
+		r.SetAllowPull(input.GetAllowPull())
+		r.SetAllowPush(input.GetAllowPush())
+		r.SetAllowTag(input.GetAllowTag())
 	}
 
 	// create unique id for the repo
@@ -236,7 +255,9 @@ func CreateRepo(c *gin.Context) {
 //     description: Successfully retrieved the repo
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Repo"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to retrieve the repo
 //     schema:
@@ -318,13 +339,13 @@ func GetRepos(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -356,22 +377,22 @@ func GetRepo(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
 // - in: body
 //   name: body
 //   description: Payload containing the repo to update
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Repo"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
-// - in: path
-//   name: org
-//   description: Name of the org
-//   required: true
-//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -531,13 +552,13 @@ func UpdateRepo(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -614,13 +635,13 @@ func DeleteRepo(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -693,13 +714,13 @@ func RepairRepo(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:

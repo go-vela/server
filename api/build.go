@@ -38,22 +38,22 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
 // - in: body
 //   name: body
 //   description: Payload containing the build to update
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
-// - in: path
-//   name: org
-//   description: Name of the org
-//   required: true
-//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -253,13 +253,13 @@ func CreateBuild(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -269,7 +269,9 @@ func CreateBuild(c *gin.Context) {
 //     description: Successfully retrieved the build
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to retrieve the list of builds
 //     schema:
@@ -369,7 +371,9 @@ func GetBuilds(c *gin.Context) {
 //     description: Successfully retrieved build list
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to retrieve the list of builds
 //     schema:
@@ -455,13 +459,13 @@ func GetOrgBuilds(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -502,13 +506,13 @@ func GetBuild(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -690,20 +694,14 @@ func RestartBuild(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the build to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Build"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -711,6 +709,12 @@ func RestartBuild(c *gin.Context) {
 //   description: Build number to restart
 //   required: true
 //   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the build to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Build"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -839,13 +843,13 @@ func UpdateBuild(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path

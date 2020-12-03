@@ -32,7 +32,9 @@ import (
 //     description: Successfully retrieved all hooks from the database
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Webhook"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Webhook"
 //   '500':
 //     description: Unable to retrieve all hooks
 //     schema:

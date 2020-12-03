@@ -31,13 +31,13 @@ import (
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -52,7 +52,9 @@ import (
 //     description: Successfully retrieved logs for the build
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Log"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Log"
 //   '500':
 //     description: Unable to retrieve logs for the build
 //     schema:
@@ -89,20 +91,14 @@ func GetBuildLogs(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the log to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Log"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -112,9 +108,15 @@ func GetBuildLogs(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: service
-//   description: Name of the service
+//   description: ID of the service
 //   required: true
 //   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -185,13 +187,13 @@ func CreateServiceLog(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -201,7 +203,7 @@ func CreateServiceLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: service
-//   description: Name of the service
+//   description: ID of the service
 //   required: true
 //   type: integer
 // security:
@@ -249,20 +251,14 @@ func GetServiceLog(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the log to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Log"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -275,6 +271,12 @@ func GetServiceLog(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -356,13 +358,13 @@ func UpdateServiceLog(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -372,7 +374,7 @@ func UpdateServiceLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: service
-//   description: Name of the service
+//   description: ID of the service
 //   required: true
 //   type: integer
 // security:
@@ -419,20 +421,14 @@ func DeleteServiceLog(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the log to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Log"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -445,6 +441,12 @@ func DeleteServiceLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -515,13 +517,13 @@ func CreateStepLog(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -575,20 +577,14 @@ func GetStepLog(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the log to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Log"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -601,6 +597,12 @@ func GetStepLog(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -682,13 +684,13 @@ func UpdateStepLog(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path

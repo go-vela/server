@@ -36,13 +36,13 @@ import (
 //   schema:
 //     "$ref": "#/definitions/Webhook"
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -132,13 +132,13 @@ func CreateHook(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -148,7 +148,9 @@ func CreateHook(c *gin.Context) {
 //     description: Successfully retrieved webhooks
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Webhook"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: Unable to retrieve webhooks
 //     schema:
@@ -231,13 +233,13 @@ func GetHooks(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -302,20 +304,14 @@ func GetHook(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Webhook payload that we expect from the user or VCS
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Webhook"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -323,6 +319,12 @@ func GetHook(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Webhook payload that we expect from the user or VCS
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Webhook"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -446,13 +448,13 @@ func UpdateHook(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path

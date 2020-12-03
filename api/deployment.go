@@ -30,13 +30,13 @@ import (
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -46,7 +46,7 @@ import (
 //     description: Successfully created the deployment
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Build"
+//       "$ref": "#/definitions/Deployment"
 //   '400':
 //     description: Unable to create the deployment
 //     type: json
@@ -113,13 +113,13 @@ func CreateDeployment(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // security:
@@ -129,7 +129,9 @@ func CreateDeployment(c *gin.Context) {
 //     description: Successfully retrieved the list of deployments
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Deployment"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Deployment"
 //   '400':
 //     description: Unable to retrieve the list of deployments
 //     schema:
@@ -213,13 +215,13 @@ func GetDeployments(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path

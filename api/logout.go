@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-// swagger:operation GET /logout router GetLogout
+// swagger:operation GET /logout authenticate GetLogout
 //
 // Log out of the Vela api
 //

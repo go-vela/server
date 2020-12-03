@@ -30,20 +30,9 @@ import (
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the secret to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Secret"
 // - in: path
 //   name: engine
 //   description: Secret engine to create a secret in
-//   required: true
-//   type: string
-// - in: path
-//   name: org
-//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
@@ -52,10 +41,21 @@ import (
 //   required: true
 //   type: string
 // - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
 //   name: name
 //   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Payload containing the secret to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Secret"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -157,13 +157,13 @@ func CreateSecret(c *gin.Context) {
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
 //   required: true
 //   type: string
 // - in: path
-//   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
@@ -178,7 +178,9 @@ func CreateSecret(c *gin.Context) {
 //     description: Successfully retrieved the list of secrets
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Secret"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to retrieve the list of secrets
 //     schema:
@@ -280,13 +282,13 @@ func GetSecrets(c *gin.Context) {
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
 //   required: true
 //   type: string
 // - in: path
-//   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
@@ -353,25 +355,19 @@ func GetSecret(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the secret to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Secret"
 // - in: path
 //   name: engine
 //   description: Secret engine to create a secret in
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
 //   required: true
 //   type: string
 // - in: path
-//   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
@@ -384,6 +380,12 @@ func GetSecret(c *gin.Context) {
 //   description: Name of the secret
 //   required: true
 //   type: string
+// - in: body
+//   name: body
+//   description: Payload containing the secret to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Secret"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -482,13 +484,13 @@ func UpdateSecret(c *gin.Context) {
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: type
+//   description: Secret type to create. Options 'org', 'repo', or 'shared'
 //   required: true
 //   type: string
 // - in: path
-//   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path

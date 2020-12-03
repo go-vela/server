@@ -1,6 +1,6 @@
-// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+// copyright (c) 2020 target brands, inc. all rights reserved.
 //
-// Use of this source code is governed by the LICENSE file in this repository.
+// use of this source code is governed by the license file in this repository.
 
 package api
 
@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/types"
 )
 
-// swagger:operation GET /login router GetLogin
+// swagger:operation GET /login authenticate GetLogin
 //
 // Log into the Vela api
 //

@@ -33,20 +33,14 @@ import (
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the service to create
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Service"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -54,6 +48,12 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the service to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Service"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -130,13 +130,13 @@ func CreateService(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -151,7 +151,9 @@ func CreateService(c *gin.Context) {
 //     description: Successfully retrieved the list of services
 //     type: json
 //     schema:
-//       "$ref": "#/definitions/Service"
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to retrieve the list of services
 //     schema:
@@ -235,13 +237,13 @@ func GetServices(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -295,20 +297,14 @@ func GetService(c *gin.Context) {
 // produces:
 // - application/json
 // parameters:
-// - in: body
-//   name: body
-//   description: Payload containing the service to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Service"
-// - in: path
-//   name: repo
-//   description: Name of the repo
-//   required: true
-//   type: string
 // - in: path
 //   name: org
 //   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path
@@ -321,6 +317,12 @@ func GetService(c *gin.Context) {
 //   description: Name of the service
 //   required: true
 //   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the service to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Service"
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -412,13 +414,13 @@ func UpdateService(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: path
-//   name: repo
-//   description: Name of the repo
+//   name: org
+//   description: Name of the org
 //   required: true
 //   type: string
 // - in: path
-//   name: org
-//   description: Name of the org
+//   name: repo
+//   description: Name of the repo
 //   required: true
 //   type: string
 // - in: path

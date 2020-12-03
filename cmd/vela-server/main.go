@@ -152,6 +152,11 @@ func main() {
 
 		// Secret Flags
 
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SECRET_NATIVE_KEY", "SECRET_NATIVE_KEY"},
+			Name:    "native-key",
+			Usage:   "native passphrase for encrypting and decrypting values",
+		},
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_SECRET_VAULT", "SECRET_VAULT"},
 			Name:    "vault-driver",
