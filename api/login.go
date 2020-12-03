@@ -1,6 +1,6 @@
-// copyright (c) 2020 target brands, inc. all rights reserved.
+// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
 //
-// use of this source code is governed by the license file in this repository.
+// Use of this source code is governed by the LICENSE file in this repository.
 
 package api
 
