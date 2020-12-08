@@ -12,7 +12,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/go-vela/compiler v0.6.0
-	github.com/go-vela/types v0.6.1-0.20201117150747-5d49725ae82e
+	github.com/go-vela/types v0.6.1-0.20201208161822-ed8b4140a657
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
@@ -36,4 +36,5 @@ require (
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
