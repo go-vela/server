@@ -88,8 +88,6 @@ github.com/go-vela/compiler v0.6.0 h1:Z0kaz3nfCxAFBnbzuT2qoj5JjlbGckCmpjVr16PtDJ
 github.com/go-vela/compiler v0.6.0/go.mod h1:chxdAtFcUfJFaewZ5kupqIEjuH+zbK0MDNVc5+Yx4Bg=
 github.com/go-vela/types v0.6.0 h1:82/+Y3EGnnr37HeaJ5qhz/PGMvLkJfYvblEw1kFwxb4=
 github.com/go-vela/types v0.6.0/go.mod h1:G1Qp0JFtXV+QRNTEWXht+WdllOhjAGapg9vBZKdj6N0=
-github.com/go-vela/types v0.6.1-0.20201117150747-5d49725ae82e h1:iLO9yilrh+mVM+YqLjHuDfRKP3L3H1A0k32ZAl8tjgg=
-github.com/go-vela/types v0.6.1-0.20201117150747-5d49725ae82e/go.mod h1:6r6mWIPrTANBpHwAFAIii64VKtzlAzVagbm/wX5bHHk=
 github.com/go-vela/types v0.6.1-0.20201208161822-ed8b4140a657 h1:OWCKGSrHBTr89QNqtqMHYXSg88A4F0US31WpMo+UDRw=
 github.com/go-vela/types v0.6.1-0.20201208161822-ed8b4140a657/go.mod h1:6r6mWIPrTANBpHwAFAIii64VKtzlAzVagbm/wX5bHHk=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
