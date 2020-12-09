@@ -12,7 +12,7 @@ import (
 func TestSqlite_createLogService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  []string{CreateLogTable},
+		Create:  CreateLogTable,
 		Indexes: []string{CreateLogBuildIDIndex, CreateLogStepIDIndex, CreateLogServiceIDIndex},
 	}
 

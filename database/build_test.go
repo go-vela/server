@@ -19,11 +19,9 @@ func init() {
 		log.Fatalf("Error creating test database: %v", err)
 	}
 
-	for _, query := range db.DDL.BuildService.Create {
-		_, err = db.Database.DB().Exec(query)
-		if err != nil {
-			log.Fatalf("Error creating %s table: %v", constants.TableBuild, err)
-		}
+	_, err = db.Database.DB().Exec(db.DDL.BuildService.Create)
+	if err != nil {
+		log.Fatalf("Error creating %s table: %v", constants.TableBuild, err)
 	}
 
 }

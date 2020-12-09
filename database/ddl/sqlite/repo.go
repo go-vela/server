@@ -57,7 +57,7 @@ ON repos (full_name);
 // a service for interacting with the repos table.
 func createRepoService() *Service {
 	return &Service{
-		Create:  []string{CreateRepoTable},
+		Create:  CreateRepoTable,
 		Indexes: []string{CreateRepoOrgNameIndex, CreateRepoFullNameIndex},
 	}
 }

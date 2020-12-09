@@ -44,7 +44,7 @@ ON services (build_id, number);
 // a service for interacting with the services table.
 func createServiceService() *Service {
 	return &Service{
-		Create:  []string{CreateServiceTable},
+		Create:  CreateServiceTable,
 		Indexes: []string{CreateServiceBuildIDNumberIndex},
 	}
 }

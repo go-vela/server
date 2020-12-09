@@ -15,7 +15,7 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 	// setup types
 	want := &Map{
 		BuildService: &Service{
-			Create: []string{sqlite.CreateBuildTable},
+			Create: sqlite.CreateBuildTable,
 			Indexes: []string{
 				sqlite.CreateBuildRepoIDIndex,
 				sqlite.CreateBuildRepoIDNumberIndex,
@@ -23,14 +23,14 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 			},
 		},
 		HookService: &Service{
-			Create: []string{sqlite.CreateHookTable},
+			Create: sqlite.CreateHookTable,
 			Indexes: []string{
 				sqlite.CreateHookRepoIDNumberIndex,
 				sqlite.CreateHookRepoIDIndex,
 			},
 		},
 		LogService: &Service{
-			Create: []string{sqlite.CreateLogTable},
+			Create: sqlite.CreateLogTable,
 			Indexes: []string{
 				sqlite.CreateLogBuildIDIndex,
 				sqlite.CreateLogStepIDIndex,
@@ -38,14 +38,14 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 			},
 		},
 		RepoService: &Service{
-			Create: []string{sqlite.CreateRepoTable},
+			Create: sqlite.CreateRepoTable,
 			Indexes: []string{
 				sqlite.CreateRepoOrgNameIndex,
 				sqlite.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
-			Create: []string{sqlite.CreateSecretTable},
+			Create: sqlite.CreateSecretTable,
 			Indexes: []string{
 				sqlite.CreateSecretTypeOrgRepo,
 				sqlite.CreateSecretTypeOrgTeam,
@@ -54,25 +54,25 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 			},
 		},
 		ServiceService: &Service{
-			Create: []string{sqlite.CreateServiceTable},
+			Create: sqlite.CreateServiceTable,
 			Indexes: []string{
 				sqlite.CreateServiceBuildIDNumberIndex,
 			},
 		},
 		StepService: &Service{
-			Create: []string{sqlite.CreateStepTable},
+			Create: sqlite.CreateStepTable,
 			Indexes: []string{
 				sqlite.CreateStepBuildIDNumberIndex,
 			},
 		},
 		UserService: &Service{
-			Create: []string{sqlite.CreateUserTable},
+			Create: sqlite.CreateUserTable,
 			Indexes: []string{
 				sqlite.CreateUserNameIndex,
 			},
 		},
 		WorkerService: &Service{
-			Create: []string{sqlite.CreateWorkerTable},
+			Create: sqlite.CreateWorkerTable,
 			Indexes: []string{
 				sqlite.CreateWorkersHostnameAddressIndex,
 			},
@@ -90,7 +90,7 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 func TestDDL_serviceFromSqlite(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create: []string{sqlite.CreateBuildTable},
+		Create: sqlite.CreateBuildTable,
 		Indexes: []string{
 			sqlite.CreateBuildRepoIDIndex,
 			sqlite.CreateBuildRepoIDNumberIndex,

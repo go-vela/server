@@ -12,7 +12,7 @@ import (
 func TestPostgres_createWorkerService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  []string{CreateWorkerTable},
+		Create:  CreateWorkerTable,
 		Indexes: []string{CreateWorkersHostnameAddressIndex},
 	}
 

@@ -35,7 +35,7 @@ ON workers (hostname, address);
 // a service for interacting with the workers table.
 func createWorkerService() *Service {
 	return &Service{
-		Create:  []string{CreateWorkerTable},
+		Create:  CreateWorkerTable,
 		Indexes: []string{CreateWorkersHostnameAddressIndex},
 	}
 }

@@ -15,7 +15,7 @@ import (
 
 // Service represents the common DDL for a table in the database.
 type Service struct {
-	Create  []string
+	Create  string
 	Indexes []string
 }
 

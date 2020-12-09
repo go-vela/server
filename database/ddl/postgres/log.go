@@ -54,7 +54,7 @@ ON logs (service_id);
 // a service for interacting with the logs table.
 func createLogService() *Service {
 	return &Service{
-		Create:  []string{CreateLogTable},
+		Create:  CreateLogTable,
 		Indexes: []string{CreateLogBuildIDIndex, CreateLogStepIDIndex, CreateLogServiceIDIndex},
 	}
 }

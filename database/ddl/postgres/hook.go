@@ -50,7 +50,7 @@ ON hooks (repo_id);
 // a service for interacting with the hooks table.
 func createHookService() *Service {
 	return &Service{
-		Create:  []string{CreateHookTable},
+		Create:  CreateHookTable,
 		Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
 	}
 }

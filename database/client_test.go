@@ -155,7 +155,7 @@ func TestDatabase_setupDatabase_BadTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.BuildService.Create = []string{"#"}
+	ddlMap.BuildService.Create = "#"
 
 	err := setupDatabase(database.DB(), ddlMap)
 	if err == nil {
@@ -280,7 +280,7 @@ func TestDatabase_createTables_BadBuildTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.BuildService.Create = []string{"#"}
+	ddlMap.BuildService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
@@ -306,7 +306,7 @@ func TestDatabase_createTables_BadLogTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.LogService.Create = []string{"#"}
+	ddlMap.LogService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
@@ -332,7 +332,7 @@ func TestDatabase_createTables_BadRepoTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.RepoService.Create = []string{"#"}
+	ddlMap.RepoService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
@@ -358,7 +358,7 @@ func TestDatabase_createTables_BadSecretTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.SecretService.Create = []string{"#"}
+	ddlMap.SecretService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
@@ -384,7 +384,7 @@ func TestDatabase_createTables_BadStepTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.StepService.Create = []string{"#"}
+	ddlMap.StepService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
@@ -410,7 +410,7 @@ func TestDatabase_createTables_BadUserTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.UserService.Create = []string{"#"}
+	ddlMap.UserService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {
@@ -436,7 +436,7 @@ func TestDatabase_createTables_BadWorkerTable(t *testing.T) {
 	ddlMap, _ := ddl.NewMap(name)
 
 	// run test
-	ddlMap.WorkerService.Create = []string{"#"}
+	ddlMap.WorkerService.Create = "#"
 
 	err := createTables(database.DB(), ddlMap)
 	if err == nil {

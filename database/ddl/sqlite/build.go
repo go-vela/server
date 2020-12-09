@@ -77,7 +77,7 @@ ON builds (status);
 // a service for interacting with the builds table.
 func createBuildService() *Service {
 	return &Service{
-		Create:  []string{CreateBuildTable},
+		Create:  CreateBuildTable,
 		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
 	}
 }

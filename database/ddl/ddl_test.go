@@ -18,7 +18,7 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 	// setup types
 	want := &Map{
 		BuildService: &Service{
-			Create: []string{postgres.CreateBuildTable, postgres.CreatePayloadColumn},
+			Create: postgres.CreateBuildTable,
 			Indexes: []string{
 				postgres.CreateBuildRepoIDIndex,
 				postgres.CreateBuildRepoIDNumberIndex,
@@ -26,14 +26,14 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 			},
 		},
 		HookService: &Service{
-			Create: []string{postgres.CreateHookTable},
+			Create: postgres.CreateHookTable,
 			Indexes: []string{
 				postgres.CreateHookRepoIDNumberIndex,
 				postgres.CreateHookRepoIDIndex,
 			},
 		},
 		LogService: &Service{
-			Create: []string{postgres.CreateLogTable},
+			Create: postgres.CreateLogTable,
 			Indexes: []string{
 				postgres.CreateLogBuildIDIndex,
 				postgres.CreateLogStepIDIndex,
@@ -41,14 +41,14 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 			},
 		},
 		RepoService: &Service{
-			Create: []string{postgres.CreateRepoTable},
+			Create: postgres.CreateRepoTable,
 			Indexes: []string{
 				postgres.CreateRepoOrgNameIndex,
 				postgres.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
-			Create: []string{postgres.CreateSecretTable},
+			Create: postgres.CreateSecretTable,
 			Indexes: []string{
 				postgres.CreateSecretTypeOrgRepo,
 				postgres.CreateSecretTypeOrgTeam,
@@ -57,25 +57,25 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 			},
 		},
 		ServiceService: &Service{
-			Create: []string{postgres.CreateServiceTable},
+			Create: postgres.CreateServiceTable,
 			Indexes: []string{
 				postgres.CreateServiceBuildIDNumberIndex,
 			},
 		},
 		StepService: &Service{
-			Create: []string{postgres.CreateStepTable},
+			Create: postgres.CreateStepTable,
 			Indexes: []string{
 				postgres.CreateStepBuildIDNumberIndex,
 			},
 		},
 		UserService: &Service{
-			Create: []string{postgres.CreateUserTable},
+			Create: postgres.CreateUserTable,
 			Indexes: []string{
 				postgres.CreateUserNameIndex,
 			},
 		},
 		WorkerService: &Service{
-			Create: []string{postgres.CreateWorkerTable},
+			Create: postgres.CreateWorkerTable,
 			Indexes: []string{
 				postgres.CreateWorkersHostnameAddressIndex,
 			},
@@ -98,7 +98,7 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 	// setup types
 	want := &Map{
 		BuildService: &Service{
-			Create: []string{sqlite.CreateBuildTable},
+			Create: sqlite.CreateBuildTable,
 			Indexes: []string{
 				sqlite.CreateBuildRepoIDIndex,
 				sqlite.CreateBuildRepoIDNumberIndex,
@@ -106,14 +106,14 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			},
 		},
 		HookService: &Service{
-			Create: []string{sqlite.CreateHookTable},
+			Create: sqlite.CreateHookTable,
 			Indexes: []string{
 				sqlite.CreateHookRepoIDNumberIndex,
 				sqlite.CreateHookRepoIDIndex,
 			},
 		},
 		LogService: &Service{
-			Create: []string{sqlite.CreateLogTable},
+			Create: sqlite.CreateLogTable,
 			Indexes: []string{
 				sqlite.CreateLogBuildIDIndex,
 				sqlite.CreateLogStepIDIndex,
@@ -121,14 +121,14 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			},
 		},
 		RepoService: &Service{
-			Create: []string{sqlite.CreateRepoTable},
+			Create: sqlite.CreateRepoTable,
 			Indexes: []string{
 				sqlite.CreateRepoOrgNameIndex,
 				sqlite.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
-			Create: []string{sqlite.CreateSecretTable},
+			Create: sqlite.CreateSecretTable,
 			Indexes: []string{
 				sqlite.CreateSecretTypeOrgRepo,
 				sqlite.CreateSecretTypeOrgTeam,
@@ -137,25 +137,25 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			},
 		},
 		ServiceService: &Service{
-			Create: []string{sqlite.CreateServiceTable},
+			Create: sqlite.CreateServiceTable,
 			Indexes: []string{
 				sqlite.CreateServiceBuildIDNumberIndex,
 			},
 		},
 		StepService: &Service{
-			Create: []string{sqlite.CreateStepTable},
+			Create: sqlite.CreateStepTable,
 			Indexes: []string{
 				sqlite.CreateStepBuildIDNumberIndex,
 			},
 		},
 		UserService: &Service{
-			Create: []string{sqlite.CreateUserTable},
+			Create: sqlite.CreateUserTable,
 			Indexes: []string{
 				sqlite.CreateUserNameIndex,
 			},
 		},
 		WorkerService: &Service{
-			Create: []string{sqlite.CreateWorkerTable},
+			Create: sqlite.CreateWorkerTable,
 			Indexes: []string{
 				sqlite.CreateWorkersHostnameAddressIndex,
 			},

@@ -12,7 +12,7 @@ import (
 func TestSqlite_createStepService(t *testing.T) {
 	// setup types
 	want := &Service{
-		Create:  []string{CreateStepTable},
+		Create:  CreateStepTable,
 		Indexes: []string{CreateStepBuildIDNumberIndex},
 	}
 

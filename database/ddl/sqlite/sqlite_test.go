@@ -13,23 +13,23 @@ func TestSqlite_NewMap(t *testing.T) {
 	// setup types
 	want := &Map{
 		BuildService: &Service{
-			Create:  []string{CreateBuildTable},
+			Create:  CreateBuildTable,
 			Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
 		},
 		HookService: &Service{
-			Create:  []string{CreateHookTable},
+			Create:  CreateHookTable,
 			Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
 		},
 		LogService: &Service{
-			Create:  []string{CreateLogTable},
+			Create:  CreateLogTable,
 			Indexes: []string{CreateLogBuildIDIndex, CreateLogStepIDIndex, CreateLogServiceIDIndex},
 		},
 		RepoService: &Service{
-			Create:  []string{CreateRepoTable},
+			Create:  CreateRepoTable,
 			Indexes: []string{CreateRepoOrgNameIndex, CreateRepoFullNameIndex},
 		},
 		SecretService: &Service{
-			Create: []string{CreateSecretTable},
+			Create: CreateSecretTable,
 			Indexes: []string{
 				CreateSecretTypeOrgRepo,
 				CreateSecretTypeOrgTeam,
@@ -38,19 +38,19 @@ func TestSqlite_NewMap(t *testing.T) {
 			},
 		},
 		ServiceService: &Service{
-			Create:  []string{CreateServiceTable},
+			Create:  CreateServiceTable,
 			Indexes: []string{CreateServiceBuildIDNumberIndex},
 		},
 		StepService: &Service{
-			Create:  []string{CreateStepTable},
+			Create:  CreateStepTable,
 			Indexes: []string{CreateStepBuildIDNumberIndex},
 		},
 		UserService: &Service{
-			Create:  []string{CreateUserTable},
+			Create:  CreateUserTable,
 			Indexes: []string{CreateUserNameIndex},
 		},
 		WorkerService: &Service{
-			Create:  []string{CreateWorkerTable},
+			Create:  CreateWorkerTable,
 			Indexes: []string{CreateWorkersHostnameAddressIndex},
 		},
 	}

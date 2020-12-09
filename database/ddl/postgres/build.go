@@ -44,12 +44,6 @@ builds (
 	UNIQUE(repo_id, number)
 );
 `
-	// CreatePayloadColumn represents a query to
-	// create the payload column within the build stable for Vela
-	CreatePayloadColumn = `
-ALTER TABLE builds
-ADD COLUMN IF NOT EXISTS deploy_payload VARCHAR(2000)
-`
 
 	// CreateBuildRepoIDNumberIndex represents a query to create an
 	// index on the builds table for the repo_id and number columns.
@@ -83,7 +77,7 @@ ON builds (status);
 // a service for interacting with the builds table.
 func createBuildService() *Service {
 	return &Service{
-		Create:  []string{CreateBuildTable, CreatePayloadColumn},
+		Create:  CreateBuildTable,
 		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
 	}
 }

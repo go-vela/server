@@ -6,7 +6,7 @@ package sqlite
 
 // Service represents the Sqlite DDL for a table in the database.
 type Service struct {
-	Create  []string
+	Create  string
 	Indexes []string
 }
 
