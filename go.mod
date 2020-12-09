@@ -1,5 +1,7 @@
 module github.com/go-vela/server
 
+replace github.com/go-vela/types => /Users/jordansussman/git/github/go-vela/types
+
 go 1.13
 
 require (
