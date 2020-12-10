@@ -5,7 +5,9 @@
 package github
 
 import (
+	"fmt"
 	"github.com/go-vela/types/raw"
+	"github.com/google/go-cmp/cmp"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -357,26 +359,6 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	// setup request
-	body, err := os.Open("testdata/hooks/deployment.json")
-	if err != nil {
-		t.Errorf("unable to open file: %v", err)
-	}
-
-	defer body.Close()
-
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
-	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	request.Header.Set("X-GitHub-Host", "github.com")
-	request.Header.Set("X-GitHub-Version", "2.16.0")
-	request.Header.Set("X-GitHub-Event", "deployment")
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
@@ -409,26 +391,60 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetEmail("")
 	wantBuild.SetBranch("master")
 	wantBuild.SetRef("refs/heads/master")
-	wantBuild.SetDeployPayload(raw.StringSliceMap{
-		"foo": "test1",
-		"bar": "test2",
-	})
 
-	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+	type args struct {
+		file    string
+		hook *library.Hook
+		repo *library.Repo
+		build *library.Build
+		deploymentPayload raw.StringSliceMap
 	}
-
-	got, err := client.ProcessWebhook(request)
-
-	if err != nil {
-		t.Errorf("ProcessWebhook returned err: %v", err)
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"success", args{file: "deployment.json", hook: wantHook, repo: wantRepo, build: wantBuild, deploymentPayload: raw.StringSliceMap{"foo": "test1", "bar": "test2"}}, false},
+		{"unexpected json payload", args{file: "deployment_unexpected_json_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
+		{"unexpected text payload", args{file: "deployment_unexpected_text_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := os.Open(fmt.Sprintf("testdata/hooks/%s", tt.args.file))
+			if err != nil {
+				t.Errorf("unable to open file: %v", err)
+			}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+			defer body.Close()
+
+			request, _ := http.NewRequest(http.MethodGet, "/test", body)
+			request.Header.Set("Content-Type", "application/json")
+			request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+			request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+			request.Header.Set("X-GitHub-Host", "github.com")
+			request.Header.Set("X-GitHub-Version", "2.16.0")
+			request.Header.Set("X-GitHub-Event", "deployment")
+
+			client, _ := NewTest(s.URL)
+			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
+
+			want := &types.Webhook{
+				Comment: "",
+				Hook:    tt.args.hook,
+				Repo:    tt.args.repo,
+				Build:   tt.args.build,
+			}
+
+			got, err := client.ProcessWebhook(request)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ProcessWebhook() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
 
