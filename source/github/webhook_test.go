@@ -393,10 +393,10 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetRef("refs/heads/master")
 
 	type args struct {
-		file    string
-		hook *library.Hook
-		repo *library.Repo
-		build *library.Build
+		file              string
+		hook              *library.Hook
+		repo              *library.Repo
+		build             *library.Build
 		deploymentPayload raw.StringSliceMap
 	}
 	tests := []struct {
