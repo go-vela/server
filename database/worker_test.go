@@ -32,6 +32,7 @@ func TestDatabase_Client_GetWorker(t *testing.T) {
 	want.SetHostname("worker_0")
 	want.SetAddress("localhost")
 	want.SetActive(true)
+	want.SetBuildLimit(0)
 
 	// setup database
 	db, _ := NewTest()
@@ -68,6 +69,7 @@ func TestDatabase_Client_GetWorkerList(t *testing.T) {
 	wTwo.SetHostname("worker_2")
 	wTwo.SetAddress("localhost")
 	wTwo.SetActive(true)
+	wTwo.SetBuildLimit(0)
 
 	want := []*library.Worker{wOne, wTwo}
 
@@ -319,5 +321,6 @@ func testWorker() *library.Worker {
 		Routes:        &arr,
 		Active:        &b,
 		LastCheckedIn: &i64,
+		BuildLimit: &i64,
 	}
 }
