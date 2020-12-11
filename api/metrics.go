@@ -6,6 +6,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -150,6 +151,12 @@ func recordGauges(c *gin.Context) {
 		logrus.Errorf("unable to get count of all service statuses: %v", err)
 	}
 
+	// send API call to capture the workers
+	workers, err := database.FromContext(c).GetWorkerList()
+	if err != nil {
+		logrus.Errorf("unable to get workers: %v", err)
+	}
+
 	// Add platform metrics
 	totals.WithLabelValues("platform", "count", "users").Set(float64(u))
 	totals.WithLabelValues("platform", "count", "repos").Set(float64(r))
@@ -162,6 +169,22 @@ func recordGauges(c *gin.Context) {
 	totals.WithLabelValues("build", "status", "killed").Set(float64(bKill))
 	totals.WithLabelValues("build", "status", "success").Set(float64(bSucc))
 	totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
+
+	// Add worker metrics
+	var buildLimit int64
+	var workerCount int64
+	// get the unix time from 1 minute ago
+	before := time.Now().UTC().Add(-1*time.Minute).Unix()
+	for _, worker := range workers {
+		// check if the worker checked in within the last minute
+		if worker.GetLastCheckedIn() >= before {
+			buildLimit += worker.GetBuildLimit()
+			workerCount++
+		}
+	}
+
+	totals.WithLabelValues("worker", "sum", "build_limit").Set(float64(buildLimit))
+	totals.WithLabelValues("worker", "count").Set(float64(workerCount))
 
 	// Add step status metrics
 	for status, count := range stepStatusMap {
