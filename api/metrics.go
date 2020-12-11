@@ -5,6 +5,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -174,17 +175,18 @@ func recordGauges(c *gin.Context) {
 	var buildLimit int64
 	var workerCount int64
 	// get the unix time from 1 minute ago
-	before := time.Now().UTC().Add(-1*time.Minute).Unix()
+	before := time.Now().UTC().Add(-1 * time.Minute).Unix()
 	for _, worker := range workers {
 		// check if the worker checked in within the last minute
 		if worker.GetLastCheckedIn() >= before {
+			fmt.Println("here", worker.GetBuildLimit())
 			buildLimit += worker.GetBuildLimit()
 			workerCount++
 		}
 	}
 
 	totals.WithLabelValues("worker", "sum", "build_limit").Set(float64(buildLimit))
-	totals.WithLabelValues("worker", "count").Set(float64(workerCount))
+	totals.WithLabelValues("worker", "count", "active").Set(float64(workerCount))
 
 	// Add step status metrics
 	for status, count := range stepStatusMap {

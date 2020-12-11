@@ -1,7 +1,5 @@
 module github.com/go-vela/server
 
-replace github.com/go-vela/types => /Users/jordansussman/git/github/go-vela/types
-
 go 1.13
 
 require (
@@ -14,7 +12,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.8+incompatible
 	github.com/go-vela/compiler v0.6.0
-	github.com/go-vela/types v0.6.1-0.20201117150747-5d49725ae82e
+	github.com/go-vela/types v0.6.1-0.20201211155220-43fe2984bead
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
