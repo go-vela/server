@@ -321,6 +321,6 @@ func testWorker() *library.Worker {
 		Routes:        &arr,
 		Active:        &b,
 		LastCheckedIn: &i64,
-		BuildLimit: &i64,
+		BuildLimit:    &i64,
 	}
 }
