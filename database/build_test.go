@@ -23,6 +23,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error creating %s table: %v", constants.TableBuild, err)
 	}
+
 }
 
 func TestDatabase_Client_GetBuild(t *testing.T) {
@@ -37,6 +38,7 @@ func TestDatabase_Client_GetBuild(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetNumber(1)
+	want.SetDeployPayload(nil)
 
 	// setup database
 	database, _ := NewTest()
@@ -77,6 +79,7 @@ func TestDatabase_Client_GetLastBuild(t *testing.T) {
 	want.SetID(2)
 	want.SetRepoID(1)
 	want.SetNumber(2)
+	want.SetDeployPayload(nil)
 
 	// setup database
 	database, _ := NewTest()
@@ -142,6 +145,7 @@ func TestDatabase_Client_GetLastBuildByBranch(t *testing.T) {
 	want.SetRepoID(1)
 	want.SetNumber(1)
 	want.SetBranch("pr42")
+	want.SetDeployPayload(nil)
 
 	b := testBuild()
 	b.SetID(2)
@@ -206,11 +210,13 @@ func TestDatabase_Client_GetBuildList(t *testing.T) {
 	bOne.SetID(1)
 	bOne.SetRepoID(1)
 	bOne.SetNumber(1)
+	bOne.SetDeployPayload(nil)
 
 	bTwo := testBuild()
 	bTwo.SetID(2)
 	bTwo.SetRepoID(1)
 	bTwo.SetNumber(2)
+	bTwo.SetDeployPayload(nil)
 
 	want := []*library.Build{bOne, bTwo}
 
@@ -326,12 +332,14 @@ func TestDatabase_Client_GetRepoBuildList(t *testing.T) {
 	bOne.SetRepoID(1)
 	bOne.SetNumber(1)
 	bOne.SetStatus(constants.StatusPending)
+	bOne.SetDeployPayload(nil)
 
 	bTwo := testBuild()
 	bTwo.SetID(2)
 	bTwo.SetRepoID(1)
 	bTwo.SetNumber(2)
 	bTwo.SetStatus(constants.StatusRunning)
+	bTwo.SetDeployPayload(nil)
 
 	want := []*library.Build{bTwo}
 	wantCount := int64(2)
@@ -427,6 +435,7 @@ func TestDatabase_Client_GetRepoBuildListByEvent(t *testing.T) {
 	bOne.SetNumber(1)
 	bOne.SetEvent("push")
 	bOne.SetStatus(constants.StatusPending)
+	bOne.SetDeployPayload(nil)
 
 	bTwo := testBuild()
 	bTwo.SetID(2)
@@ -434,6 +443,7 @@ func TestDatabase_Client_GetRepoBuildListByEvent(t *testing.T) {
 	bTwo.SetNumber(2)
 	bTwo.SetEvent("tag")
 	bTwo.SetStatus(constants.StatusRunning)
+	bTwo.SetDeployPayload(nil)
 
 	bThree := testBuild()
 	bThree.SetID(3)
@@ -441,6 +451,7 @@ func TestDatabase_Client_GetRepoBuildListByEvent(t *testing.T) {
 	bThree.SetNumber(3)
 	bThree.SetEvent("push")
 	bThree.SetStatus(constants.StatusPending)
+	bThree.SetDeployPayload(nil)
 
 	want := []*library.Build{bThree}
 	wantCount := int64(2)
@@ -648,12 +659,14 @@ func TestDatabase_Client_GetOrgBuildList(t *testing.T) {
 	bOne.SetRepoID(1)
 	bOne.SetNumber(1)
 	bOne.SetStatus(constants.StatusPending)
+	bOne.SetDeployPayload(nil)
 
 	bTwo := testBuild()
 	bTwo.SetID(2)
 	bTwo.SetRepoID(1)
 	bTwo.SetNumber(2)
 	bTwo.SetStatus(constants.StatusRunning)
+	bTwo.SetDeployPayload(nil)
 
 	want := []*library.Build{bTwo}
 	wantCount := int64(2)
@@ -770,6 +783,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent(t *testing.T) {
 	bOne.SetNumber(1)
 	bOne.SetEvent("push")
 	bOne.SetStatus(constants.StatusPending)
+	bOne.SetDeployPayload(nil)
 
 	bTwo := testBuild()
 	bTwo.SetID(2)
@@ -777,6 +791,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent(t *testing.T) {
 	bTwo.SetNumber(2)
 	bTwo.SetEvent("tag")
 	bTwo.SetStatus(constants.StatusRunning)
+	bTwo.SetDeployPayload(nil)
 
 	bThree := testBuild()
 	bThree.SetID(3)
@@ -784,6 +799,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent(t *testing.T) {
 	bThree.SetNumber(3)
 	bThree.SetEvent("push")
 	bThree.SetStatus(constants.StatusPending)
+	bThree.SetDeployPayload(nil)
 
 	want := []*library.Build{bThree}
 	wantCount := int64(2)
@@ -840,6 +856,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent_No_Results(t *testing.T) {
 	bOne.SetNumber(1)
 	bOne.SetEvent("push")
 	bOne.SetStatus(constants.StatusPending)
+	bOne.SetDeployPayload(nil)
 
 	bTwo := testBuild()
 	bTwo.SetID(2)
@@ -847,6 +864,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent_No_Results(t *testing.T) {
 	bTwo.SetNumber(2)
 	bTwo.SetEvent("push")
 	bTwo.SetStatus(constants.StatusRunning)
+	bTwo.SetDeployPayload(nil)
 
 	want := []*library.Build{}
 	wantCount := int64(0)
@@ -1012,6 +1030,7 @@ func TestDatabase_Client_CreateBuild(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetNumber(1)
+	want.SetDeployPayload(nil)
 
 	// setup database
 	database, _ := NewTest()
@@ -1069,6 +1088,7 @@ func TestDatabase_Client_UpdateBuild(t *testing.T) {
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetNumber(1)
+	want.SetDeployPayload(nil)
 
 	// setup database
 	database, _ := NewTest()
