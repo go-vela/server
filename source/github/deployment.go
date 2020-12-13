@@ -126,13 +126,20 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
+	var payload interface{}
+	if d.Payload == nil {
+		payload = github.String("")
+	} else {
+		payload = d.Payload
+	}
+
 	// create the hook object to make the API call
 	deployment := &github.DeploymentRequest{
 		Ref:              d.Ref,
 		Task:             d.Task,
 		AutoMerge:        github.Bool(false),
 		RequiredContexts: &[]string{},
-		Payload:          github.String(""),
+		Payload:          payload,
 		Environment:      d.Target,
 		Description:      d.Description,
 	}
