@@ -239,9 +239,9 @@ func main() {
 
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
-			Name: "worker-active-interval",
-			Usage: "interval at which workers will show as active within the /metrics endpoint",
-			Value: 5 * time.Minute,
+			Name:    "worker-active-interval",
+			Usage:   "interval at which workers will show as active within the /metrics endpoint",
+			Value:   5 * time.Minute,
 		},
 	}
 
