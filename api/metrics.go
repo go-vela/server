@@ -174,11 +174,11 @@ func recordGauges(c *gin.Context) {
 	var buildLimit int64
 	var activeWorkers int64
 	var inactiveWorkers int64
-	// get the unix time from 1 minute ago
-	before := time.Now().UTC().Add(-1 * time.Minute).Unix()
+	// get the unix time from worker_active_interval ago
+	before := time.Now().UTC().Add(-c.Value("worker_active_interval").(time.Duration)).Unix()
 	for _, worker := range workers {
-		// check if the worker checked in within the last minute
-		if worker.GetLastCheckedIn() >= before && worker.GetActive() {
+		// check if the worker checked in within the last worker_active_interval
+		if worker.GetLastCheckedIn() >= before {
 			buildLimit += worker.GetBuildLimit()
 			activeWorkers++
 		} else {
