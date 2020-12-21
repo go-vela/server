@@ -44,6 +44,7 @@ func TestWorker_Establish(t *testing.T) {
 	want.SetRoutes([]string{"foo", "bar", "baz"})
 	want.SetActive(true)
 	want.SetLastCheckedIn(12345)
+	want.SetBuildLimit(0)
 
 	got := new(library.Worker)
 
