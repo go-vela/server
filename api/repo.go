@@ -120,6 +120,14 @@ func CreateRepo(c *gin.Context) {
 		r.SetTimeout(input.GetTimeout())
 	}
 
+	// set the max builds field based off the input provided
+	if input.GetMaxBuilds() == 0 {
+		// default max builds to 5
+		r.SetMaxBuilds(constants.BuildTimeoutMin)
+	} else {
+		r.SetMaxBuilds(input.GetMaxBuilds())
+	}
+
 	// set the visibility field based off the input provided
 	if len(input.GetVisibility()) == 0 {
 		// default visibility field to public

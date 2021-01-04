@@ -62,6 +62,7 @@ services:
     environment:
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
+      VELA_BUILD_MAX: 5 # todo? 
       VELA_LOG_LEVEL: trace
       VELA_QUEUE_DRIVER: redis
       VELA_QUEUE_CONFIG: 'redis://redis:6379'
