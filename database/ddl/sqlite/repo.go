@@ -7,6 +7,7 @@ package sqlite
 const (
 	// CreateRepoTable represents a query to
 	// create the repos table for Vela.
+	// todo - look into what do for db changes
 	CreateRepoTable = `
 CREATE TABLE
 IF NOT EXISTS
@@ -21,6 +22,7 @@ repos (
 	clone         TEXT,
 	branch        TEXT,
 	timeout       INTEGER,
+	max_builds    INTEGER, 
 	visibility    TEXT,
 	private       BOOLEAN,
 	trusted       BOOLEAN,

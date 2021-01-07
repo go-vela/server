@@ -265,6 +265,10 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// todo - likely check here if rate limited + bypass on event types
+
+	// question how do i check lol
+
 	// update fields in build object
 	b.SetNumber(1)
 	b.SetParent(b.GetNumber())

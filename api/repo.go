@@ -123,9 +123,9 @@ func CreateRepo(c *gin.Context) {
 	// set the max builds field based off the input provided
 	if input.GetMaxBuilds() == 0 {
 		// default max builds to 5
-		r.SetMaxBuilds(constants.BuildTimeoutMin)
+		r.SetMaxBuilds(constants.MaxBuildsDefault)
 	} else {
-		r.SetMaxBuilds(input.GetMaxBuilds())
+		r.SetMaxBuilds(input.GetMaxBuilds()) // todo may rename max builds
 	}
 
 	// set the visibility field based off the input provided
