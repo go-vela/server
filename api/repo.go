@@ -207,6 +207,8 @@ func CreateRepo(c *gin.Context) {
 
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
+		// update the repo owner
+		dbRepo.SetUserID(u.GetID())
 		// activate the repo
 		dbRepo.SetActive(true)
 
