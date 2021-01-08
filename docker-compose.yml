@@ -69,6 +69,8 @@ services:
       VELA_RUNTIME_DRIVER: docker
       VELA_SERVER_ADDR: 'http://server:8080'
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      WORKER_ADDR: 'http://worker:8080'
+      WORKER_CHECK_IN: 15m
     restart: always
     ports:
       - '8081:8080'
