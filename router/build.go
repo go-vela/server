@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/perm"
 )
 
@@ -21,6 +22,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build
 // PUT    /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build
+// DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
 // POST   /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services
@@ -54,6 +56,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			build.GET("", perm.MustRead(), api.GetBuild)
 			build.PUT("", perm.MustWrite(), middleware.Payload(), api.UpdateBuild)
 			build.DELETE("", perm.MustPlatformAdmin(), api.DeleteBuild)
+			build.DELETE("/cancel", executors.Establish(), perm.MustAdmin(), api.CancelBuild)
 			build.GET("/logs", perm.MustRead(), api.GetBuildLogs)
 
 			// Service endpoints
