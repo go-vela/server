@@ -1053,7 +1053,7 @@ func CancelBuild(c *gin.Context) {
 	// check to see if build is pending
 	// todo: remove builds from the queue
 	if strings.EqualFold(b.GetStatus(), constants.StatusPending) {
-		retErr := fmt.Errorf("Found build %s/%d but its status was %s",
+		retErr := fmt.Errorf("found build %s/%d but its status was %s",
 			r.GetFullName(),
 			b.GetNumber(),
 			b.GetStatus(),
@@ -1085,8 +1085,9 @@ func CancelBuild(c *gin.Context) {
 	for _, executor := range e {
 		// check each executor on the worker running the build
 		// to see if it's running the build we want to cancel
+		// nolint:whitespace
 		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) &&
-			*executor.GetBuild().Number == b.GetNumber() {
+			*executor.GetBuild().Number == b.GetNumber() { //nolint:whitespace ignore leading newline to improve readability
 
 			// prepare the request to the worker
 			client := &http.Client{}
