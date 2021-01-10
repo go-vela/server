@@ -130,7 +130,7 @@ func RetrieveRefreshToken(r *http.Request) (string, error) {
 	return refreshToken.Value, err
 }
 
-// CreaCreateAccessToken creates a new access token for the given user and duration
+// CreateAccessToken creates a new access token for the given user and duration
 func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 	now := time.Now()
 	exp := now.Add(d)

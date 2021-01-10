@@ -8,13 +8,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
 
@@ -60,6 +60,7 @@ func Authenticate(c *gin.Context) {
 
 	// capture the OAuth code if present
 	code := c.Request.FormValue("code")
+	// TODO: move this to login function?
 	if len(code) == 0 {
 		// start the initial OAuth workflow
 		oAuthState, err = source.FromContext(c).Login(c.Writer, c.Request)
@@ -90,6 +91,7 @@ func Authenticate(c *gin.Context) {
 
 	// send API call to capture the user logging in
 	u, err := database.FromContext(c).GetUserName(newUser.GetName())
+	// create a new user account
 	if len(u.GetName()) == 0 || err != nil {
 		// create unique id for the user
 		uid, err := uuid.NewRandom()
@@ -113,7 +115,7 @@ func Authenticate(c *gin.Context) {
 		u.SetActive(true)
 		u.SetAdmin(false)
 
-		// compose JWT token for user
+		// compose jwt tokens for user
 		rt, at, err := token.Compose(c, u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
@@ -136,7 +138,7 @@ func Authenticate(c *gin.Context) {
 			return
 		}
 
-		// return the jwt token
+		// return the jwt access token
 		c.JSON(http.StatusOK, library.Login{Token: &at})
 
 		return
@@ -146,7 +148,7 @@ func Authenticate(c *gin.Context) {
 	u.SetToken(newUser.GetToken())
 	u.SetActive(true)
 
-	// compose JWT token for user
+	// compose jwt tokens for user
 	rt, at, err := token.Compose(c, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
@@ -156,6 +158,7 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
+	// store the refresh token with the user object
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user in the database
@@ -172,30 +175,39 @@ func Authenticate(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Login{Token: &at})
 }
 
-// AuthenticateType handles the redirect to the right destination
-// to finish the auth process
+// AuthenticateType handles cases where the OAuth callback was
+// overridden by supplying a redirect_uri in the login process.
+// It will send the user to the destination to handle the last leg
+// in the auth flow - exchanging "code" and "state" for a token.
+// This will only handle web and cli flows.
 func AuthenticateType(c *gin.Context) {
 	// load the metadata
 	m := c.MustGet("metadata").(*types.Metadata)
 
+	logrus.Info("")
+
+	// capture the path elements
 	t := c.Param("type")
 	p := c.Param("port")
 
-	// we have to append the code and state
+	// capture the current query parameters -
+	// they should contain the "code" and "state" values
 	q := c.Request.URL.Query()
 
-	// deal with CLI
-	if t == "cli" && len(p) > 0 {
-		if _, err := strconv.Atoi(p); err != nil {
-			c.Redirect(http.StatusTemporaryRedirect, "/authenticate")
-		}
+	switch t {
+	// cli auth flow
+	case "cli":
+		c.Redirect(http.StatusTemporaryRedirect,
+			fmt.Sprintf("http://127.0.0.1:%s?%s", p, q.Encode()))
+	// web auth flow
+	case "web":
+		c.Redirect(http.StatusTemporaryRedirect,
+			fmt.Sprintf("%s%s?%s", m.Vela.WebAddress, m.Vela.WebOauthCallbackPath, q.Encode()))
+	// fallback if a user ended up here by providing an unsupported type
+	default:
+		c.Redirect(http.StatusTemporaryRedirect,
+			fmt.Sprintf("%s/authenticate?%s", m.Vela.Address, q.Encode()))
 
-		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("http://127.0.0.1:%s?%s", p, q.Encode()))
+		logrus.Infof("unsupported authentication type: %s", t)
 	}
-
-	if t == "web" {
-		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/account/authenticate?%s", m.Vela.WebAddress, q.Encode()))
-	}
-
-	// need to have catchall to redirect to headless server with auth codes
 }

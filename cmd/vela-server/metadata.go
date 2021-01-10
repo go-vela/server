@@ -110,6 +110,10 @@ func metadataVela(c *cli.Context) (*types.Vela, error) {
 		vela.WebAddress = c.String("webui-addr")
 	}
 
+	if len(c.String("webui-oauth")) > 0 {
+		vela.WebOauthCallbackPath = c.String("webui-oauth")
+	}
+
 	if c.Duration("access-token-duration").Seconds() > 0 {
 		vela.AccessTokenDuration = c.Duration("access-token-duration")
 	}

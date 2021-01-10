@@ -43,6 +43,11 @@ func main() {
 			Usage:   "web ui address as a fully qualified url (<scheme>://<host>)",
 		},
 		&cli.StringFlag{
+			EnvVars: []string{"VELA_WEBUI_OAUTH_CALLBACK_PATH", "VELA_WEBUI_OAUTH_CALLBACK"},
+			Name:    "webui-oauth",
+			Usage:   "web ui oauth callback path",
+		},
+		&cli.StringFlag{
 			EnvVars: []string{"VELA_SECRET"},
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",

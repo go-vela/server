@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types"
 )
@@ -34,31 +35,43 @@ import (
 func Login(c *gin.Context) {
 	// load the metadata
 	m := c.MustGet("metadata").(*types.Metadata)
-	// capture an error if present
-	err := c.Request.FormValue("error")
-	if len(err) > 0 {
-		// redirect to initial login screen with error code
-		c.Redirect(http.StatusTemporaryRedirect, "/login/error?code="+err)
-	}
 
-	// redirect to our authentication handler
+	// capture query params
 	t := c.Request.FormValue("type")
 	p := c.Request.FormValue("port")
+
+	// temp variable to hold redirect destination
 	r := ""
+
+	// default path (headless mode)
 	path := "/authenticate"
 
+	// handle web and cli logins
 	switch t {
 	case "web":
 		r = fmt.Sprintf("%s/authenticate/%s", m.Vela.Address, t)
+
+		logrus.Debugf("web login request, setting redirect to: %s", r)
 	case "cli":
+		// port must be supplied
 		if len(p) > 0 {
 			r = fmt.Sprintf("%s/authenticate/%s/%s", m.Vela.Address, t, p)
+
+			logrus.Debugf("cli login request, setting redirect to: %s", r)
 		}
+
+		logrus.Debug("cli login request, but port was not defined")
 	}
 
+	// if we a redirecting to non-default destination,
+	// prep and append the redirect
 	if len(r) > 0 {
-		path += fmt.Sprintf("?redirect_uri=%s", url.QueryEscape(r))
+		v := &url.Values{}
+		v.Add("redirect_uri", r)
+
+		path = fmt.Sprintf("%s?%s", path, v.Encode())
 	}
 
+	// redirect to our authentication handler
 	c.Redirect(http.StatusTemporaryRedirect, path)
 }
