@@ -42,9 +42,9 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 		return "", err
 	}
 
+	// pass through the redirect if it exists
 	redirect := r.FormValue("redirect_uri")
 	if len(redirect) > 0 {
-		logrus.Trace("redirect detected")
 		c.OConfig.RedirectURL = redirect
 	}
 
@@ -70,9 +70,9 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 		return nil, fmt.Errorf("unexpected oauth state: want %s but got %s", oAuthState, state)
 	}
 
+	// pass through the redirect if it exists
 	redirect := r.FormValue("redirect_uri")
 	if len(redirect) > 0 {
-		logrus.Trace("Got redirect URI")
 		c.OConfig.RedirectURL = redirect
 	}
 
