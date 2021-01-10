@@ -84,6 +84,10 @@ func validateCore(c *cli.Context) error {
 		if strings.HasSuffix(c.String("webui-addr"), "/") {
 			return fmt.Errorf("webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) flag must not have trailing slash")
 		}
+
+		if len(c.String("webui-oauth")) == 0 {
+			return fmt.Errorf("webui-oauth (VELA_WEBUI_OAUTH_CALLBACK_PATH or VELA_WEBUI_OAUTH_CALLBACK) not set")
+		}
 	}
 
 	if c.Duration("refresh-token-duration").Seconds() <= c.Duration("access-token-duration").Seconds() {
