@@ -3,7 +3,7 @@ module github.com/go-vela/server
 go 1.13
 
 require (
-	github.com/Masterminds/semver v1.5.0
+	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aws/aws-sdk-go v1.36.23
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -12,7 +12,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-vela/compiler v0.6.1
-	github.com/go-vela/types v0.6.1-0.20201211155220-43fe2984bead
+	github.com/go-vela/types v0.6.1-0.20210108224628-20005834775b
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.4
