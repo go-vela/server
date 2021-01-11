@@ -47,6 +47,15 @@ SELECT count(*) as count
 FROM users;
 `
 
+	// SelectRefreshToken represents a query to select
+	// a user for a refresh_token in the database.
+	SelectRefreshToken = `
+SELECT *
+FROM users
+WHERE refresh_token = ?
+LIMIT 1;
+`
+
 	// DeleteUser represents a query to
 	// remove a user from the database.
 	DeleteUser = `
@@ -65,9 +74,10 @@ func createUserService() *Service {
 			"lite": ListLiteUsers,
 		},
 		Select: map[string]string{
-			"user":  SelectUser,
-			"name":  SelectUserName,
-			"count": SelectUsersCount,
+			"user":         SelectUser,
+			"name":         SelectUserName,
+			"count":        SelectUsersCount,
+			"refreshToken": SelectRefreshToken,
 		},
 		Delete: DeleteUser,
 	}

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/types"
 )
 
 func TestMiddleware_NoCache(t *testing.T) {
@@ -65,6 +66,11 @@ func TestMiddleware_Options(t *testing.T) {
 	wantHeaders := "authorization, origin, content-type, accept"
 	wantAllow := "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
 	wantContentType := "application/json"
+	m := &types.Metadata{
+		Vela: &types.Vela{
+			Address: "http://localhost:8080",
+		},
+	}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -74,6 +80,7 @@ func TestMiddleware_Options(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodOptions, "/health", nil)
 
 	// setup mock server
+	engine.Use(Metadata(m))
 	engine.Use(Options)
 	engine.OPTIONS("/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)
@@ -114,6 +121,13 @@ func TestMiddleware_Options(t *testing.T) {
 }
 
 func TestMiddleware_Options_InvalidMethod(t *testing.T) {
+	// setup types
+	m := &types.Metadata{
+		Vela: &types.Vela{
+			Address: "http://localhost:8080",
+		},
+	}
+
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -122,6 +136,7 @@ func TestMiddleware_Options_InvalidMethod(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
+	engine.Use(Metadata(m))
 	engine.Use(Options)
 	engine.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)
@@ -165,6 +180,11 @@ func TestMiddleware_Cors(t *testing.T) {
 	// setup types
 	wantOrigin := "*"
 	wantExposeHeaders := "link, x-total-count"
+	m := &types.Metadata{
+		Vela: &types.Vela{
+			Address: "http://localhost:8080",
+		},
+	}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -174,6 +194,7 @@ func TestMiddleware_Cors(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
+	engine.Use(Metadata(m))
 	engine.Use(Cors)
 	engine.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)

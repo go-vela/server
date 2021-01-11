@@ -85,31 +85,3 @@ func TestGithub_newClientToken(t *testing.T) {
 		t.Errorf("newClientToken BaseURL is %v, want %v", got.BaseURL, want.BaseURL)
 	}
 }
-
-func TestGithub_newClientBasicAuth(t *testing.T) {
-	// setup router
-	s := httptest.NewServer(http.NotFoundHandler())
-	defer s.Close()
-
-	auth := github.BasicAuthTransport{
-		Username: "foo",
-		Password: "bar",
-		OTP:      "123",
-	}
-	want := github.NewClient(auth.Client())
-	want.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
-	got := client.newClientBasicAuth("foo", "bar", "123")
-
-	if got == nil {
-		t.Errorf("newClientBasicAuth is nil, want %v", want)
-	}
-
-	if !reflect.DeepEqual(got.BaseURL, want.BaseURL) {
-		t.Errorf("newClientBasicAuth BaseURL is %v, want %v", got.BaseURL, want.BaseURL)
-	}
-}

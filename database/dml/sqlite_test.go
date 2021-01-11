@@ -120,9 +120,10 @@ func TestDML_mapFromSqlite(t *testing.T) {
 				"lite": sqlite.ListLiteUsers,
 			},
 			Select: map[string]string{
-				"user":  sqlite.SelectUser,
-				"name":  sqlite.SelectUserName,
-				"count": sqlite.SelectUsersCount,
+				"user":         sqlite.SelectUser,
+				"name":         sqlite.SelectUserName,
+				"count":        sqlite.SelectUsersCount,
+				"refreshToken": sqlite.SelectRefreshToken,
 			},
 			Delete: sqlite.DeleteUser,
 		},

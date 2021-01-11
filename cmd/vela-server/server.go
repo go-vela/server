@@ -95,6 +95,7 @@ func server(c *cli.Context) error {
 		middleware.Source(source),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
+		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
 		middleware.Worker(c.Duration("worker-active-interval")),
 	)
 

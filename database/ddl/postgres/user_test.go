@@ -13,7 +13,7 @@ func TestPostgres_createUserService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateUserTable,
-		Indexes: []string{CreateUserNameIndex},
+		Indexes: []string{CreateUserNameIndex, CreateRefreshIndex},
 	}
 
 	// run test
