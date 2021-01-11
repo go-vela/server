@@ -17,6 +17,7 @@ workers (
 	routes           VARCHAR(1000),
 	active           BOOLEAN,
 	last_checked_in  INTEGER,
+	build_limit      INTEGER,
 	UNIQUE(hostname)
 );
 `

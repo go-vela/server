@@ -256,6 +256,13 @@ func main() {
 			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
 			Value:   5,
 		},
+
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
+			Name:    "worker-active-interval",
+			Usage:   "interval at which workers will show as active within the /metrics endpoint",
+			Value:   5 * time.Minute,
+		},
 	}
 
 	// set logrus to log in JSON format

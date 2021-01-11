@@ -93,6 +93,7 @@ func server(c *cli.Context) error {
 		middleware.Source(source),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
+		middleware.Worker(c.Duration("worker-active-interval")),
 	)
 
 	var tomb tomb.Tomb
