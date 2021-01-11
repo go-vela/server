@@ -8,7 +8,6 @@ import (
 	"context"
 
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 const key = "executors"
@@ -30,13 +29,11 @@ func FromContext(c context.Context) []library.Executor {
 		return nil
 	}
 
-	logrus.Infof("FromContext: %v", e)
 	return e
 }
 
 // ToContext adds the executor to this context if it supports
 // the Setter interface.
 func ToContext(c Setter, e []library.Executor) {
-	logrus.Infof("ToContext: %v", e)
 	c.Set(key, e)
 }
