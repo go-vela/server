@@ -56,7 +56,7 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 
 // Authenticate completes the authentication workflow for the session and returns the remote user details.
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
-	logrus.Tracef("Authenticating user : %+v", r)
+	logrus.Trace("Authenticating user")
 
 	// get the OAuth code
 	code := r.FormValue("code")

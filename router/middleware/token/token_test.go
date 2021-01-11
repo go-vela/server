@@ -62,6 +62,7 @@ func TestToken_Compose(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(resp)
 	context.Set("metadata", m)
+	context.Set("securecookie", false)
 
 	// run test
 	_, got, err := Compose(context, u)

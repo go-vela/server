@@ -2,8 +2,6 @@ module github.com/go-vela/server
 
 go 1.13
 
-replace github.com/go-vela/types => ../types
-
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aws/aws-sdk-go v1.36.23
@@ -14,7 +12,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-vela/compiler v0.6.1
-	github.com/go-vela/types v0.6.1-0.20210108224628-20005834775b
+	github.com/go-vela/types v0.6.1-0.20210111181528-d3bb371e9ec6
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/uuid v1.1.4

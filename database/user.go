@@ -54,7 +54,7 @@ func (c *client) GetUserRefreshToken(token string) (*library.User, error) {
 	// send query to the database and store result in variable
 	err := c.Database.
 		Table(constants.TableUser).
-		Raw(c.DML.UserService.Select["refresh_token"], token).
+		Raw(c.DML.UserService.Select["refreshToken"], token).
 		Scan(u).Error
 
 	return u.ToLibrary(), err

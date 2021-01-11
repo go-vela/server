@@ -65,6 +65,12 @@ func main() {
 			Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
 			Value:   false,
 		},
+		&cli.BoolFlag{
+			EnvVars: []string{"VELA_DISABLE_SECURE_COOKIE"},
+			Name:    "vela-disable-secure-cookie",
+			Usage:   "determines whether or not use cookies with secure flag set.  useful for local development.",
+			Value:   false,
+		},
 
 		// Security Flags
 

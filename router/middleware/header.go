@@ -27,6 +27,7 @@ func NoCache(c *gin.Context) {
 // the middleware chain and ends the request.
 func Options(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
+
 	if c.Request.Method != "OPTIONS" {
 		c.Next()
 	} else {
@@ -40,7 +41,7 @@ func Options(c *gin.Context) {
 		c.Header("Access-Control-Max-Age", "86400")
 		c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Content-Type", "application/json")
-		c.AbortWithStatus(200)
+		c.AbortWithStatus(http.StatusOK)
 	}
 }
 
@@ -63,8 +64,9 @@ func Secure(c *gin.Context) {
 // CORS related requests. These are attached to actual requests
 // unlike the OPTIONS preflight requests.
 func Cors(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
 	m := c.MustGet("metadata").(*types.Metadata)
+
+	c.Header("Access-Control-Allow-Origin", "*")
 	if len(m.Vela.WebAddress) > 0 {
 		c.Header("Access-Control-Allow-Origin", m.Vela.WebAddress)
 		c.Header("Access-Control-Allow-Credentials", "true")

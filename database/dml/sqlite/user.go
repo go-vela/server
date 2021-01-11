@@ -74,10 +74,10 @@ func createUserService() *Service {
 			"lite": ListLiteUsers,
 		},
 		Select: map[string]string{
-			"user":          SelectUser,
-			"name":          SelectUserName,
-			"count":         SelectUsersCount,
-			"refresh_token": SelectRefreshToken,
+			"user":         SelectUser,
+			"name":         SelectUserName,
+			"count":        SelectUsersCount,
+			"refreshToken": SelectRefreshToken,
 		},
 		Delete: DeleteUser,
 	}
