@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -1104,7 +1103,7 @@ func CancelBuild(c *gin.Context) {
 			}
 
 			// add the token to authenticate to the worker
-			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("VELA_SECRET")))
+			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.MustGet("secret").(string)))
 
 			// perform the request to the worker
 			resp, err := client.Do(req)
