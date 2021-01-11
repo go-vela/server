@@ -1091,7 +1091,8 @@ func CancelBuild(c *gin.Context) {
 			*executor.GetBuild().Number == b.GetNumber() {
 
 			// prepare the request to the worker
-			client := &http.Client{}
+			client := http.DefaultClient
+			client.Timeout = 30 * time.Second
 
 			// set the API endpoint path we send the request to
 			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())

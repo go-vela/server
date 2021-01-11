@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/go-vela/types/library"
 
@@ -39,7 +40,8 @@ func Establish() gin.HandlerFunc {
 		}
 
 		// prepare the request to the worker to retrieve executors
-		client := &http.Client{}
+		client := http.DefaultClient
+		client.Timeout = 30 * time.Second
 		endpoint := fmt.Sprintf("%s/api/v1/executors", w.GetAddress())
 		req, err := http.NewRequest("GET", endpoint, nil)
 		if err != nil {
@@ -47,6 +49,7 @@ func Establish() gin.HandlerFunc {
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
+
 		// add the token to authenticate to the worker as a header
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("VELA_SECRET")))
 
