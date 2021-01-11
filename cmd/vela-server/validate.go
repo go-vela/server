@@ -55,6 +55,7 @@ func validate(c *cli.Context) error {
 }
 
 // helper function to validate the core CLI configuration.
+// nolint:lll // ignoring line length check to avoid breaking up error messages
 func validateCore(c *cli.Context) error {
 	logrus.Trace("Validating core CLI configuration")
 
@@ -85,7 +86,7 @@ func validateCore(c *cli.Context) error {
 			return fmt.Errorf("webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) flag must not have trailing slash")
 		}
 
-		if len(c.String("webui-oauth")) == 0 {
+		if len(c.String("webui-oauth-callback")) == 0 {
 			return fmt.Errorf("webui-oauth (VELA_WEBUI_OAUTH_CALLBACK_PATH or VELA_WEBUI_OAUTH_CALLBACK) not set")
 		}
 	}
@@ -98,6 +99,7 @@ func validateCore(c *cli.Context) error {
 }
 
 // helper function to validate the compiler CLI configuration.
+// nolint:lll // ignoring line length check to avoid breaking up error messages
 func validateCompiler(c *cli.Context) error {
 	logrus.Trace("Validating compiler CLI configuration")
 
@@ -145,11 +147,11 @@ func validateQueue(c *cli.Context) error {
 }
 
 // helper function to validate the secret CLI configuration.
+// nolint:lll // ignoring line length check to avoid breaking up error messages
 func validateSecret(c *cli.Context) error {
 	logrus.Trace("Validating secret CLI configuration")
 
 	// enforce AES-256, so check explicitly for 32 bytes on the key
-	// nolint // ignore line length
 	if len(c.String("native-key")) != 32 {
 		return fmt.Errorf("native-key (VELA_SECRET_NATIVE_KEY or SECRET_NATIVE_KEY) invalid length specified: %d", len(c.String("native-key")))
 	}

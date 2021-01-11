@@ -21,6 +21,8 @@ func RefreshAccessToken(c *gin.Context) {
 	db := database.FromContext(c)
 
 	// capture the refresh token
+	// TODO: move this into token package and do it internally
+	// since we are already passsing context
 	rt, err := token.RetrieveRefreshToken(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("refresh token error: %w", err)

@@ -73,5 +73,7 @@ func Login(c *gin.Context) {
 	}
 
 	// redirect to our authentication handler
+	// will be either <vela server>/authenticate (headless)
+	// or <vela server>/authenticate?redirect_uri=<redirect> (web or cli)
 	c.Redirect(http.StatusTemporaryRedirect, path)
 }

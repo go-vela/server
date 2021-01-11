@@ -60,7 +60,6 @@ func Authenticate(c *gin.Context) {
 
 	// capture the OAuth code if present
 	code := c.Request.FormValue("code")
-	// TODO: move this to login function?
 	if len(code) == 0 {
 		// start the initial OAuth workflow
 		oAuthState, err = source.FromContext(c).Login(c.Writer, c.Request)
@@ -179,7 +178,7 @@ func Authenticate(c *gin.Context) {
 // overridden by supplying a redirect_uri in the login process.
 // It will send the user to the destination to handle the last leg
 // in the auth flow - exchanging "code" and "state" for a token.
-// This will only handle web and cli flows.
+// This will only handle non-headless flows (ie. web or cli).
 func AuthenticateType(c *gin.Context) {
 	// load the metadata
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -194,20 +193,25 @@ func AuthenticateType(c *gin.Context) {
 	// they should contain the "code" and "state" values
 	q := c.Request.URL.Query()
 
+	// holds redirect location
+	r := ""
+
 	switch t {
 	// cli auth flow
 	case "cli":
-		c.Redirect(http.StatusTemporaryRedirect,
-			fmt.Sprintf("http://127.0.0.1:%s?%s", p, q.Encode()))
+		r = fmt.Sprintf("http://127.0.0.1:%s", p)
 	// web auth flow
 	case "web":
-		c.Redirect(http.StatusTemporaryRedirect,
-			fmt.Sprintf("%s%s?%s", m.Vela.WebAddress, m.Vela.WebOauthCallbackPath, q.Encode()))
+		r = fmt.Sprintf("%s%s", m.Vela.WebAddress, m.Vela.WebOauthCallbackPath)
 	// fallback if a user ended up here by providing an unsupported type
 	default:
-		c.Redirect(http.StatusTemporaryRedirect,
-			fmt.Sprintf("%s/authenticate?%s", m.Vela.Address, q.Encode()))
+		r = fmt.Sprintf("%s/authenticate", m.Vela.Address)
 
 		logrus.Infof("unsupported authentication type: %s", t)
 	}
+
+	// append the code and state values
+	r = fmt.Sprintf("%s?%s", r, q.Encode())
+
+	c.Redirect(http.StatusTemporaryRedirect, r)
 }

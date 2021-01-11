@@ -44,8 +44,9 @@ func main() {
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_WEBUI_OAUTH_CALLBACK_PATH", "VELA_WEBUI_OAUTH_CALLBACK"},
-			Name:    "webui-oauth",
+			Name:    "webui-oauth-callback",
 			Usage:   "web ui oauth callback path",
+			Value:   "/account/authenticate",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SECRET"},
