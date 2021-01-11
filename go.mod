@@ -32,8 +32,11 @@ require (
 	github.com/prometheus/client_golang v1.9.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1 // indirect
+	github.com/ugorji/go v1.1.11 // indirect
 	github.com/urfave/cli/v2 v2.3.0
+	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
+	golang.org/x/sys v0.0.0-20210110051926-789bb1bd4061 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
