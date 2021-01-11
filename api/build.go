@@ -1086,7 +1086,7 @@ func CancelBuild(c *gin.Context) {
 		// check each executor on the worker running the build
 		// to see if it's running the build we want to cancel
 		//
-		// nolint:whitespace ignore leading newline to improve readability
+		// nolint:whitespace // ignore leading newline to improve readability
 		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) &&
 			*executor.GetBuild().Number == b.GetNumber() {
 
@@ -1127,6 +1127,6 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	// build has been abandoned
-	retErr := fmt.Errorf("Unable to find a running build for %s/%d", r.GetFullName(), b.GetNumber())
+	retErr := fmt.Errorf("unable to find a running build for %s/%d", r.GetFullName(), b.GetNumber())
 	util.HandleError(c, http.StatusInternalServerError, retErr)
 }
