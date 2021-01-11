@@ -5,10 +5,14 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types"
 )
 
 // swagger:operation GET /login authenticate GetLogin
@@ -26,72 +30,50 @@ import (
 //     schema:
 //       type: string
 
-// swagger:operation GET /logout authenticate Logout
-//
-// Log into the Vela api
-//
-// ---
-// x-success_http_code: '307'
-// produces:
-// - application/json
-// parameters:
-// responses:
-//   '307':
-//     description: Redirected to /authenticate
-//     schema:
-//       type: string
-
-// swagger:operation POST /login authenticate PostLogin
-//
-// Login to the Vela api
-//
-// ---
-// x-success_http_code: '200'
-// produces:
-// - application/json
-// parameters:
-// - in: body
-//   name: body
-//   description: Login payload that we expect from the user
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Login"
-// responses:
-//   '200':
-//     description: Successful login to the Vela API
-//     schema:
-//       "$ref": "#/definitions/Login"
-//   '400':
-//     description: Unable to login to the Vela API
-//     schema:
-//       type: string
-//   '401':
-//     description: Unable to login to the Vela API
-//     schema:
-//       type: string
-//   '503':
-//     description: Unable to login to the Vela API
-//     schema:
-//       type: string
-
 // Login represents the API handler to
 // process a user logging in to Vela.
 func Login(c *gin.Context) {
-	// check if request was a POST
-	if strings.EqualFold(c.Request.Method, "POST") {
-		// assume all POST requests are coming from the CLI
-		AuthenticateCLI(c)
+	// load the metadata
+	m := c.MustGet("metadata").(*types.Metadata)
 
-		return
+	// capture query params
+	t := c.Request.FormValue("type")
+	p := c.Request.FormValue("port")
+
+	// temp variable to hold redirect destination
+	r := ""
+
+	// default path (headless mode)
+	path := "/authenticate"
+
+	// handle web and cli logins
+	switch t {
+	case "web":
+		r = fmt.Sprintf("%s/authenticate/%s", m.Vela.Address, t)
+
+		logrus.Debugf("web login request, setting redirect to: %s", r)
+	case "cli":
+		// port must be supplied
+		if len(p) > 0 {
+			r = fmt.Sprintf("%s/authenticate/%s/%s", m.Vela.Address, t, p)
+
+			logrus.Debugf("cli login request, setting redirect to: %s", r)
+		}
+
+		logrus.Debug("cli login request, but port was not defined")
 	}
 
-	// capture an error if present
-	err := c.Request.FormValue("error")
-	if len(err) > 0 {
-		// redirect to initial login screen with error code
-		c.Redirect(http.StatusTemporaryRedirect, "/login/error?code="+err)
+	// if we a redirecting to non-default destination,
+	// prep and append the redirect
+	if len(r) > 0 {
+		v := &url.Values{}
+		v.Add("redirect_uri", r)
+
+		path = fmt.Sprintf("%s?%s", path, v.Encode())
 	}
 
 	// redirect to our authentication handler
-	c.Redirect(http.StatusTemporaryRedirect, "/authenticate")
+	// will be either <vela server>/authenticate (headless)
+	// or <vela server>/authenticate?redirect_uri=<redirect> (web or cli)
+	c.Redirect(http.StatusTemporaryRedirect, path)
 }

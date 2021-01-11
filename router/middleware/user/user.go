@@ -26,14 +26,16 @@ func Retrieve(c *gin.Context) *library.User {
 // Establish sets the user in the given context
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		t, err := token.Retrieve(c.Request)
+		// get the access token from the request
+		at, err := token.RetrieveAccessToken(c.Request)
 		if err != nil {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return
 		}
 
+		// special handling for workers
 		secret := c.MustGet("secret").(string)
-		if strings.EqualFold(t, secret) {
+		if strings.EqualFold(at, secret) {
 			u := new(library.User)
 			u.SetName("vela-worker")
 			u.SetActive(true)
@@ -41,11 +43,14 @@ func Establish() gin.HandlerFunc {
 
 			ToContext(c, u)
 			c.Next()
+
 			return
 		}
 
-		logrus.Debugf("Parsing user token")
-		u, err := token.Parse(t, database.FromContext(c))
+		logrus.Debugf("Parsing user access token")
+
+		// parse and validate the token and return the associated the user
+		u, err := token.Parse(at, database.FromContext(c))
 		if err != nil {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return
