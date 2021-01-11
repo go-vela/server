@@ -265,9 +265,10 @@ func TestToken_Refresh(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(resp)
 	context.Set("metadata", m)
+	context.Set("database", db)
 
 	// run tests
-	got, err := Refresh(context, rt, db)
+	got, err := Refresh(context, rt)
 	if err != nil {
 		t.Error("Refresh should not error")
 	}
@@ -316,9 +317,10 @@ func TestToken_Refresh_Expired(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(resp)
 	context.Set("metadata", m)
+	context.Set("database", db)
 
 	// run tests
-	_, err = Refresh(context, rt, db)
+	_, err = Refresh(context, rt)
 	if err == nil {
 		t.Error("Refresh with expired token should error")
 	}
@@ -361,9 +363,10 @@ func TestToken_Refresh_TokenMissing(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(resp)
 	context.Set("metadata", m)
+	context.Set("database", db)
 
 	// run tests
-	_, err = Refresh(context, rt, db)
+	_, err = Refresh(context, rt)
 	if err == nil {
 		t.Error("Refresh with token that doesn't exist in database should error")
 	}

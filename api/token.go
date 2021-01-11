@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
@@ -18,8 +17,6 @@ import (
 // RefreshAccessToken will return a new access token if the provided
 // refresh token via cookie is valid.
 func RefreshAccessToken(c *gin.Context) {
-	db := database.FromContext(c)
-
 	// capture the refresh token
 	// TODO: move this into token package and do it internally
 	// since we are already passsing context
@@ -33,7 +30,7 @@ func RefreshAccessToken(c *gin.Context) {
 	}
 
 	// validate the refresh token and return a new access token
-	newAccessToken, err := token.Refresh(c, rt, db)
+	newAccessToken, err := token.Refresh(c, rt)
 	if err != nil {
 		retErr := fmt.Errorf("unable to refresh token: %w", err)
 

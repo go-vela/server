@@ -174,8 +174,11 @@ func CreateRefreshToken(u *library.User, d time.Duration) (string, int, error) {
 }
 
 // Refresh returns a new access token, if the provided refreshToken is valid
-func Refresh(c *gin.Context, refreshToken string, db database.Service) (string, error) {
+func Refresh(c *gin.Context, refreshToken string) (string, error) {
+	// get the metadata
 	m := c.MustGet("metadata").(*types.Metadata)
+	// get a reference to the database
+	db := database.FromContext(c)
 
 	// check to see if a user exists with that refresh token
 	// we are comparing with db to allow for leverage in
