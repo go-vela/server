@@ -170,7 +170,7 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
-	// return the user with their JWT token
+	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Login{Token: &at})
 }
 
@@ -183,7 +183,7 @@ func AuthenticateType(c *gin.Context) {
 	// load the metadata
 	m := c.MustGet("metadata").(*types.Metadata)
 
-	logrus.Info("")
+	logrus.Info("redirecting for final auth flow destination")
 
 	// capture the path elements
 	t := c.Param("type")
@@ -193,8 +193,9 @@ func AuthenticateType(c *gin.Context) {
 	// they should contain the "code" and "state" values
 	q := c.Request.URL.Query()
 
-	// holds redirect location
-	r := ""
+	// default redirect location if a user ended up here
+	// by providing an unsupported type
+	r := fmt.Sprintf("%s/authenticate", m.Vela.Address)
 
 	switch t {
 	// cli auth flow
@@ -203,11 +204,6 @@ func AuthenticateType(c *gin.Context) {
 	// web auth flow
 	case "web":
 		r = fmt.Sprintf("%s%s", m.Vela.WebAddress, m.Vela.WebOauthCallbackPath)
-	// fallback if a user ended up here by providing an unsupported type
-	default:
-		r = fmt.Sprintf("%s/authenticate", m.Vela.Address)
-
-		logrus.Infof("unsupported authentication type: %s", t)
 	}
 
 	// append the code and state values
