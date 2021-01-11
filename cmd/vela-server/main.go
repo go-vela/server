@@ -66,10 +66,10 @@ func main() {
 			Value:   false,
 		},
 		&cli.BoolFlag{
-			EnvVars: []string{"VELA_DISABLE_SECURE_COOKIE"},
-			Name:    "vela-disable-secure-cookie",
-			Usage:   "determines whether or not use cookies with secure flag set.  useful for local development.",
-			Value:   false,
+			EnvVars: []string{"VELA_ENABLE_SECURE_COOKIE"},
+			Name:    "vela-enable-secure-cookie",
+			Usage:   "determines whether or not use cookies with secure flag set.  useful for testing.",
+			Value:   true,
 		},
 
 		// Security Flags

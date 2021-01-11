@@ -58,15 +58,6 @@ func Compose(c *gin.Context, u *library.User) (string, string, error) {
 		return "", "", err
 	}
 
-	// should the cookie be secure?
-	secureCookie := true
-
-	// if an override was supplied, apply it
-	// should only be for local testing
-	if c.Value("securecookie").(bool) {
-		secureCookie = !c.Value("securecookie").(bool)
-	}
-
 	// set the SameSite value for the cookie
 	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#samesite-attribute
 	// We set to Lax because we will have links from source provider web UI.
@@ -75,7 +66,7 @@ func Compose(c *gin.Context, u *library.User) (string, string, error) {
 	// set the cookie with the refresh token as a HttpOnly, Secure cookie
 	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#httponly-attribute
 	// https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#secure-attribute
-	c.SetCookie(constants.RefreshTokenName, refreshToken, refreshExpiry, "/", addr.Hostname(), secureCookie, true)
+	c.SetCookie(constants.RefreshTokenName, refreshToken, refreshExpiry, "/", addr.Hostname(), c.Value("securecookie").(bool), true)
 
 	// return the refresh and access tokens
 	return refreshToken, accessToken, nil
