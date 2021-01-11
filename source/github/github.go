@@ -137,21 +137,3 @@ func (c *client) newClientToken(token string) *github.Client {
 
 	return github
 }
-
-// helper function to return the GitHub Basic auth client
-func (c *client) newClientBasicAuth(username, password, otp string) *github.Client {
-	// create the transport object for the client
-	auth := github.BasicAuthTransport{
-		Username: username,
-		Password: password,
-		OTP:      otp,
-	}
-
-	// create the GitHub client from the OAuth client
-	github := github.NewClient(auth.Client())
-
-	// ensure the proper URL is set
-	github.BaseURL, _ = url.Parse(c.API)
-
-	return github
-}

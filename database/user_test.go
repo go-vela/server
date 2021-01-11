@@ -87,6 +87,37 @@ func TestDatabase_Client_GetUserName(t *testing.T) {
 	}
 }
 
+func TestDatabase_Client_GetUserRefreshToken(t *testing.T) {
+	// setup types
+	want := testUser()
+	want.SetID(1)
+	want.SetName("foo")
+	want.SetToken("bar")
+	want.SetRefreshToken("abc")
+	want.SetHash("baz")
+	want.SetFavorites([]string{"foo", "bar"})
+
+	// setup database
+	db, _ := NewTest()
+
+	defer func() {
+		db.Database.Exec("delete from users;")
+		db.Database.Close()
+	}()
+
+	_ = db.CreateUser(want)
+
+	// run test
+	got, err := db.GetUserRefreshToken(want.GetRefreshToken())
+
+	if err != nil {
+		t.Errorf("GetUserRefreshToken returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetUserRefreshToken is %v, want %v", got, want)
+	}
+}
 func TestDatabase_Client_GetUserCount(t *testing.T) {
 	// setup types
 	uOne := testUser()
@@ -370,13 +401,15 @@ func testUser() *library.User {
 	str := ""
 	b := false
 	arr := []string{}
+
 	return &library.User{
-		ID:        &i64,
-		Name:      &str,
-		Token:     &str,
-		Hash:      &str,
-		Favorites: &arr,
-		Active:    &b,
-		Admin:     &b,
+		ID:           &i64,
+		Name:         &str,
+		RefreshToken: &str,
+		Token:        &str,
+		Hash:         &str,
+		Favorites:    &arr,
+		Active:       &b,
+		Admin:        &b,
 	}
 }

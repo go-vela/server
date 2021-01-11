@@ -17,9 +17,10 @@ func TestPostgres_createUserService(t *testing.T) {
 			"lite": ListLiteUsers,
 		},
 		Select: map[string]string{
-			"user":  SelectUser,
-			"name":  SelectUserName,
-			"count": SelectUsersCount,
+			"user":         SelectUser,
+			"name":         SelectUserName,
+			"count":        SelectUsersCount,
+			"refreshToken": SelectRefreshToken,
 		},
 		Delete: DeleteUser,
 	}

@@ -10,12 +10,14 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/source/github"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -47,6 +49,7 @@ func TestUser_Establish(t *testing.T) {
 	want := new(library.User)
 	want.SetID(1)
 	want.SetName("foo")
+	want.SetRefreshToken("fresh")
 	want.SetToken("bar")
 	want.SetHash("baz")
 	want.SetActive(false)
@@ -55,10 +58,19 @@ func TestUser_Establish(t *testing.T) {
 
 	got := new(library.User)
 
-	tkn, err := token.Compose(want)
-	if err != nil {
-		t.Errorf("Unable to Compose token: %v", err)
-	}
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
+
+	at, _ := token.CreateAccessToken(want, time.Minute*5)
+
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", at))
+	context.Request.AddCookie(&http.Cookie{
+		Name:  constants.RefreshTokenName,
+		Value: "fresh",
+	})
 
 	// setup database
 	db, _ := database.NewTest()
@@ -72,11 +84,6 @@ func TestUser_Establish(t *testing.T) {
 
 	// setup context
 	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
 	// setup github mock server
 	engine.GET("/api/v3/user", func(c *gin.Context) {

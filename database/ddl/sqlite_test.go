@@ -69,6 +69,7 @@ func TestDDL_mapFromSqlite(t *testing.T) {
 			Create: sqlite.CreateUserTable,
 			Indexes: []string{
 				sqlite.CreateUserNameIndex,
+				sqlite.CreateRefreshIndex,
 			},
 		},
 		WorkerService: &Service{
