@@ -40,7 +40,7 @@ services:
       VELA_REFRESH_TOKEN_DURATION: 5m
       VELA_ACCESS_TOKEN_DURATION: 1m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
-      VELA_ENABLE_SECURE_COOKIE: 'true'
+      VELA_ENABLE_SECURE_COOKIE: 'false'
     env_file:
       - .env
     restart: always
