@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 
 	"github.com/go-vela/types/version"
 )

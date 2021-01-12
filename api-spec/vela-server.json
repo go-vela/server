@@ -2172,6 +2172,75 @@
         "x-success_http_code": "200"
       }
     },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/cancel": {
+      "delete": {
+        "description": "Cancel a running build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "CancelBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number to cancel",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Vela bearer token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully canceled the build",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to cancel build",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to cancel build",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to cancel build",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "x-success_http_code": "200"
+      }
+    },
     "/api/v1/repos/{org}/{repo}/builds/{build}/logs": {
       "get": {
         "security": [
@@ -4890,6 +4959,9 @@
           "type": "string",
           "x-go-name": "Deploy"
         },
+        "deploy_payload": {
+          "$ref": "#/definitions/StringSliceMap"
+        },
         "distribution": {
           "type": "string",
           "x-go-name": "Distribution"
@@ -5105,6 +5177,9 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "ID"
+        },
+        "payload": {
+          "$ref": "#/definitions/StringSliceMap"
         },
         "ref": {
           "type": "string",
@@ -5671,6 +5746,14 @@
       },
       "x-go-package": "github.com/go-vela/types/pipeline"
     },
+    "StringSliceMap": {
+      "type": "object",
+      "title": "StringSliceMap represents an array of strings or a map of strings.",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "x-go-package": "github.com/go-vela/types/raw"
+    },
     "Template": {
       "type": "object",
       "title": "Template is the library representation of a template for a pipeline.",
@@ -5853,6 +5936,11 @@
         "address": {
           "type": "string",
           "x-go-name": "Address"
+        },
+        "build_limit": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildLimit"
         },
         "hostname": {
           "type": "string",

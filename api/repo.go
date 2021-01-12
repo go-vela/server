@@ -115,7 +115,7 @@ func CreateRepo(c *gin.Context) {
 	// set the timeout field based off the input provided
 	if input.GetTimeout() == 0 {
 		// default build timeout to 30m
-		r.SetTimeout(constants.BuildTimeoutMin)
+		r.SetTimeout(constants.BuildTimeoutDefault)
 	} else {
 		r.SetTimeout(input.GetTimeout())
 	}

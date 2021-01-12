@@ -21,12 +21,6 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			EnvVars: []string{"VELA_PORT"},
-			Name:    "server-port",
-			Usage:   "API port to listen on",
-			Value:   ":8080",
-		},
-		&cli.StringFlag{
 			EnvVars: []string{"VELA_LOG_LEVEL", "LOG_LEVEL"},
 			Name:    "log-level",
 			Usage:   "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
@@ -41,6 +35,12 @@ func main() {
 			EnvVars: []string{"VELA_WEBUI_ADDR", "VELA_WEBUI_HOST"},
 			Name:    "webui-addr",
 			Usage:   "web ui address as a fully qualified url (<scheme>://<host>)",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_WEBUI_OAUTH_CALLBACK_PATH", "VELA_WEBUI_OAUTH_CALLBACK"},
+			Name:    "webui-oauth-callback",
+			Usage:   "web ui oauth callback path",
+			Value:   "/account/authenticate",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SECRET"},
@@ -58,6 +58,27 @@ func main() {
 			Name:    "vela-disable-webhook-validation",
 			Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
 			Value:   false,
+		},
+		&cli.BoolFlag{
+			EnvVars: []string{"VELA_ENABLE_SECURE_COOKIE"},
+			Name:    "vela-enable-secure-cookie",
+			Usage:   "determines whether or not use cookies with secure flag set.  useful for testing.",
+			Value:   true,
+		},
+
+		// Security Flags
+
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
+			Name:    "access-token-duration",
+			Usage:   "sets the duration of the access token",
+			Value:   15 * time.Minute,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
+			Name:    "refresh-token-duration",
+			Usage:   "sets the duration of the refresh token",
+			Value:   8 * time.Hour,
 		},
 
 		// Compiler Flags

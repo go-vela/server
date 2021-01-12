@@ -11,13 +11,14 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 users (
-	id          INTEGER PRIMARY KEY AUTOINCREMENT,
-	name        TEXT,
-	token       TEXT,
-	hash        TEXT,
-	favorites   TEXT,
-	active      BOOLEAN,
-	admin       BOOLEAN,
+	id             INTEGER PRIMARY KEY AUTOINCREMENT,
+	name           TEXT,
+	refresh_token  TEXT,
+	token          TEXT,
+	hash           TEXT,
+	favorites      TEXT,
+	active         BOOLEAN,
+	admin          BOOLEAN,
 	UNIQUE(name)
 );
 `
@@ -30,6 +31,15 @@ IF NOT EXISTS
 users_name
 ON users (name);
 `
+
+	// CreateRefreshIndex represents a query to create an
+	// index on the users table for the refresh_token column.
+	CreateRefreshIndex = `
+CREATE INDEX
+IF NOT EXISTS
+users_refresh
+ON users (refresh_token);
+`
 )
 
 // createUserService is a helper function to return
@@ -37,6 +47,6 @@ ON users (name);
 func createUserService() *Service {
 	return &Service{
 		Create:  CreateUserTable,
-		Indexes: []string{CreateUserNameIndex},
+		Indexes: []string{CreateUserNameIndex, CreateRefreshIndex},
 	}
 }
