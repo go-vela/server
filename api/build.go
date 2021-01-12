@@ -6,6 +6,7 @@ package api
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
@@ -991,4 +993,140 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 			logrus.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
 	}
+}
+
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/cancel builds CancelBuild
+//
+// Cancel a running build
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to cancel
+//   required: true
+//   type: integer
+// - in: header
+//   name: Authorization
+//   description: Vela bearer token
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully canceled the build
+//     schema:
+//       type: string
+//   '400':
+//     description: Unable to cancel build
+//     schema:
+//       type: string
+//   '404':
+//     description: Unable to cancel build
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to cancel build
+//     schema:
+//       type: string
+
+// CancelBuild represents the API handler to
+// cancel a running build.
+func CancelBuild(c *gin.Context) {
+	r := repo.Retrieve(c)
+	b := build.Retrieve(c)
+	e := executors.Retrieve(c)
+
+	// check to see if build is pending
+	// todo: remove builds from the queue
+	if strings.EqualFold(b.GetStatus(), constants.StatusPending) {
+		retErr := fmt.Errorf("found build %s/%d but its status was %s",
+			r.GetFullName(),
+			b.GetNumber(),
+			b.GetStatus(),
+		)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// check to see if build is not running
+	// https://github.com/go-vela/types/blob/master/constants/status.go
+	if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
+		retErr := fmt.Errorf("found build %s/%d but its status was %s",
+			r.GetFullName(),
+			b.GetNumber(),
+			b.GetStatus(),
+		)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return
+	}
+
+	// retrieve the worker info
+	w, err := database.FromContext(c).GetWorker(b.GetHost())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get worker: %w", err)
+		util.HandleError(c, http.StatusNotFound, retErr)
+		return
+	}
+
+	for _, executor := range e {
+		// check each executor on the worker running the build
+		// to see if it's running the build we want to cancel
+		//
+		// nolint:whitespace // ignore leading newline to improve readability
+		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) &&
+			*executor.GetBuild().Number == b.GetNumber() {
+
+			// prepare the request to the worker
+			client := http.DefaultClient
+			client.Timeout = 30 * time.Second
+
+			// set the API endpoint path we send the request to
+			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
+			req, err := http.NewRequest("DELETE", u, nil)
+			if err != nil {
+				retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+				return
+			}
+
+			// add the token to authenticate to the worker
+			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.MustGet("secret").(string)))
+
+			// perform the request to the worker
+			resp, err := client.Do(req)
+			if err != nil {
+				retErr := fmt.Errorf("unable to connect to %s: %w", u, err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+				return
+			}
+			defer resp.Body.Close()
+
+			// Read Response Body
+			respBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+				return
+			}
+			c.JSON(resp.StatusCode, strings.Trim(string(respBody), "\""))
+			return
+		}
+	}
+
+	// build has been abandoned
+	retErr := fmt.Errorf("unable to find a running build for %s/%d", r.GetFullName(), b.GetNumber())
+	util.HandleError(c, http.StatusInternalServerError, retErr)
 }
