@@ -147,6 +147,14 @@ SELECT count(*) as count
 FROM builds
 WHERE status = ?;
 `
+	// SelectRepoBuildCountByStatus represents a query to select
+	// the count of builds for by repo and status type in the database.
+	SelectRepoBuildCountByStatus = `
+SELECT count(*) as count
+FROM builds
+WHERE repo_id = ?
+AND status = ?;
+`
 
 	// DeleteBuild represents a query to
 	// remove a build from the database.
@@ -169,15 +177,16 @@ func createBuildService() *Service {
 			"orgByEvent":  ListOrgBuildsByEvent,
 		},
 		Select: map[string]string{
-			"repo":                SelectRepoBuild,
-			"last":                SelectLastRepoBuild,
-			"lastByBranch":        SelectLastRepoBuildByBranch,
-			"count":               SelectBuildsCount,
-			"countByStatus":       SelectBuildsCountByStatus,
-			"countByRepo":         SelectRepoBuildCount,
-			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
-			"countByOrg":          SelectOrgBuildCount,
-			"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
+			"repo":                 SelectRepoBuild,
+			"last":                 SelectLastRepoBuild,
+			"lastByBranch":         SelectLastRepoBuildByBranch,
+			"count":                SelectBuildsCount,
+			"countByStatus":        SelectBuildsCountByStatus,
+			"countByRepo":          SelectRepoBuildCount,
+			"countByRepoAndEvent":  SelectRepoBuildCountByEvent,
+			"countByRepoAndStatus": SelectRepoBuildCountByStatus,
+			"countByOrg":           SelectOrgBuildCount,
+			"countByOrgAndEvent":   SelectOrgBuildCountByEvent,
 		},
 		Delete: DeleteBuild,
 	}

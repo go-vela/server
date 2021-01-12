@@ -52,6 +52,9 @@ type Service interface {
 	// GetRepoBuildCountByEvent defines a function that
 	// gets the count of builds by repo ID and event type.
 	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
+	// GetRepoBuildCountByStatus defines a function that
+	// gets the count of builds by repo ID and status.
+	GetRepoBuildCountByStatus(*library.Repo, string) (int64, error)
 	// GetOrgBuildCountByEvent defines a function that
 	// gets the count of builds by org and event type.
 	GetOrgBuildCountByEvent(string, string) (int64, error)

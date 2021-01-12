@@ -347,6 +347,22 @@ func (c *client) GetRepoBuildCountByEvent(r *library.Repo, event string) (int64,
 	return b[0], err
 }
 
+// GetRepoBuildCountByStatus gets the count of all builds by repo ID and status from the database.
+func (c *client) GetRepoBuildCountByStatus(r *library.Repo, status string) (int64, error) {
+	logrus.Trace("Count of builds from the database")
+
+	// variable to store query results
+	var b []int64
+
+	// send query to the database and store result in variable
+	err := c.Database.
+		Table(constants.TableBuild).
+		Raw(c.DML.BuildService.Select["countByRepoAndStatus"], r.GetID(), status).
+		Pluck("count", &b).Error
+
+	return b[0], err
+}
+
 // GetOrgBuildCountByEvent gets the count of all builds by org name and event from the database.
 func (c *client) GetOrgBuildCountByEvent(org string, event string) (int64, error) {
 	logrus.Trace("Count of builds from the database")
