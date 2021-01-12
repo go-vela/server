@@ -21,12 +21,6 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			EnvVars: []string{"VELA_PORT"},
-			Name:    "server-port",
-			Usage:   "API port to listen on",
-			Value:   ":8080",
-		},
-		&cli.StringFlag{
 			EnvVars: []string{"VELA_LOG_LEVEL", "LOG_LEVEL"},
 			Name:    "log-level",
 			Usage:   "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
