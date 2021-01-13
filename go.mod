@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/aws/aws-sdk-go v1.36.23
+	github.com/aws/aws-sdk-go v1.36.26
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/frankban/quicktest v1.7.2 // indirect
@@ -32,7 +32,7 @@ require (
 	github.com/prometheus/client_golang v1.9.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1 // indirect
-	github.com/ugorji/go v1.1.11 // indirect
+	github.com/ugorji/go/codec v1.1.11 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 	golang.org/x/oauth2 v0.0.0-20210113160501-8b1d76fa0423
