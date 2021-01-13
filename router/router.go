@@ -61,7 +61,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.GET("/login", api.Login)
 
 	// Logout endpoint
-	r.GET("/logout", api.Logout)
+	r.GET("/logout", user.Establish(), api.Logout)
 
 	// Refresh Access Token endpoint
 	r.GET("/token-refresh", api.RefreshAccessToken)
