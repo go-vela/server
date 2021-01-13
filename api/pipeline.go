@@ -116,7 +116,7 @@ func GetPipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, _, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -223,7 +223,7 @@ func GetTemplates(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, _, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -233,7 +233,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// create map of templates for response body
-	t, err := setTemplateLinks(c, u, p.Templates)
+	t, err := setTemplateLinks(c, u, r, p.Templates)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set template links for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -340,7 +340,7 @@ func ExpandPipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, _, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -472,7 +472,7 @@ func ValidatePipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, raw, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -510,7 +510,7 @@ func ValidatePipeline(c *gin.Context) {
 	}
 
 	// validate the yaml configuration
-	err = comp.Validate(p)
+	err = p.Validate(raw)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -610,7 +610,7 @@ func CompilePipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, raw, err := comp.Parse(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -666,7 +666,7 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	// validate the yaml configuration
-	err = comp.Validate(p)
+	err = p.Validate(raw)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -687,7 +687,7 @@ func CompilePipeline(c *gin.Context) {
 }
 
 // setTemplateLinks helper function that retrieves source provider links for a list of templates and returns a map of library templates.
-func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
+func setTemplateLinks(c *gin.Context, u *library.User, r *library.Repo, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
 	m := make(map[string]*library.Template)
 	for _, t := range templates {
 
@@ -704,7 +704,7 @@ func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSl
 		}
 
 		// parse template source
-		src, err := cl.Parse(tmpl.GetSource())
+		src, err := cl.Parse(tmpl.GetSource(), r.GetBranch())
 		if err != nil {
 			retErr := fmt.Errorf("unable to parse source for %s: %w", tmpl.GetSource(), err)
 
