@@ -107,8 +107,15 @@ func server(c *cli.Context) error {
 	var tomb tomb.Tomb
 	// start http server
 	tomb.Go(func() error {
+		port := addr.Port()
+
+		// check if a port is part of the address
+		if len(port) == 0 {
+			port = "8080"
+		}
+
 		// gin expects the address to be ":<port>" ie ":8080"
-		srv := &http.Server{Addr: fmt.Sprintf(":%s", addr.Port()), Handler: router}
+		srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: router}
 
 		logrus.Infof("running server on %s", addr.Host)
 		go func() {
