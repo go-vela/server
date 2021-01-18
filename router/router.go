@@ -81,6 +81,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		authenticate.GET("", api.Authenticate)
 		authenticate.GET("/:type", api.AuthenticateType)
 		authenticate.GET("/:type/:port", api.AuthenticateType)
+		authenticate.POST("/token", api.AuthenticateToken)
 	}
 
 	// API endpoints

@@ -7,19 +7,18 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
-	"net/http"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"net/http"
 
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 // swagger:operation GET /authenticate authenticate GetAuthenticate
@@ -210,4 +209,30 @@ func AuthenticateType(c *gin.Context) {
 	r = fmt.Sprintf("%s?%s", r, q.Encode())
 
 	c.Redirect(http.StatusTemporaryRedirect, r)
+}
+
+// AuthenticateToken represents the API handler to
+// process a user logging in using PAT to Vela from
+// the API
+func AuthenticateToken(c *gin.Context) {
+	newUser, err := source.FromContext(c).AuthenticateToken(c.Writer, c.Request)
+	if err != nil {
+		retErr := fmt.Errorf("unable to authenticate user: %w", err)
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
+	// We don't need refresh token for this scenario
+	// We only need access token and are configured based on the config defined
+	at, _, err := token.Compose(c, newUser)
+	if err != nil {
+		retErr := fmt.Errorf("unable to compose token for user %s: %w", newUser.GetName(), err)
+
+		util.HandleError(c, http.StatusServiceUnavailable, retErr)
+	}
+
+	// return the user with their jwt access token
+	c.JSON(http.StatusOK, library.Login{Token: &at})
 }
