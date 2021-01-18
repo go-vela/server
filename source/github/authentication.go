@@ -94,7 +94,8 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 	}, nil
 }
 
-// AuthenticateToken completes the authentication workflow for the session and returns the remote user details.
+// AuthenticateToken completes the authentication workflow
+// for the session and returns the remote user details.
 func (c *client) AuthenticateToken(w http.ResponseWriter, r *http.Request) (*library.User, error) {
 	logrus.Trace("Authenticating user via token")
 
