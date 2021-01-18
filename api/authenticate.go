@@ -224,9 +224,13 @@ func AuthenticateToken(c *gin.Context) {
 		return
 	}
 
+	newUser.SetActive(true)
+
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
-	at, _, err := token.Compose(c, newUser)
+	m := c.MustGet("metadata").(*types.Metadata)
+	at, err := token.CreateAccessToken(newUser, m.Vela.AccessTokenDuration)
+
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", newUser.GetName(), err)
 
