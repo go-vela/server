@@ -76,6 +76,7 @@ func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	allowlist := c.Value("allowlist").([]string)
+	defaultTimeout := c.Value("defaultTimeout").(int64)
 
 	logrus.Info("Creating new repo")
 
@@ -113,9 +114,11 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set the timeout field based off the input provided
-	if input.GetTimeout() == 0 {
+	if input.GetTimeout() == 0 && defaultTimeout == 0 {
 		// default build timeout to 30m
 		r.SetTimeout(constants.BuildTimeoutDefault)
+	} else if input.GetTimeout() == 0 && defaultTimeout != 0 {
+		r.SetTimeout(defaultTimeout)
 	} else {
 		r.SetTimeout(input.GetTimeout())
 	}
