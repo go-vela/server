@@ -243,16 +243,16 @@ func GetCurrentUser(c *gin.Context) {
 // update the currently authenticated user from the configured backend.
 func UpdateCurrentUser(c *gin.Context) {
 	// retrieve user from context
-	user := user.Retrieve(c)
+	u := user.Retrieve(c)
 
-	logrus.Infof("Updating current user %s", user)
+	logrus.Infof("Updating current user %s", u.GetName())
 
 	// capture body from API request
 	input := new(library.User)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for user %s: %w", user, err)
+		retErr := fmt.Errorf("unable to decode JSON for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -262,13 +262,13 @@ func UpdateCurrentUser(c *gin.Context) {
 	// update user fields if provided
 	if input.Favorites != nil {
 		// update favorites if set
-		user.SetFavorites(input.GetFavorites())
+		u.SetFavorites(input.GetFavorites())
 	}
 
 	// send API call to update the user
-	err = database.FromContext(c).UpdateUser(user)
+	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update user %s: %w", user, err)
+		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -276,16 +276,16 @@ func UpdateCurrentUser(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	user, err = database.FromContext(c).GetUserName(user.GetName())
+	u, err = database.FromContext(c).GetUserName(u.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("unable to get updated user %s: %w", user, err)
+		retErr := fmt.Errorf("unable to get updated user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, u)
 }
 
 // swagger:operation GET /api/v1/users/{user} users GetUser
