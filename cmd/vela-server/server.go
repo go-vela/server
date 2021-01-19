@@ -6,9 +6,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/go-vela/server/router"
@@ -99,25 +97,11 @@ func server(c *cli.Context) error {
 		middleware.Worker(c.Duration("worker-active-interval")),
 	)
 
-	addr, err := url.Parse(c.String("server-addr"))
-	if err != nil {
-		return err
-	}
-
 	var tomb tomb.Tomb
 	// start http server
 	tomb.Go(func() error {
-		port := addr.Port()
+		srv := &http.Server{Addr: c.String("server-port"), Handler: router}
 
-		// check if a port is part of the address
-		if len(port) == 0 {
-			port = "8080"
-		}
-
-		// gin expects the address to be ":<port>" ie ":8080"
-		srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: router}
-
-		logrus.Infof("running server on %s", addr.Host)
 		go func() {
 			logrus.Info("Starting HTTP server...")
 			err := srv.ListenAndServe()
