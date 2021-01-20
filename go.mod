@@ -15,7 +15,7 @@ require (
 	github.com/go-vela/types v0.7.0-rc2
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
-	github.com/google/uuid v1.1.4
+	github.com/google/uuid v1.1.5
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
