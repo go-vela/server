@@ -65,6 +65,11 @@ func main() {
 			Usage:   "determines whether or not use cookies with secure flag set.  useful for testing.",
 			Value:   true,
 		},
+		&cli.Int64Flag{
+			EnvVars: []string{"VELA_DEFAULT_BUILD_TIMEOUT"},
+			Name:    "default-build-timeout",
+			Usage:   "override default build timeout (minutes)",
+		},
 
 		// Security Flags
 
