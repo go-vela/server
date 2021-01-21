@@ -25,7 +25,7 @@ type Service interface {
 
 	// AuthenticateToken defines a function that completes
 	// the OAuth workflow for the session using PAT Token
-	AuthenticateToken(http.ResponseWriter, *http.Request) (*library.User, error)
+	AuthenticateToken(*http.Request) (*library.User, error)
 
 	// Login defines a function that begins
 	// the OAuth workflow for the session.
