@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -81,6 +81,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		authenticate.GET("", api.Authenticate)
 		authenticate.GET("/:type", api.AuthenticateType)
 		authenticate.GET("/:type/:port", api.AuthenticateType)
+		authenticate.POST("/token", api.AuthenticateToken)
 	}
 
 	// API endpoints

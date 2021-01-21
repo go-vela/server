@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -22,6 +22,11 @@ type Service interface {
 	// Authenticate defines a function that completes
 	// the OAuth workflow for the session.
 	Authenticate(http.ResponseWriter, *http.Request, string) (*library.User, error)
+
+	// AuthenticateToken defines a function that completes
+	// the OAuth workflow for the session using PAT Token
+	AuthenticateToken(http.ResponseWriter, *http.Request) (*library.User, error)
+
 	// Login defines a function that begins
 	// the OAuth workflow for the session.
 	Login(http.ResponseWriter, *http.Request) (string, error)
