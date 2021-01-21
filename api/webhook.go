@@ -390,6 +390,7 @@ func PostWebhook(c *gin.Context) {
 
 		// parse and compile the pipeline configuration file
 		p, err = compiler.FromContext(c).
+			Duplicate().
 			WithBuild(b).
 			WithComment(webhook.Comment).
 			WithFiles(files).
@@ -421,6 +422,11 @@ func PostWebhook(c *gin.Context) {
 
 			// check if the retry limit has been exceeded
 			if i < retryLimit {
+				// reset fields set by cleanBuild for retry
+				b.SetError("")
+				b.SetStatus(constants.StatusPending)
+				b.SetFinished(0)
+
 				// continue to the next iteration of the loop
 				continue
 			}
