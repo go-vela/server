@@ -11,7 +11,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/go-vela/compiler v0.7.0-rc2
+	github.com/go-vela/compiler v0.7.0-rc2.0.20210121205127-ae60fe509522
 	github.com/go-vela/types v0.7.0-rc2
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
