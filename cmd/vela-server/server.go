@@ -112,7 +112,7 @@ func server(c *cli.Context) error {
 
 		// check if a port is part of the address
 		if len(port) == 0 {
-			port = "8080"
+			port = c.String("server-port")
 		}
 
 		// gin expects the address to be ":<port>" ie ":8080"
