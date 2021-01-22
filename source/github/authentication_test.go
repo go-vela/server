@@ -333,7 +333,7 @@ func TestGithub_Authenticate_Token(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.AuthenticateToken(context.Writer, context.Request)
+	got, err := client.AuthenticateToken(context.Request)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -369,7 +369,7 @@ func TestGithub_Authenticate_Invalid_Token(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.AuthenticateToken(context.Writer, context.Request)
+	got, err := client.AuthenticateToken(context.Request)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)

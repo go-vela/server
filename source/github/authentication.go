@@ -6,6 +6,7 @@ package github
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -54,7 +55,9 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	return oAuthState, nil
 }
 
-// Authenticate completes the authentication workflow for the session and returns the remote user details.
+// Authenticate completes the authentication workflow for the session
+// and returns the remote user details.
+// nolint:lll // long struct references
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
 	logrus.Trace("Authenticating user")
 
@@ -96,10 +99,13 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 
 // AuthenticateToken completes the authentication workflow
 // for the session and returns the remote user details.
-func (c *client) AuthenticateToken(w http.ResponseWriter, r *http.Request) (*library.User, error) {
+func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 	logrus.Trace("Authenticating user via token")
 
 	token := r.Header.Get("Token")
+	if len(token) == 0 {
+		return nil, errors.New("no token provided")
+	}
 
 	u, err := c.Authorize(token)
 	if err != nil {

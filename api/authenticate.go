@@ -7,6 +7,8 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
@@ -14,7 +16,6 @@ import (
 	"github.com/go-vela/types"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"net/http"
 
 	"github.com/go-vela/types/library"
 
@@ -211,11 +212,34 @@ func AuthenticateType(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, r)
 }
 
+// swagger:operation POST /authenticate/token authenticate PostAuthenticate
+//
+// Authenticate to Vela via personal access token.
+//
+// ---
+// x-success_http_code: '200'
+// produces:
+// - application/json
+// responses:
+//   '200':
+//     description: Successfully authenticated
+//     schema:
+//       type: string
+// responses:
+//   '401':
+//     description: Unable to authenticate
+//     schema:
+//       type: string
+//   '503':
+//     description: Service unavailable
+//     schema:
+//       type: string
+
 // AuthenticateToken represents the API handler to
 // process a user logging in using PAT to Vela from
-// the API
+// the API.
 func AuthenticateToken(c *gin.Context) {
-	newUser, err := source.FromContext(c).AuthenticateToken(c.Writer, c.Request)
+	newUser, err := source.FromContext(c).AuthenticateToken(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 
