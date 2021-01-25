@@ -252,7 +252,7 @@ func AuthenticateToken(c *gin.Context) {
 	// check if the user exists
 	u, err = database.FromContext(c).GetUserName(u.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("user not found")
+		retErr := fmt.Errorf("user %s not found", u.GetName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
