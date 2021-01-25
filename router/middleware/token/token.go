@@ -5,6 +5,7 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -96,6 +97,19 @@ func Parse(t string, db database.Service) (*library.User, error) {
 		// extract the claims from the token
 		claims := token.Claims.(*Claims)
 		name := claims.Subject
+
+		// check if subject has a value in claims;
+		// we can save a db lookup attempt
+		if len(name) == 0 {
+			return nil, errors.New("no subject defined")
+		}
+
+		// ParseWithClaims will skip expiration check
+		// if expiration has default value;
+		// forcing a check and exiting if not set
+		if claims.ExpiresAt == 0 {
+			return nil, errors.New("token has no expiration")
+		}
 
 		// lookup the user in the database
 		logrus.Debugf("Reading user %s", name)
