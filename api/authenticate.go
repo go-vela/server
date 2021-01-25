@@ -239,7 +239,8 @@ func AuthenticateType(c *gin.Context) {
 // process a user logging in using PAT to Vela from
 // the API.
 func AuthenticateToken(c *gin.Context) {
-	newUser, err := source.FromContext(c).AuthenticateToken(c.Request)
+	// attempt to get user from source
+	u, err := source.FromContext(c).AuthenticateToken(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 
@@ -248,15 +249,23 @@ func AuthenticateToken(c *gin.Context) {
 		return
 	}
 
-	newUser.SetActive(true)
+	// check if the user exists
+	u, err = database.FromContext(c).GetUserName(u.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("user %s not found", u.GetName())
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
 
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
 	m := c.MustGet("metadata").(*types.Metadata)
-	at, err := token.CreateAccessToken(newUser, m.Vela.AccessTokenDuration)
+	at, err := token.CreateAccessToken(u, m.Vela.AccessTokenDuration)
 
 	if err != nil {
-		retErr := fmt.Errorf("unable to compose token for user %s: %w", newUser.GetName(), err)
+		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 	}

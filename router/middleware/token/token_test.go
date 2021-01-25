@@ -227,6 +227,92 @@ func TestToken_Parse_AccessToken_Expired(t *testing.T) {
 	}
 }
 
+func TestToken_Parse_AccessToken_NoSubject(t *testing.T) {
+	// setup types
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+
+	claims := &Claims{
+		IsActive: u.GetActive(),
+		IsAdmin:  u.GetAdmin(),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: 42,
+		},
+	}
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := tkn.SignedString([]byte(u.GetHash()))
+	if err != nil {
+		t.Errorf("Unable to create test token: %v", err)
+	}
+
+	// setup database
+	db, _ := database.NewTest()
+
+	defer func() {
+		db.Database.Exec("delete from users;")
+		db.Database.Close()
+	}()
+
+	_ = db.CreateUser(u)
+
+	// run test
+	got, err := Parse(token, db)
+	if err == nil {
+		t.Errorf("Parse should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Parse is %v, want nil", got)
+	}
+}
+
+func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
+	// setup types
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
+	u.SetToken("bar")
+	u.SetHash("baz")
+
+	claims := &Claims{
+		IsActive: u.GetActive(),
+		IsAdmin:  u.GetAdmin(),
+		StandardClaims: jwt.StandardClaims{
+			Subject: u.GetName(),
+		},
+	}
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := tkn.SignedString([]byte(u.GetHash()))
+	if err != nil {
+		t.Errorf("Unable to create test token: %v", err)
+	}
+
+	// setup database
+	db, _ := database.NewTest()
+
+	defer func() {
+		db.Database.Exec("delete from users;")
+		db.Database.Close()
+	}()
+
+	_ = db.CreateUser(u)
+
+	// run test
+	got, err := Parse(token, db)
+	if err == nil {
+		t.Errorf("Parse should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Parse is %v, want nil", got)
+	}
+}
+
 func TestToken_Refresh(t *testing.T) {
 	// setup types
 	u := new(library.User)
