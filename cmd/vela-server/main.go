@@ -32,6 +32,12 @@ func main() {
 			Usage:   "server address as a fully qualified url (<scheme>://<host>)",
 		},
 		&cli.StringFlag{
+			EnvVars: []string{"VELA_PORT"},
+			Name:    "server-port",
+			Usage:   "server port for the API to listen on",
+			Value:   "8080",
+		},
+		&cli.StringFlag{
 			EnvVars: []string{"VELA_WEBUI_ADDR", "VELA_WEBUI_HOST"},
 			Name:    "webui-addr",
 			Usage:   "web ui address as a fully qualified url (<scheme>://<host>)",
