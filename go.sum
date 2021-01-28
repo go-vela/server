@@ -175,12 +175,10 @@ github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gG
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
-github.com/go-vela/compiler v0.7.0-rc2.0.20210121205127-ae60fe509522 h1:YhQJzc2SiuzatjbJuxn/1/TAtMmJNrqc1lBIZGwuz/0=
-github.com/go-vela/compiler v0.7.0-rc2.0.20210121205127-ae60fe509522/go.mod h1:OMys0YNrCX3B54BYxwU59U91hnqH+hs6/KLrHlZvVOk=
-github.com/go-vela/types v0.7.0-rc2 h1:snUSTjd1BW3Kkn9RxfLeufSxbmlomFicmoPBeNNl+ik=
-github.com/go-vela/types v0.7.0-rc2/go.mod h1:ATtwTwp2l4jI4GUmw840xHZgHmg8FbZPo4g0azImggA=
-github.com/goccy/go-yaml v1.8.4 h1:AOEdR7aQgbgwHznGe3BLkDQVujxCPUpHOZZcQcp8Y3M=
-github.com/goccy/go-yaml v1.8.4/go.mod h1:U/jl18uSupI5rdI2jmuCswEA2htH9eXfferR3KfscvA=
+github.com/go-vela/compiler v0.7.0-rc3 h1:mCw6uUGqpGuPHIQfBYswMEcCSU9R/ZK2t+GLQagHJ+M=
+github.com/go-vela/compiler v0.7.0-rc3/go.mod h1:XbNRK9QmVlYh+iVeRmwLAxRe3mCQ/xxJcR4vruSqs/U=
+github.com/go-vela/types v0.7.0-rc3 h1:47vQFWitVF7DcHKH7/bI1eFaTdLfOrWqhoTogIiZhR4=
+github.com/go-vela/types v0.7.0-rc3/go.mod h1:N6YU6eSm/hxAgIdaZtHyKSquNZm2nqK0fFwwPdDWDS0=
 github.com/goccy/go-yaml v1.8.5 h1:f1UH5GVhLZE6ElNBAgCtF3ZUOuJ62dNOo3Y5dOJqTV4=
 github.com/goccy/go-yaml v1.8.5/go.mod h1:U/jl18uSupI5rdI2jmuCswEA2htH9eXfferR3KfscvA=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
@@ -695,8 +693,6 @@ golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4Iltr
 golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d h1:TzXSXBo42m9gQenoE3b9BGiEpg5IG2JkU5FkPIawgtw=
 golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
-golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3 h1:BaN3BAqnopnKjvl+15DYP6LLrbBHfbfmlFYzmFj/Q9Q=
-golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013 h1:55H5j7lotzuFCEOKDsMch+fRNUQ9DgtyHOUP31FNqKc=
 golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
