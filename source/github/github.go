@@ -21,10 +21,9 @@ const (
 	defaultURL = "https://github.com/"     // Default GitHub URL
 	defaultAPI = "https://api.github.com/" // Default GitHub API URL
 
-	// events for repo webhooks
+	// events for repo webhooks.
 	eventPush         = "push"
 	eventPullRequest  = "pull_request"
-	eventTag          = "tag"
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
 )
@@ -43,6 +42,8 @@ type client struct {
 
 // New returns a Source implementation that integrates with GitHub or a
 // GitHub Enterprise instance.
+//
+// nolint: golint // ignore returning unexported client
 func New(c *cli.Context) (*client, error) {
 	// create the client object
 	client := &client{
@@ -87,6 +88,8 @@ func New(c *cli.Context) (*client, error) {
 // mock server. Only the url from the mock server is required.
 //
 // This function is intended for running tests only.
+//
+// nolint: golint // ignore returning unexported client
 func NewTest(urls ...string) (*client, error) {
 	return New(createTestContext(urls...))
 }
@@ -99,6 +102,7 @@ func createTestContext(urls ...string) *cli.Context {
 	set.String("server-addr", urls[0], "doc")
 
 	if len(urls) > 1 {
+		// nolint: errcheck // ignore error check
 		set.Set("server-addr", urls[1])
 	}
 
@@ -111,7 +115,7 @@ func createTestContext(urls ...string) *cli.Context {
 	return cli.NewContext(nil, set, nil)
 }
 
-// helper function to return the GitHub OAuth client
+// helper function to return the GitHub OAuth client.
 func (c *client) newClientToken(token string) *github.Client {
 	// create the token object for the client
 	ts := oauth2.StaticTokenSource(

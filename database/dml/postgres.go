@@ -2,6 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
+// nolint: dupl // ignore similar code
 package dml
 
 import "github.com/go-vela/server/database/dml/postgres"

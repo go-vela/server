@@ -38,6 +38,8 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	logrus.Trace("Processing login request")
 
 	// generate a random string for creating the OAuth state
+	//
+	// nolint: gomnd // ignore magic number
 	oAuthState, err := random.GenerateRandomString(32)
 	if err != nil {
 		return "", err
@@ -57,7 +59,8 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-// nolint:lll // long struct references
+//
+// nolint: lll // ignore long line length due to variable names
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
 	logrus.Trace("Authenticating user")
 

@@ -49,6 +49,8 @@ FROM users;
 
 	// SelectRefreshToken represents a query to select
 	// a user for a refresh_token in the database.
+	//
+	// nolint: gosec // ignore false positive
 	SelectRefreshToken = `
 SELECT *
 FROM users

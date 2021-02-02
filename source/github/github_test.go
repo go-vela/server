@@ -81,6 +81,7 @@ func TestGithub_newClientToken(t *testing.T) {
 		t.Errorf("newClientToken is nil, want %v", want)
 	}
 
+	// nolint: staticcheck // ignore false positive
 	if !reflect.DeepEqual(got.BaseURL, want.BaseURL) {
 		t.Errorf("newClientToken BaseURL is %v, want %v", got.BaseURL, want.BaseURL)
 	}
