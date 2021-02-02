@@ -21,6 +21,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// nolint: lll // ignore long line length due to description
+//
 // swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret
 //
 // Create a secret
@@ -92,6 +94,7 @@ func CreateSecret(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s for %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -142,6 +145,8 @@ func CreateSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, s.Sanitize())
 }
 
+// nolint: lll // ignore long line length due to description
+//
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets GetSecrets
 //
 // Retrieve a list of secrets from the configured backend.
@@ -204,6 +209,7 @@ func GetSecrets(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -214,6 +220,7 @@ func GetSecrets(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -224,6 +231,7 @@ func GetSecrets(c *gin.Context) {
 	// send API call to capture the total number of secrets
 	total, err := secret.FromContext(c, e).Count(t, o, n)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get secret count for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -232,6 +240,8 @@ func GetSecrets(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of secrets
@@ -267,6 +277,8 @@ func GetSecrets(c *gin.Context) {
 	c.JSON(http.StatusOK, secrets)
 }
 
+// nolint: lll // ignore long line length due to description
+//
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets GetSecret
 //
 // Retrieve a secret from the configured backend.
@@ -346,6 +358,8 @@ func GetSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
 
+// nolint: lll // ignore long line length due to description
+//
 // swagger:operation PUT /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets UpdateSecrets
 //
 // Update a secret from the configured backend.
@@ -419,6 +433,7 @@ func UpdateSecret(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s/%s for %s service: %v", t, o, n, s, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -469,6 +484,8 @@ func UpdateSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
 
+// nolint: lll // ignore long line length due to description
+//
 // swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecret
 //
 // Delete a secret from the configured backend.
@@ -535,6 +552,7 @@ func DeleteSecret(c *gin.Context) {
 	// send API call to remove the secret
 	err := secret.FromContext(c, e).Delete(t, o, n, s)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to delete secret %s/%s/%s/%s from %s service: %w", t, o, n, s, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)

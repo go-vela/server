@@ -18,7 +18,7 @@ import (
 
 // predefine Prometheus metrics else they will be regenerated
 // each function call which will throw error:
-// "duplicate metrics collector registration attempted"
+// "duplicate metrics collector registration attempted".
 var (
 	totals = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -60,18 +60,20 @@ var (
 //     schema:
 //       type: string
 
-// BaseMetrics returns a Prometheus handler for serving go metrics
+// BaseMetrics returns a Prometheus handler for serving go metrics.
 func BaseMetrics() http.Handler {
 	return promhttp.Handler()
 }
 
-// CustomMetrics returns custom Prometheus metrics from private functions
+// CustomMetrics returns custom Prometheus metrics from private functions.
 func CustomMetrics(c *gin.Context) {
 	// call helper function to return total users
 	recordGauges(c)
 }
 
-// helper function to get the totals of resource types
+// helper function to get the totals of resource types.
+//
+// nolint: funlen // ignore function length due to comments
 func recordGauges(c *gin.Context) {
 	// send API call to capture the total number of users
 	u, err := database.FromContext(c).GetUserCount()

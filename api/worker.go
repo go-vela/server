@@ -49,7 +49,7 @@ import (
 //       type: string
 
 // CreateWorker represents the API handler to
-// create a worker in the configured backend
+// create a worker in the configured backend.
 func CreateWorker(c *gin.Context) {
 	logrus.Info("Creating new worker")
 
@@ -204,7 +204,7 @@ func GetWorker(c *gin.Context) {
 //       type: string
 
 // UpdateWorker represents the API handler to
-// create a worker in the configured backend
+// create a worker in the configured backend.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
 	worker := c.Param("worker")

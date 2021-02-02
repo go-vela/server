@@ -79,6 +79,8 @@ import (
 
 // CreateBuild represents the API handler to
 // create a build in the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -103,6 +105,7 @@ func CreateBuild(c *gin.Context) {
 		(input.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
 		(input.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(input.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create new build: %s does not have %s events enabled", r.GetFullName(), input.GetEvent())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -158,6 +161,7 @@ func CreateBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the commit
 		files, err = source.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -171,7 +175,7 @@ func CreateBuild(c *gin.Context) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(input)
 		if err != nil {
-			// nolint:lll // long log message
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -182,6 +186,7 @@ func CreateBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the pull request
 		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -193,6 +198,7 @@ func CreateBuild(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), input.GetCommit())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -209,6 +215,7 @@ func CreateBuild(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -232,6 +239,7 @@ func CreateBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = source.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
 
@@ -302,6 +310,7 @@ func GetBuilds(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -312,6 +321,7 @@ func GetBuilds(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -320,6 +330,8 @@ func GetBuilds(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of builds for the repo (and event type if passed in)
@@ -386,7 +398,7 @@ func GetBuilds(c *gin.Context) {
 //       type: string
 
 // GetOrgBuilds represents the API handler to capture a
-// list of builds associated with an org from the configured backend
+// list of builds associated with an org from the configured backend.
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list and total count
 	var (
@@ -422,7 +434,9 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(100, perPage)) //nolint:gomnd
+	//
+	// nolint: gomnd // ignore magic number
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	if len(event) > 0 {
@@ -545,6 +559,8 @@ func GetBuild(c *gin.Context) {
 
 // RestartBuild represents the API handler to
 // restart an existing build in the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -566,6 +582,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the last build for the repo
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get last build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -600,6 +617,7 @@ func RestartBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the commit
 		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -613,7 +631,7 @@ func RestartBuild(c *gin.Context) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(b)
 		if err != nil {
-			// nolint:lll // long log message
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to restart build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -624,6 +642,7 @@ func RestartBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the pull request
 		files, err = source.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -635,6 +654,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), b.GetCommit())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -651,6 +671,7 @@ func RestartBuild(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -674,6 +695,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
 
@@ -748,6 +770,7 @@ func UpdateBuild(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -830,6 +853,7 @@ func UpdateBuild(c *gin.Context) {
 		// send API call to set the status on the commit
 		err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
 	}
@@ -905,6 +929,7 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 	}
 
 	// just being safe to avoid out of range index errors
+	//
 	// nolint:gomnd // magic number of 3 used once
 	if len(parts) < 3 {
 		return 0, fmt.Errorf("invalid ref: %s", b.GetRef())
@@ -917,6 +942,8 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // planBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
+//
+// nolint: lll // ignore long line length due to variable names
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
@@ -931,7 +958,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	}
 
 	// send API call to capture the created build
-	b, _ = database.GetBuild(int(b.GetNumber()), r)
+	b, _ = database.GetBuild(b.GetNumber(), r)
 
 	// plan all services for the build
 	services, err := planServices(database, p, b)
@@ -958,6 +985,8 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
+//
+// nolint: lll // ignore long line length due to variable names
 func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step) {
 	// update fields in build object
 	b.SetError("unable to publish build to queue")

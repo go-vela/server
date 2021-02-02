@@ -72,6 +72,7 @@ func GetBuildLogs(c *gin.Context) {
 	// send API call to capture the list of logs for the build
 	l, err := database.FromContext(c).GetBuildLogs(b.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get logs for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -82,6 +83,8 @@ func GetBuildLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services CreateServiceLogs
 //
 // Create the logs for a service
@@ -136,6 +139,8 @@ func GetBuildLogs(c *gin.Context) {
 
 // CreateServiceLog represents the API handler to create
 // the logs for a service in the configured backend.
+//
+// nolint: dupl // ignore similar code with step
 func CreateServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -149,6 +154,7 @@ func CreateServiceLog(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -164,6 +170,7 @@ func CreateServiceLog(c *gin.Context) {
 	// send API call to create the logs
 	err = database.FromContext(c).CreateLog(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -177,6 +184,8 @@ func CreateServiceLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services GetServiceLogs
 //
 // Retrieve the logs for a service
@@ -232,6 +241,7 @@ func GetServiceLog(c *gin.Context) {
 	// send API call to capture the service logs
 	l, err := database.FromContext(c).GetServiceLog(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -242,6 +252,8 @@ func GetServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLog
 //
 // Update the logs for a service
@@ -307,6 +319,7 @@ func UpdateServiceLog(c *gin.Context) {
 	// send API call to capture the service logs
 	l, err := database.FromContext(c).GetServiceLog(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -319,6 +332,7 @@ func UpdateServiceLog(c *gin.Context) {
 
 	err = c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -335,6 +349,7 @@ func UpdateServiceLog(c *gin.Context) {
 	// send API call to update the log
 	err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to update logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -348,6 +363,8 @@ func UpdateServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services DeleteServiceLogs
 //
 // Delete the logs for a service
@@ -391,6 +408,8 @@ func UpdateServiceLog(c *gin.Context) {
 
 // DeleteServiceLog represents the API handler to remove
 // the logs for a service from the configured backend.
+//
+// nolint: dupl // ignore similar code with step
 func DeleteServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -402,6 +421,7 @@ func DeleteServiceLog(c *gin.Context) {
 	// send API call to remove the log
 	err := database.FromContext(c).DeleteLog(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to delete logs for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -409,9 +429,12 @@ func DeleteServiceLog(c *gin.Context) {
 		return
 	}
 
+	// nolint: lll // ignore long line length due to return message
 	c.JSON(http.StatusOK, fmt.Sprintf("Logs deleted for service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps CreateStepLog
 //
 // Create the logs for a step
@@ -466,6 +489,8 @@ func DeleteServiceLog(c *gin.Context) {
 
 // CreateStepLog represents the API handler to create
 // the logs for a step in the configured backend.
+//
+// nolint: dupl // ignore similar code with service
 func CreateStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -479,6 +504,7 @@ func CreateStepLog(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -494,6 +520,7 @@ func CreateStepLog(c *gin.Context) {
 	// send API call to create the logs
 	err = database.FromContext(c).CreateLog(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -507,6 +534,8 @@ func CreateStepLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps GetStepLog
 //
 // Retrieve the logs for a step
@@ -558,6 +587,7 @@ func GetStepLog(c *gin.Context) {
 	// send API call to capture the step logs
 	l, err := database.FromContext(c).GetStepLog(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -568,6 +598,8 @@ func GetStepLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps UpdateStepLog
 //
 // Update the logs for a step
@@ -633,6 +665,7 @@ func UpdateStepLog(c *gin.Context) {
 	// send API call to capture the step logs
 	l, err := database.FromContext(c).GetStepLog(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -645,6 +678,7 @@ func UpdateStepLog(c *gin.Context) {
 
 	err = c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -661,6 +695,7 @@ func UpdateStepLog(c *gin.Context) {
 	// send API call to update the log
 	err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to update logs for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -674,6 +709,8 @@ func UpdateStepLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps DeleteStepLog
 //
 // Delete the logs for a step
@@ -717,6 +754,8 @@ func UpdateStepLog(c *gin.Context) {
 
 // DeleteStepLog represents the API handler to remove
 // the logs for a step from the configured backend.
+//
+// nolint: dupl // ignore similar code with service
 func DeleteStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -728,6 +767,7 @@ func DeleteStepLog(c *gin.Context) {
 	// send API call to remove the log
 	err := database.FromContext(c).DeleteLog(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to delete logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -735,5 +775,6 @@ func DeleteStepLog(c *gin.Context) {
 		return
 	}
 
+	// nolint: lll // ignore long line length due to return message
 	c.JSON(http.StatusOK, fmt.Sprintf("Logs deleted for step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }

@@ -141,6 +141,8 @@ func GetUsers(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of users
@@ -366,7 +368,6 @@ func GetUserSourceRepos(c *gin.Context) {
 	logrus.Infof("Getting list of available repos for user %s", u.GetName())
 
 	// variables to capture requested data
-	srcRepos := []*library.Repo{}
 	dbRepos := []*library.Repo{}
 	output := make(map[string][]library.Repo)
 
@@ -416,6 +417,8 @@ func GetUserSourceRepos(c *gin.Context) {
 			dbRepos = append(dbRepos, dbReposPart...)
 
 			// making an assumption that 50 means there is another page
+			//
+			// nolint: gomnd // ignore magic number
 			if len(dbReposPart) == 50 {
 				page++
 			} else {

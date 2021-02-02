@@ -75,6 +75,7 @@ func CreateHook(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for new webhook for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -162,6 +163,8 @@ func CreateHook(c *gin.Context) {
 
 // GetHooks represents the API handler to capture a list
 // of webhooks from the configured backend.
+//
+// nolint: dupl // ignore false positive
 func GetHooks(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
@@ -171,6 +174,7 @@ func GetHooks(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -181,6 +185,7 @@ func GetHooks(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -189,6 +194,8 @@ func GetHooks(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of webhooks for the repo
