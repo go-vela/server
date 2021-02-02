@@ -39,6 +39,7 @@ func TestNative_List(t *testing.T) {
 	sTwo.SetEvents([]string{"foo", "bar"})
 	sTwo.SetAllowCommand(false)
 
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	want := []*library.Secret{sTwo, sOne}
@@ -82,6 +83,7 @@ func TestNative_List_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// run test

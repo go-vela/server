@@ -43,6 +43,8 @@ const PrefixVaultV1 = "secret"
 const PrefixVaultV2 = "secret/data"
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
+//
+// nolint: golint // ignore returning unexported client
 func New(config Config) (*client, error) {
 	var prefix string
 	switch config.Version {
@@ -93,6 +95,7 @@ func New(config Config) (*client, error) {
 	return client, nil
 }
 
+// nolint: funlen // ignore function length due to comments and conditionals
 func secretFromVault(vault *api.Secret) *library.Secret {
 	s := new(library.Secret)
 

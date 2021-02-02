@@ -79,7 +79,7 @@ func Compose(c *gin.Context, u *library.User) (string, string, error) {
 //
 // * the token signature doesn't match what is expected
 // * the token signing method doesn't match what is expected
-// * the token is invalid (potentially expired or improper)
+// * the token is invalid (potentially expired or improper).
 func Parse(t string, db database.Service) (*library.User, error) {
 	u := new(library.User)
 
@@ -126,14 +126,14 @@ func Parse(t string, db database.Service) (*library.User, error) {
 	return u, nil
 }
 
-// RetrieveAccessToken gets the passed in access token from the header in the request
+// RetrieveAccessToken gets the passed in access token from the header in the request.
 func RetrieveAccessToken(r *http.Request) (accessToken string, err error) {
 	accessToken, err = request.AuthorizationHeaderExtractor.ExtractToken(r)
 
 	return
 }
 
-// RetrieveRefreshToken gets the refresh token sent along with the request as a cookie
+// RetrieveRefreshToken gets the refresh token sent along with the request as a cookie.
 func RetrieveRefreshToken(r *http.Request) (string, error) {
 	refreshToken, err := r.Cookie(constants.RefreshTokenName)
 
@@ -145,7 +145,7 @@ func RetrieveRefreshToken(r *http.Request) (string, error) {
 	return refreshToken.Value, err
 }
 
-// CreateAccessToken creates a new access token for the given user and duration
+// CreateAccessToken creates a new access token for the given user and duration.
 func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 	now := time.Now()
 	exp := now.Add(d)
@@ -170,7 +170,7 @@ func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 	return token, nil
 }
 
-// CreateCreateRefreshToken creates a new refresh token for the given user and duration
+// CreateCreateRefreshToken creates a new refresh token for the given user and duration.
 func CreateRefreshToken(u *library.User, d time.Duration) (string, int, error) {
 	exp := time.Now().Add(d)
 
@@ -188,7 +188,7 @@ func CreateRefreshToken(u *library.User, d time.Duration) (string, int, error) {
 	return refreshToken, int(d.Seconds()), nil
 }
 
-// Refresh returns a new access token, if the provided refreshToken is valid
+// Refresh returns a new access token, if the provided refreshToken is valid.
 func Refresh(c *gin.Context, refreshToken string) (string, error) {
 	// get the metadata
 	m := c.MustGet("metadata").(*types.Metadata)

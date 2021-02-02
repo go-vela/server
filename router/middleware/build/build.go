@@ -18,12 +18,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Retrieve gets the build in the given context
+// Retrieve gets the build in the given context.
 func Retrieve(c *gin.Context) *library.Build {
 	return FromContext(c)
 }
 
-// Establish sets the build in the given context
+// Establish sets the build in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		r := repo.Retrieve(c)

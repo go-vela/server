@@ -27,6 +27,7 @@ func TestNative_Update(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// setup database
@@ -63,6 +64,7 @@ func TestNative_Update_Invalid(t *testing.T) {
 	sec.SetName("baz")
 	sec.SetValue("foob")
 
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// setup database

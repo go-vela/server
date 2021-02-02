@@ -21,6 +21,8 @@ type client struct {
 
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
+//
+// nolint: golint // ignore returning unexported client
 func New(config string, channels ...string) (*client, error) {
 	// parse the url provided
 	options, err := redis.ParseURL(config)
@@ -48,6 +50,8 @@ func New(config string, channels ...string) (*client, error) {
 
 // NewCluster returns a Queue implementation that
 // integrates with a Redis queue cluster.
+//
+// nolint: golint // ignore returning unexported client
 func NewCluster(config string, channels ...string) (*client, error) {
 	// parse the url provided
 	options, err := redis.ParseURL(config)
@@ -164,6 +168,8 @@ func pingQueue(client *redis.Client) error {
 // with the different supported backends.
 //
 // This function is intended for running tests only.
+//
+// nolint: golint // ignore returning unexported client
 func NewTest() (*client, error) {
 	config := os.Getenv("VELA_QUEUE_CONFIG")
 	if len(config) == 0 {

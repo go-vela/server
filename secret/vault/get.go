@@ -18,6 +18,7 @@ import (
 func (c *client) Get(sType, org, name, path string) (s *library.Secret, err error) {
 	logrus.Tracef("Getting vault %s secret %s for %s/%s", sType, path, org, name)
 
+	// nolint: ineffassign,staticcheck // ignore false positive
 	vault := new(api.Secret)
 
 	// capture the secret from the Vault service
