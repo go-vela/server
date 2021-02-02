@@ -66,7 +66,7 @@ func GetBadge(c *gin.Context) {
 	c.String(http.StatusOK, badge)
 }
 
-// badgeForStatus is a helper to match the build status with a badge
+// badgeForStatus is a helper to match the build status with a badge.
 func badgeForStatus(s string) string {
 	switch s {
 	case constants.StatusRunning, constants.StatusPending:

@@ -28,6 +28,8 @@ secrets (
 
 	// CreateSecretTypeOrgRepo represents a query to create an
 	// index on the secrets table for the type, org and repo columns.
+	//
+	// nolint: gosec // ignore false positive
 	CreateSecretTypeOrgRepo = `
 CREATE INDEX
 IF NOT EXISTS
@@ -37,6 +39,8 @@ ON secrets (type, org, repo);
 
 	// CreateSecretTypeOrgTeam represents a query to create an
 	// index on the secrets table for the type, org and team columns.
+	//
+	// nolint: gosec // ignore false positive
 	CreateSecretTypeOrgTeam = `
 CREATE INDEX
 IF NOT EXISTS
@@ -46,6 +50,8 @@ ON secrets (type, org, team);
 
 	// CreateSecretTypeOrg represents a query to create an
 	// index on the secrets table for the type, and org columns.
+	//
+	// nolint: gosec // ignore false positive
 	CreateSecretTypeOrg = `
 CREATE INDEX
 IF NOT EXISTS
@@ -55,6 +61,8 @@ ON secrets (type, org);
 
 	// CreateSecretType represents a query to create an
 	// index on the secrets table for the type column.
+	//
+	// nolint: gosec // ignore false positive
 	CreateSecretType = `
 CREATE INDEX
 IF NOT EXISTS

@@ -38,6 +38,8 @@ func setupGithub(c *cli.Context) (source.Service, error) {
 }
 
 // helper function to setup the Gitlab source from the CLI arguments.
+//
+// nolint: unparam // ignore unparam for now
 func setupGitlab(c *cli.Context) (source.Service, error) {
 	logrus.Tracef("Creating %s source client from CLI configuration", constants.DriverGitlab)
 	// return gitlab.New(c)

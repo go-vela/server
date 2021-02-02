@@ -66,6 +66,8 @@ var baseErr = "unable to process webhook"
 // PostWebhook represents the API handler to capture
 // a webhook from a source control provider and
 // publish it to the configure queue.
+//
+// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
 func PostWebhook(c *gin.Context) {
 	logrus.Info("Webhook received")
 
@@ -233,6 +235,7 @@ func PostWebhook(c *gin.Context) {
 		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
 		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -272,8 +275,10 @@ func PostWebhook(c *gin.Context) {
 
 	// if this is a comment on a pull_request event
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
+		// nolint: lll // ignore long line length due to variable names
 		commit, branch, baseref, headref, err := source.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -327,6 +332,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), b.GetCommit())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -447,6 +453,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the triggered build
 	b, err = database.FromContext(c).GetBuild(b.GetNumber(), r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %v", baseErr, r.GetFullName(), b.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -477,6 +484,8 @@ func PostWebhook(c *gin.Context) {
 
 // publishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
+//
+// nolint: lll // ignore long line length due to variables
 func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
 	// update fields in build object
 	b.SetEnqueued(time.Now().UTC().Unix())

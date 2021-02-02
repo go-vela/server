@@ -23,6 +23,7 @@ func TestNative_Count(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
 
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	want := 1
@@ -58,6 +59,7 @@ func TestNative_Count_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// run test

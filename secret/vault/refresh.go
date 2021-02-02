@@ -74,7 +74,8 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 	return secret.Auth.ClientToken, time.Duration(secret.Auth.LeaseDuration) * time.Second, nil
 }
 
-// generateAwsAuthHeader will generate the necessary data to send to the Vault server for generating a token
+// generateAwsAuthHeader will generate the necessary data
+// to send to the Vault server for generating a token.
 func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	logrus.Trace("generating auth headers for vault")
 	req, _ := c.Aws.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
@@ -99,6 +100,8 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	}
 
 	// construct the vault STS auth header
+	//
+	// nolint: lll // ignore long line length due to variable names
 	loginData := map[string]interface{}{
 		"role":                    c.Aws.Role,
 		"iam_http_request_method": req.HTTPRequest.Method,
@@ -110,11 +113,12 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	return loginData, nil
 }
 
-// refreshToken will refresh the given token if possible or generate a new one entirely
+// refreshToken will refresh the given token if possible or generate a new one entirely.
 func (c *client) refreshToken() {
 	for {
 		time.Sleep(c.Renewal)
-		// token refresh may fail since the allowable refresh timeframe varies depending on the auth method
+		// token refresh may fail since the allowable refresh
+		// timeframe varies depending on the auth method
 		_, err := c.Vault.Auth().Token().RenewSelf(int(c.TTL / time.Second))
 		// fall back to obtaining a new token if the refresh fails
 		if err != nil {

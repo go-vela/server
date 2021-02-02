@@ -56,6 +56,8 @@ func (c *client) GetServiceList() ([]*library.Service, error) {
 }
 
 // GetBuildServiceList gets a list of all services by build ID from the database.
+//
+// nolint: lll // ignore long line length due to variable names
 func (c *client) GetBuildServiceList(b *library.Build, page, perPage int) ([]*library.Service, error) {
 	logrus.Tracef("Listing services for build %d from the database", b.GetNumber())
 

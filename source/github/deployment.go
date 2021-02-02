@@ -13,6 +13,8 @@ import (
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
+//
+// nolint: lll // ignore long line length due to variable names
 func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
 	logrus.Tracef("capturing deployment %d for %s", id, r.GetFullName())
 
@@ -77,6 +79,8 @@ func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, er
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
+//
+// nolint: lll // ignore long line length due to variable names
 func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
 	logrus.Tracef("capturing deployments for %s", r.GetFullName())
 

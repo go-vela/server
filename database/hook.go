@@ -94,6 +94,8 @@ func (c *client) GetRepoHookCount(r *library.Repo) (int64, error) {
 }
 
 // GetRepoHookList gets a list of webhooks by repo ID from the database.
+//
+// nolint: dupl // ignore false positive
 func (c *client) GetRepoHookList(r *library.Repo, page, perPage int) ([]*library.Hook, error) {
 	logrus.Tracef("Listing hooks for repo %s from the database", r.GetFullName())
 

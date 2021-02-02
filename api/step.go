@@ -73,6 +73,8 @@ import (
 
 // CreateStep represents the API handler to create
 // a step for a build in the configured backend.
+//
+// nolint: dupl // ignore similar code with service
 func CreateStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -85,6 +87,7 @@ func CreateStep(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for new step for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -107,6 +110,7 @@ func CreateStep(c *gin.Context) {
 	// send API call to create the step
 	err = database.FromContext(c).CreateStep(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create step for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -175,6 +179,7 @@ func GetSteps(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -185,6 +190,7 @@ func GetSteps(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -193,11 +199,14 @@ func GetSteps(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of steps for the build
 	t, err := database.FromContext(c).GetBuildStepCount(b)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get steps count for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -208,6 +217,7 @@ func GetSteps(c *gin.Context) {
 	// send API call to capture the list of steps for the build
 	s, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get steps for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -347,6 +357,7 @@ func UpdateStep(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -398,6 +409,7 @@ func UpdateStep(c *gin.Context) {
 	// send API call to update the step
 	err = database.FromContext(c).UpdateStep(s)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to update step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -454,6 +466,8 @@ func UpdateStep(c *gin.Context) {
 
 // DeleteStep represents the API handler to remove
 // a step for a build from the configured backend.
+//
+// nolint: dupl // ignore similar code with service
 func DeleteStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -465,6 +479,7 @@ func DeleteStep(c *gin.Context) {
 	// send API call to remove the step
 	err := database.FromContext(c).DeleteStep(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to delete step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -472,12 +487,15 @@ func DeleteStep(c *gin.Context) {
 		return
 	}
 
+	// nolint: lll // ignore long line length due to return message
 	c.JSON(http.StatusOK, fmt.Sprintf("Step %s/%d/%d deleted", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }
 
 // planSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
+//
+// nolint: funlen,lll // ignore function length and long line length
 func planSteps(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
@@ -504,7 +522,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 			}
 
 			// send API call to capture the created step
-			s, err = database.GetStep(int(s.GetNumber()), b)
+			s, err = database.GetStep(s.GetNumber(), b)
 			if err != nil {
 				return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
 			}
@@ -545,7 +563,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 		}
 
 		// send API call to capture the created step
-		s, err = database.GetStep(int(s.GetNumber()), b)
+		s, err = database.GetStep(s.GetNumber(), b)
 		if err != nil {
 			return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
 		}

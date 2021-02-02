@@ -73,6 +73,8 @@ import (
 
 // CreateService represents the API handler to create
 // a service for a build in the configured backend.
+//
+// nolint: dupl // ignore similar code with step
 func CreateService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -85,6 +87,7 @@ func CreateService(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for new service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -107,6 +110,7 @@ func CreateService(c *gin.Context) {
 	// send API call to create the service
 	err = database.FromContext(c).CreateService(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -175,6 +179,7 @@ func GetServices(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -185,6 +190,7 @@ func GetServices(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -193,11 +199,14 @@ func GetServices(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of services for the build
 	t, err := database.FromContext(c).GetBuildServiceCount(b)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get services count for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -208,6 +217,7 @@ func GetServices(c *gin.Context) {
 	// send API call to capture the list of services for the build
 	s, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get services for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -227,6 +237,8 @@ func GetServices(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services GetService
 //
 // Get a service for a build in the configured backend
@@ -288,6 +300,8 @@ func GetService(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services UpdateService
 //
 // Update a service for a build in the configured backend
@@ -355,6 +369,7 @@ func UpdateService(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -391,6 +406,7 @@ func UpdateService(c *gin.Context) {
 	// send API call to update the service
 	err = database.FromContext(c).UpdateService(s)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to update service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -404,6 +420,8 @@ func UpdateService(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
+// nolint: lll // ignore long line length due to API path
+//
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services DeleteService
 //
 // Delete a service for a build in the configured backend
@@ -447,6 +465,8 @@ func UpdateService(c *gin.Context) {
 
 // DeleteService represents the API handler to remove
 // a service for a build from the configured backend.
+//
+// nolint: dupl // ignore similar code with step
 func DeleteService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -458,6 +478,7 @@ func DeleteService(c *gin.Context) {
 	// send API call to remove the service
 	err := database.FromContext(c).DeleteService(s.GetID())
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to delete service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -465,12 +486,15 @@ func DeleteService(c *gin.Context) {
 		return
 	}
 
+	// nolint: lll // ignore long line length due to return message
 	c.JSON(http.StatusOK, fmt.Sprintf("Service %s/%d/%d deleted", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }
 
 // planServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build in the configured backend.
+//
+// nolint: lll // ignore long line length due to variable names
 func planServices(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}

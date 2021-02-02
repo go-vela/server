@@ -19,12 +19,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Retrieve gets the service in the given context
+// Retrieve gets the service in the given context.
 func Retrieve(c *gin.Context) *library.Service {
 	return FromContext(c)
 }
 
-// Establish sets the service in the given context
+// Establish sets the service in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		r := repo.Retrieve(c)
@@ -36,6 +36,7 @@ func Establish() gin.HandlerFunc {
 
 		b := build.Retrieve(c)
 		if b == nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("build %s not found for repo %s/%s", c.Param("build"), c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
@@ -58,6 +59,7 @@ func Establish() gin.HandlerFunc {
 		logrus.Debugf("Reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 		s, err := database.FromContext(c).GetService(number, b)
 		if err != nil {
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to read service %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return

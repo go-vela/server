@@ -2,6 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
+// nolint: dupl // ignore similar code
 package ddl
 
 import "github.com/go-vela/server/database/ddl/sqlite"

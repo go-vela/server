@@ -72,6 +72,8 @@ func (c *client) GetRepoCount() (int64, error) {
 }
 
 // GetUserRepoList gets a list of all repos by user ID from the database.
+//
+// nolint: dupl // ignore false positive
 func (c *client) GetUserRepoList(u *library.User, page, perPage int) ([]*library.Repo, error) {
 	logrus.Tracef("Listing repos for user %s from the database", u.GetName())
 

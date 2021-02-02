@@ -29,6 +29,8 @@ type client struct {
 
 // New returns a Database implementation that
 // integrates with a supported database instance.
+//
+// nolint: golint // ignore returning unexported client
 func New(c *cli.Context) (*client, error) {
 	driver := c.String("database.driver")
 	config := c.String("database.config")
@@ -80,6 +82,8 @@ func New(c *cli.Context) (*client, error) {
 // with the different supported backends.
 //
 // This function is intended for running tests only.
+//
+// nolint: golint // ignore returning unexported client
 func NewTest() (*client, error) {
 	name := os.Getenv("VELA_DATABASE_DRIVER")
 	if len(name) == 0 {
@@ -88,6 +92,7 @@ func NewTest() (*client, error) {
 
 	config := os.Getenv("VELA_DATABASE_CONFIG")
 	if len(config) == 0 {
+		// nolint: goconst // ignore creating constant
 		config = ":memory:"
 	}
 

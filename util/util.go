@@ -10,9 +10,10 @@ import (
 	"github.com/go-vela/types"
 )
 
-// HandleError appends the error to the handler chain for logging and outputs it
+// HandleError appends the error to the handler chain for logging and outputs it.
 func HandleError(c *gin.Context, status int, err error) {
 	msg := err.Error()
+	// nolint: errcheck // ignore checking error
 	c.Error(err)
 	c.AbortWithStatusJSON(status, types.Error{Message: &msg})
 }
@@ -20,7 +21,7 @@ func HandleError(c *gin.Context, status int, err error) {
 // MaxInt is a helper function to clamp the integer which
 // prevents it from being higher then the provided value.
 //
-// Currently, Go only supports float64 via math. ( max | min )
+// Currently, Go only supports float64 via math. ( max | min ).
 func MaxInt(a, b int) int {
 	if a > b {
 		return a
@@ -32,7 +33,7 @@ func MaxInt(a, b int) int {
 // MinInt is a helper function to clamp the integer which
 // prevents it from being lower then the provided value.
 //
-// Currently, Go only supports float64 via math. ( max | min )
+// Currently, Go only supports float64 via math. ( max | min ).
 func MinInt(a, b int) int {
 	if a < b {
 		return a

@@ -19,6 +19,8 @@ type client struct {
 }
 
 // New returns a Secret implementation that integrates with a Native secrets engine.
+//
+// nolint: golint // ignore returning unexported client
 func New(d database.Service, passphrase string) (*client, error) {
 	// immediately return if a nil database Service is provided
 	if d == nil {

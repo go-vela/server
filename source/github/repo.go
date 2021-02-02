@@ -337,7 +337,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	return f, nil
 }
 
-// toLibraryRepo does a partial conversion of a github repo to a library repo
+// toLibraryRepo does a partial conversion of a github repo to a library repo.
 func toLibraryRepo(gr github.Repository) *library.Repo {
 	return &library.Repo{
 		Org:      gr.GetOwner().Login,

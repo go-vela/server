@@ -57,7 +57,7 @@ LIMIT 1;
 `
 	// SelectLastRepoBuildByBranch represents a query to
 	// select the last build for a repo_id and branch name
-	// in the database
+	// in the database.
 	SelectLastRepoBuildByBranch = `
 SELECT *
 FROM builds

@@ -56,6 +56,8 @@ func (c *client) GetStepList() ([]*library.Step, error) {
 }
 
 // GetBuildStepList gets a list of all steps by build ID from the database.
+//
+// nolint: dupl // ignore false positive
 func (c *client) GetBuildStepList(b *library.Build, page, perPage int) ([]*library.Step, error) {
 	logrus.Tracef("Listing steps for build %d from the database", b.GetNumber())
 

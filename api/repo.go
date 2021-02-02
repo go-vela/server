@@ -274,6 +274,8 @@ func CreateRepo(c *gin.Context) {
 
 // GetRepos represents the API handler to capture a list
 // of repos for a user from the configured backend.
+//
+// nolint: dupl // ignore false positive
 func GetRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -292,6 +294,7 @@ func GetRepos(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -300,6 +303,8 @@ func GetRepos(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of repos for the user
@@ -425,6 +430,8 @@ func GetRepo(c *gin.Context) {
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
+//
+// nolint: funlen // ignore function length due to comments and conditionals
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)

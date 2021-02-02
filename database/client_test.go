@@ -44,6 +44,7 @@ func TestDatabase_New(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
+	// nolint: staticcheck // ignore false positive
 	defer database.Database.Close()
 
 	if database == nil {
@@ -79,6 +80,7 @@ func TestDatabase_NewTest(t *testing.T) {
 		t.Errorf("newTest returned err: %v", err)
 	}
 
+	// nolint: staticcheck // ignore false positive
 	defer database.Database.Close()
 
 	if database == nil {

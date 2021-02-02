@@ -5,8 +5,9 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Worker is a middleware function that attaches the worker interval

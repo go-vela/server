@@ -14,6 +14,8 @@ func TestNative_New(t *testing.T) {
 	// setup types
 	d, _ := database.NewTest()
 	defer d.Database.Close()
+
+	// nolint: gosec // ignore false positive
 	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
 
 	// run test

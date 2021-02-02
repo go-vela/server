@@ -17,12 +17,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Retrieve gets the repo in the given context
+// Retrieve gets the repo in the given context.
 func Retrieve(c *gin.Context) *library.Repo {
 	return FromContext(c)
 }
 
-// Establish sets the repo in the given context
+// Establish sets the repo in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		oParam := c.Param("org")

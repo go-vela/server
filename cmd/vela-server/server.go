@@ -21,6 +21,7 @@ import (
 	tomb "gopkg.in/tomb.v2"
 )
 
+// nolint: funlen // ignore function length
 func server(c *cli.Context) error {
 	// validate all input
 	err := validate(c)
@@ -127,6 +128,7 @@ func server(c *cli.Context) error {
 			}
 		}()
 
+		// nolint: gosimple // ignore this for now
 		for {
 			select {
 			case <-tomb.Dying():
@@ -137,7 +139,10 @@ func server(c *cli.Context) error {
 	})
 
 	// Wait for stuff and watch for errors
-	tomb.Wait()
+	err = tomb.Wait()
+	if err != nil {
+		return err
+	}
 
 	return tomb.Err()
 }

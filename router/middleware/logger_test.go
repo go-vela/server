@@ -115,6 +115,7 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 	// setup mock server
 	engine.Use(Logger(logger, time.RFC3339, true))
 	engine.GET("/foobar", func(c *gin.Context) {
+		// nolint: errcheck // ignore checking error
 		c.Error(fmt.Errorf("test error"))
 		c.Status(http.StatusOK)
 	})

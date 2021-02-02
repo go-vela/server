@@ -57,48 +57,54 @@ func MustSecretAdmin() gin.HandlerFunc {
 		switch t {
 		case constants.SecretOrg:
 			logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
-			perm, err := source.FromContext(c).OrgAccess(u, o)
 
+			perm, err := source.FromContext(c).OrgAccess(u, o)
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
 				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the org %s", u.GetName(), o)
+
 				util.HandleError(c, http.StatusUnauthorized, retErr)
 
 				return
 			}
 		case constants.SecretRepo:
 			logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
-			perm, err := source.FromContext(c).RepoAccess(u, o, n)
 
+			perm, err := source.FromContext(c).RepoAccess(u, o, n)
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
+				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s/%s", u.GetName(), o, n)
+
 				util.HandleError(c, http.StatusUnauthorized, retErr)
 
 				return
 			}
 		case constants.SecretShared:
 			logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
-			perm, err := source.FromContext(c).TeamAccess(u, o, n)
 
+			perm, err := source.FromContext(c).TeamAccess(u, o, n)
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
+				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
+
 				util.HandleError(c, http.StatusUnauthorized, retErr)
 
 				return
 			}
 		default:
 			retErr := fmt.Errorf("invalid secret type: %v", t)
+
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			return
@@ -112,6 +118,7 @@ func MustAdmin() gin.HandlerFunc {
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 
+		// nolint: lll // ignore long line length due to log message
 		logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
@@ -123,12 +130,15 @@ func MustAdmin() gin.HandlerFunc {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
 
-		switch {
-		case perm == "admin":
+		switch perm {
+		// nolint: goconst // ignore making constant
+		case "admin":
 			return
 
 		default:
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
+
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return
@@ -142,6 +152,7 @@ func MustWrite() gin.HandlerFunc {
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 
+		// nolint: lll // ignore long line length due to log message
 		logrus.Debugf("Verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
@@ -153,15 +164,15 @@ func MustWrite() gin.HandlerFunc {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
 
-		switch {
-		case perm == "admin":
+		switch perm {
+		case "admin":
 			return
-
-		case perm == "write":
+		case "write":
 			return
-
 		default:
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'write' permissions for the repo %s", u.GetName(), r.GetFullName())
+
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return
@@ -177,10 +188,13 @@ func MustRead() gin.HandlerFunc {
 
 		// check if the repo visibility field is set to public
 		if strings.EqualFold(r.GetVisibility(), constants.VisibilityPublic) {
+			// nolint: lll // ignore long line length due to log message
 			logrus.Debugf("repo %s has %s visibility - skipping 'read' check for user %s", r.GetFullName(), r.GetVisibility(), u.GetName())
+
 			return
 		}
 
+		// nolint: lll // ignore long line length due to log message
 		logrus.Debugf("Verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
@@ -192,18 +206,18 @@ func MustRead() gin.HandlerFunc {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
 
-		switch {
-		case perm == "admin":
+		switch perm {
+		case "admin":
 			return
-
-		case perm == "write":
+		case "write":
 			return
-
-		case perm == "read":
+		case "read":
 			return
 
 		default:
+			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())
+
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return

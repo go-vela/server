@@ -14,14 +14,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Pagination holds basic information pertaining to paginating results
+// Pagination holds basic information pertaining to paginating results.
 type Pagination struct {
 	PerPage int
 	Page    int
 	Total   int64
 }
 
-// HeaderLink will hold the information needed to form a link element in the header
+// HeaderLink will hold the information needed to form a link element in the header.
 type HeaderLink map[string]int
 
 // SetHeaderLink sets the Link HTTP header element to provide clients with paging information
@@ -57,7 +57,16 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	}
 
 	for rel, page := range hl {
-		ls := fmt.Sprintf(`<%s://%s%s?per_page=%d&page=%d>; rel="%s"`, resolveScheme(r), r.Host, r.URL.Path, p.PerPage, page, rel)
+		ls := fmt.Sprintf(
+			`<%s://%s%s?per_page=%d&page=%d>; rel="%s"`,
+			resolveScheme(r),
+			r.Host,
+			r.URL.Path,
+			p.PerPage,
+			page,
+			rel,
+		)
+
 		l = append(l, ls)
 	}
 
@@ -65,7 +74,7 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 	c.Header("Link", strings.Join(l, ", "))
 }
 
-// NextPage returns the next page number
+// NextPage returns the next page number.
 func (p *Pagination) NextPage() int {
 	if !p.HasNext() {
 		return p.Page
@@ -74,7 +83,7 @@ func (p *Pagination) NextPage() int {
 	return p.Page + 1
 }
 
-// PrevPage returns the previous page number
+// PrevPage returns the previous page number.
 func (p *Pagination) PrevPage() int {
 	if !p.HasPrev() {
 		return 1
@@ -83,22 +92,22 @@ func (p *Pagination) PrevPage() int {
 	return p.Page - 1
 }
 
-// HasPrev will return true if there is a previous page
+// HasPrev will return true if there is a previous page.
 func (p *Pagination) HasPrev() bool {
 	return p.Page > 1
 }
 
-// HasNext will return true if there is a next page
+// HasNext will return true if there is a next page.
 func (p *Pagination) HasNext() bool {
 	return p.Page < p.TotalPages()
 }
 
-// HasPages returns true if there is need to deal with pagination
+// HasPages returns true if there is need to deal with pagination.
 func (p *Pagination) HasPages() bool {
 	return p.Total > int64(p.PerPage)
 }
 
-// TotalPages will return the total number of pages
+// TotalPages will return the total number of pages.
 func (p *Pagination) TotalPages() int {
 	n := int(math.Ceil(float64(p.Total) / float64(p.PerPage)))
 	if n == 0 {
@@ -109,7 +118,9 @@ func (p *Pagination) TotalPages() int {
 }
 
 // resolveScheme is a helper to determine the protocol scheme
-// c.Request.URL.Scheme does not seem to reliably provide this
+// c.Request.URL.Scheme does not seem to reliably provide this.
+//
+// nolint: goconst // ignore making constant for https
 func resolveScheme(r *http.Request) string {
 	switch {
 	case r.Header.Get("X-Forwarded-Proto") == "https":

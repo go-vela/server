@@ -51,7 +51,7 @@ func TestDatabase_Client_GetStep(t *testing.T) {
 	_ = db.CreateStep(want)
 
 	// run test
-	got, err := db.GetStep(int(want.GetNumber()), b)
+	got, err := db.GetStep(want.GetNumber(), b)
 
 	if err != nil {
 		t.Errorf("GetStep returned err: %v", err)
@@ -361,7 +361,7 @@ func TestDatabase_Client_CreateStep(t *testing.T) {
 		t.Errorf("CreateStep returned err: %v", err)
 	}
 
-	got, _ := db.GetStep(int(want.GetNumber()), b)
+	got, _ := db.GetStep(want.GetNumber(), b)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("CreateStep is %v, want %v", got, want)
@@ -425,7 +425,7 @@ func TestDatabase_Client_UpdateStep(t *testing.T) {
 		t.Errorf("UpdateStep returned err: %v", err)
 	}
 
-	got, _ := db.GetStep(int(want.GetNumber()), b)
+	got, _ := db.GetStep(want.GetNumber(), b)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("UpdateStep is %v, want %v", got, want)

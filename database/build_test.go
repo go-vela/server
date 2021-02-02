@@ -23,7 +23,6 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error creating %s table: %v", constants.TableBuild, err)
 	}
-
 }
 
 func TestDatabase_Client_GetBuild(t *testing.T) {
@@ -51,7 +50,7 @@ func TestDatabase_Client_GetBuild(t *testing.T) {
 	_ = database.CreateBuild(want)
 
 	// run test
-	got, err := database.GetBuild(int(want.GetNumber()), r)
+	got, err := database.GetBuild(want.GetNumber(), r)
 
 	if err != nil {
 		t.Errorf("GetBuild returned err: %v", err)
@@ -1047,7 +1046,7 @@ func TestDatabase_Client_CreateBuild(t *testing.T) {
 		t.Errorf("CreateBuild returned err: %v", err)
 	}
 
-	got, _ := database.GetBuild(int(want.GetNumber()), r)
+	got, _ := database.GetBuild(want.GetNumber(), r)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("CreateBuild is %v, want %v", got, want)
@@ -1107,7 +1106,7 @@ func TestDatabase_Client_UpdateBuild(t *testing.T) {
 		t.Errorf("UpdateBuild returned err: %v", err)
 	}
 
-	got, _ := database.GetBuild(int(want.GetNumber()), r)
+	got, _ := database.GetBuild(want.GetNumber(), r)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("UpdateBuild is %v, want %v", got, want)
