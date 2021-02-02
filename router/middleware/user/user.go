@@ -18,12 +18,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Retrieve gets the user in the given context
+// Retrieve gets the user in the given context.
 func Retrieve(c *gin.Context) *library.User {
 	return FromContext(c)
 }
 
-// Establish sets the user in the given context
+// Establish sets the user in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// get the access token from the request

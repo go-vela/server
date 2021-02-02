@@ -97,6 +97,8 @@ func metadataSource(c *cli.Context) (*types.Source, error) {
 }
 
 // helper function to capture the Vela metadata from the CLI arguments.
+//
+// nolint: unparam // ignore unparam for now
 func metadataVela(c *cli.Context) (*types.Vela, error) {
 	logrus.Trace("Creating Vela metadata from CLI configuration")
 

@@ -32,6 +32,8 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 }
 
 // helper function to setup the Kafka queue from the CLI arguments.
+//
+// nolint: unparam // ignore unparam for now
 func setupKafka(c *cli.Context) (queue.Service, error) {
 	logrus.Tracef("Creating %s queue client from CLI configuration", constants.DriverKafka)
 	// return kafka.New(c.String("queue-config"), "vela")
