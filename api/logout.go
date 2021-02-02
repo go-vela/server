@@ -56,6 +56,8 @@ func Logout(c *gin.Context) {
 		logrus.Error("unable to parse Vela address during logout")
 	}
 
+	// set the same samesite attribute we used to create the cookie
+	c.SetSameSite(http.SameSiteLaxMode)
 	// remove the refresh token from the cookies, Max-Age value -1 will do it
 	c.SetCookie(constants.RefreshTokenName, "", -1, "/", addr.Hostname(), c.Value("securecookie").(bool), true)
 
