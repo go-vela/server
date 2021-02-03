@@ -20,14 +20,17 @@ func (c *client) Get(sType, org, name, path string) (*library.Secret, error) {
 		return nil, err
 	}
 
-	// encrypt secret value
-	value, err := decrypt([]byte(s.GetValue()), c.passphrase)
-	if err != nil {
-		return nil, err
-	}
-
-	// update value of secret to be encrypted
-	s.SetValue(value)
+	// TODO: A bug has been found with this functionality.
+	// That affects secret values under 12 chars
+	//
+	// // encrypt secret value
+	// value, err := decrypt([]byte(s.GetValue()), c.passphrase)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	// // update value of secret to be encrypted
+	// s.SetValue(value)
 
 	return s, nil
 }

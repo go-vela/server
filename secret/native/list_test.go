@@ -60,13 +60,13 @@ func TestNative_List(t *testing.T) {
 
 	_ = s.Create("repo", "foo", "bar", sOne)
 
-	vOne, _ := decrypt([]byte(sOne.GetValue()), passphrase)
-	sOne.Value = &vOne
+	// vOne, _ := decrypt([]byte(sOne.GetValue()), passphrase)
+	// sOne.Value = &vOne
 
 	_ = s.Create("repo", "foo", "bar", sTwo)
 
-	vTwo, _ := decrypt([]byte(sTwo.GetValue()), passphrase)
-	sTwo.Value = &vTwo
+	// vTwo, _ := decrypt([]byte(sTwo.GetValue()), passphrase)
+	// sTwo.Value = &vTwo
 
 	got, err := s.List("repo", "foo", "bar", 1, 10)
 	if err != nil {

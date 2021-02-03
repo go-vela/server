@@ -20,16 +20,19 @@ func (c *client) List(sType, org, name string, page, perPage int) ([]*library.Se
 		return nil, err
 	}
 
-	for _, secret := range s {
-		// encrypt secret value
-		value, err := decrypt([]byte(secret.GetValue()), c.passphrase)
-		if err != nil {
-			return nil, err
-		}
+	// TODO: A bug has been found with this functionality.
+	// That affects secret values under 12 chars
+	//
+	// for _, secret := range s {
 
-		// update value of secret to be encrypted
-		secret.SetValue(value)
-	}
+	// 	value, err := decrypt([]byte(secret.GetValue()), c.passphrase)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+
+	// 	// update value of secret to be encrypted
+	// 	secret.SetValue(value)
+	// }
 
 	return s, nil
 }
