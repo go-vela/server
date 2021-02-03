@@ -49,8 +49,8 @@ func TestNative_Create_Org(t *testing.T) {
 		t.Errorf("Create returned err: %v", err)
 	}
 
-	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.SetValue(value)
+	// value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	// want.SetValue(value)
 
 	got, _ := s.Get("org", "foo", "*", "bar")
 
@@ -95,8 +95,8 @@ func TestNative_Create_Repo(t *testing.T) {
 		t.Errorf("Create returned err: %v", err)
 	}
 
-	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.SetValue(value)
+	// value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	// want.SetValue(value)
 
 	got, _ := s.Get("repo", "foo", "bar", "baz")
 
@@ -141,8 +141,8 @@ func TestNative_Create_Shared(t *testing.T) {
 		t.Errorf("Create returned err: %v", err)
 	}
 
-	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.SetValue(value)
+	// value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	// want.SetValue(value)
 
 	got, _ := s.Get("shared", "foo", "bar", "baz")
 

@@ -46,8 +46,8 @@ func TestNative_Get(t *testing.T) {
 
 	_ = s.Create("repo", "foo", "bar", want)
 
-	value, _ := decrypt([]byte(want.GetValue()), passphrase)
-	want.SetValue(value)
+	// value, _ := decrypt([]byte(want.GetValue()), passphrase)
+	// want.SetValue(value)
 
 	got, err := s.Get("repo", "foo", "bar", "baz")
 	if err != nil {

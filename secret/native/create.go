@@ -17,14 +17,17 @@ import (
 func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	logrus.Tracef("Creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
-	// encrypt secret value
-	value, err := encrypt([]byte(s.GetValue()), c.passphrase)
-	if err != nil {
-		return err
-	}
+	// TODO: A bug has been found with this functionality.
+	// That affects secret values under 12 chars
 
-	// update value of secret to be encrypted
-	s.SetValue(value)
+	// // encrypt secret value
+	// value, err := encrypt([]byte(s.GetValue()), c.passphrase)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// // update value of secret to be encrypted
+	// s.SetValue(value)
 
 	// create the secret for the native service
 	switch sType {
