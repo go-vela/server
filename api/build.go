@@ -1152,7 +1152,12 @@ func CancelBuild(c *gin.Context) {
 				return
 			}
 
-			json.Unmarshal(respBody, b)
+			err = json.Unmarshal(respBody, b)
+			if err != nil {
+				retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+				return
+			}
 
 			c.JSON(resp.StatusCode, b)
 			return

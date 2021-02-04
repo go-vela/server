@@ -2,7 +2,7 @@
 #
 # Use of this source code is governed by the LICENSE file in this repository.
 
-FROM alpine as certs
+FROM alpine:3.12.3 as certs
 
 RUN apk add --update --no-cache ca-certificates
 
