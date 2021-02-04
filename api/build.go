@@ -5,6 +5,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -1150,7 +1151,10 @@ func CancelBuild(c *gin.Context) {
 				util.HandleError(c, http.StatusBadRequest, retErr)
 				return
 			}
-			c.JSON(resp.StatusCode, strings.Trim(string(respBody), "\""))
+
+			json.Unmarshal(respBody, b)
+
+			c.JSON(resp.StatusCode, b)
 			return
 		}
 	}
