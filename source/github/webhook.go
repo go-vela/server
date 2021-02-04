@@ -263,7 +263,15 @@ func processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*
 	b.SetRef(payload.GetDeployment().GetRef())
 
 	// check if payload is provided within request
-	if payload.GetDeployment().Payload != nil {
+	//
+	// use a length of 2 because the payload will
+	// never be nil even if no payload is provided.
+	//
+	// sending an API request to GitHub with no
+	// payload provided yields a default of `{}`.
+	//
+	// nolint: gomnd // ignore magic number
+	if len(payload.GetDeployment().Payload) > 2 {
 		deployPayload := make(map[string]string)
 		// unmarshal the payload into the expected map[string]string format
 		err := json.Unmarshal(payload.GetDeployment().Payload, &deployPayload)
