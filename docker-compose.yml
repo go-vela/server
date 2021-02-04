@@ -58,9 +58,7 @@ services:
   # https://go-vela.github.io/docs/concepts/infrastructure/worker/
   worker:
     container_name: worker
-    build:
-      context: ../worker
-      dockerfile: Dockerfile
+    image: target/vela-worker:latest
     networks:
       - vela
     environment:
