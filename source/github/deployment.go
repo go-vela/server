@@ -132,7 +132,7 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 
 	var payload interface{}
 	if d.Payload == nil {
-		payload = github.String("")
+		payload = make(map[string]string)
 	} else {
 		payload = d.Payload
 	}
