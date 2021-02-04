@@ -141,7 +141,13 @@ func (c *client) GetServiceStatusCount() (map[string]float64, error) {
 
 	// variable to store query results
 	s := new([]statusCount)
-	counts := make(map[string]float64)
+	counts := map[string]float64{
+		"pending": 0,
+		"failure": 0,
+		"killed":  0,
+		"running": 0,
+		"success": 0,
+	}
 
 	// send query to the database and store result in variable
 	err := c.Database.
