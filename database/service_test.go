@@ -306,6 +306,9 @@ func TestDatabase_Client_GetServiceStatusCount(t *testing.T) {
 	want := make(map[string]float64)
 	want["success"] = 2
 	want["failure"] = 1
+	want["pending"] = 0
+	want["killed"] = 0
+	want["running"] = 0
 
 	// setup database
 	db, _ := NewTest()
