@@ -59,8 +59,6 @@ func Login(c *gin.Context) {
 
 			logrus.Debugf("cli login request, setting redirect to: %s", r)
 		}
-
-		logrus.Debug("cli login request, but port was not defined")
 	}
 
 	// if we a redirecting to non-default destination,
@@ -75,5 +73,6 @@ func Login(c *gin.Context) {
 	// redirect to our authentication handler
 	// will be either <vela server>/authenticate (headless)
 	// or <vela server>/authenticate?redirect_uri=<redirect> (web or cli)
+	// c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s%s", m.Vela.Address, path))
 	c.Redirect(http.StatusTemporaryRedirect, path)
 }
