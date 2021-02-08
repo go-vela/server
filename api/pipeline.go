@@ -117,7 +117,7 @@ func GetPipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, _, err := comp.Parse(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -226,7 +226,7 @@ func GetTemplates(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, _, err := comp.Parse(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -345,7 +345,7 @@ func ExpandPipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, _, err := comp.Parse(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -481,7 +481,7 @@ func ValidatePipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, raw, err := comp.Parse(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -522,7 +522,7 @@ func ValidatePipeline(c *gin.Context) {
 	}
 
 	// validate the yaml configuration
-	err = p.Validate(raw)
+	err = comp.Validate(p)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -626,7 +626,7 @@ func CompilePipeline(c *gin.Context) {
 		WithUser(u)
 
 	// parse the pipeline configuration file
-	p, raw, err := comp.Parse(config)
+	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -687,7 +687,7 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	// validate the yaml configuration
-	err = p.Validate(raw)
+	err = comp.Validate(p)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
