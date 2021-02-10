@@ -59,8 +59,6 @@ func Login(c *gin.Context) {
 
 			logrus.Debugf("cli login request, setting redirect to: %s", r)
 		}
-
-		logrus.Debug("cli login request, but port was not defined")
 	}
 
 	// if we a redirecting to non-default destination,
