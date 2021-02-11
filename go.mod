@@ -7,12 +7,13 @@ require (
 	github.com/aws/aws-sdk-go v1.36.32
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/fatih/color v1.10.0 // indirect
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/go-vela/compiler v0.7.1-0.20210208192832-b648ca61be09
-	github.com/go-vela/types v0.7.1-0.20210204153653-939416ae12ed
+	github.com/go-vela/compiler v0.7.2
+	github.com/go-vela/types v0.7.2
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/gofuzz v1.2.0 // indirect
