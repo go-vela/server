@@ -179,6 +179,8 @@ github.com/go-vela/compiler v0.7.1-0.20210208192832-b648ca61be09 h1:W00prox3a5x6
 github.com/go-vela/compiler v0.7.1-0.20210208192832-b648ca61be09/go.mod h1:DjQyMnNKhoXcNCgpW8MJ6kevr6BYGL5kZ1IutQjjuUU=
 github.com/go-vela/types v0.7.1-0.20210204153653-939416ae12ed h1:hI3H8i+kR6n69Uls+Up+xjRzZbA8uz1FsB7S+oErkhY=
 github.com/go-vela/types v0.7.1-0.20210204153653-939416ae12ed/go.mod h1:e1aq1gtDHXroC1zklr85+lWXSKuAjv5DjV2tec3fMbk=
+github.com/go-vela/types v0.7.2 h1:ERsqcAb2sXNqEPOBtRBnZ3IRp4xEIVEIZ9TqqgypKGo=
+github.com/go-vela/types v0.7.2/go.mod h1:VWpaynT/gWAMsqh6/FQygCzL8LSy289cqV36UIhubD8=
 github.com/goccy/go-yaml v1.8.5 h1:f1UH5GVhLZE6ElNBAgCtF3ZUOuJ62dNOo3Y5dOJqTV4=
 github.com/goccy/go-yaml v1.8.5/go.mod h1:U/jl18uSupI5rdI2jmuCswEA2htH9eXfferR3KfscvA=
 github.com/goccy/go-yaml v1.8.8 h1:MGfRB1GeSn/hWXYWS2Pt67iC2GJNnebdIro01ddyucA=
