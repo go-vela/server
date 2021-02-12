@@ -11,7 +11,7 @@ import (
 )
 
 // Worker is a middleware function that attaches the worker interval
-// to determine which workers are active
+// to determine which workers are active.
 func Worker(duration time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("worker_active_interval", duration)

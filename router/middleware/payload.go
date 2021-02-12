@@ -13,7 +13,7 @@ import (
 )
 
 // Payload is a middleware function that captures the user provided json body
-// and attaches it to the context of every http.Request to be logged
+// and attaches it to the context of every http.Request to be logged.
 func Payload() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// bind JSON payload from request to be added to context
