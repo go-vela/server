@@ -45,7 +45,7 @@ restart: down up
 #
 # Usage: `make up`
 .PHONY: up
-up: build pull compose-up
+up: build compose-up
 
 # The `down` target is intended to destroy
 # the local Docker compose stack.
