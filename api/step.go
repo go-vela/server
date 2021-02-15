@@ -527,6 +527,14 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 				return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
 			}
 
+			// populate environment variables from step library
+			//
+			// https://pkg.go.dev/github.com/go-vela/types/library#step.Environment
+			err = step.MergeEnv(s.Environment())
+			if err != nil {
+				return steps, err
+			}
+
 			// create the log object
 			l := new(library.Log)
 			l.SetStepID(s.GetID())
@@ -566,6 +574,14 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 		s, err = database.GetStep(s.GetNumber(), b)
 		if err != nil {
 			return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
+		}
+
+		// populate environment variables from step library
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/library#step.Environment
+		err = step.MergeEnv(s.Environment())
+		if err != nil {
+			return steps, err
 		}
 
 		// create the log object
