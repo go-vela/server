@@ -17,12 +17,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Retrieve gets the worker in the given context
+// Retrieve gets the worker in the given context.
 func Retrieve(c *gin.Context) *library.Worker {
 	return FromContext(c)
 }
 
-// Establish sets the worker in the given context
+// Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wParam := c.Param("worker")

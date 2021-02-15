@@ -131,6 +131,8 @@ func (c *client) GetServiceImageCount() (map[string]float64, error) {
 
 // GetServiceStatusCount gets a list of all service statuses
 // and the count of their occurrence in the database.
+//
+// nolint: dupl // ignore similar code with steps
 func (c *client) GetServiceStatusCount() (map[string]float64, error) {
 	logrus.Trace("Counting the total of each status for services in the database")
 
