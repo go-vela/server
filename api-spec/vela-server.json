@@ -4775,7 +4775,9 @@
               "$ref": "#/definitions/Login"
             },
             "headers": {
-              "Set-Cookie": {}
+              "Set-Cookie": {
+                "type": "string"
+              }
             }
           },
           "307": {

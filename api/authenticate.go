@@ -47,8 +47,7 @@ import (
 //     description: Successfully authenticated
 //     headers:
 //       Set-Cookie:
-//         schema:
-//           type: string
+//         type: string
 //     schema:
 //       "$ref": "#/definitions/Login"
 //   '307':
