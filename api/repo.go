@@ -30,7 +30,6 @@ import (
 // Create a repo in the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -45,29 +44,28 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the repo
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to create the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '403':
 //     description: Unable to create the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '409':
 //     description: Unable to create the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Unable to create the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
@@ -250,27 +248,44 @@ func CreateRepo(c *gin.Context) {
 // Get all repos in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
 //   - ApiKeyAuth: []
+// parameters:
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Repo"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetRepos represents the API handler to capture a list
 // of repos for a user from the configured backend.
@@ -344,7 +359,6 @@ func GetRepos(c *gin.Context) {
 // Get a repo in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -363,7 +377,6 @@ func GetRepos(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Repo"
 
@@ -383,7 +396,6 @@ func GetRepo(c *gin.Context) {
 // Update a repo in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -408,25 +420,20 @@ func GetRepo(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the repo
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '400':
 //     description: Unable to update the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Unable to update the repo
 //     schema:
-//       type: string
-//   '510':
-//     description: Unable to update the repo
-//     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
@@ -559,7 +566,6 @@ func UpdateRepo(c *gin.Context) {
 // Delete a repo in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -583,11 +589,11 @@ func UpdateRepo(c *gin.Context) {
 //   '500':
 //     description: Unable to  deleted the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '510':
 //     description: Unable to  deleted the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteRepo represents the API handler to remove
 // a repo from the configured backend.
@@ -642,7 +648,6 @@ func DeleteRepo(c *gin.Context) {
 // Remove and recreate the webhook for a repo
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -666,7 +671,7 @@ func DeleteRepo(c *gin.Context) {
 //   '500':
 //     description: Unable to repair the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // RepairRepo represents the API handler to remove
 // and then create a webhook for a repo.
@@ -721,7 +726,6 @@ func RepairRepo(c *gin.Context) {
 // Change the owner of the webhook for a repo
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -745,7 +749,7 @@ func RepairRepo(c *gin.Context) {
 //   '500':
 //     description: Unable to change the owner for the repo
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // ChownRepo represents the API handler to change
 // the owner of a repo in the configured backend.

@@ -12,10 +12,9 @@ import (
 
 // swagger:operation GET /api/v1/admin/deployments admin AdminAllDeployments
 //
-// Get all of the deployments in the database
+// Get all of the deployments in the database (Not Implemented)
 //
 // ---
-// x-success_http_code: '501'
 // produces:
 // - application/json
 // parameters:
@@ -34,10 +33,9 @@ func AllDeployments(c *gin.Context) {
 
 // swagger:operation PUT /api/v1/admin/deployment admin AdminUpdateDeployment
 //
-// Get All
+// Get All (Not Implemented)
 //
 // ---
-// x-success_http_code: '501'
 // produces:
 // - application/json
 // parameters:

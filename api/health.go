@@ -10,12 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation GET /health router Health
+// swagger:operation GET /health base Health
 //
 // Check if the Vela API is available
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:

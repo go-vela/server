@@ -25,7 +25,6 @@ import (
 // Create a webhook for the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -50,17 +49,16 @@ import (
 // responses:
 //   '201':
 //     description: The webhook has been created
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: The webhook was unable to be created
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: The webhook was unable to be created
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateHook represents the API handler to create
 // a webhook in the configured backend.
@@ -123,12 +121,11 @@ func CreateHook(c *gin.Context) {
 	c.JSON(http.StatusCreated, h)
 }
 
-// swagger:operation GET /api/v1/hooks/{org}/{repo} deployment GetHooks
+// swagger:operation GET /api/v1/hooks/{org}/{repo} webhook GetHooks
 //
-// Create a webhook for the configured backend
+// Retrieve the webhooks for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -142,24 +139,41 @@ func CreateHook(c *gin.Context) {
 //   description: Name of the repo
 //   required: true
 //   type: string
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
-//   '201':
+//   '200':
 //     description: Successfully retrieved webhooks
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Webhook"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve webhooks
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve webhooks
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetHooks represents the API handler to capture a list
 // of webhooks from the configured backend.
@@ -230,12 +244,11 @@ func GetHooks(c *gin.Context) {
 	c.JSON(http.StatusOK, h)
 }
 
-// swagger:operation GET /api/v1/hooks/{org}/{repo}/{hook} deployment GetHook
+// swagger:operation GET /api/v1/hooks/{org}/{repo}/{hook} webhook GetHook
 //
-// Create a webhook for the configured backend
+// Retrieve a webhook for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -251,25 +264,24 @@ func GetHooks(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: hook
-//   description: Name of the org
+//   description: Number of the hook
 //   required: true
-//   type: string
+//   type: integer
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the webhook
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: Unable to retrieve the webhook
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the webhook
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetHook represents the API handler to capture a
 // webhook from the configured backend.
@@ -307,7 +319,6 @@ func GetHook(c *gin.Context) {
 // Update a webhook for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -323,9 +334,9 @@ func GetHook(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: hook
-//   description: Name of the org
+//   description: Number of the hook
 //   required: true
-//   type: string
+//   type: integer
 // - in: body
 //   name: body
 //   description: Webhook payload that we expect from the user or VCS
@@ -337,21 +348,20 @@ func GetHook(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the webhook
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '400':
 //     description: The webhook was unable to be updated
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: The webhook was unable to be updated
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: The webhook was unable to be updated
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateHook represents the API handler to update
 // a webhook in the configured backend.
@@ -445,12 +455,11 @@ func UpdateHook(c *gin.Context) {
 	c.JSON(http.StatusOK, h)
 }
 
-// swagger:operation DELETE /api/v1/hooks/{org}/{repo}/{hook} deployment DeleteHooks
+// swagger:operation DELETE /api/v1/hooks/{org}/{repo}/{hook} webhook DeleteHook
 //
 // Delete a webhook for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -466,28 +475,28 @@ func UpdateHook(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: hook
-//   description: Name of the org
+//   description: Number of the hook
 //   required: true
-//   type: string
+//   type: integer
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the webhook
+//     description: Successfully deleted the webhook
 //     schema:
 //       type: string
 //   '400':
-//     description: The webhook was unable to be updated
+//     description: The webhook was unable to be deleted
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
-//     description: The webhook was unable to be updated
+//     description: The webhook was unable to be deleted
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: The webhook was unable to be updated
+//     description: The webhook was unable to be deleted
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteHook represents the API handler to remove
 // a webhook from the configured backend.

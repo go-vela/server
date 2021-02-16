@@ -23,7 +23,6 @@ import (
 // Get all of the users in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -31,7 +30,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all users from the database
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -64,7 +62,6 @@ func AllUsers(c *gin.Context) {
 // Update a user in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -79,17 +76,16 @@ func AllUsers(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the user in the database
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '404':
 //     description: Unable to update the user in the database
 //     schema:
-//       type: string
-//   '501':
+//       "$ref": "#/definitions/Error"
+//   '500':
 //     description: Unable to update the user in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateUser represents the API handler to
 // update any user stored in the database.

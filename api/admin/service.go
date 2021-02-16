@@ -23,7 +23,6 @@ import (
 // Get all of the services in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -31,7 +30,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all services from the database
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -39,7 +37,7 @@ import (
 //   '500':
 //     description: Unable to retrieve all services from the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // AllServices represents the API handler to
 // captures all services stored in the database.
@@ -64,7 +62,6 @@ func AllServices(c *gin.Context) {
 // Update a hook in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -85,11 +82,11 @@ func AllServices(c *gin.Context) {
 //   '404':
 //     description: Unable to update the service in the database
 //     schema:
-//       type: string
-//   '501':
+//       "$ref": "#/definitions/Error"
+//   '500':
 //     description: Unable to update the service in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateService represents the API handler to
 // update any service stored in the database.

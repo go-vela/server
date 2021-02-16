@@ -23,7 +23,6 @@ import (
 // Get all of the repos in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -31,7 +30,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all repos from the database
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -39,7 +37,7 @@ import (
 //   '500':
 //     description: Unable to retrieve all repos from the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // AllRepos represents the API handler to
 // captures all repos stored in the database.
@@ -64,7 +62,6 @@ func AllRepos(c *gin.Context) {
 // Update a repo in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -79,17 +76,16 @@ func AllRepos(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the repo in the database
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '404':
 //     description: Unable to update the repo in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '501':
 //     description: Unable to update the repo in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateRepo represents the API handler to
 // update any repo stored in the database.

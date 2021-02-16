@@ -37,7 +37,6 @@ import (
 // Create a build in the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -68,15 +67,15 @@ import (
 //   '400':
 //     description: Unable to create the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to create the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateBuild represents the API handler to
 // create a build in the configured backend.
@@ -256,10 +255,9 @@ func CreateBuild(c *gin.Context) {
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds GetBuilds
 //
-// Create a build in the configured backend
+// Get builds from the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -273,24 +271,41 @@ func CreateBuild(c *gin.Context) {
 //   description: Name of the repo
 //   required: true
 //   type: string
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the build
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Build"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the list of builds
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the list of builds
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
@@ -367,7 +382,6 @@ func GetBuilds(c *gin.Context) {
 // Get a list of builds by org in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -376,27 +390,41 @@ func GetBuilds(c *gin.Context) {
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved build list
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Build"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the list of builds
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the list of builds
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
@@ -471,7 +499,6 @@ func GetOrgBuilds(c *gin.Context) {
 // Get a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -518,7 +545,6 @@ func GetBuild(c *gin.Context) {
 // Restart a build in the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -542,21 +568,20 @@ func GetBuild(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully restarted the build
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to restart the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to restart the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to restart the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // RestartBuild represents the API handler to
 // restart an existing build in the configured backend.
@@ -715,7 +740,6 @@ func RestartBuild(c *gin.Context) {
 // Updates a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -731,7 +755,7 @@ func RestartBuild(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to restart
+//   description: Build number to update
 //   required: true
 //   type: integer
 // - in: body
@@ -744,18 +768,17 @@ func RestartBuild(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully restarted the build
-//     type: json
+//     description: Successfully updated the build
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '404':
-//     description: Unable to restart the build
+//     description: Unable to update the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to restart the build
+//     description: Unable to update the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateBuild represents the API handler to update
 // a build for a repo in the configured backend.
@@ -865,7 +888,6 @@ func UpdateBuild(c *gin.Context) {
 // Delete a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -881,20 +903,24 @@ func UpdateBuild(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to restart
+//   description: Build number to delete
 //   required: true
 //   type: integer
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully restarted the build
+//     description: Successfully deleted the build
 //     schema:
 //       type: string
 //   '400':
-//     description: Unable to restart the build
+//     description: Unable to delete the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to delete the build
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // DeleteBuild represents the API handler to remove
 // a build for a repo from the configured backend.
@@ -1030,7 +1056,6 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 // Cancel a running build
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -1049,11 +1074,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 //   description: Build number to cancel
 //   required: true
 //   type: integer
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully canceled the build
@@ -1062,15 +1084,15 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 //   '400':
 //     description: Unable to cancel build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to cancel build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to cancel build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CancelBuild represents the API handler to
 // cancel a running build.

@@ -2,6 +2,8 @@ module github.com/go-vela/server
 
 go 1.13
 
+replace github.com/go-vela/types => ../types
+
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aws/aws-sdk-go v1.36.32

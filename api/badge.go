@@ -15,14 +15,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation GET /badge/{org}/{repo}/status.svg router GetBadge
+// swagger:operation GET /badge/{org}/{repo}/status.svg base GetBadge
 //
 // Get a badge for the repo
 //
 // ---
-// x-success_http_code: '200'
 // produces:
-// - application/json
+// - image/svg+xml
 // parameters:
 // - in: path
 //   name: org
