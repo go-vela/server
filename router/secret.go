@@ -18,7 +18,7 @@ import (
 // GET    /api/v1/secrets/:engine/:type/:org/:name
 // GET    /api/v1/secrets/:engine/:type/:org/:name/:secret
 // PUT    /api/v1/secrets/:engine/:type/:org/:name/:secret
-// DELETE /api/v1/secrets/:engine/:type/:org/:name/:secret
+// DELETE /api/v1/secrets/:engine/:type/:org/:name/:secret .
 func SecretHandlers(base *gin.RouterGroup) {
 	// Secrets endpoints
 	secrets := base.Group("/secrets/:engine/:type/:org/:name", perm.MustSecretAdmin())

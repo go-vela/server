@@ -17,7 +17,7 @@ import (
 // GET  /api/v1/pipelines/:org/:repo/templates
 // POST /api/v1/pipelines/:org/:repo/expand
 // POST /api/v1/pipelines/:org/:repo/compile
-// POST /api/v1/pipelines/:org/:repo/validate
+// POST /api/v1/pipelines/:org/:repo/validate .
 func PipelineHandlers(base *gin.RouterGroup) {
 	// Pipelines endpoints
 	pipelines := base.Group("pipelines/:org/:repo", repo.Establish())

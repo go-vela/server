@@ -28,7 +28,7 @@ import (
 // GET    /api/v1/admin/steps
 // PUT    /api/v1/admin/step
 // GET    /api/v1/admin/users
-// PUT    /api/v1/admin/user
+// PUT    /api/v1/admin/user .
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())

@@ -16,7 +16,7 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs .
 func LogServiceHandlers(base *gin.RouterGroup) {
 	// Logs endpoints
 	logs := base.Group("/logs")
@@ -34,7 +34,7 @@ func LogServiceHandlers(base *gin.RouterGroup) {
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
 func LogStepHandlers(base *gin.RouterGroup) {
 	// Logs endpoints
 	logs := base.Group("/logs")
