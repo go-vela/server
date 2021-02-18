@@ -5,6 +5,11 @@
 package database
 
 import (
+	"bytes"
+	"compress/zlib"
+	"fmt"
+	"io/ioutil"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -51,6 +56,30 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		Table(constants.TableLog).
 		Raw(c.DML.LogService.Select["step"], id).
 		Scan(l).Error
+	if err != nil {
+		return l.ToLibrary(), err
+	}
+
+	fmt.Println("Get Log Data: ", string(l.Data))
+	fmt.Println("Get Log Data Length: ", len(l.Data))
+
+	// create new buffer from compressed log data
+	b := bytes.NewBuffer(l.Data)
+
+	// create new reader for reading compressed log data
+	r, err := zlib.NewReader(b)
+	if err != nil {
+		return l.ToLibrary(), fmt.Errorf("unable to create new reader: %v", err)
+	}
+
+	// capture decompressed log data from compressed log data
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return l.ToLibrary(), fmt.Errorf("unable to read log data: %v", err)
+	}
+
+	// overwrite database log data with decompressed log data
+	l.Data = data
 
 	return l.ToLibrary(), err
 }
@@ -84,6 +113,27 @@ func (c *client) CreateLog(l *library.Log) error {
 		return err
 	}
 
+	// create new buffer from storing compressed log data
+	b := new(bytes.Buffer)
+
+	// create new writer for writing compressed log data
+	w, err := zlib.NewWriterLevel(b, 3)
+	if err != nil {
+		return err
+	}
+
+	// write compressed log data to buffer
+	_, err = w.Write(log.Data)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Create Log Data: ", b.String())
+	fmt.Println("Create Log Data Length: ", b.Len())
+
+	// overwrite database log data with compressed log data
+	log.Data = b.Bytes()
+
 	// send query to the database
 	return c.Database.
 		Table(constants.TableLog).
@@ -102,6 +152,27 @@ func (c *client) UpdateLog(l *library.Log) error {
 	if err != nil {
 		return err
 	}
+
+	// create new buffer from storing compressed log data
+	b := new(bytes.Buffer)
+
+	// create new writer for writing compressed log data
+	w, err := zlib.NewWriterLevel(b, 3)
+	if err != nil {
+		return err
+	}
+
+	// write compressed log data to buffer
+	_, err = w.Write(log.Data)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Update Log Data: ", b.String())
+	fmt.Println("Update Log Data Length: ", b.Len())
+
+	// overwrite database log data with compressed log data
+	log.Data = b.Bytes()
 
 	// send query to the database
 	return c.Database.
