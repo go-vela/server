@@ -523,6 +523,14 @@ func planServices(database database.Service, p *pipeline.Build, b *library.Build
 			return services, fmt.Errorf("unable to get service %s: %w", s.GetName(), err)
 		}
 
+		// populate environment variables from service library
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/library#Service.Environment
+		err = service.MergeEnv(s.Environment())
+		if err != nil {
+			return services, err
+		}
+
 		// create the log object
 		l := new(library.Log)
 		l.SetServiceID(s.GetID())
