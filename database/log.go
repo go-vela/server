@@ -14,9 +14,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// set the compression level for the data stored in the logs.
-const logCompressionLevel = 3
-
 // GetBuildLogs gets a collection of logs for a build by unique ID from the database.
 func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 	logrus.Tracef("Listing logs for build %d from the database", id)
@@ -78,7 +75,7 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		return l.ToLibrary(), fmt.Errorf("unable to decompress logs for step %d: %v", id, err)
 	}
 
-	return l.ToLibrary(), err
+	return l.ToLibrary(), nil
 }
 
 // GetServiceLog gets a log by unique ID from the database.
@@ -107,7 +104,7 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 		return l.ToLibrary(), fmt.Errorf("unable to decompress logs for service %d: %v", id, err)
 	}
 
-	return l.ToLibrary(), err
+	return l.ToLibrary(), nil
 }
 
 // CreateLog creates a new log in the database.
