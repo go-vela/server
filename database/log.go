@@ -17,6 +17,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// set the compression level for the data stored in the logs.
+const logCompressionLevel = 3
+
 // GetBuildLogs gets a collection of logs for a build by unique ID from the database.
 func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 	logrus.Tracef("Listing logs for build %d from the database", id)
@@ -60,9 +63,6 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		return l.ToLibrary(), err
 	}
 
-	fmt.Println("Get Log Data: ", string(l.Data))
-	fmt.Println("Get Log Data Length: ", len(l.Data))
-
 	// create new buffer from compressed log data
 	b := bytes.NewBuffer(l.Data)
 
@@ -71,6 +71,9 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 	if err != nil {
 		return l.ToLibrary(), fmt.Errorf("unable to create new reader: %v", err)
 	}
+
+	// defer closing reader
+	defer r.Close()
 
 	// capture decompressed log data from compressed log data
 	data, err := ioutil.ReadAll(r)
@@ -117,7 +120,7 @@ func (c *client) CreateLog(l *library.Log) error {
 	b := new(bytes.Buffer)
 
 	// create new writer for writing compressed log data
-	w, err := zlib.NewWriterLevel(b, 3)
+	w, err := zlib.NewWriterLevel(b, logCompressionLevel)
 	if err != nil {
 		return err
 	}
@@ -128,8 +131,11 @@ func (c *client) CreateLog(l *library.Log) error {
 		return err
 	}
 
-	fmt.Println("Create Log Data: ", b.String())
-	fmt.Println("Create Log Data Length: ", b.Len())
+	// close the writer
+	//
+	// compressed bytes are not flushed until the
+	// writer is closed or explicitly flushed
+	w.Close()
 
 	// overwrite database log data with compressed log data
 	log.Data = b.Bytes()
@@ -168,8 +174,11 @@ func (c *client) UpdateLog(l *library.Log) error {
 		return err
 	}
 
-	fmt.Println("Update Log Data: ", b.String())
-	fmt.Println("Update Log Data Length: ", b.Len())
+	// closing the writer
+	//
+	// compressed bytes are not flushed until the
+	// writer is closed or explicitly flushed
+	w.Close()
 
 	// overwrite database log data with compressed log data
 	log.Data = b.Bytes()
