@@ -5,10 +5,7 @@
 package database
 
 import (
-	"bytes"
-	"compress/zlib"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -40,26 +37,13 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := log
 
-		// create new buffer from compressed log data
-		b := bytes.NewBuffer(tmp.Data)
-
-		// create new reader for reading compressed log data
-		r, err := zlib.NewReader(b)
+		// decompress log data for the step
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
+		err = tmp.Decompress()
 		if err != nil {
-			return logs, fmt.Errorf("unable to create new reader: %v", err)
+			return logs, fmt.Errorf("unable to decompress logs for build %d: %v", id, err)
 		}
-
-		// defer closing reader
-		defer r.Close()
-
-		// capture decompressed log data from compressed log data
-		data, err := ioutil.ReadAll(r)
-		if err != nil {
-			return logs, fmt.Errorf("unable to read log data: %v", err)
-		}
-
-		// overwrite database log data with decompressed log data
-		tmp.Data = data
 
 		// convert query result to library type
 		logs = append(logs, tmp.ToLibrary())
@@ -86,26 +70,13 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		return l.ToLibrary(), err
 	}
 
-	// create new buffer from compressed log data
-	b := bytes.NewBuffer(l.Data)
-
-	// create new reader for reading compressed log data
-	r, err := zlib.NewReader(b)
+	// decompress log data for the step
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
+	err = l.Decompress()
 	if err != nil {
-		return l.ToLibrary(), fmt.Errorf("unable to create new reader: %v", err)
+		return l.ToLibrary(), fmt.Errorf("unable to decompress logs for step %d: %v", id, err)
 	}
-
-	// defer closing reader
-	defer r.Close()
-
-	// capture decompressed log data from compressed log data
-	data, err := ioutil.ReadAll(r)
-	if err != nil {
-		return l.ToLibrary(), fmt.Errorf("unable to read log data: %v", err)
-	}
-
-	// overwrite database log data with decompressed log data
-	l.Data = data
 
 	return l.ToLibrary(), err
 }
@@ -128,26 +99,13 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 		return l.ToLibrary(), err
 	}
 
-	// create new buffer from compressed log data
-	b := bytes.NewBuffer(l.Data)
-
-	// create new reader for reading compressed log data
-	r, err := zlib.NewReader(b)
+	// decompress log data for the service
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
+	err = l.Decompress()
 	if err != nil {
-		return l.ToLibrary(), fmt.Errorf("unable to create new reader: %v", err)
+		return l.ToLibrary(), fmt.Errorf("unable to decompress logs for service %d: %v", id, err)
 	}
-
-	// defer closing reader
-	defer r.Close()
-
-	// capture decompressed log data from compressed log data
-	data, err := ioutil.ReadAll(r)
-	if err != nil {
-		return l.ToLibrary(), fmt.Errorf("unable to read log data: %v", err)
-	}
-
-	// overwrite database log data with decompressed log data
-	l.Data = data
 
 	return l.ToLibrary(), err
 }
@@ -165,29 +123,13 @@ func (c *client) CreateLog(l *library.Log) error {
 		return err
 	}
 
-	// create new buffer from storing compressed log data
-	b := new(bytes.Buffer)
-
-	// create new writer for writing compressed log data
-	w, err := zlib.NewWriterLevel(b, logCompressionLevel)
-	if err != nil {
-		return err
-	}
-
-	// write compressed log data to buffer
-	_, err = w.Write(log.Data)
-	if err != nil {
-		return err
-	}
-
-	// close the writer
+	// compress log data for the resource
 	//
-	// compressed bytes are not flushed until the
-	// writer is closed or explicitly flushed
-	w.Close()
-
-	// overwrite database log data with compressed log data
-	log.Data = b.Bytes()
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
+	err = log.Compress()
+	if err != nil {
+		return fmt.Errorf("unable to compress logs for step %d: %v", l.GetStepID(), err)
+	}
 
 	// send query to the database
 	return c.Database.
@@ -208,29 +150,13 @@ func (c *client) UpdateLog(l *library.Log) error {
 		return err
 	}
 
-	// create new buffer from storing compressed log data
-	b := new(bytes.Buffer)
-
-	// create new writer for writing compressed log data
-	w, err := zlib.NewWriterLevel(b, 3)
-	if err != nil {
-		return err
-	}
-
-	// write compressed log data to buffer
-	_, err = w.Write(log.Data)
-	if err != nil {
-		return err
-	}
-
-	// closing the writer
+	// compress log data for the resource
 	//
-	// compressed bytes are not flushed until the
-	// writer is closed or explicitly flushed
-	w.Close()
-
-	// overwrite database log data with compressed log data
-	log.Data = b.Bytes()
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
+	err = log.Compress()
+	if err != nil {
+		return fmt.Errorf("unable to compress logs for step %d: %v", l.GetStepID(), err)
+	}
 
 	// send query to the database
 	return c.Database.
