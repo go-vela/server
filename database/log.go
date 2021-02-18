@@ -40,6 +40,27 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := log
 
+		// create new buffer from compressed log data
+		b := bytes.NewBuffer(tmp.Data)
+
+		// create new reader for reading compressed log data
+		r, err := zlib.NewReader(b)
+		if err != nil {
+			return logs, fmt.Errorf("unable to create new reader: %v", err)
+		}
+
+		// defer closing reader
+		defer r.Close()
+
+		// capture decompressed log data from compressed log data
+		data, err := ioutil.ReadAll(r)
+		if err != nil {
+			return logs, fmt.Errorf("unable to read log data: %v", err)
+		}
+
+		// overwrite database log data with decompressed log data
+		tmp.Data = data
+
 		// convert query result to library type
 		logs = append(logs, tmp.ToLibrary())
 	}
@@ -48,6 +69,8 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 }
 
 // GetStepLog gets a log by unique ID from the database.
+//
+// nolint: dupl // ignore similar code with service
 func (c *client) GetStepLog(id int64) (*library.Log, error) {
 	logrus.Tracef("Getting log for step %d from the database", id)
 
@@ -88,6 +111,8 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 }
 
 // GetServiceLog gets a log by unique ID from the database.
+//
+// nolint: dupl // ignore similar code with step
 func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 	logrus.Tracef("Getting log for service %d from the database", id)
 
@@ -99,6 +124,30 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 		Table(constants.TableLog).
 		Raw(c.DML.LogService.Select["service"], id).
 		Scan(l).Error
+	if err != nil {
+		return l.ToLibrary(), err
+	}
+
+	// create new buffer from compressed log data
+	b := bytes.NewBuffer(l.Data)
+
+	// create new reader for reading compressed log data
+	r, err := zlib.NewReader(b)
+	if err != nil {
+		return l.ToLibrary(), fmt.Errorf("unable to create new reader: %v", err)
+	}
+
+	// defer closing reader
+	defer r.Close()
+
+	// capture decompressed log data from compressed log data
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return l.ToLibrary(), fmt.Errorf("unable to read log data: %v", err)
+	}
+
+	// overwrite database log data with decompressed log data
+	l.Data = data
 
 	return l.ToLibrary(), err
 }
