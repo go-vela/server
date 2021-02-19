@@ -26,6 +26,9 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 		Table(constants.TableLog).
 		Raw(c.DML.LogService.List["build"], id).
 		Scan(l).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	logs := []*library.Log{}
@@ -49,7 +52,7 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 		logs = append(logs, tmp.ToLibrary())
 	}
 
-	return logs, err
+	return logs, nil
 }
 
 // GetStepLog gets a log by unique ID from the database.
