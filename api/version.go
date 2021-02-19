@@ -12,12 +12,11 @@ import (
 	"github.com/go-vela/server/version"
 )
 
-// swagger:operation GET /version router Version
+// swagger:operation GET /version base Version
 //
 // Get the version of the Vela API
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:

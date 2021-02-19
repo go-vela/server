@@ -23,7 +23,6 @@ import (
 // Get all of the webhooks stored in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -31,7 +30,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all hooks from the database
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -39,7 +37,7 @@ import (
 //   '500':
 //     description: Unable to retrieve all hooks
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // AllHooks represents the API handler to
 // captures all hooks stored in the database.
@@ -64,7 +62,6 @@ func AllHooks(c *gin.Context) {
 // Update a hook in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -79,17 +76,16 @@ func AllHooks(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the hook in the database
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Webhook"
 //   '404':
 //     description: Unable to update the hook in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '501':
 //     description: Unable to update the hook in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateHook represents the API handler to
 // update any hook stored in the database.

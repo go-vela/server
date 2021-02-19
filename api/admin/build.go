@@ -23,7 +23,6 @@ import (
 // Get all of the builds in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -31,7 +30,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all builds from the database
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -39,7 +37,7 @@ import (
 //   '500':
 //     description: Unable to retrieve all builds from the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // AllBuilds represents the API handler to
 // captures all builds stored in the database.
@@ -64,7 +62,6 @@ func AllBuilds(c *gin.Context) {
 // Update a build in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -79,17 +76,16 @@ func AllBuilds(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the build in the database
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '404':
 //     description: Unable to update the build in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the build in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateBuild represents the API handler to
 // update any build stored in the database.

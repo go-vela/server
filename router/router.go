@@ -6,10 +6,9 @@
 //
 // API for the Vela server
 //
-//     Version: 0.6.1
+//     Version: 0.7.2
 //     Schemes: http, https
 //     Host: localhost
-//     BasePath: /api/v1
 //
 //     Consumes:
 //     - application/json
@@ -39,7 +38,7 @@ const (
 )
 
 // Load is a server function that returns the engine for processing web requests
-// on the host it's running on
+// on the host it's running on.
 func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())

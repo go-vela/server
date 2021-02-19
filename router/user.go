@@ -25,7 +25,7 @@ import (
 // PUT    /api/v1/user
 // GET    /api/v1/user/source/repos
 // POST   /api/v1/user/token
-// DELETE /api/v1/user/token
+// DELETE /api/v1/user/token .
 func UserHandlers(base *gin.RouterGroup) {
 	// Users endpoints
 	users := base.Group("/users")

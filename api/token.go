@@ -14,6 +14,29 @@ import (
 	"github.com/go-vela/types/library"
 )
 
+// swagger:operation GET /token-refresh authenticate GetRefreshAccessToken
+//
+// Refresh an access token
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: cookie
+//   name: vela_refresh_token
+//   required: true
+//   schema:
+//     type: string
+// responses:
+//   '200':
+//     description: Successfully refreshed a token
+//     schema:
+//       "$ref": "#/definitions/Login"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+
 // RefreshAccessToken will return a new access token if the provided
 // refresh token via cookie is valid.
 func RefreshAccessToken(c *gin.Context) {

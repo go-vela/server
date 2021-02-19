@@ -26,7 +26,6 @@ import (
 // Get logs for a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -42,7 +41,7 @@ import (
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to restart
+//   description: Build number
 //   required: true
 //   type: integer
 // security:
@@ -50,7 +49,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved logs for the build
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -58,7 +56,7 @@ import (
 //   '500':
 //     description: Unable to retrieve logs for the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetBuildLogs represents the API handler to capture a
 // list of logs for a build from the configured backend.
@@ -90,7 +88,6 @@ func GetBuildLogs(c *gin.Context) {
 // Create the logs for a service
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -125,17 +122,16 @@ func GetBuildLogs(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully created the service logs
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to create the service logs
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the service logs
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateServiceLog represents the API handler to create
 // the logs for a service in the configured backend.
@@ -191,7 +187,6 @@ func CreateServiceLog(c *gin.Context) {
 // Retrieve the logs for a service
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -220,13 +215,12 @@ func CreateServiceLog(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the service logs
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '500':
 //     description: Unable to retrieve the service logs
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetServiceLog represents the API handler to capture
 // the logs for a service from the configured backend.
@@ -259,7 +253,6 @@ func GetServiceLog(c *gin.Context) {
 // Update the logs for a service
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -280,7 +273,7 @@ func GetServiceLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: service
-//   description: Name of the service
+//   description: ID of the service
 //   required: true
 //   type: integer
 // - in: body
@@ -294,17 +287,16 @@ func GetServiceLog(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the service logs
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to updated the service logs
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to updates the service logs
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateServiceLog represents the API handler to update
 // the logs for a service in the configured backend.
@@ -370,7 +362,6 @@ func UpdateServiceLog(c *gin.Context) {
 // Delete the logs for a service
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -397,14 +388,14 @@ func UpdateServiceLog(c *gin.Context) {
 // security:
 //   - ApiKeyAuth: []
 // responses:
-//   '201':
+//   '200':
 //     description: Successfully deleted the service logs
 //     schema:
 //       type: string
 //   '500':
 //     description: Unable to delete the service logs
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteServiceLog represents the API handler to remove
 // the logs for a service from the configured backend.
@@ -440,7 +431,6 @@ func DeleteServiceLog(c *gin.Context) {
 // Create the logs for a step
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -461,9 +451,9 @@ func DeleteServiceLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: step
-//   description: Build number
+//   description: Step number
 //   required: true
-//   type: string
+//   type: integer
 // - in: body
 //   name: body
 //   description: Payload containing the log to create
@@ -475,17 +465,16 @@ func DeleteServiceLog(c *gin.Context) {
 // responses:
 //   '201':
 //     description: Successfully created the logs for step
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to create the logs for a step
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the logs for a step
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateStepLog represents the API handler to create
 // the logs for a step in the configured backend.
@@ -541,7 +530,6 @@ func CreateStepLog(c *gin.Context) {
 // Retrieve the logs for a step
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -562,9 +550,9 @@ func CreateStepLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: step
-//   description: Build number
+//   description: Step number
 //   required: true
-//   type: string
+//   type: integer
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -573,6 +561,10 @@ func CreateStepLog(c *gin.Context) {
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
+//   '500':
+//     description: Unable to retrieve the logs for a step
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetStepLog represents the API handler to capture
 // the logs for a step from the configured backend.
@@ -605,7 +597,6 @@ func GetStepLog(c *gin.Context) {
 // Update the logs for a step
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -626,9 +617,9 @@ func GetStepLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: step
-//   description: Build number
+//   description: Step number
 //   required: true
-//   type: string
+//   type: integer
 // - in: body
 //   name: body
 //   description: Payload containing the log to update
@@ -640,17 +631,16 @@ func GetStepLog(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the logs for step
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Log"
 //   '400':
-//     description: Unable to updated the logs for a step
+//     description: Unable to update the logs for a step
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to updated the logs for a step
+//     description: Unable to update the logs for a step
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateStepLog represents the API handler to update
 // the logs for a step in the configured backend.
@@ -716,7 +706,6 @@ func UpdateStepLog(c *gin.Context) {
 // Delete the logs for a step
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -737,9 +726,9 @@ func UpdateStepLog(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: step
-//   description: Build number
+//   description: Step number
 //   required: true
-//   type: string
+//   type: integer
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -750,7 +739,7 @@ func UpdateStepLog(c *gin.Context) {
 //   '500':
 //     description: Unable to delete the logs for the step
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteStepLog represents the API handler to remove
 // the logs for a step from the configured backend.

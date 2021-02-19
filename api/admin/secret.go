@@ -23,7 +23,6 @@ import (
 // Get all of the secrets in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -31,7 +30,6 @@ import (
 // responses:
 //   '200':
 //     description: Successfully retrieved all secrets from the database
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -39,7 +37,7 @@ import (
 //   '500':
 //     description: Unable to retrieve all secrets from the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // AllSecrets represents the API handler to
 // captures all secrets stored in the database.
@@ -64,7 +62,6 @@ func AllSecrets(c *gin.Context) {
 // Update a secret in the database
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -79,17 +76,16 @@ func AllSecrets(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the secret in the database
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '404':
 //     description: Unable to update the secret in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '501':
 //     description: Unable to update the secret in the database
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateSecret represents the API handler to
 // update any secret stored in the database.

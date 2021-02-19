@@ -48,7 +48,7 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
 func RepoHandlers(base *gin.RouterGroup) {
 	// Repos endpoints
 	repos := base.Group("/repos")

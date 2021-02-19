@@ -17,7 +17,7 @@ import (
 //
 // POST   /api/v1/deployments/:org/:repo
 // GET    /api/v1/deployments/:org/:repo
-// GET    /api/v1/deployments/:org/:repo/:deployment
+// GET    /api/v1/deployments/:org/:repo/:deployment .
 func DeploymentHandlers(base *gin.RouterGroup) {
 	// Deployments endpoints
 	deployments := base.Group("/deployments/:org/:repo", repo.Establish())

@@ -29,7 +29,6 @@ import (
 // Create a service for a build in the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -59,17 +58,16 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the service
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to create the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateService represents the API handler to create
 // a service for a build in the configured backend.
@@ -129,7 +127,6 @@ func CreateService(c *gin.Context) {
 // Get a list of all services for a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -148,24 +145,41 @@ func CreateService(c *gin.Context) {
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of services
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Service"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the list of services
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to restart the list of services
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetServices represents the API handler to capture a list
 // of services for a build from the configured backend.
@@ -244,7 +258,6 @@ func GetServices(c *gin.Context) {
 // Get a service for a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -273,17 +286,16 @@ func GetServices(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the service
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to retrieve the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetService represents the API handler to capture a
 // service for a build from the configured backend.
@@ -307,7 +319,6 @@ func GetService(c *gin.Context) {
 // Update a service for a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -328,7 +339,7 @@ func GetService(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: service
-//   description: Name of the service
+//   description: Service number
 //   required: true
 //   type: integer
 // - in: body
@@ -342,17 +353,16 @@ func GetService(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the service
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Service"
 //   '400':
 //     description: Unable to update the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateService represents the API handler to update
 // a service for a build in the configured backend.
@@ -427,7 +437,6 @@ func UpdateService(c *gin.Context) {
 // Delete a service for a build in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -448,7 +457,7 @@ func UpdateService(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: service
-//   description: Name of the service
+//   description: Service Number
 //   required: true
 //   type: integer
 // security:
@@ -461,7 +470,7 @@ func UpdateService(c *gin.Context) {
 //   '500':
 //     description: Unable to delete the service
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteService represents the API handler to remove
 // a service for a build from the configured backend.

@@ -25,7 +25,6 @@ import (
 // Create a deployment for the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -44,18 +43,16 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the deployment
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Deployment"
 //   '400':
 //     description: Unable to create the deployment
-//     type: json
 //     schema:
-//       "$ref": "#/definitions/Deployment"
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the deployment
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateDeployment represents the API handler to
 // create a deployment in the configured backend.
@@ -108,7 +105,6 @@ func CreateDeployment(c *gin.Context) {
 // Get a list of deployments for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -122,24 +118,41 @@ func CreateDeployment(c *gin.Context) {
 //   description: Name of the repo
 //   required: true
 //   type: string
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of deployments
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Deployment"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the list of deployments
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the list of deployments
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetDeployments represents the API handler to capture
 // a list of deployments from the configured backend.
@@ -213,7 +226,6 @@ func GetDeployments(c *gin.Context) {
 // Get a deployment from the configured backend
 //
 // ---
-// x-success_http_code: '501'
 // produces:
 // - application/json
 // parameters:
@@ -237,17 +249,16 @@ func GetDeployments(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the deployment
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Deployment"
-//   '200':
+//   '400':
 //     description: Unable to retrieve the deployment
 //     schema:
-//       type: string
-//   '200':
+//       "$ref": "#/definitions/Error"
+//   '500':
 //     description: Unable to retrieve the deployment
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetDeployment represents the API handler to
 // capture a deployment from the configured backend.

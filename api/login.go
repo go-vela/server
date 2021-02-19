@@ -20,15 +20,22 @@ import (
 // Log into the Vela api
 //
 // ---
-// x-success_http_code: '307'
-// produces:
-// - application/json
 // parameters:
+// - in: query
+//   name: type
+//   description: the login type ("cli" or "web")
+//   schema:
+//     type: string
+//     enum:
+//     - web
+//     - cli
+// - in: query
+//   name: port
+//   description: the port number when type=cli
+//   type: integer
 // responses:
 //   '307':
 //     description: Redirected to /authenticate
-//     schema:
-//       type: string
 
 // Login represents the API handler to
 // process a user logging in to Vela.

@@ -28,18 +28,21 @@ import (
 // Create a secret
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
 // - in: path
 //   name: engine
-//   description: Secret engine to create a secret in
+//   description: Secret engine to create a secret in, eg. "native"
 //   required: true
 //   type: string
 // - in: path
 //   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   description: Secret type to create
+//   enum:
+//   - org
+//   - repo
+//   - shared
 //   required: true
 //   type: string
 // - in: path
@@ -63,17 +66,16 @@ import (
 // responses:
 //   '200':
 //     description: Successfully created the secret
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to create the secret
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the secret
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
@@ -149,21 +151,24 @@ func CreateSecret(c *gin.Context) {
 //
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets GetSecrets
 //
-// Retrieve a list of secrets from the configured backend.
+// Retrieve a list of secrets from the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
 // - in: path
 //   name: engine
-//   description: Secret engine to create a secret in
+//   description: Secret engine to create a secret in, eg. "native"
 //   required: true
 //   type: string
 // - in: path
 //   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   description: Secret type to create
+//   enum:
+//   - org
+//   - repo
+//   - shared
 //   required: true
 //   type: string
 // - in: path
@@ -176,24 +181,41 @@ func CreateSecret(c *gin.Context) {
 //   description: Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret
 //   required: true
 //   type: string
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of secrets
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Secret"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the list of secrets
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the list of secrets
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetSecrets represents the API handler to capture
 // a list of secrets from the configured backend.
@@ -281,21 +303,24 @@ func GetSecrets(c *gin.Context) {
 //
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets GetSecret
 //
-// Retrieve a secret from the configured backend.
+// Retrieve a secret from the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
 // - in: path
 //   name: engine
-//   description: Secret engine to create a secret in
+//   description: Secret engine to create a secret in, eg. "native"
 //   required: true
 //   type: string
 // - in: path
 //   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   description: Secret type to create
+//   enum:
+//   - org
+//   - repo
+//   - shared
 //   required: true
 //   type: string
 // - in: path
@@ -318,13 +343,12 @@ func GetSecrets(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the secret
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '500':
 //     description: Unable to retrieve the secret
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetSecret gets a secret from the provided secrets service.
 func GetSecret(c *gin.Context) {
@@ -362,21 +386,24 @@ func GetSecret(c *gin.Context) {
 //
 // swagger:operation PUT /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets UpdateSecrets
 //
-// Update a secret from the configured backend.
+// Update a secret on the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
 // - in: path
 //   name: engine
-//   description: Secret engine to create a secret in
+//   description: Secret engine to update the secret in, eg. "native"
 //   required: true
 //   type: string
 // - in: path
 //   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   description: Secret type to update
+//   enum:
+//   - org
+//   - repo
+//   - shared
 //   required: true
 //   type: string
 // - in: path
@@ -405,17 +432,16 @@ func GetSecret(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the secret
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Secret"
 //   '400':
 //     description: Unable to update the secret
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the secret
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateSecret updates a secret for the provided secrets service.
 func UpdateSecret(c *gin.Context) {
@@ -488,21 +514,24 @@ func UpdateSecret(c *gin.Context) {
 //
 // swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecret
 //
-// Delete a secret from the configured backend.
+// Delete a secret from the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
 // - in: path
 //   name: engine
-//   description: Secret engine to create a secret in
+//   description: Secret engine to delete the secret from, eg. "native"
 //   required: true
 //   type: string
 // - in: path
 //   name: type
-//   description: Secret type to create. Options 'org', 'repo', or 'shared'
+//   description: Secret type to delete
+//   enum:
+//   - org
+//   - repo
+//   - shared
 //   required: true
 //   type: string
 // - in: path
@@ -520,23 +549,17 @@ func UpdateSecret(c *gin.Context) {
 //   description: Name of the secret
 //   required: true
 //   type: string
-// - in: body
-//   name: body
-//   description: Payload containing secret to update
-//   required: true
-//   schema:
-//     "$ref": "#/definitions/Secret"
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the secret
+//     description: Successfully deleted the secret
 //     schema:
 //       type: string
 //   '500':
-//     description: Unable to update the secret
+//     description: Unable to delete the secret
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteSecret deletes a secret from the provided secrets service.
 func DeleteSecret(c *gin.Context) {

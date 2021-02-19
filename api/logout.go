@@ -23,19 +23,17 @@ import (
 // Log out of the Vela api
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
 // responses:
 //   '200':
 //     description: Successfully logged out
 //     schema:
 //       type: string
 //   '503':
-//     description: Service unavailable
+//     description: Logout did not succeed
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // Logout represents the API handler to
 // process a user logging out of Vela.

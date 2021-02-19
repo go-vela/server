@@ -18,7 +18,7 @@ import (
 // GET    /api/v1/hooks/:org/:repo
 // GET    /api/v1/hooks/:org/:repo/:hook
 // PUT    /api/v1/hooks/:org/:repo/:hook
-// DELETE /api/v1/hooks/:org/:repo/:hook
+// DELETE /api/v1/hooks/:org/:repo/:hook .
 func HookHandlers(base *gin.RouterGroup) {
 	// Hooks endpoints
 	hooks := base.Group("/hooks/:org/:repo", repo.Establish())

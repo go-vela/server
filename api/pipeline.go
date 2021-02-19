@@ -34,7 +34,6 @@ const (
 // Get a pipeline configuration from the source provider
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/x-yaml
 // - application/json
@@ -62,21 +61,16 @@ const (
 // responses:
 //   '200':
 //     description: Successfully retrieved the pipeline
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/PipelineBuild"
 //   '400':
 //     description: Unable to retrieve the pipeline configuration templates
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve the pipeline configuration templates
 //     schema:
-//       type: string
-//   '500':
-//     description: Unable to retrieve the pipeline configuration templates
-//     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetPipeline represents the API handler to capture a
 // pipeline configuration for a repo from the the source provider.
@@ -143,7 +137,6 @@ func GetPipeline(c *gin.Context) {
 // Get a map of templates utilized by a pipeline configuration from the source provider
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/x-yaml
 // - application/json
@@ -171,21 +164,16 @@ func GetPipeline(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the map of pipeline templates
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Template"
 //   '400':
 //     description: Unable to retrieve the pipeline configuration templates
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve the pipeline configuration templates
 //     schema:
-//       type: string
-//   '500':
-//     description: Unable to retrieve the pipeline configuration templates
-//     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetTemplates represents the API handler to capture a
 // map of templates utilized by a pipeline configuration.
@@ -262,7 +250,6 @@ func GetTemplates(c *gin.Context) {
 // Get and expand a pipeline configuration from the source provider
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/x-yaml
 // - application/json
@@ -296,15 +283,11 @@ func GetTemplates(c *gin.Context) {
 //   '400':
 //     description: Unable to expand the pipeline configuration
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve the pipeline configuration
 //     schema:
-//       type: string
-//   '500':
-//     description: Unable to expand the pipeline configuration
-//     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // ExpandPipeline represents the API handler to capture and
 // expand a pipeline configuration.
@@ -399,7 +382,6 @@ func ExpandPipeline(c *gin.Context) {
 // Get, expand and validate a pipeline configuration from the source provider
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -431,15 +413,11 @@ func ExpandPipeline(c *gin.Context) {
 //   '400':
 //     description: Unable to validate the pipeline configuration
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve the pipeline configuration
 //     schema:
-//       type: string
-//   '500':
-//     description: Unable to validate the pipeline configuration
-//     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // ValidatePipeline represents the API handler to capture, expand and
 // validate a pipeline configuration.
@@ -541,7 +519,6 @@ func ValidatePipeline(c *gin.Context) {
 // Get, expand and compile a pipeline configuration from the source provider
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/x-yaml
 // - application/json
@@ -569,21 +546,16 @@ func ValidatePipeline(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved and compiled the pipeline
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/PipelineBuild"
 //   '400':
 //     description: Unable to validate the pipeline configuration
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve the pipeline configuration
 //     schema:
-//       type: string
-//   '500':
-//     description: Unable to validate the pipeline configuration
-//     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CompilePipeline represents the API handler to capture,
 // expand and compile a pipeline configuration.

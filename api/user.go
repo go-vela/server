@@ -28,7 +28,6 @@ import (
 // Create a user for the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -43,17 +42,16 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to create the user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateUser represents the API handler to create
 // a user in the configured backend.
@@ -93,27 +91,44 @@ func CreateUser(c *gin.Context) {
 // Retrieve a list of users for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
 //   - ApiKeyAuth: []
+// parameters:
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of users
-//     type: json
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/User"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
 //   '400':
 //     description: Unable to retrieve the list of users
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve the list of users
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetUsers represents the API handler to capture a list
 // of users from the configured backend.
@@ -182,7 +197,6 @@ func GetUsers(c *gin.Context) {
 // Retrieve the current authenticated user from the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -190,7 +204,6 @@ func GetUsers(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the current user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/User"
 
@@ -210,7 +223,6 @@ func GetCurrentUser(c *gin.Context) {
 // Update the current authenticated user in the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -225,21 +237,20 @@ func GetCurrentUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the current user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to update the current user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to update the current user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the current user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateCurrentUser represents the API handler to capture and
 // update the currently authenticated user from the configured backend.
@@ -295,7 +306,6 @@ func UpdateCurrentUser(c *gin.Context) {
 // Retrieve a user for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -309,13 +319,12 @@ func UpdateCurrentUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/User"
-//   '400':
+//   '404':
 //     description: Unable to retrieve the user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetUser represents the API handler to capture a
 // user from the configured backend.
@@ -343,7 +352,6 @@ func GetUser(c *gin.Context) {
 // Retrieve a list of repos for the current authenticated user
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -351,13 +359,12 @@ func GetUser(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved a list of repos for the current user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Repo"
 //   '404':
 //     description: Unable to retrieve a list of repos for the current user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetUserSourceRepos represents the API handler to capture
 // the list of repos for a user from the configured backend.
@@ -447,7 +454,6 @@ func GetUserSourceRepos(c *gin.Context) {
 // Update a user for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -467,21 +473,20 @@ func GetUserSourceRepos(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/User"
 //   '400':
 //     description: Unable to update the user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to update the user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateUser represents the API handler to update
 // a user in the configured backend.
@@ -550,7 +555,6 @@ func UpdateUser(c *gin.Context) {
 // Delete a user for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -569,11 +573,11 @@ func UpdateUser(c *gin.Context) {
 //   '404':
 //     description: Unable to delete user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to delete user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteUser represents the API handler to remove
 // a user from the configured backend.
@@ -611,21 +615,19 @@ func DeleteUser(c *gin.Context) {
 // Create a token for the current authenticated user
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // security:
 //   - ApiKeyAuth: []
 // responses:
-//   '201':
+//   '200':
 //     description: Successfully created a token for the current user
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Login"
-//   '500':
+//   '503':
 //     description: Unable to create a token for the current user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateToken represents the API handler to create
 // a user token in the configured backend.
@@ -665,7 +667,6 @@ func CreateToken(c *gin.Context) {
 // Delete a token for the current authenticated user
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // security:
@@ -678,7 +679,7 @@ func CreateToken(c *gin.Context) {
 //   '500':
 //     description: Unable to delete a token for the current user
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteToken represents the API handler to revoke
 // and recreate a user token in the configured backend.

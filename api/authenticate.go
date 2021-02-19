@@ -24,30 +24,42 @@ import (
 
 // swagger:operation GET /authenticate authenticate GetAuthenticate
 //
-// Start the OAuth flow with the Vela API
+// Start OAuth flow or exchange tokens
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
+// parameters:
+// - in: query
+//   name: code
+//   description: the code received after identity confirmation
+//   type: string
+// - in: query
+//   name: state
+//   description: a random string
+//   type: string
+// - in: query
+//   name: redirect_uri
+//   description: the url where the user will be sent after authorization
+//   type: string
 // responses:
 //   '200':
 //     description: Successfully authenticated
+//     headers:
+//       Set-Cookie:
+//         type: string
 //     schema:
-//       type: string
-// responses:
+//       "$ref": "#/definitions/Login"
 //   '307':
 //     description: Redirected for authentication
-//     schema:
-//       type: string
 //   '401':
 //     description: Unable to authenticate
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Service unavailable
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // Authenticate represents the API handler to
 // process a user logging in to Vela from
@@ -176,6 +188,38 @@ func Authenticate(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Login{Token: &at})
 }
 
+// swagger:operation GET /authenticate/{type}/{port} authenticate GetAuthenticateType
+//
+// Authentication entrypoint that builds the right post-auth
+// redirect URL and redirects to /authenticate after
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: type
+//   description: the type of auth request
+//   type: string
+//   enum:
+//     - web
+//     - cli
+// - in: path
+//   name: port
+//   description: the port number (if type is 'cli')
+//   type: integer
+// - in: query
+//   name: code
+//   description: the code received after identity confirmation
+//   type: string
+// - in: query
+//   name: state
+//   description: a random string
+//   type: string
+// responses:
+//   '307':
+//     description: Redirected for authentication
+
 // AuthenticateType handles cases where the OAuth callback was
 // overridden by supplying a redirect_uri in the login process.
 // It will send the user to the destination to handle the last leg
@@ -214,28 +258,33 @@ func AuthenticateType(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, r)
 }
 
-// swagger:operation POST /authenticate/token authenticate PostAuthenticate
+// swagger:operation POST /authenticate/token authenticate PostAuthenticateToken
 //
-// Authenticate to Vela via personal access token.
+// Authenticate to Vela via personal access token
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
+// parameters:
+// - in: header
+//   name: Token
+//   type: string
+//   required: true
+//   description: >
+//     scopes: repo, repo:status, user:email, read:user, and read:org
 // responses:
 //   '200':
 //     description: Successfully authenticated
 //     schema:
-//       type: string
-// responses:
+//       "$ref": "#/definitions/Login"
 //   '401':
 //     description: Unable to authenticate
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '503':
 //     description: Service unavailable
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // AuthenticateToken represents the API handler to
 // process a user logging in using PAT to Vela from

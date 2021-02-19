@@ -21,7 +21,6 @@ import (
 // Create a worker for the configured backend
 //
 // ---
-// x-success_http_code: '201'
 // produces:
 // - application/json
 // parameters:
@@ -36,17 +35,16 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the worker
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Worker"
 //   '400':
 //     description: Unable to create the worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to create the worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // CreateWorker represents the API handler to
 // create a worker in the configured backend.
@@ -82,19 +80,13 @@ func CreateWorker(c *gin.Context) {
 // Retrieve a list of workers for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela bearer token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of workers
-//     type: json
 //     schema:
 //       type: array
 //       items:
@@ -102,7 +94,7 @@ func CreateWorker(c *gin.Context) {
 //   '500':
 //     description: Unable to retrieve the list of workers
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetWorkers represents the API handler to capture a
 // list of workers from the configured backend.
@@ -124,7 +116,6 @@ func GetWorkers(c *gin.Context) {
 // Retrieve a worker for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -138,13 +129,12 @@ func GetWorkers(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully retrieved the worker
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Worker"
 //   '404':
 //     description: Unable to retrieve the worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // GetWorker represents the API handler to capture a
 // worker from the configured backend.
@@ -167,7 +157,6 @@ func GetWorker(c *gin.Context) {
 // Update a worker for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -187,21 +176,20 @@ func GetWorker(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully updated the worker
-//     type: json
 //     schema:
 //       "$ref": "#/definitions/Worker"
 //   '400':
 //     description: Unable to update the worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to update the worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to update the worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // UpdateWorker represents the API handler to
 // create a worker in the configured backend.
@@ -274,7 +262,6 @@ func UpdateWorker(c *gin.Context) {
 // Delete a worker for the configured backend
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
@@ -290,14 +277,10 @@ func UpdateWorker(c *gin.Context) {
 //     description: Successfully deleted of worker
 //     schema:
 //       type: string
-//   '404':
-//     description: Unable to delete worker
-//     schema:
-//       type: string
 //   '500':
 //     description: Unable to delete worker
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Error"
 
 // DeleteWorker represents the API handler to remove
 // a worker from the configured backend.

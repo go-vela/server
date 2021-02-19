@@ -19,7 +19,7 @@ import (
 // GET    /api/v1/workers
 // GET    /api/v1/workers/:worker
 // PUT    /api/v1/workers/:worker
-// DELETE /api/v1/workers/:worker
+// DELETE /api/v1/workers/:worker .
 func WorkerHandlers(base *gin.RouterGroup) {
 	// Workers endpoints
 	workers := base.Group("/workers")

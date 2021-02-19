@@ -45,12 +45,11 @@ var (
 	)
 )
 
-// swagger:operation GET /metrics router BaseMetrics
+// swagger:operation GET /metrics base BaseMetrics
 //
-// Retrieve metrics from the  Vela api
+// Retrieve metrics from the Vela api
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
