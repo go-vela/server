@@ -700,7 +700,7 @@ func setTemplateLinks(c *gin.Context, u *library.User, r *library.Repo, template
 		}
 
 		// parse template source
-		src, err := cl.Parse(tmpl.GetSource(), r.GetBranch())
+		src, err := cl.Parse(tmpl.GetSource())
 		if err != nil {
 			retErr := fmt.Errorf("unable to parse source for %s: %w", tmpl.GetSource(), err)
 
