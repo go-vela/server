@@ -5,6 +5,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -32,6 +34,17 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := log
 
+		// decompress log data for the step
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
+		err = tmp.Decompress()
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch uncompressed logs
+			logrus.Errorf("unable to decompress logs for build %d: %v", id, err)
+		}
+
 		// convert query result to library type
 		logs = append(logs, tmp.ToLibrary())
 	}
@@ -40,6 +53,8 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 }
 
 // GetStepLog gets a log by unique ID from the database.
+//
+// nolint: dupl // ignore similar code with service
 func (c *client) GetStepLog(id int64) (*library.Log, error) {
 	logrus.Tracef("Getting log for step %d from the database", id)
 
@@ -51,11 +66,31 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		Table(constants.TableLog).
 		Raw(c.DML.LogService.Select["step"], id).
 		Scan(l).Error
+	if err != nil {
+		return l.ToLibrary(), err
+	}
 
-	return l.ToLibrary(), err
+	// decompress log data for the step
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
+	err = l.Decompress()
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allows us to fetch uncompressed logs
+		logrus.Errorf("unable to decompress logs for step %d: %v", id, err)
+
+		// return the uncompressed log
+		return l.ToLibrary(), nil
+	}
+
+	// return the decompressed log
+	return l.ToLibrary(), nil
 }
 
 // GetServiceLog gets a log by unique ID from the database.
+//
+// nolint: dupl // ignore similar code with step
 func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 	logrus.Tracef("Getting log for service %d from the database", id)
 
@@ -67,8 +102,26 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 		Table(constants.TableLog).
 		Raw(c.DML.LogService.Select["service"], id).
 		Scan(l).Error
+	if err != nil {
+		return l.ToLibrary(), err
+	}
 
-	return l.ToLibrary(), err
+	// decompress log data for the service
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
+	err = l.Decompress()
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allowing us to fetch uncompressed logs
+		logrus.Errorf("unable to decompress logs for service %d: %v", id, err)
+
+		// return the uncompressed log
+		return l.ToLibrary(), nil
+	}
+
+	// return the decompressed log
+	return l.ToLibrary(), nil
 }
 
 // CreateLog creates a new log in the database.
@@ -82,6 +135,14 @@ func (c *client) CreateLog(l *library.Log) error {
 	err := log.Validate()
 	if err != nil {
 		return err
+	}
+
+	// compress log data for the resource
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
+	err = log.Compress()
+	if err != nil {
+		return fmt.Errorf("unable to compress logs for step %d: %v", l.GetStepID(), err)
 	}
 
 	// send query to the database
@@ -101,6 +162,14 @@ func (c *client) UpdateLog(l *library.Log) error {
 	err := log.Validate()
 	if err != nil {
 		return err
+	}
+
+	// compress log data for the resource
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
+	err = log.Compress()
+	if err != nil {
+		return fmt.Errorf("unable to compress logs for step %d: %v", l.GetStepID(), err)
 	}
 
 	// send query to the database
