@@ -68,63 +68,145 @@ func TestDatabase_Client_GetBuildLogs(t *testing.T) {
 
 func TestDatabase_Client_GetStepLog(t *testing.T) {
 	// setup types
-	want := testLog()
-	want.SetID(1)
-	want.SetBuildID(1)
-	want.SetRepoID(1)
-	want.SetStepID(1)
-	want.SetData([]byte{})
+	l := testLog()
+	l.SetID(1)
+	l.SetBuildID(1)
+	l.SetRepoID(1)
+	l.SetStepID(1)
+	l.SetData([]byte{})
 
-	// setup database
-	database, _ := NewTest()
+	l1 := testLog()
+	l1.SetID(1)
+	l1.SetBuildID(1)
+	l1.SetRepoID(1)
+	l1.SetStepID(1)
+	l1.SetData([]byte("foo"))
 
-	defer func() {
-		database.Database.Exec("delete from logs;")
-		database.Database.Close()
-	}()
-
-	_ = database.CreateLog(want)
-
-	// run test
-	got, err := database.GetStepLog(want.GetStepID())
-
-	if err != nil {
-		t.Errorf("GetLog returned err: %v", err)
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    *library.Log
+	}{
+		{
+			failure: false,
+			want:    l,
+		},
+		{
+			failure: false,
+			want:    l1,
+		},
+		{
+			failure: true,
+			want:    testLog(),
+		},
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetLog is %v, want %v", got, want)
+	// run tests
+	for _, test := range tests {
+		// setup database
+		database, _ := NewTest()
+
+		defer func() {
+			database.Database.Exec("delete from logs;")
+			database.Database.Close()
+		}()
+
+		if test.want.GetID() > 0 {
+			err := database.Database.Table(constants.TableLog).Create(test.want).Error
+			if err != nil {
+				t.Errorf("unable to create log: %v", err)
+			}
+		}
+
+		got, err := database.GetStepLog(test.want.GetStepID())
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetStepLog should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetStepLog returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetStepLog is %v, want %v", got, test.want)
+		}
 	}
 }
 
 func TestDatabase_Client_GetServiceLog(t *testing.T) {
 	// setup types
-	want := testLog()
-	want.SetID(1)
-	want.SetBuildID(1)
-	want.SetRepoID(1)
-	want.SetServiceID(1)
-	want.SetData([]byte{})
+	l := testLog()
+	l.SetID(1)
+	l.SetBuildID(1)
+	l.SetRepoID(1)
+	l.SetServiceID(1)
+	l.SetData([]byte{})
 
-	// setup database
-	database, _ := NewTest()
+	l1 := testLog()
+	l1.SetID(1)
+	l1.SetBuildID(1)
+	l1.SetRepoID(1)
+	l1.SetServiceID(1)
+	l1.SetData([]byte("foo"))
 
-	defer func() {
-		database.Database.Exec("delete from logs;")
-		database.Database.Close()
-	}()
-
-	_ = database.CreateLog(want)
-
-	// run test
-	got, err := database.GetServiceLog(want.GetServiceID())
-
-	if err != nil {
-		t.Errorf("GetLog returned err: %v", err)
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    *library.Log
+	}{
+		{
+			failure: false,
+			want:    l,
+		},
+		{
+			failure: false,
+			want:    l1,
+		},
+		{
+			failure: true,
+			want:    testLog(),
+		},
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetLog is %v, want %v", got, want)
+	// run tests
+	for _, test := range tests {
+		// setup database
+		database, _ := NewTest()
+
+		defer func() {
+			database.Database.Exec("delete from logs;")
+			database.Database.Close()
+		}()
+
+		if test.want.GetID() > 0 {
+			err := database.Database.Table(constants.TableLog).Create(test.want).Error
+			if err != nil {
+				t.Errorf("unable to create log: %v", err)
+			}
+		}
+
+		got, err := database.GetServiceLog(test.want.GetServiceID())
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetServiceLog should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetServiceLog returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetServiceLog is %v, want %v", got, test.want)
+		}
 	}
 }
 

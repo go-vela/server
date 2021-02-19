@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-vela/compiler v0.7.2
-	github.com/go-vela/types v0.7.3-0.20210217184545-3ca9f10320b9
+	github.com/go-vela/types v0.7.3-0.20210219160032-9ca61f000f7a
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -31,7 +31,7 @@ require (
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.9.0
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.8.0
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
