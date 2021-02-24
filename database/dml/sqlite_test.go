@@ -32,6 +32,7 @@ func TestDML_mapFromSqlite(t *testing.T) {
 				"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
 				"countByOrg":          sqlite.SelectOrgBuildCount,
 				"countByOrgAndEvent":  sqlite.SelectOrgBuildCountByEvent,
+				"pendingAndRunning":   sqlite.SelectPendingAndRunningBuilds,
 			},
 			Delete: sqlite.DeleteBuild,
 		},
@@ -168,6 +169,7 @@ func TestDML_serviceFromSqlite(t *testing.T) {
 			"countByRepoAndEvent": sqlite.SelectRepoBuildCountByEvent,
 			"countByOrg":          sqlite.SelectOrgBuildCount,
 			"countByOrgAndEvent":  sqlite.SelectOrgBuildCountByEvent,
+			"pendingAndRunning":   sqlite.SelectPendingAndRunningBuilds,
 		},
 		Delete: sqlite.DeleteBuild,
 	}
