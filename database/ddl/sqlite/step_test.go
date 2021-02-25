@@ -13,7 +13,7 @@ func TestSqlite_createStepService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateStepTable,
-		Indexes: []string{CreateStepBuildIDNumberIndex},
+		Indexes: []string{},
 	}
 
 	// run test

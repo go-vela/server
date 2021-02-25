@@ -27,15 +27,6 @@ hooks (
 );
 `
 
-	// CreateHookRepoIDNumberIndex represents a query to create an
-	// index on the hooks table for the repo_id and number columns.
-	CreateHookRepoIDNumberIndex = `
-CREATE INDEX
-IF NOT EXISTS
-hooks_repo_id_number
-ON hooks (repo_id, number);
-`
-
 	// CreateHookRepoIDIndex represents a query to create an
 	// index on the hooks table for the repo_id column.
 	CreateHookRepoIDIndex = `
@@ -51,6 +42,6 @@ ON hooks (repo_id);
 func createHookService() *Service {
 	return &Service{
 		Create:  CreateHookTable,
-		Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
+		Indexes: []string{CreateHookRepoIDIndex},
 	}
 }

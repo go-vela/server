@@ -21,14 +21,12 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 			Create: postgres.CreateBuildTable,
 			Indexes: []string{
 				postgres.CreateBuildRepoIDIndex,
-				postgres.CreateBuildRepoIDNumberIndex,
 				postgres.CreateBuildStatusIndex,
 			},
 		},
 		HookService: &Service{
 			Create: postgres.CreateHookTable,
 			Indexes: []string{
-				postgres.CreateHookRepoIDNumberIndex,
 				postgres.CreateHookRepoIDIndex,
 			},
 		},
@@ -36,15 +34,12 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 			Create: postgres.CreateLogTable,
 			Indexes: []string{
 				postgres.CreateLogBuildIDIndex,
-				postgres.CreateLogStepIDIndex,
-				postgres.CreateLogServiceIDIndex,
 			},
 		},
 		RepoService: &Service{
 			Create: postgres.CreateRepoTable,
 			Indexes: []string{
 				postgres.CreateRepoOrgNameIndex,
-				postgres.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
@@ -53,25 +48,19 @@ func TestDDL_NewMap_Postgres(t *testing.T) {
 				postgres.CreateSecretTypeOrgRepo,
 				postgres.CreateSecretTypeOrgTeam,
 				postgres.CreateSecretTypeOrg,
-				postgres.CreateSecretType,
 			},
 		},
 		ServiceService: &Service{
-			Create: postgres.CreateServiceTable,
-			Indexes: []string{
-				postgres.CreateServiceBuildIDNumberIndex,
-			},
+			Create:  postgres.CreateServiceTable,
+			Indexes: []string{},
 		},
 		StepService: &Service{
-			Create: postgres.CreateStepTable,
-			Indexes: []string{
-				postgres.CreateStepBuildIDNumberIndex,
-			},
+			Create:  postgres.CreateStepTable,
+			Indexes: []string{},
 		},
 		UserService: &Service{
 			Create: postgres.CreateUserTable,
 			Indexes: []string{
-				postgres.CreateUserNameIndex,
 				postgres.CreateRefreshIndex,
 			},
 		},
@@ -102,14 +91,12 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			Create: sqlite.CreateBuildTable,
 			Indexes: []string{
 				sqlite.CreateBuildRepoIDIndex,
-				sqlite.CreateBuildRepoIDNumberIndex,
 				sqlite.CreateBuildStatusIndex,
 			},
 		},
 		HookService: &Service{
 			Create: sqlite.CreateHookTable,
 			Indexes: []string{
-				sqlite.CreateHookRepoIDNumberIndex,
 				sqlite.CreateHookRepoIDIndex,
 			},
 		},
@@ -117,15 +104,12 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 			Create: sqlite.CreateLogTable,
 			Indexes: []string{
 				sqlite.CreateLogBuildIDIndex,
-				sqlite.CreateLogStepIDIndex,
-				sqlite.CreateLogServiceIDIndex,
 			},
 		},
 		RepoService: &Service{
 			Create: sqlite.CreateRepoTable,
 			Indexes: []string{
 				sqlite.CreateRepoOrgNameIndex,
-				sqlite.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
@@ -134,25 +118,19 @@ func TestDDL_NewMap_Sqlite(t *testing.T) {
 				sqlite.CreateSecretTypeOrgRepo,
 				sqlite.CreateSecretTypeOrgTeam,
 				sqlite.CreateSecretTypeOrg,
-				sqlite.CreateSecretType,
 			},
 		},
 		ServiceService: &Service{
-			Create: sqlite.CreateServiceTable,
-			Indexes: []string{
-				sqlite.CreateServiceBuildIDNumberIndex,
-			},
+			Create:  sqlite.CreateServiceTable,
+			Indexes: []string{},
 		},
 		StepService: &Service{
-			Create: sqlite.CreateStepTable,
-			Indexes: []string{
-				sqlite.CreateStepBuildIDNumberIndex,
-			},
+			Create:  sqlite.CreateStepTable,
+			Indexes: []string{},
 		},
 		UserService: &Service{
 			Create: sqlite.CreateUserTable,
 			Indexes: []string{
-				sqlite.CreateUserNameIndex,
 				sqlite.CreateRefreshIndex,
 			},
 		},

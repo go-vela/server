@@ -29,15 +29,6 @@ services (
 	UNIQUE(build_id, number)
 );
 `
-
-	// CreateServiceBuildIDNumberIndex represents a query to create an
-	// index on the services table for the build_id and number columns.
-	CreateServiceBuildIDNumberIndex = `
-CREATE INDEX
-IF NOT EXISTS
-services_build_id_number
-ON services (build_id, number);
-`
 )
 
 // createServiceService is a helper function to return
@@ -45,6 +36,6 @@ ON services (build_id, number);
 func createServiceService() *Service {
 	return &Service{
 		Create:  CreateServiceTable,
-		Indexes: []string{CreateServiceBuildIDNumberIndex},
+		Indexes: []string{},
 	}
 }
