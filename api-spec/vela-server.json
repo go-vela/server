@@ -118,7 +118,7 @@
           {
             "type": "string",
             "description": "Unix timestamp to limit builds returned",
-            "name": "timestamp",
+            "name": "after",
             "in": "query"
           }
         ],
@@ -5309,6 +5309,7 @@
     },
     "BuildQueue": {
       "type": "object",
+      "title": "BuildQueue is the representation of the builds in the queue.",
       "properties": {
         "created": {
           "type": "integer",
