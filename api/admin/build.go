@@ -66,24 +66,30 @@ func AllBuilds(c *gin.Context) {
 // ---
 // produces:
 // - application/json
+// parameters:
+// - in: query
+//   name: timestamp
+//   description: Unix timestamp to limit builds returned
+//   required: false
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved all running and builds from the database
+//     description: Successfully retrieved all running and pending builds from the database
 //     schema:
 //       type: array
 //       items:
-//         "$ref": "#/definitions/Build"
+//         "$ref": "#/definitions/BuildQueue"
 //   '500':
-//     description: Unable to retrieve all running and builds from the database
+//     description: Unable to retrieve all running and pending builds from the database
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // AllQueue represents the API handler to
 // captures all running and pending builds stored in the database.
 func AllBuildsQueue(c *gin.Context) {
-	logrus.Info("Admin: reading pending and running builds")
+	logrus.Info("Admin: reading running and pending builds")
 
 	// default timestamp to 24 hours ago if user did not provide it as query parameter
 	timestamp := c.DefaultQuery("timestamp", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
@@ -91,7 +97,7 @@ func AllBuildsQueue(c *gin.Context) {
 	// send API call to capture pending and running builds
 	b, err := database.FromContext(c).GetPendingAndRunningBuilds(timestamp)
 	if err != nil {
-		retErr := fmt.Errorf("unable to capture all pending and running builds: %w", err)
+		retErr := fmt.Errorf("unable to capture all running and pending builds: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

@@ -415,6 +415,9 @@ func (c *client) DeleteBuild(id int64) error {
 		Exec(c.DML.BuildService.Delete, id).Error
 }
 
+// BuildQueue is the representation of the builds in the queue.
+//
+// swagger:model BuildQueue
 type BuildQueue struct {
 	Status   *string `json:"status,omitempty"`
 	Created  *int64  `json:"created,omitempty"`
@@ -422,6 +425,8 @@ type BuildQueue struct {
 	FullName *string `json:"full_name,omitempty"`
 }
 
+// GetPendingAndRunningBuilds returns the list of pending and running builds
+// within the given timeframe.
 func (c *client) GetPendingAndRunningBuilds(timestamp string) ([]*BuildQueue, error) {
 	logrus.Trace("Selecting pending and running builds")
 
@@ -448,6 +453,7 @@ func (c *client) GetPendingAndRunningBuilds(timestamp string) ([]*BuildQueue, er
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
+		// convert query result to output type
 		output := BuildQueue{
 			Status:   &tmp.Status.String,
 			Created:  &tmp.Created.Int64,
@@ -455,7 +461,7 @@ func (c *client) GetPendingAndRunningBuilds(timestamp string) ([]*BuildQueue, er
 			FullName: &tmp.FullName.String,
 		}
 
-		// convert query result to library type
+		// append the build to the output list
 		builds = append(builds, &output)
 	}
 
