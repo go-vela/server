@@ -58,17 +58,6 @@ IF NOT EXISTS
 secrets_type_org
 ON secrets (type, org);
 `
-
-	// CreateSecretType represents a query to create an
-	// index on the secrets table for the type column.
-	//
-	// nolint: gosec // ignore false positive
-	CreateSecretType = `
-CREATE INDEX
-IF NOT EXISTS
-secrets_type
-ON secrets (type);
-`
 )
 
 // createSecretService is a helper function to return
@@ -80,7 +69,6 @@ func createSecretService() *Service {
 			CreateSecretTypeOrgRepo,
 			CreateSecretTypeOrgTeam,
 			CreateSecretTypeOrg,
-			CreateSecretType,
 		},
 	}
 }

@@ -14,19 +14,19 @@ func TestPostgres_NewMap(t *testing.T) {
 	want := &Map{
 		BuildService: &Service{
 			Create:  CreateBuildTable,
-			Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
+			Indexes: []string{CreateBuildRepoIDIndex, CreateBuildStatusIndex},
 		},
 		HookService: &Service{
 			Create:  CreateHookTable,
-			Indexes: []string{CreateHookRepoIDNumberIndex, CreateHookRepoIDIndex},
+			Indexes: []string{CreateHookRepoIDIndex},
 		},
 		LogService: &Service{
 			Create:  CreateLogTable,
-			Indexes: []string{CreateLogBuildIDIndex, CreateLogStepIDIndex, CreateLogServiceIDIndex},
+			Indexes: []string{CreateLogBuildIDIndex},
 		},
 		RepoService: &Service{
 			Create:  CreateRepoTable,
-			Indexes: []string{CreateRepoOrgNameIndex, CreateRepoFullNameIndex},
+			Indexes: []string{CreateRepoOrgNameIndex},
 		},
 		SecretService: &Service{
 			Create: CreateSecretTable,
@@ -34,20 +34,19 @@ func TestPostgres_NewMap(t *testing.T) {
 				CreateSecretTypeOrgRepo,
 				CreateSecretTypeOrgTeam,
 				CreateSecretTypeOrg,
-				CreateSecretType,
 			},
 		},
 		ServiceService: &Service{
 			Create:  CreateServiceTable,
-			Indexes: []string{CreateServiceBuildIDNumberIndex},
+			Indexes: []string{},
 		},
 		StepService: &Service{
 			Create:  CreateStepTable,
-			Indexes: []string{CreateStepBuildIDNumberIndex},
+			Indexes: []string{},
 		},
 		UserService: &Service{
 			Create:  CreateUserTable,
-			Indexes: []string{CreateUserNameIndex, CreateRefreshIndex},
+			Indexes: []string{CreateRefreshIndex},
 		},
 		WorkerService: &Service{
 			Create:  CreateWorkerTable,
