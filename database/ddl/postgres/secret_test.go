@@ -17,7 +17,6 @@ func TestPostgres_createSecretService(t *testing.T) {
 			CreateSecretTypeOrgRepo,
 			CreateSecretTypeOrgTeam,
 			CreateSecretTypeOrg,
-			CreateSecretType,
 		},
 	}
 

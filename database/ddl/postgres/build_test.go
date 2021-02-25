@@ -13,7 +13,7 @@ func TestPostgres_createBuildService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateBuildTable,
-		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
+		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildStatusIndex},
 	}
 
 	// run test
