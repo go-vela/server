@@ -45,15 +45,6 @@ builds (
 );
 `
 
-	// CreateBuildRepoIDNumberIndex represents a query to create an
-	// index on the builds table for the repo_id and number columns.
-	CreateBuildRepoIDNumberIndex = `
-CREATE INDEX
-IF NOT EXISTS
-builds_repo_id_number
-ON builds (repo_id, number);
-`
-
 	// CreateBuildRepoIDIndex represents a query to create an
 	// index on the builds table for the repo_id column.
 	CreateBuildRepoIDIndex = `
@@ -78,6 +69,6 @@ ON builds (status);
 func createBuildService() *Service {
 	return &Service{
 		Create:  CreateBuildTable,
-		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildRepoIDNumberIndex, CreateBuildStatusIndex},
+		Indexes: []string{CreateBuildRepoIDIndex, CreateBuildStatusIndex},
 	}
 }

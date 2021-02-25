@@ -42,15 +42,6 @@ IF NOT EXISTS
 repos_org_name
 ON repos (org, name);
 `
-
-	// CreateRepoFullNameIndex represents a query to create an
-	// index on the repos table for the full_name column.
-	CreateRepoFullNameIndex = `
-CREATE INDEX
-IF NOT EXISTS
-repos_full_name
-ON repos (full_name);
-`
 )
 
 // createRepoService is a helper function to return
@@ -58,6 +49,6 @@ ON repos (full_name);
 func createRepoService() *Service {
 	return &Service{
 		Create:  CreateRepoTable,
-		Indexes: []string{CreateRepoOrgNameIndex, CreateRepoFullNameIndex},
+		Indexes: []string{CreateRepoOrgNameIndex},
 	}
 }
