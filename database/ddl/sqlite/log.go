@@ -30,24 +30,6 @@ IF NOT EXISTS
 logs_build_id
 ON logs (build_id);
 `
-
-	// CreateLogStepIDIndex represents a query to create an
-	// index on the logs table for the step_id column.
-	CreateLogStepIDIndex = `
-CREATE INDEX
-IF NOT EXISTS
-logs_step_id
-ON logs (step_id);
-`
-
-	// CreateLogServiceIDIndex represents a query to create an
-	// index on the logs table for the service_id column.
-	CreateLogServiceIDIndex = `
-CREATE INDEX
-IF NOT EXISTS
-logs_service_id
-ON logs (service_id);
-`
 )
 
 // createLogService is a helper function to return
@@ -55,6 +37,6 @@ ON logs (service_id);
 func createLogService() *Service {
 	return &Service{
 		Create:  CreateLogTable,
-		Indexes: []string{CreateLogBuildIDIndex, CreateLogStepIDIndex, CreateLogServiceIDIndex},
+		Indexes: []string{CreateLogBuildIDIndex},
 	}
 }

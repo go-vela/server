@@ -30,15 +30,6 @@ steps (
 	UNIQUE(build_id, number)
 );
 `
-
-	// CreateStepBuildIDNumberIndex represents a query to create an
-	// index on the steps table for the build_id and number columns.
-	CreateStepBuildIDNumberIndex = `
-CREATE INDEX
-IF NOT EXISTS
-steps_build_id_number
-ON steps (build_id, number);
-`
 )
 
 // createStepService is a helper function to return
@@ -46,6 +37,6 @@ ON steps (build_id, number);
 func createStepService() *Service {
 	return &Service{
 		Create:  CreateStepTable,
-		Indexes: []string{CreateStepBuildIDNumberIndex},
+		Indexes: []string{},
 	}
 }

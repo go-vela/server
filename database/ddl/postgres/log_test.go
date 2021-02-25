@@ -13,7 +13,7 @@ func TestPostgres_createLogService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateLogTable,
-		Indexes: []string{CreateLogBuildIDIndex, CreateLogStepIDIndex, CreateLogServiceIDIndex},
+		Indexes: []string{CreateLogBuildIDIndex},
 	}
 
 	// run test
