@@ -13,7 +13,7 @@ func TestPostgres_createRepoService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateRepoTable,
-		Indexes: []string{CreateRepoOrgNameIndex, CreateRepoFullNameIndex},
+		Indexes: []string{CreateRepoOrgNameIndex},
 	}
 
 	// run test

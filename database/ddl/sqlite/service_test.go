@@ -13,7 +13,7 @@ func TestSqlite_createServiceService(t *testing.T) {
 	// setup types
 	want := &Service{
 		Create:  CreateServiceTable,
-		Indexes: []string{CreateServiceBuildIDNumberIndex},
+		Indexes: []string{},
 	}
 
 	// run test

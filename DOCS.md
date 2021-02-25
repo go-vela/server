@@ -44,7 +44,7 @@ echo "VELA_SOURCE_URL=<GitHub Enterprise Web URL>" >> .env
 * Create an [OAuth App](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) and obtain secrets for local development:
   * `Application name` = `Vela - local` (name of the OAuth application shouldn't matter)
   * `Homepage URL` = `http://localhost:8080` (base URL of the server)
-  * `Authorization callback URL` = `http://localhost:8888/account/authenticate` (authenticate endpoint of the base URL of the UI)
+  * `Authorization callback URL` = `http://localhost:8080/authenticate` (authenticate endpoint of the base URL of the server)
 
 * Add OAuth client secrets to a local `.env` file:
 

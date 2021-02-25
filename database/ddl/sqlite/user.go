@@ -23,15 +23,6 @@ users (
 );
 `
 
-	// CreateUserNameIndex represents a query to create an
-	// index on the users table for the name column.
-	CreateUserNameIndex = `
-CREATE INDEX
-IF NOT EXISTS
-users_name
-ON users (name);
-`
-
 	// CreateRefreshIndex represents a query to create an
 	// index on the users table for the refresh_token column.
 	CreateRefreshIndex = `
@@ -47,6 +38,6 @@ ON users (refresh_token);
 func createUserService() *Service {
 	return &Service{
 		Create:  CreateUserTable,
-		Indexes: []string{CreateUserNameIndex, CreateRefreshIndex},
+		Indexes: []string{CreateRefreshIndex},
 	}
 }

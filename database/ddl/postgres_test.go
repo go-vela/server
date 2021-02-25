@@ -18,14 +18,12 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 			Create: postgres.CreateBuildTable,
 			Indexes: []string{
 				postgres.CreateBuildRepoIDIndex,
-				postgres.CreateBuildRepoIDNumberIndex,
 				postgres.CreateBuildStatusIndex,
 			},
 		},
 		HookService: &Service{
 			Create: postgres.CreateHookTable,
 			Indexes: []string{
-				postgres.CreateHookRepoIDNumberIndex,
 				postgres.CreateHookRepoIDIndex,
 			},
 		},
@@ -33,15 +31,12 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 			Create: postgres.CreateLogTable,
 			Indexes: []string{
 				postgres.CreateLogBuildIDIndex,
-				postgres.CreateLogStepIDIndex,
-				postgres.CreateLogServiceIDIndex,
 			},
 		},
 		RepoService: &Service{
 			Create: postgres.CreateRepoTable,
 			Indexes: []string{
 				postgres.CreateRepoOrgNameIndex,
-				postgres.CreateRepoFullNameIndex,
 			},
 		},
 		SecretService: &Service{
@@ -50,25 +45,19 @@ func TestDDL_mapFromPostgres(t *testing.T) {
 				postgres.CreateSecretTypeOrgRepo,
 				postgres.CreateSecretTypeOrgTeam,
 				postgres.CreateSecretTypeOrg,
-				postgres.CreateSecretType,
 			},
 		},
 		ServiceService: &Service{
-			Create: postgres.CreateServiceTable,
-			Indexes: []string{
-				postgres.CreateServiceBuildIDNumberIndex,
-			},
+			Create:  postgres.CreateServiceTable,
+			Indexes: []string{},
 		},
 		StepService: &Service{
-			Create: postgres.CreateStepTable,
-			Indexes: []string{
-				postgres.CreateStepBuildIDNumberIndex,
-			},
+			Create:  postgres.CreateStepTable,
+			Indexes: []string{},
 		},
 		UserService: &Service{
 			Create: postgres.CreateUserTable,
 			Indexes: []string{
-				postgres.CreateUserNameIndex,
 				postgres.CreateRefreshIndex,
 			},
 		},
@@ -94,7 +83,6 @@ func TestDDL_serviceFromPostgres(t *testing.T) {
 		Create: postgres.CreateBuildTable,
 		Indexes: []string{
 			postgres.CreateBuildRepoIDIndex,
-			postgres.CreateBuildRepoIDNumberIndex,
 			postgres.CreateBuildStatusIndex,
 		},
 	}
