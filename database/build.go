@@ -427,7 +427,7 @@ type BuildQueue struct {
 
 // GetPendingAndRunningBuilds returns the list of pending and running builds
 // within the given timeframe.
-func (c *client) GetPendingAndRunningBuilds(timestamp string) ([]*BuildQueue, error) {
+func (c *client) GetPendingAndRunningBuilds(after string) ([]*BuildQueue, error) {
 	logrus.Trace("Selecting pending and running builds")
 
 	type databaseQueue struct {
@@ -443,7 +443,7 @@ func (c *client) GetPendingAndRunningBuilds(timestamp string) ([]*BuildQueue, er
 	// send query to the database and store result in variable
 	err := c.Database.
 		Table(constants.TableBuild).
-		Raw(c.DML.BuildService.Select["pendingAndRunning"], timestamp).
+		Raw(c.DML.BuildService.Select["pendingAndRunning"], after).
 		Scan(b).Error
 
 	// variable we want to return

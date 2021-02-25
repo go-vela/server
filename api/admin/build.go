@@ -68,7 +68,7 @@ func AllBuilds(c *gin.Context) {
 // - application/json
 // parameters:
 // - in: query
-//   name: timestamp
+//   name: after
 //   description: Unix timestamp to limit builds returned
 //   required: false
 //   type: string
@@ -92,10 +92,10 @@ func AllBuildsQueue(c *gin.Context) {
 	logrus.Info("Admin: reading running and pending builds")
 
 	// default timestamp to 24 hours ago if user did not provide it as query parameter
-	timestamp := c.DefaultQuery("timestamp", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
+	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
 
 	// send API call to capture pending and running builds
-	b, err := database.FromContext(c).GetPendingAndRunningBuilds(timestamp)
+	b, err := database.FromContext(c).GetPendingAndRunningBuilds(after)
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all running and pending builds: %w", err)
 
