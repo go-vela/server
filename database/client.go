@@ -25,6 +25,8 @@ type client struct {
 
 	DDL *ddl.Map
 	DML *dml.Map
+
+	CompressionLevel int
 }
 
 // New returns a Database implementation that
@@ -66,9 +68,10 @@ func New(c *cli.Context) (*client, error) {
 
 	// create the client object
 	client := &client{
-		Database: db,
-		DDL:      ddlMap,
-		DML:      dmlMap,
+		Database:         db,
+		DDL:              ddlMap,
+		DML:              dmlMap,
+		CompressionLevel: c.Int("database.compression.level"),
 	}
 
 	return client, nil
@@ -125,9 +128,10 @@ func NewTest() (*client, error) {
 
 	// create the client object
 	client := &client{
-		Database: db,
-		DDL:      ddlMap,
-		DML:      dmlMap,
+		Database:         db,
+		DDL:              ddlMap,
+		DML:              dmlMap,
+		CompressionLevel: constants.CompressionZero,
 	}
 
 	return client, nil
