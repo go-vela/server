@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -128,6 +129,34 @@ func validateDatabase(c *cli.Context) error {
 
 	if len(c.String("database.config")) == 0 {
 		return fmt.Errorf("database.config (VELA_DATABASE_CONFIG or DATABASE_CONFIG) flag not specified")
+	}
+
+	switch c.Int("database.compression.level") {
+	case constants.CompressionNegOne:
+		fallthrough
+	case constants.CompressionZero:
+		fallthrough
+	case constants.CompressionOne:
+		fallthrough
+	case constants.CompressionTwo:
+		fallthrough
+	case constants.CompressionThree:
+		fallthrough
+	case constants.CompressionFour:
+		fallthrough
+	case constants.CompressionFive:
+		fallthrough
+	case constants.CompressionSix:
+		fallthrough
+	case constants.CompressionSeven:
+		fallthrough
+	case constants.CompressionEight:
+		fallthrough
+	case constants.CompressionNine:
+		break
+	default:
+		// nolint:lll // ignoring line length due to error message
+		return fmt.Errorf("database compression level of '%d' is unsupported", c.Int("database.compression.level"))
 	}
 
 	return nil
