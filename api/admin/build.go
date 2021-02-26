@@ -86,7 +86,7 @@ func AllBuilds(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// AllQueue represents the API handler to
+// AllBuildsQueue represents the API handler to
 // captures all running and pending builds stored in the database.
 func AllBuildsQueue(c *gin.Context) {
 	logrus.Info("Admin: reading running and pending builds")
