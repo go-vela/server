@@ -5,6 +5,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -48,7 +50,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
-		logrus.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n err)
+		logrus.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n, err)
 
 		// return the unencrypted secret
 		return s.ToLibrary(), nil
@@ -86,7 +88,7 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted secrets
-			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID err)
+			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
 		}
 
 		// convert query result to library type
@@ -142,7 +144,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted secrets
-			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID err)
+			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
 		}
 
 		// convert query result to library type

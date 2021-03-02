@@ -174,9 +174,6 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/go-vela/compiler v0.7.3 h1:/3AP1uYk+K0vZVJNttA0Dyp9lYsyLPTB/iAF/OfV/30=
 github.com/go-vela/compiler v0.7.3/go.mod h1:xMVdK2vQML4CyZP5pLXEGt8KuLVXSoT2+nz4laHE8EU=
-github.com/go-vela/types v0.7.3/go.mod h1:/IsyxCijlz8BArRxBfrfRv7BBe/hmJGtVWegkS3ooJU=
-github.com/go-vela/types v0.7.4-0.20210225205732-6bf075d597f6 h1:Goi9FZ2O6kv4uZiRAVGUEfTZEQGXmK0qXiBUnGoUP18=
-github.com/go-vela/types v0.7.4-0.20210225205732-6bf075d597f6/go.mod h1:/IsyxCijlz8BArRxBfrfRv7BBe/hmJGtVWegkS3ooJU=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
