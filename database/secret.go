@@ -40,6 +40,21 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 			Scan(s).Error
 	}
 
+	// decrypt the value for the secret
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
+	err = s.Decrypt(c.EncryptionKey)
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allows us to fetch unencrypted secrets
+		logrus.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n err)
+
+		// return the unencrypted secret
+		return s.ToLibrary(), nil
+	}
+
+	// return the decrypted log
 	return s.ToLibrary(), err
 }
 
@@ -62,6 +77,17 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 	for _, secret := range *s {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := secret
+
+		// decrypt the value for the secret
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
+		err = tmp.Decrypt(c.EncryptionKey)
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch unencrypted secrets
+			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID err)
+		}
 
 		// convert query result to library type
 		secrets = append(secrets, tmp.ToLibrary())
@@ -107,6 +133,17 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 	for _, secret := range *s {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := secret
+
+		// decrypt the value for the secret
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Decrypt
+		err = tmp.Decrypt(c.EncryptionKey)
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch unencrypted secrets
+			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID err)
+		}
 
 		// convert query result to library type
 		secrets = append(secrets, tmp.ToLibrary())
@@ -165,6 +202,14 @@ func (c *client) CreateSecret(s *library.Secret) error {
 		return err
 	}
 
+	// encrypt the value for the secret
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Encrypt
+	err = secret.Encrypt(c.EncryptionKey)
+	if err != nil {
+		return fmt.Errorf("unable to encrypt secret %s: %v", s.GetName(), err)
+	}
+
 	// send query to the database
 	return c.Database.
 		Table(constants.TableSecret).
@@ -182,6 +227,14 @@ func (c *client) UpdateSecret(s *library.Secret) error {
 	err := secret.Validate()
 	if err != nil {
 		return err
+	}
+
+	// encrypt the value for the secret
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Encrypt
+	err = secret.Encrypt(c.EncryptionKey)
+	if err != nil {
+		return fmt.Errorf("unable to encrypt secret %s: %v", s.GetName(), err)
 	}
 
 	// send query to the database

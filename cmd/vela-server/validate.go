@@ -159,6 +159,13 @@ func validateDatabase(c *cli.Context) error {
 		return fmt.Errorf("database compression level of '%d' is unsupported", c.Int("database.compression.level"))
 	}
 
+	// enforce AES-256, so check explicitly for 32 bytes on the key
+	//
+	// nolint: gomnd // ignore magic number
+	if len(c.String("database.encryption.key")) != 32 {
+		return fmt.Errorf("database.encryption.key (VELA_DATABASE_ENCRYPTION_KEY or DATABASE_ENCRYPTION_KEY) invalid length specified: %d", len(c.String("database.encryption.key")))
+	}
+
 	return nil
 }
 
