@@ -5,74 +5,17 @@
 package main
 
 import (
-	"os"
 	"time"
 
-	"github.com/go-vela/server/version"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-
-	_ "github.com/joho/godotenv/autoload"
 )
 
-// hostname stores the server host name reported by the kernel.
-var hostname string
-
-// create an init function to set the hostname for the server.
-//
-// https://golang.org/doc/effective_go.html#init
-func init() {
-	// attempt to capture the hostname for the server
-	hostname, _ = os.Hostname()
-	// check if a hostname is set
-	if len(hostname) == 0 {
-		// default the hostname to localhost
-		hostname = "localhost"
-	}
-}
-
-// nolint: funlen // ignore function length due to flags
-func main() {
-	app := cli.NewApp()
-
-	// Server Information
-
-	app.Name = "vela-server"
-	app.HelpName = "vela-server"
-	app.Usage = "Vela build daemon designed for executing pipelines"
-	app.Copyright = "Copyright (c) 2021 Target Brands, Inc. All rights reserved."
-	app.Authors = []*cli.Author{
-		{
-			Name:  "Vela Admins",
-			Email: "vela@target.com",
-		},
-	}
-
-	// Server Metadata
-
-	app.Action = run
-	app.Compiled = time.Now()
-	app.Version = version.New().Semantic()
-
-	app.Flags = []cli.Flag{
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_LOG_LEVEL", "LOG_LEVEL"},
-			Name:    "log-level",
-			Usage:   "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
-			Value:   "info",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_ADDR", "VELA_HOST"},
-			Name:    "server-addr",
-			Usage:   "server address as a fully qualified url (<scheme>://<host>)",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_PORT"},
-			Name:    "server-port",
-			Usage:   "server port for the API to listen on",
-			Value:   "8080",
-		},
+// flags is a helper function to return the all
+// supported command line interface (CLI) flags
+// for the Worker.
+func flags() []cli.Flag {
+	f := []cli.Flag{
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_WEBUI_ADDR", "VELA_WEBUI_HOST"},
 			Name:    "webui-addr",
@@ -83,11 +26,6 @@ func main() {
 			Name:    "webui-oauth-callback",
 			Usage:   "web ui oauth callback path",
 			Value:   "/account/authenticate",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET"},
-			Name:    "vela-secret",
-			Usage:   "secret used for server <-> agent communication",
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
@@ -114,21 +52,6 @@ func main() {
 			Usage:   "override default build timeout (minutes)",
 		},
 
-		// Security Flags
-
-		&cli.DurationFlag{
-			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
-			Name:    "access-token-duration",
-			Usage:   "sets the duration of the access token",
-			Value:   15 * time.Minute,
-		},
-		&cli.DurationFlag{
-			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
-			Name:    "refresh-token-duration",
-			Usage:   "sets the duration of the refresh token",
-			Value:   8 * time.Hour,
-		},
-
 		// Compiler Flags
 
 		&cli.BoolFlag{
@@ -145,6 +68,31 @@ func main() {
 			EnvVars: []string{"VELA_COMPILER_GITHUB_TOKEN", "COMPILER_GITHUB_TOKEN"},
 			Name:    "github-token",
 			Usage:   "github token, used by compiler, for pulling registry templates",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
+			Name:    "modification-addr",
+			Usage:   "modification address, used by compiler, endpoint to send pipeline for modification",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
+			Name:    "modification-secret",
+			// nolint: lll // ignore long line length due to description
+			Usage: "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
+			Name:    "modification-timeout",
+			// nolint: lll // ignore long line length due to description
+			Usage: "modification timeout, used by compiler, duration that the modification http request will timeout after",
+			Value: 8 * time.Second,
+		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
+			Name:    "modification-retries",
+			// nolint: lll // ignore long line length due to description
+			Usage: "modification retries, used by compiler, number of http requires that the modification http request will fail after",
+			Value: 5,
 		},
 
 		// Database Flags
@@ -186,28 +134,19 @@ func main() {
 			Value:   constants.CompressionThree,
 		},
 
-		// Queue Flags
+		// Logger Flags
 
 		&cli.StringFlag{
-			EnvVars: []string{"VELA_QUEUE_DRIVER", "QUEUE_DRIVER"},
-			Name:    "queue-driver",
-			Usage:   "queue driver",
+			EnvVars: []string{"SERVER_LOG_FORMAT", "VELA_LOG_FORMAT", "LOG_FORMAT"},
+			Name:    "log.format",
+			Usage:   "set log format for the server",
+			Value:   "json",
 		},
 		&cli.StringFlag{
-			EnvVars: []string{"VELA_QUEUE_CONFIG", "QUEUE_CONFIG"},
-			Name:    "queue-config",
-			Usage:   "queue driver configuration string",
-		},
-		&cli.BoolFlag{
-			EnvVars: []string{"VELA_QUEUE_CLUSTER", "QUEUE_CLUSTER"},
-			Name:    "queue-cluster",
-			Usage:   "queue client is setup for clusters",
-		},
-		// By default all builds are pushed to the "vela" route
-		&cli.StringSliceFlag{
-			EnvVars: []string{"VELA_QUEUE_WORKER_ROUTES", "QUEUE_WORKER_ROUTES"},
-			Name:    "queue-worker-routes",
-			Usage:   "queue worker routes is configuration for routing builds",
+			EnvVars: []string{"SERVER_LOG_LEVEL", "VELA_LOG_LEVEL", "LOG_LEVEL"},
+			Name:    "log.level",
+			Usage:   "set log level for the server",
+			Value:   "info",
 		},
 
 		// Secret Flags
@@ -260,73 +199,78 @@ func main() {
 			Value:   30 * time.Minute,
 		},
 
+		// Security Flags
+
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
+			Name:    "access-token-duration",
+			Usage:   "sets the duration of the access token",
+			Value:   15 * time.Minute,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
+			Name:    "refresh-token-duration",
+			Usage:   "sets the duration of the refresh token",
+			Value:   8 * time.Hour,
+		},
+
+		// Server Flags
+
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SERVER_ADDR", "VELA_ADDR", "SERVER_ADDR"},
+			Name:    "server.addr",
+			Usage:   "server address as a fully qualified url (<scheme>://<host>)",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SERVER_PORT", "VELA_PORT", "SERVER_PORT"},
+			Name:    "server.port",
+			Usage:   "server port for the API to listen on",
+			Value:   "8080",
+		},
+
 		// Source Flags
 
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SOURCE_DRIVER", "SOURCE_DRIVER"},
-			Name:    "source-driver",
-			Usage:   "source driver",
+			Name:    "source.driver",
+			Usage:   "sets the driver for the source system",
 		},
 		&cli.StringFlag{
-			EnvVars: []string{"VELA_SOURCE_URL", "SOURCE_URL"},
-			Name:    "source-url",
-			Usage:   "source url address",
+			EnvVars: []string{"VELA_SOURCE_ADDR", "SOURCE_ADDR"},
+			Name:    "source.addr",
+			Usage:   "source system address as a fully qualified url (<scheme>://<host>)",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SOURCE_CLIENT", "SOURCE_CLIENT"},
-			Name:    "source-client",
-			Usage:   "source client id",
+			Name:    "source.client",
+			Usage:   "OAuth client id from the source system",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SOURCE_SECRET", "SOURCE_SECRET"},
-			Name:    "source-secret",
-			Usage:   "source client secret",
+			Name:    "source.secret",
+			Usage:   "OAuth client secret from the source system",
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SOURCE_CONTEXT", "SOURCE_CONTEXT"},
-			Name:    "source-context",
-			Usage:   "source commit status context",
+			Name:    "source.context",
+			Usage:   "commit status context to set on the source system",
 			Value:   "continuous-integration/vela",
 		},
 
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
-			Name:    "modification-addr",
-			Usage:   "modification address, used by compiler, endpoint to send pipeline for modification",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
-			Name:    "modification-secret",
-			// nolint: lll // ignore long line length due to description
-			Usage: "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
-		},
-		&cli.DurationFlag{
-			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
-			Name:    "modification-timeout",
-			// nolint: lll // ignore long line length due to description
-			Usage: "modification timeout, used by compiler, duration that the modification http request will timeout after",
-			Value: 8 * time.Second,
-		},
-		&cli.IntFlag{
-			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
-			Name:    "modification-retries",
-			// nolint: lll // ignore long line length due to description
-			Usage: "modification retries, used by compiler, number of http requires that the modification http request will fail after",
-			Value: 5,
-		},
+		// Worker Flags
 
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_WORKER_SECRET", "WORKER_SECRET"},
+			Name:    "worker.secret",
+			Usage:   "secret used for server <-> worker communication",
+		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
-			Name:    "worker-active-interval",
+			Name:    "worker.active-interval",
 			Usage:   "interval at which workers will show as active within the /metrics endpoint",
 			Value:   5 * time.Minute,
 		},
 	}
 
-	// Server Start
-
-	err := app.Run(os.Args)
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	return f
 }
