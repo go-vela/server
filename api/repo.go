@@ -706,16 +706,19 @@ func RepairRepo(c *gin.Context) {
 	// if the repo was previously inactive, mark it as active
 	if !r.GetActive() {
 		r.SetActive(true)
+	}
 
-		// send API call to update the repo
-		err = database.FromContext(c).UpdateRepo(r)
-		if err != nil {
-			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
+	// update repo owner user id
+	r.SetUserID(u.GetID())
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+	// send API call to update the repo
+	err = database.FromContext(c).UpdateRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
 
-			return
-		}
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s repaired", r.GetFullName()))
