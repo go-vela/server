@@ -134,6 +134,7 @@ func NewTest() (*client, error) {
 		DDL:              ddlMap,
 		DML:              dmlMap,
 		CompressionLevel: constants.CompressionZero,
+		EncryptionKey:    "C639A572E14D5075C526FDDD43E4ECF6",
 	}
 
 	return client, nil

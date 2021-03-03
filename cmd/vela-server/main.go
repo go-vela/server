@@ -154,7 +154,7 @@ func main() {
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_DATABASE_ENCRYPTION_KEY", "DATABASE_ENCRYPTION_KEY"},
 			Name:    "database.encryption.key",
-			Usage:   "32 char string for encrypting and decrypting values",
+			Usage:   "AES-256 key for encrypting and decrypting values",
 		},
 
 		// Queue Flags

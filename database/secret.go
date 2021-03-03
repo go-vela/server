@@ -41,6 +41,9 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 			Raw(c.DML.SecretService.Select["shared"], o, n, secretName).
 			Scan(s).Error
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	// decrypt the value for the secret
 	//
@@ -57,7 +60,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 	}
 
 	// return the decrypted log
-	return s.ToLibrary(), err
+	return s.ToLibrary(), nil
 }
 
 // GetSecretList gets a list of all secrets from the database.
@@ -72,6 +75,9 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 		Table(constants.TableSecret).
 		Raw(c.DML.SecretService.List["all"]).
 		Scan(s).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	secrets := []*library.Secret{}
@@ -95,7 +101,7 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 		secrets = append(secrets, tmp.ToLibrary())
 	}
 
-	return secrets, err
+	return secrets, nil
 }
 
 // GetTypeSecretList gets a list of secrets by type,
@@ -128,6 +134,9 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 			Raw(c.DML.SecretService.List["shared"], o, n, perPage, offset).
 			Scan(s).Error
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	secrets := []*library.Secret{}
@@ -151,7 +160,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 		secrets = append(secrets, tmp.ToLibrary())
 	}
 
-	return secrets, err
+	return secrets, nil
 }
 
 // GetTypeSecretCount gets a count of secrets by type,
