@@ -151,6 +151,11 @@ func main() {
 			Usage:   "sets the level of compression for logs stored in the database",
 			Value:   constants.CompressionThree,
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_DATABASE_ENCRYPTION_KEY", "DATABASE_ENCRYPTION_KEY"},
+			Name:    "database.encryption.key",
+			Usage:   "AES-256 key for encrypting and decrypting values",
+		},
 
 		// Queue Flags
 
