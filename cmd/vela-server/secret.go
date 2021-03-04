@@ -44,7 +44,7 @@ func setupSecrets(c *cli.Context, d database.Service) (map[string]secret.Service
 // helper function to setup the Native secret engine from the CLI arguments.
 func setupNative(c *cli.Context, d database.Service) (secret.Service, error) {
 	logrus.Tracef("Creating %s secret client from CLI configuration", constants.DriverNative)
-	return native.New(d, c.String("native-key"))
+	return native.New(d)
 }
 
 // helper function to setup the Vault secret engine from the CLI arguments.
