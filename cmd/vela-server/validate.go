@@ -163,6 +163,7 @@ func validateDatabase(c *cli.Context) error {
 	//
 	// nolint: gomnd // ignore magic number
 	if len(c.String("database.encryption.key")) != 32 {
+		// nolint: lll // ignore long line length due to long error message
 		return fmt.Errorf("database.encryption.key (VELA_DATABASE_ENCRYPTION_KEY or DATABASE_ENCRYPTION_KEY) invalid length specified: %d", len(c.String("database.encryption.key")))
 	}
 
