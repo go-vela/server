@@ -39,9 +39,6 @@ func TestNative_List(t *testing.T) {
 	sTwo.SetEvents([]string{"foo", "bar"})
 	sTwo.SetAllowCommand(false)
 
-	// nolint: gosec // ignore false positive
-	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
-
 	want := []*library.Secret{sTwo, sOne}
 
 	// setup database
@@ -53,20 +50,14 @@ func TestNative_List(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d, passphrase)
+	s, err := New(d)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
 
 	_ = s.Create("repo", "foo", "bar", sOne)
 
-	// vOne, _ := decrypt([]byte(sOne.GetValue()), passphrase)
-	// sOne.Value = &vOne
-
 	_ = s.Create("repo", "foo", "bar", sTwo)
-
-	// vTwo, _ := decrypt([]byte(sTwo.GetValue()), passphrase)
-	// sTwo.Value = &vTwo
 
 	got, err := s.List("repo", "foo", "bar", 1, 10)
 	if err != nil {
@@ -83,11 +74,8 @@ func TestNative_List_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
-	// nolint: gosec // ignore false positive
-	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
-
 	// run test
-	s, err := New(d, passphrase)
+	s, err := New(d)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
