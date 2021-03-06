@@ -15,8 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/urfave/cli/v2"
-
-	_ "github.com/joho/godotenv/autoload"
 )
 
 // run executes the server based
@@ -70,22 +68,15 @@ func run(c *cli.Context) error {
 		"registry": "https://hub.docker.com/r/target/vela-server/",
 	}).Info("Vela Server")
 
-	// parse the servers address, returning any errors.
-	addr, err := url.Parse(c.String("server.addr"))
-	if err != nil {
-		return fmt.Errorf("unable to parse server address: %w", err)
-	}
-
 	// create the server
 	s := &Server{
 		// server configuration
 		Config: &Config{
-			Address: c.String("server.addr"),
-			Port:    c.String("server.port"),
-			Secret:  c.String("server.secret"),
 			// api configuration
 			API: &API{
-				Address: addr,
+				Address: c.String("server.addr"),
+				Port:    c.String("server.port"),
+				Secret:  c.String("server.secret"),
 			},
 			// build configuration
 			Build: &Build{
@@ -94,6 +85,7 @@ func run(c *cli.Context) error {
 			// compiler configuration
 			Compiler: &Compiler{
 				Github: &Github{
+					Driver:  c.Bool("compiler.github.driver"),
 					Address: c.String("compiler.github.addr"),
 					Token:   c.String("compiler.github.token"),
 				},
@@ -130,6 +122,7 @@ func run(c *cli.Context) error {
 				Cluster: c.Bool("queue.cluster"),
 				Routes:  c.StringSlice("queue.worker.routes"),
 			},
+			// security configuration
 			Security: &Security{
 				AccessToken:       c.Duration("access.token.duration"),
 				RefreshToken:      c.Duration("refresh.token.duration"),
@@ -137,6 +130,7 @@ func run(c *cli.Context) error {
 				SecureCookie:      c.Bool("secure.cookie"),
 				WebhookValidation: c.Bool("webhook.validation"),
 			},
+			// source configuration
 			Source: &Source{
 				Driver:       c.String("source.driver"),
 				Address:      c.String("source.addr"),
@@ -144,6 +138,7 @@ func run(c *cli.Context) error {
 				ClientSecret: c.String("source.secret"),
 				Context:      c.String("source.context"),
 			},
+			// web UI configuration
 			WebUI: &WebUI{
 				Address:       c.String("webui.addr"),
 				OAuthEndpoint: c.String("webui.oauth.endpoint"),
@@ -152,12 +147,12 @@ func run(c *cli.Context) error {
 	}
 
 	// set the server address if no flag was provided
-	if len(w.Config.API.Address.String()) == 0 {
+	if len(s.Config.API.Address.String()) == 0 {
 		s.Config.API.Address, _ = url.Parse(fmt.Sprintf("http://%s", hostname))
 	}
 
 	// validate the server
-	err = s.Validate()
+	err := s.Validate()
 	if err != nil {
 		return err
 	}

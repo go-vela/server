@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/go-vela/types/constants"
@@ -13,125 +14,151 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func validate(c *cli.Context) error {
-	logrus.Debug("Validating CLI configuration")
-
-	// validate core configuration
-	err := validateCore(c)
-	if err != nil {
-		return err
+// Validate verifies the API is properly configured.
+func (a *API) Validate() error {
+	// verify a server address was provided
+	if len(a.Address) == 0 {
+		return fmt.Errorf("no server address provided")
 	}
 
-	// validate compiler configuration
-	err = validateCompiler(c)
-	if err != nil {
-		return err
+	// check if the server address has a scheme
+	if !strings.Contains(a.Address, "://") {
+		return fmt.Errorf("server address must be fully qualified (<scheme>://<host>)")
 	}
 
-	// validate database configuration
-	err = validateDatabase(c)
-	if err != nil {
-		return err
+	// check if the server address has a trailing slash
+	if strings.HasSuffix(a.Address, "/") {
+		return fmt.Errorf("server address must not have trailing slash")
 	}
 
-	// validate queue configuration
-	err = validateQueue(c)
+	// parse the server address into a url structure
+	parsed, err := url.Parse(a.Address)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to parse server address: %v", err)
 	}
 
-	// validate secret configuration
-	err = validateSecret(c)
-	if err != nil {
-		return err
-	}
+	// save the parsed server address
+	a.Url = parsed
 
-	// validate source configuration
-	err = validateSource(c)
-	if err != nil {
-		return err
+	// verify a server secret was provided
+	if len(a.Secret) == 0 {
+		return fmt.Errorf("no server secret provided")
 	}
 
 	return nil
 }
 
-// helper function to validate the core CLI configuration.
-//
-// nolint:lll // ignoring line length check to avoid breaking up error messages
-func validateCore(c *cli.Context) error {
-	logrus.Trace("Validating core CLI configuration")
-
-	if len(c.String("server-addr")) == 0 {
-		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag is not properly configured")
-	}
-
-	if !strings.Contains(c.String("server-addr"), "://") {
-		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag must be <scheme>://<hostname> format")
-	}
-
-	if strings.HasSuffix(c.String("server-addr"), "/") {
-		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag must not have trailing slash")
-	}
-
-	if len(c.String("vela-secret")) == 0 {
-		return fmt.Errorf("vela-secret (VELA_SECRET) flag is not properly configured")
-	}
-
-	if len(c.String("webui-addr")) == 0 {
-		logrus.Warn("optional flag webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) not set")
-	} else {
-		if !strings.Contains(c.String("webui-addr"), "://") {
-			return fmt.Errorf("webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) flag must be <scheme>://<hostname> format")
-		}
-
-		if strings.HasSuffix(c.String("webui-addr"), "/") {
-			return fmt.Errorf("webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) flag must not have trailing slash")
-		}
-
-		if len(c.String("webui-oauth-callback")) == 0 {
-			return fmt.Errorf("webui-oauth (VELA_WEBUI_OAUTH_CALLBACK_PATH or VELA_WEBUI_OAUTH_CALLBACK) not set")
-		}
-	}
-
-	if c.Duration("refresh-token-duration").Seconds() <= c.Duration("access-token-duration").Seconds() {
-		return fmt.Errorf("refresh-token-duration (VELA_REFRESH_TOKEN_DURATION) must be larger than the access-token-duration (VELA_ACCESS_TOKEN_DURATION)")
+// Validate verifies the Build is properly configured.
+func (b *Build) Validate() error {
+	// verify a build timeout was provided
+	if b.Timeout <= 0 {
+		return fmt.Errorf("no build timeout provided")
 	}
 
 	return nil
 }
 
-// helper function to validate the compiler CLI configuration.
-//
-// nolint:lll // ignoring line length check to avoid breaking up error messages
-func validateCompiler(c *cli.Context) error {
-	logrus.Trace("Validating compiler CLI configuration")
+// Validate verifies the Compiler is properly configured.
+func (c *Compiler) Validate() error {
+	logrus.Trace("validating compiler configuration")
 
-	if c.Bool("github-driver") {
-		if len(c.String("github-url")) == 0 {
-			return fmt.Errorf("github-url (VELA_COMPILER_GITHUB_URL or COMPILER_GITHUB_URL) flag not specified")
+	// check if the github driver is enabled
+	if c.Github.Driver {
+		// verify a github address was provided
+		if len(c.Github.Address) == 0 {
+			return fmt.Errorf("no compiler GitHub address provided")
 		}
 
-		if len(c.String("github-token")) == 0 {
-			return fmt.Errorf("github-token (VELA_COMPILER_GITHUB_TOKEN or COMPILER_GITHUB_TOKEN) flag not specified")
+		// check if the compiler GitHub address has a scheme
+		if !strings.Contains(c.Github.Address, "://") {
+			return fmt.Errorf("compiler GitHub address must be fully qualified (<scheme>://<host>)")
+		}
+
+		// check if the compiler GitHub address has a trailing slash
+		if strings.HasSuffix(c.Github.Address, "/") {
+			return fmt.Errorf("compiler GitHub address must not have trailing slash")
+		}
+
+		// parse the compiler GitHub address into a url structure
+		parsed, err := url.Parse(c.Github.Address)
+		if err != nil {
+			return fmt.Errorf("unable to parse compiler GitHub address: %v", err)
+		}
+
+		// save the parsed compiler GitHub address
+		c.Github.Url = parsed
+
+		// verify a github token was provided
+		if len(c.Github.Token) == 0 {
+			return fmt.Errorf("no compiler GitHub token provided")
+		}
+	}
+
+	// check if an address for the modification service is provided
+	if len(c.Modification.Address) > 0 {
+		// check if the compiler modification address has a scheme
+		if !strings.Contains(c.Modification.Address, "://") {
+			return fmt.Errorf("compiler modification address must be fully qualified (<scheme>://<host>)")
+		}
+
+		// check if the compiler modification address has a trailing slash
+		if strings.HasSuffix(c.Modification.Address, "/") {
+			return fmt.Errorf("compiler modification address must not have trailing slash")
+		}
+
+		// parse the compiler modification address into a url structure
+		parsed, err := url.Parse(c.Modification.Address)
+		if err != nil {
+			return fmt.Errorf("unable to parse compiler modification address: %v", err)
+		}
+
+		// save the parsed compiler modification address
+		c.Modification.Url = parsed
+
+		// verify a secret for the modification service was provided
+		if len(c.Modification.Secret) == 0 {
+			return fmt.Errorf("no compiler modification secret provided")
 		}
 	}
 
 	return nil
 }
 
-// helper function to validate the database CLI configuration.
-func validateDatabase(c *cli.Context) error {
-	logrus.Trace("Validating database CLI configuration")
+// Validate verifies the Database is properly configured.
+func (d *Database) Validate() error {
+	logrus.Trace("validating database configuration")
 
-	if len(c.String("database.driver")) == 0 {
-		return fmt.Errorf("database.driver (VELA_DATABASE_DRIVER or DATABASE_DRIVER) flag not specified")
+	// verify a database driver was provided
+	if len(d.Driver) == 0 {
+		return fmt.Errorf("no database driver provided")
 	}
 
-	if len(c.String("database.config")) == 0 {
-		return fmt.Errorf("database.config (VELA_DATABASE_CONFIG or DATABASE_CONFIG) flag not specified")
+	// verify a database address was provided
+	if len(d.Address) == 0 {
+		return fmt.Errorf("no database address provided")
 	}
 
-	switch c.Int("database.compression.level") {
+	// check if the database address has a scheme
+	if !strings.Contains(d.Address, "://") {
+		return fmt.Errorf("database address must be fully qualified (<scheme>://<host>)")
+	}
+
+	// check if the database address has a trailing slash
+	if strings.HasSuffix(d.Address, "/") {
+		return fmt.Errorf("database address must not have trailing slash")
+	}
+
+	// parse the database address into a url structure
+	parsed, err := url.Parse(d.Address)
+	if err != nil {
+		return fmt.Errorf("unable to parse database address: %v", err)
+	}
+
+	// save the parsed database address
+	d.Url = parsed
+
+	// verify the compression level provided is valid
+	switch d.CompressionLevel {
 	case constants.CompressionNegOne:
 		fallthrough
 	case constants.CompressionZero:
@@ -155,31 +182,14 @@ func validateDatabase(c *cli.Context) error {
 	case constants.CompressionNine:
 		break
 	default:
-		// nolint:lll // ignoring line length due to error message
-		return fmt.Errorf("database compression level of '%d' is unsupported", c.Int("database.compression.level"))
+		return fmt.Errorf("invalid database compression level provided: %d", d.CompressionLevel)
 	}
 
 	// enforce AES-256, so check explicitly for 32 bytes on the key
 	//
 	// nolint: gomnd // ignore magic number
-	if len(c.String("database.encryption.key")) != 32 {
-		// nolint: lll // ignore long line length due to long error message
-		return fmt.Errorf("database.encryption.key (VELA_DATABASE_ENCRYPTION_KEY or DATABASE_ENCRYPTION_KEY) invalid length specified: %d", len(c.String("database.encryption.key")))
-	}
-
-	return nil
-}
-
-// helper function to validate the queue CLI configuration.
-func validateQueue(c *cli.Context) error {
-	logrus.Trace("Validating queue CLI configuration")
-
-	if len(c.String("queue-driver")) == 0 {
-		return fmt.Errorf("queue-driver (VELA_QUEUE_DRIVER or QUEUE_DRIVER) flag not specified")
-	}
-
-	if len(c.String("queue-config")) == 0 {
-		return fmt.Errorf("queue-config (VELA_QUEUE_CONFIG or QUEUE_CONFIG) flag not specified")
+	if len(d.EncryptionKey) != 32 {
+		return fmt.Errorf("invalid database encryption key provided: %d", len(d.EncryptionKey))
 	}
 
 	return nil
@@ -218,22 +228,178 @@ func validateSecret(c *cli.Context) error {
 	return nil
 }
 
-// helper function to validate the source CLI configuration.
-func validateSource(c *cli.Context) error {
-	logrus.Trace("Validating source CLI configuration")
+// Validate verifies the Security is properly configured.
+func (s *Security) Validate() error {
+	logrus.Trace("validating security configuration")
 
-	if len(c.String("source-driver")) > 0 {
-		if len(c.String("source-url")) == 0 {
-			return fmt.Errorf("source-url (VELA_SOURCE_URL or SOURCE_URL) flag not specified")
-		}
+	// verify the refresh tokens last longer than access tokens
+	if s.RefreshToken <= s.AccessToken {
+		return fmt.Errorf("refresh token duration must be larger than access token duration")
+	}
 
-		if len(c.String("source-client")) == 0 {
-			return fmt.Errorf("source-client (VELA_SOURCE_CLIENT or SOURCE_CLIENT) flag not specified")
-		}
+	// check if secure cookies are disabled
+	if !s.SecureCookie {
+		logrus.Warning("secure cookies are disabled - running with insecure mode")
+	}
 
-		if len(c.String("source-secret")) == 0 {
-			return fmt.Errorf("source-secret (VELA_SOURCE_SECRET or SOURCE_SECRET) flag not specified")
+	// check if webhook validation is disabled
+	if !s.WebhookValidation {
+		logrus.Warning("webhook validation is disabled - running with insecure mode")
+	}
+
+	return nil
+}
+
+// Validate verifies the Source is properly configured.
+func (s *Source) Validate() error {
+	logrus.Trace("validating source configuration")
+
+	// verify a source driver was provided
+	if len(s.Driver) == 0 {
+		return fmt.Errorf("no source driver provided")
+	}
+
+	// verify a source address was provided
+	if len(s.Address) == 0 {
+		return fmt.Errorf("no source address provided")
+	}
+
+	// check if the source address has a scheme
+	if !strings.Contains(s.Address, "://") {
+		return fmt.Errorf("source address must be fully qualified (<scheme>://<host>)")
+	}
+
+	// check if the source address has a trailing slash
+	if strings.HasSuffix(s.Address, "/") {
+		return fmt.Errorf("source address must not have trailing slash")
+	}
+
+	// parse the source address into a url structure
+	parsed, err := url.Parse(s.Address)
+	if err != nil {
+		return fmt.Errorf("unable to parse source address: %v", err)
+	}
+
+	// save the parsed source address
+	s.Url = parsed
+
+	// verify a source OAuth client ID was provided
+	if len(s.ClientID) == 0 {
+		return fmt.Errorf("no source client id provided")
+	}
+
+	// verify a source OAuth client secret was provided
+	if len(s.ClientSecret) == 0 {
+		return fmt.Errorf("no source client secret provided")
+	}
+
+	return nil
+}
+
+// Validate verifies the WebUI is properly configured.
+func (w *WebUI) Validate() error {
+	// verify a web UI address was provided
+	if len(w.Address) == 0 {
+		logrus.Warning("no web UI address provided - running in headless mode")
+
+		return nil
+	}
+
+	// check if the web UI address has a scheme
+	if !strings.Contains(w.Address, "://") {
+		return fmt.Errorf("web UI address must be fully qualified (<scheme>://<host>)")
+	}
+
+	// check if the web UI address has a trailing slash
+	if strings.HasSuffix(w.Address, "/") {
+		return fmt.Errorf("web UI address must not have trailing slash")
+	}
+
+	// parse the web UI address into a url structure
+	parsed, err := url.Parse(w.Address)
+	if err != nil {
+		return fmt.Errorf("unable to parse web UI address: %v", err)
+	}
+
+	// save the parsed web UI address
+	w.Url = parsed
+
+	// verify a web UI OAuth endpoint was provided
+	if len(w.OAuthEndpoint) == 0 {
+		return fmt.Errorf("no web UI OAuth endpoint provided")
+	}
+
+	return nil
+}
+
+// Validate verifies the Server is properly configured.
+func (s *Server) Validate() error {
+	// log a message indicating the configuration verification
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Info
+	logrus.Info("validating server configuration")
+
+	// check that hostname was properly populated
+	if len(s.Config.API.Address.Hostname()) == 0 {
+		switch strings.ToLower(s.Config.API.Address.Scheme) {
+		case "http", "https":
+			retErr := "server address invalid: %s"
+			return fmt.Errorf(retErr, w.Config.API.Address.String())
+		default:
+			// hostname will be empty if a scheme is not provided
+			retErr := "server address invalid, no scheme: %s"
+			return fmt.Errorf(retErr, s.Config.API.Address.String())
 		}
+	}
+
+	// verify the API configuration
+	err := s.Config.API.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the build configuration
+	err = s.Config.Build.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the compiler configuration
+	err = s.Config.Compiler.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the database configuration
+	err = s.Config.Database.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the queue configuration
+	//
+	// https://godoc.org/github.com/go-vela/pkg-queue/queue#Setup.Validate
+	err = s.Config.Queue.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the security configuration
+	err = s.Config.Security.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the source configuration
+	err = s.Config.Source.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the web UI configuration
+	err = s.Config.WebUI.Validate()
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 	"time"
 
@@ -13,17 +12,16 @@ import (
 	"github.com/go-vela/pkg-queue/queue"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router"
-	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/source"
-
-	"github.com/sirupsen/logrus"
 )
 
 type (
 	// API represents the server configuration for API information.
 	API struct {
-		Address *url.URL
+		Address string
+		Port    string
+		Secret  string
+		Url     *url.URL
 	}
 
 	// Build represents the server configuration for build information.
@@ -33,8 +31,10 @@ type (
 
 	// Github represents the compiler configuration for the github information.
 	Github struct {
+		Driver  bool
 		Address string
 		Token   string
+		Url     *url.URL
 	}
 
 	// Modification represents the compiler configuration for the modification information.
@@ -43,6 +43,7 @@ type (
 		Secret   string
 		Duration time.Duration
 		Retries  int
+		Url      *url.URL
 	}
 
 	// Compiler represents the server configuration for compiler information.
@@ -60,6 +61,7 @@ type (
 		ConnectionLife   time.Duration
 		ConnectionOpen   int
 		EncryptionKey    string
+		Url              *url.URL
 	}
 
 	// Logger represents the server configuration for logger information.
@@ -89,19 +91,18 @@ type (
 		ClientID     string
 		ClientSecret string
 		Context      string
+		Url          *url.URL
 	}
 
 	// WebUI represents the server configuration for web UI information.
 	WebUI struct {
 		Address       string
 		OAuthEndpoint string
+		Url           *url.URL
 	}
 
 	// Config represents the server configuration.
 	Config struct {
-		Address  string
-		Port     string
-		Secret   string
 		API      *API
 		Build    *Build
 		Compiler *Compiler
@@ -124,48 +125,3 @@ type (
 		Source   source.Service
 	}
 )
-
-// server is a helper function to listen and serve
-// traffic for web and API requests for the Server.
-func (s *Server) server() error {
-	// log a message indicating the setup of the server handlers
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Trace
-	logrus.Trace("loading router with server handlers")
-
-	// create the server router to listen and serve traffic
-	//
-	// https://pkg.go.dev/github.com/go-vela/worker/router?tab=doc#Load
-	_server := router.Load(
-		middleware.Allowlist(s.Config.Security.RepoAllowList),
-		middleware.Compiler(s.Compiler),
-		middleware.Database(s.Database),
-		middleware.DefaultTimeout(s.Config.Build.Timeout),
-		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
-		middleware.Metadata(metadata),
-		middleware.Queue(s.Queue),
-		middleware.RequestVersion,
-		middleware.Secret(s.Config.Secret),
-		middleware.Secrets(secrets),
-		middleware.SecureCookie(s.Config.Security.SecureCookie),
-		middleware.Source(s.Source),
-		middleware.WebhookValidation(s.Config.Security.WebhookValidation),
-		middleware.Worker(s.Config.Metrics.WorkerActive),
-	)
-
-	// set the port from the provided server address
-	port := s.Config.API.Address.Port()
-	// check if a port is part of the server address
-	if len(port) == 0 {
-		port = s.Config.Port
-	}
-
-	// log a message indicating the start of serving traffic
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Tracef
-	logrus.Tracef("serving traffic on %s", port)
-
-	// else serve over http
-	// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#Engine.Run
-	return _server.Run(fmt.Sprintf(":%s", port))
-}

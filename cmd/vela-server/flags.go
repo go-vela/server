@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/pkg-queue/queue"
 	"github.com/go-vela/server/random"
 	"github.com/go-vela/types/constants"
+	"github.com/sirupsen/logrus"
 
 	"github.com/urfave/cli/v2"
 )
@@ -245,7 +246,7 @@ func flags() []cli.Flag {
 		// Server Flags
 
 		&cli.StringFlag{
-			EnvVars: []string{"VELA_SERVER_ADDR", "SERVER_ADDR"}
+			EnvVars: []string{"VELA_SERVER_ADDR", "SERVER_ADDR"},
 			Name:    "server.addr",
 			Usage:   "fully qualified url (<scheme>://<host>) for the server",
 		},

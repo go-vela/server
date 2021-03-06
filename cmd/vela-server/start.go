@@ -31,8 +31,8 @@ func (s *Server) Start() error {
 			// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Info
 			logrus.Info("starting server")
 
-			// start the server for the worker
-			err := s.server()
+			// start serving traffic for the server
+			err := s.serve()
 			if err != nil {
 				// log the error received from the server
 				//
