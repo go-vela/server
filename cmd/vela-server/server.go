@@ -5,144 +5,167 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/pkg-queue/queue"
+
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/source"
 
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-
-	"github.com/urfave/cli/v2"
-	tomb "gopkg.in/tomb.v2"
 )
 
-// nolint: funlen // ignore function length
-func server(c *cli.Context) error {
-	// validate all input
-	err := validate(c)
-	if err != nil {
-		return err
+type (
+	// API represents the server configuration for API information.
+	API struct {
+		Address *url.URL
 	}
 
-	// set log level for logrus
-	switch c.String("log-level") {
-	case "t", "trace", "Trace", "TRACE":
-		gin.SetMode(gin.DebugMode)
-		logrus.SetLevel(logrus.TraceLevel)
-	case "d", "debug", "Debug", "DEBUG":
-		gin.SetMode(gin.DebugMode)
-		logrus.SetLevel(logrus.DebugLevel)
-	case "i", "info", "Info", "INFO":
-		gin.SetMode(gin.ReleaseMode)
-		logrus.SetLevel(logrus.InfoLevel)
-	case "w", "warn", "Warn", "WARN":
-		gin.SetMode(gin.ReleaseMode)
-		logrus.SetLevel(logrus.WarnLevel)
-	case "e", "error", "Error", "ERROR":
-		gin.SetMode(gin.ReleaseMode)
-		logrus.SetLevel(logrus.ErrorLevel)
-	case "f", "fatal", "Fatal", "FATAL":
-		gin.SetMode(gin.ReleaseMode)
-		logrus.SetLevel(logrus.FatalLevel)
-	case "p", "panic", "Panic", "PANIC":
-		gin.SetMode(gin.ReleaseMode)
-		logrus.SetLevel(logrus.PanicLevel)
+	// Build represents the server configuration for build information.
+	Build struct {
+		Timeout int64
 	}
 
-	compiler, err := setupCompiler(c)
-	if err != nil {
-		return err
+	// Github represents the compiler configuration for the github information.
+	Github struct {
+		Address string
+		Token   string
 	}
 
-	database, err := setupDatabase(c)
-	if err != nil {
-		return err
+	// Modification represents the compiler configuration for the modification information.
+	Modification struct {
+		Address  string
+		Secret   string
+		Duration time.Duration
+		Retries  int
 	}
 
-	queue, err := setupQueue(c)
-	if err != nil {
-		return err
+	// Compiler represents the server configuration for compiler information.
+	Compiler struct {
+		Github       *Github
+		Modification *Modification
 	}
 
-	secrets, err := setupSecrets(c, database)
-	if err != nil {
-		return err
+	// Database represents the server configuration for database information.
+	Database struct {
+		Driver           string
+		Address          string
+		CompressionLevel int
+		ConnectionIdle   int
+		ConnectionLife   time.Duration
+		ConnectionOpen   int
+		EncryptionKey    string
 	}
 
-	source, err := setupSource(c)
-	if err != nil {
-		return err
+	// Logger represents the server configuration for logger information.
+	Logger struct {
+		Format string
+		Level  string
 	}
 
-	metadata, err := setupMetadata(c)
-	if err != nil {
-		return err
+	// Metrics represents the server configuration for metrics information.
+	Metrics struct {
+		WorkerActive time.Duration
 	}
 
-	router := router.Load(
-		middleware.Compiler(compiler),
-		middleware.Database(database),
+	// Security represents the server configuration for security information.
+	Security struct {
+		AccessToken       time.Duration
+		RefreshToken      time.Duration
+		RepoAllowList     []string
+		SecureCookie      bool
+		WebhookValidation bool
+	}
+
+	// Source represents the server configuration for source information.
+	Source struct {
+		Driver       string
+		Address      string
+		ClientID     string
+		ClientSecret string
+		Context      string
+	}
+
+	// WebUI represents the server configuration for web UI information.
+	WebUI struct {
+		Address       string
+		OAuthEndpoint string
+	}
+
+	// Config represents the server configuration.
+	Config struct {
+		Address  string
+		Port     string
+		Secret   string
+		API      *API
+		Build    *Build
+		Compiler *Compiler
+		Database *Database
+		Logger   *Logger
+		Metrics  *Metrics
+		Queue    *queue.Setup
+		Security *Security
+		Source   *Source
+		WebUI    *WebUI
+	}
+
+	// Server represents all configuration and
+	// system processes for the server.
+	Server struct {
+		Config   *Config
+		Compiler compiler.Engine
+		Database database.Service
+		Queue    queue.Service
+		Source   source.Service
+	}
+)
+
+// server is a helper function to listen and serve
+// traffic for web and API requests for the Server.
+func (s *Server) server() error {
+	// log a message indicating the setup of the server handlers
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Trace
+	logrus.Trace("loading router with server handlers")
+
+	// create the server router to listen and serve traffic
+	//
+	// https://pkg.go.dev/github.com/go-vela/worker/router?tab=doc#Load
+	_server := router.Load(
+		middleware.Allowlist(s.Config.Security.RepoAllowList),
+		middleware.Compiler(s.Compiler),
+		middleware.Database(s.Database),
+		middleware.DefaultTimeout(s.Config.Build.Timeout),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
 		middleware.Metadata(metadata),
-		middleware.Queue(queue),
+		middleware.Queue(s.Queue),
 		middleware.RequestVersion,
-		middleware.Secret(c.String("vela-secret")),
+		middleware.Secret(s.Config.Secret),
 		middleware.Secrets(secrets),
-		middleware.Source(source),
-		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
-		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
-		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
-		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
-		middleware.Worker(c.Duration("worker-active-interval")),
+		middleware.SecureCookie(s.Config.Security.SecureCookie),
+		middleware.Source(s.Source),
+		middleware.WebhookValidation(s.Config.Security.WebhookValidation),
+		middleware.Worker(s.Config.Metrics.WorkerActive),
 	)
 
-	addr, err := url.Parse(c.String("server-addr"))
-	if err != nil {
-		return err
+	// set the port from the provided server address
+	port := s.Config.API.Address.Port()
+	// check if a port is part of the server address
+	if len(port) == 0 {
+		port = s.Config.Port
 	}
 
-	var tomb tomb.Tomb
-	// start http server
-	tomb.Go(func() error {
-		port := addr.Port()
+	// log a message indicating the start of serving traffic
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Tracef
+	logrus.Tracef("serving traffic on %s", port)
 
-		// check if a port is part of the address
-		if len(port) == 0 {
-			port = c.String("server-port")
-		}
-
-		// gin expects the address to be ":<port>" ie ":8080"
-		srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: router}
-
-		logrus.Infof("running server on %s", addr.Host)
-		go func() {
-			logrus.Info("Starting HTTP server...")
-			err := srv.ListenAndServe()
-			if err != nil {
-				tomb.Kill(err)
-			}
-		}()
-
-		// nolint: gosimple // ignore this for now
-		for {
-			select {
-			case <-tomb.Dying():
-				logrus.Info("Stopping HTTP server...")
-				return srv.Shutdown(context.Background())
-			}
-		}
-	})
-
-	// Wait for stuff and watch for errors
-	err = tomb.Wait()
-	if err != nil {
-		return err
-	}
-
-	return tomb.Err()
+	// else serve over http
+	// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#Engine.Run
+	return _server.Run(fmt.Sprintf(":%s", port))
 }
