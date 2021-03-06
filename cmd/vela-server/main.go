@@ -185,6 +185,11 @@ func main() {
 			Usage:   "sets the level of compression for logs stored in the database",
 			Value:   constants.CompressionThree,
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_DATABASE_ENCRYPTION_KEY", "DATABASE_ENCRYPTION_KEY"},
+			Name:    "database.encryption.key",
+			Usage:   "AES-256 key for encrypting and decrypting values",
+		},
 
 		// Queue Flags
 
@@ -212,11 +217,6 @@ func main() {
 
 		// Secret Flags
 
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_NATIVE_KEY", "SECRET_NATIVE_KEY"},
-			Name:    "native-key",
-			Usage:   "native passphrase for encrypting and decrypting values",
-		},
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_SECRET_VAULT", "SECRET_VAULT"},
 			Name:    "vault-driver",
