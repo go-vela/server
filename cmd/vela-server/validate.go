@@ -6,12 +6,10 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 // Validate verifies the API is properly configured.
@@ -30,15 +28,6 @@ func (a *API) Validate() error {
 	if strings.HasSuffix(a.Address, "/") {
 		return fmt.Errorf("server address must not have trailing slash")
 	}
-
-	// parse the server address into a url structure
-	parsed, err := url.Parse(a.Address)
-	if err != nil {
-		return fmt.Errorf("unable to parse server address: %v", err)
-	}
-
-	// save the parsed server address
-	a.Url = parsed
 
 	// verify a server secret was provided
 	if len(a.Secret) == 0 {
@@ -79,15 +68,6 @@ func (c *Compiler) Validate() error {
 			return fmt.Errorf("compiler GitHub address must not have trailing slash")
 		}
 
-		// parse the compiler GitHub address into a url structure
-		parsed, err := url.Parse(c.Github.Address)
-		if err != nil {
-			return fmt.Errorf("unable to parse compiler GitHub address: %v", err)
-		}
-
-		// save the parsed compiler GitHub address
-		c.Github.Url = parsed
-
 		// verify a github token was provided
 		if len(c.Github.Token) == 0 {
 			return fmt.Errorf("no compiler GitHub token provided")
@@ -105,15 +85,6 @@ func (c *Compiler) Validate() error {
 		if strings.HasSuffix(c.Modification.Address, "/") {
 			return fmt.Errorf("compiler modification address must not have trailing slash")
 		}
-
-		// parse the compiler modification address into a url structure
-		parsed, err := url.Parse(c.Modification.Address)
-		if err != nil {
-			return fmt.Errorf("unable to parse compiler modification address: %v", err)
-		}
-
-		// save the parsed compiler modification address
-		c.Modification.Url = parsed
 
 		// verify a secret for the modification service was provided
 		if len(c.Modification.Secret) == 0 {
@@ -133,6 +104,16 @@ func (d *Database) Validate() error {
 		return fmt.Errorf("no database driver provided")
 	}
 
+	// verify the database driver provided is valid
+	switch d.Driver {
+	case constants.DriverPostgres, "postgresql":
+		fallthrough
+	case constants.DriverSqlite, "sqlite":
+		break
+	default:
+		return fmt.Errorf("invalid database driver provided: %s", d.Driver)
+	}
+
 	// verify a database address was provided
 	if len(d.Address) == 0 {
 		return fmt.Errorf("no database address provided")
@@ -147,15 +128,6 @@ func (d *Database) Validate() error {
 	if strings.HasSuffix(d.Address, "/") {
 		return fmt.Errorf("database address must not have trailing slash")
 	}
-
-	// parse the database address into a url structure
-	parsed, err := url.Parse(d.Address)
-	if err != nil {
-		return fmt.Errorf("unable to parse database address: %v", err)
-	}
-
-	// save the parsed database address
-	d.Url = parsed
 
 	// verify the compression level provided is valid
 	switch d.CompressionLevel {
@@ -195,32 +167,43 @@ func (d *Database) Validate() error {
 	return nil
 }
 
-// helper function to validate the secret CLI configuration.
-//
-// nolint:lll // ignoring line length check to avoid breaking up error messages
-func validateSecret(c *cli.Context) error {
-	logrus.Trace("Validating secret CLI configuration")
+// Validate verifies the Secrets is properly configured.
+func (s *Secrets) Validate() error {
+	logrus.Trace("validating secrets configuration")
 
-	if c.Bool("vault-driver") {
-		if len(c.String("vault-addr")) == 0 {
-			return fmt.Errorf("vault-addr (VELA_SECRET_VAULT_ADDR or SECRET_VAULT_ADDR) flag not specified")
+	// check if the vault driver is enabled
+	if s.Vault.Driver {
+		// verify a vault address was provided
+		if len(s.Vault.Address) == 0 {
+			return fmt.Errorf("no secrets Vault address provided")
 		}
 
-		if len(c.String("vault-token")) == 0 && len(c.String("vault-auth-method")) == 0 {
-			return fmt.Errorf("vault-token (VELA_SECRET_VAULT_TOKEN or SECRET_VAULT_TOKEN) or vault-auth-method (VELA_SECRET_VAULT_AUTH_METHOD or SECRET_VAULT_AUTH_METHOD) flag not specified")
+		// check if the vault address has a scheme
+		if !strings.Contains(s.Vault.Address, "://") {
+			return fmt.Errorf("secrets Vault address must be fully qualified (<scheme>://<host>)")
 		}
 
-		if len(c.String("vault-token")) == 0 {
-			switch c.String("vault-auth-method") {
+		// check if the vault address has a trailing slash
+		if strings.HasSuffix(s.Vault.Address, "/") {
+			return fmt.Errorf("secrets Vault address must not have trailing slash")
+		}
+
+		// verify a vault token or authentication method was provided
+		if len(s.Vault.Token) == 0 && len(s.Vault.AuthMethod) == 0 {
+			return fmt.Errorf("no secrets Vault token or authentication method provided")
+		}
+
+		// check if a vault token was provided
+		if len(s.Vault.Token) == 0 {
+			// verify the vault authentication method provided is valid
+			switch s.Vault.AuthMethod {
 			case "aws":
-			default:
-				return fmt.Errorf("vault auth method of '%s' is unsupported", c.String("vault-auth-method"))
-			}
-
-			if c.String("vault-auth-method") == "aws" {
-				if len(c.String("vault-aws-role")) == 0 {
-					return fmt.Errorf("vault-aws-role (VELA_SECRET_VAULT_AWS_ROLE or SECRET_VAULT_AWS_ROLE) flag not specified")
+				// verify a vault AWS role is provided
+				if len(s.Vault.AwsRole) == 0 {
+					return fmt.Errorf("no secrets Vault AWS role provided")
 				}
+			default:
+				return fmt.Errorf("invalid secrets vault authentication method provided: %s", s.Vault.AuthMethod)
 			}
 		}
 	}
@@ -259,6 +242,14 @@ func (s *Source) Validate() error {
 		return fmt.Errorf("no source driver provided")
 	}
 
+	// verify the source driver provided is valid
+	switch s.Driver {
+	case constants.DriverGithub:
+		break
+	default:
+		return fmt.Errorf("invalid source driver provided: %s", s.Driver)
+	}
+
 	// verify a source address was provided
 	if len(s.Address) == 0 {
 		return fmt.Errorf("no source address provided")
@@ -273,15 +264,6 @@ func (s *Source) Validate() error {
 	if strings.HasSuffix(s.Address, "/") {
 		return fmt.Errorf("source address must not have trailing slash")
 	}
-
-	// parse the source address into a url structure
-	parsed, err := url.Parse(s.Address)
-	if err != nil {
-		return fmt.Errorf("unable to parse source address: %v", err)
-	}
-
-	// save the parsed source address
-	s.Url = parsed
 
 	// verify a source OAuth client ID was provided
 	if len(s.ClientID) == 0 {
@@ -315,15 +297,6 @@ func (w *WebUI) Validate() error {
 		return fmt.Errorf("web UI address must not have trailing slash")
 	}
 
-	// parse the web UI address into a url structure
-	parsed, err := url.Parse(w.Address)
-	if err != nil {
-		return fmt.Errorf("unable to parse web UI address: %v", err)
-	}
-
-	// save the parsed web UI address
-	w.Url = parsed
-
 	// verify a web UI OAuth endpoint was provided
 	if len(w.OAuthEndpoint) == 0 {
 		return fmt.Errorf("no web UI OAuth endpoint provided")
@@ -338,19 +311,6 @@ func (s *Server) Validate() error {
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Info
 	logrus.Info("validating server configuration")
-
-	// check that hostname was properly populated
-	if len(s.Config.API.Address.Hostname()) == 0 {
-		switch strings.ToLower(s.Config.API.Address.Scheme) {
-		case "http", "https":
-			retErr := "server address invalid: %s"
-			return fmt.Errorf(retErr, w.Config.API.Address.String())
-		default:
-			// hostname will be empty if a scheme is not provided
-			retErr := "server address invalid, no scheme: %s"
-			return fmt.Errorf(retErr, s.Config.API.Address.String())
-		}
-	}
 
 	// verify the API configuration
 	err := s.Config.API.Validate()
@@ -380,6 +340,12 @@ func (s *Server) Validate() error {
 	//
 	// https://godoc.org/github.com/go-vela/pkg-queue/queue#Setup.Validate
 	err = s.Config.Queue.Validate()
+	if err != nil {
+		return err
+	}
+
+	// verify the secrets configuration
+	err = s.Config.Secrets.Validate()
 	if err != nil {
 		return err
 	}

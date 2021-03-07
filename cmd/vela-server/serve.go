@@ -31,11 +31,11 @@ func (s *Server) serve() error {
 		middleware.Database(s.Database),
 		middleware.DefaultTimeout(s.Config.Build.Timeout),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
-		middleware.Metadata(metadata),
+		middleware.Metadata(s.Metadata),
 		middleware.Queue(s.Queue),
 		middleware.RequestVersion,
-		middleware.Secret(s.Config.Secret),
-		middleware.Secrets(secrets),
+		middleware.Secret(s.Config.API.Secret),
+		middleware.Secrets(s.Secrets),
 		middleware.SecureCookie(s.Config.Security.SecureCookie),
 		middleware.Source(s.Source),
 		middleware.WebhookValidation(s.Config.Security.WebhookValidation),
@@ -43,10 +43,10 @@ func (s *Server) serve() error {
 	)
 
 	// set the port from the provided server address
-	port := s.Config.API.Address.Port()
+	port := s.Config.API.Url.Port()
 	// check if a port is part of the server address
 	if len(port) == 0 {
-		port = s.Config.Port
+		port = s.Config.API.Port
 	}
 
 	// log a message indicating the start of serving traffic
@@ -54,7 +54,8 @@ func (s *Server) serve() error {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Tracef
 	logrus.Tracef("serving traffic on %s", port)
 
-	// else serve over http
+	// serve over http
+	//
 	// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#Engine.Run
 	return _server.Run(fmt.Sprintf(":%s", port))
 }

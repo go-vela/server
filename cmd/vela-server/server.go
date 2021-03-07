@@ -12,16 +12,20 @@ import (
 	"github.com/go-vela/pkg-queue/queue"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/source"
+
+	"github.com/go-vela/types"
 )
 
 type (
 	// API represents the server configuration for API information.
 	API struct {
-		Address string
-		Port    string
-		Secret  string
-		Url     *url.URL
+		Address  string
+		Hostname string
+		Port     string
+		Secret   string
+		Url      *url.URL
 	}
 
 	// Build represents the server configuration for build information.
@@ -75,6 +79,24 @@ type (
 		WorkerActive time.Duration
 	}
 
+	// Vault represents the secrets configuration for the vault information.
+	Vault struct {
+		Driver        bool
+		Address       string
+		AuthMethod    string
+		AwsRole       string
+		Prefix        string
+		Token         string
+		TokenDuration time.Duration
+		Version       string
+		Url           *url.URL
+	}
+
+	// Secrets represents the server configuration for secrets information.
+	Secrets struct {
+		Vault *Vault
+	}
+
 	// Security represents the server configuration for security information.
 	Security struct {
 		AccessToken       time.Duration
@@ -110,6 +132,7 @@ type (
 		Logger   *Logger
 		Metrics  *Metrics
 		Queue    *queue.Setup
+		Secrets  *Secrets
 		Security *Security
 		Source   *Source
 		WebUI    *WebUI
@@ -121,7 +144,9 @@ type (
 		Config   *Config
 		Compiler compiler.Engine
 		Database database.Service
+		Metadata *types.Metadata
 		Queue    queue.Service
+		Secrets  map[string]secret.Service
 		Source   source.Service
 	}
 )

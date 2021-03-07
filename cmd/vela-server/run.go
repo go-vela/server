@@ -5,9 +5,6 @@
 package main
 
 import (
-	"fmt"
-	"net/url"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/go-vela/pkg-queue/queue"
@@ -74,9 +71,10 @@ func run(c *cli.Context) error {
 		Config: &Config{
 			// api configuration
 			API: &API{
-				Address: c.String("server.addr"),
-				Port:    c.String("server.port"),
-				Secret:  c.String("server.secret"),
+				Address:  c.String("server.addr"),
+				Hostname: hostname,
+				Port:     c.String("server.port"),
+				Secret:   c.String("server.secret"),
 			},
 			// build configuration
 			Build: &Build{
@@ -122,6 +120,19 @@ func run(c *cli.Context) error {
 				Cluster: c.Bool("queue.cluster"),
 				Routes:  c.StringSlice("queue.worker.routes"),
 			},
+			// secrets configuration
+			Secrets: &Secrets{
+				Vault: &Vault{
+					Driver:        c.Bool("secret.vault.driver"),
+					Address:       c.String("secret.vault.addr"),
+					AuthMethod:    c.String("secret.vault.auth-method"),
+					AwsRole:       c.String("secret.vault.aws-role"),
+					Prefix:        c.String("secret.vault.prefix"),
+					Token:         c.String("secret.vault.token"),
+					TokenDuration: c.Duration("secret.vault.token.duration"),
+					Version:       c.String("secret.vault.version"),
+				},
+			},
 			// security configuration
 			Security: &Security{
 				AccessToken:       c.Duration("access.token.duration"),
@@ -146,13 +157,14 @@ func run(c *cli.Context) error {
 		},
 	}
 
-	// set the server address if no flag was provided
-	if len(s.Config.API.Address.String()) == 0 {
-		s.Config.API.Address, _ = url.Parse(fmt.Sprintf("http://%s", hostname))
-	}
-
 	// validate the server
 	err := s.Validate()
+	if err != nil {
+		return err
+	}
+
+	// setup the server
+	err = s.Setup()
 	if err != nil {
 		return err
 	}
