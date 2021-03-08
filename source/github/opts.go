@@ -20,14 +20,14 @@ func WithAddress(address string) ClientOpt {
 
 	return func(c *client) error {
 		// set a default address for the client
-		c.Config.Address = defaultURL
+		c.config.Address = defaultURL
 		// set a default API address for the client
-		c.Config.API = defaultAPI
+		c.config.API = defaultAPI
 
 		// check if an address was provided
-		if !strings.EqualFold(c.Config.Address, address) {
-			c.Config.Address = address
-			c.Config.API = fmt.Sprintf("%s/%s", c.Config.Address, "/api/v3/")
+		if !strings.EqualFold(c.config.Address, address) {
+			c.config.Address = address
+			c.config.API = fmt.Sprintf("%s/%s", c.config.Address, "/api/v3/")
 		}
 
 		return nil
@@ -45,7 +45,7 @@ func WithClientID(id string) ClientOpt {
 		}
 
 		// set the OAuth client ID in the github client
-		c.Config.ClientID = id
+		c.config.ClientID = id
 
 		return nil
 	}
@@ -62,7 +62,7 @@ func WithClientSecret(secret string) ClientOpt {
 		}
 
 		// set the OAuth client secret in the github client
-		c.Config.ClientSecret = secret
+		c.config.ClientSecret = secret
 
 		return nil
 	}
@@ -79,7 +79,7 @@ func WithServerAddress(address string) ClientOpt {
 		}
 
 		// set the Vela server address in the github client
-		c.Config.ServerAddress = address
+		c.config.ServerAddress = address
 
 		return nil
 	}
@@ -96,7 +96,7 @@ func WithStatusContext(context string) ClientOpt {
 		}
 
 		// set the context for the commit status in the github client
-		c.Config.StatusContext = context
+		c.config.StatusContext = context
 
 		return nil
 	}
@@ -108,7 +108,7 @@ func WithWebUIAddress(address string) ClientOpt {
 
 	return func(c *client) error {
 		// set the Vela web UI address in the github client
-		c.Config.WebUIAddress = address
+		c.config.WebUIAddress = address
 
 		return nil
 	}

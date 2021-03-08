@@ -6,14 +6,11 @@ package github
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net/url"
 
 	"github.com/google/go-github/v29/github"
 	"golang.org/x/oauth2"
-
-	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -47,7 +44,7 @@ type config struct {
 }
 
 type client struct {
-	Config  *config
+	config  *config
 	OAuth   *oauth2.Config
 	AuthReq *github.AuthorizationRequest
 }
@@ -70,19 +67,19 @@ func New(opts ...ClientOpt) (*client, error) {
 
 	// create the GitHub OAuth config object
 	c.OAuth = &oauth2.Config{
-		ClientID:     c.Config.ClientID,
-		ClientSecret: c.Config.ClientSecret,
+		ClientID:     c.config.ClientID,
+		ClientSecret: c.config.ClientSecret,
 		Scopes:       []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.Config.Address),
-			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.Config.Address),
+			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.config.Address),
+			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.config.Address),
 		},
 	}
 
 	// create the GitHub authorization object
 	c.AuthReq = &github.AuthorizationRequest{
-		ClientID:     &c.Config.ClientID,
-		ClientSecret: &c.Config.ClientSecret,
+		ClientID:     &c.config.ClientID,
+		ClientSecret: &c.config.ClientSecret,
 		Scopes:       []github.Scope{"repo", "repo:status", "user:email", "read:user", "read:org"},
 	}
 
@@ -96,28 +93,22 @@ func New(opts ...ClientOpt) (*client, error) {
 //
 // nolint: golint // ignore returning unexported client
 func NewTest(urls ...string) (*client, error) {
-	return New(createTestContext(urls...))
-}
+	address := urls[0]
+	server := address
 
-// helper function to create a cli.Context for the NewTest function.
-//
-// This function is intended for running tests only.
-func createTestContext(urls ...string) *cli.Context {
-	set := flag.NewFlagSet("test", 0)
-	set.String("server-addr", urls[0], "doc")
-
+	// check if multiple URLs were provided
 	if len(urls) > 1 {
-		// nolint: errcheck // ignore error check
-		set.Set("server-addr", urls[1])
+		server = urls[1]
 	}
 
-	set.String("webui-addr", urls[0], "doc")
-	set.String("source-url", urls[0], "doc")
-	set.String("source-client", "foo", "doc")
-	set.String("source-secret", "bar", "doc")
-	set.String("source-context", "continuous-integration/vela", "doc")
-
-	return cli.NewContext(nil, set, nil)
+	return New(
+		WithAddress(address),
+		WithClientID("foo"),
+		WithClientSecret("bar"),
+		WithServerAddress(server),
+		WithStatusContext("continuous-integration/vela"),
+		WithWebUIAddress(address),
+	)
 }
 
 // helper function to return the GitHub OAuth client.
@@ -142,7 +133,7 @@ func (c *client) newClientToken(token string) *github.Client {
 	github := github.NewClient(tc)
 
 	// ensure the proper URL is set
-	github.BaseURL, _ = url.Parse(c.API)
+	github.BaseURL, _ = url.Parse(c.config.API)
 
 	return github
 }
