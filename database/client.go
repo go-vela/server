@@ -17,7 +17,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
 )
 
 type client struct {
@@ -34,9 +33,9 @@ type client struct {
 // integrates with a supported database instance.
 //
 // nolint: golint // ignore returning unexported client
-func New(c *cli.Context) (*client, error) {
-	driver := c.String("database.driver")
-	config := c.String("database.config")
+func New(s *Setup) (*client, error) {
+	driver := s.Driver
+	config := s.Address
 
 	// create the database client
 	db, err := gorm.Open(driver, config)
@@ -63,17 +62,17 @@ func New(c *cli.Context) (*client, error) {
 	}
 
 	// apply extra database configuration
-	db.DB().SetConnMaxLifetime(c.Duration("database.connection.life"))
-	db.DB().SetMaxIdleConns(c.Int("database.connection.idle"))
-	db.DB().SetMaxOpenConns(c.Int("database.connection.open"))
+	db.DB().SetConnMaxLifetime(s.ConnectionLife)
+	db.DB().SetMaxIdleConns(s.ConnectionIdle)
+	db.DB().SetMaxOpenConns(s.ConnectionOpen)
 
 	// create the client object
 	client := &client{
 		Database:         db,
 		DDL:              ddlMap,
 		DML:              dmlMap,
-		CompressionLevel: c.Int("database.compression.level"),
-		EncryptionKey:    c.String("database.encryption.key"),
+		CompressionLevel: s.CompressionLevel,
+		EncryptionKey:    s.EncryptionKey,
 	}
 
 	return client, nil
@@ -95,7 +94,7 @@ func NewTest() (*client, error) {
 		name = constants.DriverSqlite
 	}
 
-	config := os.Getenv("VELA_DATABASE_CONFIG")
+	config := os.Getenv("VELA_DATABASE_ADDR")
 	if len(config) == 0 {
 		// nolint: goconst // ignore creating constant
 		config = ":memory:"

@@ -58,14 +58,8 @@ type (
 
 	// Database represents the server configuration for database information.
 	Database struct {
-		Driver           string
-		Address          string
-		CompressionLevel int
-		ConnectionIdle   int
-		ConnectionLife   time.Duration
-		ConnectionOpen   int
-		EncryptionKey    string
-		Url              *url.URL
+		Config *database.Setup
+		Url    *url.URL
 	}
 
 	// Logger represents the server configuration for logger information.
@@ -77,6 +71,12 @@ type (
 	// Metrics represents the server configuration for metrics information.
 	Metrics struct {
 		WorkerActive time.Duration
+	}
+
+	// Queue represents the server configuration for queue information.
+	Queue struct {
+		Config *queue.Setup
+		Url    *url.URL
 	}
 
 	// Vault represents the secrets configuration for the vault information.
@@ -108,12 +108,8 @@ type (
 
 	// Source represents the server configuration for source information.
 	Source struct {
-		Driver       string
-		Address      string
-		ClientID     string
-		ClientSecret string
-		Context      string
-		Url          *url.URL
+		Config *source.Setup
+		Url    *url.URL
 	}
 
 	// WebUI represents the server configuration for web UI information.
@@ -131,7 +127,7 @@ type (
 		Database *Database
 		Logger   *Logger
 		Metrics  *Metrics
-		Queue    *queue.Setup
+		Queue    *Queue
 		Secrets  *Secrets
 		Security *Security
 		Source   *Source

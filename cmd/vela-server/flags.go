@@ -62,7 +62,7 @@ func flags() []cli.Flag {
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_COMPILER_MODIFICATION_DURATION", "COMPILER_MODIFICATION_DURATION"},
 			Name:    "compiler.modification.duration",
-			Usage:   "duration of time for requests sent to modification system",
+			Usage:   "amount of time for requests sent to modification system",
 			Value:   8 * time.Second,
 		},
 		&cli.IntFlag{
@@ -137,7 +137,7 @@ func flags() []cli.Flag {
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_METRICS_WORKER_ACTIVE_DURATION", "METRICS_WORKER_ACTIVE_DURATION"},
 			Name:    "metrics.worker.active.duration",
-			Usage:   "duration of time for active workers within the /metrics endpoint",
+			Usage:   "amount of time for active workers within the /metrics endpoint",
 			Value:   5 * time.Minute,
 		},
 
@@ -200,7 +200,7 @@ func flags() []cli.Flag {
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_SECRET_VAULT_TOKEN_DURATION", "SECRET_VAULT_TOKEN_DURATION"},
 			Name:    "secret.vault.token.duration",
-			Usage:   "duration of time to wait before refreshing the vault token",
+			Usage:   "amount of time to wait before refreshing the vault token",
 			Value:   30 * time.Minute,
 		},
 		&cli.StringFlag{
@@ -215,13 +215,13 @@ func flags() []cli.Flag {
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
 			Name:    "access.token.duration",
-			Usage:   "duration of time an access token can be used",
+			Usage:   "amount of time an access token can be used",
 			Value:   15 * time.Minute,
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
 			Name:    "refresh.token.duration",
-			Usage:   "duration of time a refresh token can be used",
+			Usage:   "amount of time a refresh token can be used",
 			Value:   8 * time.Hour,
 		},
 		&cli.StringSliceFlag{

@@ -18,8 +18,21 @@ func (d *Database) Metadata() *types.Database {
 	logrus.Trace("creating database metadata")
 
 	return &types.Database{
-		Driver: d.Driver,
+		Driver: d.Config.Driver,
 		Host:   d.Url.Host,
+	}
+}
+
+// Metadata creates the metadata for the Queue.
+func (q *Queue) Metadata() *types.Queue {
+	// log a message indicating the metadata creation
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Trace
+	logrus.Trace("creating queue metadata")
+
+	return &types.Queue{
+		Driver: q.Config.Driver,
+		Host:   q.Url.Host,
 	}
 }
 
@@ -31,7 +44,7 @@ func (s *Source) Metadata() *types.Source {
 	logrus.Trace("creating source metadata")
 
 	return &types.Source{
-		Driver: s.Driver,
+		Driver: s.Config.Driver,
 		Host:   s.Url.Host,
 	}
 }

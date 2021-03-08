@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/go-vela/pkg-queue/queue"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/source"
 
 	"github.com/sirupsen/logrus"
 
@@ -96,13 +98,15 @@ func run(c *cli.Context) error {
 			},
 			// database configuration
 			Database: &Database{
-				Driver:           c.String("database.driver"),
-				Address:          c.String("database.addr"),
-				CompressionLevel: c.Int("database.compression.level"),
-				ConnectionIdle:   c.Int("database.connection.idle"),
-				ConnectionLife:   c.Duration("database.connection.life"),
-				ConnectionOpen:   c.Int("database.connection.open"),
-				EncryptionKey:    c.String("database.encryption.key"),
+				Config: &database.Setup{
+					Driver:           c.String("database.driver"),
+					Address:          c.String("database.addr"),
+					CompressionLevel: c.Int("database.compression.level"),
+					ConnectionIdle:   c.Int("database.connection.idle"),
+					ConnectionLife:   c.Duration("database.connection.life"),
+					ConnectionOpen:   c.Int("database.connection.open"),
+					EncryptionKey:    c.String("database.encryption.key"),
+				},
 			},
 			// logger configuration
 			Logger: &Logger{
@@ -114,11 +118,13 @@ func run(c *cli.Context) error {
 				WorkerActive: c.Duration("metrics.worker.active.duration"),
 			},
 			// queue configuration
-			Queue: &queue.Setup{
-				Driver:  c.String("queue.driver"),
-				Config:  c.String("queue.config"),
-				Cluster: c.Bool("queue.cluster"),
-				Routes:  c.StringSlice("queue.worker.routes"),
+			Queue: &Queue{
+				Config: &queue.Setup{
+					Driver:  c.String("queue.driver"),
+					Config:  c.String("queue.config"),
+					Cluster: c.Bool("queue.cluster"),
+					Routes:  c.StringSlice("queue.worker.routes"),
+				},
 			},
 			// secrets configuration
 			Secrets: &Secrets{
@@ -143,11 +149,13 @@ func run(c *cli.Context) error {
 			},
 			// source configuration
 			Source: &Source{
-				Driver:       c.String("source.driver"),
-				Address:      c.String("source.addr"),
-				ClientID:     c.String("source.client"),
-				ClientSecret: c.String("source.secret"),
-				Context:      c.String("source.context"),
+				Config: &source.Setup{
+					Driver:        c.String("source.driver"),
+					Address:       c.String("source.addr"),
+					ClientID:      c.String("source.client"),
+					ClientSecret:  c.String("source.secret"),
+					StatusContext: c.String("source.context"),
+				},
 			},
 			// web UI configuration
 			WebUI: &WebUI{

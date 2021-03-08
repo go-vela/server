@@ -9,7 +9,6 @@ import (
 	"flag"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/google/go-github/v29/github"
 	"golang.org/x/oauth2"
@@ -30,58 +29,64 @@ const (
 
 var ctx = context.Background()
 
-type client struct {
-	URL           string
-	API           string
-	LocalHost     string
-	WebUIHost     string
+type config struct {
+	// specifies the GitHub address to use
+	Address string
+	// specifies the GitHub API path to use
+	API string
+	// specifies the OAuth client ID to use from GitHub
+	ClientID string
+	// specifies the OAuth client secret to use from GitHub
+	ClientSecret string
+	// specifies the Vela server address to use
+	ServerAddress string
+	// specifies the context for the commit status for GitHub
 	StatusContext string
-	OConfig       *oauth2.Config
-	AuthReq       *github.AuthorizationRequest
+	// specifies the Vela web UI address to use
+	WebUIAddress string
 }
 
-// New returns a Source implementation that integrates with GitHub or a
-// GitHub Enterprise instance.
+type client struct {
+	Config  *config
+	OAuth   *oauth2.Config
+	AuthReq *github.AuthorizationRequest
+}
+
+// New returns a Source implementation that integrates with
+// a GitHub or a GitHub Enterprise instance.
 //
 // nolint: golint // ignore returning unexported client
-func New(c *cli.Context) (*client, error) {
-	// create the client object
-	client := &client{
-		URL:           defaultURL,
-		API:           defaultAPI,
-		LocalHost:     c.String("server-addr"),
-		WebUIHost:     c.String("webui-addr"),
-		StatusContext: c.String("source-context"),
+func New(opts ...ClientOpt) (*client, error) {
+	// create new GitHub client
+	c := new(client)
+
+	// apply all provided configuration options
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// ensure we have the URL and API set
-	if defaultURL != c.String("source-url") {
-		client.URL = strings.TrimSuffix(c.String("source-url"), "/")
-		client.API = client.URL + "/api/v3/"
-	}
-
-	sourceClient := c.String("source-client")
-	sourceClientSecret := c.String("source-secret")
-
-	// create the OAuth config object
-	client.OConfig = &oauth2.Config{
-		ClientID:     sourceClient,
-		ClientSecret: sourceClientSecret,
+	// create the GitHub OAuth config object
+	c.OAuth = &oauth2.Config{
+		ClientID:     c.Config.ClientID,
+		ClientSecret: c.Config.ClientSecret,
 		Scopes:       []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", client.URL),
-			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", client.URL),
+			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.Config.Address),
+			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.Config.Address),
 		},
 	}
 
 	// create the GitHub authorization object
-	client.AuthReq = &github.AuthorizationRequest{
-		ClientID:     &sourceClient,
-		ClientSecret: &sourceClientSecret,
+	c.AuthReq = &github.AuthorizationRequest{
+		ClientID:     &c.Config.ClientID,
+		ClientSecret: &c.Config.ClientSecret,
 		Scopes:       []github.Scope{"repo", "repo:status", "user:email", "read:user", "read:org"},
 	}
 
-	return client, nil
+	return c, nil
 }
 
 // NewTest returns a Source implementation that integrates with the provided

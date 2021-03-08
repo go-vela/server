@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
@@ -99,72 +98,20 @@ func (c *Compiler) Validate() error {
 func (d *Database) Validate() error {
 	logrus.Trace("validating database configuration")
 
-	// verify a database driver was provided
-	if len(d.Driver) == 0 {
-		return fmt.Errorf("no database driver provided")
-	}
-
-	// verify the database driver provided is valid
-	switch d.Driver {
-	case constants.DriverPostgres, "postgresql":
-		fallthrough
-	case constants.DriverSqlite, "sqlite":
-		break
-	default:
-		return fmt.Errorf("invalid database driver provided: %s", d.Driver)
-	}
-
-	// verify a database address was provided
-	if len(d.Address) == 0 {
-		return fmt.Errorf("no database address provided")
-	}
-
-	// check if the database address has a scheme
-	if !strings.Contains(d.Address, "://") {
-		return fmt.Errorf("database address must be fully qualified (<scheme>://<host>)")
-	}
-
-	// check if the database address has a trailing slash
-	if strings.HasSuffix(d.Address, "/") {
-		return fmt.Errorf("database address must not have trailing slash")
-	}
-
-	// verify the compression level provided is valid
-	switch d.CompressionLevel {
-	case constants.CompressionNegOne:
-		fallthrough
-	case constants.CompressionZero:
-		fallthrough
-	case constants.CompressionOne:
-		fallthrough
-	case constants.CompressionTwo:
-		fallthrough
-	case constants.CompressionThree:
-		fallthrough
-	case constants.CompressionFour:
-		fallthrough
-	case constants.CompressionFive:
-		fallthrough
-	case constants.CompressionSix:
-		fallthrough
-	case constants.CompressionSeven:
-		fallthrough
-	case constants.CompressionEight:
-		fallthrough
-	case constants.CompressionNine:
-		break
-	default:
-		return fmt.Errorf("invalid database compression level provided: %d", d.CompressionLevel)
-	}
-
-	// enforce AES-256, so check explicitly for 32 bytes on the key
+	// verify the database setup
 	//
-	// nolint: gomnd // ignore magic number
-	if len(d.EncryptionKey) != 32 {
-		return fmt.Errorf("invalid database encryption key provided: %d", len(d.EncryptionKey))
-	}
+	// https://godoc.org/github.com/go-vela/server/database#Setup.Validate
+	return d.Config.Validate()
+}
 
-	return nil
+// Validate verifies the Queue is properly configured.
+func (q *Queue) Validate() error {
+	logrus.Trace("validating queue configuration")
+
+	// verify the queue setup
+	//
+	// https://godoc.org/github.com/go-vela/pkg-queue/queue#Setup.Validate
+	return q.Config.Validate()
 }
 
 // Validate verifies the Secrets is properly configured.
@@ -222,12 +169,12 @@ func (s *Security) Validate() error {
 
 	// check if secure cookies are disabled
 	if !s.SecureCookie {
-		logrus.Warning("secure cookies are disabled - running with insecure mode")
+		logrus.Warning("secure cookies are disabled - running in insecure mode")
 	}
 
 	// check if webhook validation is disabled
 	if !s.WebhookValidation {
-		logrus.Warning("webhook validation is disabled - running with insecure mode")
+		logrus.Warning("webhook validation is disabled - running in insecure mode")
 	}
 
 	return nil
@@ -237,45 +184,10 @@ func (s *Security) Validate() error {
 func (s *Source) Validate() error {
 	logrus.Trace("validating source configuration")
 
-	// verify a source driver was provided
-	if len(s.Driver) == 0 {
-		return fmt.Errorf("no source driver provided")
-	}
-
-	// verify the source driver provided is valid
-	switch s.Driver {
-	case constants.DriverGithub:
-		break
-	default:
-		return fmt.Errorf("invalid source driver provided: %s", s.Driver)
-	}
-
-	// verify a source address was provided
-	if len(s.Address) == 0 {
-		return fmt.Errorf("no source address provided")
-	}
-
-	// check if the source address has a scheme
-	if !strings.Contains(s.Address, "://") {
-		return fmt.Errorf("source address must be fully qualified (<scheme>://<host>)")
-	}
-
-	// check if the source address has a trailing slash
-	if strings.HasSuffix(s.Address, "/") {
-		return fmt.Errorf("source address must not have trailing slash")
-	}
-
-	// verify a source OAuth client ID was provided
-	if len(s.ClientID) == 0 {
-		return fmt.Errorf("no source client id provided")
-	}
-
-	// verify a source OAuth client secret was provided
-	if len(s.ClientSecret) == 0 {
-		return fmt.Errorf("no source client secret provided")
-	}
-
-	return nil
+	// verify the source setup
+	//
+	// https://godoc.org/github.com/go-vela/server/source#Setup.Validate
+	return s.Config.Validate()
 }
 
 // Validate verifies the WebUI is properly configured.
@@ -337,8 +249,6 @@ func (s *Server) Validate() error {
 	}
 
 	// verify the queue configuration
-	//
-	// https://godoc.org/github.com/go-vela/pkg-queue/queue#Setup.Validate
 	err = s.Config.Queue.Validate()
 	if err != nil {
 		return err

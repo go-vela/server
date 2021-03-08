@@ -9,8 +9,8 @@ import (
 	"net/url"
 
 	"github.com/go-vela/compiler/compiler"
-	"github.com/go-vela/compiler/compiler/native"
 	cnative "github.com/go-vela/compiler/compiler/native"
+	"github.com/go-vela/pkg-queue/queue"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/secret"
 	snative "github.com/go-vela/server/secret/native"
@@ -64,7 +64,7 @@ func (c *Compiler) Setup() (compiler.Engine, error) {
 		c.Modification.Url = parsed
 	}
 
-	return cnative.New(s.Config.Compiler), nil
+	return cnative.New(c)
 }
 
 // Setup prepares the Database for execution.
@@ -72,7 +72,7 @@ func (d *Database) Setup() (database.Service, error) {
 	logrus.Trace("preparing database for execution")
 
 	// parse the database address into a url structure
-	parsed, err := url.Parse(d.Address)
+	parsed, err := url.Parse(d.Config.Address)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse database address: %v", err)
 	}
@@ -80,16 +80,32 @@ func (d *Database) Setup() (database.Service, error) {
 	// save the parsed database address
 	d.Url = parsed
 
-	return database.New(s.Config.Database), nil
+	return database.New(d.Config)
+}
+
+// Setup prepares the Queue for execution.
+func (q *Queue) Setup() (queue.Service, error) {
+	logrus.Trace("preparing queue for execution")
+
+	// parse the queue address into a url structure
+	parsed, err := url.Parse(q.Config.Address)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse queue address: %v", err)
+	}
+
+	// save the parsed database address
+	q.Url = parsed
+
+	return queue.New(q.Config)
 }
 
 // Setup prepares the Secrets for execution.
-func (s *Secrets) Setup() (map[string]secret.Service, error) {
+func (s *Secrets) Setup(d database.Service) (map[string]secret.Service, error) {
 	logrus.Trace("preparing secrets for execution")
 
 	secrets := make(map[string]secret.Service)
 
-	_native, err := native.New(d)
+	_native, err := snative.New(d)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +148,7 @@ func (s *Source) Setup() (source.Service, error) {
 	logrus.Trace("preparing source for execution")
 
 	// parse the source address into a url structure
-	parsed, err := url.Parse(s.Address)
+	parsed, err := url.Parse(s.Config.Address)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse source address: %v", err)
 	}
@@ -140,7 +156,7 @@ func (s *Source) Setup() (source.Service, error) {
 	// save the parsed source address
 	s.Url = parsed
 
-	return snative.New(c), nil
+	return source.New(s.Config)
 }
 
 // Setup prepares the WebUI for execution.
@@ -182,8 +198,14 @@ func (s *Server) Setup() error {
 		return err
 	}
 
+	// prepare the queue for execution
+	s.Queue, err = s.Config.Queue.Setup()
+	if err != nil {
+		return err
+	}
+
 	// prepare the secrets for execution
-	s.Secrets, err = s.Config.Secrets.Setup()
+	s.Secrets, err = s.Config.Secrets.Setup(s.Database)
 	if err != nil {
 		return err
 	}
@@ -203,11 +225,8 @@ func (s *Server) Setup() error {
 	// prepare the metadata for execution
 	s.Metadata = &types.Metadata{
 		Database: s.Config.Database.Metadata(),
-		Queue: &types.Queue{
-			Driver: s.Config.Queue.Driver,
-			Host:   s.Config.Queue.Url.Host,
-		},
-		Source: s.Config.Source.Metadata(),
+		Queue:    s.Config.Queue.Metadata(),
+		Source:   s.Config.Source.Metadata(),
 		Vela: &types.Vela{
 			Address:              s.Config.API.Address,
 			WebAddress:           s.Config.WebUI.Address,

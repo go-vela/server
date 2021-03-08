@@ -5,7 +5,6 @@
 package database
 
 import (
-	"flag"
 	"os"
 	"testing"
 	"time"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-vela/types/constants"
 
 	"github.com/jinzhu/gorm"
-	"github.com/urfave/cli/v2"
 )
 
 func TestDatabase_New(t *testing.T) {
@@ -30,16 +28,18 @@ func TestDatabase_New(t *testing.T) {
 		config = ":memory:"
 	}
 
-	set := flag.NewFlagSet("test", 0)
-	set.String("database.driver", name, "doc")
-	set.String("database.config", config, "doc")
-	set.Int("database.connection.open", 0, "doc")
-	set.Int("database.connection.idle", 2, "doc")
-	set.Duration("database.connection.life", 30*time.Minute, "doc")
-	c := cli.NewContext(nil, set, nil)
+	s := &Setup{
+		Driver:           name,
+		Address:          config,
+		CompressionLevel: 3,
+		ConnectionIdle:   2,
+		ConnectionLife:   30 * time.Minute,
+		ConnectionOpen:   0,
+		EncryptionKey:    "C639A572E14D5075C526FDDD43E4ECF6",
+	}
 
 	// run test
-	database, err := New(c)
+	database, err := New(s)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -53,16 +53,19 @@ func TestDatabase_New(t *testing.T) {
 }
 
 func TestDatabase_New_Empty(t *testing.T) {
-	set := flag.NewFlagSet("test", 0)
-	set.String("database.driver", "", "doc")
-	set.String("database.config", "", "doc")
-	set.Int("database.connection.open", 0, "doc")
-	set.Int("database.connection.idle", 2, "doc")
-	set.Duration("database.connection.life", 30*time.Minute, "doc")
-	c := cli.NewContext(nil, set, nil)
+	// setup types
+	s := &Setup{
+		Driver:           "",
+		Address:          "",
+		CompressionLevel: 3,
+		ConnectionIdle:   2,
+		ConnectionLife:   30 * time.Minute,
+		ConnectionOpen:   0,
+		EncryptionKey:    "C639A572E14D5075C526FDDD43E4ECF6",
+	}
 
 	// run test
-	database, err := New(c)
+	database, err := New(s)
 
 	if err == nil {
 		t.Errorf("New should have returned err")
