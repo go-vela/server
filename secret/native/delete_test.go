@@ -26,9 +26,6 @@ func TestNative_Delete(t *testing.T) {
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
-	// nolint: gosec // ignore false positive
-	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
-
 	// setup database
 	d, _ := database.NewTest()
 
@@ -40,7 +37,7 @@ func TestNative_Delete(t *testing.T) {
 	_ = d.CreateSecret(sec)
 
 	// run test
-	s, err := New(d, passphrase)
+	s, err := New(d)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -56,11 +53,8 @@ func TestNative_Delete_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
-	// nolint: gosec // ignore false positive
-	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
-
 	// run test
-	s, err := New(d, passphrase)
+	s, err := New(d)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

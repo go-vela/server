@@ -23,9 +23,6 @@ func TestNative_Count(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
 
-	// nolint: gosec // ignore false positive
-	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
-
 	want := 1
 
 	// setup database
@@ -39,7 +36,7 @@ func TestNative_Count(t *testing.T) {
 	_ = d.CreateSecret(sec)
 
 	// run test
-	s, err := New(d, passphrase)
+	s, err := New(d)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -59,11 +56,8 @@ func TestNative_Count_Invalid(t *testing.T) {
 	d, _ := database.NewTest()
 	d.Database.Close()
 
-	// nolint: gosec // ignore false positive
-	passphrase := "C639A572E14D5075C526FDDD43E4ECF6"
-
 	// run test
-	s, err := New(d, passphrase)
+	s, err := New(d)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

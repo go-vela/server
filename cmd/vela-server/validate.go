@@ -159,6 +159,14 @@ func validateDatabase(c *cli.Context) error {
 		return fmt.Errorf("database compression level of '%d' is unsupported", c.Int("database.compression.level"))
 	}
 
+	// enforce AES-256, so check explicitly for 32 bytes on the key
+	//
+	// nolint: gomnd // ignore magic number
+	if len(c.String("database.encryption.key")) != 32 {
+		// nolint: lll // ignore long line length due to long error message
+		return fmt.Errorf("database.encryption.key (VELA_DATABASE_ENCRYPTION_KEY or DATABASE_ENCRYPTION_KEY) invalid length specified: %d", len(c.String("database.encryption.key")))
+	}
+
 	return nil
 }
 
@@ -182,13 +190,6 @@ func validateQueue(c *cli.Context) error {
 // nolint:lll // ignoring line length check to avoid breaking up error messages
 func validateSecret(c *cli.Context) error {
 	logrus.Trace("Validating secret CLI configuration")
-
-	// enforce AES-256, so check explicitly for 32 bytes on the key
-	//
-	// nolint: gomnd // ignore magic number
-	if len(c.String("native-key")) != 32 {
-		return fmt.Errorf("native-key (VELA_SECRET_NATIVE_KEY or SECRET_NATIVE_KEY) invalid length specified: %d", len(c.String("native-key")))
-	}
 
 	if c.Bool("vault-driver") {
 		if len(c.String("vault-addr")) == 0 {

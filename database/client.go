@@ -27,6 +27,7 @@ type client struct {
 	DML *dml.Map
 
 	CompressionLevel int
+	EncryptionKey    string
 }
 
 // New returns a Database implementation that
@@ -72,6 +73,7 @@ func New(c *cli.Context) (*client, error) {
 		DDL:              ddlMap,
 		DML:              dmlMap,
 		CompressionLevel: c.Int("database.compression.level"),
+		EncryptionKey:    c.String("database.encryption.key"),
 	}
 
 	return client, nil
@@ -132,6 +134,7 @@ func NewTest() (*client, error) {
 		DDL:              ddlMap,
 		DML:              dmlMap,
 		CompressionLevel: constants.CompressionZero,
+		EncryptionKey:    "C639A572E14D5075C526FDDD43E4ECF6",
 	}
 
 	return client, nil
