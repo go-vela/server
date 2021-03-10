@@ -271,6 +271,34 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// begin WIP -- first approach stops them if they make it here.
+
+	// only rate limit if it's an event we want to rate limit -- todo see line 231ish for a starter
+	if true {
+		// check how many builds are running
+		runningCount, err := database.FromContext(c).GetRepoBuildCountByStatus(r, "running")
+		if err != nil {
+			// if unable to get current builds for a repo... what do
+			logrus.Errorf("unable to get count of all running builds for repo %s: %v", r.GetName(), err)
+		}
+
+		if runningCount > r.GetMaxBuilds() {
+			logrus.Errorf("unable to continue processing build %d for repo %s: max concurrent builds of %d reached",
+				b.GetNumber(), r.GetName(), r.GetMaxBuilds())
+			return // todo instead of return consider queing at low priority or some other mechanism?
+		}
+
+		// // check how many builds are already queued -- may not care about this yet.
+		// pendingCount, err := database.FromContext(c).GetRepoBuildCountByStatus(r, "pending")
+		// if err != nil {
+		// 	// if unable to get current builds for a repo... what do
+
+		// 	return
+		// }
+	}
+
+	//end WIP
+
 	// update fields in build object
 	b.SetNumber(1)
 	b.SetParent(b.GetNumber())
