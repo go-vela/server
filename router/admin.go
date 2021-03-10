@@ -14,6 +14,7 @@ import (
 // with the API handlers for admin functionality.
 //
 // GET    /api/v1/admin/builds
+// GET    /api/v1/admin/builds/queue
 // PUT    /api/v1/admin/build
 // GET    /api/v1/admin/deployments
 // PUT    /api/v1/admin/deployment
@@ -28,13 +29,14 @@ import (
 // GET    /api/v1/admin/steps
 // PUT    /api/v1/admin/step
 // GET    /api/v1/admin/users
-// PUT    /api/v1/admin/user .
+// PUT    /api/v1/admin/user.
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{
 		// Admin build endpoints
 		_admin.GET("/builds", admin.AllBuilds)
+		_admin.GET("/builds/queue", admin.AllBuildsQueue)
 		_admin.PUT("/build", admin.UpdateBuild)
 
 		// Admin deployment endpoints
@@ -64,5 +66,6 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin user endpoints
 		_admin.GET("/users", admin.AllUsers)
 		_admin.PUT("/user", admin.UpdateUser)
+
 	} // end of admin endpoints
 }

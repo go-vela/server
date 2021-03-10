@@ -8,6 +8,8 @@ package admin
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
@@ -48,6 +50,54 @@ func AllBuilds(c *gin.Context) {
 	b, err := database.FromContext(c).GetBuildList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all builds: %w", err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, b)
+}
+
+// swagger:operation GET /api/v1/admin/builds/queue admin AllBuildsQueue
+//
+// Get all of the running and pending builds in the database
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: query
+//   name: after
+//   description: Unix timestamp to limit builds returned
+//   required: false
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved all running and pending builds from the database
+//     schema:
+//       type: array
+//       items:
+//         "$ref": "#/definitions/BuildQueue"
+//   '500':
+//     description: Unable to retrieve all running and pending builds from the database
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// AllBuildsQueue represents the API handler to
+// captures all running and pending builds stored in the database.
+func AllBuildsQueue(c *gin.Context) {
+	logrus.Info("Admin: reading running and pending builds")
+
+	// default timestamp to 24 hours ago if user did not provide it as query parameter
+	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
+
+	// send API call to capture pending and running builds
+	b, err := database.FromContext(c).GetPendingAndRunningBuilds(after)
+	if err != nil {
+		retErr := fmt.Errorf("unable to capture all running and pending builds: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

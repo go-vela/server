@@ -32,6 +32,7 @@ func TestDML_mapFromPostgres(t *testing.T) {
 				"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
 				"countByOrg":          postgres.SelectOrgBuildCount,
 				"countByOrgAndEvent":  postgres.SelectOrgBuildCountByEvent,
+				"pendingAndRunning":   postgres.SelectPendingAndRunningBuilds,
 			},
 			Delete: postgres.DeleteBuild,
 		},
@@ -168,6 +169,7 @@ func TestDML_serviceFromPostgres(t *testing.T) {
 			"countByRepoAndEvent": postgres.SelectRepoBuildCountByEvent,
 			"countByOrg":          postgres.SelectOrgBuildCount,
 			"countByOrgAndEvent":  postgres.SelectOrgBuildCountByEvent,
+			"pendingAndRunning":   postgres.SelectPendingAndRunningBuilds,
 		},
 		Delete: postgres.DeleteBuild,
 	}

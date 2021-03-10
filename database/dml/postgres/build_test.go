@@ -29,6 +29,7 @@ func TestPostgres_createBuildService(t *testing.T) {
 			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
 			"countByOrg":          SelectOrgBuildCount,
 			"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
+			"pendingAndRunning":   SelectPendingAndRunningBuilds,
 		},
 		Delete: DeleteBuild,
 	}

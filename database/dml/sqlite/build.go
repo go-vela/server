@@ -155,6 +155,17 @@ DELETE
 FROM builds
 WHERE id = ?;
 `
+
+	// SelectPendingAndRunningBuilds represents a joined query
+	// between the builds & repos table to select
+	// the created builds that are in pending or running builds status
+	// since the specified timeframe
+	SelectPendingAndRunningBuilds = `
+SELECT builds.created, builds.number, builds.status, repos.full_name
+FROM builds INNER JOIN repos ON (builds.repo_id = repos.id)
+WHERE builds.created > $1
+AND builds.status = 'running' or builds.status = 'pending';
+`
 )
 
 // createBuildService is a helper function to return
@@ -178,6 +189,7 @@ func createBuildService() *Service {
 			"countByRepoAndEvent": SelectRepoBuildCountByEvent,
 			"countByOrg":          SelectOrgBuildCount,
 			"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
+			"pendingAndRunning":   SelectPendingAndRunningBuilds,
 		},
 		Delete: DeleteBuild,
 	}
