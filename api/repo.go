@@ -210,6 +210,8 @@ func CreateRepo(c *gin.Context) {
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner
 		dbRepo.SetUserID(u.GetID())
+		// update the default branch
+		dbRepo.SetBranch(r.GetBranch())
 		// activate the repo
 		dbRepo.SetActive(true)
 

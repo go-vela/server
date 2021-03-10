@@ -249,3 +249,9 @@ compose-down:
 	@echo
 	@echo "### Destroying containers for docker-compose stack"
 	@docker-compose -f docker-compose.yml down
+
+.PHONY: swagger
+swagger:
+	@echo
+	@echo "### Generating swagger spec"
+	@swagger generate spec -m -o api-spec/vela-server.json

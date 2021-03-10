@@ -30,6 +30,7 @@ func TestSqlite_NewMap(t *testing.T) {
 				"countByRepoAndEvent": SelectRepoBuildCountByEvent,
 				"countByOrg":          SelectOrgBuildCount,
 				"countByOrgAndEvent":  SelectOrgBuildCountByEvent,
+				"pendingAndRunning":   SelectPendingAndRunningBuilds,
 			},
 			Delete: DeleteBuild,
 		},

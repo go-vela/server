@@ -272,6 +272,16 @@ func CreateBuild(c *gin.Context) {
 //   required: true
 //   type: string
 // - in: query
+//   name: event
+//   description: Filter by build event
+//   type: string
+//   enum:
+//   - push
+//   - pull_request
+//   - tag
+//   - deployment
+//   - comment
+// - in: query
 //   name: page
 //   description: The page of results to retrieve
 //   type: integer
