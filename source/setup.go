@@ -19,19 +19,19 @@ import (
 type Setup struct {
 	// Source Configuration
 
-	// specifies the source driver to use
+	// specifies the driver to use for the source client
 	Driver string
-	// specifies the source address to use
+	// specifies the address to use for the source client
 	Address string
 	// specifies the OAuth client ID to use from the source system
 	ClientID string
 	// specifies the OAuth client secret to use from the source system
 	ClientSecret string
-	// specifies the Vela server address to use
+	// specifies the Vela server address to use for the source client
 	ServerAddress string
 	// specifies the context for the commit status for the source system
 	StatusContext string
-	// specifies the Vela web UI address to use
+	// specifies the Vela web UI address to use for the source client
 	WebUIAddress string
 }
 
@@ -54,7 +54,7 @@ func (s *Setup) Gitlab() (Service, error) {
 // Validate verifies the necessary fields for the
 // provided configuration are populated correctly.
 func (s *Setup) Validate() error {
-	logrus.Trace("validating executor setup for client")
+	logrus.Trace("validating source setup for client")
 
 	// verify a source driver was provided
 	if len(s.Driver) == 0 {
