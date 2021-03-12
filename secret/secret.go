@@ -34,15 +34,15 @@ func New(s *Setup) (Service, error) {
 	// process the secret driver being provided
 	switch s.Driver {
 	case constants.DriverNative:
-		// handle the Github secret driver being provided
+		// handle the Native secret driver being provided
 		//
-		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Github
-		return s.Github()
+		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Native
+		return s.Native()
 	case constants.DriverVault:
-		// handle the Gitlab secret driver being provided
+		// handle the Vault secret driver being provided
 		//
-		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Gitlab
-		return s.Gitlab()
+		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Vault
+		return s.Vault()
 	default:
 		// handle an invalid secret driver being provided
 		return nil, fmt.Errorf("invalid secret driver provided: %s", s.Driver)
