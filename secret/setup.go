@@ -7,6 +7,7 @@ package secret
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
@@ -34,10 +35,10 @@ type Setup struct {
 	AwsRole string
 	// specifies the prefix to use for the secret client
 	Prefix string
-	// specifies the prefix to use for the secret client
-	Prefix string
 	// specifies the token to use for the secret client
 	Token string
+	// specifies the token duration to use for the secret client
+	TokenDuration time.Duration
 	// specifies the version to use for the secret client
 	Version string
 }
@@ -91,6 +92,25 @@ func (s *Setup) Validate() error {
 		// check if the secret address has a trailing slash
 		if strings.HasSuffix(s.Address, "/") {
 			return fmt.Errorf("secret address must not have trailing slash")
+		}
+
+		// verify a secret token or authentication method was provided
+		if len(s.Token) == 0 && len(s.AuthMethod) == 0 {
+			return fmt.Errorf("no secret token or authentication method provided")
+		}
+
+		// check if the secret token is empty
+		if len(s.Token) == 0 {
+			// process the secret authentication method being provided
+			switch s.AuthMethod {
+			case "aws":
+				// verify a secret AWS role was provided
+				if len(s.AwsRole) == 0 {
+					return fmt.Errorf("no secret AWS role provided")
+				}
+			default:
+				return fmt.Errorf("invalid secret authentication method provided: %s", s.AuthMethod)
+			}
 		}
 	}
 
