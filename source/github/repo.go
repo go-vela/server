@@ -127,7 +127,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		hookURL := hook.Config["url"].(string)
 
 		// capture hook ID if the hook url matches
-		if hookURL == fmt.Sprintf("%s/webhook", c.LocalHost) {
+		if hookURL == fmt.Sprintf("%s/webhook", c.config.ServerAddress) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -162,7 +162,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 			eventIssueComment,
 		},
 		Config: map[string]interface{}{
-			"url":          fmt.Sprintf("%s/webhook", c.LocalHost),
+			"url":          fmt.Sprintf("%s/webhook", c.config.ServerAddress),
 			"content_type": "form",
 			"secret":       secret,
 		},
@@ -180,7 +180,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 	}
 
 	// create the URL for the repo
-	url := fmt.Sprintf("%s/%s/%s", c.URL, org, name)
+	url := fmt.Sprintf("%s/%s/%s", c.config.Address, org, name)
 
 	return url, err
 }
@@ -192,8 +192,8 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
-	context := fmt.Sprintf("%s/%s", c.StatusContext, b.GetEvent())
-	url := fmt.Sprintf("%s/%s/%s/%d", c.WebUIHost, org, name, b.GetNumber())
+	context := fmt.Sprintf("%s/%s", c.config.StatusContext, b.GetEvent())
+	url := fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
 
 	var (
 		state       string
@@ -248,7 +248,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		}
 
 		// provide "Details" link in GitHub UI if server was configured with it
-		if len(c.WebUIHost) > 0 {
+		if len(c.config.WebUIAddress) > 0 {
 			status.LogURL = github.String(url)
 		}
 
@@ -265,7 +265,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
-	if len(c.WebUIHost) > 0 {
+	if len(c.config.WebUIAddress) > 0 {
 		status.TargetURL = github.String(url)
 	}
 
