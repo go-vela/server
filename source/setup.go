@@ -23,13 +23,13 @@ type Setup struct {
 	Driver string
 	// specifies the address to use for the source client
 	Address string
-	// specifies the OAuth client ID to use from the source system
+	// specifies the OAuth client ID from the source system to use for the source client
 	ClientID string
-	// specifies the OAuth client secret to use from the source system
+	// specifies the OAuth client secret from the source system to use for the source client
 	ClientSecret string
 	// specifies the Vela server address to use for the source client
 	ServerAddress string
-	// specifies the context for the commit status for the source system
+	// specifies the context for the commit status to use for the source client
 	StatusContext string
 	// specifies the Vela web UI address to use for the source client
 	WebUIAddress string
