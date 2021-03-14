@@ -74,19 +74,19 @@ func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, err
 // listOrg is a helper function to capture the
 // list of org secrets for the provided path.
 func (c *client) listOrg(org string) (*api.Secret, error) {
-	return c.list(fmt.Sprintf("%s/%s/%s", c.Prefix, constants.SecretOrg, org))
+	return c.list(fmt.Sprintf("%s/%s/%s", c.config.Prefix, constants.SecretOrg, org))
 }
 
 // listRepo is a helper function to capture the
 // list of repo secrets for the provided path.
 func (c *client) listRepo(org, repo string) (*api.Secret, error) {
-	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.Prefix, constants.SecretRepo, org, repo))
+	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo))
 }
 
 // listShared is a helper function to capture the
 // list of shared secrets for the provided path.
 func (c *client) listShared(org, team string) (*api.Secret, error) {
-	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.Prefix, constants.SecretShared, org, team))
+	return c.list(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team))
 }
 
 // list is a helper function to capture the

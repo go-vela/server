@@ -43,19 +43,19 @@ func (c *client) Get(sType, org, name, path string) (s *library.Secret, err erro
 // getOrg is a helper function to capture
 // the org secret for the provided path.
 func (c *client) getOrg(org, path string) (*api.Secret, error) {
-	return c.get(fmt.Sprintf("%s/%s/%s/%s", c.Prefix, constants.SecretOrg, org, path))
+	return c.get(fmt.Sprintf("%s/%s/%s/%s", c.config.Prefix, constants.SecretOrg, org, path))
 }
 
 // getRepo is a helper function to capture
 // the repo secret for the provided path.
 func (c *client) getRepo(org, repo, path string) (*api.Secret, error) {
-	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.Prefix, constants.SecretRepo, org, repo, path))
+	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo, path))
 }
 
 // getShared is a helper function to capture
 // the shared secret for the provided path.
 func (c *client) getShared(org, team, path string) (*api.Secret, error) {
-	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.Prefix, constants.SecretShared, org, team, path))
+	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path))
 }
 
 // get is a helper function to capture
