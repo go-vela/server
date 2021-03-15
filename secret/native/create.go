@@ -24,7 +24,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	case constants.SecretRepo:
 		fallthrough
 	case constants.SecretShared:
-		return c.Native.CreateSecret(s)
+		return c.Database.CreateSecret(s)
 	default:
 		return fmt.Errorf("invalid secret type: %v", sType)
 	}
