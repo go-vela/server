@@ -12,28 +12,44 @@ import (
 
 func TestNative_New(t *testing.T) {
 	// setup types
-	d, _ := database.NewTest()
+	d, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create database service: %v", err)
+	}
 	defer d.Database.Close()
 
-	// run test
-	s, err := New(d)
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
+	// setup tests
+	tests := []struct {
+		failure  bool
+		database database.Service
+		want     database.Service
+	}{
+		{
+			failure:  false,
+			database: d,
+		},
+		{
+			failure:  true,
+			database: nil,
+		},
 	}
 
-	if s == nil {
-		t.Error("New returned nil client")
-	}
-}
+	// run tests
+	for _, test := range tests {
+		_, err := New(
+			WithDatabase(test.database),
+		)
 
-func TestNative_New_Error(t *testing.T) {
-	// run test
-	s, err := New(nil)
-	if err == nil {
-		t.Errorf("New should have returned err")
-	}
+		if test.failure {
+			if err == nil {
+				t.Errorf("New should have returned err")
+			}
 
-	if s != nil {
-		t.Error("New should have returned nil client")
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("New returned err: %v", err)
+		}
 	}
 }
