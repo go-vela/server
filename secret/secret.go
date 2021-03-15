@@ -4,23 +4,47 @@
 
 package secret
 
-import "github.com/go-vela/types/library"
+import (
+	"fmt"
 
-// Service represents the interface for Vela integrating
-// with the different supported secret providers.
-type Service interface {
-	// Get defines a function that captures a secret.
-	Get(string, string, string, string) (*library.Secret, error)
-	// List defines a function that captures a list of secrets.
-	List(string, string, string, int, int) ([]*library.Secret, error)
-	// Count defines a function that counts a list of secrets.
-	Count(string, string, string) (int64, error)
-	// Create defines a function that creates a new secret.
-	Create(string, string, string, *library.Secret) error
-	// Update defines a function that updates an existing secret.
-	Update(string, string, string, *library.Secret) error
-	// Delete defines a function that deletes a secret.
-	Delete(string, string, string, string) error
+	"github.com/go-vela/types/constants"
 
-	// TODO: Add convert functions to interface?
+	"github.com/sirupsen/logrus"
+)
+
+// nolint: godot // top level comment ends in a list
+//
+// New creates and returns a Vela service capable of
+// integrating with the configured secret provider.
+//
+// Currently the following secret providers are supported:
+//
+// * Native
+// * Vault
+func New(s *Setup) (Service, error) {
+	// validate the setup being provided
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Validate
+	err := s.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Debug("creating secret service from setup")
+	// process the secret driver being provided
+	switch s.Driver {
+	case constants.DriverNative:
+		// handle the Native secret driver being provided
+		//
+		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Native
+		return s.Native()
+	case constants.DriverVault:
+		// handle the Vault secret driver being provided
+		//
+		// https://pkg.go.dev/github.com/go-vela/server/secret?tab=doc#Setup.Vault
+		return s.Vault()
+	default:
+		// handle an invalid secret driver being provided
+		return nil, fmt.Errorf("invalid secret driver provided: %s", s.Driver)
+	}
 }
