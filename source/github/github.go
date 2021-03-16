@@ -137,7 +137,7 @@ func (c *client) newClientToken(token string) *github.Client {
 	// create the GitHub client from the OAuth client
 	github := github.NewClient(tc)
 
-	// ensure the proper URL is set
+	// ensure the proper URL is set in the GitHub client
 	github.BaseURL, _ = url.Parse(c.config.API)
 
 	return github
