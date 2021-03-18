@@ -5,6 +5,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"testing"
@@ -105,7 +106,10 @@ func TestDatabase_Client_GetUserRefreshToken(t *testing.T) {
 		db.Database.Close()
 	}()
 
-	_ = db.CreateUser(want)
+	err := db.CreateUser(want)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 
 	// run test
 	got, err := db.GetUserRefreshToken(want.GetRefreshToken())
