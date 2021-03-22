@@ -44,7 +44,13 @@ func setupSecrets(c *cli.Context, d database.Service) (map[string]secret.Service
 // helper function to setup the Native secret engine from the CLI arguments.
 func setupNative(d database.Service) (secret.Service, error) {
 	logrus.Tracef("Creating %s secret client from CLI configuration", constants.DriverNative)
-	return native.New(d)
+
+	// create new native secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/secret/native?tab=doc#New
+	return native.New(
+		native.WithDatabase(d),
+	)
 }
 
 // helper function to setup the Vault secret engine from the CLI arguments.
