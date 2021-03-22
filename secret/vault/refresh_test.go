@@ -135,19 +135,19 @@ func Test_client_getAwsToken(t *testing.T) {
 				_, _ = w.Write(data)
 			}))
 			defer ts.Close()
-			c, err := New(Config{
-				Address:    ts.URL,
-				Token:      "",
-				Version:    "2",
-				Prefix:     "",
-				AuthMethod: "",
-				AwsRole:    tt.vaultRole,
-				Renewal:    5 * time.Minute,
-			})
+			c, err := New(
+				WithAddress(ts.URL),
+				WithAuthMethod(""),
+				WithAWSRole(tt.vaultRole),
+				WithPrefix(""),
+				WithToken(""),
+				WithTokenDuration(5*time.Minute),
+				WithVersion("2"),
+			)
 			if err != nil {
 				t.Error(err)
 			}
-			c.Aws.StsClient = tt.stsClient
+			c.AWS.StsClient = tt.stsClient
 
 			got, got1, err := c.getAwsToken()
 			if (err != nil) != tt.wantErr {

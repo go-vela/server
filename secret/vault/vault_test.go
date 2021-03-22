@@ -34,15 +34,15 @@ func TestVault_New(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -69,15 +69,15 @@ func TestVault_New_Error(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    "!@#$%^&*()",
-				Token:      "",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress("!@#$%^&*()"),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err == nil {
 				t.Errorf("New should have returned err")
 			}
