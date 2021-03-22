@@ -85,15 +85,15 @@ func TestVault_List_Org(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -214,15 +214,15 @@ func TestVault_List_Repo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -328,15 +328,15 @@ func TestVault_List_Shared(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -376,15 +376,15 @@ func TestVault_List_InvalidType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -407,15 +407,15 @@ func TestVault_List_ClosedServer(t *testing.T) {
 	fake.Close()
 
 	// run test
-	s, err := New(Config{
-		Address:    fake.URL,
-		Token:      "foo",
-		Version:    "1",
-		Prefix:     "",
-		AuthMethod: "",
-		AwsRole:    "",
-		Renewal:    0,
-	})
+	s, err := New(
+		WithAddress(fake.URL),
+		WithAuthMethod(""),
+		WithAWSRole(""),
+		WithPrefix(""),
+		WithToken("foo"),
+		WithTokenDuration(0),
+		WithVersion("1"),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -473,15 +473,15 @@ func TestVault_List_EmptyList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -546,15 +546,15 @@ func TestVault_List_InvalidList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -628,15 +628,15 @@ func TestVault_List_NoRead(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
