@@ -23,7 +23,7 @@ func (c *client) initialize() error {
 	var token string
 	var ttl time.Duration
 
-	switch c.AuthMethod {
+	switch c.config.AuthMethod {
 	case "aws":
 		// create session for aws
 		sess, err := session.NewSessionWithOptions(session.Options{
@@ -37,7 +37,7 @@ func (c *client) initialize() error {
 		}
 
 		// generate sts client for later api calls
-		c.Aws.StsClient = sts.New(sess)
+		c.AWS.StsClient = sts.New(sess)
 
 		// obtain token from vault
 		token, ttl, err = c.getAwsToken()
@@ -47,7 +47,7 @@ func (c *client) initialize() error {
 	}
 
 	c.Vault.SetToken(token)
-	c.TTL = ttl
+	c.config.TokenTTL = ttl
 
 	return nil
 }
@@ -78,7 +78,7 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 // to send to the Vault server for generating a token.
 func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	logrus.Trace("generating auth headers for vault")
-	req, _ := c.Aws.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
+	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
 
 	// sign the request
 	err := req.Sign()
@@ -103,7 +103,7 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	//
 	// nolint: lll // ignore long line length due to variable names
 	loginData := map[string]interface{}{
-		"role":                    c.Aws.Role,
+		"role":                    c.AWS.Role,
 		"iam_http_request_method": req.HTTPRequest.Method,
 		"iam_request_url":         base64.StdEncoding.EncodeToString([]byte(req.HTTPRequest.URL.String())),
 		"iam_request_headers":     base64.StdEncoding.EncodeToString(headersJSON),
@@ -116,7 +116,7 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 // refreshToken will refresh the given token if possible or generate a new one entirely.
 func (c *client) refreshToken() {
 	for {
-		time.Sleep(c.Renewal)
+		time.Sleep(c.config.TokenDuration)
 		// token refresh may fail since the allowable refresh
 		// timeframe varies depending on the auth method
 		_, err := c.Vault.Auth().Token().RenewSelf(int(c.TTL / time.Second))

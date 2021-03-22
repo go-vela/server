@@ -6,7 +6,6 @@ package github
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -18,44 +17,43 @@ import (
 )
 
 func TestGithub_New(t *testing.T) {
-	// setup router
-	s := httptest.NewServer(http.NotFoundHandler())
-	defer s.Close()
-
-	id := "foo"
-	secret := "bar"
-
-	want := &client{
-		URL:           s.URL,
-		API:           s.URL + "/api/v3/",
-		LocalHost:     s.URL,
-		WebUIHost:     s.URL,
-		StatusContext: "continuous-integration/vela",
-		OConfig: &oauth2.Config{
-			ClientID:     id,
-			ClientSecret: secret,
-			Scopes:       []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
-			Endpoint: oauth2.Endpoint{
-				AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", s.URL),
-				TokenURL: fmt.Sprintf("%s/login/oauth/access_token", s.URL),
-			},
+	// setup tests
+	tests := []struct {
+		failure bool
+		id      string
+	}{
+		{
+			failure: false,
+			id:      "foo",
 		},
-		AuthReq: &github.AuthorizationRequest{
-			ClientID:     &id,
-			ClientSecret: &secret,
-			Scopes:       []github.Scope{"repo", "repo:status", "user:email", "read:user", "read:org"},
+		{
+			failure: true,
+			id:      "",
 		},
 	}
 
-	// run test
-	got, err := NewTest(s.URL)
+	// run tests
+	for _, test := range tests {
+		_, err := New(
+			WithAddress("https://github.com/"),
+			WithClientID(test.id),
+			WithClientSecret("bar"),
+			WithServerAddress("https://vela-server.example.com"),
+			WithStatusContext("continuous-integration/vela"),
+			WithWebUIAddress("https://vela.example.com"),
+		)
 
-	if err != nil {
-		t.Errorf("New returned err: %v", err)
-	}
+		if test.failure {
+			if err == nil {
+				t.Errorf("New should have returned err")
+			}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("New is %v, want %v", got, want)
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("New returned err: %v", err)
+		}
 	}
 }
 
