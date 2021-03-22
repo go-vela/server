@@ -44,19 +44,29 @@ func setupSecrets(c *cli.Context, d database.Service) (map[string]secret.Service
 // helper function to setup the Native secret engine from the CLI arguments.
 func setupNative(d database.Service) (secret.Service, error) {
 	logrus.Tracef("Creating %s secret client from CLI configuration", constants.DriverNative)
-	return native.New(d)
+
+	// create new native secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/secret/native?tab=doc#New
+	return native.New(
+		native.WithDatabase(d),
+	)
 }
 
 // helper function to setup the Vault secret engine from the CLI arguments.
 func setupVault(c *cli.Context) (secret.Service, error) {
 	logrus.Tracef("Creating %s secret client from CLI configuration", constants.DriverVault)
-	return vault.New(vault.Config{
-		Address:    c.String("vault-addr"),
-		Token:      c.String("vault-token"),
-		Version:    c.String("vault-version"),
-		Prefix:     c.String("vault-prefix"),
-		AuthMethod: c.String("vault-auth-method"),
-		AwsRole:    c.String("vault-aws-role"),
-		Renewal:    c.Duration("vault-renewal"),
-	})
+
+	// create new Vault secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/secret/vault?tab=doc#New
+	return vault.New(
+		vault.WithAddress(c.String("vault-addr")),
+		vault.WithAuthMethod(c.String("vault-auth-method")),
+		vault.WithAWSRole(c.String("vault-aws-role")),
+		vault.WithPrefix(c.String("vault-prefix")),
+		vault.WithToken(c.String("vault-token")),
+		vault.WithTokenDuration(c.Duration("vault-renewal")),
+		vault.WithVersion(c.String("vault-version")),
+	)
 }

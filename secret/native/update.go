@@ -15,7 +15,7 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 	logrus.Tracef("Updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// capture the secret from the native service
-	sec, err := c.Native.GetSecret(sType, org, name, s.GetName())
+	sec, err := c.Database.GetSecret(sType, org, name, s.GetName())
 	if err != nil {
 		return err
 	}
@@ -40,5 +40,5 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 		sec.SetAllowCommand(s.GetAllowCommand())
 	}
 
-	return c.Native.UpdateSecret(sec)
+	return c.Database.UpdateSecret(sec)
 }

@@ -57,7 +57,9 @@ func TestMiddleware_Secrets(t *testing.T) {
 
 	var got secret.Service
 
-	want, _ := native.New(d)
+	want, _ := native.New(
+		native.WithDatabase(d),
+	)
 	s := map[string]secret.Service{"native": want}
 
 	// setup context

@@ -13,86 +13,108 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
+const (
+	PrefixVaultV1 = "secret"
+	PrefixVaultV2 = "secret/data"
+)
+
 type (
 	awsCfg struct {
 		Role      string
 		StsClient stsiface.STSAPI
 	}
 
-	client struct {
-		Vault      *api.Client
-		Prefix     string
+	config struct {
+		// specifies the address to use for the Vault client
+		Address string
+		// specifies the authentication method to use for the Vault client
 		AuthMethod string
-		Aws        awsCfg
-		Renewal    time.Duration
-		TTL        time.Duration
+		// specifies the AWS role to use for the Vault client
+		AWSRole string
+		// specifies the prefix to use for the Vault client
+		Prefix string
+		// specifies the system prefix to use for the Vault client
+		SystemPrefix string
+		// specifies the token to use for the Vault client
+		Token string
+		// specifies the token duration to use for the Vault client
+		TokenDuration time.Duration
+		// specifies the token time to live for the Vault client
+		TokenTTL time.Duration
+		// specifies the version to use for the Vault client
+		Version string
 	}
 
-	Config struct {
-		Address    string
-		Token      string
-		Version    string
-		Prefix     string
-		AuthMethod string
-		AwsRole    string
-		Renewal    time.Duration
+	client struct {
+		config *config
+		AWS    *awsCfg
+		Vault  *api.Client
+		TTL    time.Duration
 	}
 )
-
-const PrefixVaultV1 = "secret"
-const PrefixVaultV2 = "secret/data"
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
 //
 // nolint: golint // ignore returning unexported client
-func New(config Config) (*client, error) {
-	var prefix string
-	switch config.Version {
-	case "1":
-		prefix = PrefixVaultV1
-	case "2":
-		prefix = PrefixVaultV2
-	default:
-		return nil, fmt.Errorf("unrecognized vault version of %s", config.Version)
+func New(opts ...ClientOpt) (*client, error) {
+	// create new Vault client
+	c := new(client)
+
+	// create new fields
+	c.config = new(config)
+	c.AWS = new(awsCfg)
+	c.Vault = new(api.Client)
+
+	// apply all provided configuration options
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// append admin defined prefix if not empty
-	if config.Prefix != "" {
-		prefix = fmt.Sprintf("%s/%s", prefix, config.Prefix)
+	// check if a Vault prefix was provided
+	if len(c.config.Prefix) > 0 {
+		// update the Vault prefix with the system prefix
+		c.config.Prefix = fmt.Sprintf("%s/%s", c.config.SystemPrefix, c.config.Prefix)
+	} else {
+		// set the Vault prefix from the system prefix
+		c.config.Prefix = c.config.SystemPrefix
 	}
 
-	conf := api.Config{Address: config.Address}
-
-	// create Vault client
-	c, err := api.NewClient(&conf)
+	// create new Vault API client
+	//
+	// https://pkg.go.dev/github.com/hashicorp/vault/api#NewClient
+	_vault, err := api.NewClient(&api.Config{Address: c.config.Address})
 	if err != nil {
 		return nil, err
 	}
-	if config.Token != "" {
-		c.SetToken(config.Token)
+
+	// check if a token was provided for the Vault client
+	if len(c.config.Token) > 0 {
+		// set the token in the Vault client
+		_vault.SetToken(c.config.Token)
 	}
 
-	client := &client{
-		Vault:      c,
-		Prefix:     prefix,
-		AuthMethod: config.AuthMethod,
-		Renewal:    config.Renewal,
-		Aws: awsCfg{
-			Role: config.AwsRole,
-		},
-	}
+	// set the AWS role in the Vault client
+	c.AWS.Role = c.config.AWSRole
 
-	if config.AuthMethod != "" {
-		err = client.initialize()
+	// set the Vault API client in the Vault client
+	c.Vault = _vault
+
+	// check if a authentication method was provided for the Vault client
+	if len(c.config.AuthMethod) > 0 {
+		// initialize the Vault client
+		err = c.initialize()
 		if err != nil {
 			return nil, err
 		}
 
 		// start the routine to refresh the token
-		go client.refreshToken()
+		go c.refreshToken()
 	}
 
-	return client, nil
+	return c, nil
 }
 
 // nolint: funlen // ignore function length due to comments and conditionals

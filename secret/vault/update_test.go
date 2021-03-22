@@ -78,15 +78,15 @@ func TestVault_Update_Org(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -167,15 +167,15 @@ func TestVault_Update_Repo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -256,15 +256,15 @@ func TestVault_Update_Shared(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -345,15 +345,15 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -400,15 +400,15 @@ func TestVault_Update_InvalidType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -450,15 +450,15 @@ func TestVault_Update_ClosedServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
@@ -533,15 +533,15 @@ func TestVault_Update_NoWrite(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, err := New(Config{
-				Address:    fake.URL,
-				Token:      "foo",
-				Version:    tt.args.version,
-				Prefix:     tt.args.prefix,
-				AuthMethod: "",
-				AwsRole:    "",
-				Renewal:    0,
-			})
+			s, err := New(
+				WithAddress(fake.URL),
+				WithAuthMethod(""),
+				WithAWSRole(""),
+				WithPrefix(tt.args.prefix),
+				WithToken("foo"),
+				WithTokenDuration(0),
+				WithVersion(tt.args.version),
+			)
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
