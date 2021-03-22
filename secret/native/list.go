@@ -15,7 +15,7 @@ func (c *client) List(sType, org, name string, page, perPage int) ([]*library.Se
 	logrus.Tracef("Listing native %s secrets for %s/%s", sType, org, name)
 
 	// capture the list of secrets from the native service
-	s, err := c.Native.GetTypeSecretList(sType, org, name, page, perPage)
+	s, err := c.Database.GetTypeSecretList(sType, org, name, page, perPage)
 	if err != nil {
 		return nil, err
 	}

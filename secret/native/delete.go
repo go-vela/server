@@ -11,11 +11,11 @@ func (c *client) Delete(sType, org, name, path string) error {
 	logrus.Tracef("Deleting native %s secret %s for %s/%s", sType, path, org, name)
 
 	// capture the secret from the native service
-	s, err := c.Native.GetSecret(sType, org, name, path)
+	s, err := c.Database.GetSecret(sType, org, name, path)
 	if err != nil {
 		return err
 	}
 
 	// delete the secret from the native service
-	return c.Native.DeleteSecret(s.GetID())
+	return c.Database.DeleteSecret(s.GetID())
 }

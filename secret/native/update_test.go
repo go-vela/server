@@ -38,7 +38,9 @@ func TestNative_Update(t *testing.T) {
 	_ = d.CreateSecret(want)
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -66,7 +68,9 @@ func TestNative_Update_Invalid(t *testing.T) {
 	d.Database.Close()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

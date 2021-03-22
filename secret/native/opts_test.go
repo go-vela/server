@@ -5,12 +5,13 @@
 package native
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/go-vela/server/database"
 )
 
-func TestNative_New(t *testing.T) {
+func TestNative_ClientOpt_WithDatabase(t *testing.T) {
 	// setup types
 	d, err := database.NewTest()
 	if err != nil {
@@ -27,29 +28,35 @@ func TestNative_New(t *testing.T) {
 		{
 			failure:  false,
 			database: d,
+			want:     d,
 		},
 		{
 			failure:  true,
 			database: nil,
+			want:     nil,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		_, err := New(
+		_service, err := New(
 			WithDatabase(test.database),
 		)
 
 		if test.failure {
 			if err == nil {
-				t.Errorf("New should have returned err")
+				t.Errorf("WithDatabase should have returned err")
 			}
 
 			continue
 		}
 
 		if err != nil {
-			t.Errorf("New returned err: %v", err)
+			t.Errorf("WithDatabase returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(_service.Database, test.want) {
+			t.Errorf("WithDatabase is %v, want %v", _service.Database, test.want)
 		}
 	}
 }

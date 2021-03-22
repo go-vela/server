@@ -50,7 +50,9 @@ func TestNative_List(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -75,7 +77,9 @@ func TestNative_List_Invalid(t *testing.T) {
 	d.Database.Close()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}

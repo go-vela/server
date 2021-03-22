@@ -36,7 +36,9 @@ func TestNative_Create_Org(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -76,7 +78,9 @@ func TestNative_Create_Repo(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -116,7 +120,9 @@ func TestNative_Create_Shared(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
@@ -156,7 +162,9 @@ func TestNative_Create_Invalid(t *testing.T) {
 	}()
 
 	// run test
-	s, err := New(d)
+	s, err := New(
+		WithDatabase(d),
+	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
 	}
