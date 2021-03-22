@@ -48,11 +48,11 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	// pass through the redirect if it exists
 	redirect := r.FormValue("redirect_uri")
 	if len(redirect) > 0 {
-		c.OConfig.RedirectURL = redirect
+		c.OAuth.RedirectURL = redirect
 	}
 
 	// temporarily redirect request to Github to begin workflow
-	http.Redirect(w, r, c.OConfig.AuthCodeURL(oAuthState), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, c.OAuth.AuthCodeURL(oAuthState), http.StatusTemporaryRedirect)
 
 	return oAuthState, nil
 }
@@ -79,11 +79,11 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 	// pass through the redirect if it exists
 	redirect := r.FormValue("redirect_uri")
 	if len(redirect) > 0 {
-		c.OConfig.RedirectURL = redirect
+		c.OAuth.RedirectURL = redirect
 	}
 
 	// exchange OAuth code for token
-	token, err := c.OConfig.Exchange(context.Background(), code)
+	token, err := c.OAuth.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, err
 	}
