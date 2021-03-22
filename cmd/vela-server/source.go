@@ -34,7 +34,18 @@ func setupSource(c *cli.Context) (source.Service, error) {
 // helper function to setup the GitHub source from the CLI arguments.
 func setupGithub(c *cli.Context) (source.Service, error) {
 	logrus.Tracef("Creating %s source client from CLI configuration", constants.DriverGithub)
-	return github.New(c)
+
+	// create new Github source service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/source/github?tab=doc#New
+	return github.New(
+		github.WithAddress(c.String("source-url")),
+		github.WithClientID(c.String("source-client")),
+		github.WithClientSecret(c.String("source-secret")),
+		github.WithServerAddress(c.String("server-addr")),
+		github.WithStatusContext(c.String("source-context")),
+		github.WithWebUIAddress(c.String("webui-addr")),
+	)
 }
 
 // helper function to setup the Gitlab source from the CLI arguments.
