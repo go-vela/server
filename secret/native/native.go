@@ -5,30 +5,32 @@
 package native
 
 import (
-	"fmt"
-
 	"github.com/go-vela/server/database"
 )
 
 // client represents a struct to hold native secret setup.
 type client struct {
 	// client to interact with database for secret operations
-	Native database.Service
+	Database database.Service
 }
 
 // New returns a Secret implementation that integrates with a Native secrets engine.
 //
 // nolint: golint // ignore returning unexported client
-func New(d database.Service) (*client, error) {
-	// immediately return if a nil database Service is provided
-	if d == nil {
-		return nil, fmt.Errorf("empty Database client passed to native secret engine")
+func New(opts ...ClientOpt) (*client, error) {
+	// create new native client
+	c := new(client)
+
+	// create new fields
+	c.Database = *new(database.Service)
+
+	// apply all provided configuration options
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// create the client object
-	client := &client{
-		Native: d,
-	}
-
-	return client, nil
+	return c, nil
 }

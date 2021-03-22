@@ -13,7 +13,7 @@ func (c *client) Count(sType, org, name string) (int64, error) {
 	logrus.Tracef("Counting native %s secrets for %s/%s", sType, org, name)
 
 	// capture the count of secrets from the native service
-	s, err := c.Native.GetTypeSecretCount(sType, org, name)
+	s, err := c.Database.GetTypeSecretCount(sType, org, name)
 	if err != nil {
 		return 0, err
 	}
