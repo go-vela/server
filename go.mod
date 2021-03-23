@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/aws/aws-sdk-go v1.37.28
+	github.com/aws/aws-sdk-go v1.38.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0 // indirect
@@ -15,7 +15,7 @@ require (
 	github.com/go-vela/compiler v0.7.4
 	github.com/go-vela/types v0.7.5-0.20210318123941-b75a8b07bd29
 	github.com/google/go-cmp v0.5.5
-	github.com/google/go-github/v29 v29.0.3
+	github.com/google/go-github/v33 v33.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
@@ -30,10 +30,10 @@ require (
 	github.com/onsi/gomega v1.10.4 // indirect
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.9.0
+	github.com/prometheus/client_golang v1.10.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/urfave/cli/v2 v2.3.0
-	golang.org/x/oauth2 v0.0.0-20210220000619-9bb904979d93
+	golang.org/x/oauth2 v0.0.0-20210313182246-cd4f82c27b84
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
