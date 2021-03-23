@@ -5,7 +5,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 	"testing"
@@ -88,40 +87,6 @@ func TestDatabase_Client_GetUserName(t *testing.T) {
 	}
 }
 
-func TestDatabase_Client_GetUserRefreshToken(t *testing.T) {
-	// setup types
-	want := testUser()
-	want.SetID(1)
-	want.SetName("foo")
-	want.SetToken("bar")
-	want.SetRefreshToken("abc")
-	want.SetHash("baz")
-	want.SetFavorites([]string{"foo", "bar"})
-
-	// setup database
-	db, _ := NewTest()
-
-	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
-	}()
-
-	err := db.CreateUser(want)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-
-	// run test
-	got, err := db.GetUserRefreshToken(want.GetRefreshToken())
-
-	if err != nil {
-		t.Errorf("GetUserRefreshToken returned err: %v", err)
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetUserRefreshToken is %v, want %v", got, want)
-	}
-}
 func TestDatabase_Client_GetUserCount(t *testing.T) {
 	// setup types
 	uOne := testUser()

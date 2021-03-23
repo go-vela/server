@@ -80,39 +80,6 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 	return u.ToLibrary(), nil
 }
 
-// GetUserRefreshToken gets a user by refresh token from the database.
-func (c *client) GetUserRefreshToken(token string) (*library.User, error) {
-	logrus.Trace("Getting user by refresh token from the database")
-
-	// variable to store query results
-	u := new(database.User)
-
-	// send query to the database and store result in variable
-	err := c.Database.
-		Table(constants.TableUser).
-		Raw(c.DML.UserService.Select["refreshToken"], token).
-		Scan(u).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// decrypt the fields for the user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
-	err = u.Decrypt(c.EncryptionKey)
-	if err != nil {
-		// ensures that the change is backwards compatible
-		// by logging the error instead of returning it
-		// which allows us to fetch unencrypted users
-		logrus.Errorf("unable to decrypt user: %v", err)
-
-		// return the unencrypted user
-		return u.ToLibrary(), nil
-	}
-
-	return u.ToLibrary(), nil
-}
-
 // GetUserList gets a list of all users from the database.
 func (c *client) GetUserList() ([]*library.User, error) {
 	logrus.Trace("Listing users from the database")
