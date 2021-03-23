@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v29/github"
+	"github.com/google/go-github/v33/github"
 
 	"github.com/sirupsen/logrus"
 )
