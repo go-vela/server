@@ -5,6 +5,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -24,8 +26,25 @@ func (c *client) GetUser(id int64) (*library.User, error) {
 		Table(constants.TableUser).
 		Raw(c.DML.UserService.Select["user"], id).
 		Scan(u).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return u.ToLibrary(), err
+	// decrypt the fields for the user
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
+	err = u.Decrypt(c.EncryptionKey)
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allows us to fetch unencrypted users
+		logrus.Errorf("unable to decrypt user %d: %v", id, err)
+
+		// return the unencrypted user
+		return u.ToLibrary(), nil
+	}
+
+	return u.ToLibrary(), nil
 }
 
 // GetUserName gets a user by name from the database.
@@ -40,24 +59,25 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 		Table(constants.TableUser).
 		Raw(c.DML.UserService.Select["name"], name).
 		Scan(u).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return u.ToLibrary(), err
-}
+	// decrypt the fields for the user
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
+	err = u.Decrypt(c.EncryptionKey)
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allows us to fetch unencrypted users
+		logrus.Errorf("unable to decrypt user %s: %v", name, err)
 
-// GetUserRefreshToken gets a user by refresh token from the database.
-func (c *client) GetUserRefreshToken(token string) (*library.User, error) {
-	logrus.Trace("Getting user by refresh token from the database")
+		// return the unencrypted user
+		return u.ToLibrary(), nil
+	}
 
-	// variable to store query results
-	u := new(database.User)
-
-	// send query to the database and store result in variable
-	err := c.Database.
-		Table(constants.TableUser).
-		Raw(c.DML.UserService.Select["refreshToken"], token).
-		Scan(u).Error
-
-	return u.ToLibrary(), err
+	return u.ToLibrary(), nil
 }
 
 // GetUserList gets a list of all users from the database.
@@ -72,6 +92,9 @@ func (c *client) GetUserList() ([]*library.User, error) {
 		Table(constants.TableUser).
 		Raw(c.DML.UserService.List["all"]).
 		Scan(u).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	users := []*library.User{}
@@ -80,11 +103,22 @@ func (c *client) GetUserList() ([]*library.User, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := user
 
+		// decrypt the fields for the user
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
+		err = tmp.Decrypt(c.EncryptionKey)
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch unencrypted users
+			logrus.Errorf("unable to decrypt user %d: %v", tmp.ID.Int64, err)
+		}
+
 		// convert query result to library type
 		users = append(users, tmp.ToLibrary())
 	}
 
-	return users, err
+	return users, nil
 }
 
 // GetUserCount gets a list of all users from the database.
@@ -145,6 +179,14 @@ func (c *client) CreateUser(u *library.User) error {
 		return err
 	}
 
+	// encrypt the fields for the user
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
+	err = user.Encrypt(c.EncryptionKey)
+	if err != nil {
+		return fmt.Errorf("unable to encrypt user %s: %v", u.GetName(), err)
+	}
+
 	// send query to the database
 	return c.Database.
 		Table(constants.TableUser).
@@ -162,6 +204,14 @@ func (c *client) UpdateUser(u *library.User) error {
 	err := user.Validate()
 	if err != nil {
 		return err
+	}
+
+	// encrypt the fields for the user
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
+	err = user.Encrypt(c.EncryptionKey)
+	if err != nil {
+		return fmt.Errorf("unable to encrypt user %s: %v", u.GetName(), err)
 	}
 
 	// send query to the database
