@@ -195,16 +195,8 @@ func Refresh(c *gin.Context, refreshToken string) (string, error) {
 	// get a reference to the database
 	db := database.FromContext(c)
 
-	// check to see if a user exists with that refresh token
-	// we are comparing with db to allow for leverage in
-	// invalidating a refresh token in the DB
-	u, err := db.GetUserRefreshToken(refreshToken)
-	if err != nil {
-		return "", fmt.Errorf("refresh token not valid - please log in")
-	}
-
 	// parse (which also validates) the token
-	_, err = Parse(refreshToken, db)
+	u, err := Parse(refreshToken, db)
 	if err != nil {
 		return "", err
 	}
