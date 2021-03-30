@@ -223,7 +223,7 @@ func (c *client) CreateRepo(r *library.Repo) error {
 		return err
 	}
 
-	// decrypt the fields for the repo
+	// encrypt the fields for the repo
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(c.EncryptionKey)
@@ -250,7 +250,7 @@ func (c *client) UpdateRepo(r *library.Repo) error {
 		return err
 	}
 
-	// decrypt the fields for the repo
+	// encrypt the fields for the repo
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(c.EncryptionKey)
