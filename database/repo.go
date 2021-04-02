@@ -5,6 +5,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -24,8 +26,26 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 		Table(constants.TableRepo).
 		Raw(c.DML.RepoService.Select["repo"], org, name).
 		Scan(r).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return r.ToLibrary(), err
+	// decrypt the fields for the repo
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
+	err = r.Decrypt(c.EncryptionKey)
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allows us to fetch unencrypted repos
+		logrus.Errorf("unable to decrypt repo %s/%s: %v", org, name, err)
+
+		// return the unencrypted repo
+		return r.ToLibrary(), nil
+	}
+
+	// return the decrypted repo
+	return r.ToLibrary(), nil
 }
 
 // GetRepoList gets a list of all repos from the database.
@@ -40,6 +60,9 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 		Table(constants.TableRepo).
 		Raw(c.DML.RepoService.List["all"]).
 		Scan(r).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	repos := []*library.Repo{}
@@ -48,11 +71,22 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := repo
 
+		// decrypt the fields for the repo
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
+		err = tmp.Decrypt(c.EncryptionKey)
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch unencrypted repos
+			logrus.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
+		}
+
 		// convert query result to library type
 		repos = append(repos, tmp.ToLibrary())
 	}
 
-	return repos, err
+	return repos, nil
 }
 
 // GetRepoCount gets a count of all repos from the database.
@@ -87,6 +121,9 @@ func (c *client) GetUserRepoList(u *library.User, page, perPage int) ([]*library
 		Table(constants.TableRepo).
 		Raw(c.DML.RepoService.List["user"], u.GetID(), perPage, offset).
 		Scan(r).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	repos := []*library.Repo{}
@@ -95,11 +132,22 @@ func (c *client) GetUserRepoList(u *library.User, page, perPage int) ([]*library
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := repo
 
+		// decrypt the fields for the repo
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
+		err = tmp.Decrypt(c.EncryptionKey)
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch unencrypted repos
+			logrus.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
+		}
+
 		// convert query result to library type
 		repos = append(repos, tmp.ToLibrary())
 	}
 
-	return repos, err
+	return repos, nil
 }
 
 // GetOrgRepoList gets a list of all repos by org from the database.
@@ -117,6 +165,9 @@ func (c *client) GetOrgRepoList(org string, page, perPage int) ([]*library.Repo,
 		Table(constants.TableRepo).
 		Raw(c.DML.RepoService.List["org"], org, perPage, offset).
 		Scan(r).Error
+	if err != nil {
+		return nil, err
+	}
 
 	// variable we want to return
 	repos := []*library.Repo{}
@@ -125,11 +176,22 @@ func (c *client) GetOrgRepoList(org string, page, perPage int) ([]*library.Repo,
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := repo
 
+		// decrypt the fields for the repo
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
+		err = tmp.Decrypt(c.EncryptionKey)
+		if err != nil {
+			// ensures that the change is backwards compatible
+			// by logging the error instead of returning it
+			// which allows us to fetch unencrypted repos
+			logrus.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
+		}
+
 		// convert query result to library type
 		repos = append(repos, tmp.ToLibrary())
 	}
 
-	return repos, err
+	return repos, nil
 }
 
 // GetUserRepoCount gets a count of all repos for a specific user from the database.
@@ -161,6 +223,14 @@ func (c *client) CreateRepo(r *library.Repo) error {
 		return err
 	}
 
+	// encrypt the fields for the repo
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
+	err = repo.Encrypt(c.EncryptionKey)
+	if err != nil {
+		return fmt.Errorf("unable to encrypt repo %s: %v", r.GetFullName(), err)
+	}
+
 	// send query to the database
 	return c.Database.
 		Table(constants.TableRepo).
@@ -178,6 +248,14 @@ func (c *client) UpdateRepo(r *library.Repo) error {
 	err := repo.Validate()
 	if err != nil {
 		return err
+	}
+
+	// encrypt the fields for the repo
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
+	err = repo.Encrypt(c.EncryptionKey)
+	if err != nil {
+		return fmt.Errorf("unable to encrypt repo %s: %v", r.GetFullName(), err)
 	}
 
 	// send query to the database
