@@ -34,12 +34,6 @@ func validate(c *cli.Context) error {
 		return err
 	}
 
-	// validate queue configuration
-	err = validateQueue(c)
-	if err != nil {
-		return err
-	}
-
 	// validate secret configuration
 	err = validateSecret(c)
 	if err != nil {
@@ -165,21 +159,6 @@ func validateDatabase(c *cli.Context) error {
 	if len(c.String("database.encryption.key")) != 32 {
 		// nolint: lll // ignore long line length due to long error message
 		return fmt.Errorf("database.encryption.key (VELA_DATABASE_ENCRYPTION_KEY or DATABASE_ENCRYPTION_KEY) invalid length specified: %d", len(c.String("database.encryption.key")))
-	}
-
-	return nil
-}
-
-// helper function to validate the queue CLI configuration.
-func validateQueue(c *cli.Context) error {
-	logrus.Trace("Validating queue CLI configuration")
-
-	if len(c.String("queue-driver")) == 0 {
-		return fmt.Errorf("queue-driver (VELA_QUEUE_DRIVER or QUEUE_DRIVER) flag not specified")
-	}
-
-	if len(c.String("queue-config")) == 0 {
-		return fmt.Errorf("queue-config (VELA_QUEUE_CONFIG or QUEUE_CONFIG) flag not specified")
 	}
 
 	return nil
