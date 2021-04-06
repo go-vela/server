@@ -14,6 +14,12 @@ import (
 // Service represents the interface for Vela integrating
 // with the different supported source providers.
 type Service interface {
+	// Service Interface Functions
+
+	// Driver defines a function that outputs
+	// the configured source driver.
+	Driver() string
+
 	// Authentication Source Interface Functions
 
 	// Authorize defines a function that uses the
