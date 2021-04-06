@@ -9,6 +9,12 @@ import "github.com/go-vela/types/library"
 // Service represents the interface for Vela integrating
 // with the different supported secret providers.
 type Service interface {
+	// Service Interface Functions
+
+	// Driver defines a function that outputs
+	// the configured source driver.
+	Driver() string
+
 	// Get defines a function that captures a secret.
 	Get(string, string, string, string) (*library.Secret, error)
 	// List defines a function that captures a list of secrets.
