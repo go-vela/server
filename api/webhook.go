@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/pkg-queue/queue"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
@@ -477,7 +477,7 @@ func PostWebhook(c *gin.Context) {
 
 	// publish the build to the queue
 	go publishToQueue(
-		queue.FromContext(c),
+		queue.FromGinContext(c),
 		p,
 		b,
 		r,
@@ -515,11 +515,11 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 
 	logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
 
-	err = queue.Publish(route, byteItem)
+	err = queue.Push(context.Background(), route, byteItem)
 	if err != nil {
 		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
-		err = queue.Publish(route, byteItem)
+		err = queue.Push(context.Background(), route, byteItem)
 		if err != nil {
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 

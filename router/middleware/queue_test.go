@@ -10,8 +10,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/queue"
-	"github.com/go-vela/server/queue/redis"
+	"github.com/go-vela/pkg-queue/queue"
+	"github.com/go-vela/pkg-queue/queue/redis"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +32,7 @@ func TestMiddleware_Queue(t *testing.T) {
 	// setup mock server
 	engine.Use(Queue(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = queue.FromContext(c)
+		got = queue.FromGinContext(c)
 
 		c.Status(http.StatusOK)
 	})
