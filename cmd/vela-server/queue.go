@@ -5,12 +5,7 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/go-vela/server/queue"
-	"github.com/go-vela/server/queue/redis"
-
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/pkg-queue/queue"
 
 	"github.com/sirupsen/logrus"
 
@@ -21,37 +16,17 @@ import (
 func setupQueue(c *cli.Context) (queue.Service, error) {
 	logrus.Debug("Creating queue client from CLI configuration")
 
-	switch c.String("queue-driver") {
-	case constants.DriverKafka:
-		return setupKafka(c)
-	case constants.DriverRedis:
-		return setupRedis(c)
-	default:
-		return nil, fmt.Errorf("invalid queue driver: %s", c.String("queue-driver"))
-	}
-}
-
-// helper function to setup the Kafka queue from the CLI arguments.
-//
-// nolint: unparam // ignore unparam for now
-func setupKafka(c *cli.Context) (queue.Service, error) {
-	logrus.Tracef("Creating %s queue client from CLI configuration", constants.DriverKafka)
-	// return kafka.New(c.String("queue-config"), "vela")
-	return nil, fmt.Errorf("unsupported queue driver: %s", constants.DriverKafka)
-}
-
-// helper function to setup the Redis queue from the CLI arguments.
-func setupRedis(c *cli.Context) (queue.Service, error) {
-	// setup routes
-	routes := append(c.StringSlice("queue-worker-routes"), constants.DefaultRoute)
-
-	if c.Bool("queue-cluster") {
-		logrus.Tracef("Creating %s queue cluster client from CLI configuration", constants.DriverRedis)
-
-		return redis.NewCluster(c.String("queue-config"), routes...)
+	// queue configuration
+	_setup := &queue.Setup{
+		Driver:  c.String("queue.driver"),
+		Address: c.String("queue.addr"),
+		Cluster: c.Bool("queue.cluster"),
+		Routes:  c.StringSlice("queue.routes"),
+		Timeout: c.Duration("queue.pop.timeout"),
 	}
 
-	logrus.Tracef("Creating %s queue client from CLI configuration", constants.DriverRedis)
-
-	return redis.New(c.String("queue-config"), routes...)
+	// setup the queue
+	//
+	// https://pkg.go.dev/github.com/go-vela/pkg-queue/queue?tab=doc#New
+	return queue.New(_setup)
 }

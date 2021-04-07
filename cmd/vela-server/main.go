@@ -8,7 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/pkg-queue/queue"
+  "github.com/go-vela/server/source"
 	"github.com/go-vela/server/version"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
@@ -158,30 +159,6 @@ func main() {
 			Usage:   "AES-256 key for encrypting and decrypting values",
 		},
 
-		// Queue Flags
-
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_QUEUE_DRIVER", "QUEUE_DRIVER"},
-			Name:    "queue-driver",
-			Usage:   "queue driver",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_QUEUE_CONFIG", "QUEUE_CONFIG"},
-			Name:    "queue-config",
-			Usage:   "queue driver configuration string",
-		},
-		&cli.BoolFlag{
-			EnvVars: []string{"VELA_QUEUE_CLUSTER", "QUEUE_CLUSTER"},
-			Name:    "queue-cluster",
-			Usage:   "queue client is setup for clusters",
-		},
-		// By default all builds are pushed to the "vela" route
-		&cli.StringSliceFlag{
-			EnvVars: []string{"VELA_QUEUE_WORKER_ROUTES", "QUEUE_WORKER_ROUTES"},
-			Name:    "queue-worker-routes",
-			Usage:   "queue worker routes is configuration for routing builds",
-		},
-
 		// Secret Flags
 
 		&cli.BoolFlag{
@@ -261,7 +238,11 @@ func main() {
 		},
 	}
 
-	// Source Flags
+	// Queue Flags
+
+	app.Flags = append(app.Flags, queue.Flags...)
+  
+  // Source Flags
 
 	app.Flags = append(app.Flags, source.Flags...)
 
