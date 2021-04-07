@@ -15,7 +15,7 @@ require (
 	github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88
 	github.com/go-vela/types v0.7.5-0.20210318123941-b75a8b07bd29
 	github.com/google/go-cmp v0.5.5
-	github.com/google/go-github/v33 v33.0.0
+	github.com/google/go-github/v34 v34.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
@@ -31,7 +31,7 @@ require (
 	github.com/prometheus/client_golang v1.10.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/urfave/cli/v2 v2.3.0
-	golang.org/x/oauth2 v0.0.0-20210323180902-22b0adad7558
+	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )
