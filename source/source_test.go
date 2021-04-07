@@ -10,6 +10,22 @@ import (
 )
 
 func TestSource_New(t *testing.T) {
+	// setup types
+	_hub := &Setup{
+		Driver:        "github",
+		Address:       "https://github.com",
+		ClientID:      "foo",
+		ClientSecret:  "bar",
+		ServerAddress: "https://vela-server.example.com",
+		StatusContext: "continuous-integration/vela",
+		WebUIAddress:  "https://vela.example.com",
+	}
+
+	_github, err := _hub.Github()
+	if err != nil {
+		t.Errorf("unable to setup source: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -17,17 +33,9 @@ func TestSource_New(t *testing.T) {
 		want    Service
 	}{
 		{
-			failure: true,
-			setup: &Setup{
-				Driver:        "github",
-				Address:       "https://github.com",
-				ClientID:      "foo",
-				ClientSecret:  "bar",
-				ServerAddress: "https://vela-server.example.com",
-				StatusContext: "continuous-integration/vela",
-				WebUIAddress:  "https://vela.example.com",
-			},
-			want: nil,
+			failure: false,
+			setup:   _hub,
+			want:    _github,
 		},
 		{
 			failure: true,
