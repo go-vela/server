@@ -22,6 +22,7 @@ services:
     networks:
       - vela
     environment:
+      SOURCE_DRIVER: github
       VELA_ADDR: 'http://localhost:8080'
       VELA_WEBUI_ADDR: 'http://localhost:8888'
       VELA_DATABASE_DRIVER: postgres
@@ -32,7 +33,6 @@ services:
       VELA_QUEUE_CONFIG: 'redis://redis:6379'
       VELA_QUEUE_WORKER_ROUTES: 'docker,local,docker:local'
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      VELA_SOURCE_DRIVER: github
       VELA_SECRET_NATIVE_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       VELA_SECRET_VAULT: 'true'
       VELA_SECRET_VAULT_ADDR: 'http://vault:8200'

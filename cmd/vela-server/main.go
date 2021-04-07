@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/version"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
@@ -226,35 +227,6 @@ func main() {
 			Value:   30 * time.Minute,
 		},
 
-		// Source Flags
-
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SOURCE_DRIVER", "SOURCE_DRIVER"},
-			Name:    "source-driver",
-			Usage:   "source driver",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SOURCE_URL", "SOURCE_URL"},
-			Name:    "source-url",
-			Usage:   "source url address",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SOURCE_CLIENT", "SOURCE_CLIENT"},
-			Name:    "source-client",
-			Usage:   "source client id",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SOURCE_SECRET", "SOURCE_SECRET"},
-			Name:    "source-secret",
-			Usage:   "source client secret",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SOURCE_CONTEXT", "SOURCE_CONTEXT"},
-			Name:    "source-context",
-			Usage:   "source commit status context",
-			Value:   "continuous-integration/vela",
-		},
-
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",
@@ -288,6 +260,10 @@ func main() {
 			Value:   5 * time.Minute,
 		},
 	}
+
+	// Source Flags
+
+	app.Flags = append(app.Flags, source.Flags...)
 
 	// set logrus to log in JSON format
 	logrus.SetFormatter(&logrus.JSONFormatter{})
