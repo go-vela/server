@@ -5,37 +5,26 @@
 package source
 
 import (
-	"reflect"
 	"testing"
 )
 
 func TestSource_New(t *testing.T) {
-	// setup types
-	_hub := &Setup{
-		Driver:        "github",
-		Address:       "https://github.com",
-		ClientID:      "foo",
-		ClientSecret:  "bar",
-		ServerAddress: "https://vela-server.example.com",
-		StatusContext: "continuous-integration/vela",
-		WebUIAddress:  "https://vela.example.com",
-	}
-
-	_github, err := _hub.Github()
-	if err != nil {
-		t.Errorf("unable to setup source: %v", err)
-	}
-
 	// setup tests
 	tests := []struct {
 		failure bool
 		setup   *Setup
-		want    Service
 	}{
 		{
 			failure: false,
-			setup:   _hub,
-			want:    _github,
+			setup: &Setup{
+				Driver:        "github",
+				Address:       "https://github.com",
+				ClientID:      "foo",
+				ClientSecret:  "bar",
+				ServerAddress: "https://vela-server.example.com",
+				StatusContext: "continuous-integration/vela",
+				WebUIAddress:  "https://vela.example.com",
+			},
 		},
 		{
 			failure: true,
@@ -48,7 +37,6 @@ func TestSource_New(t *testing.T) {
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
 			},
-			want: nil,
 		},
 		{
 			failure: true,
@@ -61,7 +49,6 @@ func TestSource_New(t *testing.T) {
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
 			},
-			want: nil,
 		},
 		{
 			failure: true,
@@ -74,21 +61,16 @@ func TestSource_New(t *testing.T) {
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
 			},
-			want: nil,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		got, err := New(test.setup)
+		_, err := New(test.setup)
 
 		if test.failure {
 			if err == nil {
 				t.Errorf("New should have returned err")
-			}
-
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("New is %v, want %v", got, test.want)
 			}
 
 			continue
@@ -96,10 +78,6 @@ func TestSource_New(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("New returned err: %v", err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("New is %v, want %v", got, test.want)
 		}
 	}
 }
