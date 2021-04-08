@@ -384,6 +384,42 @@ func TestGithub_Authenticate_Invalid_Token(t *testing.T) {
 	}
 }
 
+func TestGithub_Authenticate_Vela_Token(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
+	context.Request.Header.Set("Token", "vela")
+
+	engine.GET("/api/v3/user", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/user.json")
+	})
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	_, err := client.AuthenticateToken(context.Request)
+	if resp.Code != http.StatusOK {
+		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err == nil {
+		t.Error("Authenticate should have returned err")
+	}
+}
+
 func TestGithub_LoginWCreds(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
