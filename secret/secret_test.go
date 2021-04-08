@@ -18,22 +18,6 @@ func TestSecret_New(t *testing.T) {
 	}
 	defer _database.Database.Close()
 
-	_native := &Setup{
-		Driver:   "native",
-		Database: _database,
-	}
-
-	_vault := &Setup{
-		Driver:        "vault",
-		Address:       "https://vault.example.com",
-		AuthMethod:    "",
-		AwsRole:       "",
-		Prefix:        "bar",
-		Token:         "baz",
-		TokenDuration: 0,
-		Version:       "1",
-	}
-
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -41,11 +25,23 @@ func TestSecret_New(t *testing.T) {
 	}{
 		{
 			failure: false,
-			setup:   _native,
+			setup: &Setup{
+				Driver:   "native",
+				Database: _database,
+			},
 		},
 		{
 			failure: false,
-			setup:   _vault,
+			setup: &Setup{
+				Driver:        "vault",
+				Address:       "https://vault.example.com",
+				AuthMethod:    "",
+				AwsRole:       "",
+				Prefix:        "bar",
+				Token:         "baz",
+				TokenDuration: 0,
+				Version:       "1",
+			},
 		},
 		{
 			failure: true,
