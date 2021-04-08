@@ -16,6 +16,7 @@ require (
 	github.com/go-vela/types v0.7.4
 	github.com/google/go-cmp v0.5.4
 	github.com/google/go-github/v29 v29.0.3
+	github.com/google/go-github/v33 v33.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
