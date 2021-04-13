@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/go-vela/pkg-queue/queue"
-	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/version"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
@@ -201,7 +201,7 @@ func main() {
 	// Secret Flags
 
 	app.Flags = append(app.Flags, secret.Flags...)
-    
+
 	// Source Flags
 
 	app.Flags = append(app.Flags, source.Flags...)
