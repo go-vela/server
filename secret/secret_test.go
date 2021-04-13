@@ -5,13 +5,12 @@
 package secret
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/go-vela/server/database"
 )
 
-func TestSource_New(t *testing.T) {
+func TestSecret_New(t *testing.T) {
 	// setup types
 	_database, err := database.NewTest()
 	if err != nil {
@@ -23,37 +22,26 @@ func TestSource_New(t *testing.T) {
 	tests := []struct {
 		failure bool
 		setup   *Setup
-		want    Service
 	}{
 		{
-			failure: true,
+			failure: false,
 			setup: &Setup{
 				Driver:   "native",
 				Database: _database,
 			},
-			want: nil,
 		},
 		{
-			failure: true,
+			failure: false,
 			setup: &Setup{
 				Driver:        "vault",
 				Address:       "https://vault.example.com",
-				AuthMethod:    "aws",
-				AwsRole:       "foo",
+				AuthMethod:    "",
+				AwsRole:       "",
 				Prefix:        "bar",
 				Token:         "baz",
 				TokenDuration: 0,
 				Version:       "1",
 			},
-			want: nil,
-		},
-		{
-			failure: true,
-			setup: &Setup{
-				Driver:   "native",
-				Database: nil,
-			},
-			want: nil,
 		},
 		{
 			failure: true,
@@ -67,13 +55,12 @@ func TestSource_New(t *testing.T) {
 				TokenDuration: 0,
 				Version:       "1",
 			},
-			want: nil,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		got, err := New(test.setup)
+		_, err := New(test.setup)
 
 		if test.failure {
 			if err == nil {
@@ -85,10 +72,6 @@ func TestSource_New(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("New returned err: %v", err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("New is %v, want %v", got, test.want)
 		}
 	}
 }
