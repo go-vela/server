@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-vela/pkg-queue/queue"
 	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/version"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
@@ -159,51 +160,6 @@ func main() {
 			Usage:   "AES-256 key for encrypting and decrypting values",
 		},
 
-		// Secret Flags
-
-		&cli.BoolFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT", "SECRET_VAULT"},
-			Name:    "vault-driver",
-			Usage:   "vault secret driver",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_ADDR", "SECRET_VAULT_ADDR"},
-			Name:    "vault-addr",
-			Usage:   "vault address for storing secrets",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_TOKEN", "SECRET_VAULT_TOKEN"},
-			Name:    "vault-token",
-			Usage:   "vault token for storing secrets",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_VERSION", "SECRET_VAULT_VERSION"},
-			Name:    "vault-version",
-			Usage:   "vault k/v backend version to utilize",
-			Value:   "2",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_PREFIX", "SECRET_VAULT_PREFIX"},
-			Name:    "vault-prefix",
-			Usage:   "vault prefix for k/v secrets. e.g. secret/data/<prefix>/<path>",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_AUTH_METHOD", "SECRET_VAULT_AUTH_METHOD"},
-			Name:    "vault-auth-method",
-			Usage:   "auth method to utilize to obtain token",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_AWS_ROLE", "SECRET_VAULT_AWS_ROLE"},
-			Name:    "vault-aws-role",
-			Usage:   "vault role to connect to the auth/aws/login endpoint with",
-		},
-		&cli.DurationFlag{
-			EnvVars: []string{"VELA_SECRET_VAULT_RENEWAL", "SECRET_VAULT_RENEWAL"},
-			Name:    "vault-renewal",
-			Usage:   "frequency which the vault token should be renewed",
-			Value:   30 * time.Minute,
-		},
-
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",
@@ -242,6 +198,10 @@ func main() {
 
 	app.Flags = append(app.Flags, queue.Flags...)
 
+	// Secret Flags
+
+	app.Flags = append(app.Flags, secret.Flags...)
+    
 	// Source Flags
 
 	app.Flags = append(app.Flags, source.Flags...)
