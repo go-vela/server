@@ -107,7 +107,7 @@ func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "//bar/test", nil)
+	context.Request, _ = http.NewRequest(http.MethodGet, "//test", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
