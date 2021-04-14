@@ -25,6 +25,8 @@ services:
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       QUEUE_ROUTES: 'docker,local,docker:local'
+      SOURCE_DRIVER: github
+      SOURCE_CONTEXT: 'continuous-integration/vela'
       SECRET_VAULT: 'true'
       SECRET_VAULT_ADDR: 'http://vault:8200'
       SECRET_VAULT_TOKEN: vela
@@ -35,7 +37,6 @@ services:
       VELA_DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       VELA_LOG_LEVEL: trace
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      VELA_SOURCE_DRIVER: github
       VELA_REFRESH_TOKEN_DURATION: 5m
       VELA_ACCESS_TOKEN_DURATION: 1m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/server/source/github"
 	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
@@ -40,7 +41,17 @@ type Setup struct {
 func (s *Setup) Github() (Service, error) {
 	logrus.Trace("creating github source client from setup")
 
-	return nil, fmt.Errorf("unsupported source driver: %s", constants.DriverGithub)
+	// create new Github source service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/source/github?tab=doc#New
+	return github.New(
+		github.WithAddress(s.Address),
+		github.WithClientID(s.ClientID),
+		github.WithClientSecret(s.ClientSecret),
+		github.WithServerAddress(s.ServerAddress),
+		github.WithStatusContext(s.StatusContext),
+		github.WithWebUIAddress(s.WebUIAddress),
+	)
 }
 
 // Gitlab creates and returns a Vela service capable of

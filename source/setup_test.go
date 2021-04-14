@@ -5,6 +5,7 @@
 package source
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -20,14 +21,48 @@ func TestSource_Setup_Github(t *testing.T) {
 		WebUIAddress:  "https://vela.example.com",
 	}
 
-	// run test
-	got, err := _setup.Github()
-	if err == nil {
-		t.Errorf("Github should have returned err")
+	_github, err := _setup.Github()
+	if err != nil {
+		t.Errorf("unable to setup source: %v", err)
 	}
 
-	if got != nil {
-		t.Errorf("Github is %v, want nil", got)
+	// setup tests
+	tests := []struct {
+		failure bool
+		setup   *Setup
+		want    Service
+	}{
+		{
+			failure: false,
+			setup:   _setup,
+			want:    _github,
+		},
+		{
+			failure: true,
+			setup:   &Setup{Driver: "github"},
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := test.setup.Github()
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("Github should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("Github returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("Github is %v, want %v", got, test.want)
+		}
 	}
 }
 
