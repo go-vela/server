@@ -70,13 +70,13 @@ func metadataDatabase(c *cli.Context) (*types.Database, error) {
 func metadataQueue(c *cli.Context) (*types.Queue, error) {
 	logrus.Trace("Creating queue metadata from CLI configuration")
 
-	u, err := url.Parse(c.String("queue-config"))
+	u, err := url.Parse(c.String("queue.addr"))
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.Queue{
-		Driver: c.String("queue-driver"),
+		Driver: c.String("queue.driver"),
 		Host:   u.Host,
 	}, nil
 }
@@ -85,13 +85,13 @@ func metadataQueue(c *cli.Context) (*types.Queue, error) {
 func metadataSource(c *cli.Context) (*types.Source, error) {
 	logrus.Trace("Creating source metadata from CLI configuration")
 
-	u, err := url.Parse(c.String("source-url"))
+	u, err := url.Parse(c.String("source.addr"))
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.Source{
-		Driver: c.String("source-driver"),
+		Driver: c.String("source.driver"),
 		Host:   u.Host,
 	}, nil
 }
