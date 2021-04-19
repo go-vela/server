@@ -57,7 +57,7 @@ type Service interface {
 	GetOrgBuildCountByEvent(string, string) (int64, error)
 	// GetPendingAndRunningBuilds defines a function that
 	// gets the list of pending and running builds.
-	GetPendingAndRunningBuilds(string) ([]*BuildQueue, error)
+	GetPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)
 	// CreateBuild defines a function that
 	// creates a new build.
 	CreateBuild(*library.Build) error

@@ -5,7 +5,6 @@
 package database
 
 import (
-	"database/sql"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -415,30 +414,13 @@ func (c *client) DeleteBuild(id int64) error {
 		Exec(c.DML.BuildService.Delete, id).Error
 }
 
-// BuildQueue is the representation of the builds in the queue.
-//
-// swagger:model BuildQueue
-type BuildQueue struct {
-	Status   *string `json:"status,omitempty"`
-	Created  *int64  `json:"created,omitempty"`
-	Number   *int32  `json:"number,omitempty"`
-	FullName *string `json:"full_name,omitempty"`
-}
-
 // GetPendingAndRunningBuilds returns the list of pending and running builds
 // within the given timeframe.
-func (c *client) GetPendingAndRunningBuilds(after string) ([]*BuildQueue, error) {
+func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue, error) {
 	logrus.Trace("Selecting pending and running builds")
 
-	type databaseQueue struct {
-		Status   sql.NullString `sql:"status"`
-		Number   sql.NullInt32  `sql:"number"`
-		Created  sql.NullInt64  `sql:"created"`
-		FullName sql.NullString `sql:"full_name"`
-	}
-
 	// variable to store query results
-	b := new([]databaseQueue)
+	b := new([]database.BuildQueue)
 
 	// send query to the database and store result in variable
 	err := c.Database.
@@ -447,22 +429,15 @@ func (c *client) GetPendingAndRunningBuilds(after string) ([]*BuildQueue, error)
 		Scan(b).Error
 
 	// variable we want to return
-	builds := []*BuildQueue{}
+	builds := []*library.BuildQueue{}
+
 	// iterate through all query results
 	for _, build := range *b {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		// convert query result to output type
-		output := BuildQueue{
-			Status:   &tmp.Status.String,
-			Created:  &tmp.Created.Int64,
-			Number:   &tmp.Number.Int32,
-			FullName: &tmp.FullName.String,
-		}
-
-		// append the build to the output list
-		builds = append(builds, &output)
+		// convert query result to library type
+		builds = append(builds, tmp.ToLibrary())
 	}
 
 	return builds, err

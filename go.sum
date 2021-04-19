@@ -210,8 +210,8 @@ github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88/go.mod h1:AcS5
 github.com/go-vela/sdk-go v0.7.4 h1:OXUR8LZzO8kBmNY3yRuFojcmjWaMoK1s2q5iIpu5vhg=
 github.com/go-vela/sdk-go v0.7.4/go.mod h1:I1K3LpWOnfsJUhHXJf7DpwR9zVz4h65hRXzQ5IOxPuo=
 github.com/go-vela/types v0.7.4/go.mod h1:/IsyxCijlz8BArRxBfrfRv7BBe/hmJGtVWegkS3ooJU=
-github.com/go-vela/types v0.7.5-0.20210318123941-b75a8b07bd29 h1:aw+YkCE8kZGfjP8l0ZwR1O8EImtnxgZBEU0SOyiJG1Y=
-github.com/go-vela/types v0.7.5-0.20210318123941-b75a8b07bd29/go.mod h1:+8dhX0scCZxD+yjmWUz0EiZggwidMa8MDPEemPSu1bU=
+github.com/go-vela/types v0.7.5-0.20210419140302-437df36fc4f4 h1:iGPjT8P0p1G3UnNVkupbkex5L4BCji45NhC5qqXCzgU=
+github.com/go-vela/types v0.7.5-0.20210419140302-437df36fc4f4/go.mod h1:+8dhX0scCZxD+yjmWUz0EiZggwidMa8MDPEemPSu1bU=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
