@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.7.4
 	github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88
-	github.com/go-vela/types v0.7.5-0.20210318123941-b75a8b07bd29
+	github.com/go-vela/types v0.7.5-0.20210419140302-437df36fc4f4
 	github.com/google/go-cmp v0.5.5
 	github.com/google/go-github/v35 v35.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
