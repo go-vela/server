@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/go-vela/server/database"
@@ -23,13 +24,48 @@ func TestSecret_Setup_Native(t *testing.T) {
 		Database: _database,
 	}
 
-	got, err := _setup.Native()
-	if err == nil {
-		t.Errorf("Native should have returned err")
+	_native, err := _setup.Native()
+	if err != nil {
+		t.Errorf("unable to setup secret service: %v", err)
 	}
 
-	if got != nil {
-		t.Errorf("Native is %v, want nil", got)
+	// setup tests
+	tests := []struct {
+		failure bool
+		setup   *Setup
+		want    Service
+	}{
+		{
+			failure: false,
+			setup:   _setup,
+			want:    _native,
+		},
+		{
+			failure: true,
+			setup:   &Setup{Driver: "native"},
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := test.setup.Native()
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("Native should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("Native returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("Native is %v, want %v", got, test.want)
+		}
 	}
 }
 
@@ -38,25 +74,56 @@ func TestSecret_Setup_Vault(t *testing.T) {
 	_setup := &Setup{
 		Driver:        "vault",
 		Address:       "https://vault.example.com",
-		AuthMethod:    "aws",
-		AwsRole:       "foo",
+		AuthMethod:    "",
+		AwsRole:       "",
 		Prefix:        "bar",
 		Token:         "baz",
 		TokenDuration: 0,
 		Version:       "1",
 	}
 
-	got, err := _setup.Vault()
-	if err == nil {
-		t.Errorf("Vault should have returned err")
+	_vault, err := _setup.Vault()
+	if err != nil {
+		t.Errorf("unable to setup secret service: %v", err)
 	}
 
-	if got != nil {
-		t.Errorf("Vault is %v, want nil", got)
+	// setup tests
+	tests := []struct {
+		failure bool
+		setup   *Setup
+		want    Service
+	}{
+		{
+			failure: false,
+			setup:   _setup,
+			want:    _vault,
+		},
+		{
+			failure: true,
+			setup:   &Setup{Driver: "vault"},
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_, err := test.setup.Vault()
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("Vault should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("Vault returned err: %v", err)
+		}
 	}
 }
 
-func TestSource_Setup_Validate(t *testing.T) {
+func TestSecret_Setup_Validate(t *testing.T) {
 	// setup types
 	_database, err := database.NewTest()
 	if err != nil {

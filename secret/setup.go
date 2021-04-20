@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/secret/native"
+	"github.com/go-vela/server/secret/vault"
 	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
@@ -48,7 +50,12 @@ type Setup struct {
 func (s *Setup) Native() (Service, error) {
 	logrus.Trace("creating native secret client from setup")
 
-	return nil, fmt.Errorf("unsupported secret driver: %s", constants.DriverNative)
+	// create new native secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/secret/native?tab=doc#New
+	return native.New(
+		native.WithDatabase(s.Database),
+	)
 }
 
 // Vault creates and returns a Vela service capable of
@@ -56,7 +63,18 @@ func (s *Setup) Native() (Service, error) {
 func (s *Setup) Vault() (Service, error) {
 	logrus.Trace("creating vault secret client from setup")
 
-	return nil, fmt.Errorf("unsupported secret driver: %s", constants.DriverVault)
+	// create new Vault secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/secret/vault?tab=doc#New
+	return vault.New(
+		vault.WithAddress(s.Address),
+		vault.WithAuthMethod(s.AuthMethod),
+		vault.WithAWSRole(s.AwsRole),
+		vault.WithPrefix(s.Prefix),
+		vault.WithToken(s.Token),
+		vault.WithTokenDuration(s.TokenDuration),
+		vault.WithVersion(s.Version),
+	)
 }
 
 // Validate verifies the necessary fields for the
