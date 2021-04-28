@@ -823,6 +823,11 @@ func UpdateBuild(c *gin.Context) {
 		b.SetError(input.GetError())
 	}
 
+	if input.GetEnqueued() > 0 {
+		// update enqueued if set
+		b.SetEnqueued(input.GetEnqueued())
+	}
+
 	if input.GetStarted() > 0 {
 		// update started if set
 		b.SetStarted(input.GetStarted())
