@@ -22,7 +22,7 @@ workers (
 );
 `
 
-	// CreateWorkersHostnameAddressIndex represents a query to create an
+	// CreateWorkerHostnameAddressIndex represents a query to create an
 	// index on the workers table for the hostname and address columns.
 	CreateWorkerHostnameAddressIndex = `
 CREATE INDEX
