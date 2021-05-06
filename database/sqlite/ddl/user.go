@@ -23,7 +23,7 @@ users (
 );
 `
 
-	// CreateRefreshIndex represents a query to create an
+	// CreateUserRefreshIndex represents a query to create an
 	// index on the users table for the refresh_token column.
 	CreateUserRefreshIndex = `
 CREATE INDEX
