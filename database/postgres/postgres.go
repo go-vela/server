@@ -5,9 +5,9 @@
 package postgres
 
 import (
+	"database/sql"
 	"time"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -72,26 +72,21 @@ func New(opts ...ClientOpt) (*client, error) {
 // This function is intended for running tests only.
 //
 // nolint: golint // ignore returning unexported client
-func NewTest() (*client, error) {
+func NewTest(_sql *sql.DB) (*client, error) {
 	// create new Postgres client
 	c := new(client)
 
 	// create new fields
-	c.config = new(config)
-	c.Postgres = new(gorm.DB)
-
-	// create the new fake SQL database
-	//
-	// https://pkg.go.dev/github.com/DATA-DOG/go-sqlmock#New
-	_sql, _, err := sqlmock.New()
-	if err != nil {
-		return nil, err
+	c.config = &config{
+		CompressionLevel: 3,
+		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 	}
+	c.Postgres = new(gorm.DB)
 
 	// create the new Postgres database client
 	//
 	// https://pkg.go.dev/gorm.io/gorm#Open
-	c.Postgres, err = gorm.Open(postgres.New(postgres.Config{
+	_database, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: _sql,
 	}), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -99,6 +94,8 @@ func NewTest() (*client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	c.Postgres = _database
 
 	return c, nil
 }

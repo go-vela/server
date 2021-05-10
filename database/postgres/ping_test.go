@@ -6,26 +6,40 @@ package postgres
 
 import (
 	"testing"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestPostgres_Client_Ping(t *testing.T) {
-	// setup types
-	_database, err := NewTest()
+	// create the new fake sql database
+	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
+		t.Errorf("unable to create new sql mock database: %v", err)
 	}
-	defer func() {
-		_sql, _ := _database.Postgres.DB()
-		_sql.Close()
-	}()
+	defer _sql.Close()
 
-	_bad, err := NewTest()
+	// ensure the mock expects the ping
+	_mock.ExpectPing()
+
+	// setup the database client
+	_database, err := NewTest(_sql)
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	// close the bad database to simulate failures to ping
-	_sql, _ := _bad.Postgres.DB()
-	_sql.Close()
+
+	// create the new closed fake SQL database
+	_closedSQL, _, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Errorf("unable to create new sql mock database: %v", err)
+	}
+
+	// setup the closed database client
+	_closed, err := NewTest(_closedSQL)
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	// close the fake sql database to simulate failures to ping
+	_closedSQL.Close()
 
 	// setup tests
 	tests := []struct {
@@ -38,7 +52,7 @@ func TestPostgres_Client_Ping(t *testing.T) {
 		},
 		{
 			failure:  true,
-			database: _bad,
+			database: _closed,
 		},
 	}
 
