@@ -33,7 +33,7 @@ func (c *client) GetUserRepoCount(u *library.User) (int64, error) {
 	logrus.Tracef("getting count of repos for user %s in the database", u.GetName())
 
 	// variable to store query results
-	var r []int64
+	var r int64
 
 	// send query to the database and store result in variable
 	err := c.Postgres.
@@ -41,5 +41,5 @@ func (c *client) GetUserRepoCount(u *library.User) (int64, error) {
 		Raw(dml.SelectUserReposCount, u.GetID()).
 		Pluck("count", &r).Error
 
-	return r[0], err
+	return r, err
 }
