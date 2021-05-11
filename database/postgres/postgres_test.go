@@ -5,6 +5,7 @@
 package postgres
 
 import (
+	"database/sql/driver"
 	"testing"
 	"time"
 )
@@ -51,4 +52,17 @@ func TestPostgres_New(t *testing.T) {
 			t.Errorf("New returned err: %v", err)
 		}
 	}
+}
+
+// This will be used with the github.com/DATA-DOG/go-sqlmock
+// library to compare values that are otherwise not easily
+// compared. These typically would be values generated before
+// adding or updating them in the database.
+//
+// https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
+type AnyArgument struct{}
+
+// Match satisfies sqlmock.Argument interface.
+func (a AnyArgument) Match(v driver.Value) bool {
+	return true
 }
