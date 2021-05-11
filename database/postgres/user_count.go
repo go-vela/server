@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetUserCount gets a list of all users from the database.
+// GetUserCount gets a count of all users from the database.
 func (c *client) GetUserCount() (int64, error) {
 	logrus.Trace("getting count of users from the database")
 
