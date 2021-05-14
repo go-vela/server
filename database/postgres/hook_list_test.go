@@ -30,12 +30,12 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -45,12 +45,6 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.ListHooks).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -108,12 +102,12 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -123,12 +117,6 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.ListRepoHooks).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
