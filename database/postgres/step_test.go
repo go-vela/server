@@ -240,46 +240,6 @@ func TestPostgres_Client_DeleteStep(t *testing.T) {
 	}
 }
 
-// testBuild is a test helper function to create a
-// library Build type with all fields set to their
-// zero values.
-func testBuild() *library.Build {
-	i64 := int64(0)
-	i := 0
-	str := ""
-
-	return &library.Build{
-		ID:           &i64,
-		RepoID:       &i64,
-		Number:       &i,
-		Parent:       &i,
-		Event:        &str,
-		Status:       &str,
-		Error:        &str,
-		Enqueued:     &i64,
-		Created:      &i64,
-		Started:      &i64,
-		Finished:     &i64,
-		Deploy:       &str,
-		Clone:        &str,
-		Source:       &str,
-		Title:        &str,
-		Message:      &str,
-		Commit:       &str,
-		Sender:       &str,
-		Author:       &str,
-		Email:        &str,
-		Link:         &str,
-		Branch:       &str,
-		Ref:          &str,
-		BaseRef:      &str,
-		HeadRef:      &str,
-		Host:         &str,
-		Runtime:      &str,
-		Distribution: &str,
-	}
-}
-
 // testStep is a test helper function to create a
 // library Step type with all fields set to their
 // zero values.
