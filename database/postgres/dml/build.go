@@ -17,10 +17,10 @@ FROM builds;
 	ListRepoBuilds = `
 SELECT *
 FROM builds
-WHERE repo_id = $1
+WHERE repo_id = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// ListRepoBuildsByEvent represents a query to select
@@ -29,11 +29,11 @@ OFFSET $3;
 	ListRepoBuildsByEvent = `
 SELECT *
 FROM builds
-WHERE repo_id = $1
-AND event = $2
+WHERE repo_id = ?
+AND event = ?
 ORDER BY number DESC
-LIMIT $3
-OFFSET $4;
+LIMIT ?
+OFFSET ?;
 `
 	// ListOrgBuildsByEvent represents a joined query
 	// between the builds & repos table to select
@@ -43,11 +43,11 @@ OFFSET $4;
 SELECT builds.* 
 FROM builds JOIN repos 
 ON repos.id=builds.repo_id 
-WHERE repos.org = $1
-AND builds.event = $2
+WHERE repos.org = ?
+AND builds.event = ?
 ORDER BY id DESC
-LIMIT $3
-OFFSET $4;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectRepoBuild represents a query to select
@@ -55,8 +55,8 @@ OFFSET $4;
 	SelectRepoBuild = `
 SELECT *
 FROM builds
-WHERE repo_id = $1
-AND number = $2
+WHERE repo_id = ?
+AND number = ?
 LIMIT 1;
 `
 
@@ -65,7 +65,7 @@ LIMIT 1;
 	SelectLastRepoBuild = `
 SELECT *
 FROM builds
-WHERE repo_id = $1
+WHERE repo_id = ?
 ORDER BY number DESC
 LIMIT 1;
 `
@@ -76,10 +76,10 @@ LIMIT 1;
 SELECT builds.*
 FROM builds JOIN repos
 ON repos.id=builds.repo_id 
-WHERE repos.org = $1
+WHERE repos.org = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 		`
 
 	// SelectLastRepoBuildByBranch represents a query to
@@ -88,8 +88,8 @@ OFFSET $3;
 	SelectLastRepoBuildByBranch = `
 SELECT *
 FROM builds
-WHERE repo_id = $1
-AND branch = $2
+WHERE repo_id = ?
+AND branch = ?
 ORDER BY number DESC
 LIMIT 1;
 `
@@ -106,7 +106,7 @@ FROM builds;
 	SelectRepoBuildCount = `
 SELECT count(*) as count
 FROM builds
-WHERE repo_id = $1;
+WHERE repo_id = ?;
 `
 	// SelectOrgBuildCount represents a joined query
 	// between the builds & repos table to select
@@ -115,15 +115,15 @@ WHERE repo_id = $1;
 SELECT count(*) as count
 FROM builds JOIN repos
 ON repos.id = builds.repo_id 
-WHERE repos.org = $1;
+WHERE repos.org = ?;
 `
 	// SelectRepoBuildCountByEvent represents a query to select
 	// the count of builds for by repo and event type in the database.
 	SelectRepoBuildCountByEvent = `
 SELECT count(*) as count
 FROM builds
-WHERE repo_id = $1
-AND event = $2;
+WHERE repo_id = ?
+AND event = ?;
 `
 
 	// SelectOrgBuildCountByEvent represents a joined query
@@ -133,8 +133,8 @@ AND event = $2;
 SELECT count(*) as count
 FROM builds JOIN repos
 ON repos.id = builds.repo_id 
-WHERE repos.org = $1
-AND event = $2;
+WHERE repos.org = ?
+AND event = ?;
 `
 
 	// SelectBuildsCountByStatus represents a query to select
@@ -142,7 +142,7 @@ AND event = $2;
 	SelectBuildsCountByStatus = `
 SELECT count(*) as count
 FROM builds
-WHERE status = $1;
+WHERE status = ?;
 `
 
 	// DeleteBuild represents a query to
@@ -150,7 +150,7 @@ WHERE status = $1;
 	DeleteBuild = `
 DELETE
 FROM builds
-WHERE id = $1;
+WHERE id = ?;
 `
 
 	// SelectPendingAndRunningBuilds represents a joined query
@@ -160,7 +160,7 @@ WHERE id = $1;
 	SelectPendingAndRunningBuilds = `
 SELECT builds.created, builds.number, builds.status, repos.full_name
 FROM builds INNER JOIN repos ON (builds.repo_id = repos.id)
-WHERE builds.created > $1
+WHERE builds.created > ?
 AND builds.status = 'running' or builds.status = 'pending';
 `
 )
