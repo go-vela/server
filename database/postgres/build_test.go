@@ -31,12 +31,12 @@ func TestPostgres_Client_GetBuild(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -45,12 +45,6 @@ func TestPostgres_Client_GetBuild(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.SelectRepoBuild).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -102,12 +96,12 @@ func TestPostgres_Client_GetLastBuild(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -116,12 +110,6 @@ func TestPostgres_Client_GetLastBuild(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.SelectLastRepoBuild).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -173,12 +161,12 @@ func TestPostgres_Client_GetLastBuildByBranch(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -187,12 +175,6 @@ func TestPostgres_Client_GetLastBuildByBranch(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.SelectLastRepoBuildByBranch).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -241,12 +223,12 @@ func TestPostgres_Client_GetPendingAndRunningBuilds(t *testing.T) {
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetStatus("")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"created", "full_name", "number", "status"}).
@@ -255,12 +237,6 @@ func TestPostgres_Client_GetPendingAndRunningBuilds(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.SelectPendingAndRunningBuilds).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -311,12 +287,12 @@ func TestPostgres_Client_CreateBuild(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
@@ -325,12 +301,6 @@ func TestPostgres_Client_CreateBuild(t *testing.T) {
 	_mock.ExpectQuery(`INSERT INTO "builds" ("repo_id","number","parent","event","status","error","enqueued","created","started","finished","deploy","deploy_payload","clone","source","title","message","commit","sender","author","email","link","branch","ref","base_ref","head_ref","host","runtime","distribution","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29) RETURNING "id"`).
 		WithArgs(1, 1, nil, "", "", "", nil, nil, nil, nil, "", AnyArgument{}, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 1).
 		WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -375,23 +345,17 @@ func TestPostgres_Client_UpdateBuild(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "builds" SET "repo_id"=$1,"number"=$2,"parent"=$3,"event"=$4,"status"=$5,"error"=$6,"enqueued"=$7,"created"=$8,"started"=$9,"finished"=$10,"deploy"=$11,"deploy_payload"=$12,"clone"=$13,"source"=$14,"title"=$15,"message"=$16,"commit"=$17,"sender"=$18,"author"=$19,"email"=$20,"link"=$21,"branch"=$22,"ref"=$23,"base_ref"=$24,"head_ref"=$25,"host"=$26,"runtime"=$27,"distribution"=$28 WHERE "id" = $29`).
 		WithArgs(1, 1, nil, "", "", "", nil, nil, nil, nil, "", AnyArgument{}, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -421,21 +385,17 @@ func TestPostgres_Client_UpdateBuild(t *testing.T) {
 }
 
 func TestPostgres_Client_DeleteBuild(t *testing.T) {
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
-	}
-	defer _sql.Close()
+	// setup types
 
-	// ensure the mock expects the query
-	_mock.ExpectExec(dml.DeleteBuild).WillReturnResult(sqlmock.NewResult(1, 1))
-
-	// setup the database client
-	_database, err := NewTest(_sql)
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// ensure the mock expects the query
+	_mock.ExpectExec(dml.DeleteBuild).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
 	tests := []struct {
