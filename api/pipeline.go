@@ -344,7 +344,7 @@ func ExpandPipeline(c *gin.Context) {
 	// check if the pipeline contains stages
 	if len(p.Stages) > 0 {
 		// inject the templates into the stages
-		p.Stages, err = comp.ExpandStages(p.Stages, t)
+		p.Stages, p.Secrets, err = comp.ExpandStages(p, t)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -355,7 +355,7 @@ func ExpandPipeline(c *gin.Context) {
 		}
 	} else {
 		// inject the templates into the steps
-		p.Steps, err = comp.ExpandSteps(p.Steps, t)
+		p.Steps, p.Secrets, err = comp.ExpandSteps(p, t)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -477,7 +477,7 @@ func ValidatePipeline(c *gin.Context) {
 		// check if the pipeline contains stages
 		if len(p.Stages) > 0 {
 			// inject the templates into the stages
-			p.Stages, err = comp.ExpandStages(p.Stages, t)
+			p.Stages, p.Secrets, err = comp.ExpandStages(p, t)
 			if err != nil {
 				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -487,7 +487,7 @@ func ValidatePipeline(c *gin.Context) {
 				return
 			}
 		} else { // inject the templates into the stages
-			p.Steps, err = comp.ExpandSteps(p.Steps, t)
+			p.Steps, p.Secrets, err = comp.ExpandSteps(p, t)
 			if err != nil {
 				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -614,7 +614,7 @@ func CompilePipeline(c *gin.Context) {
 	// check if the pipeline contains stages
 	if len(p.Stages) > 0 {
 		// inject the templates into the stages
-		p.Stages, err = comp.ExpandStages(p.Stages, t)
+		p.Stages, p.Secrets, err = comp.ExpandStages(p, t)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -636,7 +636,7 @@ func CompilePipeline(c *gin.Context) {
 		}
 	} else {
 		// inject the templates into the steps
-		p.Steps, err = comp.ExpandSteps(p.Steps, t)
+		p.Steps, p.Secrets, err = comp.ExpandSteps(p, t)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
