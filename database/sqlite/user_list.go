@@ -14,8 +14,6 @@ import (
 )
 
 // GetUserList gets a list of all users from the database.
-//
-// nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetUserList() ([]*library.User, error) {
 	logrus.Trace("listing users from the database")
 
