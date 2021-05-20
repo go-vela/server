@@ -76,15 +76,19 @@ func NewTest() (*client, error) {
 	c := new(client)
 
 	// create new fields
-	c.config = new(config)
+	c.config = &config{
+		CompressionLevel: 3,
+		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+	}
 	c.Sqlite = new(gorm.DB)
 
 	// create the new Sqlite database client
 	//
 	// https://pkg.go.dev/gorm.io/gorm#Open
-	_sqlite, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
-		SkipDefaultTransaction: true,
-	})
+	_sqlite, err := gorm.Open(
+		sqlite.Open("file::memory:?cache=shared"),
+		&gorm.Config{SkipDefaultTransaction: true},
+	)
 	if err != nil {
 		return nil, err
 	}

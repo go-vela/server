@@ -33,7 +33,7 @@ LIMIT 1;
 	SelectWorkerByAddress = `
 SELECT *
 FROM workers
-WHERE hostname = ?
+WHERE address = ?
 LIMIT 1;
 `
 
