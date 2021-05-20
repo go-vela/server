@@ -5,8 +5,9 @@
 package postgres
 
 import (
-	"database/sql"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -72,7 +73,7 @@ func New(opts ...ClientOpt) (*client, error) {
 // This function is intended for running tests only.
 //
 // nolint: golint // ignore returning unexported client
-func NewTest(_sql *sql.DB) (*client, error) {
+func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// create new Postgres client
 	c := new(client)
 
@@ -83,19 +84,24 @@ func NewTest(_sql *sql.DB) (*client, error) {
 	}
 	c.Postgres = new(gorm.DB)
 
-	// create the new Postgres database client
+	// create the new mock sql database
 	//
-	// https://pkg.go.dev/gorm.io/gorm#Open
-	_database, err := gorm.Open(postgres.New(postgres.Config{
-		Conn: _sql,
-	}), &gorm.Config{
-		SkipDefaultTransaction: true,
-	})
+	// https://pkg.go.dev/github.com/DATA-DOG/go-sqlmock#New
+	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	c.Postgres = _database
+	// create the new mock Postgres database client
+	//
+	// https://pkg.go.dev/gorm.io/gorm#Open
+	c.Postgres, err = gorm.Open(
+		postgres.New(postgres.Config{Conn: _sql}),
+		&gorm.Config{SkipDefaultTransaction: true},
+	)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return c, nil
+	return c, _mock, nil
 }
