@@ -69,6 +69,12 @@ func New(opts ...ClientOpt) (*client, error) {
 	// set the Postgres database client in the Postgres client
 	c.Postgres = _postgres
 
+	// setup database with proper configuration
+	err = setupDatabase(c)
+	if err != nil {
+		return nil, err
+	}
+
 	return c, nil
 }
 
@@ -147,6 +153,12 @@ func setupDatabase(c *client) error {
 
 	// create the tables in the database
 	err = createTables(c)
+	if err != nil {
+		return err
+	}
+
+	// create the indexes in the database
+	err = createIndexes(c)
 	if err != nil {
 		return err
 	}

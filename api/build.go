@@ -362,7 +362,7 @@ func GetBuilds(c *gin.Context) {
 
 	// send API call to capture the list of builds for the repo (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event)
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, event, page, perPage)
 	} else {
 		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	}
@@ -479,7 +479,7 @@ func GetOrgBuilds(c *gin.Context) {
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, page, perPage, event)
+		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, event, page, perPage)
 	} else {
 		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
 	}
@@ -628,8 +628,8 @@ func RestartBuild(c *gin.Context) {
 
 	// update fields in build object
 	b.SetID(0)
-	b.SetParent(b.GetNumber())
-	b.SetNumber((lastBuild.GetNumber() + 1))
+	b.SetNumber(r.GetCounter())
+	b.SetParent(lastBuild.GetNumber())
 	b.SetCreated(time.Now().UTC().Unix())
 	b.SetEnqueued(0)
 	b.SetStarted(0)
@@ -698,6 +698,12 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
+	// update the build numbers based off repo counter
+	inc := r.GetCounter() + 1
+
+	r.SetCounter(inc)
+	b.SetNumber(inc)
+
 	// parse and compile the pipeline configuration file
 	p, err := compiler.FromContext(c).
 		WithBuild(b).
@@ -719,6 +725,15 @@ func RestartBuild(c *gin.Context) {
 	err = planBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	// send API call to update repo for ensuring counter is incremented
+	err = database.FromContext(c).UpdateRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
