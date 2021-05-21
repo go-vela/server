@@ -362,7 +362,7 @@ func GetBuilds(c *gin.Context) {
 
 	// send API call to capture the list of builds for the repo (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, page, perPage, event)
+		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, event, page, perPage)
 	} else {
 		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
 	}
@@ -479,7 +479,7 @@ func GetOrgBuilds(c *gin.Context) {
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, page, perPage, event)
+		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, event, page, perPage)
 	} else {
 		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
 	}
