@@ -32,12 +32,12 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("repo")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -47,12 +47,6 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.ListSecrets).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -105,12 +99,12 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("org")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -120,12 +114,6 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.ListOrgSecrets).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -178,12 +166,12 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("repo")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -193,12 +181,6 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.ListRepoSecrets).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -251,12 +233,12 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
@@ -266,12 +248,6 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(dml.ListSharedSecrets).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
