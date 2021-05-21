@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetWorkerList(t *testing.T) {
@@ -28,27 +30,26 @@ func TestPostgres_Client_GetWorkerList(t *testing.T) {
 	_workerTwo.SetAddress("localhost")
 	_workerTwo.SetActive(true)
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
-	}
-	defer _sql.Close()
-
-	// create expected return in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "hostname", "address", "active", "last_checked_in", "build_limit"},
-	).AddRow(1, "worker_0", "localhost", true, 0, 0).
-		AddRow(2, "worker_1", "localhost", true, 0, 0)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.ListWorkers).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListWorkers).Statement
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows(
+		[]string{"id", "hostname", "address", "routes", "active", "last_checked_in", "build_limit"},
+	).AddRow(1, "worker_0", "localhost", "{}", true, 0, 0).
+		AddRow(2, "worker_1", "localhost", "{}", true, 0, 0)
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

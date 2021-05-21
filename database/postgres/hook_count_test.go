@@ -11,6 +11,8 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetRepoHookCount(t *testing.T) {
@@ -36,24 +38,23 @@ func TestPostgres_Client_GetRepoHookCount(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectRepoHookCount, 1).Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectRepoHookCount).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
