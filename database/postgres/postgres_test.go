@@ -81,6 +81,18 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateUserTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateWorkerTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
+	// ensure the mock expects the index queries
+	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateBuildStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateHookRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateLogBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateRepoOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+
 	tests := []struct {
 		failure bool
 	}{
@@ -150,6 +162,54 @@ func TestPostgres_createTables(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("createTables returned err: %v", err)
+		}
+	}
+}
+
+func TestPostgres_createIndexes(t *testing.T) {
+	// setup types
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// ensure the mock expects the index queries
+	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateBuildStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateHookRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateLogBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateRepoOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	tests := []struct {
+		failure bool
+	}{
+		{
+			failure: false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := createIndexes(_database)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("createIndexes should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("createIndexes returned err: %v", err)
 		}
 	}
 }
