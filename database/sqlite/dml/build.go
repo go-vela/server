@@ -73,11 +73,11 @@ LIMIT 1;
 	ListOrgBuilds = `
 SELECT builds.*
 FROM builds JOIN repos
-ON repos.id=builds.repo_id
-WHERE repos.org = $1
+ON builds.repo_id = repos.id
+WHERE repos.org = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 		`
 
 	// ListOrgBuildsByEvent represents a joined query
@@ -87,12 +87,12 @@ OFFSET $3;
 	ListOrgBuildsByEvent = `
 SELECT builds.* 
 FROM builds JOIN repos 
-ON repos.id=builds.repo_id 
-WHERE repos.org = $1
-AND builds.event = $2
+ON builds.repo_id = repos.id
+WHERE repos.org = ?
+AND builds.event = ?
 ORDER BY id DESC
-LIMIT $3
-OFFSET $4;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectBuildsCount represents a query to select
@@ -108,8 +108,8 @@ FROM builds;
 	SelectOrgBuildCount = `
 SELECT count(*) as count
 FROM builds JOIN repos
-ON repos.id = builds.repo_id 
-WHERE repos.org = $1;
+ON builds.repo_id = repos.id
+WHERE repos.org = ?;
 `
 
 	// SelectOrgBuildCountByEvent represents a joined query
@@ -118,9 +118,9 @@ WHERE repos.org = $1;
 	SelectOrgBuildCountByEvent = `
 SELECT count(*) as count
 FROM builds JOIN repos
-ON repos.id = builds.repo_id 
-WHERE repos.org = $1
-AND event = $2;
+ON builds.repo_id = repos.id
+WHERE repos.org = ?
+AND builds.event = ?;
 `
 
 	// SelectRepoBuildCount represents a query to select
@@ -162,8 +162,9 @@ WHERE id = ?;
 	// since the specified timeframe.
 	SelectPendingAndRunningBuilds = `
 SELECT builds.created, builds.number, builds.status, repos.full_name
-FROM builds INNER JOIN repos ON (builds.repo_id = repos.id)
-WHERE builds.created > $1
-AND builds.status = 'running' or builds.status = 'pending';
+FROM builds INNER JOIN repos
+ON builds.repo_id = repos.id
+WHERE builds.created > ?
+AND (builds.status = 'running' OR builds.status = 'pending');
 `
 )
