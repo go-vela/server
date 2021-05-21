@@ -54,6 +54,45 @@ func TestPostgres_New(t *testing.T) {
 	}
 }
 
+func TestPostgres_setupDatabase(t *testing.T) {
+	// setup types
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// ensure the mock expects the ping
+	_mock.ExpectPing()
+
+	tests := []struct {
+		failure bool
+	}{
+		{
+			failure: false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := setupDatabase(_database)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("setupDatabase should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("setupDatabase returned err: %v", err)
+		}
+	}
+}
+
 // This will be used with the github.com/DATA-DOG/go-sqlmock
 // library to compare values that are otherwise not easily
 // compared. These typically would be values generated before

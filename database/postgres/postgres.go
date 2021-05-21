@@ -80,6 +80,9 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// create new fields
 	c.config = &config{
 		CompressionLevel: 3,
+		ConnectionLife:   30 * time.Minute,
+		ConnectionIdle:   2,
+		ConnectionOpen:   0,
 		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 	}
 	c.Postgres = new(gorm.DB)
@@ -104,4 +107,39 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	}
 
 	return c, _mock, nil
+}
+
+// setupDatabase is a helper function to setup
+// the database with the proper configuration.
+func setupDatabase(c *client) error {
+	// capture database/sql database from gorm database
+	//
+	// https://pkg.go.dev/gorm.io/gorm#DB.DB
+	_sql, err := c.Postgres.DB()
+	if err != nil {
+		return err
+	}
+
+	// set the maximum amount of time a connection may be reused
+	//
+	// https://golang.org/pkg/database/sql/#DB.SetConnMaxLifetime
+	_sql.SetConnMaxLifetime(c.config.ConnectionLife)
+
+	// set the maximum number of connections in the idle connection pool
+	//
+	// https://golang.org/pkg/database/sql/#DB.SetMaxIdleConns
+	_sql.SetMaxIdleConns(c.config.ConnectionIdle)
+
+	// set the maximum number of open connections to the database
+	//
+	// https://golang.org/pkg/database/sql/#DB.SetMaxOpenConns
+	_sql.SetMaxOpenConns(c.config.ConnectionOpen)
+
+	// verify connection to the database
+	err = c.Ping()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
