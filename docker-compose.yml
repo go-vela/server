@@ -37,8 +37,8 @@ services:
       VELA_DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       VELA_LOG_LEVEL: trace
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      VELA_REFRESH_TOKEN_DURATION: 5m
-      VELA_ACCESS_TOKEN_DURATION: 1m
+      VELA_REFRESH_TOKEN_DURATION: 90m
+      VELA_ACCESS_TOKEN_DURATION: 60m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
     env_file:
@@ -95,6 +95,8 @@ services:
       - vela
     env_file:
       - .env
+    environment:
+      VELA_API: http://localhost:8080
     restart: always
     ports:
       - '8888:80'
