@@ -218,8 +218,8 @@ github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88/go.mod h1:AcS5
 github.com/go-vela/sdk-go v0.7.4 h1:OXUR8LZzO8kBmNY3yRuFojcmjWaMoK1s2q5iIpu5vhg=
 github.com/go-vela/sdk-go v0.7.4/go.mod h1:I1K3LpWOnfsJUhHXJf7DpwR9zVz4h65hRXzQ5IOxPuo=
 github.com/go-vela/types v0.7.4/go.mod h1:/IsyxCijlz8BArRxBfrfRv7BBe/hmJGtVWegkS3ooJU=
-github.com/go-vela/types v0.7.5-0.20210520185150-62027576a4ad h1:SAEQdnOTQegVClpCixxe6Qnt8EKntA0cNbTI7s9VF1k=
-github.com/go-vela/types v0.7.5-0.20210520185150-62027576a4ad/go.mod h1:tKk+FpEAv+BTMr9CL3Wed6tMy5IqyOCJpRTKZI88yDc=
+github.com/go-vela/types v0.7.5-0.20210521155017-06ba0f90957f h1:pvPunMXTX+2b1rgheyE+wT34WfHJJ7C5J4MRdeGTbDw=
+github.com/go-vela/types v0.7.5-0.20210521155017-06ba0f90957f/go.mod h1:tKk+FpEAv+BTMr9CL3Wed6tMy5IqyOCJpRTKZI88yDc=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
@@ -843,8 +843,8 @@ golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4Iltr
 golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20210220000619-9bb904979d93/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
-golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c h1:SgVl/sCtkicsS7psKkje4H9YtjdEl3xsYh7N+5TDHqY=
-golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
+golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c h1:pkQiBZBvdos9qq4wBAHqlzuZHEXo07pqV06ef90u1WI=
+golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
