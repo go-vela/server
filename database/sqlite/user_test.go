@@ -2,21 +2,33 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package postgres
+package sqlite
 
 import (
+	"log"
 	"reflect"
 	"testing"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/go-vela/server/database/postgres/dml"
+	"github.com/go-vela/server/database/sqlite/ddl"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"gorm.io/gorm"
 )
 
-func TestPostgres_Client_GetUser(t *testing.T) {
+func init() {
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		log.Fatalf("unable to create new sqlite test database: %v", err)
+	}
+
+	// create the user table
+	err = _database.Sqlite.Exec(ddl.CreateUserTable).Error
+	if err != nil {
+		log.Fatalf("unable to create %s table: %v", constants.TableUser, err)
+	}
+}
+
+func TestSqlite_Client_GetUser(t *testing.T) {
 	// setup types
 	_user := testUser()
 	_user.SetID(1)
@@ -25,24 +37,11 @@ func TestPostgres_Client_GetUser(t *testing.T) {
 	_user.SetHash("baz")
 
 	// setup the test database client
-	_database, _mock, err := NewTest()
+	_database, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
+		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// capture the current expected SQL query
-	//
-	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectUser, 1).Statement
-
-	// create expected return in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin"},
-	).AddRow(1, "foo", "", "bar", "baz", "{}", false, false)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
 	tests := []struct {
@@ -57,6 +56,15 @@ func TestPostgres_Client_GetUser(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
+		// defer cleanup of the users table
+		defer _database.Sqlite.Exec("delete from users;")
+
+		// create the user in the database
+		err := _database.CreateUser(test.want)
+		if err != nil {
+			t.Errorf("unable to create test user: %v", err)
+		}
+
 		got, err := _database.GetUser(1)
 
 		if test.failure {
@@ -77,7 +85,7 @@ func TestPostgres_Client_GetUser(t *testing.T) {
 	}
 }
 
-func TestPostgres_Client_CreateUser(t *testing.T) {
+func TestSqlite_Client_CreateUser(t *testing.T) {
 	// setup types
 	_user := testUser()
 	_user.SetID(1)
@@ -86,19 +94,11 @@ func TestPostgres_Client_CreateUser(t *testing.T) {
 	_user.SetHash("baz")
 
 	// setup the test database client
-	_database, _mock, err := NewTest()
+	_database, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
+		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// create expected return in mock
-	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "users" ("name","refresh_token","token","hash","favorites","active","admin","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, "{}", false, false, 1).
-		WillReturnRows(_rows)
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
 	tests := []struct {
@@ -111,6 +111,9 @@ func TestPostgres_Client_CreateUser(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
+		// defer cleanup of the users table
+		defer _database.Sqlite.Exec("delete from users;")
+
 		err := _database.CreateUser(_user)
 
 		if test.failure {
@@ -127,7 +130,7 @@ func TestPostgres_Client_CreateUser(t *testing.T) {
 	}
 }
 
-func TestPostgres_Client_UpdateUser(t *testing.T) {
+func TestSqlite_Client_UpdateUser(t *testing.T) {
 	// setup types
 	_user := testUser()
 	_user.SetID(1)
@@ -136,16 +139,11 @@ func TestPostgres_Client_UpdateUser(t *testing.T) {
 	_user.SetHash("baz")
 
 	// setup the test database client
-	_database, _mock, err := NewTest()
+	_database, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
+		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "users" SET "name"=$1,"refresh_token"=$2,"token"=$3,"hash"=$4,"favorites"=$5,"active"=$6,"admin"=$7 WHERE "id" = $8`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, "{}", false, false, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
 	tests := []struct {
@@ -158,7 +156,16 @@ func TestPostgres_Client_UpdateUser(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.UpdateUser(_user)
+		// defer cleanup of the users table
+		defer _database.Sqlite.Exec("delete from users;")
+
+		// create the user in the database
+		err := _database.CreateUser(_user)
+		if err != nil {
+			t.Errorf("unable to create test user: %v", err)
+		}
+
+		err = _database.UpdateUser(_user)
 
 		if test.failure {
 			if err == nil {
@@ -174,23 +181,20 @@ func TestPostgres_Client_UpdateUser(t *testing.T) {
 	}
 }
 
-func TestPostgres_Client_DeleteUser(t *testing.T) {
+func TestSqlite_Client_DeleteUser(t *testing.T) {
 	// setup types
+	_user := testUser()
+	_user.SetID(1)
+	_user.SetName("foo")
+	_user.SetToken("bar")
+	_user.SetHash("baz")
 
 	// setup the test database client
-	_database, _mock, err := NewTest()
+	_database, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
+		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// capture the current expected SQL query
-	//
-	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Exec(dml.DeleteUser, 1).Statement
-
-	// ensure the mock expects the query
-	_mock.ExpectExec(_query.SQL.String()).WillReturnResult(sqlmock.NewResult(1, 1))
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
 	tests := []struct {
@@ -203,7 +207,16 @@ func TestPostgres_Client_DeleteUser(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.DeleteUser(1)
+		// defer cleanup of the users table
+		defer _database.Sqlite.Exec("delete from users;")
+
+		// create the user in the database
+		err := _database.CreateUser(_user)
+		if err != nil {
+			t.Errorf("unable to create test user: %v", err)
+		}
+
+		err = _database.DeleteUser(1)
 
 		if test.failure {
 			if err == nil {
@@ -225,8 +238,8 @@ func TestPostgres_Client_DeleteUser(t *testing.T) {
 func testUser() *library.User {
 	i64 := int64(0)
 	str := ""
-	arr := []string{}
 	b := false
+	var arr []string
 
 	return &library.User{
 		ID:           &i64,

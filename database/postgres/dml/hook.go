@@ -17,10 +17,10 @@ FROM hooks;
 	ListRepoHooks = `
 SELECT *
 FROM hooks
-WHERE repo_id = $1
+WHERE repo_id = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectRepoHookCount represents a query to select
@@ -28,7 +28,7 @@ OFFSET $3;
 	SelectRepoHookCount = `
 SELECT count(*) as count
 FROM hooks
-WHERE repo_id = $1;
+WHERE repo_id = ?;
 `
 
 	// SelectRepoHook represents a query to select
@@ -36,8 +36,8 @@ WHERE repo_id = $1;
 	SelectRepoHook = `
 SELECT *
 FROM hooks
-WHERE repo_id = $1
-AND number = $2
+WHERE repo_id = ?
+AND number = ?
 LIMIT 1;
 `
 
@@ -46,7 +46,7 @@ LIMIT 1;
 	SelectLastRepoHook = `
 SELECT *
 FROM hooks
-WHERE repo_id = $1
+WHERE repo_id = ?
 ORDER BY number DESC
 LIMIT 1;
 `
@@ -56,6 +56,6 @@ LIMIT 1;
 	DeleteHook = `
 DELETE
 FROM hooks
-WHERE id = $1;
+WHERE id = ?;
 `
 )
