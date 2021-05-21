@@ -50,9 +50,9 @@ func TestPostgres_Client_GetRepoList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
-	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, "public", false, false, false, false, false, false, false, false).
-		AddRow(1, 1, "baz", "bar", "foo", "bar/foo", "", "", "", 0, "public", false, false, false, false, false, false, false, false)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
+	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false).
+		AddRow(1, 1, "baz", "bar", "foo", "bar/foo", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -124,9 +124,9 @@ func TestPostgres_Client_GetOrgRepoList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
-	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, "public", false, false, false, false, false, false, false, false).
-		AddRow(1, 1, "baz", "foo", "baz", "foo/baz", "", "", "", 0, "public", false, false, false, false, false, false, false, false)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
+	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false).
+		AddRow(1, 1, "baz", "foo", "baz", "foo/baz", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -203,9 +203,9 @@ func TestPostgres_Client_GetUserRepoList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
-	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, "public", false, false, false, false, false, false, false, false).
-		AddRow(1, 1, "baz", "bar", "foo", "bar/foo", "", "", "", 0, "public", false, false, false, false, false, false, false, false)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
+	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false).
+		AddRow(1, 1, "baz", "bar", "foo", "bar/foo", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
