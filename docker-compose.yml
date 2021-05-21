@@ -108,7 +108,7 @@ services:
   # https://redis.io/
   redis:
     container_name: redis
-    image: redis:5-alpine
+    image: redis:6-alpine
     networks:
       - vela
     ports:
