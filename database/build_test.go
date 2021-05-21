@@ -468,7 +468,7 @@ func TestDatabase_Client_GetRepoBuildListByEvent(t *testing.T) {
 	_ = database.CreateBuild(bThree)
 
 	// run test
-	got, gotCount, err := database.GetRepoBuildListByEvent(r, 1, 1, "push")
+	got, gotCount, err := database.GetRepoBuildListByEvent(r, "push", 1, 1)
 
 	if err != nil {
 		t.Errorf("GetRepoBuildListByEvent returned err: %v", err)
@@ -520,7 +520,7 @@ func TestDatabase_Client_GetRepoBuildListByEvent_No_Results(t *testing.T) {
 	_ = database.CreateBuild(bTwo)
 
 	// run test
-	got, gotCount, err := database.GetRepoBuildListByEvent(r, 1, 1, "tag")
+	got, gotCount, err := database.GetRepoBuildListByEvent(r, "tag", 1, 1)
 
 	if err != nil {
 		t.Errorf("GetRepoBuildListByEvent returned err: %v", err)
@@ -817,7 +817,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent(t *testing.T) {
 	_ = database.CreateBuild(bThree)
 
 	// run test
-	got, gotCount, err := database.GetOrgBuildListByEvent(r.GetOrg(), 1, 1, "push")
+	got, gotCount, err := database.GetOrgBuildListByEvent(r.GetOrg(), "push", 1, 1)
 
 	if err != nil {
 		t.Errorf("GetOrgBuildListByEvent returned err: %v", err)
@@ -881,7 +881,7 @@ func TestDatabase_Client_GetOrgBuildListByEvent_No_Results(t *testing.T) {
 	_ = database.CreateBuild(bTwo)
 
 	// run test
-	got, gotCount, err := database.GetOrgBuildListByEvent(r.GetOrg(), 1, 1, "tag")
+	got, gotCount, err := database.GetOrgBuildListByEvent(r.GetOrg(), "tag", 1, 1)
 
 	if err != nil {
 		t.Errorf("GetOrgBuildListByEvent returned err: %v", err)
