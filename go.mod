@@ -12,7 +12,7 @@ require (
 	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/assert/v2 v2.0.1
-	github.com/go-vela/compiler v0.7.4
+	github.com/go-vela/compiler v0.7.5-0.20210521195443-f4c4fc1bacff
 	github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88
 	github.com/go-vela/types v0.7.5-0.20210521155017-06ba0f90957f
 	github.com/google/go-cmp v0.5.5
