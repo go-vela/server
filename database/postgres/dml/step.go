@@ -17,10 +17,10 @@ FROM steps;
 	ListBuildSteps = `
 SELECT *
 FROM steps
-WHERE build_id = $1
+WHERE build_id = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectBuildStepsCount represents a query to select
@@ -28,7 +28,7 @@ OFFSET $3;
 	SelectBuildStepsCount = `
 SELECT count(*) as count
 FROM steps
-WHERE build_id = $1
+WHERE build_id = ?
 `
 
 	// SelectStepImagesCount represents a query to select
@@ -52,8 +52,8 @@ GROUP BY status;
 	SelectBuildStep = `
 SELECT *
 FROM steps
-WHERE build_id = $1
-AND number = $2
+WHERE build_id = ?
+AND number = ?
 LIMIT 1;
 `
 
@@ -62,6 +62,6 @@ LIMIT 1;
 	DeleteStep = `
 DELETE
 FROM steps
-WHERE id = $1;
+WHERE id = ?;
 `
 )

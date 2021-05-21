@@ -22,10 +22,10 @@ FROM secrets;
 SELECT *
 FROM secrets
 WHERE type = 'org'
-AND org = $1
+AND org = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// ListRepoSecrets represents a query to list all
@@ -36,11 +36,11 @@ OFFSET $3;
 SELECT *
 FROM secrets
 WHERE type = 'repo'
-AND org = $1
-AND repo = $2
+AND org = ?
+AND repo = ?
 ORDER BY id DESC
-LIMIT $3
-OFFSET $4;
+LIMIT ?
+OFFSET ?;
 `
 
 	// ListSharedSecrets represents a query to list all
@@ -51,11 +51,11 @@ OFFSET $4;
 SELECT *
 FROM secrets
 WHERE type = 'shared'
-AND org = $1
-AND team = $2
+AND org = ?
+AND team = ?
 ORDER BY id DESC
-LIMIT $3
-OFFSET $4;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectOrgSecretsCount represents a query to select the
@@ -66,7 +66,7 @@ OFFSET $4;
 SELECT count(*) as count
 FROM secrets
 WHERE type = 'org'
-AND org = $1;
+AND org = ?;
 `
 
 	// SelectRepoSecretsCount represents a query to select the
@@ -77,8 +77,8 @@ AND org = $1;
 SELECT count(*) as count
 FROM secrets
 WHERE type = 'repo'
-AND org = $1
-AND repo = $2;
+AND org = ?
+AND repo = ?;
 `
 
 	// SelectSharedSecretsCount represents a query to select the
@@ -89,8 +89,8 @@ AND repo = $2;
 SELECT count(*) as count
 FROM secrets
 WHERE type = 'shared'
-AND org = $1
-AND team = $2;
+AND org = ?
+AND team = ?;
 `
 
 	// SelectOrgSecret represents a query to select a
@@ -101,8 +101,8 @@ AND team = $2;
 SELECT *
 FROM secrets
 WHERE type = 'org'
-AND org = $1
-AND name = $2
+AND org = ?
+AND name = ?
 LIMIT 1;
 `
 
@@ -114,9 +114,9 @@ LIMIT 1;
 SELECT *
 FROM secrets
 WHERE type = 'repo'
-AND org = $1
-AND repo = $2
-AND name = $3
+AND org = ?
+AND repo = ?
+AND name = ?
 LIMIT 1;
 `
 
@@ -128,9 +128,9 @@ LIMIT 1;
 SELECT *
 FROM secrets
 WHERE type = 'shared'
-AND org = $1
-AND team = $2
-AND name = $3
+AND org = ?
+AND team = ?
+AND name = ?
 LIMIT 1;
 `
 
@@ -141,6 +141,6 @@ LIMIT 1;
 	DeleteSecret = `
 DELETE
 FROM secrets
-WHERE id = $1;
+WHERE id = ?;
 `
 )

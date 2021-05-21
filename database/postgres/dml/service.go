@@ -17,10 +17,10 @@ FROM services;
 	ListBuildServices = `
 SELECT *
 FROM services
-WHERE build_id = $1
+WHERE build_id = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectBuildServicesCount represents a query to select
@@ -28,7 +28,7 @@ OFFSET $3;
 	SelectBuildServicesCount = `
 SELECT count(*) as count
 FROM services
-WHERE build_id = $1
+WHERE build_id = ?
 `
 
 	// SelectServiceImagesCount represents a query to select
@@ -52,8 +52,8 @@ GROUP BY status;
 	SelectBuildService = `
 SELECT *
 FROM services
-WHERE build_id = $1
-AND number = $2
+WHERE build_id = ?
+AND number = ?
 LIMIT 1;
 `
 
@@ -62,6 +62,6 @@ LIMIT 1;
 	DeleteService = `
 DELETE
 FROM services
-WHERE id = $1;
+WHERE id = ?;
 `
 )
