@@ -5,9 +5,13 @@
 package postgres
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/postgres/ddl"
+	"github.com/go-vela/types/constants"
+	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -139,6 +143,74 @@ func setupDatabase(c *client) error {
 	err = c.Ping()
 	if err != nil {
 		return err
+	}
+
+	// create the tables in the database
+	err = createTables(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// createTables is a helper function to setup
+// the database with the necessary tables.
+func createTables(c *client) error {
+	logrus.Trace("creating data tables in the postgres database")
+
+	// create the builds table
+	err := c.Postgres.Exec(ddl.CreateBuildTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableBuild, err)
+	}
+
+	// create the hooks table
+	err = c.Postgres.Exec(ddl.CreateHookTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableHook, err)
+	}
+
+	// create the logs table
+	err = c.Postgres.Exec(ddl.CreateLogTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableLog, err)
+	}
+
+	// create the repos table
+	err = c.Postgres.Exec(ddl.CreateRepoTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableRepo, err)
+	}
+
+	// create the secrets table
+	err = c.Postgres.Exec(ddl.CreateSecretTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableSecret, err)
+	}
+
+	// create the services table
+	err = c.Postgres.Exec(ddl.CreateServiceTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableService, err)
+	}
+
+	// create the steps table
+	err = c.Postgres.Exec(ddl.CreateStepTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableStep, err)
+	}
+
+	// create the users table
+	err = c.Postgres.Exec(ddl.CreateUserTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableUser, err)
+	}
+
+	// create the workers table
+	err = c.Postgres.Exec(ddl.CreateWorkerTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TableWorker, err)
 	}
 
 	return nil

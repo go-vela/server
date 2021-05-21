@@ -8,6 +8,9 @@ import (
 	"database/sql/driver"
 	"testing"
 	"time"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/postgres/ddl"
 )
 
 func TestPostgres_New(t *testing.T) {
@@ -67,6 +70,17 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	// ensure the mock expects the ping
 	_mock.ExpectPing()
 
+	// ensure the mock expects the table queries
+	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateHookTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateLogTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateRepoTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateServiceTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateStepTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateUserTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateWorkerTable).WillReturnResult(sqlmock.NewResult(1, 1))
+
 	tests := []struct {
 		failure bool
 	}{
@@ -89,6 +103,53 @@ func TestPostgres_setupDatabase(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("setupDatabase returned err: %v", err)
+		}
+	}
+}
+
+func TestPostgres_createTables(t *testing.T) {
+	// setup types
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// ensure the mock expects the table queries
+	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateHookTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateLogTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateRepoTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateSecretTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateServiceTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateStepTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateUserTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateWorkerTable).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	tests := []struct {
+		failure bool
+	}{
+		{
+			failure: false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := createTables(_database)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("createTables should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("createTables returned err: %v", err)
 		}
 	}
 }
