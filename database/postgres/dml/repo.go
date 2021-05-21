@@ -17,10 +17,10 @@ FROM repos;
 	ListUserRepos = `
 SELECT *
 FROM repos
-WHERE user_id = $1
+WHERE user_id = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// ListOrgRepos represents a query to list
@@ -28,10 +28,10 @@ OFFSET $3;
 	ListOrgRepos = `
 SELECT *
 FROM repos
-WHERE org = $1
+WHERE org = ?
 ORDER BY id DESC
-LIMIT $2
-OFFSET $3;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectRepo represents a query to select a
@@ -39,8 +39,8 @@ OFFSET $3;
 	SelectRepo = `
 SELECT *
 FROM repos
-WHERE org = $1
-AND name = $2
+WHERE org = ?
+AND name = ?
 LIMIT 1;
 `
 
@@ -49,7 +49,7 @@ LIMIT 1;
 	SelectUserReposCount = `
 SELECT count(*) as count
 FROM repos
-WHERE user_id = $1;
+WHERE user_id = ?;
 `
 
 	// SelectReposCount represents a query to select
@@ -64,6 +64,6 @@ FROM repos;
 	DeleteRepo = `
 DELETE
 FROM repos
-WHERE id = $1;
+WHERE id = ?;
 `
 )

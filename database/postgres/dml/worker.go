@@ -24,7 +24,7 @@ FROM workers;
 	SelectWorker = `
 SELECT *
 FROM workers
-WHERE hostname = $1
+WHERE hostname = ?
 LIMIT 1;
 `
 
@@ -33,7 +33,7 @@ LIMIT 1;
 	SelectWorkerByAddress = `
 SELECT *
 FROM workers
-WHERE address = $1
+WHERE address = ?
 LIMIT 1;
 `
 
@@ -42,6 +42,6 @@ LIMIT 1;
 	DeleteWorker = `
 DELETE
 FROM workers
-WHERE id = $1;
+WHERE id = ?;
 `
 )
