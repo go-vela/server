@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetRepoCount(t *testing.T) {
@@ -41,11 +43,16 @@ func TestPostgres_Client_GetRepoCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectReposCount).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectReposCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -112,11 +119,16 @@ func TestPostgres_Client_GetUserRepoCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectUserReposCount, 1).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectUserReposCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

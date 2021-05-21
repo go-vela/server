@@ -17,7 +17,7 @@ FROM logs;
 	ListBuildLogs = `
 SELECT *
 FROM logs
-WHERE build_id = $1
+WHERE build_id = ?
 ORDER BY step_id ASC;
 `
 
@@ -26,7 +26,7 @@ ORDER BY step_id ASC;
 	SelectStepLog = `
 SELECT *
 FROM logs
-WHERE step_id = $1
+WHERE step_id = ?
 LIMIT 1;
 `
 
@@ -35,7 +35,7 @@ LIMIT 1;
 	SelectServiceLog = `
 SELECT *
 FROM logs
-WHERE service_id = $1
+WHERE service_id = ?
 LIMIT 1;
 `
 
@@ -44,6 +44,6 @@ LIMIT 1;
 	DeleteLog = `
 DELETE
 FROM logs
-WHERE id = $1;
+WHERE id = ?;
 `
 )

@@ -11,6 +11,8 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetBuildServiceCount(t *testing.T) {
@@ -27,11 +29,16 @@ func TestPostgres_Client_GetBuildServiceCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectBuildServicesCount, 1).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectBuildServicesCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -76,11 +83,16 @@ func TestPostgres_Client_GetServiceImageCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectServiceImagesCount).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"image", "count"}).AddRow("foo", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectServiceImagesCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -125,6 +137,11 @@ func TestPostgres_Client_GetServiceStatusCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectServiceStatusesCount).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"status", "count"}).
 		AddRow("failure", 0).
@@ -134,7 +151,7 @@ func TestPostgres_Client_GetServiceStatusCount(t *testing.T) {
 		AddRow("success", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectServiceStatusesCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

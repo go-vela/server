@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetStep(t *testing.T) {
@@ -36,13 +38,18 @@ func TestPostgres_Client_GetStep(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectBuildStep, 1, 1).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"},
 	).AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectBuildStep).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -188,8 +195,13 @@ func TestPostgres_Client_DeleteStep(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Exec(dml.DeleteStep, 1).Statement
+
 	// ensure the mock expects the query
-	_mock.ExpectExec(dml.DeleteStep).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(_query.SQL.String()).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
 	tests := []struct {

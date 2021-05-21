@@ -11,6 +11,8 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetBuildCount(t *testing.T) {
@@ -34,11 +36,16 @@ func TestPostgres_Client_GetBuildCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectBuildsCount).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectBuildsCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -94,11 +101,16 @@ func TestPostgres_Client_GetBuildCountByStatus(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectBuildsCountByStatus, "running").Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectBuildsCountByStatus).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -154,11 +166,16 @@ func TestPostgres_Client_GetOrgBuildCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCount, "foo").Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectOrgBuildCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -214,11 +231,16 @@ func TestPostgres_Client_GetOrgBuildCountByEvent(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCountByEvent, "foo", "push").Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectOrgBuildCountByEvent).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -283,11 +305,16 @@ func TestPostgres_Client_GetRepoBuildCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectRepoBuildCount, 1).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectRepoBuildCount).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -352,11 +379,16 @@ func TestPostgres_Client_GetRepoBuildCountByEvent(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectRepoBuildCountByEvent, 1, "push").Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectRepoBuildCountByEvent).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
