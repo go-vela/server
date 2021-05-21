@@ -218,8 +218,8 @@ github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88/go.mod h1:AcS5
 github.com/go-vela/sdk-go v0.7.4 h1:OXUR8LZzO8kBmNY3yRuFojcmjWaMoK1s2q5iIpu5vhg=
 github.com/go-vela/sdk-go v0.7.4/go.mod h1:I1K3LpWOnfsJUhHXJf7DpwR9zVz4h65hRXzQ5IOxPuo=
 github.com/go-vela/types v0.7.4/go.mod h1:/IsyxCijlz8BArRxBfrfRv7BBe/hmJGtVWegkS3ooJU=
-github.com/go-vela/types v0.7.5-0.20210520185150-62027576a4ad h1:SAEQdnOTQegVClpCixxe6Qnt8EKntA0cNbTI7s9VF1k=
-github.com/go-vela/types v0.7.5-0.20210520185150-62027576a4ad/go.mod h1:tKk+FpEAv+BTMr9CL3Wed6tMy5IqyOCJpRTKZI88yDc=
+github.com/go-vela/types v0.7.5-0.20210521155017-06ba0f90957f h1:pvPunMXTX+2b1rgheyE+wT34WfHJJ7C5J4MRdeGTbDw=
+github.com/go-vela/types v0.7.5-0.20210521155017-06ba0f90957f/go.mod h1:tKk+FpEAv+BTMr9CL3Wed6tMy5IqyOCJpRTKZI88yDc=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=

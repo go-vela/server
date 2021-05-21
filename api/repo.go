@@ -480,6 +480,19 @@ func UpdateRepo(c *gin.Context) {
 		)
 	}
 
+	if input.GetCounter() > 0 {
+		if input.GetCounter() <= r.GetCounter() {
+			retErr := fmt.Errorf("unable to set counter for repo %s: must be greater than current %d",
+				r.GetFullName(), r.GetCounter())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		r.SetCounter(input.GetCounter())
+	}
+
 	if len(input.GetVisibility()) > 0 {
 		// update visibility if set
 		r.SetVisibility(input.GetVisibility())
