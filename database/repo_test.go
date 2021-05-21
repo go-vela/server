@@ -489,6 +489,7 @@ func TestDatabase_Client_DeleteRepo(t *testing.T) {
 // zero values.
 func testRepo() *library.Repo {
 	i64 := int64(0)
+	i := 0
 	str := ""
 	b := false
 
@@ -503,6 +504,7 @@ func testRepo() *library.Repo {
 		Clone:        &str,
 		Branch:       &str,
 		Timeout:      &i64,
+		Counter:      &i,
 		Visibility:   &str,
 		Private:      &b,
 		Trusted:      &b,

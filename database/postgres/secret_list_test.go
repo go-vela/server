@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetSecretList(t *testing.T) {
@@ -39,14 +41,19 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListSecrets).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false).
-		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", nil, nil, false)
+	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false).
+		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.ListSecrets).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -106,14 +113,19 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListOrgSecrets, "foo", 1, 10).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, nil, false).
-		AddRow(1, "org", "foo", "*", "", "bar", "baz", nil, nil, false)
+	).AddRow(1, "org", "foo", "*", "", "baz", "bar", "{}", "{}", false).
+		AddRow(1, "org", "foo", "*", "", "bar", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.ListOrgSecrets).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -173,14 +185,19 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListRepoSecrets, "foo", "bar", 1, 10).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false).
-		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", nil, nil, false)
+	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false).
+		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.ListRepoSecrets).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -240,14 +257,19 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListSharedSecrets, "foo", "bar", 1, 10).Statement
+
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, nil, false).
-		AddRow(1, "shared", "foo", "", "bar", "foob", "baz", nil, nil, false)
+	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false).
+		AddRow(1, "shared", "foo", "", "bar", "foob", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.ListSharedSecrets).WillReturnRows(_rows)
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
