@@ -18,8 +18,8 @@ FROM users;
 SELECT id, name
 FROM users
 ORDER BY id DESC
-LIMIT $1
-OFFSET $2;
+LIMIT ?
+OFFSET ?;
 `
 
 	// SelectUser represents a query to select
@@ -27,7 +27,7 @@ OFFSET $2;
 	SelectUser = `
 SELECT *
 FROM users
-WHERE id = $1
+WHERE id = ?
 LIMIT 1;
 `
 
@@ -36,7 +36,7 @@ LIMIT 1;
 	SelectUserName = `
 SELECT *
 FROM users
-WHERE name = $1
+WHERE name = ?
 LIMIT 1;
 `
 
@@ -54,7 +54,7 @@ FROM users;
 	SelectRefreshToken = `
 SELECT *
 FROM users
-WHERE refresh_token = $1
+WHERE refresh_token = ?
 LIMIT 1;
 `
 
@@ -63,6 +63,6 @@ LIMIT 1;
 	DeleteUser = `
 DELETE
 FROM users
-WHERE id = $1;
+WHERE id = ?;
 `
 )
