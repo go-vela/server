@@ -16,12 +16,11 @@ require (
 	github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88
 	github.com/go-vela/types v0.7.5-0.20210420162750-7f45a4dc1d08
 	github.com/google/go-cmp v0.5.5
-	github.com/google/go-github/v35 v35.1.0
+	github.com/google/go-github/v35 v35.2.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
-	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
@@ -34,7 +33,7 @@ require (
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
-	gorm.io/driver/postgres v1.0.8
+	gorm.io/driver/postgres v1.1.0
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.10
 )
