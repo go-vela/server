@@ -14,6 +14,8 @@ import (
 )
 
 // GetRepoList gets a list of all repos from the database.
+//
+// nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetRepoList() ([]*library.Repo, error) {
 	logrus.Trace("listing repos from the database")
 
