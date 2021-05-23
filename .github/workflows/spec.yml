@@ -1,0 +1,33 @@
+# name of the action
+name: spec
+
+# trigger on release events
+on:
+  release:
+    types: [ created ]
+
+# pipeline to execute
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.15
+    steps:
+    - name: clone
+      uses: actions/checkout@v2
+
+    - name: tags
+      run: |
+        git fetch --tags
+
+    - name: create spec
+      run: |
+        make spec-install
+        make spec
+
+    - name: upload spec
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: 'api-spec.json'
