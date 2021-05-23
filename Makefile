@@ -289,7 +289,7 @@ spec-gen:
 
 # The `spec-version-update` target is intended to update
 # the api-spec version in the generated api-spec
-# using the latest Github tag available.
+# using the latest git tag.
 #
 # Usage: `make spec-version-update`
 .PHONY: spec-version-update
