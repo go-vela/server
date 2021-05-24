@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
+
+	"gorm.io/gorm"
 )
 
 func TestPostgres_Client_GetSecret_Org(t *testing.T) {
@@ -24,26 +26,25 @@ func TestPostgres_Client_GetSecret_Org(t *testing.T) {
 	_secret.SetValue("baz")
 	_secret.SetType("org")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgSecret, "foo", "bar").Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "org", "foo", "*", "", "bar", "baz", nil, nil, false)
+	).AddRow(1, "org", "foo", "*", "", "bar", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectOrgSecret).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -89,26 +90,25 @@ func TestPostgres_Client_GetSecret_Repo(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectRepoSecret, "foo", "bar", "baz").Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false)
+	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectRepoSecret).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -154,26 +154,25 @@ func TestPostgres_Client_GetSecret_Shared(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("shared")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectSharedSecret, "foo", "bar", "baz").Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
-	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, nil, false)
+	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(dml.SelectSharedSecret).WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -219,26 +218,20 @@ func TestPostgres_Client_CreateSecret(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
+		t.Errorf("unable to create new postgres test database: %v", err)
 	}
-	defer _sql.Close()
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "secrets" ("org","repo","team","name","value","type","allow_command","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
-		WithArgs("foo", "bar", "", "baz", AnyArgument{}, "repo", false, 1).
+	_mock.ExpectQuery(`INSERT INTO "secrets" ("org","repo","team","name","value","type","images","events","allow_command","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
+		WithArgs("foo", "bar", "", "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
 		WillReturnRows(_rows)
-
-	// setup the database client
-	_database, err := NewTest(_sql)
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
@@ -277,23 +270,17 @@ func TestPostgres_Client_UpdateSecret(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
-	}
-	defer _sql.Close()
-
-	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "secrets" SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"allow_command"=$7 WHERE "id" = $8`).
-		WithArgs("foo", "bar", "", "baz", AnyArgument{}, "repo", false, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
-	// setup the database client
-	_database, err := NewTest(_sql)
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// ensure the mock expects the query
+	_mock.ExpectExec(`UPDATE "secrets" SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"events"=$8,"allow_command"=$9 WHERE "id" = $10`).
+		WithArgs("foo", "bar", "", "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
 	tests := []struct {
@@ -323,21 +310,22 @@ func TestPostgres_Client_UpdateSecret(t *testing.T) {
 }
 
 func TestPostgres_Client_DeleteSecret(t *testing.T) {
-	// create the new fake sql database
-	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	if err != nil {
-		t.Errorf("unable to create new sql mock database: %v", err)
-	}
-	defer _sql.Close()
+	// setup types
 
-	// ensure the mock expects the query
-	_mock.ExpectExec(dml.DeleteSecret).WillReturnResult(sqlmock.NewResult(1, 1))
-
-	// setup the database client
-	_database, err := NewTest(_sql)
+	// setup the test database client
+	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Exec(dml.DeleteSecret, 1).Statement
+
+	// ensure the mock expects the query
+	_mock.ExpectExec(_query.SQL.String()).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
 	tests := []struct {
@@ -372,8 +360,8 @@ func TestPostgres_Client_DeleteSecret(t *testing.T) {
 func testSecret() *library.Secret {
 	i64 := int64(0)
 	str := ""
+	arr := []string{}
 	booL := false
-	var arr []string
 
 	return &library.Secret{
 		ID:           &i64,
