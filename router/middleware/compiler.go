@@ -13,7 +13,7 @@ import (
 // attaches to the context of every http.Request.
 func Compiler(cli compiler.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		compiler.ToContext(c, cli)
+		compiler.WithGinContext(c, cli)
 		c.Next()
 	}
 }

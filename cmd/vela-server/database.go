@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/postgres"
 	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
@@ -32,7 +33,18 @@ func setupDatabase(c *cli.Context) (database.Service, error) {
 // helper function to setup the Postgres database from the CLI arguments.
 func setupPostgres(c *cli.Context) (database.Service, error) {
 	logrus.Tracef("Creating %s database client from CLI configuration", constants.DriverPostgres)
-	return database.New(c)
+
+	// create new Postgres database service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/postgres?tab=doc#New
+	return postgres.New(
+		postgres.WithAddress(c.String("database.config")),
+		postgres.WithCompressionLevel(c.Int("database.compression.level")),
+		postgres.WithConnectionLife(c.Duration("database.connection.life")),
+		postgres.WithConnectionIdle(c.Int("database.connection.idle")),
+		postgres.WithConnectionOpen(c.Int("database.connection.open")),
+		postgres.WithEncryptionKey(c.String("database.encryption.key")),
+	)
 }
 
 // helper function to setup the Sqlite database from the CLI arguments.
