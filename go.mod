@@ -2,8 +2,6 @@ module github.com/go-vela/server
 
 go 1.15
 
-replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20210524144934-df4ca91b5bc3
-
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
