@@ -171,7 +171,6 @@ github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeME
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.6.3/go.mod h1:75u5sXoLsGZoRN5Sgbi1eraJ4GU3++wFwWzhwvtwp4M=
-github.com/gin-gonic/gin v1.7.1/go.mod h1:jD2toBW3GZUr5UMcdrwQA10I7RuaFOl/SGeDjXkfUtY=
 github.com/gin-gonic/gin v1.7.2 h1:Tg03T9yM2xa8j6I3Z3oqLaQRSmKvxPd6g/2HJ6zICFA=
 github.com/gin-gonic/gin v1.7.2/go.mod h1:jD2toBW3GZUr5UMcdrwQA10I7RuaFOl/SGeDjXkfUtY=
 github.com/go-asn1-ber/asn1-ber v1.3.1/go.mod h1:hEBeB/ic+5LoWskz+yKT7vGhhPYkProFKoKdwZRWMe0=
@@ -213,8 +212,6 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/go-test/deep v1.0.2 h1:onZX1rnHT3Wv6cqNgYyFOOlgVKJrksuCMCRvJStbMYw=
 github.com/go-test/deep v1.0.2/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
-github.com/go-vela/compiler v0.7.5-0.20210521195443-f4c4fc1bacff h1:Zrgm7KGjmE6d5JJDXQsjmAmNNtJ7eUC80Ej0gw+xY60=
-github.com/go-vela/compiler v0.7.5-0.20210521195443-f4c4fc1bacff/go.mod h1:sZf3MtMsTIYCwhq+qSNvZYt+UV8iGksfAwGRDbN6LOA=
 github.com/go-vela/compiler v0.7.5-0.20210524152902-a6e0e0ad316f h1:jNM7bDEYxZxNmuI21cRLGG290tvMnBF+8BHNDv7Mnt0=
 github.com/go-vela/compiler v0.7.5-0.20210524152902-a6e0e0ad316f/go.mod h1:9ERp1XfLn5p0t1sJXI3mP4WxwhjaAEYp1nlZZEu4BUo=
 github.com/go-vela/mock v0.7.4 h1:YthX/HXq9796wUAd+LV++x1tHnUJoWQnKZw7Rupw54w=
