@@ -48,6 +48,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetClone("")
 	want.SetBranch("")
 	want.SetTimeout(0)
+	want.SetCounter(0)
 	want.SetVisibility("public")
 	want.SetPrivate(false)
 	want.SetTrusted(false)
