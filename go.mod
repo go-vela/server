@@ -13,7 +13,7 @@ require (
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.8.0-rc1
-	github.com/go-vela/pkg-queue v0.7.5-0.20210402170103-bcd9ababfe88
+	github.com/go-vela/pkg-queue v0.8.0-rc1
 	github.com/go-vela/types v0.8.0-rc1
 	github.com/google/go-cmp v0.5.5
 	github.com/google/go-github/v35 v35.2.0
@@ -30,7 +30,6 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20210503195802-e9a32991a82e // indirect
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
-	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.1.0
 	gorm.io/driver/sqlite v1.1.4
