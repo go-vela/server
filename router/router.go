@@ -6,7 +6,7 @@
 //
 // API for the Vela server
 //
-//     Version: 0.7.2
+//     Version: 0.0.0-dev
 //     Schemes: http, https
 //     Host: localhost
 //
