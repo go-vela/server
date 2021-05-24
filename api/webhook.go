@@ -272,7 +272,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// update fields in build object
-	b.SetNumber(1)
+	b.SetNumber(r.GetCounter())
 	b.SetParent(b.GetNumber())
 	b.SetStatus(constants.StatusPending)
 
@@ -350,6 +350,12 @@ func PostWebhook(c *gin.Context) {
 	// number of times to retry
 	retryLimit := 3
 
+	// update the build numbers based off repo counter
+	inc := r.GetCounter() + 1
+
+	r.SetCounter(inc)
+	b.SetNumber(inc)
+
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
 		// check if we're on the first iteration of the loop
@@ -382,11 +388,11 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// populate the build numbers based off the last build
+		// parent should be "1" if it's the first build ran
+		b.SetParent(r.GetCounter())
+
+		// ensure parent is set as previous build
 		if lastBuild != nil {
-			b.SetNumber(
-				lastBuild.GetNumber() + 1,
-			)
 			b.SetParent(lastBuild.GetNumber())
 		}
 
@@ -451,6 +457,18 @@ func PostWebhook(c *gin.Context) {
 
 		// break the loop because everything was successful
 		break
+	}
+
+	// send API call to update repo for ensuring counter is incremented
+	err = database.FromContext(c).UpdateRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
 	}
 
 	// send API call to capture the triggered build

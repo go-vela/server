@@ -21,6 +21,7 @@ repos (
 	clone         TEXT,
 	branch        TEXT,
 	timeout       INTEGER,
+	counter       INTEGER,
 	visibility    TEXT,
 	private       BOOLEAN,
 	trusted       BOOLEAN,

@@ -21,6 +21,7 @@ repos (
 	clone         VARCHAR(1000),
 	branch        VARCHAR(250),
 	timeout       INTEGER,
+	counter       INTEGER,
 	visibility    TEXT,
 	private       BOOLEAN,
 	trusted       BOOLEAN,
