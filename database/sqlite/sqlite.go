@@ -109,6 +109,12 @@ func NewTest() (*client, error) {
 
 	c.Sqlite = _sqlite
 
+	// create the tables in the database
+	err = createTables(c)
+	if err != nil {
+		return nil, err
+	}
+
 	return c, nil
 }
 
