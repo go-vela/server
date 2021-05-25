@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/aws/aws-sdk-go v1.38.45
+	github.com/aws/aws-sdk-go v1.38.47
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0 // indirect
@@ -15,7 +15,7 @@ require (
 	github.com/go-vela/compiler v0.8.0-rc1
 	github.com/go-vela/pkg-queue v0.8.0-rc1
 	github.com/go-vela/types v0.8.0-rc1
-	github.com/google/go-cmp v0.5.5
+	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v35 v35.2.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.2.0
