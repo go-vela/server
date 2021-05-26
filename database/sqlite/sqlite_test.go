@@ -52,3 +52,39 @@ func TestSqlite_New(t *testing.T) {
 		}
 	}
 }
+
+func TestSqlite_setupDatabase(t *testing.T) {
+	// setup types
+
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+
+	tests := []struct {
+		failure bool
+	}{
+		{
+			failure: false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := setupDatabase(_database)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("setupDatabase should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("setupDatabase returned err: %v", err)
+		}
+	}
+}
