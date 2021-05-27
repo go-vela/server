@@ -18,6 +18,8 @@ import (
 )
 
 // GetBuild gets a build by number and repo ID from the database.
+//
+// nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 	logrus.Tracef("getting build %s/%d from the database", r.GetFullName(), number)
 
@@ -25,12 +27,17 @@ func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 	b := new(database.Build)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableBuild).
 		Raw(dml.SelectRepoBuild, r.GetID(), number).
-		Scan(b).Error
+		Scan(b)
 
-	return b.ToLibrary(), err
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return b.ToLibrary(), result.Error
 }
 
 // GetLastBuild gets the last build by repo ID from the database.
@@ -41,17 +48,18 @@ func (c *client) GetLastBuild(r *library.Repo) (*library.Build, error) {
 	b := new(database.Build)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableBuild).
 		Raw(dml.SelectLastRepoBuild, r.GetID()).
-		Scan(b).Error
+		Scan(b)
 
-	// the record will not exist if it's a new repo
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		// the record will not exist if it's a new repo
 		return nil, nil
 	}
 
-	return b.ToLibrary(), err
+	return b.ToLibrary(), result.Error
 }
 
 // GetLastBuildByBranch gets the last build by repo ID and branch from the database.
@@ -63,17 +71,18 @@ func (c *client) GetLastBuildByBranch(r *library.Repo, branch string) (*library.
 	b := new(database.Build)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableBuild).
 		Raw(dml.SelectLastRepoBuildByBranch, r.GetID(), branch).
-		Scan(b).Error
+		Scan(b)
 
-	// the record will not exist if it's a new repo
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		// the record will not exist if it's a new repo
 		return nil, nil
 	}
 
-	return b.ToLibrary(), err
+	return b.ToLibrary(), result.Error
 }
 
 // GetPendingAndRunningBuilds returns the list of pending
@@ -85,10 +94,15 @@ func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue
 	b := new([]database.BuildQueue)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableBuild).
 		Raw(dml.SelectPendingAndRunningBuilds, after).
-		Scan(b).Error
+		Scan(b)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
 
 	// variable we want to return
 	builds := []*library.BuildQueue{}
@@ -102,7 +116,7 @@ func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue
 		builds = append(builds, tmp.ToLibrary())
 	}
 
-	return builds, err
+	return builds, result.Error
 }
 
 // CreateBuild creates a new build in the database.

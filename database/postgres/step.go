@@ -5,10 +5,13 @@
 package postgres
 
 import (
+	"errors"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -21,12 +24,17 @@ func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
 	s := new(database.Step)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableStep).
 		Raw(dml.SelectBuildStep, b.GetID(), number).
-		Scan(s).Error
+		Scan(s)
 
-	return s.ToLibrary(), err
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return s.ToLibrary(), result.Error
 }
 
 // CreateStep creates a new step in the database.

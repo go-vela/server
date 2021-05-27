@@ -5,10 +5,13 @@
 package postgres
 
 import (
+	"errors"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -21,12 +24,17 @@ func (c *client) GetWorker(hostname string) (*library.Worker, error) {
 	w := new(database.Worker)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableWorker).
 		Raw(dml.SelectWorker, hostname).
-		Scan(w).Error
+		Scan(w)
 
-	return w.ToLibrary(), err
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return w.ToLibrary(), result.Error
 }
 
 // GetWorker gets a worker by address from the database.
@@ -37,12 +45,17 @@ func (c *client) GetWorkerByAddress(address string) (*library.Worker, error) {
 	w := new(database.Worker)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableWorker).
 		Raw(dml.SelectWorkerByAddress, address).
-		Scan(w).Error
+		Scan(w)
 
-	return w.ToLibrary(), err
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return w.ToLibrary(), result.Error
 }
 
 // CreateWorker creates a new worker in the database.
