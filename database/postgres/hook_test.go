@@ -49,8 +49,10 @@ func TestPostgres_Client_GetHook(t *testing.T) {
 		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link"},
 	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "")
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -60,6 +62,10 @@ func TestPostgres_Client_GetHook(t *testing.T) {
 		{
 			failure: false,
 			want:    _hook,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
@@ -118,8 +124,10 @@ func TestPostgres_Client_GetLastHook(t *testing.T) {
 		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link"},
 	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "")
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -129,6 +137,10 @@ func TestPostgres_Client_GetLastHook(t *testing.T) {
 		{
 			failure: false,
 			want:    _hook,
+		},
+		{
+			failure: false,
+			want:    nil,
 		},
 	}
 

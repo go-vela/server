@@ -40,8 +40,10 @@ func TestPostgres_Client_GetWorker(t *testing.T) {
 		[]string{"id", "hostname", "address", "routes", "active", "last_checked_in", "build_limit"},
 	).AddRow(1, "worker_0", "localhost", "{}", true, 0, 0)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -51,6 +53,10 @@ func TestPostgres_Client_GetWorker(t *testing.T) {
 		{
 			failure: false,
 			want:    _worker,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
@@ -101,8 +107,10 @@ func TestPostgres_Client_GetWorkerByAddress(t *testing.T) {
 		[]string{"id", "hostname", "address", "routes", "active", "last_checked_in", "build_limit"},
 	).AddRow(1, "worker_0", "localhost", "{}", true, 0, 0)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -112,6 +120,10 @@ func TestPostgres_Client_GetWorkerByAddress(t *testing.T) {
 		{
 			failure: false,
 			want:    _worker,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 

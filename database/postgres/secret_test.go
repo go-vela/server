@@ -43,8 +43,10 @@ func TestPostgres_Client_GetSecret_Org(t *testing.T) {
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
 	).AddRow(1, "org", "foo", "*", "", "bar", "baz", "{}", "{}", false)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -53,8 +55,11 @@ func TestPostgres_Client_GetSecret_Org(t *testing.T) {
 	}{
 		{
 			failure: false,
-
-			want: _secret,
+			want:    _secret,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
@@ -107,8 +112,10 @@ func TestPostgres_Client_GetSecret_Repo(t *testing.T) {
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
 	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -117,8 +124,11 @@ func TestPostgres_Client_GetSecret_Repo(t *testing.T) {
 	}{
 		{
 			failure: false,
-
-			want: _secret,
+			want:    _secret,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
@@ -171,8 +181,10 @@ func TestPostgres_Client_GetSecret_Shared(t *testing.T) {
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
 	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -181,8 +193,11 @@ func TestPostgres_Client_GetSecret_Shared(t *testing.T) {
 	}{
 		{
 			failure: false,
-
-			want: _secret,
+			want:    _secret,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
