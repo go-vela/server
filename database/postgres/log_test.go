@@ -111,8 +111,10 @@ func TestPostgres_Client_GetStepLog(t *testing.T) {
 		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"},
 	).AddRow(1, 1, 1, 0, 1, []byte{})
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -122,6 +124,10 @@ func TestPostgres_Client_GetStepLog(t *testing.T) {
 		{
 			failure: false,
 			want:    _log,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
@@ -173,8 +179,10 @@ func TestPostgres_Client_GetServiceLog(t *testing.T) {
 		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"},
 	).AddRow(1, 1, 1, 1, 0, []byte{})
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -184,6 +192,10 @@ func TestPostgres_Client_GetServiceLog(t *testing.T) {
 		{
 			failure: false,
 			want:    _log,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 

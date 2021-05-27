@@ -5,12 +5,14 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,20 +29,41 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 	// send query to the database and store result in variable
 	switch t {
 	case constants.SecretOrg:
-		err = c.Postgres.
+		result := c.Postgres.
 			Table(constants.TableSecret).
 			Raw(dml.SelectOrgSecret, o, secretName).
-			Scan(s).Error
+			Scan(s)
+
+		// check if the query returned a record not found error or no rows were returned
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+			return nil, gorm.ErrRecordNotFound
+		}
+
+		err = result.Error
 	case constants.SecretRepo:
-		err = c.Postgres.
+		result := c.Postgres.
 			Table(constants.TableSecret).
 			Raw(dml.SelectRepoSecret, o, n, secretName).
-			Scan(s).Error
+			Scan(s)
+
+		// check if the query returned a record not found error or no rows were returned
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+			return nil, gorm.ErrRecordNotFound
+		}
+
+		err = result.Error
 	case constants.SecretShared:
-		err = c.Postgres.
+		result := c.Postgres.
 			Table(constants.TableSecret).
 			Raw(dml.SelectSharedSecret, o, n, secretName).
-			Scan(s).Error
+			Scan(s)
+
+		// check if the query returned a record not found error or no rows were returned
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+			return nil, gorm.ErrRecordNotFound
+		}
+
+		err = result.Error
 	}
 	if err != nil {
 		return nil, err

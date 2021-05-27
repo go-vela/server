@@ -44,8 +44,10 @@ func TestPostgres_Client_GetRepo(t *testing.T) {
 		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment"},
 	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -55,6 +57,10 @@ func TestPostgres_Client_GetRepo(t *testing.T) {
 		{
 			failure: false,
 			want:    _repo,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 

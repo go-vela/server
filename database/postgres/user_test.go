@@ -41,8 +41,10 @@ func TestPostgres_Client_GetUser(t *testing.T) {
 		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin"},
 	).AddRow(1, "foo", "", "bar", "baz", "{}", false, false)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -52,6 +54,10 @@ func TestPostgres_Client_GetUser(t *testing.T) {
 		{
 			failure: false,
 			want:    _user,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 

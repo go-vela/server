@@ -48,8 +48,10 @@ func TestPostgres_Client_GetStep(t *testing.T) {
 		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"},
 	).AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -59,6 +61,10 @@ func TestPostgres_Client_GetStep(t *testing.T) {
 		{
 			failure: false,
 			want:    _step,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 

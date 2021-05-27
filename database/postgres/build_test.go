@@ -50,8 +50,10 @@ func TestPostgres_Client_GetBuild(t *testing.T) {
 		[]string{"id", "repo_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
 	).AddRow(1, 1, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -61,6 +63,10 @@ func TestPostgres_Client_GetBuild(t *testing.T) {
 		{
 			failure: false,
 			want:    _build,
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 
@@ -120,8 +126,10 @@ func TestPostgres_Client_GetLastBuild(t *testing.T) {
 		[]string{"id", "repo_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
 	).AddRow(1, 1, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -131,6 +139,10 @@ func TestPostgres_Client_GetLastBuild(t *testing.T) {
 		{
 			failure: false,
 			want:    _build,
+		},
+		{
+			failure: false,
+			want:    nil,
 		},
 	}
 
@@ -190,8 +202,10 @@ func TestPostgres_Client_GetLastBuildByBranch(t *testing.T) {
 		[]string{"id", "repo_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
 	).AddRow(1, 1, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -201,6 +215,10 @@ func TestPostgres_Client_GetLastBuildByBranch(t *testing.T) {
 		{
 			failure: false,
 			want:    _build,
+		},
+		{
+			failure: false,
+			want:    nil,
 		},
 	}
 
@@ -254,11 +272,12 @@ func TestPostgres_Client_GetPendingAndRunningBuilds(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"created", "full_name", "number", "status"}).
-		AddRow(0, "", 1, "").
-		AddRow(0, "", 2, "")
+		AddRow(0, "", 1, "").AddRow(0, "", 2, "")
 
-	// ensure the mock expects the query
+	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
 
 	// setup tests
 	tests := []struct {
@@ -268,6 +287,10 @@ func TestPostgres_Client_GetPendingAndRunningBuilds(t *testing.T) {
 		{
 			failure: false,
 			want:    []*library.BuildQueue{_buildOne, _buildTwo},
+		},
+		{
+			failure: true,
+			want:    nil,
 		},
 	}
 

@@ -18,6 +18,8 @@ import (
 )
 
 // GetHook gets a hook by number and repo ID from the database.
+//
+// nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
 	logrus.Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
 
@@ -25,12 +27,17 @@ func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
 	h := new(database.Hook)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableHook).
 		Raw(dml.SelectRepoHook, r.GetID(), number).
-		Scan(h).Error
+		Scan(h)
 
-	return h.ToLibrary(), err
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return h.ToLibrary(), result.Error
 }
 
 // GetLastHook gets the last hook by repo ID from the database.
@@ -41,17 +48,18 @@ func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
 	h := new(database.Hook)
 
 	// send query to the database and store result in variable
-	err := c.Postgres.
+	result := c.Postgres.
 		Table(constants.TableHook).
 		Raw(dml.SelectLastRepoHook, r.GetID()).
-		Scan(h).Error
+		Scan(h)
 
-	// the record will not exist if it's a new repo
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		// the record will not exist if it's a new repo
 		return nil, nil
 	}
 
-	return h.ToLibrary(), err
+	return h.ToLibrary(), result.Error
 }
 
 // CreateHook creates a new hook in the database.
