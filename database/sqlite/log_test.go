@@ -103,20 +103,26 @@ func TestSqlite_Client_GetStepLog(t *testing.T) {
 			failure: false,
 			want:    _log,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the logs table
-		defer _database.Sqlite.Exec("delete from logs;")
-
-		// create the log in the database
-		err := _database.CreateLog(test.want)
-		if err != nil {
-			t.Errorf("unable to create test log: %v", err)
+		if test.want != nil {
+			// create the log in the database
+			err := _database.CreateLog(test.want)
+			if err != nil {
+				t.Errorf("unable to create test log: %v", err)
+			}
 		}
 
 		got, err := _database.GetStepLog(1)
+
+		// cleanup the logs table
+		_ = _database.Sqlite.Exec("DELETE FROM logs;")
 
 		if test.failure {
 			if err == nil {
@@ -161,20 +167,26 @@ func TestSqlite_Client_GetServiceLog(t *testing.T) {
 			failure: false,
 			want:    _log,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the logs table
-		defer _database.Sqlite.Exec("delete from logs;")
-
-		// create the log in the database
-		err := _database.CreateLog(test.want)
-		if err != nil {
-			t.Errorf("unable to create test log: %v", err)
+		if test.want != nil {
+			// create the log in the database
+			err := _database.CreateLog(test.want)
+			if err != nil {
+				t.Errorf("unable to create test log: %v", err)
+			}
 		}
 
 		got, err := _database.GetServiceLog(1)
+
+		// cleanup the logs table
+		_ = _database.Sqlite.Exec("DELETE FROM logs;")
 
 		if test.failure {
 			if err == nil {

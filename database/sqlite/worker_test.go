@@ -35,20 +35,26 @@ func TestSqlite_Client_GetWorker(t *testing.T) {
 			failure: false,
 			want:    _worker,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the workers table
-		defer _database.Sqlite.Exec("delete from workers;")
-
-		// create the worker in the database
-		err := _database.CreateWorker(test.want)
-		if err != nil {
-			t.Errorf("unable to create test worker: %v", err)
+		if test.want != nil {
+			// create the worker in the database
+			err := _database.CreateWorker(test.want)
+			if err != nil {
+				t.Errorf("unable to create test worker: %v", err)
+			}
 		}
 
 		got, err := _database.GetWorker("worker_0")
+
+		// cleanup the workers table
+		_ = _database.Sqlite.Exec("DELETE FROM workers;")
 
 		if test.failure {
 			if err == nil {
@@ -92,20 +98,26 @@ func TestSqlite_Client_GetWorkerByAddress(t *testing.T) {
 			failure: false,
 			want:    _worker,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the workers table
-		defer _database.Sqlite.Exec("delete from workers;")
-
-		// create the worker in the database
-		err := _database.CreateWorker(test.want)
-		if err != nil {
-			t.Errorf("unable to create test worker: %v", err)
+		if test.want != nil {
+			// create the worker in the database
+			err := _database.CreateWorker(test.want)
+			if err != nil {
+				t.Errorf("unable to create test worker: %v", err)
+			}
 		}
 
 		got, err := _database.GetWorkerByAddress("localhost")
+
+		// cleanup the workers table
+		_ = _database.Sqlite.Exec("DELETE FROM workers;")
 
 		if test.failure {
 			if err == nil {

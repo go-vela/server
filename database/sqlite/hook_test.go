@@ -43,20 +43,26 @@ func TestSqlite_Client_GetHook(t *testing.T) {
 			failure: false,
 			want:    _hook,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the hooks table
-		defer _database.Sqlite.Exec("delete from hooks;")
-
-		// create the hook in the database
-		err := _database.CreateHook(test.want)
-		if err != nil {
-			t.Errorf("unable to create test hook: %v", err)
+		if test.want != nil {
+			// create the hook in the database
+			err := _database.CreateHook(test.want)
+			if err != nil {
+				t.Errorf("unable to create test hook: %v", err)
+			}
 		}
 
 		got, err := _database.GetHook(1, _repo)
+
+		// cleanup the hooks table
+		_ = _database.Sqlite.Exec("DELETE FROM hooks;")
 
 		if test.failure {
 			if err == nil {
@@ -108,20 +114,26 @@ func TestSqlite_Client_GetLastHook(t *testing.T) {
 			failure: false,
 			want:    _hook,
 		},
+		{
+			failure: false,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the hooks table
-		defer _database.Sqlite.Exec("delete from hooks;")
-
-		// create the hook in the database
-		err := _database.CreateHook(test.want)
-		if err != nil {
-			t.Errorf("unable to create test hook: %v", err)
+		if test.want != nil {
+			// create the hook in the database
+			err := _database.CreateHook(test.want)
+			if err != nil {
+				t.Errorf("unable to create test hook: %v", err)
+			}
 		}
 
 		got, err := _database.GetLastHook(_repo)
+
+		// cleanup the hooks table
+		_ = _database.Sqlite.Exec("DELETE FROM hooks;")
 
 		if test.failure {
 			if err == nil {

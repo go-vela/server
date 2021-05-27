@@ -37,20 +37,26 @@ func TestSqlite_Client_GetSecret_Org(t *testing.T) {
 			failure: false,
 			want:    _secret,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the secrets table
-		defer _database.Sqlite.Exec("delete from secrets;")
-
-		// create the secret in the database
-		err := _database.CreateSecret(test.want)
-		if err != nil {
-			t.Errorf("unable to create test secret: %v", err)
+		if test.want != nil {
+			// create the secret in the database
+			err := _database.CreateSecret(test.want)
+			if err != nil {
+				t.Errorf("unable to create test secret: %v", err)
+			}
 		}
 
 		got, err := _database.GetSecret("org", "foo", "*", "bar")
+
+		// cleanup the secrets table
+		_ = _database.Sqlite.Exec("DELETE FROM secrets;")
 
 		if test.failure {
 			if err == nil {
@@ -96,20 +102,26 @@ func TestSqlite_Client_GetSecret_Repo(t *testing.T) {
 			failure: false,
 			want:    _secret,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the secrets table
-		defer _database.Sqlite.Exec("delete from secrets;")
-
-		// create the secret in the database
-		err := _database.CreateSecret(test.want)
-		if err != nil {
-			t.Errorf("unable to create test secret: %v", err)
+		if test.want != nil {
+			// create the secret in the database
+			err := _database.CreateSecret(test.want)
+			if err != nil {
+				t.Errorf("unable to create test secret: %v", err)
+			}
 		}
 
 		got, err := _database.GetSecret("repo", "foo", "bar", "baz")
+
+		// cleanup the secrets table
+		_ = _database.Sqlite.Exec("DELETE FROM secrets;")
 
 		if test.failure {
 			if err == nil {
@@ -155,20 +167,26 @@ func TestSqlite_Client_GetSecret_Shared(t *testing.T) {
 			failure: false,
 			want:    _secret,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the secrets table
-		defer _database.Sqlite.Exec("delete from secrets;")
-
-		// create the secret in the database
-		err := _database.CreateSecret(test.want)
-		if err != nil {
-			t.Errorf("unable to create test secret: %v", err)
+		if test.want != nil {
+			// create the secret in the database
+			err := _database.CreateSecret(test.want)
+			if err != nil {
+				t.Errorf("unable to create test secret: %v", err)
+			}
 		}
 
 		got, err := _database.GetSecret("shared", "foo", "bar", "baz")
+
+		// cleanup the secrets table
+		_ = _database.Sqlite.Exec("DELETE FROM secrets;")
 
 		if test.failure {
 			if err == nil {

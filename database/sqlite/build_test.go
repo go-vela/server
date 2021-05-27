@@ -44,20 +44,26 @@ func TestSqlite_Client_GetBuild(t *testing.T) {
 			failure: false,
 			want:    _build,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the builds table
-		defer _database.Sqlite.Exec("delete from builds;")
-
-		// create the build in the database
-		err := _database.CreateBuild(test.want)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
+		if test.want != nil {
+			// create the build in the database
+			err := _database.CreateBuild(test.want)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
 		}
 
 		got, err := _database.GetBuild(1, _repo)
+
+		// cleanup the builds table
+		_ = _database.Sqlite.Exec("DELETE FROM builds;")
 
 		if test.failure {
 			if err == nil {
@@ -110,20 +116,26 @@ func TestSqlite_Client_GetLastBuild(t *testing.T) {
 			failure: false,
 			want:    _build,
 		},
+		{
+			failure: false,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the builds table
-		defer _database.Sqlite.Exec("delete from builds;")
-
-		// create the build in the database
-		err := _database.CreateBuild(test.want)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
+		if test.want != nil {
+			// create the build in the database
+			err := _database.CreateBuild(test.want)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
 		}
 
 		got, err := _database.GetLastBuild(_repo)
+
+		// cleanup the builds table
+		_ = _database.Sqlite.Exec("DELETE FROM builds;")
 
 		if test.failure {
 			if err == nil {
@@ -177,20 +189,26 @@ func TestSqlite_Client_GetLastBuildByBranch(t *testing.T) {
 			failure: false,
 			want:    _build,
 		},
+		{
+			failure: false,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the builds table
-		defer _database.Sqlite.Exec("delete from builds;")
-
-		// create the build in the database
-		err := _database.CreateBuild(test.want)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
+		if test.want != nil {
+			// create the build in the database
+			err := _database.CreateBuild(test.want)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
 		}
 
 		got, err := _database.GetLastBuildByBranch(_repo, "master")
+
+		// cleanup the builds table
+		_ = _database.Sqlite.Exec("DELETE FROM builds;")
 
 		if test.failure {
 			if err == nil {
@@ -265,34 +283,39 @@ func TestSqlite_Client_GetPendingAndRunningBuilds(t *testing.T) {
 			failure: false,
 			want:    []*library.BuildQueue{_queueOne, _queueTwo},
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the repos table
-		defer _database.Sqlite.Exec("delete from repos;")
-
 		// create the repo in the database
 		err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		// defer cleanup of the builds table
-		defer _database.Sqlite.Exec("delete from builds;")
+		if test.want != nil {
+			// create the builds in the database
+			err = _database.CreateBuild(_buildOne)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
 
-		// create the builds in the database
-		err = _database.CreateBuild(_buildOne)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
-		}
-
-		err = _database.CreateBuild(_buildTwo)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
+			err = _database.CreateBuild(_buildTwo)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
 		}
 
 		got, err := _database.GetPendingAndRunningBuilds("0")
+
+		// cleanup the repos table
+		_ = _database.Sqlite.Exec("DELETE FROM repos;")
+		// cleanup the builds table
+		_ = _database.Sqlite.Exec("DELETE FROM builds;")
 
 		if test.failure {
 			if err == nil {
