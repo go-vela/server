@@ -5,28 +5,11 @@
 package sqlite
 
 import (
-	"log"
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite/ddl"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
-
-func init() {
-	// setup the test database client
-	_database, err := NewTest()
-	if err != nil {
-		log.Fatalf("unable to create new sqlite test database: %v", err)
-	}
-
-	// create the build table
-	err = _database.Sqlite.Exec(ddl.CreateBuildTable).Error
-	if err != nil {
-		log.Fatalf("unable to create %s table: %v", constants.TableBuild, err)
-	}
-}
 
 func TestSqlite_Client_GetBuild(t *testing.T) {
 	// setup types
