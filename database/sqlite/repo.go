@@ -5,12 +5,14 @@
 package sqlite
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -23,18 +25,20 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 	r := new(database.Repo)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	result := c.Sqlite.
 		Table(constants.TableRepo).
 		Raw(dml.SelectRepo, org, name).
-		Scan(r).Error
-	if err != nil {
-		return nil, err
+		Scan(r)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	// decrypt the fields for the repo
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
-	err = r.Decrypt(c.config.EncryptionKey)
+	err := r.Decrypt(c.config.EncryptionKey)
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
@@ -42,11 +46,11 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 		logrus.Errorf("unable to decrypt repo %s/%s: %v", org, name, err)
 
 		// return the unencrypted repo
-		return r.ToLibrary(), nil
+		return r.ToLibrary(), result.Error
 	}
 
 	// return the decrypted repo
-	return r.ToLibrary(), nil
+	return r.ToLibrary(), result.Error
 }
 
 // CreateRepo creates a new repo in the database.
