@@ -74,7 +74,8 @@ func TestNative_List(t *testing.T) {
 func TestNative_List_Invalid(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	_sql, _ := db.Sqlite.DB()
+	_sql.Close()
 
 	// run test
 	s, err := New(

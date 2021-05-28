@@ -57,7 +57,8 @@ func TestNative_Count(t *testing.T) {
 func TestNative_Count_Invalid(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	_sql, _ := db.Sqlite.DB()
+	_sql.Close()
 
 	// run test
 	s, err := New(
