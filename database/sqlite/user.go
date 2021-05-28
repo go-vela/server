@@ -5,12 +5,14 @@
 package sqlite
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,18 +27,20 @@ func (c *client) GetUser(id int64) (*library.User, error) {
 	u := new(database.User)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	result := c.Sqlite.
 		Table(constants.TableUser).
 		Raw(dml.SelectUser, id).
-		Scan(u).Error
-	if err != nil {
-		return nil, err
+		Scan(u)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	// decrypt the fields for the user
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
-	err = u.Decrypt(c.config.EncryptionKey)
+	err := u.Decrypt(c.config.EncryptionKey)
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
@@ -44,11 +48,11 @@ func (c *client) GetUser(id int64) (*library.User, error) {
 		logrus.Errorf("unable to decrypt user %d: %v", id, err)
 
 		// return the unencrypted user
-		return u.ToLibrary(), nil
+		return u.ToLibrary(), result.Error
 	}
 
 	// return the decrypted user
-	return u.ToLibrary(), nil
+	return u.ToLibrary(), result.Error
 }
 
 // GetUserName gets a user by name from the database.
@@ -61,18 +65,20 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 	u := new(database.User)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	result := c.Sqlite.
 		Table(constants.TableUser).
 		Raw(dml.SelectUserName, name).
-		Scan(u).Error
-	if err != nil {
-		return nil, err
+		Scan(u)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	// decrypt the fields for the user
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
-	err = u.Decrypt(c.config.EncryptionKey)
+	err := u.Decrypt(c.config.EncryptionKey)
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
@@ -80,11 +86,11 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 		logrus.Errorf("unable to decrypt user %s: %v", name, err)
 
 		// return the unencrypted user
-		return u.ToLibrary(), nil
+		return u.ToLibrary(), result.Error
 	}
 
 	// return the decrypted user
-	return u.ToLibrary(), nil
+	return u.ToLibrary(), result.Error
 }
 
 // CreateUser creates a new user in the database.

@@ -5,12 +5,14 @@
 package sqlite
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -66,18 +68,20 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 	l := new(database.Log)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	result := c.Sqlite.
 		Table(constants.TableLog).
 		Raw(dml.SelectStepLog, id).
-		Scan(l).Error
-	if err != nil {
-		return l.ToLibrary(), err
+		Scan(l)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	// decompress log data for the step
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
-	err = l.Decompress()
+	err := l.Decompress()
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
@@ -85,11 +89,11 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		logrus.Errorf("unable to decompress logs for step %d: %v", id, err)
 
 		// return the uncompressed log
-		return l.ToLibrary(), nil
+		return l.ToLibrary(), result.Error
 	}
 
 	// return the decompressed log
-	return l.ToLibrary(), nil
+	return l.ToLibrary(), result.Error
 }
 
 // GetServiceLog gets a log by unique ID from the database.
@@ -102,18 +106,20 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 	l := new(database.Log)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	result := c.Sqlite.
 		Table(constants.TableLog).
 		Raw(dml.SelectServiceLog, id).
-		Scan(l).Error
-	if err != nil {
-		return l.ToLibrary(), err
+		Scan(l)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	// decompress log data for the service
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Decompress
-	err = l.Decompress()
+	err := l.Decompress()
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
@@ -121,11 +127,11 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 		logrus.Errorf("unable to decompress logs for service %d: %v", id, err)
 
 		// return the uncompressed log
-		return l.ToLibrary(), nil
+		return l.ToLibrary(), result.Error
 	}
 
 	// return the decompressed log
-	return l.ToLibrary(), nil
+	return l.ToLibrary(), result.Error
 }
 
 // CreateLog creates a new log in the database.

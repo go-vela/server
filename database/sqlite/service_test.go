@@ -42,20 +42,26 @@ func TestSqlite_Client_GetService(t *testing.T) {
 			failure: false,
 			want:    _service,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the services table
-		defer _database.Sqlite.Exec("delete from services;")
-
-		// create the service in the database
-		err := _database.CreateService(test.want)
-		if err != nil {
-			t.Errorf("unable to create test service: %v", err)
+		if test.want != nil {
+			// create the service in the database
+			err := _database.CreateService(test.want)
+			if err != nil {
+				t.Errorf("unable to create test service: %v", err)
+			}
 		}
 
 		got, err := _database.GetService(1, _build)
+
+		// cleanup the services table
+		_ = _database.Sqlite.Exec("DELETE FROM services;")
 
 		if test.failure {
 			if err == nil {

@@ -5,10 +5,13 @@
 package sqlite
 
 import (
+	"errors"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 
 	"github.com/sirupsen/logrus"
 )
@@ -21,12 +24,17 @@ func (c *client) GetService(number int, b *library.Build) (*library.Service, err
 	s := new(database.Service)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	result := c.Sqlite.
 		Table(constants.TableService).
 		Raw(dml.SelectBuildService, b.GetID(), number).
-		Scan(s).Error
+		Scan(s)
 
-	return s.ToLibrary(), err
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return s.ToLibrary(), result.Error
 }
 
 // CreateService creates a new service in the database.
