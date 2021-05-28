@@ -5,28 +5,11 @@
 package sqlite
 
 import (
-	"log"
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite/ddl"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
-
-func init() {
-	// setup the test database client
-	_database, err := NewTest()
-	if err != nil {
-		log.Fatalf("unable to create new sqlite test database: %v", err)
-	}
-
-	// create the repo table
-	err = _database.Sqlite.Exec(ddl.CreateRepoTable).Error
-	if err != nil {
-		log.Fatalf("unable to create %s table: %v", constants.TableRepo, err)
-	}
-}
 
 func TestSqlite_Client_GetRepo(t *testing.T) {
 	// setup types
@@ -55,20 +38,26 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 			failure: false,
 			want:    _repo,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the repos table
-		defer _database.Sqlite.Exec("delete from repos;")
-
-		// create the repo in the database
-		err := _database.CreateRepo(test.want)
-		if err != nil {
-			t.Errorf("unable to create test repo: %v", err)
+		if test.want != nil {
+			// create the repo in the database
+			err := _database.CreateRepo(test.want)
+			if err != nil {
+				t.Errorf("unable to create test repo: %v", err)
+			}
 		}
 
 		got, err := _database.GetRepo("foo", "bar")
+
+		// cleanup the repos table
+		_ = _database.Sqlite.Exec("DELETE FROM repos;")
 
 		if test.failure {
 			if err == nil {

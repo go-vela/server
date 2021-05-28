@@ -35,20 +35,26 @@ func TestSqlite_Client_GetUser(t *testing.T) {
 			failure: false,
 			want:    _user,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the users table
-		defer _database.Sqlite.Exec("delete from users;")
-
-		// create the user in the database
-		err := _database.CreateUser(test.want)
-		if err != nil {
-			t.Errorf("unable to create test user: %v", err)
+		if test.want != nil {
+			// create the user in the database
+			err := _database.CreateUser(test.want)
+			if err != nil {
+				t.Errorf("unable to create test user: %v", err)
+			}
 		}
 
 		got, err := _database.GetUser(1)
+
+		// cleanup the users table
+		_ = _database.Sqlite.Exec("DELETE FROM users;")
 
 		if test.failure {
 			if err == nil {

@@ -42,20 +42,26 @@ func TestSqlite_Client_GetStep(t *testing.T) {
 			failure: false,
 			want:    _step,
 		},
+		{
+			failure: true,
+			want:    nil,
+		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		// defer cleanup of the steps table
-		defer _database.Sqlite.Exec("delete from steps;")
-
-		// create the step in the database
-		err := _database.CreateStep(test.want)
-		if err != nil {
-			t.Errorf("unable to create test step: %v", err)
+		if test.want != nil {
+			// create the step in the database
+			err := _database.CreateStep(test.want)
+			if err != nil {
+				t.Errorf("unable to create test step: %v", err)
+			}
 		}
 
 		got, err := _database.GetStep(1, _build)
+
+		// cleanup the steps table
+		_ = _database.Sqlite.Exec("DELETE FROM steps;")
 
 		if test.failure {
 			if err == nil {
