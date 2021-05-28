@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database/sqlite"
 )
 
 func TestDatabase_FromContext(t *testing.T) {
 	// setup types
-	want, _ := NewTest()
-	defer want.Database.Close()
+	want, _ := sqlite.NewTest()
+	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -71,8 +72,8 @@ func TestDatabase_FromContext_Empty(t *testing.T) {
 
 func TestDatabase_ToContext(t *testing.T) {
 	// setup types
-	want, _ := NewTest()
-	defer want.Database.Close()
+	want, _ := sqlite.NewTest()
+	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

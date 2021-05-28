@@ -12,14 +12,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 )
 
 func TestMiddleware_Database(t *testing.T) {
 	// setup types
 	var got database.Service
 
-	want, _ := database.NewTest()
-	defer want.Database.Close()
+	want, _ := sqlite.NewTest()
+	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

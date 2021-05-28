@@ -7,7 +7,7 @@ package secret
 import (
 	"testing"
 
-	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/secret/native"
 
 	"github.com/gin-gonic/gin"
@@ -15,8 +15,8 @@ import (
 
 func TestSecret_FromContext(t *testing.T) {
 	// setup types
-	d, _ := database.NewTest()
-	defer d.Database.Close()
+	d, _ := sqlite.NewTest()
+	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
 
 	want, err := native.New(
 		native.WithDatabase(d),
@@ -81,8 +81,8 @@ func TestSecret_FromContext_Empty(t *testing.T) {
 
 func TestSecret_ToContext(t *testing.T) {
 	// setup types
-	d, _ := database.NewTest()
-	defer d.Database.Close()
+	d, _ := sqlite.NewTest()
+	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
 
 	want, err := native.New(
 		native.WithDatabase(d),

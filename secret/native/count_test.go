@@ -7,7 +7,7 @@ package native
 import (
 	"testing"
 
-	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
 )
 
@@ -26,18 +26,19 @@ func TestNative_Count(t *testing.T) {
 	want := 1
 
 	// setup database
-	d, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		d.Database.Exec("delete from secrets;")
-		d.Database.Close()
+		db.Sqlite.Exec("delete from secrets;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
-	_ = d.CreateSecret(sec)
+	_ = db.CreateSecret(sec)
 
 	// run test
 	s, err := New(
-		WithDatabase(d),
+		WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -55,12 +56,12 @@ func TestNative_Count(t *testing.T) {
 
 func TestNative_Count_Invalid(t *testing.T) {
 	// setup database
-	d, _ := database.NewTest()
-	d.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// run test
 	s, err := New(
-		WithDatabase(d),
+		WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)

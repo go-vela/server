@@ -10,12 +10,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/repo"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Retrieve(t *testing.T) {
@@ -82,12 +81,13 @@ func TestBuild_Establish(t *testing.T) {
 	got := new(library.Build)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from builds;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from builds;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -124,8 +124,8 @@ func TestBuild_Establish(t *testing.T) {
 
 func TestBuild_Establish_NoRepo(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -158,11 +158,12 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -202,11 +203,12 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -246,11 +248,12 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)

@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -105,11 +105,12 @@ func TestToken_Parse(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(want)
@@ -134,11 +135,12 @@ func TestToken_Parse_Error_NoParse(t *testing.T) {
 	u.SetHash("baz")
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -177,11 +179,12 @@ func TestToken_Parse_Error_InvalidSignature(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -211,11 +214,12 @@ func TestToken_Parse_AccessToken_Expired(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -250,11 +254,12 @@ func TestToken_Parse_AccessToken_NoSubject(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -293,11 +298,12 @@ func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -337,11 +343,12 @@ func TestToken_Refresh(t *testing.T) {
 	u.SetRefreshToken(rt)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -389,11 +396,12 @@ func TestToken_Refresh_Expired(t *testing.T) {
 	u.SetRefreshToken(rt)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -435,11 +443,12 @@ func TestToken_Refresh_TokenMissing(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)

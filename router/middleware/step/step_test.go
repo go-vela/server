@@ -10,14 +10,12 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestStep_Retrieve(t *testing.T) {
@@ -76,13 +74,14 @@ func TestStep_Establish(t *testing.T) {
 	got := new(library.Step)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from builds;")
-		db.Database.Exec("delete from steps;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from builds;")
+		db.Sqlite.Exec("delete from steps;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -121,8 +120,8 @@ func TestStep_Establish(t *testing.T) {
 
 func TestStep_Establish_NoRepo(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -158,11 +157,12 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -207,12 +207,13 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	b.SetNumber(1)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from builds;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from builds;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -259,12 +260,13 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	b.SetNumber(1)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from builds;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from builds;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -311,12 +313,13 @@ func TestStep_Establish_NoStep(t *testing.T) {
 	b.SetNumber(1)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from builds;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from builds;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)

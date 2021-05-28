@@ -10,11 +10,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/types/library"
 )
 
 func TestWorker_Retrieve(t *testing.T) {
@@ -49,11 +48,12 @@ func TestWorker_Establish(t *testing.T) {
 	got := new(library.Worker)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from workers;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from workers;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateWorker(want)
@@ -88,8 +88,8 @@ func TestWorker_Establish(t *testing.T) {
 
 func TestWorker_Establish_NoWorkerParameter(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
