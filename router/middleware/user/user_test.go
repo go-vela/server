@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/source/github"
@@ -73,11 +74,12 @@ func TestUser_Establish(t *testing.T) {
 	})
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(want)
@@ -124,8 +126,8 @@ func TestUser_Establish(t *testing.T) {
 
 func TestUser_Establish_NoToken(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -193,8 +195,9 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	// setup database
 	secret := "superSecret"
 
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	// setup database
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -226,8 +229,8 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	got := new(library.User)
 
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

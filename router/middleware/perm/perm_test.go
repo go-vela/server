@@ -11,16 +11,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/source/github"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 )
 
 const accessTokenDuration = time.Minute * 15
@@ -39,11 +38,12 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -109,11 +109,12 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -182,12 +183,13 @@ func TestPerm_MustAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -261,12 +263,13 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -340,12 +343,13 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -419,12 +423,13 @@ func TestPerm_MustWrite(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -498,12 +503,13 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -577,12 +583,13 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -656,12 +663,13 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -735,12 +743,13 @@ func TestPerm_MustRead(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -814,12 +823,13 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -893,12 +903,13 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -972,12 +983,13 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1051,12 +1063,13 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1130,12 +1143,13 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Exec("delete from users;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)

@@ -10,8 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database"
-
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/secret/native"
 
@@ -52,8 +51,8 @@ func TestMiddleware_Secret(t *testing.T) {
 
 func TestMiddleware_Secrets(t *testing.T) {
 	// setup types
-	d, _ := database.NewTest()
-	defer d.Database.Close()
+	d, _ := sqlite.NewTest()
+	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
 
 	var got secret.Service
 

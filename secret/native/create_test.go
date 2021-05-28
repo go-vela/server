@@ -8,8 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database"
-
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
 )
 
@@ -28,16 +27,17 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetAllowCommand(false)
 
 	// setup database
-	d, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		d.Database.Exec("delete from secrets;")
-		d.Database.Close()
+		db.Sqlite.Exec("delete from secrets;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	// run test
 	s, err := New(
-		WithDatabase(d),
+		WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -70,16 +70,17 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetAllowCommand(false)
 
 	// setup database
-	d, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		d.Database.Exec("delete from secrets;")
-		d.Database.Close()
+		db.Sqlite.Exec("delete from secrets;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	// run test
 	s, err := New(
-		WithDatabase(d),
+		WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -112,16 +113,17 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetAllowCommand(false)
 
 	// setup database
-	d, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		d.Database.Exec("delete from secrets;")
-		d.Database.Close()
+		db.Sqlite.Exec("delete from secrets;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	// run test
 	s, err := New(
-		WithDatabase(d),
+		WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -154,16 +156,17 @@ func TestNative_Create_Invalid(t *testing.T) {
 	sec.SetAllowCommand(false)
 
 	// setup database
-	d, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		d.Database.Exec("delete from secrets;")
-		d.Database.Close()
+		db.Sqlite.Exec("delete from secrets;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	// run test
 	s, err := New(
-		WithDatabase(d),
+		WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)

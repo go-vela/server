@@ -9,15 +9,16 @@ import (
 	"testing"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 )
 
 func TestNative_ClientOpt_WithDatabase(t *testing.T) {
 	// setup types
-	d, err := database.NewTest()
+	db, err := sqlite.NewTest()
 	if err != nil {
 		t.Errorf("unable to create database service: %v", err)
 	}
-	defer d.Database.Close()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
 	tests := []struct {
@@ -27,8 +28,8 @@ func TestNative_ClientOpt_WithDatabase(t *testing.T) {
 	}{
 		{
 			failure:  false,
-			database: d,
-			want:     d,
+			database: db,
+			want:     db,
 		},
 		{
 			failure:  true,

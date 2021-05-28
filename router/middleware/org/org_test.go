@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
 )
 
@@ -60,11 +61,12 @@ func TestOrg_Establish(t *testing.T) {
 	got := ""
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -99,8 +101,8 @@ func TestOrg_Establish(t *testing.T) {
 
 func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

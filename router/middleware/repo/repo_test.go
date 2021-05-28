@@ -10,11 +10,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/types/library"
 )
 
 func TestRepo_Retrieve(t *testing.T) {
@@ -62,11 +61,12 @@ func TestRepo_Establish(t *testing.T) {
 	got := new(library.Repo)
 
 	// setup database
-	db, _ := database.NewTest()
+	db, _ := sqlite.NewTest()
 
 	defer func() {
-		db.Database.Exec("delete from repos;")
-		db.Database.Close()
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(want)
@@ -101,8 +101,8 @@ func TestRepo_Establish(t *testing.T) {
 
 func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -128,8 +128,8 @@ func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 
 func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -155,8 +155,8 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 
 func TestRepo_Establish_NoRepo(t *testing.T) {
 	// setup database
-	db, _ := database.NewTest()
-	defer db.Database.Close()
+	db, _ := sqlite.NewTest()
+	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
