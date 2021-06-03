@@ -22,6 +22,10 @@ services:
     networks:
       - vela
     environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
+      DATABASE_COMPRESSION_LEVEL: 3
+      DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       QUEUE_ROUTES: 'docker,local,docker:local'
@@ -32,9 +36,6 @@ services:
       SECRET_VAULT_TOKEN: vela
       VELA_ADDR: 'http://localhost:8080'
       VELA_WEBUI_ADDR: 'http://localhost:8888'
-      VELA_DATABASE_DRIVER: postgres
-      VELA_DATABASE_CONFIG: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
-      VELA_DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       VELA_LOG_LEVEL: trace
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       VELA_REFRESH_TOKEN_DURATION: 90m
