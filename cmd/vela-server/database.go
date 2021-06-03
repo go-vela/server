@@ -5,12 +5,7 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/postgres"
-	"github.com/go-vela/server/database/sqlite"
-	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
 
@@ -21,46 +16,19 @@ import (
 func setupDatabase(c *cli.Context) (database.Service, error) {
 	logrus.Debug("Creating database client from CLI configuration")
 
-	switch c.String("database.driver") {
-	case constants.DriverPostgres, "postgresql":
-		return setupPostgres(c)
-	case constants.DriverSqlite, "sqlite":
-		return setupSqlite(c)
-	default:
-		return nil, fmt.Errorf("invalid database driver: %s", c.String("database.driver"))
+	// database configuration
+	_setup := &database.Setup{
+		Driver:           c.String("database.driver"),
+		Address:          c.String("database.addr"),
+		CompressionLevel: c.Int("database.compression.level"),
+		ConnectionLife:   c.Duration("database.connection.life"),
+		ConnectionIdle:   c.Int("database.connection.idle"),
+		ConnectionOpen:   c.Int("database.connection.open"),
+		EncryptionKey:    c.String("database.encryption.key"),
 	}
-}
 
-// helper function to setup the Postgres database from the CLI arguments.
-func setupPostgres(c *cli.Context) (database.Service, error) {
-	logrus.Tracef("Creating %s database client from CLI configuration", constants.DriverPostgres)
-
-	// create new Postgres database service
+	// setup the database
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/database/postgres?tab=doc#New
-	return postgres.New(
-		postgres.WithAddress(c.String("database.config")),
-		postgres.WithCompressionLevel(c.Int("database.compression.level")),
-		postgres.WithConnectionLife(c.Duration("database.connection.life")),
-		postgres.WithConnectionIdle(c.Int("database.connection.idle")),
-		postgres.WithConnectionOpen(c.Int("database.connection.open")),
-		postgres.WithEncryptionKey(c.String("database.encryption.key")),
-	)
-}
-
-// helper function to setup the Sqlite database from the CLI arguments.
-func setupSqlite(c *cli.Context) (database.Service, error) {
-	logrus.Tracef("Creating %s database client from CLI configuration", constants.DriverSqlite)
-
-	// create new Sqlite database service
-	//
-	// https://pkg.go.dev/github.com/go-vela/server/database/sqlite?tab=doc#New
-	return sqlite.New(
-		sqlite.WithAddress(c.String("database.config")),
-		sqlite.WithCompressionLevel(c.Int("database.compression.level")),
-		sqlite.WithConnectionLife(c.Duration("database.connection.life")),
-		sqlite.WithConnectionIdle(c.Int("database.connection.idle")),
-		sqlite.WithConnectionOpen(c.Int("database.connection.open")),
-		sqlite.WithEncryptionKey(c.String("database.encryption.key")),
-	)
+	// https://pkg.go.dev/github.com/go-vela/server/database?tab=doc#New
+	return database.New(_setup)
 }

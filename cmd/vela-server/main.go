@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/go-vela/pkg-queue/queue"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/version"
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -116,50 +116,6 @@ func main() {
 			Usage:   "github token, used by compiler, for pulling registry templates",
 		},
 
-		// Database Flags
-
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_DATABASE_DRIVER", "DATABASE_DRIVER"},
-			Name:    "database.driver",
-			Usage:   "sets the driver to be used for the database",
-			Value:   "sqlite3",
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_DATABASE_CONFIG", "DATABASE_CONFIG"},
-			Name:    "database.config",
-			Usage:   "sets the configuration string to be used for the database",
-			Value:   "vela.sqlite",
-		},
-		&cli.IntFlag{
-			EnvVars: []string{"VELA_DATABASE_CONNECTION_OPEN", "DATABASE_CONNECTION_OPEN"},
-			Name:    "database.connection.open",
-			Usage:   "sets the number of open connections to the database",
-			Value:   0,
-		},
-		&cli.IntFlag{
-			EnvVars: []string{"VELA_DATABASE_CONNECTION_IDLE", "DATABASE_CONNECTION_IDLE"},
-			Name:    "database.connection.idle",
-			Usage:   "sets the number of idle connections to the database",
-			Value:   2,
-		},
-		&cli.DurationFlag{
-			EnvVars: []string{"VELA_DATABASE_CONNECTION_LIFE", "DATABASE_CONNECTION_LIFE"},
-			Name:    "database.connection.life",
-			Usage:   "sets the amount of time a connection may be reused for the database",
-			Value:   30 * time.Minute,
-		},
-		&cli.IntFlag{
-			EnvVars: []string{"VELA_DATABASE_COMPRESSION_LEVEL", "DATABASE_COMPRESSION_LEVEL"},
-			Name:    "database.compression.level",
-			Usage:   "sets the level of compression for logs stored in the database",
-			Value:   constants.CompressionThree,
-		},
-		&cli.StringFlag{
-			EnvVars: []string{"VELA_DATABASE_ENCRYPTION_KEY", "DATABASE_ENCRYPTION_KEY"},
-			Name:    "database.encryption.key",
-			Usage:   "AES-256 key for encrypting and decrypting values",
-		},
-
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",
@@ -193,6 +149,10 @@ func main() {
 			Value:   5 * time.Minute,
 		},
 	}
+
+	// Database Flags
+
+	app.Flags = append(app.Flags, database.Flags...)
 
 	// Queue Flags
 
