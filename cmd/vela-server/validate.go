@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -24,24 +23,6 @@ func validate(c *cli.Context) error {
 
 	// validate compiler configuration
 	err = validateCompiler(c)
-	if err != nil {
-		return err
-	}
-
-	// validate database configuration
-	err = validateDatabase(c)
-	if err != nil {
-		return err
-	}
-
-	// validate secret configuration
-	err = validateSecret(c)
-	if err != nil {
-		return err
-	}
-
-	// validate source configuration
-	err = validateSource(c)
 	if err != nil {
 		return err
 	}
@@ -107,111 +88,6 @@ func validateCompiler(c *cli.Context) error {
 
 		if len(c.String("github-token")) == 0 {
 			return fmt.Errorf("github-token (VELA_COMPILER_GITHUB_TOKEN or COMPILER_GITHUB_TOKEN) flag not specified")
-		}
-	}
-
-	return nil
-}
-
-// helper function to validate the database CLI configuration.
-func validateDatabase(c *cli.Context) error {
-	logrus.Trace("Validating database CLI configuration")
-
-	if len(c.String("database.driver")) == 0 {
-		return fmt.Errorf("database.driver (VELA_DATABASE_DRIVER or DATABASE_DRIVER) flag not specified")
-	}
-
-	if len(c.String("database.config")) == 0 {
-		return fmt.Errorf("database.config (VELA_DATABASE_CONFIG or DATABASE_CONFIG) flag not specified")
-	}
-
-	switch c.Int("database.compression.level") {
-	case constants.CompressionNegOne:
-		fallthrough
-	case constants.CompressionZero:
-		fallthrough
-	case constants.CompressionOne:
-		fallthrough
-	case constants.CompressionTwo:
-		fallthrough
-	case constants.CompressionThree:
-		fallthrough
-	case constants.CompressionFour:
-		fallthrough
-	case constants.CompressionFive:
-		fallthrough
-	case constants.CompressionSix:
-		fallthrough
-	case constants.CompressionSeven:
-		fallthrough
-	case constants.CompressionEight:
-		fallthrough
-	case constants.CompressionNine:
-		break
-	default:
-		// nolint:lll // ignoring line length due to error message
-		return fmt.Errorf("database compression level of '%d' is unsupported", c.Int("database.compression.level"))
-	}
-
-	// enforce AES-256, so check explicitly for 32 bytes on the key
-	//
-	// nolint: gomnd // ignore magic number
-	if len(c.String("database.encryption.key")) != 32 {
-		// nolint: lll // ignore long line length due to long error message
-		return fmt.Errorf("database.encryption.key (VELA_DATABASE_ENCRYPTION_KEY or DATABASE_ENCRYPTION_KEY) invalid length specified: %d", len(c.String("database.encryption.key")))
-	}
-
-	return nil
-}
-
-// helper function to validate the secret CLI configuration.
-//
-// nolint:lll // ignoring line length check to avoid breaking up error messages
-func validateSecret(c *cli.Context) error {
-	logrus.Trace("Validating secret CLI configuration")
-
-	if c.Bool("vault-driver") {
-		if len(c.String("vault-addr")) == 0 {
-			return fmt.Errorf("vault-addr (VELA_SECRET_VAULT_ADDR or SECRET_VAULT_ADDR) flag not specified")
-		}
-
-		if len(c.String("vault-token")) == 0 && len(c.String("vault-auth-method")) == 0 {
-			return fmt.Errorf("vault-token (VELA_SECRET_VAULT_TOKEN or SECRET_VAULT_TOKEN) or vault-auth-method (VELA_SECRET_VAULT_AUTH_METHOD or SECRET_VAULT_AUTH_METHOD) flag not specified")
-		}
-
-		if len(c.String("vault-token")) == 0 {
-			switch c.String("vault-auth-method") {
-			case "aws":
-			default:
-				return fmt.Errorf("vault auth method of '%s' is unsupported", c.String("vault-auth-method"))
-			}
-
-			if c.String("vault-auth-method") == "aws" {
-				if len(c.String("vault-aws-role")) == 0 {
-					return fmt.Errorf("vault-aws-role (VELA_SECRET_VAULT_AWS_ROLE or SECRET_VAULT_AWS_ROLE) flag not specified")
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-// helper function to validate the source CLI configuration.
-func validateSource(c *cli.Context) error {
-	logrus.Trace("Validating source CLI configuration")
-
-	if len(c.String("source-driver")) > 0 {
-		if len(c.String("source-url")) == 0 {
-			return fmt.Errorf("source-url (VELA_SOURCE_URL or SOURCE_URL) flag not specified")
-		}
-
-		if len(c.String("source-client")) == 0 {
-			return fmt.Errorf("source-client (VELA_SOURCE_CLIENT or SOURCE_CLIENT) flag not specified")
-		}
-
-		if len(c.String("source-secret")) == 0 {
-			return fmt.Errorf("source-secret (VELA_SOURCE_SECRET or SOURCE_SECRET) flag not specified")
 		}
 	}
 

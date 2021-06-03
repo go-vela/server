@@ -55,7 +55,7 @@ func setupMetadata(c *cli.Context) (*types.Metadata, error) {
 func metadataDatabase(c *cli.Context) (*types.Database, error) {
 	logrus.Trace("Creating database metadata from CLI configuration")
 
-	u, err := url.Parse(c.String("database.config"))
+	u, err := url.Parse(c.String("database.addr"))
 	if err != nil {
 		return nil, err
 	}
