@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-vela/server/database/postgres"
 	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
@@ -95,6 +96,35 @@ func (s *Setup) Validate() error {
 	// verify a database encryption key was provided
 	if len(s.EncryptionKey) == 0 {
 		return fmt.Errorf("no database encryption key provided")
+	}
+
+	// verify the database compression level is valid
+	switch s.CompressionLevel {
+	case constants.CompressionNegOne:
+		fallthrough
+	case constants.CompressionZero:
+		fallthrough
+	case constants.CompressionOne:
+		fallthrough
+	case constants.CompressionTwo:
+		fallthrough
+	case constants.CompressionThree:
+		fallthrough
+	case constants.CompressionFour:
+		fallthrough
+	case constants.CompressionFive:
+		fallthrough
+	case constants.CompressionSix:
+		fallthrough
+	case constants.CompressionSeven:
+		fallthrough
+	case constants.CompressionEight:
+		fallthrough
+	case constants.CompressionNine:
+		break
+	default:
+		// nolint:lll // ignoring line length due to error message
+		return fmt.Errorf("database compression level must be between %d and %d - provided level: %d", constants.CompressionNegOne, constants.CompressionNine, s.CompressionLevel)
 	}
 
 	// enforce AES-256 for the encryption key - explicitly check for 32 characters in the key

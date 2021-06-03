@@ -130,6 +130,18 @@ func TestDatabase_Setup_Validate(t *testing.T) {
 			},
 		},
 		{
+			failure: false,
+			setup: &Setup{
+				Driver:           "postgres",
+				Address:          "postgres://foo:bar@localhost:5432/vela",
+				CompressionLevel: -1,
+				ConnectionLife:   10 * time.Second,
+				ConnectionIdle:   5,
+				ConnectionOpen:   20,
+				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+			},
+		},
+		{
 			failure: true,
 			setup: &Setup{
 				Driver:           "postgres",
@@ -187,6 +199,18 @@ func TestDatabase_Setup_Validate(t *testing.T) {
 				ConnectionIdle:   5,
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0",
+			},
+		},
+		{
+			failure: true,
+			setup: &Setup{
+				Driver:           "postgres",
+				Address:          "postgres://foo:bar@localhost:5432/vela",
+				CompressionLevel: 10,
+				ConnectionLife:   10 * time.Second,
+				ConnectionIdle:   5,
+				ConnectionOpen:   20,
+				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			},
 		},
 	}
