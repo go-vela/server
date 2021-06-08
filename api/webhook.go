@@ -370,8 +370,14 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// parent should be "1" if it's the first build ran
+		// set the parent equal to the current repo counter
 		b.SetParent(r.GetCounter())
+
+		// check if the parent is set to 0
+		if b.GetParent() == 0 {
+			// parent should be "1" if it's the first build ran
+			b.SetParent(1)
+		}
 
 		// update the build numbers based off repo counter
 		inc := r.GetCounter() + 1
