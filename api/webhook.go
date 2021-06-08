@@ -350,12 +350,6 @@ func PostWebhook(c *gin.Context) {
 	// number of times to retry
 	retryLimit := 3
 
-	// update the build numbers based off repo counter
-	inc := r.GetCounter() + 1
-
-	r.SetCounter(inc)
-	b.SetNumber(inc)
-
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
 		// check if we're on the first iteration of the loop
@@ -364,23 +358,11 @@ func PostWebhook(c *gin.Context) {
 			time.Sleep(time.Duration(i) * time.Second)
 		}
 
-		// send API call to capture the last build for the repo
-		lastBuild, err := database.FromContext(c).GetLastBuild(r)
+		// send API call to capture repo for the counter
+		r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
 		if err != nil {
-			// format the error message with extra information
-			err = fmt.Errorf("unable to get last build for %s: %v", r.GetFullName(), err)
-
-			// log the error for traceability
-			logrus.Error(err.Error())
-
-			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				// continue to the next iteration of the loop
-				continue
-			}
-
-			retErr := fmt.Errorf("%s: %v", baseErr, err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+			retErr := fmt.Errorf("%s: failed to get repo %s: %v", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
@@ -388,13 +370,20 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// parent should be "1" if it's the first build ran
+		// set the parent equal to the current repo counter
 		b.SetParent(r.GetCounter())
 
-		// ensure parent is set as previous build
-		if lastBuild != nil {
-			b.SetParent(lastBuild.GetNumber())
+		// check if the parent is set to 0
+		if b.GetParent() == 0 {
+			// parent should be "1" if it's the first build ran
+			b.SetParent(1)
 		}
+
+		// update the build numbers based off repo counter
+		inc := r.GetCounter() + 1
+
+		r.SetCounter(inc)
+		b.SetNumber(inc)
 
 		// populate the build link if a web address is provided
 		if len(m.Vela.WebAddress) > 0 {
