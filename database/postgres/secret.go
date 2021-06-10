@@ -111,7 +111,7 @@ func (c *client) CreateSecret(s *library.Secret) error {
 	// send query to the database
 	return c.Postgres.
 		Table(constants.TableSecret).
-		Create(secret).Error
+		Create(secret.Nullify()).Error
 }
 
 // UpdateSecret updates a secret in the database.
