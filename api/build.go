@@ -896,6 +896,7 @@ func UpdateBuild(c *gin.Context) {
 	// check if the build is in a "final" state
 	if b.GetStatus() == constants.StatusSuccess ||
 		b.GetStatus() == constants.StatusFailure ||
+		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError {
 		// send API call to capture the repo owner
