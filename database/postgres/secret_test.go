@@ -245,7 +245,7 @@ func TestPostgres_Client_CreateSecret(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "secrets" ("org","repo","team","name","value","type","images","events","allow_command","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
-		WithArgs("foo", "bar", "", "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
+		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
 		WillReturnRows(_rows)
 
 	// setup tests
