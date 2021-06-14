@@ -205,13 +205,16 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	switch b.GetStatus() {
 	case constants.StatusRunning, constants.StatusPending:
 		state = "pending"
-		description = "the build is pending"
+		description = fmt.Sprintf("the build is %s", b.GetStatus())
 	case constants.StatusSuccess:
 		state = "success"
 		description = "the build was successful"
 	case constants.StatusFailure:
 		state = "failure"
 		description = "the build has failed"
+	case constants.StatusCanceled:
+		state = "failure"
+		description = "the build was canceled"
 	case constants.StatusKilled:
 		state = "failure"
 		description = "the build was killed"
