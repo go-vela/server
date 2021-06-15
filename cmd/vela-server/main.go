@@ -183,7 +183,8 @@ func main() {
 	// set logrus to log in JSON format
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
-	if err := app.Run(os.Args); err != nil {
+	err = app.Run(os.Args)
+	if err != nil {
 		logrus.Fatal(err)
 	}
 }
