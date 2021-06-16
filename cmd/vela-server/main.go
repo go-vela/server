@@ -5,6 +5,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
@@ -19,10 +21,22 @@ import (
 
 // nolint: funlen // ignore function length due to flags
 func main() {
+	// capture application version information
+	v := version.New()
+
+	// serialize the version information as pretty JSON
+	bytes, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	// output the version information to stdout
+	fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
+
 	app := cli.NewApp()
 	app.Name = "vela-server"
 	app.Action = server
-	app.Version = version.New().Semantic()
+	app.Version = v.Semantic()
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
@@ -169,7 +183,8 @@ func main() {
 	// set logrus to log in JSON format
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
-	if err := app.Run(os.Args); err != nil {
+	err = app.Run(os.Args)
+	if err != nil {
 		logrus.Fatal(err)
 	}
 }
