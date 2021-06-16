@@ -11,6 +11,12 @@ import (
 // Service represents the interface for Vela integrating
 // with the different supported Database backends.
 type Service interface {
+	// Database Interface Functions
+
+	// Driver defines a function that outputs
+	// the configured database driver.
+	Driver() string
+
 	// Build Database Interface Functions
 
 	// GetBuild defines a function that
