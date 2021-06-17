@@ -41,6 +41,7 @@ func TestGithub_New(t *testing.T) {
 			WithServerAddress("https://vela-server.example.com"),
 			WithStatusContext("continuous-integration/vela"),
 			WithWebUIAddress("https://vela.example.com"),
+			WithScopes([]string{"repo", "repo:status", "user:email", "read:user", "read:org"}),
 		)
 
 		if test.failure {
