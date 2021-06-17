@@ -34,6 +34,8 @@ type Setup struct {
 	StatusContext string
 	// specifies the Vela web UI address to use for the source client
 	WebUIAddress string
+	// specifies the OAuth scopes to use for the source client
+	Scopes []string
 }
 
 // Github creates and returns a Vela service capable of
@@ -51,6 +53,7 @@ func (s *Setup) Github() (Service, error) {
 		github.WithServerAddress(s.ServerAddress),
 		github.WithStatusContext(s.StatusContext),
 		github.WithWebUIAddress(s.WebUIAddress),
+		github.WithScopes(s.Scopes),
 	)
 }
 
@@ -100,6 +103,10 @@ func (s *Setup) Validate() error {
 	// verify a source status context secret was provided
 	if len(s.StatusContext) == 0 {
 		return fmt.Errorf("no source status context provided")
+	}
+
+	if len(s.Scopes) == 0 {
+		return fmt.Errorf("no scopes provided")
 	}
 
 	// setup is valid
