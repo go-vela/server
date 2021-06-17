@@ -83,11 +83,16 @@ func New(opts ...ClientOpt) (*client, error) {
 		},
 	}
 
+	var githubScopes []github.Scope
+	for _, scope := range c.config.Scopes {
+		githubScopes = append(githubScopes, github.Scope(scope))
+	}
+
 	// create the GitHub authorization object
 	c.AuthReq = &github.AuthorizationRequest{
 		ClientID:     &c.config.ClientID,
 		ClientSecret: &c.config.ClientSecret,
-		Scopes:       []github.Scope{"repo", "repo:status", "user:email", "read:user", "read:org"},
+		Scopes:       githubScopes,
 	}
 
 	return c, nil
