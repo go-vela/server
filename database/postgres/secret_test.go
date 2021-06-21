@@ -294,7 +294,7 @@ func TestPostgres_Client_UpdateSecret(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "secrets" SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"events"=$8,"allow_command"=$9 WHERE "id" = $10`).
-		WithArgs("foo", "bar", "", "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
+		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
