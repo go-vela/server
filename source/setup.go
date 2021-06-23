@@ -106,7 +106,7 @@ func (s *Setup) Validate() error {
 	}
 
 	if len(s.Scopes) == 0 {
-		return fmt.Errorf("no scopes provided")
+		return fmt.Errorf("no source scopes provided")
 	}
 
 	// setup is valid
