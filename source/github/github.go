@@ -41,6 +41,8 @@ type config struct {
 	StatusContext string
 	// specifies the Vela web UI address to use for the GitHub client
 	WebUIAddress string
+	// specifies the OAuth scopes to use for the GitHub client
+	Scopes []string
 }
 
 type client struct {
@@ -74,18 +76,23 @@ func New(opts ...ClientOpt) (*client, error) {
 	c.OAuth = &oauth2.Config{
 		ClientID:     c.config.ClientID,
 		ClientSecret: c.config.ClientSecret,
-		Scopes:       []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+		Scopes:       c.config.Scopes,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  fmt.Sprintf("%s/login/oauth/authorize", c.config.Address),
 			TokenURL: fmt.Sprintf("%s/login/oauth/access_token", c.config.Address),
 		},
 	}
 
+	var githubScopes []github.Scope
+	for _, scope := range c.config.Scopes {
+		githubScopes = append(githubScopes, github.Scope(scope))
+	}
+
 	// create the GitHub authorization object
 	c.AuthReq = &github.AuthorizationRequest{
 		ClientID:     &c.config.ClientID,
 		ClientSecret: &c.config.ClientSecret,
-		Scopes:       []github.Scope{"repo", "repo:status", "user:email", "read:user", "read:org"},
+		Scopes:       githubScopes,
 	}
 
 	return c, nil
