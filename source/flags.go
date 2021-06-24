@@ -60,4 +60,10 @@ var Flags = []cli.Flag{
 		Usage:   "context for commit status in version control system",
 		Value:   "continuous-integration/vela",
 	},
+	&cli.StringSliceFlag{
+		EnvVars: []string{"VELA_SOURCE_SCOPES", "SOURCE_SCOPES"},
+		Name:    "source.scopes",
+		Usage:   "OAuth scopes to be used for the version control system",
+		Value:   cli.NewStringSlice("repo", "repo:status", "user:email", "read:user", "read:org"),
+	},
 }

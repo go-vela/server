@@ -24,6 +24,7 @@ func TestSource_New(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -36,6 +37,7 @@ func TestSource_New(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -48,6 +50,7 @@ func TestSource_New(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -60,6 +63,7 @@ func TestSource_New(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 	}

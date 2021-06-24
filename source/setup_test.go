@@ -19,6 +19,7 @@ func TestSource_Setup_Github(t *testing.T) {
 		ServerAddress: "https://vela-server.example.com",
 		StatusContext: "continuous-integration/vela",
 		WebUIAddress:  "https://vela.example.com",
+		Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 	}
 
 	_github, err := _setup.Github()
@@ -105,6 +106,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -117,6 +119,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -129,6 +132,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -141,6 +145,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -153,6 +158,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -165,6 +171,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -177,6 +184,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -189,6 +197,7 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "continuous-integration/vela",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
 			},
 		},
 		{
@@ -201,6 +210,20 @@ func TestSource_Setup_Validate(t *testing.T) {
 				ServerAddress: "https://vela-server.example.com",
 				StatusContext: "",
 				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{"repo", "repo:status", "user:email", "read:user", "read:org"},
+			},
+		},
+		{
+			failure: true,
+			setup: &Setup{
+				Driver:        "github",
+				Address:       "https://github.com",
+				ClientID:      "foo",
+				ClientSecret:  "bar",
+				ServerAddress: "https://vela-server.example.com",
+				StatusContext: "continuous-integration/vela",
+				WebUIAddress:  "https://vela.example.com",
+				Scopes:        []string{},
 			},
 		},
 	}

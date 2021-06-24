@@ -138,7 +138,7 @@ func (c *client) UpdateSecret(s *library.Secret) error {
 	// send query to the database
 	return c.Postgres.
 		Table(constants.TableSecret).
-		Save(secret).Error
+		Save(secret.Nullify()).Error
 }
 
 // DeleteSecret deletes a secret by unique ID from the database.

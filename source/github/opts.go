@@ -116,3 +116,20 @@ func WithWebUIAddress(address string) ClientOpt {
 		return nil
 	}
 }
+
+// WithScopes sets the GitHub OAuth scopes in the source client.
+func WithScopes(scopes []string) ClientOpt {
+	logrus.Trace("configuring oauth scopes in github source client")
+
+	return func(c *client) error {
+		// check if the scopes provided is empty
+		if len(scopes) == 0 {
+			return fmt.Errorf("no GitHub OAuth scopes provided")
+		}
+
+		// set the scopes in the github client
+		c.config.Scopes = scopes
+
+		return nil
+	}
+}

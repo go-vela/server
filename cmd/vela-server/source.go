@@ -25,6 +25,7 @@ func setupSource(c *cli.Context) (source.Service, error) {
 		ServerAddress: c.String("server-addr"),
 		StatusContext: c.String("source.context"),
 		WebUIAddress:  c.String("webui-addr"),
+		Scopes:        c.StringSlice("source.scopes"),
 	}
 
 	// setup the source
