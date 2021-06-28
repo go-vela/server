@@ -20,6 +20,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
+	github.com/joho/godotenv v1.3.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1
