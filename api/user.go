@@ -423,13 +423,13 @@ func GetUserSourceRepos(c *gin.Context) {
 			// add repos to list of database org repos
 			dbRepos = append(dbRepos, dbReposPart...)
 
-			// making an assumption that 50 means there is another page
+			// assume no more pages exist if under 100 results are returned
 			//
 			// nolint: gomnd // ignore magic number
-			if len(dbReposPart) == 50 {
-				page++
-			} else {
+			if len(dbReposPart) < 100 {
 				page = 0
+			} else {
+				page++
 			}
 		}
 
