@@ -17,6 +17,8 @@ import (
 	"github.com/go-vela/server/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 // nolint: funlen // ignore function length due to flags
