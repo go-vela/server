@@ -322,14 +322,36 @@ func CreateBuild(c *gin.Context) {
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list and total count
 	var (
-		b []*library.Build
-		t int64
+		filters = map[string]string{}
+		b       []*library.Build
+		t       int64
 	)
 
 	// capture middleware values
 	r := repo.Retrieve(c)
+
+	// capture the branch name parameter
+	branch := c.Query("branch")
 	// capture the event type parameter
 	event := c.Query("event")
+	// capture the status name parameter
+	status := c.Query("status")
+
+	// TODO: add validation for events
+	// TODO: add validation for status
+
+	// add branch to filters map
+	if len(branch) > 0 {
+		filters["branch"] = branch
+	}
+	// add event to filters map
+	if len(event) > 0 {
+		filters["event"] = event
+	}
+	// add status to filters map
+	if len(status) > 0 {
+		filters["status"] = status
+	}
 
 	logrus.Infof("Reading builds for repo %s", r.GetFullName())
 
@@ -360,13 +382,7 @@ func GetBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the list of builds for the repo (and event type if passed in)
-	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, event, page, perPage)
-	} else {
-		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
-	}
-
+	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
