@@ -302,6 +302,8 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 		},
 	}
 
+	filters := map[string]string{}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -324,7 +326,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 			}
 		}
 
-		got, _, err := _database.GetRepoBuildList(_repo, 1, 10)
+		got, _, err := _database.GetRepoBuildList(_repo, filters, 1, 10)
 
 		if test.failure {
 			if err == nil {

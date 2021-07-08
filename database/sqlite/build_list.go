@@ -128,7 +128,7 @@ func (c *client) GetOrgBuildListByEvent(org, event string, page, perPage int) ([
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]string, page, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
@@ -137,7 +137,7 @@ func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*librar
 	count := int64(0)
 
 	// count the results
-	count, err := c.GetRepoBuildCount(r)
+	count, err := c.GetRepoBuildCount(r, filters)
 	if err != nil {
 		return builds, 0, err
 	}
@@ -153,7 +153,11 @@ func (c *client) GetRepoBuildList(r *library.Repo, page, perPage int) ([]*librar
 	// send query to the database and store result in variable
 	err = c.Sqlite.
 		Table(constants.TableBuild).
-		Raw(dml.ListRepoBuilds, r.GetID(), perPage, offset).
+		Where("repo_id = ?", r.GetID()).
+		Where(filters).
+		Order("number DESC").
+		Limit(perPage).
+		Offset(offset).
 		Scan(b).Error
 
 	// iterate through all query results
