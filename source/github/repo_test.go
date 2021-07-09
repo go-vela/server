@@ -51,10 +51,14 @@ func TestGithub_Config_YML(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	u.SetName("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, "foo", "bar", "")
+	got, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -101,10 +105,14 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	u.SetName("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ConfigBackoff(u, "foo", "bar", "")
+	got, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -139,11 +147,14 @@ func TestGithub_Config_YML_BadRequest(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	u.SetName("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, "foo", "bar", "")
-
+	got, err := client.Config(u, r, "")
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
 	}
@@ -189,10 +200,124 @@ func TestGithub_Config_YAML(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	u.SetName("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, "foo", "bar", "")
+	got, err := client.Config(u, r, "")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Config returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Config is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_Config_Star(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		if c.Param("path") == ".vela.yml" {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/star.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	if err != nil {
+		t.Errorf("Config reading file returned err: %v", err)
+	}
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetPipelineType(constants.PipelineTypeStarlark)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.Config(u, r, "")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Config returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Config is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_Config_Py(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		if c.Param("path") == ".vela.yml" {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/py.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	if err != nil {
+		t.Errorf("Config reading file returned err: %v", err)
+	}
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetPipelineType(constants.PipelineTypeStarlark)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -232,10 +357,14 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	u.SetName("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, "foo", "bar", "")
+	got, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -270,10 +399,14 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	u.SetName("bar")
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, "foo", "bar", "")
+	got, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)

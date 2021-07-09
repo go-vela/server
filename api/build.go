@@ -196,7 +196,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), input.GetCommit())
+	config, err := source.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
@@ -688,7 +688,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), b.GetCommit())
+	config, err := source.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
