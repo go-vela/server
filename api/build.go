@@ -807,6 +807,7 @@ func RestartBuild(c *gin.Context) {
 
 // UpdateBuild represents the API handler to update
 // a build for a repo in the configured backend.
+// nolint: funlen // ignore long function line length
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

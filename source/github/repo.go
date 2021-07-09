@@ -21,6 +21,7 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
+// nolint: lll // ignore long line length due to input arguments
 func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
@@ -200,6 +201,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		state = "success"
 		description = "the build was successful"
 	case constants.StatusFailure:
+		// nolint: goconst // ignore making constant
 		state = "failure"
 		description = "the build has failed"
 	case constants.StatusCanceled:
