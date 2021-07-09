@@ -113,55 +113,13 @@ func GetPipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	var p *yaml.Build
-	switch r.GetPipelineType() {
-	case constants.PipelineTypeYAML:
-		// parse the pipeline configuration file
-		p, err = comp.Parse(config)
-		if err != nil {
-			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+	p, err := parseConfig(comp, config, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
-			util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
-			return
-		}
-	case constants.PipelineTypeGo:
-		raw, err := comp.ParseRaw(config)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		p, err = native.RenderBuild(raw, nil)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-	case constants.PipelineTypeStarlark:
-		raw, err := comp.ParseRaw(config)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		p, err = starlark.RenderBuild(raw, nil)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
+		return
 	}
 
 	// format response body based off output query parameter
@@ -256,55 +214,13 @@ func GetTemplates(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	var p *yaml.Build
-	switch r.GetPipelineType() {
-	case constants.PipelineTypeYAML:
-		// parse the pipeline configuration file
-		p, err = comp.Parse(config)
-		if err != nil {
-			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
+	p, err := parseConfig(comp, config, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
-			util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
-			return
-		}
-	case constants.PipelineTypeGo:
-		raw, err := comp.ParseRaw(config)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		p, err = native.RenderBuild(raw, nil)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-	case constants.PipelineTypeStarlark:
-		raw, err := comp.ParseRaw(config)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		p, err = starlark.RenderBuild(raw, nil)
-		if err != nil {
-			retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
+		return
 	}
 
 	// create map of templates for response body
@@ -410,10 +326,8 @@ func ExpandPipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -542,10 +456,8 @@ func ValidatePipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -682,10 +594,8 @@ func CompilePipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -807,4 +717,38 @@ func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSl
 	}
 
 	return m, nil
+}
+
+// parseConfig returns the parsed yaml.Build from the input config
+func parseConfig(comp compiler.Engine, config []byte, r *library.Repo) (*yaml.Build, error) {
+	var p *yaml.Build
+	var err error
+	switch r.GetPipelineType() {
+	case constants.PipelineTypeYAML:
+		// parse the pipeline configuration file
+		p, err = comp.Parse(config)
+		if err != nil {
+			return nil, err
+		}
+	case constants.PipelineTypeGo:
+		raw, err := comp.ParseRaw(config)
+		if err != nil {
+			return nil, err
+		}
+		p, err = native.RenderBuild(raw, nil)
+		if err != nil {
+			return nil, err
+		}
+	case constants.PipelineTypeStarlark:
+		raw, err := comp.ParseRaw(config)
+		if err != nil {
+			return nil, err
+		}
+		p, err = starlark.RenderBuild(raw, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return p, nil
 }
