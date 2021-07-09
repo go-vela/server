@@ -115,6 +115,7 @@ func GetPipeline(c *gin.Context) {
 
 	p, err := parseConfig(comp, config, r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -216,6 +217,7 @@ func GetTemplates(c *gin.Context) {
 
 	p, err := parseConfig(comp, config, r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -328,6 +330,7 @@ func ExpandPipeline(c *gin.Context) {
 
 	p, err := parseConfig(comp, config, r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -458,6 +461,7 @@ func ValidatePipeline(c *gin.Context) {
 
 	p, err := parseConfig(comp, config, r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -596,6 +600,7 @@ func CompilePipeline(c *gin.Context) {
 
 	p, err := parseConfig(comp, config, r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -719,7 +724,7 @@ func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSl
 	return m, nil
 }
 
-// parseConfig returns the parsed yaml.Build from the input config
+// parseConfig returns the parsed yaml.Build from the input config.
 func parseConfig(comp compiler.Engine, config []byte, r *library.Repo) (*yaml.Build, error) {
 	var p *yaml.Build
 	var err error
