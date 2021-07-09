@@ -53,7 +53,7 @@ func TestGithub_Config_YML(t *testing.T) {
 
 	r := new(library.Repo)
 	r.SetOrg("foo")
-	u.SetName("bar")
+	r.SetName("bar")
 
 	client, _ := NewTest(s.URL)
 
@@ -107,7 +107,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 
 	r := new(library.Repo)
 	r.SetOrg("foo")
-	u.SetName("bar")
+	r.SetName("bar")
 
 	client, _ := NewTest(s.URL)
 
@@ -149,7 +149,7 @@ func TestGithub_Config_YML_BadRequest(t *testing.T) {
 
 	r := new(library.Repo)
 	r.SetOrg("foo")
-	u.SetName("bar")
+	r.SetName("bar")
 
 	client, _ := NewTest(s.URL)
 
@@ -202,7 +202,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 
 	r := new(library.Repo)
 	r.SetOrg("foo")
-	u.SetName("bar")
+	r.SetName("bar")
 
 	client, _ := NewTest(s.URL)
 
@@ -359,7 +359,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 
 	r := new(library.Repo)
 	r.SetOrg("foo")
-	u.SetName("bar")
+	r.SetName("bar")
 
 	client, _ := NewTest(s.URL)
 
@@ -401,7 +401,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 
 	r := new(library.Repo)
 	r.SetOrg("foo")
-	u.SetName("bar")
+	r.SetName("bar")
 
 	client, _ := NewTest(s.URL)
 
