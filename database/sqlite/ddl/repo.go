@@ -31,6 +31,7 @@ repos (
 	allow_deploy  BOOLEAN,
 	allow_tag     BOOLEAN,
 	allow_comment BOOLEAN,
+	pipeline_type TEXT,
 	UNIQUE(full_name)
 );
 `

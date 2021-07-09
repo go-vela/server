@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-vela/compiler/compiler"
 	"github.com/go-vela/compiler/registry/github"
+	"github.com/go-vela/compiler/template/native"
+	"github.com/go-vela/compiler/template/starlark"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -18,6 +20,7 @@ import (
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
 
@@ -94,7 +97,7 @@ func GetPipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -110,8 +113,7 @@ func GetPipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -197,7 +199,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -213,8 +215,7 @@ func GetTemplates(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -225,7 +226,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// create map of templates for response body
-	t, err := setTemplateLinks(c, u, r, p.Templates)
+	t, err := setTemplateLinks(c, u, p.Templates)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set template links for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -311,7 +312,7 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -327,8 +328,7 @@ func ExpandPipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -342,6 +342,7 @@ func ExpandPipeline(c *gin.Context) {
 	t := p.Templates.Map()
 
 	// check if the pipeline contains stages
+	// nolint: dupl // ignore false positive
 	if len(p.Stages) > 0 {
 		// inject the templates into the stages
 		p.Stages, p.Secrets, p.Services, err = comp.ExpandStages(p, t)
@@ -442,7 +443,7 @@ func ValidatePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -458,8 +459,7 @@ func ValidatePipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -475,6 +475,7 @@ func ValidatePipeline(c *gin.Context) {
 		t := p.Templates.Map()
 
 		// check if the pipeline contains stages
+		// nolint: dupl // ignore false positive
 		if len(p.Stages) > 0 {
 			// inject the templates into the stages
 			p.Stages, p.Secrets, p.Services, err = comp.ExpandStages(p, t)
@@ -581,7 +582,7 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -597,8 +598,7 @@ func CompilePipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
-	p, err := comp.Parse(config)
+	p, err := parseConfig(comp, config, r)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to parse pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -684,7 +684,7 @@ func CompilePipeline(c *gin.Context) {
 // for a list of templates and returns a map of library templates.
 //
 // nolint: lll // ignore long line length due to variable names
-func setTemplateLinks(c *gin.Context, u *library.User, r *library.Repo, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
+func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
 	m := make(map[string]*library.Template)
 	for _, t := range templates {
 		// convert to library type
@@ -722,4 +722,38 @@ func setTemplateLinks(c *gin.Context, u *library.User, r *library.Repo, template
 	}
 
 	return m, nil
+}
+
+// parseConfig returns the parsed yaml.Build from the input config.
+func parseConfig(comp compiler.Engine, config []byte, r *library.Repo) (*yaml.Build, error) {
+	var p *yaml.Build
+	var err error
+	switch r.GetPipelineType() {
+	case constants.PipelineTypeYAML:
+		// parse the pipeline configuration file
+		p, err = comp.Parse(config)
+		if err != nil {
+			return nil, err
+		}
+	case constants.PipelineTypeGo:
+		raw, err := comp.ParseRaw(config)
+		if err != nil {
+			return nil, err
+		}
+		p, err = native.RenderBuild(raw, nil)
+		if err != nil {
+			return nil, err
+		}
+	case constants.PipelineTypeStarlark:
+		raw, err := comp.ParseRaw(config)
+		if err != nil {
+			return nil, err
+		}
+		p, err = starlark.RenderBuild(raw, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return p, nil
 }

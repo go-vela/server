@@ -113,7 +113,10 @@ func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 	}
 
 	// create http client to connect to GitHub API
-	transport := github.BasicAuthTransport{Username: c.config.ClientID, Password: c.config.ClientSecret}
+	transport := github.BasicAuthTransport{
+		Username: c.config.ClientID,
+		Password: c.config.ClientSecret,
+	}
 	// create client to connect to GitHub API
 	client := github.NewClient(transport.Client())
 	// check if github url was set

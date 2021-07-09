@@ -112,7 +112,7 @@ func TestPostgres_Client_CreateStep(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "steps" ("build_id","repo_id","number","name","image","stage","status","error","exit_code","created","started","finished","host","runtime","distribution","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING "id"`).
-		WithArgs(1, 1, 1, "foo", "bar", "", "", "", nil, nil, nil, nil, "", "", "", 1).
+		WithArgs(1, 1, 1, "foo", "bar", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnRows(_rows)
 
 	// setup tests
@@ -161,7 +161,7 @@ func TestPostgres_Client_UpdateStep(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "steps" SET "build_id"=$1,"repo_id"=$2,"number"=$3,"name"=$4,"image"=$5,"stage"=$6,"status"=$7,"error"=$8,"exit_code"=$9,"created"=$10,"started"=$11,"finished"=$12,"host"=$13,"runtime"=$14,"distribution"=$15 WHERE "id" = $16`).
-		WithArgs(1, 1, 1, "foo", "bar", "", "", "", nil, nil, nil, nil, "", "", "", 1).
+		WithArgs(1, 1, 1, "foo", "bar", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests

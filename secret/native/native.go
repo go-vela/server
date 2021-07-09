@@ -16,7 +16,7 @@ type client struct {
 
 // New returns a Secret implementation that integrates with a Native secrets engine.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new native client
 	c := new(client)

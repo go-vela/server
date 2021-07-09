@@ -24,7 +24,6 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 	// send API call to capture the commit
 	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha)
 	if err != nil {
-		// nolint: golint // ignore capitalized error message
 		return nil, fmt.Errorf("Repositories.GetCommit returned error: %v", err)
 	}
 
@@ -52,7 +51,6 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 		// send API call to capture the files from the pull request
 		files, resp, err := client.PullRequests.ListFiles(ctx, r.GetOrg(), r.GetName(), number, &opts)
 		if err != nil {
-			// nolint: golint // ignore capitalized error message
 			return nil, fmt.Errorf("PullRequests.ListFiles returned error: %v", err)
 		}
 

@@ -1,5 +1,7 @@
 module github.com/go-vela/server
 
+replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20210709181443-362fa898a72c
+
 go 1.15
 
 require (
@@ -13,7 +15,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.8.1
 	github.com/go-vela/pkg-queue v0.8.1
-	github.com/go-vela/types v0.8.2
+	github.com/go-vela/types v0.8.3-0.20210709135941-cea3e4e5d4a9
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v36 v36.0.0
 	github.com/google/gofuzz v1.2.0 // indirect

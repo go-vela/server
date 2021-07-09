@@ -144,6 +144,22 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowTag(input.GetAllowTag())
 	}
 
+	if len(input.GetPipelineType()) == 0 {
+		r.SetPipelineType(constants.PipelineTypeYAML)
+	} else {
+		// ensure the pipeline type matches one of the expected values
+		if input.GetPipelineType() != constants.PipelineTypeYAML ||
+			input.GetPipelineType() != constants.PipelineTypeGo ||
+			input.GetPipelineType() != constants.PipelineTypeStarlark {
+			retErr := fmt.Errorf("pipeline_type of %s is invalid", input.GetPipelineType())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+		r.SetPipelineType(input.GetPipelineType())
+	}
+
 	// create unique id for the repo
 	uid, err := uuid.NewRandom()
 	if err != nil {
@@ -539,6 +555,20 @@ func UpdateRepo(c *gin.Context) {
 		!r.GetAllowComment() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
+	}
+
+	if len(input.GetPipelineType()) != 0 {
+		// ensure the pipeline type matches one of the expected values
+		if input.GetPipelineType() != constants.PipelineTypeYAML &&
+			input.GetPipelineType() != constants.PipelineTypeGo &&
+			input.GetPipelineType() != constants.PipelineTypeStarlark {
+			retErr := fmt.Errorf("pipeline_type of %s is invalid", input.GetPipelineType())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+		r.SetPipelineType(input.GetPipelineType())
 	}
 
 	// set hash for repo if no hash is already set
