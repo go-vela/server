@@ -223,6 +223,14 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
+	// skip the build if only the init and clone steps are found
+	if len(p.Steps) == 2 {
+		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
+			c.JSON(http.StatusOK, "skipping build since only init and clone steps found")
+			return
+		}
+	}
+
 	// create the objects from the pipeline in the database
 	err = planBuild(database.FromContext(c), p, input, r)
 	if err != nil {
@@ -719,6 +727,14 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
+	}
+
+	// skip the build if only the init and clone steps are found
+	if len(p.Steps) == 2 {
+		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
+			c.JSON(http.StatusOK, "skipping build since only init and clone steps found")
+			return
+		}
 	}
 
 	// create the objects from the pipeline in the database
