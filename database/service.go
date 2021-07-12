@@ -43,9 +43,6 @@ type Service interface {
 	// GetOrgBuildList defines a function that
 	// gets a list of builds by org.
 	GetOrgBuildList(string, int, int) ([]*library.Build, int64, error)
-	// GetRepoBuildListByEvent defines a function that
-	// gets a list of builds by repo ID and event type.
-	GetRepoBuildListByEvent(*library.Repo, string, int, int) ([]*library.Build, int64, error)
 	// GetOrgBuildListByEvent defines a function that
 	// gets a list of builds by org and event type.
 	GetOrgBuildListByEvent(string, string, int, int) ([]*library.Build, int64, error)
