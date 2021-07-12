@@ -334,7 +334,7 @@ func GetBuilds(c *gin.Context) {
 	branch := c.Query("branch")
 	// capture the event type parameter
 	event := c.Query("event")
-	// capture the status name parameter
+	// capture the status type parameter
 	status := c.Query("status")
 
 	// check if branch filter was provided
