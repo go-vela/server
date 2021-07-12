@@ -320,7 +320,7 @@ func CreateBuild(c *gin.Context) {
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
 func GetBuilds(c *gin.Context) {
-	// variables that will hold the build list and total count
+	// variables that will hold the build list, build list filters and total count
 	var (
 		filters = map[string]string{}
 		b       []*library.Build
@@ -337,19 +337,42 @@ func GetBuilds(c *gin.Context) {
 	// capture the status name parameter
 	status := c.Query("status")
 
-	// TODO: add validation for events
-	// TODO: add validation for status
-
-	// add branch to filters map
+	// check if branch filter was provided
 	if len(branch) > 0 {
+		// add branch to filters map
 		filters["branch"] = branch
 	}
-	// add event to filters map
+	// check if event filter was provided
 	if len(event) > 0 {
+		// verify the event provided is a valid event type
+		if event != constants.EventComment && event != constants.EventDeploy &&
+			event != constants.EventPush && event != constants.EventPull &&
+			event != constants.EventTag {
+			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add event to filters map
 		filters["event"] = event
 	}
-	// add status to filters map
+	// check if status filter was provided
 	if len(status) > 0 {
+		// verify the status provided is a valid status type
+		if status != constants.StatusCanceled && status != constants.StatusError &&
+			status != constants.StatusFailure && status != constants.StatusKilled &&
+			status != constants.StatusPending && status != constants.StatusRunning &&
+			status != constants.StatusSuccess {
+			retErr := fmt.Errorf("unable to process status %s: invalid status type provided", status)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add status to filters map
 		filters["status"] = status
 	}
 
