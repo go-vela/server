@@ -19,6 +19,12 @@ import (
 // POST /api/v1/pipelines/:org/:repo/compile
 // POST /api/v1/pipelines/:org/:repo/validate .
 func PipelineHandlers(base *gin.RouterGroup) {
+	// Raw pipeline endpoints
+	raw := base.Group("pipeline/raw")
+	{
+		raw.POST("", api.RawPipeline)
+	}
+
 	// Pipelines endpoints
 	pipelines := base.Group("pipelines/:org/:repo", repo.Establish())
 	{
