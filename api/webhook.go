@@ -418,12 +418,11 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// skip the build if only the init and clone steps are found
-		if len(p.Steps) == 2 {
-			if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
-				c.JSON(http.StatusOK, "skipping build since only init and clone steps found")
-				return
-			}
+		// skip the build if only the init or clone steps are found
+		skip := skipEmptyBuild(p)
+		if skip != "" {
+			c.JSON(http.StatusOK, skip)
+			return
 		}
 
 		// create the objects from the pipeline in the database
