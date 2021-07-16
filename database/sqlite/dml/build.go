@@ -12,30 +12,6 @@ SELECT *
 FROM builds;
 `
 
-	// ListRepoBuilds represents a query to list
-	// all builds for a repo_id in the database.
-	ListRepoBuilds = `
-SELECT *
-FROM builds
-WHERE repo_id = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
-	// ListRepoBuildsByEvent represents a query to select
-	// a build for a repo_id with a specific event type
-	// in the database.
-	ListRepoBuildsByEvent = `
-SELECT *
-FROM builds
-WHERE repo_id = ?
-AND event = ?
-ORDER BY number DESC
-LIMIT ?
-OFFSET ?;
-`
-
 	// SelectRepoBuild represents a query to select
 	// a build for a repo_id in the database.
 	SelectRepoBuild = `
