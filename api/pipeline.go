@@ -5,6 +5,8 @@
 package api
 
 import (
+	b64 "encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -512,6 +514,85 @@ func ValidatePipeline(c *gin.Context) {
 
 	// pipeline is valid, respond to user
 	c.JSON(http.StatusOK, "pipeline is valid")
+}
+
+func RawPipeline(c *gin.Context) {
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
+
+	output := c.DefaultQuery("output", outputYAML)
+
+	// create the compiler with extra information embedded into it
+	comp := compiler.FromContext(c).
+		WithMetadata(m)
+
+	byteBody, err := c.GetRawData()
+	if err != nil {
+		retErr := errors.New("missing rawPipeline")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	b64pipeline := strings.Trim(string(byteBody), "\"'\n\r")
+	pipeline, err := b64.StdEncoding.DecodeString(b64pipeline)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse raw pipeline configuration: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// parse the pipeline configuration file
+	p, err := comp.Parse(pipeline)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to parse raw pipeline configuration: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// Template Checks go here
+	// create map of templates for easy lookup
+	t := p.Templates.Map()
+
+	// check if the pipeline contains stages
+	if len(p.Stages) > 0 {
+		// inject the templates into the stages
+		p.Stages, p.Secrets, p.Services, err = comp.ExpandStages(p, t)
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("unable to expand stages in pipeline configuration for: %w", err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+	} else { // inject the templates into the steps
+		p.Steps, p.Secrets, p.Services, err = comp.ExpandSteps(p, t)
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("unable to expand steps in pipeline configuration for: %w", err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+	}
+
+	// format response body based off output query parameter
+	switch strings.ToLower(output) {
+	case outputJSON:
+		c.JSON(http.StatusOK, p)
+	case outputYAML:
+		fallthrough
+	default:
+		c.YAML(http.StatusOK, p)
+	}
 }
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/compile pipelines CompilePipeline
