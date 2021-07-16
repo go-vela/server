@@ -14,7 +14,7 @@ require (
 	github.com/go-vela/pkg-queue v0.8.1
 	github.com/go-vela/types v0.8.2
 	github.com/google/go-cmp v0.5.6
-	github.com/google/go-github/v36 v36.0.0
+	github.com/google/go-github/v37 v37.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/vault/api v1.1.1
