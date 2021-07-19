@@ -276,7 +276,7 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(1) FROM "builds" WHERE repo_id = $1`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1`).WillReturnRows(_rows)
 
 	// create expected return in mock
 	_rows = sqlmock.NewRows(
