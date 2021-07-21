@@ -5,6 +5,7 @@
 package github
 
 import (
+	"github.com/go-vela/types/raw"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -106,6 +107,7 @@ func TestGithub_GetDeployment(t *testing.T) {
 	want.SetTask("deploy")
 	want.SetTarget("production")
 	want.SetDescription("Deploy request from Vela")
+	want.SetPayload(raw.StringSliceMap{"deploy": "migrate"})
 
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
@@ -211,6 +213,7 @@ func TestGithub_GetDeploymentList(t *testing.T) {
 	d1.SetTask("deploy")
 	d1.SetTarget("production")
 	d1.SetDescription("Deploy request from Vela")
+	d1.SetPayload(raw.StringSliceMap{"deploy": "migrate"})
 
 	d2 := new(library.Deployment)
 	d2.SetID(2)
@@ -222,6 +225,7 @@ func TestGithub_GetDeploymentList(t *testing.T) {
 	d2.SetTask("deploy")
 	d2.SetTarget("production")
 	d2.SetDescription("Deploy request from Vela")
+	d2.SetPayload(raw.StringSliceMap{"deploy": "migrate"})
 
 	want := []*library.Deployment{d2, d1}
 

@@ -5,6 +5,8 @@
 package github
 
 import (
+	"encoding/json"
+	"github.com/go-vela/types/raw"
 	"github.com/google/go-github/v37/github"
 
 	"github.com/go-vela/types/library"
@@ -27,6 +29,12 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 		return nil, err
 	}
 
+	var payload *raw.StringSliceMap
+	err = json.Unmarshal(deployment.Payload, &payload)
+	if err != nil {
+		logrus.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
+	}
+
 	return &library.Deployment{
 		ID:          deployment.ID,
 		RepoID:      r.ID,
@@ -37,6 +45,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 		Task:        deployment.Task,
 		Target:      deployment.Environment,
 		Description: deployment.Description,
+		Payload:     payload,
 	}, nil
 }
 
@@ -106,6 +115,11 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 
 	// iterate through all API results
 	for _, deployment := range d {
+		var payload *raw.StringSliceMap
+		err = json.Unmarshal(deployment.Payload, &payload)
+		if err != nil {
+			logrus.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
+		}
 		// convert query result to library type
 		deployments = append(deployments, &library.Deployment{
 			ID:          deployment.ID,
@@ -117,6 +131,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 			Task:        deployment.Task,
 			Target:      deployment.Environment,
 			Description: deployment.Description,
+			Payload:     payload,
 		})
 	}
 
