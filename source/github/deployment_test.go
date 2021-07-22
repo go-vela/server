@@ -5,11 +5,12 @@
 package github
 
 import (
-	"github.com/go-vela/types/raw"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/go-vela/types/raw"
 
 	"github.com/gin-gonic/gin"
 

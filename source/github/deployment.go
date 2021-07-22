@@ -6,6 +6,7 @@ package github
 
 import (
 	"encoding/json"
+
 	"github.com/go-vela/types/raw"
 	"github.com/google/go-github/v37/github"
 
