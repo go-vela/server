@@ -223,6 +223,13 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
+	// skip the build if only the init or clone steps are found
+	skip := skipEmptyBuild(p)
+	if skip != "" {
+		c.JSON(http.StatusOK, skip)
+		return
+	}
+
 	// create the objects from the pipeline in the database
 	err = planBuild(database.FromContext(c), p, input, r)
 	if err != nil {
@@ -251,6 +258,36 @@ func CreateBuild(c *gin.Context) {
 		r,
 		u,
 	)
+}
+
+// skipEmptyBuild checks if the build should be skipped due to it
+// not containing any steps besides init or clone
+func skipEmptyBuild(p *pipeline.Build) string {
+	if len(p.Stages) == 1 {
+		if p.Stages[0].Name == "init" {
+			return "skipping build since only init stage found"
+		}
+	}
+
+	if len(p.Stages) == 2 {
+		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
+			return "skipping build since only init and clone stages found"
+		}
+	}
+
+	if len(p.Steps) == 1 {
+		if p.Steps[0].Name == "init" {
+			return "skipping build since only init step found"
+		}
+	}
+
+	if len(p.Steps) == 2 {
+		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
+			return "skipping build since only init and clone steps found"
+		}
+	}
+
+	return ""
 }
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds GetBuilds
@@ -718,6 +755,13 @@ func RestartBuild(c *gin.Context) {
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
+		return
+	}
+
+	// skip the build if only the init or clone steps are found
+	skip := skipEmptyBuild(p)
+	if skip != "" {
+		c.JSON(http.StatusOK, skip)
 		return
 	}
 

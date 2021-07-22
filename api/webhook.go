@@ -418,6 +418,13 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
+		// skip the build if only the init or clone steps are found
+		skip := skipEmptyBuild(p)
+		if skip != "" {
+			c.JSON(http.StatusOK, skip)
+			return
+		}
+
 		// create the objects from the pipeline in the database
 		err = planBuild(database.FromContext(c), p, b, r)
 		if err != nil {
