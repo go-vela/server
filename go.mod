@@ -8,21 +8,19 @@ require (
 	github.com/aws/aws-sdk-go v1.38.57
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0 // indirect
-	github.com/frankban/quicktest v1.7.2 // indirect
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.8.1
 	github.com/go-vela/pkg-queue v0.8.1
 	github.com/go-vela/types v0.8.2
 	github.com/google/go-cmp v0.5.6
-	github.com/google/go-github/v36 v36.0.0
+	github.com/google/go-github/v37 v37.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/uuid v1.2.0
-	github.com/hashicorp/vault/api v1.1.0
+	github.com/google/uuid v1.3.0
+	github.com/hashicorp/vault/api v1.1.1
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
-	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/sirupsen/logrus v1.8.1
@@ -32,5 +30,5 @@ require (
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.1.0
 	gorm.io/driver/sqlite v1.1.4
-	gorm.io/gorm v1.21.10
+	gorm.io/gorm v1.21.12
 )
