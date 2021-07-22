@@ -116,7 +116,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 	// iterate through all API results
 	for _, deployment := range d {
 		var payload *raw.StringSliceMap
-		err = json.Unmarshal(deployment.Payload, &payload)
+		err := json.Unmarshal(deployment.Payload, &payload)
 		if err != nil {
 			logrus.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 		}

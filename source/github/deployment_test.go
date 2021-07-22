@@ -213,7 +213,7 @@ func TestGithub_GetDeploymentList(t *testing.T) {
 	d1.SetTask("deploy")
 	d1.SetTarget("production")
 	d1.SetDescription("Deploy request from Vela")
-	d1.SetPayload(raw.StringSliceMap{"deploy": "migrate"})
+	d1.SetPayload(nil)
 
 	d2 := new(library.Deployment)
 	d2.SetID(2)
