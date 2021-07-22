@@ -158,7 +158,7 @@ func TestPostgres_Client_UpdateRepo(t *testing.T) {
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "repos" SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"timeout"=$9,"counter"=$10,"visibility"=$11,"private"=$12,"trusted"=$13,"active"=$14,"allow_pull"=$15,"allow_push"=$16,"allow_deploy"=$17,"allow_tag"=$18,"allow_comment"=$19 WHERE "id" = $21`).
+	_mock.ExpectExec(`UPDATE "repos" SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"timeout"=$9,"counter"=$10,"visibility"=$11,"private"=$12,"trusted"=$13,"active"=$14,"allow_pull"=$15,"allow_push"=$16,"allow_deploy"=$17,"allow_tag"=$18,"allow_comment"=$19 WHERE "id" = $20`).
 		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, "public", false, false, false, false, false, false, false, false, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 

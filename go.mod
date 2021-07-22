@@ -7,12 +7,13 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aws/aws-sdk-go v1.38.57
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/drone/envsubst v1.0.3 // indirect
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.8.1
 	github.com/go-vela/pkg-queue v0.8.1
-	github.com/go-vela/types v0.8.3-0.20210720180410-4c255a33079f
+	github.com/go-vela/types v0.8.3-0.20210624175541-d9de354942de
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v37 v37.0.0
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -21,6 +22,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
+	github.com/microcosm-cc/bluemonday v1.0.15 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/sirupsen/logrus v1.8.1
