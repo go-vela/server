@@ -451,10 +451,10 @@ func GetOrgRepos(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the list of repos for the user
-	r, err := database.FromContext(c).GetUserRepoList(u, page, perPage)
+	// send API call to capture the list of repos for the org
+	r, err := database.FromContext(c).GetOrgRepoList(org, page, perPage)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get repos for user %s: %w", u.GetName(), err)
+		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
