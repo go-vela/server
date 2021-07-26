@@ -187,7 +187,7 @@ func TestPostgres_Client_CreateHook(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "hooks" ("repo_id","build_id","number","source_id","created","host","event","branch","error","status","link","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, "", "", "", "", "", "", 1).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnRows(_rows)
 
 	// setup tests
@@ -235,7 +235,7 @@ func TestPostgres_Client_UpdateHook(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "hooks" SET "repo_id"=$1,"build_id"=$2,"number"=$3,"source_id"=$4,"created"=$5,"host"=$6,"event"=$7,"branch"=$8,"error"=$9,"status"=$10,"link"=$11 WHERE "id" = $12`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, "", "", "", "", "", "", 1).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
