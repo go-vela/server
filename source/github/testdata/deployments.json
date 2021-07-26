@@ -46,9 +46,7 @@
     "sha": "a84d88e7554fc1fa21bcbc4efae3c782a70d2b9d",
     "ref": "topic-branch",
     "task": "deploy",
-    "payload": {
-      "deploy": "migrate"
-    },
+    "payload": "Not A StringSliceMap",
     "original_environment": "staging",
     "environment": "production",
     "description": "Deploy request from Vela",
