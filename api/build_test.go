@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/go-vela/types/pipeline"
 	"testing"
+
+	"github.com/go-vela/types/pipeline"
 )
 
 func Test_skipEmptyBuild(t *testing.T) {
