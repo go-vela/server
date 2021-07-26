@@ -162,3 +162,74 @@ func TestPostgres_Client_GetUserRepoCount(t *testing.T) {
 		}
 	}
 }
+
+func TestPostgres_Client_GetOrgRepoCount(t *testing.T) {
+	// setup types
+	_repoOne := testRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetUserID(1)
+	_repoOne.SetHash("baz")
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+	_repoOne.SetVisibility("public")
+
+	_repoTwo := testRepo()
+	_repoTwo.SetID(1)
+	_repoTwo.SetUserID(1)
+	_repoTwo.SetHash("baz")
+	_repoTwo.SetOrg("bar")
+	_repoTwo.SetName("foo")
+	_repoTwo.SetFullName("bar/foo")
+	_repoTwo.SetVisibility("public")
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgReposCount, "foo").Statement
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    int64
+	}{
+		{
+			failure: false,
+			want:    1,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := _database.GetOrgRepoCount("foo")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetRepoCount should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetRepoCount returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetRepoCount is %v, want %v", got, test.want)
+		}
+	}
+}
