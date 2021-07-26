@@ -28,7 +28,7 @@ func (c *client) GetRepoCount() (int64, error) {
 	return r, err
 }
 
-// GetOrgRepoCount gets a count of all repos for a specific user from the database.
+// GetOrgRepoCount gets a count of all repos for a specific org from the database.
 func (c *client) GetOrgRepoCount(org string) (int64, error) {
 	logrus.Tracef("getting count of repos for org %s in the database", org)
 

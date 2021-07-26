@@ -180,3 +180,77 @@ func TestSqlite_Client_GetUserRepoCount(t *testing.T) {
 		}
 	}
 }
+
+func TestSqlite_Client_GetOrgRepoCount(t *testing.T) {
+	// setup types
+	_repoOne := testRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetUserID(1)
+	_repoOne.SetHash("baz")
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+	_repoOne.SetVisibility("public")
+
+	_repoTwo := testRepo()
+	_repoTwo.SetID(2)
+	_repoTwo.SetUserID(1)
+	_repoTwo.SetHash("baz")
+	_repoTwo.SetOrg("bar")
+	_repoTwo.SetName("foo")
+	_repoTwo.SetFullName("bar/foo")
+	_repoTwo.SetVisibility("public")
+
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new sqlite test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    int64
+	}{
+		{
+			failure: false,
+			want:    1,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		// defer cleanup of the repos table
+		defer _database.Sqlite.Exec("delete from repos;")
+
+		// create the repos in the database
+		err := _database.CreateRepo(_repoOne)
+		if err != nil {
+			t.Errorf("unable to create test repo: %v", err)
+		}
+
+		err = _database.CreateRepo(_repoTwo)
+		if err != nil {
+			t.Errorf("unable to create test repo: %v", err)
+		}
+
+		got, err := _database.GetOrgRepoCount("foo")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetRepoCount should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetRepoCount returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetRepoCount is %v, want %v", got, test.want)
+		}
+	}
+}
