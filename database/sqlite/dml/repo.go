@@ -44,7 +44,7 @@ AND name = ?
 LIMIT 1;
 `
 	// SelectOrgReposCount represents a query to select
-	// the count of repos for a user_id in the database.
+	// the count of repos for a org in the database.
 	SelectOrgReposCount = `
 SELECT count(*) as count
 FROM repos

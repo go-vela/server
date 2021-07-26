@@ -397,11 +397,11 @@ func GetRepos(c *gin.Context) {
 //         description: see https://tools.ietf.org/html/rfc5988
 //         type: string
 //   '400':
-//     description: Unable to retrieve the repo
+//     description: Unable to retrieve the org
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the repo
+//     description: Unable to retrieve the org
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -413,7 +413,7 @@ func GetOrgRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	org := c.Param("org")
-	logrus.Infof("Reading Org repos for org %s", org)
+	logrus.Infof("Reading repos for org %s", org)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
