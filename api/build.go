@@ -1262,6 +1262,44 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	// build has been abandoned
-	retErr := fmt.Errorf("unable to find a running build for %s/%d", r.GetFullName(), b.GetNumber())
-	util.HandleError(c, http.StatusInternalServerError, retErr)
+	// update the status in the build table
+	b.SetStatus(constants.StatusCanceled)
+	database.FromContext(c).UpdateBuild(b)
+
+	// retrieve the steps for the build from the step table
+	steps := []*library.Step{}
+	page := 1
+	for page > 0 {
+		// retrieve build steps (per page) from the database
+		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, 100)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve steps for build %d: %w", b.Number, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
+
+		// add repos to list of database org repos
+		steps = append(steps, stepsPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		//
+		// nolint: gomnd // ignore magic number
+		if len(stepsPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over all each step for the build
+	// setting anything running or pending to canceled
+	for _, step := range steps {
+		if step.GetStatus() == constants.StatusRunning ||
+			step.GetStatus() == constants.StatusPending {
+			step.SetStatus(constants.StatusCanceled)
+		}
+		database.FromContext(c).UpdateStep(step)
+	}
+
+	c.JSON(http.StatusOK, b)
 }
