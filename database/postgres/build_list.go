@@ -41,7 +41,7 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 }
 
 // GetOrgBuildList gets a list of all builds by org name from the database.
-func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetOrgBuildList(org string, exclude []int64, page, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for org %s from the database", org)
 
 	// variable to store query results
@@ -50,7 +50,7 @@ func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Buil
 	count := int64(0)
 
 	// // count the results
-	count, err := c.GetOrgBuildCount(org)
+	count, err := c.GetOrgBuildCount(org, exclude)
 
 	if err != nil {
 		return builds, 0, err
@@ -67,7 +67,7 @@ func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Buil
 	// send query to the database and store result in variable
 	err = c.Postgres.
 		Table(constants.TableBuild).
-		Raw(dml.ListOrgBuilds, org, perPage, offset).
+		Raw(dml.ListOrgBuilds, org, exclude, perPage, offset).
 		Scan(b).Error
 
 	// iterate through all query results
@@ -85,7 +85,7 @@ func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Buil
 // GetOrgBuildListByEvent gets a list of all builds by org name and event type from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetOrgBuildListByEvent(org, event string, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetOrgBuildListByEvent(org string, exclude []int64, event string, page, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for org %s by event %s from the database", org, event)
 
 	// variables to store query results
@@ -94,7 +94,7 @@ func (c *client) GetOrgBuildListByEvent(org, event string, page, perPage int) ([
 	count := int64(0)
 
 	// count the results
-	count, err := c.GetOrgBuildCountByEvent(org, event)
+	count, err := c.GetOrgBuildCountByEvent(org, exclude, event)
 	if err != nil {
 		return builds, 0, err
 	}

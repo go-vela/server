@@ -235,7 +235,7 @@ func TestSqlite_Client_GetOrgRepoCount(t *testing.T) {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		got, err := _database.GetOrgRepoCount("foo")
+		got, err := _database.GetOrgRepoCount("foo", []string{""})
 
 		if test.failure {
 			if err == nil {

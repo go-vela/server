@@ -411,7 +411,7 @@ func GetUserSourceRepos(c *gin.Context) {
 		page := 1
 		for page > 0 {
 			// send API call to capture the list of repos for the org
-			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, page, 100)
+			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, []string{}, page, 100)
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 

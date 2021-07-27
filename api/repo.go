@@ -441,8 +441,29 @@ func GetOrgRepos(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
+	allRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
+
+	var excludeList []string
+
+	for _, rr := range allRepos {
+		perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
+		if err != nil {
+			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
+		}
+
+		switch perm {
+		case "admin", "write", "read":
+			continue
+		default:
+			excludeList = append(excludeList, rr.GetName())
+		}
+	}
+	if len(excludeList) == 0 {
+		excludeList = append(excludeList, "")
+	}
+
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(org)
+	t, err := database.FromContext(c).GetOrgRepoCount(org, excludeList)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
 
@@ -452,7 +473,7 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).GetOrgRepoList(org, page, perPage)
+	r, err := database.FromContext(c).GetOrgRepoList(org, excludeList, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 
@@ -469,8 +490,6 @@ func GetOrgRepos(c *gin.Context) {
 	}
 	// set pagination headers
 	pagination.SetHeaderLink(c)
-
-	// TODO: Show all public repos for the orgs Hide private repos unless user has access
 
 	c.JSON(http.StatusOK, r)
 }

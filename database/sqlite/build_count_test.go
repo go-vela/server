@@ -231,7 +231,7 @@ func TestSqlite_Client_GetOrgBuildCount(t *testing.T) {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		got, err := _database.GetOrgBuildCount("foo")
+		got, err := _database.GetOrgBuildCount("foo", []int64{0})
 
 		if test.failure {
 			if err == nil {
@@ -319,7 +319,7 @@ func TestSqlite_Client_GetOrgBuildCountByEvent(t *testing.T) {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		got, err := _database.GetOrgBuildCountByEvent("foo", "push")
+		got, err := _database.GetOrgBuildCountByEvent("foo", []int64{0}, "push")
 
 		if test.failure {
 			if err == nil {

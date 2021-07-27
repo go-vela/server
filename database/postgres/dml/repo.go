@@ -23,12 +23,23 @@ LIMIT ?
 OFFSET ?;
 `
 
+	// ListPrivateOrgRepos represents a query to list
+	// all repos for an org in the database.
+	ListPrivateOrgRepos = `
+SELECT *
+FROM repos
+WHERE org = ?
+AND visibility = 'private'
+ORDER BY id DESC;
+`
+
 	// ListOrgRepos represents a query to list
 	// all repos for an org in the database.
 	ListOrgRepos = `
 SELECT *
 FROM repos
 WHERE org = ?
+AND name NOT IN (?)
 ORDER BY id DESC
 LIMIT ?
 OFFSET ?;

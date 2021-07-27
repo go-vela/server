@@ -29,7 +29,7 @@ func (c *client) GetRepoCount() (int64, error) {
 }
 
 // GetOrgRepoCount gets a count of all repos for a specific org from the database.
-func (c *client) GetOrgRepoCount(org string) (int64, error) {
+func (c *client) GetOrgRepoCount(org string, exclude []string) (int64, error) {
 	logrus.Tracef("getting count of repos for org %s in the database", org)
 
 	// variable to store query results
@@ -38,7 +38,7 @@ func (c *client) GetOrgRepoCount(org string) (int64, error) {
 	// send query to the database and store result in variable
 	err := c.Sqlite.
 		Table(constants.TableRepo).
-		Raw(dml.SelectOrgReposCount, org).
+		Raw(dml.SelectOrgReposCount, org, exclude).
 		Pluck("count", &r).Error
 
 	return r, err

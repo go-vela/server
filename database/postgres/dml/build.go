@@ -44,6 +44,7 @@ SELECT builds.*
 FROM builds JOIN repos 
 ON builds.repo_id = repos.id
 WHERE repos.org = ?
+AND repo_id NOT IN (?)
 AND builds.event = ?
 ORDER BY id DESC
 LIMIT ?
@@ -77,6 +78,7 @@ SELECT builds.*
 FROM builds JOIN repos
 ON builds.repo_id = repos.id
 WHERE repos.org = ?
+AND repo_id NOT IN (?)
 ORDER BY id DESC
 LIMIT ?
 OFFSET ?;
@@ -115,7 +117,8 @@ WHERE repo_id = ?;
 SELECT count(*) as count
 FROM builds JOIN repos
 ON builds.repo_id = repos.id
-WHERE repos.org = ?;
+WHERE repos.org = ?
+AND repo_id NOT IN (?);
 `
 	// SelectRepoBuildCountByEvent represents a query to select
 	// the count of builds for by repo and event type in the database.
@@ -134,6 +137,7 @@ SELECT count(*) as count
 FROM builds JOIN repos
 ON builds.repo_id = repos.id
 WHERE repos.org = ?
+AND repo_id NOT IN (?)
 AND builds.event = ?;
 `
 

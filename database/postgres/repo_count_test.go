@@ -214,7 +214,7 @@ func TestPostgres_Client_GetOrgRepoCount(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetOrgRepoCount("foo")
+		got, err := _database.GetOrgRepoCount("foo", []string{""})
 
 		if test.failure {
 			if err == nil {

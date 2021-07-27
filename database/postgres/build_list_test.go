@@ -143,7 +143,7 @@ func TestPostgres_Client_GetOrgBuildList(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, _, err := _database.GetOrgBuildList("foo", 1, 10)
+		got, _, err := _database.GetOrgBuildList("foo", []int64{0}, 1, 10)
 
 		if test.failure {
 			if err == nil {
@@ -222,7 +222,7 @@ func TestPostgres_Client_GetOrgBuildListByEvent(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, _, err := _database.GetOrgBuildListByEvent("foo", "push", 1, 10)
+		got, _, err := _database.GetOrgBuildListByEvent("foo", []int64{0}, "push", 1, 10)
 
 		if test.failure {
 			if err == nil {

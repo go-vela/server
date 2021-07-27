@@ -7,6 +7,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-vela/server/router/middleware/user"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -482,6 +483,7 @@ func GetOrgBuilds(c *gin.Context) {
 		t int64
 	)
 
+	u := user.Retrieve(c)
 	// capture middleware values
 	o := c.Param("org")
 	// capture the event type parameter
@@ -514,11 +516,38 @@ func GetOrgBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
+	// TODO:
+	// get list of private repos from db
+	// see if user has access to them
+	// keep a list of repos user does not have access too
+	// exclude builds for those repos
+
+	allRepos, err := database.FromContext(c).GetOrgPrivateRepoList(o)
+
+	var excludeList []int64
+
+	for _, rr := range allRepos {
+		perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
+		if err != nil {
+			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
+		}
+
+		switch perm {
+		case "admin", "write", "read":
+			continue
+		default:
+			excludeList = append(excludeList, rr.GetID())
+		}
+	}
+	if len(excludeList) == 0 {
+		excludeList = append(excludeList, 0)
+	}
+
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, event, page, perPage)
+		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, excludeList, event, page, perPage)
 	} else {
-		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
+		b, t, err = database.FromContext(c).GetOrgBuildList(o, excludeList, page, perPage)
 	}
 
 	if err != nil {

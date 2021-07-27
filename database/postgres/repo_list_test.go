@@ -144,7 +144,7 @@ func TestPostgres_Client_GetOrgRepoList(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetOrgRepoList("foo", 1, 10)
+		got, err := _database.GetOrgRepoList("foo", []string{""}, 1, 10)
 
 		if test.failure {
 			if err == nil {
