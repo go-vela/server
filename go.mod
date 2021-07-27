@@ -1,5 +1,7 @@
 module github.com/go-vela/server
 
+replace github.com/go-vela/compiler => github.com/JordanSussman/compiler v0.1.3-0.20210727204306-0aaf6573450e
+
 go 1.15
 
 require (
