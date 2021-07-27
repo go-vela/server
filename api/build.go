@@ -1264,7 +1264,12 @@ func CancelBuild(c *gin.Context) {
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
-	database.FromContext(c).UpdateBuild(b)
+	err = database.FromContext(c).UpdateBuild(b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update status for build %d: %w", b.Number, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
 
 	// retrieve the steps for the build from the step table
 	steps := []*library.Step{}
@@ -1298,7 +1303,12 @@ func CancelBuild(c *gin.Context) {
 			step.GetStatus() == constants.StatusPending {
 			step.SetStatus(constants.StatusCanceled)
 		}
-		database.FromContext(c).UpdateStep(step)
+		err = database.FromContext(c).UpdateStep(step)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update step %s for build %d: %w", step.GetName(), b.Number, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, b)
