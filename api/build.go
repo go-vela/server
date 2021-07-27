@@ -1278,7 +1278,7 @@ func CancelBuild(c *gin.Context) {
 			return
 		}
 
-		// add repos to list of database org repos
+		// add page of steps to list steps
 		steps = append(steps, stepsPart...)
 
 		// assume no more pages exist if under 100 results are returned
