@@ -1291,7 +1291,7 @@ func CancelBuild(c *gin.Context) {
 		}
 	}
 
-	// iterate over all each step for the build
+	// iterate over each step for the build
 	// setting anything running or pending to canceled
 	for _, step := range steps {
 		if step.GetStatus() == constants.StatusRunning ||
