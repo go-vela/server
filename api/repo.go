@@ -442,6 +442,9 @@ func GetOrgRepos(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	allRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
+	if err != nil {
+		logrus.Errorf("unable to get private repos for org %s : %s", org,  err)
+	}
 
 	var excludeList []string
 

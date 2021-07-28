@@ -517,17 +517,14 @@ func GetOrgBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// TODO:
-	// get list of private repos from db
-	// see if user has access to them
-	// keep a list of repos user does not have access too
-	// exclude builds for those repos
-
-	allRepos, err := database.FromContext(c).GetOrgPrivateRepoList(o)
+	privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(o)
+	if err != nil {
+		logrus.Errorf("unable to get private repos for org %s : %s", o,  err)
+	}
 
 	var excludeList []int64
 
-	for _, rr := range allRepos {
+	for _, rr := range privateRepos {
 		perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
 		if err != nil {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
