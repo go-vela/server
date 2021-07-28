@@ -169,7 +169,7 @@ func TestPostgres_Client_GetOrgBuildCount(t *testing.T) {
 	// capture the current expected SQL query
 	//
 	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCount, "foo").Statement
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCount, "foo", []int64{0}).Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
@@ -234,7 +234,7 @@ func TestPostgres_Client_GetOrgBuildCountByEvent(t *testing.T) {
 	// capture the current expected SQL query
 	//
 	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCountByEvent, "foo", "push").Statement
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCountByEvent, "foo", []int64{0}, "push").Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)

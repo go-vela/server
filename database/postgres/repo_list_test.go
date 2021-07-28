@@ -120,7 +120,7 @@ func TestPostgres_Client_GetOrgRepoList(t *testing.T) {
 	// capture the current expected SQL query
 	//
 	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListOrgRepos, "foo", 1, 10).Statement
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.ListOrgRepos, "foo", []string{""}, 1, 10).Statement
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
