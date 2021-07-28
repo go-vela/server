@@ -230,6 +230,8 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-test/deep v1.0.2-0.20181118220953-042da051cf31/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/go-test/deep v1.0.2 h1:onZX1rnHT3Wv6cqNgYyFOOlgVKJrksuCMCRvJStbMYw=
 github.com/go-test/deep v1.0.2/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
+github.com/go-vela/compiler v0.8.2-0.20210728151243-38af4aebce57 h1:MeANcKUowNTfspxIL3gH3qeoG2YltphF7oGItxRtZz8=
+github.com/go-vela/compiler v0.8.2-0.20210728151243-38af4aebce57/go.mod h1:AtXEbPEmH1NLJMaawkQf9WC1x/LDY201vqSb+3DBKko=
 github.com/go-vela/mock v0.8.1 h1:NNOukyA6MRAPp59cBZlrKCrl8LSm+Ww9Pa96OpEsYCo=
 github.com/go-vela/mock v0.8.1/go.mod h1:7WebOs2EzrlNzNrwss1r+tRvy0fUoN73YayMvH9+VQg=
 github.com/go-vela/pkg-queue v0.8.1 h1:b01vBwqUSBHR/eLjRqO8Qw9HqISrrAcPXlFRWnhp3Vo=
