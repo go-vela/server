@@ -272,6 +272,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
+	// nolint: gomnd // ignore magic number
 	if len(p.Stages) == 2 {
 		if p.Stages[0].Name == init && p.Stages[1].Name == "clone" {
 			return "skipping build since only init and clone stages found"
@@ -284,6 +285,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
+	// nolint: gomnd // ignore magic number
 	if len(p.Steps) == 2 {
 		if p.Steps[0].Name == init && p.Steps[1].Name == "clone" {
 			return "skipping build since only init and clone steps found"
