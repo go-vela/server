@@ -57,7 +57,7 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 
 // GetOrgPrivateRepoList gets a list of all private repos by org from the database.
 func (c *client) GetOrgPrivateRepoList(org string) ([]*library.Repo, error) {
-	logrus.Tracef("getting repos for org %s from the database", org)
+	logrus.Tracef("getting private repos for org %s from the database", org)
 
 	// variable to store query results
 	r := new([]database.Repo)
