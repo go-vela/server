@@ -263,28 +263,29 @@ func CreateBuild(c *gin.Context) {
 }
 
 // skipEmptyBuild checks if the build should be skipped due to it
-// not containing any steps besides init or clone
+// not containing any steps besides init or clone.
 func skipEmptyBuild(p *pipeline.Build) string {
+	const init = "init"
 	if len(p.Stages) == 1 {
-		if p.Stages[0].Name == "init" {
+		if p.Stages[0].Name == init {
 			return "skipping build since only init stage found"
 		}
 	}
 
 	if len(p.Stages) == 2 {
-		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
+		if p.Stages[0].Name == init && p.Stages[1].Name == "clone" {
 			return "skipping build since only init and clone stages found"
 		}
 	}
 
 	if len(p.Steps) == 1 {
-		if p.Steps[0].Name == "init" {
+		if p.Steps[0].Name == init {
 			return "skipping build since only init step found"
 		}
 	}
 
 	if len(p.Steps) == 2 {
-		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
+		if p.Steps[0].Name == init && p.Steps[1].Name == "clone" {
 			return "skipping build since only init and clone steps found"
 		}
 	}
@@ -900,52 +901,42 @@ func UpdateBuild(c *gin.Context) {
 
 	// update build fields if provided
 	if len(input.GetStatus()) > 0 {
-		// update status if set
 		b.SetStatus(input.GetStatus())
 	}
 
 	if len(input.GetError()) > 0 {
-		// update error if set
 		b.SetError(input.GetError())
 	}
 
 	if input.GetEnqueued() > 0 {
-		// update enqueued if set
 		b.SetEnqueued(input.GetEnqueued())
 	}
 
 	if input.GetStarted() > 0 {
-		// update started if set
 		b.SetStarted(input.GetStarted())
 	}
 
 	if input.GetFinished() > 0 {
-		// update finished if set
 		b.SetFinished(input.GetFinished())
 	}
 
 	if len(input.GetTitle()) > 0 {
-		// update title if set
 		b.SetTitle(input.GetTitle())
 	}
 
 	if len(input.GetMessage()) > 0 {
-		// update message if set
 		b.SetMessage(input.GetMessage())
 	}
 
 	if len(input.GetHost()) > 0 {
-		// update host if set
 		b.SetHost(input.GetHost())
 	}
 
 	if len(input.GetRuntime()) > 0 {
-		// update runtime if set
 		b.SetRuntime(input.GetRuntime())
 	}
 
 	if len(input.GetDistribution()) > 0 {
-		// update distribution if set
 		b.SetDistribution(input.GetDistribution())
 	}
 
