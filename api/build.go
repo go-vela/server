@@ -519,7 +519,7 @@ func GetOrgBuilds(c *gin.Context) {
 
 	privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(o)
 	if err != nil {
-		logrus.Errorf("unable to get private repos for org %s : %s", o,  err)
+		logrus.Errorf("unable to get private repos for org %s : %s", o, err)
 	}
 
 	var excludeList []int64

@@ -443,7 +443,7 @@ func GetOrgRepos(c *gin.Context) {
 
 	allRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
 	if err != nil {
-		logrus.Errorf("unable to get private repos for org %s : %s", org,  err)
+		logrus.Errorf("unable to get private repos for org %s : %s", org, err)
 	}
 
 	var excludeList []string
