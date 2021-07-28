@@ -7,12 +7,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-vela/server/router/middleware/user"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-vela/server/router/middleware/user"
 
 	"github.com/go-vela/compiler/compiler"
 
