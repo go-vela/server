@@ -1274,9 +1274,10 @@ func CancelBuild(c *gin.Context) {
 	// retrieve the steps for the build from the step table
 	steps := []*library.Step{}
 	page := 1
+	perPage := 100
 	for page > 0 {
 		// retrieve build steps (per page) from the database
-		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, 100)
+		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve steps for build %d: %w", b.Number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -1316,7 +1317,7 @@ func CancelBuild(c *gin.Context) {
 	page = 1
 	for page > 0 {
 		// retrieve build services (per page) from the database
-		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, 100)
+		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve services for build %d: %w", b.Number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -1344,7 +1345,11 @@ func CancelBuild(c *gin.Context) {
 			service.SetStatus(constants.StatusCanceled)
 			err = database.FromContext(c).UpdateService(service)
 			if err != nil {
-				retErr := fmt.Errorf("unable to update service %s for build %d: %w", service.GetName(), b.Number, err)
+				retErr := fmt.Errorf("unable to update service %s for build %d: %w",
+					service.GetName(),
+					b.Number,
+					err,
+				)
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
