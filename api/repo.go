@@ -69,7 +69,7 @@ import (
 
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
-// nolint:funlen // function is long
+// nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
