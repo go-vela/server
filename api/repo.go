@@ -407,8 +407,7 @@ func GetRepos(c *gin.Context) {
 
 // GetOrgRepos represents the API handler to capture a list
 // of repos for a org from the configured backend.
-//
-// nolint: dupl // ignore false positive
+
 func GetOrgRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

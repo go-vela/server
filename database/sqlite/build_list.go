@@ -41,6 +41,7 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 }
 
 // GetOrgBuildList gets a list of all builds by org name from the database.
+// nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgBuildList(org string, exclude []int64, page int, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for org %s from the database", org)
 

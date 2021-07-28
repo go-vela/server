@@ -98,6 +98,7 @@ func (c *client) GetOrgPrivateRepoList(org string) ([]*library.Repo, error) {
 }
 
 // GetOrgRepoList gets a list of all repos by org from the database.
+// nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgRepoList(org string, exclude []string, page, perPage int) ([]*library.Repo, error) {
 	logrus.Tracef("getting repos for org %s from the database", org)
 
