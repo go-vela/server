@@ -38,6 +38,7 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
+	_repoOne.SetPipelineType("yaml")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -47,6 +48,7 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 	_repoTwo.SetName("foo")
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
+	_repoTwo.SetPipelineType("yaml")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -109,6 +111,7 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
+	_repoOne.SetPipelineType("yaml")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -118,6 +121,7 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 	_repoTwo.SetName("baz")
 	_repoTwo.SetFullName("foo/baz")
 	_repoTwo.SetVisibility("public")
+	_repoTwo.SetPipelineType("yaml")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -180,6 +184,7 @@ func TestSqlite_Client_GetOrgPrivateRepoList(t *testing.T) {
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
+	_repoOne.SetPipelineType("yaml")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -189,6 +194,7 @@ func TestSqlite_Client_GetOrgPrivateRepoList(t *testing.T) {
 	_repoTwo.SetName("baz")
 	_repoTwo.SetFullName("foo/baz")
 	_repoTwo.SetVisibility("private")
+	_repoTwo.SetPipelineType("yaml")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -251,6 +257,7 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
+	_repoOne.SetPipelineType("yaml")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -260,6 +267,7 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 	_repoTwo.SetName("foo")
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
+	_repoTwo.SetPipelineType("yaml")
 
 	_user := new(library.User)
 	_user.SetID(1)

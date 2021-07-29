@@ -69,7 +69,7 @@ import (
 
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
-// nolint:funlen // function is long
+// nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -142,6 +142,22 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowPull(input.GetAllowPull())
 		r.SetAllowPush(input.GetAllowPush())
 		r.SetAllowTag(input.GetAllowTag())
+	}
+
+	if len(input.GetPipelineType()) == 0 {
+		r.SetPipelineType(constants.PipelineTypeYAML)
+	} else {
+		// ensure the pipeline type matches one of the expected values
+		if input.GetPipelineType() != constants.PipelineTypeYAML ||
+			input.GetPipelineType() != constants.PipelineTypeGo ||
+			input.GetPipelineType() != constants.PipelineTypeStarlark {
+			retErr := fmt.Errorf("pipeline_type of %s is invalid", input.GetPipelineType())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+		r.SetPipelineType(input.GetPipelineType())
 	}
 
 	// create unique id for the repo
@@ -679,6 +695,20 @@ func UpdateRepo(c *gin.Context) {
 		!r.GetAllowComment() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
+	}
+
+	if len(input.GetPipelineType()) != 0 {
+		// ensure the pipeline type matches one of the expected values
+		if input.GetPipelineType() != constants.PipelineTypeYAML &&
+			input.GetPipelineType() != constants.PipelineTypeGo &&
+			input.GetPipelineType() != constants.PipelineTypeStarlark {
+			retErr := fmt.Errorf("pipeline_type of %s is invalid", input.GetPipelineType())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+		r.SetPipelineType(input.GetPipelineType())
 	}
 
 	// set hash for repo if no hash is already set
