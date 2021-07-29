@@ -41,7 +41,7 @@ type (
 
 // New returns a Database implementation that integrates with a Postgres instance.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Postgres client
 	c := new(client)
@@ -82,7 +82,7 @@ func New(opts ...ClientOpt) (*client, error) {
 //
 // This function is intended for running tests only.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// create new Postgres client
 	c := new(client)
