@@ -69,7 +69,7 @@ func PostServiceStream(c *gin.Context) {
 			// after repo timeout of idle (no response) end the stream
 			//
 			// this is a safety mechanism
-			case <-time.After(time.Duration(r.GetTimeout())):
+			case <-time.After(time.Duration(r.GetTimeout()) * time.Minute):
 				logrus.Tracef("repo timeout of %d exceeded", r.GetTimeout())
 
 				return
@@ -163,7 +163,7 @@ func PostStepStream(c *gin.Context) {
 			// after repo timeout of idle (no response) end the stream
 			//
 			// this is a safety mechanism
-			case <-time.After(time.Duration(r.GetTimeout())):
+			case <-time.After(time.Duration(r.GetTimeout()) * time.Minute):
 				logrus.Tracef("repo timeout of %d exceeded", r.GetTimeout())
 
 				return
