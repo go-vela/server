@@ -1294,6 +1294,99 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	// build has been abandoned
-	retErr := fmt.Errorf("unable to find a running build for %s/%d", r.GetFullName(), b.GetNumber())
-	util.HandleError(c, http.StatusInternalServerError, retErr)
+	// update the status in the build table
+	b.SetStatus(constants.StatusCanceled)
+	err = database.FromContext(c).UpdateBuild(b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update status for build %d: %w", b.Number, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// retrieve the steps for the build from the step table
+	steps := []*library.Step{}
+	page := 1
+	perPage := 100
+	for page > 0 {
+		// retrieve build steps (per page) from the database
+		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve steps for build %d: %w", b.Number, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
+
+		// add page of steps to list steps
+		steps = append(steps, stepsPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		//
+		// nolint: gomnd // ignore magic number
+		if len(stepsPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each step for the build
+	// setting anything running or pending to canceled
+	for _, step := range steps {
+		if step.GetStatus() == constants.StatusRunning ||
+			step.GetStatus() == constants.StatusPending {
+			step.SetStatus(constants.StatusCanceled)
+			err = database.FromContext(c).UpdateStep(step)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update step %s for build %d: %w", step.GetName(), b.Number, err)
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
+		}
+	}
+
+	// retrieve the services for the build from the service table
+	services := []*library.Service{}
+	page = 1
+	for page > 0 {
+		// retrieve build services (per page) from the database
+		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve services for build %d: %w", b.Number, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
+
+		// add page of services to the list of services
+		services = append(services, servicesPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		//
+		// nolint: gomnd // ignore magic number
+		if len(servicesPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each service for the build
+	// setting anything running or pending to canceled
+	for _, service := range services {
+		if service.GetStatus() == constants.StatusRunning ||
+			service.GetStatus() == constants.StatusPending {
+			service.SetStatus(constants.StatusCanceled)
+			err = database.FromContext(c).UpdateService(service)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update service %s for build %d: %w",
+					service.GetName(),
+					b.Number,
+					err,
+				)
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, b)
 }
