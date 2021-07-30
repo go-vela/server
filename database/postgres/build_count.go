@@ -77,7 +77,7 @@ func (c *client) GetOrgBuildCountByEvent(org string, event string) (int64, error
 }
 
 // GetRepoBuildCount gets the count of all builds by repo ID from the database.
-func (c *client) GetRepoBuildCount(r *library.Repo) (int64, error) {
+func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]string) (int64, error) {
 	logrus.Tracef("getting count of builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
@@ -86,8 +86,9 @@ func (c *client) GetRepoBuildCount(r *library.Repo) (int64, error) {
 	// send query to the database and store result in variable
 	err := c.Postgres.
 		Table(constants.TableBuild).
-		Raw(dml.SelectRepoBuildCount, r.GetID()).
-		Pluck("count", &b).Error
+		Where("repo_id = ?", r.GetID()).
+		Where(filters).
+		Count(&b).Error
 
 	return b, err
 }
