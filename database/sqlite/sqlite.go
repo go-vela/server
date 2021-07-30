@@ -30,6 +30,8 @@ type (
 		ConnectionOpen int
 		// specifies the encryption key to use for the Sqlite client
 		EncryptionKey string
+		// specifies to skip creating objects for the Sqlite client
+		SkipCreation bool
 	}
 
 	client struct {
@@ -93,6 +95,7 @@ func NewTest() (*client, error) {
 		ConnectionIdle:   2,
 		ConnectionOpen:   0,
 		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+		SkipCreation:     false,
 	}
 	c.Sqlite = new(gorm.DB)
 
@@ -150,16 +153,19 @@ func setupDatabase(c *client) error {
 		return err
 	}
 
-	// create the tables in the database
-	err = createTables(c)
-	if err != nil {
-		return err
-	}
+	// check if we should skip creating objects
+	if !c.config.SkipCreation {
+		// create the tables in the database
+		err = createTables(c)
+		if err != nil {
+			return err
+		}
 
-	// create the indexes in the database
-	err = createIndexes(c)
-	if err != nil {
-		return err
+		// create the indexes in the database
+		err = createIndexes(c)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

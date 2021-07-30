@@ -84,4 +84,10 @@ var Flags = []cli.Flag{
 		Name:     "database.encryption.key",
 		Usage:    "AES-256 key for encrypting and decrypting values in the database",
 	},
+	&cli.BoolFlag{
+		EnvVars:  []string{"VELA_DATABASE_SKIP_CREATION", "DATABASE_SKIP_CREATION"},
+		FilePath: "/vela/database/skip_creation",
+		Name:     "database.skip_creation",
+		Usage:    "enables skipping the creation of objects in the database",
+	},
 }

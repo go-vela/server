@@ -35,6 +35,8 @@ type Setup struct {
 	ConnectionOpen int
 	// specifies the encryption key to use for the database client
 	EncryptionKey string
+	// specifies to skip creating objects to use for the database client
+	SkipCreation bool
 }
 
 // Postgres creates and returns a Vela service capable of
@@ -52,6 +54,7 @@ func (s *Setup) Postgres() (Service, error) {
 		postgres.WithConnectionIdle(s.ConnectionIdle),
 		postgres.WithConnectionOpen(s.ConnectionOpen),
 		postgres.WithEncryptionKey(s.EncryptionKey),
+		postgres.WithSkipCreation(s.SkipCreation),
 	)
 }
 
@@ -70,6 +73,7 @@ func (s *Setup) Sqlite() (Service, error) {
 		sqlite.WithConnectionIdle(s.ConnectionIdle),
 		sqlite.WithConnectionOpen(s.ConnectionOpen),
 		sqlite.WithEncryptionKey(s.EncryptionKey),
+		sqlite.WithSkipCreation(s.SkipCreation),
 	)
 }
 
