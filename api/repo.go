@@ -456,24 +456,33 @@ func GetOrgRepos(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	allRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := source.FromContext(c).OrgAccess(u, org)
 	if err != nil {
-		logrus.Errorf("unable to get private repos for org %s : %s", org, err)
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
 	}
-
 	var excludeList []string
+	if perm != "admin" {
 
-	for _, rr := range allRepos {
-		perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
+		// Get a list of private repos to filter out if the user does not have permission to them
+		privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
 		if err != nil {
-			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
+			logrus.Errorf("unable to get private repos for org %s : %s", org, err)
 		}
 
-		switch perm {
-		case "admin", "write", "read":
-			continue
-		default:
-			excludeList = append(excludeList, rr.GetName())
+		for _, rr := range privateRepos {
+			// Check each private repo for correct user permission
+			perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
+			if err != nil {
+				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
+			}
+
+			switch perm {
+			case "admin", "write", "read":
+				continue
+			default:
+				excludeList = append(excludeList, rr.GetName())
+			}
 		}
 	}
 	if len(excludeList) == 0 {

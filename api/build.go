@@ -556,30 +556,37 @@ func GetOrgBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(o)
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := source.FromContext(c).OrgAccess(u, o)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get private repos for org %s: %w", o, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
-
 	var excludeList []int64
-
-	for _, rr := range privateRepos {
-		perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
+	if perm != "admin" {
+		privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(o)
 		if err != nil {
-			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
+			retErr := fmt.Errorf("unable to get private repos for org %s: %w", o, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
 		}
 
-		switch perm {
-		case "admin", "write", "read":
-			continue
-		default:
-			excludeList = append(excludeList, rr.GetID())
+		for _, rr := range privateRepos {
+			perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
+			if err != nil {
+				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
+			}
+
+			switch perm {
+			case "admin", "write", "read":
+				continue
+			default:
+				excludeList = append(excludeList, rr.GetID())
+			}
 		}
 	}
+
 	if len(excludeList) == 0 {
 		excludeList = append(excludeList, 0)
 	}
