@@ -423,7 +423,6 @@ func GetRepos(c *gin.Context) {
 
 // GetOrgRepos represents the API handler to capture a list
 // of repos for a org from the configured backend.
-
 func GetOrgRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -485,6 +484,8 @@ func GetOrgRepos(c *gin.Context) {
 			}
 		}
 	}
+
+	// Query does not like null for this list, add an empty string if there are none
 	if len(excludeList) == 0 {
 		excludeList = append(excludeList, "")
 	}

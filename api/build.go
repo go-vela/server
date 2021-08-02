@@ -587,6 +587,7 @@ func GetOrgBuilds(c *gin.Context) {
 		}
 	}
 
+	// Query does not like null for this list, add an empty string if there are none\
 	if len(excludeList) == 0 {
 		excludeList = append(excludeList, 0)
 	}
