@@ -305,16 +305,11 @@ func TestPostgres_Client_GetRepoBuildCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// capture the current expected SQL query
-	//
-	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectRepoBuildCount, 1).Statement
-
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1`).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -327,9 +322,11 @@ func TestPostgres_Client_GetRepoBuildCount(t *testing.T) {
 		},
 	}
 
+	filters := map[string]string{}
+
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetRepoBuildCount(_repo)
+		got, err := _database.GetRepoBuildCount(_repo, filters)
 
 		if test.failure {
 			if err == nil {

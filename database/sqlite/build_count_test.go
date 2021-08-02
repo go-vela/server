@@ -380,6 +380,8 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 		},
 	}
 
+	filters := map[string]string{}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -405,7 +407,7 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		got, err := _database.GetRepoBuildCount(_repo)
+		got, err := _database.GetRepoBuildCount(_repo, filters)
 
 		if test.failure {
 			if err == nil {

@@ -359,16 +359,61 @@ func skipEmptyBuild(p *pipeline.Build) string {
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
 func GetBuilds(c *gin.Context) {
-	// variables that will hold the build list and total count
+	// variables that will hold the build list, build list filters and total count
 	var (
-		b []*library.Build
-		t int64
+		filters = map[string]string{}
+		b       []*library.Build
+		t       int64
 	)
 
 	// capture middleware values
 	r := repo.Retrieve(c)
+
+	// capture the branch name parameter
+	branch := c.Query("branch")
 	// capture the event type parameter
 	event := c.Query("event")
+	// capture the status type parameter
+	status := c.Query("status")
+
+	// check if branch filter was provided
+	if len(branch) > 0 {
+		// add branch to filters map
+		filters["branch"] = branch
+	}
+	// check if event filter was provided
+	if len(event) > 0 {
+		// verify the event provided is a valid event type
+		if event != constants.EventComment && event != constants.EventDeploy &&
+			event != constants.EventPush && event != constants.EventPull &&
+			event != constants.EventTag {
+			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add event to filters map
+		filters["event"] = event
+	}
+	// check if status filter was provided
+	if len(status) > 0 {
+		// verify the status provided is a valid status type
+		if status != constants.StatusCanceled && status != constants.StatusError &&
+			status != constants.StatusFailure && status != constants.StatusKilled &&
+			status != constants.StatusPending && status != constants.StatusRunning &&
+			status != constants.StatusSuccess {
+			retErr := fmt.Errorf("unable to process status %s: invalid status type provided", status)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add status to filters map
+		filters["status"] = status
+	}
 
 	logrus.Infof("Reading builds for repo %s", r.GetFullName())
 
@@ -399,13 +444,7 @@ func GetBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the list of builds for the repo (and event type if passed in)
-	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, event, page, perPage)
-	} else {
-		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
-	}
-
+	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
