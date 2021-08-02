@@ -462,20 +462,19 @@ func GetOrgRepos(c *gin.Context) {
 	}
 	var excludeList []string
 	if perm != "admin" {
-
 		// Get a list of private repos to filter out if the user does not have permission to them
 		privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
 		if err != nil {
-			logrus.Errorf("unable to get private repos for org %s : %s", org, err)
+			retErr := fmt.Errorf("unable to get private repos for org %s: %w", org, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+			return
 		}
-
 		for _, rr := range privateRepos {
 			// Check each private repo for correct user permission
 			perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
 			}
-
 			switch perm {
 			case "admin", "write", "read":
 				continue
