@@ -119,21 +119,6 @@ FROM builds
 WHERE repo_id = ?
 AND event = ?;
 `
-	// ListRepoBuildsByEvent represents a joined query
-	// between the builds & repos table to select
-	// a build for an org with a specific event type
-	// in the database.
-	ListRepoBuildsByEvent = `
-SELECT builds.* 
-FROM builds JOIN repos 
-ON builds.repo_id = repos.id
-WHERE repos_id = ?
-AND builds.event = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
 	// SelectBuildsCountByStatus represents a query to select
 	// the count of builds for a status in the database.
 	SelectBuildsCountByStatus = `

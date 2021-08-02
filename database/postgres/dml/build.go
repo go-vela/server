@@ -104,15 +104,6 @@ FROM builds
 WHERE repo_id = ?
 AND event = ?;
 `
-	// SelectRepoBuildsByEvent represents a query to select
-	// the count of builds for by repo and event type in the database.
-	SelectRepoBuildsByEvent = `
-SELECT *
-FROM builds
-WHERE repo_id = ?
-AND event = ?;
-`
-
 	// SelectOrgBuildCountByEvent represents a joined query
 	// between the builds & repos table to select
 	// the count of builds for by org name and event type in the database.
