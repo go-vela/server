@@ -153,19 +153,23 @@ func setupDatabase(c *client) error {
 		return err
 	}
 
-	// check if we should skip creating objects
-	if !c.config.SkipCreation {
-		// create the tables in the database
-		err = createTables(c)
-		if err != nil {
-			return err
-		}
+	// check if we should skip creating database objects
+	if c.config.SkipCreation {
+		logrus.Warning("skipping creation of data tables and indexes in the sqlite database")
 
-		// create the indexes in the database
-		err = createIndexes(c)
-		if err != nil {
-			return err
-		}
+		return nil
+	}
+
+	// create the tables in the database
+	err = createTables(c)
+	if err != nil {
+		return err
+	}
+
+	// create the indexes in the database
+	err = createIndexes(c)
+	if err != nil {
+		return err
 	}
 
 	return nil
