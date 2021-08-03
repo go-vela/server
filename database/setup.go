@@ -35,7 +35,7 @@ type Setup struct {
 	ConnectionOpen int
 	// specifies the encryption key to use for the database client
 	EncryptionKey string
-	// specifies to skip creating objects to use for the database client
+	// specifies to skip creating tables and indexes for the database client
 	SkipCreation bool
 }
 
