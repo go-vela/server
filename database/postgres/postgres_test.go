@@ -94,17 +94,38 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
+	// setup the skip test database client
+	_skipDatabase, _skipMock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new skip postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _skipDatabase.Postgres.DB(); _sql.Close() }()
+
+	err = WithSkipCreation(true)(_skipDatabase)
+	if err != nil {
+		t.Errorf("unable to set SkipCreation for postgres test database: %v", err)
+	}
+
+	// ensure the mock expects the ping
+	_skipMock.ExpectPing()
+
 	tests := []struct {
-		failure bool
+		failure  bool
+		database *client
 	}{
 		{
-			failure: false,
+			failure:  false,
+			database: _database,
+		},
+		{
+			failure:  false,
+			database: _skipDatabase,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err := setupDatabase(_database)
+		err := setupDatabase(test.database)
 
 		if test.failure {
 			if err == nil {
