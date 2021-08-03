@@ -41,6 +41,7 @@ func TestPostgres_New(t *testing.T) {
 			WithConnectionIdle(5),
 			WithConnectionOpen(20),
 			WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
+			WithSkipCreation(false),
 		)
 
 		if test.failure {

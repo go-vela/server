@@ -235,3 +235,37 @@ func TestSqlite_ClientOpt_WithEncryptionKey(t *testing.T) {
 		}
 	}
 }
+
+func TestSqlite_ClientOpt_WithSkipCreation(t *testing.T) {
+	// setup types
+	c := new(client)
+	c.config = new(config)
+
+	// setup tests
+	tests := []struct {
+		skipCreation bool
+		want         bool
+	}{
+		{
+			skipCreation: true,
+			want:         true,
+		},
+		{
+			skipCreation: false,
+			want:         false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := WithSkipCreation(test.skipCreation)(c)
+
+		if err != nil {
+			t.Errorf("WithSkipCreation returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(c.config.SkipCreation, test.want) {
+			t.Errorf("WithSkipCreation is %v, want %v", c.config.SkipCreation, test.want)
+		}
+	}
+}
