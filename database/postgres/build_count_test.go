@@ -166,16 +166,11 @@ func TestPostgres_Client_GetOrgBuildCount(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// capture the current expected SQL query
-	//
-	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCount, "foo").Statement
-
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT count(*) FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -187,10 +182,10 @@ func TestPostgres_Client_GetOrgBuildCount(t *testing.T) {
 			want:    2,
 		},
 	}
-
+	filters := map[string]string{}
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetOrgBuildCount("foo")
+		got, err := _database.GetOrgBuildCount("foo", filters)
 
 		if test.failure {
 			if err == nil {
@@ -231,16 +226,11 @@ func TestPostgres_Client_GetOrgBuildCountByEvent(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// capture the current expected SQL query
-	//
-	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectOrgBuildCountByEvent, "foo", "push").Statement
-
 	// create expected return in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT count(*) FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 WHERE \"event\" = $2").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -252,10 +242,11 @@ func TestPostgres_Client_GetOrgBuildCountByEvent(t *testing.T) {
 			want:    2,
 		},
 	}
-
+	filters := map[string]string{}
+	filters["event"] = "push"
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetOrgBuildCountByEvent("foo", "push")
+		got, err := _database.GetOrgBuildCount("foo", filters)
 
 		if test.failure {
 			if err == nil {

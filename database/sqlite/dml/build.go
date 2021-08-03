@@ -43,68 +43,11 @@ ORDER BY number DESC
 LIMIT 1;
 `
 
-	// ListOrgBuilds represents a joined query
-	// between the builds & repos table to select
-	// the last build for a org name in the database.
-	ListOrgBuilds = `
-SELECT builds.*
-FROM builds JOIN repos
-ON builds.repo_id = repos.id
-WHERE repos.org = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-		`
-
-	// ListOrgBuildsByEvent represents a joined query
-	// between the builds & repos table to select
-	// a build for an org with a specific event type
-	// in the database.
-	ListOrgBuildsByEvent = `
-SELECT builds.* 
-FROM builds JOIN repos 
-ON builds.repo_id = repos.id
-WHERE repos.org = ?
-AND builds.event = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
 	// SelectBuildsCount represents a query to select
 	// the count of builds in the database.
 	SelectBuildsCount = `
 SELECT count(*) as count
 FROM builds;
-`
-
-	// SelectOrgBuildCount represents a joined query
-	// between the builds & repos table to select
-	// the count of builds for an org name in the database.
-	SelectOrgBuildCount = `
-SELECT count(*) as count
-FROM builds JOIN repos
-ON builds.repo_id = repos.id
-WHERE repos.org = ?;
-`
-
-	// SelectOrgBuildCountByEvent represents a joined query
-	// between the builds & repos table to select
-	// the count of builds for by org name and event type in the database.
-	SelectOrgBuildCountByEvent = `
-SELECT count(*) as count
-FROM builds JOIN repos
-ON builds.repo_id = repos.id
-WHERE repos.org = ?
-AND builds.event = ?;
-`
-
-	// SelectRepoBuildCount represents a query to select
-	// the count of builds for a repo_id in the database.
-	SelectRepoBuildCount = `
-SELECT count(*) as count
-FROM builds
-WHERE repo_id = ?;
 `
 
 	// SelectRepoBuildCountByEvent represents a query to select
@@ -115,7 +58,6 @@ FROM builds
 WHERE repo_id = ?
 AND event = ?;
 `
-
 	// SelectBuildsCountByStatus represents a query to select
 	// the count of builds for a status in the database.
 	SelectBuildsCountByStatus = `

@@ -372,6 +372,133 @@ func GetRepos(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
+// swagger:operation GET /api/v1/{org} repos GetOrgRepos
+//
+// Get all repos for the provided org in the configured backend
+//
+// ---
+// produces:
+// - application/json
+// security:
+//   - ApiKeyAuth: []
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
+// responses:
+//   '200':
+//     description: Successfully retrieved the repo
+//     schema:
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Repo"
+//     headers:
+//       X-Total-Count:
+//         description: Total number of results
+//         type: integer
+//       Link:
+//         description: see https://tools.ietf.org/html/rfc5988
+//         type: string
+//   '400':
+//     description: Unable to retrieve the org
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to retrieve the org
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetOrgRepos represents the API handler to capture a list
+// of repos for a org from the configured backend.
+func GetOrgRepos(c *gin.Context) {
+	// capture middleware values
+	u := user.Retrieve(c)
+	org := c.Param("org")
+	logrus.Infof("Reading repos for org %s", org)
+
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert page query parameter for user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	//
+	// nolint: gomnd // ignore magic number
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := source.FromContext(c).OrgAccess(u, org)
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
+	}
+
+	filters := map[string]string{}
+	// Only show public repos to non-admins
+	if perm != "admin" {
+		filters["visibility"] = "public"
+	}
+
+	// send API call to capture the total number of repos for the org
+	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// send API call to capture the list of repos for the org
+	r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, perPage)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
+
+	c.JSON(http.StatusOK, r)
+}
+
 // swagger:operation GET /api/v1/repos/{org}/{repo} repos GetRepo
 //
 // Get a repo in the configured backend
