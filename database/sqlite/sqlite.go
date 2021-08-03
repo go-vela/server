@@ -30,7 +30,7 @@ type (
 		ConnectionOpen int
 		// specifies the encryption key to use for the Sqlite client
 		EncryptionKey string
-		// specifies to skip creating objects for the Sqlite client
+		// specifies to skip creating tables and indexes for the Sqlite client
 		SkipCreation bool
 	}
 

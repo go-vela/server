@@ -88,6 +88,6 @@ var Flags = []cli.Flag{
 		EnvVars:  []string{"VELA_DATABASE_SKIP_CREATION", "DATABASE_SKIP_CREATION"},
 		FilePath: "/vela/database/skip_creation",
 		Name:     "database.skip_creation",
-		Usage:    "enables skipping the creation of objects in the database",
+		Usage:    "enables skipping the creation of tables and indexes in the database",
 	},
 }

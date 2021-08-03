@@ -101,7 +101,7 @@ func WithSkipCreation(skipCreation bool) ClientOpt {
 	logrus.Trace("configuring skip creating objects in postgres database client")
 
 	return func(c *client) error {
-		// set to skip creating objects in the postgres client
+		// set to skip creating tables and indexes in the postgres client
 		c.config.SkipCreation = skipCreation
 
 		return nil

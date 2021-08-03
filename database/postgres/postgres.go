@@ -31,7 +31,7 @@ type (
 		ConnectionOpen int
 		// specifies the encryption key to use for the Postgres client
 		EncryptionKey string
-		// specifies to skip creating objects for the Postgres client
+		// specifies to skip creating tables and indexes for the Postgres client
 		SkipCreation bool
 	}
 
