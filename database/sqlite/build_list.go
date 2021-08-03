@@ -41,7 +41,8 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 }
 
 // GetOrgBuildList gets a list of all builds by org name from the database.
-func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Build, int64, error) {
+// nolint: lll // ignore long line length due to variable names
+func (c *client) GetOrgBuildList(org string, filters map[string]string, page int, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for org %s from the database", org)
 
 	// variable to store query results
@@ -50,7 +51,7 @@ func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Buil
 	count := int64(0)
 
 	// // count the results
-	count, err := c.GetOrgBuildCount(org)
+	count, err := c.GetOrgBuildCount(org, filters)
 
 	if err != nil {
 		return builds, 0, err
@@ -67,50 +68,12 @@ func (c *client) GetOrgBuildList(org string, page, perPage int) ([]*library.Buil
 	// send query to the database and store result in variable
 	err = c.Sqlite.
 		Table(constants.TableBuild).
-		Raw(dml.ListOrgBuilds, org, perPage, offset).
-		Scan(b).Error
-
-	// iterate through all query results
-	for _, build := range *b {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := build
-
-		// convert query result to library type
-		builds = append(builds, tmp.ToLibrary())
-	}
-
-	return builds, count, err
-}
-
-// GetOrgBuildListByEvent gets a list of all builds by org name and event type from the database.
-//
-// nolint: lll // ignore long line length due to variable names
-func (c *client) GetOrgBuildListByEvent(org, event string, page, perPage int) ([]*library.Build, int64, error) {
-	logrus.Tracef("listing builds for org %s by event %s from the database", org, event)
-
-	// variables to store query results
-	b := new([]database.Build)
-	builds := []*library.Build{}
-	count := int64(0)
-
-	// count the results
-	count, err := c.GetOrgBuildCountByEvent(org, event)
-	if err != nil {
-		return builds, 0, err
-	}
-
-	// short-circuit if there are no results
-	if count == 0 {
-		return builds, 0, nil
-	}
-
-	// calculate offset for pagination through results
-	offset := (perPage * (page - 1))
-
-	// send query to the database and store result in variable
-	err = c.Sqlite.
-		Table(constants.TableBuild).
-		Raw(dml.ListOrgBuildsByEvent, org, event, perPage, offset).
+		Select("builds.*").
+		Joins("JOIN repos ON builds.repo_id = repos.id AND repos.org = ?", org).
+		Where(filters).
+		Order("number DESC").
+		Limit(perPage).
+		Offset(offset).
 		Scan(b).Error
 
 	// iterate through all query results

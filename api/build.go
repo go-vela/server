@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/router/middleware/user"
+
 	"github.com/go-vela/compiler/compiler"
 
 	"github.com/go-vela/pkg-queue/queue"
@@ -515,16 +517,61 @@ func GetBuilds(c *gin.Context) {
 // GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
 func GetOrgBuilds(c *gin.Context) {
-	// variables that will hold the build list and total count
+	// variables that will hold the build list, build list filters and total count
 	var (
-		b []*library.Build
-		t int64
+		filters = map[string]string{}
+		b       []*library.Build
+		t       int64
 	)
 
+	u := user.Retrieve(c)
 	// capture middleware values
 	o := c.Param("org")
+	// capture the branch name parameter
+	branch := c.Query("branch")
 	// capture the event type parameter
 	event := c.Query("event")
+	// capture the status type parameter
+	status := c.Query("status")
+
+	// check if branch filter was provided
+	if len(branch) > 0 {
+		// add branch to filters map
+		filters["branch"] = branch
+	}
+	// check if event filter was provided
+	if len(event) > 0 {
+		// verify the event provided is a valid event type
+		if event != constants.EventComment && event != constants.EventDeploy &&
+			event != constants.EventPush && event != constants.EventPull &&
+			event != constants.EventTag {
+			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add event to filters map
+		filters["event"] = event
+	}
+	// check if status filter was provided
+	if len(status) > 0 {
+		// verify the status provided is a valid status type
+		if status != constants.StatusCanceled && status != constants.StatusError &&
+			status != constants.StatusFailure && status != constants.StatusKilled &&
+			status != constants.StatusPending && status != constants.StatusRunning &&
+			status != constants.StatusSuccess {
+			retErr := fmt.Errorf("unable to process status %s: invalid status type provided", status)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add status to filters map
+		filters["status"] = status
+	}
 
 	logrus.Infof("Reading builds for org %s", o)
 
@@ -553,12 +600,18 @@ func GetOrgBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the list of builds for the org (and event type if passed in)
-	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, event, page, perPage)
-	} else {
-		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := source.FromContext(c).OrgAccess(u, o)
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
+	// Only show public repos to non-admins
+	if perm != "admin" {
+		filters["visibility"] = "public"
+	}
+
+	// send API call to capture the list of builds for the org (and event type if passed in)
+	b, t, err = database.FromContext(c).GetOrgBuildList(o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for org %s: %w", o, err)

@@ -409,10 +409,11 @@ func GetUserSourceRepos(c *gin.Context) {
 	for org := range output {
 		// capture source repos from the database backend, grouped by org
 		page := 1
+		filters := map[string]string{}
 		for page > 0 {
 			// send API call to capture the list of repos for the org
 			// nolint: gomnd // ignore magic number
-			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, page, 100)
+			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100)
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 
