@@ -31,6 +31,8 @@ type (
 		ConnectionOpen int
 		// specifies the encryption key to use for the Postgres client
 		EncryptionKey string
+		// specifies to skip creating tables and indexes for the Postgres client
+		SkipCreation bool
 	}
 
 	client struct {
@@ -94,6 +96,7 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		ConnectionIdle:   2,
 		ConnectionOpen:   0,
 		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+		SkipCreation:     false,
 	}
 	c.Postgres = new(gorm.DB)
 
@@ -149,6 +152,13 @@ func setupDatabase(c *client) error {
 	err = c.Ping()
 	if err != nil {
 		return err
+	}
+
+	// check if we should skip creating database objects
+	if c.config.SkipCreation {
+		logrus.Warning("skipping creation of data tables and indexes in the postgres database")
+
+		return nil
 	}
 
 	// create the tables in the database

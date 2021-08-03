@@ -25,6 +25,7 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionIdle:   5,
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+				SkipCreation:     false,
 			},
 		},
 		{
@@ -37,6 +38,7 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionIdle:   5,
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+				SkipCreation:     false,
 			},
 		},
 		{
@@ -49,6 +51,7 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionIdle:   5,
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+				SkipCreation:     false,
 			},
 		},
 		{
@@ -61,6 +64,7 @@ func TestDatabase_New(t *testing.T) {
 				ConnectionIdle:   5,
 				ConnectionOpen:   20,
 				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+				SkipCreation:     false,
 			},
 		},
 	}

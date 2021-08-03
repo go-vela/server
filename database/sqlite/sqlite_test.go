@@ -37,6 +37,7 @@ func TestSqlite_New(t *testing.T) {
 			WithConnectionIdle(5),
 			WithConnectionOpen(20),
 			WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
+			WithSkipCreation(false),
 		)
 
 		if test.failure {
@@ -63,17 +64,35 @@ func TestSqlite_setupDatabase(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
+	// setup the skip test database client
+	_skipDatabase, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new skip sqlite test database: %v", err)
+	}
+	defer func() { _sql, _ := _skipDatabase.Sqlite.DB(); _sql.Close() }()
+
+	err = WithSkipCreation(true)(_skipDatabase)
+	if err != nil {
+		t.Errorf("unable to set SkipCreation for sqlite test database: %v", err)
+	}
+
 	tests := []struct {
-		failure bool
+		failure  bool
+		database *client
 	}{
 		{
-			failure: false,
+			failure:  false,
+			database: _database,
+		},
+		{
+			failure:  false,
+			database: _skipDatabase,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err := setupDatabase(_database)
+		err := setupDatabase(test.database)
 
 		if test.failure {
 			if err == nil {
