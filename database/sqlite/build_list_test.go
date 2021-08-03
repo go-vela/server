@@ -99,12 +99,14 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 	_buildOne.SetID(1)
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
+	_buildOne.SetEvent("push")
 	_buildOne.SetDeployPayload(nil)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
+	_buildOne.SetEvent("deployment")
 	_buildTwo.SetDeployPayload(nil)
 
 	_repo := testRepo()
@@ -133,7 +135,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 			want:    []*library.Build{_buildTwo, _buildOne},
 		},
 	}
-
+	filters := map[string]string{}
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -156,7 +158,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 			}
 		}
 
-		got, _, err := _database.GetOrgBuildList("foo", []int64{0}, 1, 10)
+		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
 
 		if test.failure {
 			if err == nil {
@@ -176,7 +178,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 	}
 }
 
-func TestSqlite_Client_GetOrgBuildList_WithExcludes(t *testing.T) {
+func TestSqlite_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 	// setup types
 	_buildOne := testBuild()
 	_buildOne.SetID(1)
@@ -186,18 +188,27 @@ func TestSqlite_Client_GetOrgBuildList_WithExcludes(t *testing.T) {
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepoID(2)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
 
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetUserID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
+	_repoOne := testRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetUserID(1)
+	_repoOne.SetHash("baz")
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+	_repoOne.SetVisibility("public")
+
+	_repoTwo := testRepo()
+	_repoTwo.SetID(2)
+	_repoTwo.SetUserID(1)
+	_repoTwo.SetHash("baz")
+	_repoTwo.SetOrg("bar")
+	_repoTwo.SetName("foo")
+	_repoTwo.SetFullName("bar/foo")
+	_repoTwo.SetVisibility("private")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -216,16 +227,20 @@ func TestSqlite_Client_GetOrgBuildList_WithExcludes(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
+	filters := map[string]string{}
 
+	repos := []*library.Repo{_repoOne, _repoTwo}
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
 		defer _database.Sqlite.Exec("delete from repos;")
 
-		// create the repo in the database
-		err := _database.CreateRepo(_repo)
-		if err != nil {
-			t.Errorf("unable to create test repo: %v", err)
+		for _, repo := range repos {
+			// create the repo in the database
+			err := _database.CreateRepo(repo)
+			if err != nil {
+				t.Errorf("unable to create test repo: %v", err)
+			}
 		}
 
 		// defer cleanup of the builds table
@@ -239,7 +254,7 @@ func TestSqlite_Client_GetOrgBuildList_WithExcludes(t *testing.T) {
 			}
 		}
 
-		got, _, err := _database.GetOrgBuildList("foo", []int64{2}, 1, 10)
+		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
 
 		if test.failure {
 			if err == nil {
@@ -272,7 +287,7 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
-	_buildTwo.SetEvent("push")
+	_buildTwo.SetEvent("deployment")
 	_buildTwo.SetDeployPayload(nil)
 
 	_repo := testRepo()
@@ -298,10 +313,11 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 	}{
 		{
 			failure: false,
-			want:    []*library.Build{_buildTwo, _buildOne},
+			want:    []*library.Build{_buildOne},
 		},
 	}
-
+	filters := map[string]string{}
+	filters["event"] = "push"
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -316,7 +332,7 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 		// defer cleanup of the builds table
 		defer _database.Sqlite.Exec("delete from builds;")
 
-		for _, build := range test.want {
+		for _, build := range []*library.Build{_buildTwo, _buildOne} {
 			// create the build in the database
 			err := _database.CreateBuild(build)
 			if err != nil {
@@ -324,7 +340,7 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 			}
 		}
 
-		got, _, err := _database.GetOrgBuildListByEvent("foo", []int64{0}, "push", 1, 10)
+		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
 
 		if test.failure {
 			if err == nil {

@@ -23,28 +23,6 @@ LIMIT ?
 OFFSET ?;
 `
 
-	// ListPrivateOrgRepos represents a query to list
-	// all repos for an org in the database.
-	ListPrivateOrgRepos = `
-SELECT *
-FROM repos
-WHERE org = ?
-AND visibility = 'private'
-ORDER BY id DESC;
-`
-
-	// ListOrgRepos represents a query to list
-	// all repos for an org in the database.
-	ListOrgRepos = `
-SELECT *
-FROM repos
-WHERE org = ?
-AND name NOT IN (?)
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
 	// SelectRepo represents a query to select a
 	// repo for an org and name in the database.
 	SelectRepo = `
@@ -53,14 +31,6 @@ FROM repos
 WHERE org = ?
 AND name = ?
 LIMIT 1;
-`
-
-	// SelectOrgReposCount represents a query to select
-	// the count of repos for a org in the database.
-	SelectOrgReposCount = `
-SELECT count(*) as count
-FROM repos
-WHERE org = ?;
 `
 
 	// SelectUserReposCount represents a query to select

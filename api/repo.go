@@ -460,37 +460,15 @@ func GetOrgRepos(c *gin.Context) {
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
 	}
-	var excludeList []string
-	if perm != "admin" {
-		// Get a list of private repos to filter out if the user does not have permission to them
-		privateRepos, err := database.FromContext(c).GetOrgPrivateRepoList(org)
-		if err != nil {
-			retErr := fmt.Errorf("unable to get private repos for org %s: %w", org, err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-			return
-		}
-		for _, rr := range privateRepos {
-			// Check each private repo for correct user permission
-			perm, err := source.FromContext(c).RepoAccess(u, rr.GetOrg(), rr.GetName())
-			if err != nil {
-				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), rr.GetFullName())
-			}
-			switch perm {
-			case "admin", "write", "read":
-				continue
-			default:
-				excludeList = append(excludeList, rr.GetName())
-			}
-		}
-	}
 
-	// Query does not like null for this list, add an empty string if there are none
-	if len(excludeList) == 0 {
-		excludeList = append(excludeList, "")
+	filters := map[string]string{}
+	// Only show public repos to non-admins
+	if perm != "admin" {
+		filters["visibility"] = "public"
 	}
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(org, excludeList)
+	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
 
@@ -500,7 +478,7 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).GetOrgRepoList(org, excludeList, page, perPage)
+	r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 

@@ -56,50 +56,9 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 	return repos, nil
 }
 
-// GetOrgPrivateRepoList gets a list of all repos by org from the database.
-func (c *client) GetOrgPrivateRepoList(org string) ([]*library.Repo, error) {
-	logrus.Tracef("getting repos for org %s from the database", org)
-
-	// variable to store query results
-	r := new([]database.Repo)
-
-	// send query to the database and store result in variable
-	err := c.Sqlite.
-		Table(constants.TableRepo).
-		Raw(dml.ListOrgPrivateRepos, org).
-		Scan(r).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// variable we want to return
-	repos := []*library.Repo{}
-	// iterate through all query results
-	for _, repo := range *r {
-		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := repo
-
-		// decrypt the fields for the repo
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
-		err = tmp.Decrypt(c.config.EncryptionKey)
-		if err != nil {
-			// ensures that the change is backwards compatible
-			// by logging the error instead of returning it
-			// which allows us to fetch unencrypted repos
-			logrus.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
-		}
-
-		// convert query result to library type
-		repos = append(repos, tmp.ToLibrary())
-	}
-
-	return repos, nil
-}
-
 // GetOrgRepoList gets a list of all repos by org from the database.
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetOrgRepoList(org string, exclude []string, page, perPage int) ([]*library.Repo, error) {
+func (c *client) GetOrgRepoList(org string, filters map[string]string, page, perPage int) ([]*library.Repo, error) {
 	logrus.Tracef("getting repos for org %s from the database", org)
 
 	// variable to store query results
@@ -111,7 +70,10 @@ func (c *client) GetOrgRepoList(org string, exclude []string, page, perPage int)
 	// send query to the database and store result in variable
 	err := c.Sqlite.
 		Table(constants.TableRepo).
-		Raw(dml.ListOrgRepos, org, exclude, perPage, offset).
+		Where("org = ?", org).
+		Where(filters).
+		Limit(perPage).
+		Offset(offset).
 		Scan(r).Error
 	if err != nil {
 		return nil, err
