@@ -242,3 +242,75 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 		}
 	}
 }
+
+func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
+	// setup types
+	_secretOne := testSecret()
+	_secretOne.SetID(1)
+	_secretOne.SetOrg("foo")
+	_secretOne.SetTeam("bar")
+	_secretOne.SetName("baz")
+	_secretOne.SetValue("foob")
+	_secretOne.SetType("shared")
+
+	_secretTwo := testSecret()
+	_secretTwo.SetID(2)
+	_secretTwo.SetOrg("foo")
+	_secretTwo.SetTeam("bared")
+	_secretTwo.SetName("foob")
+	_secretTwo.SetValue("baz")
+	_secretTwo.SetType("shared")
+
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new sqlite test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    int64
+	}{
+		{
+			failure: false,
+			want:    2,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		// defer cleanup of the secrets table
+		defer _database.Sqlite.Exec("delete from secrets;")
+
+		// create the secrets in the database
+		err := _database.CreateSecret(_secretOne)
+		if err != nil {
+			t.Errorf("unable to create test secret: %v", err)
+		}
+
+		err = _database.CreateSecret(_secretTwo)
+		if err != nil {
+			t.Errorf("unable to create test secret: %v", err)
+		}
+
+		got, err := _database.GetTypeSecretCount("shared", "foo", "*")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetTypeSecretCount should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetTypeSecretCount returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetTypeSecretCount is %v, want %v", got, test.want)
+		}
+	}
+}

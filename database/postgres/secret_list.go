@@ -85,6 +85,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 			err = c.Postgres.
 				Table(constants.TableSecret).
 				Where("type = 'shared' AND org = ?", o).
+				Order("id DESC").
 				Limit(perPage).
 				Offset(offset).
 				Scan(s).Error

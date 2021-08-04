@@ -221,3 +221,71 @@ func TestPostgres_Client_GetTypeSecretCount_Shared(t *testing.T) {
 		}
 	}
 }
+
+func TestPostgres_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
+	// setup types
+	_secretOne := testSecret()
+	_secretOne.SetID(1)
+	_secretOne.SetOrg("foo")
+	_secretOne.SetTeam("bar")
+	_secretOne.SetName("baz")
+	_secretOne.SetValue("foob")
+	_secretOne.SetType("shared")
+
+	_secretTwo := testSecret()
+	_secretTwo.SetID(1)
+	_secretTwo.SetOrg("foo")
+	_secretTwo.SetTeam("bared")
+	_secretTwo.SetName("foob")
+	_secretTwo.SetValue("baz")
+	_secretTwo.SetType("shared")
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery("SELECT count(*) FROM \"secrets\" WHERE type = 'shared' AND org = $1").WillReturnRows(_rows)
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    int64
+	}{
+		{
+			failure: false,
+			want:    2,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := _database.GetTypeSecretCount("shared", "foo", "*")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetTypeSecretCount should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetTypeSecretCount returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetTypeSecretCount is %v, want %v", got, test.want)
+		}
+	}
+}

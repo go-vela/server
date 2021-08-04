@@ -34,10 +34,18 @@ func (c *client) GetTypeSecretCount(t, o, n string) (int64, error) {
 			Raw(dml.SelectRepoSecretsCount, o, n).
 			Pluck("count", &s).Error
 	case constants.SecretShared:
-		err = c.Sqlite.
-			Table(constants.TableSecret).
-			Raw(dml.SelectSharedSecretsCount, o, n).
-			Pluck("count", &s).Error
+		if n == "*" {
+			err = c.Sqlite.
+				Table(constants.TableSecret).
+				Select("count(*)").
+				Where("type = 'shared' AND org = ?", o).
+				Pluck("count", &s).Error
+		} else {
+			err = c.Sqlite.
+				Table(constants.TableSecret).
+				Raw(dml.SelectSharedSecretsCount, o, n).
+				Pluck("count", &s).Error
+		}
 	}
 
 	return s, err

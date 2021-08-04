@@ -303,3 +303,70 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 		}
 	}
 }
+
+func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
+	// setup types
+	_secretOne := testSecret()
+	_secretOne.SetID(1)
+	_secretOne.SetOrg("foo")
+	_secretOne.SetTeam("bar")
+	_secretOne.SetName("baz")
+	_secretOne.SetValue("foob")
+	_secretOne.SetType("shared")
+
+	_secretTwo := testSecret()
+	_secretTwo.SetID(1)
+	_secretTwo.SetOrg("foo")
+	_secretTwo.SetTeam("bared")
+	_secretTwo.SetName("foob")
+	_secretTwo.SetValue("baz")
+	_secretTwo.SetType("shared")
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows(
+		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command"},
+	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false).
+		AddRow(1, "shared", "foo", "", "bared", "foob", "baz", "{}", "{}", false)
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery("SELECT * FROM \"secrets\" WHERE type = 'shared' AND org = $1 ORDER BY id DESC LIMIT 10").WillReturnRows(_rows)
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    []*library.Secret
+	}{
+		{
+			failure: false,
+			want:    []*library.Secret{_secretOne, _secretTwo},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetTypeSecretList should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetTypeSecretList returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetTypeSecretList is %v, want %v", got, test.want)
+		}
+	}
+}
