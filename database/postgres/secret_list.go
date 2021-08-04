@@ -81,10 +81,19 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 			Raw(dml.ListRepoSecrets, o, n, perPage, offset).
 			Scan(s).Error
 	case constants.SecretShared:
-		err = c.Postgres.
-			Table(constants.TableSecret).
-			Raw(dml.ListSharedSecrets, o, n, perPage, offset).
-			Scan(s).Error
+		if n == "*" {
+			err = c.Postgres.
+				Table(constants.TableSecret).
+				Where("type = 'shared' AND org = ?", o).
+				Limit(perPage).
+				Offset(offset).
+				Scan(s).Error
+		} else {
+			err = c.Postgres.
+				Table(constants.TableSecret).
+				Raw(dml.ListSharedSecrets, o, n, perPage, offset).
+				Scan(s).Error
+		}
 	}
 	if err != nil {
 		return nil, err

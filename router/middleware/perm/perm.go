@@ -87,21 +87,38 @@ func MustSecretAdmin() gin.HandlerFunc {
 				return
 			}
 		case constants.SecretShared:
-			logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
+			if n == "*" {
+				logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
 
-			perm, err := source.FromContext(c).TeamAccess(u, o, n)
-			if err != nil {
-				logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
+				perm, err := source.FromContext(c).OrgAccess(u, o)
+				if err != nil {
+					logrus.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
+				}
+
+				if !strings.EqualFold(perm, "admin") {
+					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the org %s", u.GetName(), o)
+
+					util.HandleError(c, http.StatusUnauthorized, retErr)
+
+					return
+				}
+			} else {
+				logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
+				perm, err := source.FromContext(c).TeamAccess(u, o, n)
+				if err != nil {
+					logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
+				}
+
+				if !strings.EqualFold(perm, "admin") {
+					// nolint: lll // ignore long line length due to error message
+					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
+
+					util.HandleError(c, http.StatusUnauthorized, retErr)
+
+					return
+				}
 			}
 
-			if !strings.EqualFold(perm, "admin") {
-				// nolint: lll // ignore long line length due to error message
-				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
-
-				util.HandleError(c, http.StatusUnauthorized, retErr)
-
-				return
-			}
 		default:
 			retErr := fmt.Errorf("invalid secret type: %v", t)
 
