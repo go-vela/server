@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go v1.38.57
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0 // indirect
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.3
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.8.2-0.20210728151243-38af4aebce57
 	github.com/go-vela/pkg-queue v0.8.1
