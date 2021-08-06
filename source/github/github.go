@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/google/go-github/v36/github"
+	"github.com/google/go-github/v37/github"
 	"golang.org/x/oauth2"
 )
 
@@ -54,7 +54,7 @@ type client struct {
 // New returns a Source implementation that integrates with
 // a GitHub or a GitHub Enterprise instance.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new GitHub client
 	c := new(client)
@@ -103,7 +103,7 @@ func New(opts ...ClientOpt) (*client, error) {
 //
 // This function is intended for running tests only.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func NewTest(urls ...string) (*client, error) {
 	address := urls[0]
 	server := address

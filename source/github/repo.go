@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v36/github"
+	"github.com/google/go-github/v37/github"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -21,13 +21,14 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []byte, err error) {
+// nolint: lll // ignore long line length due to input arguments
+func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
 		// attempt to fetch the config
-		data, err = c.Config(u, org, name, ref)
+		data, err = c.Config(u, r, ref)
 
 		// return err if the last attempt returns error
 		if err != nil && i == retryLimit-1 {
@@ -48,54 +49,44 @@ func (c *client) ConfigBackoff(u *library.User, org, name, ref string) (data []b
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *client) Config(u *library.User, org, name, ref string) ([]byte, error) {
-	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", org, name, ref)
+func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, error) {
+	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", r.GetOrg(), r.GetName(), ref)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
+
+	files := []string{".vela.yml", ".vela.yaml"}
+
+	if strings.EqualFold(r.GetPipelineType(), constants.PipelineTypeStarlark) {
+		files = append(files, ".vela.star", ".vela.py")
+	}
 
 	// set the reference for the options to capture the pipeline configuration
 	opts := &github.RepositoryContentGetOptions{
 		Ref: ref,
 	}
 
-	// send API call to capture the .vela.yml pipeline configuration
-	data, _, resp, err := client.Repositories.GetContents(ctx, org, name, ".vela.yml", opts)
-	if err != nil {
-		if resp.StatusCode != http.StatusNotFound {
-			return nil, err
-		}
-	}
-
-	// data is not nil if .vela.yml exists
-	if data != nil {
-		strData, err := data.GetContent()
+	for _, file := range files {
+		// send API call to capture the .vela.yml pipeline configuration
+		data, _, resp, err := client.Repositories.GetContents(ctx, r.GetOrg(), r.GetName(), file, opts)
 		if err != nil {
-			return nil, err
+			if resp.StatusCode != http.StatusNotFound {
+				return nil, err
+			}
 		}
 
-		return []byte(strData), nil
-	}
+		// data is not nil if .vela.yml exists
+		if data != nil {
+			strData, err := data.GetContent()
+			if err != nil {
+				return nil, err
+			}
 
-	// send API call to capture the .vela.yaml pipeline configuration
-	data, _, resp, err = client.Repositories.GetContents(ctx, org, name, ".vela.yaml", opts)
-	if err != nil {
-		if resp.StatusCode != http.StatusNotFound {
-			return nil, err
+			return []byte(strData), nil
 		}
 	}
 
-	// data is not nil if .vela.yaml exists
-	if data != nil {
-		strData, err := data.GetContent()
-		if err != nil {
-			return nil, err
-		}
-
-		return []byte(strData), nil
-	}
-
-	return nil, fmt.Errorf("no valid pipeline configuration file (.vela.yml or .vela.yaml) found")
+	return nil, fmt.Errorf("no valid pipeline configuration file (%s) found", strings.Join(files, ","))
 }
 
 // Disable deactivates a repo by deleting the webhook.
@@ -210,6 +201,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		state = "success"
 		description = "the build was successful"
 	case constants.StatusFailure:
+		// nolint: goconst // ignore making constant
 		state = "failure"
 		description = "the build has failed"
 	case constants.StatusCanceled:

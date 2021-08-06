@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/router/middleware/user"
+
 	"github.com/go-vela/compiler/compiler"
 
 	"github.com/go-vela/pkg-queue/queue"
@@ -196,7 +198,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), input.GetCommit())
+	config, err := source.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
@@ -357,16 +359,61 @@ func skipEmptyBuild(p *pipeline.Build) string {
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
 func GetBuilds(c *gin.Context) {
-	// variables that will hold the build list and total count
+	// variables that will hold the build list, build list filters and total count
 	var (
-		b []*library.Build
-		t int64
+		filters = map[string]string{}
+		b       []*library.Build
+		t       int64
 	)
 
 	// capture middleware values
 	r := repo.Retrieve(c)
+
+	// capture the branch name parameter
+	branch := c.Query("branch")
 	// capture the event type parameter
 	event := c.Query("event")
+	// capture the status type parameter
+	status := c.Query("status")
+
+	// check if branch filter was provided
+	if len(branch) > 0 {
+		// add branch to filters map
+		filters["branch"] = branch
+	}
+	// check if event filter was provided
+	if len(event) > 0 {
+		// verify the event provided is a valid event type
+		if event != constants.EventComment && event != constants.EventDeploy &&
+			event != constants.EventPush && event != constants.EventPull &&
+			event != constants.EventTag {
+			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add event to filters map
+		filters["event"] = event
+	}
+	// check if status filter was provided
+	if len(status) > 0 {
+		// verify the status provided is a valid status type
+		if status != constants.StatusCanceled && status != constants.StatusError &&
+			status != constants.StatusFailure && status != constants.StatusKilled &&
+			status != constants.StatusPending && status != constants.StatusRunning &&
+			status != constants.StatusSuccess {
+			retErr := fmt.Errorf("unable to process status %s: invalid status type provided", status)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add status to filters map
+		filters["status"] = status
+	}
 
 	logrus.Infof("Reading builds for repo %s", r.GetFullName())
 
@@ -397,13 +444,7 @@ func GetBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the list of builds for the repo (and event type if passed in)
-	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetRepoBuildListByEvent(r, event, page, perPage)
-	} else {
-		b, t, err = database.FromContext(c).GetRepoBuildList(r, page, perPage)
-	}
-
+	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
@@ -476,16 +517,61 @@ func GetBuilds(c *gin.Context) {
 // GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
 func GetOrgBuilds(c *gin.Context) {
-	// variables that will hold the build list and total count
+	// variables that will hold the build list, build list filters and total count
 	var (
-		b []*library.Build
-		t int64
+		filters = map[string]string{}
+		b       []*library.Build
+		t       int64
 	)
 
+	u := user.Retrieve(c)
 	// capture middleware values
 	o := c.Param("org")
+	// capture the branch name parameter
+	branch := c.Query("branch")
 	// capture the event type parameter
 	event := c.Query("event")
+	// capture the status type parameter
+	status := c.Query("status")
+
+	// check if branch filter was provided
+	if len(branch) > 0 {
+		// add branch to filters map
+		filters["branch"] = branch
+	}
+	// check if event filter was provided
+	if len(event) > 0 {
+		// verify the event provided is a valid event type
+		if event != constants.EventComment && event != constants.EventDeploy &&
+			event != constants.EventPush && event != constants.EventPull &&
+			event != constants.EventTag {
+			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add event to filters map
+		filters["event"] = event
+	}
+	// check if status filter was provided
+	if len(status) > 0 {
+		// verify the status provided is a valid status type
+		if status != constants.StatusCanceled && status != constants.StatusError &&
+			status != constants.StatusFailure && status != constants.StatusKilled &&
+			status != constants.StatusPending && status != constants.StatusRunning &&
+			status != constants.StatusSuccess {
+			retErr := fmt.Errorf("unable to process status %s: invalid status type provided", status)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// add status to filters map
+		filters["status"] = status
+	}
 
 	logrus.Infof("Reading builds for org %s", o)
 
@@ -514,12 +600,18 @@ func GetOrgBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the list of builds for the org (and event type if passed in)
-	if len(event) > 0 {
-		b, t, err = database.FromContext(c).GetOrgBuildListByEvent(o, event, page, perPage)
-	} else {
-		b, t, err = database.FromContext(c).GetOrgBuildList(o, page, perPage)
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := source.FromContext(c).OrgAccess(u, o)
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
+	// Only show public repos to non-admins
+	if perm != "admin" {
+		filters["visibility"] = "public"
+	}
+
+	// send API call to capture the list of builds for the org (and event type if passed in)
+	b, t, err = database.FromContext(c).GetOrgBuildList(o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for org %s: %w", o, err)
@@ -725,7 +817,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), b.GetCommit())
+	config, err := source.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
@@ -851,6 +943,7 @@ func RestartBuild(c *gin.Context) {
 
 // UpdateBuild represents the API handler to update
 // a build for a repo in the configured backend.
+// nolint: funlen // ignore long function line length
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -1262,6 +1355,99 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	// build has been abandoned
-	retErr := fmt.Errorf("unable to find a running build for %s/%d", r.GetFullName(), b.GetNumber())
-	util.HandleError(c, http.StatusInternalServerError, retErr)
+	// update the status in the build table
+	b.SetStatus(constants.StatusCanceled)
+	err = database.FromContext(c).UpdateBuild(b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update status for build %d: %w", b.Number, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+		return
+	}
+
+	// retrieve the steps for the build from the step table
+	steps := []*library.Step{}
+	page := 1
+	perPage := 100
+	for page > 0 {
+		// retrieve build steps (per page) from the database
+		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve steps for build %d: %w", b.Number, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
+
+		// add page of steps to list steps
+		steps = append(steps, stepsPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		//
+		// nolint: gomnd // ignore magic number
+		if len(stepsPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each step for the build
+	// setting anything running or pending to canceled
+	for _, step := range steps {
+		if step.GetStatus() == constants.StatusRunning ||
+			step.GetStatus() == constants.StatusPending {
+			step.SetStatus(constants.StatusCanceled)
+			err = database.FromContext(c).UpdateStep(step)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update step %s for build %d: %w", step.GetName(), b.Number, err)
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
+		}
+	}
+
+	// retrieve the services for the build from the service table
+	services := []*library.Service{}
+	page = 1
+	for page > 0 {
+		// retrieve build services (per page) from the database
+		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve services for build %d: %w", b.Number, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
+
+		// add page of services to the list of services
+		services = append(services, servicesPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		//
+		// nolint: gomnd // ignore magic number
+		if len(servicesPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each service for the build
+	// setting anything running or pending to canceled
+	for _, service := range services {
+		if service.GetStatus() == constants.StatusRunning ||
+			service.GetStatus() == constants.StatusPending {
+			service.SetStatus(constants.StatusCanceled)
+			err = database.FromContext(c).UpdateService(service)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update service %s for build %d: %w",
+					service.GetName(),
+					b.Number,
+					err,
+				)
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, b)
 }

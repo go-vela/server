@@ -29,6 +29,7 @@ func Retrieve(c *gin.Context) []library.Executor {
 // Establish sets the executors in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		e := new([]library.Executor)
 		b := build.Retrieve(c)
 		// retrieve the worker
 		w, err := database.FromContext(c).GetWorker(b.GetHost())
@@ -55,9 +56,10 @@ func Establish() gin.HandlerFunc {
 		// make the request to the worker and check the response
 		resp, err := client.Do(req)
 		if err != nil {
-			retErr := fmt.Errorf("unable to connect to %s: %w", endpoint, err)
-			util.HandleError(c, http.StatusBadRequest, retErr)
-			return
+			// abandoned builds might have ran on a worker that no longer exists
+			// if the worker is unavailable write an empty slice ToContext
+			ToContext(c, *e)
+			c.Next()
 		}
 		defer resp.Body.Close()
 
@@ -70,7 +72,6 @@ func Establish() gin.HandlerFunc {
 		}
 
 		// parse response and validate at least one item was returned
-		e := new([]library.Executor)
 		err = json.Unmarshal(respBody, e)
 		if err != nil {
 			retErr := fmt.Errorf("unable to parse response from %s: %w", endpoint, err)

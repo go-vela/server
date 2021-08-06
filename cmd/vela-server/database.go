@@ -25,6 +25,7 @@ func setupDatabase(c *cli.Context) (database.Service, error) {
 		ConnectionIdle:   c.Int("database.connection.idle"),
 		ConnectionOpen:   c.Int("database.connection.open"),
 		EncryptionKey:    c.String("database.encryption.key"),
+		SkipCreation:     c.Bool("database.skip_creation"),
 	}
 
 	// setup the database
