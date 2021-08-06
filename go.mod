@@ -9,9 +9,9 @@ require (
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-playground/assert/v2 v2.0.1
-	github.com/go-vela/compiler v0.8.2-0.20210728151243-38af4aebce57
-	github.com/go-vela/pkg-queue v0.8.1
-	github.com/go-vela/types v0.8.3-0.20210726122150-0eaf6091307b
+	github.com/go-vela/compiler v0.9.0-rc2
+	github.com/go-vela/pkg-queue v0.9.0-rc2
+	github.com/go-vela/types v0.9.0-rc2
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v37 v37.0.0
@@ -27,7 +27,6 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20210503195802-e9a32991a82e // indirect
 	golang.org/x/oauth2 v0.0.0-20210805134026-6f1e6394065a
-	golang.org/x/sys v0.0.0-20210806184541-e5e7981a1069 // indirect
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.1.0
 	gorm.io/driver/sqlite v1.1.4
