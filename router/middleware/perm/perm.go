@@ -50,6 +50,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 			return
 		}
 
+		m := c.Request.Method
 		t := c.Param("type")
 		o := c.Param("org")
 		n := c.Param("name")
@@ -87,7 +88,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 				return
 			}
 		case constants.SecretShared:
-			if n == "*" {
+			if n == "*" && m == "GET" {
 				logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
 
 				perm, err := source.FromContext(c).OrgAccess(u, o)
@@ -96,6 +97,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 				}
 
 				if !strings.EqualFold(perm, "admin") {
+					// nolint: lll // ignore long line length due to error message
 					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the org %s", u.GetName(), o)
 
 					util.HandleError(c, http.StatusUnauthorized, retErr)

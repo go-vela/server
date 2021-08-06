@@ -95,7 +95,6 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 				Raw(dml.ListSharedSecrets, o, n, perPage, offset).
 				Scan(s).Error
 		}
-
 	}
 	if err != nil {
 		return nil, err
