@@ -351,7 +351,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10, []string{"bar","bared"})
+		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10, []string{"bar", "bared"})
 
 		if test.failure {
 			if err == nil {

@@ -55,7 +55,6 @@ type Service interface {
 	// the user's teams for an org
 	ListUsersTeamsForOrg(*library.User, string) ([]string, error)
 
-
 	// Changeset Source Interface Functions
 
 	// Changeset defines a function that captures the list
