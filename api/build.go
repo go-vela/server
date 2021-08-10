@@ -763,7 +763,6 @@ func RestartBuild(c *gin.Context) {
 
 	// update fields in build object
 	b.SetID(0)
-	b.SetNumber(r.GetCounter())
 	b.SetParent(lastBuild.GetNumber())
 	b.SetCreated(time.Now().UTC().Unix())
 	b.SetEnqueued(0)
