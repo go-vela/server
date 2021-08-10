@@ -71,7 +71,7 @@ func (c *client) GetOrgBuildList(org string, filters map[string]string, page int
 		Select("builds.*").
 		Joins("JOIN repos ON builds.repo_id = repos.id AND repos.org = ?", org).
 		Where(filters).
-		Order("number DESC").
+		Order("started DESC").
 		Limit(perPage).
 		Offset(offset).
 		Scan(b).Error
