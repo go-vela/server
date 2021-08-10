@@ -755,9 +755,14 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
+	// update the build numbers based off repo counter
+	inc := r.GetCounter() + 1
+
+	r.SetCounter(inc)
+	b.SetNumber(inc)
+
 	// update fields in build object
 	b.SetID(0)
-	b.SetNumber(r.GetCounter())
 	b.SetParent(lastBuild.GetNumber())
 	b.SetCreated(time.Now().UTC().Unix())
 	b.SetEnqueued(0)
@@ -826,12 +831,6 @@ func RestartBuild(c *gin.Context) {
 
 		return
 	}
-
-	// update the build numbers based off repo counter
-	inc := r.GetCounter() + 1
-
-	r.SetCounter(inc)
-	b.SetNumber(inc)
 
 	// parse and compile the pipeline configuration file
 	p, err := compiler.FromContext(c).

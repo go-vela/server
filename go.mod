@@ -1,6 +1,6 @@
 module github.com/go-vela/server
 
-go 1.15
+go 1.16
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -9,9 +9,9 @@ require (
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-playground/assert/v2 v2.0.1
-	github.com/go-vela/compiler v0.8.2-0.20210728151243-38af4aebce57
-	github.com/go-vela/pkg-queue v0.8.1
-	github.com/go-vela/types v0.8.3-0.20210726122150-0eaf6091307b
+	github.com/go-vela/compiler v0.9.0-rc2
+	github.com/go-vela/pkg-queue v0.9.0-rc2
+	github.com/go-vela/types v0.9.0-rc2
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v37 v37.0.0
