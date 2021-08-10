@@ -79,7 +79,7 @@ func TestSqlite_Client_GetTypeSecretCount_Org(t *testing.T) {
 			t.Errorf("unable to create test secret: %v", err)
 		}
 
-		got, err := _database.GetTypeSecretCount("org", "foo", "*")
+		got, err := _database.GetTypeSecretCount("org", "foo", "*", []string{})
 
 		if test.failure {
 			if err == nil {
@@ -151,7 +151,7 @@ func TestSqlite_Client_GetTypeSecretCount_Repo(t *testing.T) {
 			t.Errorf("unable to create test secret: %v", err)
 		}
 
-		got, err := _database.GetTypeSecretCount("repo", "foo", "bar")
+		got, err := _database.GetTypeSecretCount("repo", "foo", "bar", []string{})
 
 		if test.failure {
 			if err == nil {
@@ -223,7 +223,7 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 			t.Errorf("unable to create test secret: %v", err)
 		}
 
-		got, err := _database.GetTypeSecretCount("shared", "foo", "bar")
+		got, err := _database.GetTypeSecretCount("shared", "foo", "bar", []string{})
 
 		if test.failure {
 			if err == nil {
@@ -295,7 +295,7 @@ func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 			t.Errorf("unable to create test secret: %v", err)
 		}
 
-		got, err := _database.GetTypeSecretCount("shared", "foo", "*")
+		got, err := _database.GetTypeSecretCount("shared", "foo", "*", []string{"bar", "bared"})
 
 		if test.failure {
 			if err == nil {

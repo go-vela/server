@@ -13,7 +13,7 @@ import (
 
 // GetTypeSecretCount gets a count of secrets by type,
 // owner, and name (repo or team) from the database.
-func (c *client) GetTypeSecretCount(t, o, n string) (int64, error) {
+func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, error) {
 	logrus.Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
@@ -39,6 +39,7 @@ func (c *client) GetTypeSecretCount(t, o, n string) (int64, error) {
 				Table(constants.TableSecret).
 				Select("count(*)").
 				Where("type = 'shared' AND org = ?", o).
+				Where("team in (?)", teams).
 				Pluck("count", &s).Error
 		} else {
 			err = c.Sqlite.

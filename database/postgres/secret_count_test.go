@@ -64,7 +64,7 @@ func TestPostgres_Client_GetTypeSecretCount_Org(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretCount("org", "foo", "*")
+		got, err := _database.GetTypeSecretCount("org", "foo", "*", []string{})
 
 		if test.failure {
 			if err == nil {
@@ -133,7 +133,7 @@ func TestPostgres_Client_GetTypeSecretCount_Repo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretCount("repo", "foo", "bar")
+		got, err := _database.GetTypeSecretCount("repo", "foo", "bar", []string{})
 
 		if test.failure {
 			if err == nil {
@@ -202,7 +202,7 @@ func TestPostgres_Client_GetTypeSecretCount_Shared(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretCount("shared", "foo", "bar")
+		got, err := _database.GetTypeSecretCount("shared", "foo", "bar", []string{})
 
 		if test.failure {
 			if err == nil {
@@ -255,7 +255,7 @@ func TestPostgres_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT count(*) FROM \"secrets\" WHERE type = 'shared' AND org = $1").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT count(*) FROM \"secrets\" WHERE (type = 'shared' AND org = $1) AND team in ($2,$3)").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -270,7 +270,7 @@ func TestPostgres_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretCount("shared", "foo", "*")
+		got, err := _database.GetTypeSecretCount("shared", "foo", "*", []string{"bar", "bared"})
 
 		if test.failure {
 			if err == nil {

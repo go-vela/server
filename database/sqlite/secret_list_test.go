@@ -146,7 +146,7 @@ func TestSqlite_Client_GetTypeSecretList_Org(t *testing.T) {
 			}
 		}
 
-		got, err := _database.GetTypeSecretList("org", "foo", "*", 1, 10)
+		got, err := _database.GetTypeSecretList("org", "foo", "*", 1, 10, []string{})
 
 		if test.failure {
 			if err == nil {
@@ -215,7 +215,7 @@ func TestSqlite_Client_GetTypeSecretList_Repo(t *testing.T) {
 			}
 		}
 
-		got, err := _database.GetTypeSecretList("repo", "foo", "bar", 1, 10)
+		got, err := _database.GetTypeSecretList("repo", "foo", "bar", 1, 10, []string{})
 
 		if test.failure {
 			if err == nil {
@@ -284,7 +284,7 @@ func TestSqlite_Client_GetTypeSecretList_Shared(t *testing.T) {
 			}
 		}
 
-		got, err := _database.GetTypeSecretList("shared", "foo", "bar", 1, 10)
+		got, err := _database.GetTypeSecretList("shared", "foo", "bar", 1, 10, []string{})
 
 		if test.failure {
 			if err == nil {
@@ -353,7 +353,7 @@ func TestSqlite_Client_GetTypeSecretList_Shared_wildcard(t *testing.T) {
 			}
 		}
 
-		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10)
+		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10, []string{"bar", "bared"})
 
 		if test.failure {
 			if err == nil {

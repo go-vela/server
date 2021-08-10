@@ -140,7 +140,7 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretList("org", "foo", "*", 1, 10)
+		got, err := _database.GetTypeSecretList("org", "foo", "*", 1, 10, []string{})
 
 		if test.failure {
 			if err == nil {
@@ -212,7 +212,7 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretList("repo", "foo", "bar", 1, 10)
+		got, err := _database.GetTypeSecretList("repo", "foo", "bar", 1, 10, []string{})
 
 		if test.failure {
 			if err == nil {
@@ -284,7 +284,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretList("shared", "foo", "bar", 1, 10)
+		got, err := _database.GetTypeSecretList("shared", "foo", "bar", 1, 10, []string{"bar"})
 
 		if test.failure {
 			if err == nil {
@@ -336,7 +336,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 		AddRow(1, "shared", "foo", "", "bared", "foob", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT * FROM \"secrets\" WHERE type = 'shared' AND org = $1 ORDER BY id DESC LIMIT 10").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT * FROM \"secrets\" WHERE (type = 'shared' AND org = $1) AND team in ($2,$3) ORDER BY id DESC LIMIT 10").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -351,7 +351,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10)
+		got, err := _database.GetTypeSecretList("shared", "foo", "*", 1, 10, []string{"bar","bared"})
 
 		if test.failure {
 			if err == nil {

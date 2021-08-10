@@ -6,6 +6,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/go-vela/server/source"
 	"net/http"
 	"strconv"
 	"strings"
@@ -225,6 +226,21 @@ func GetSecrets(c *gin.Context) {
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
+	u := user.Retrieve(c)
+	var teams []string
+
+	// get list of user's teams if type is shared secret and team is '*'
+	if t == "shared" && n == "*" {
+		var err error
+		teams, err = source.FromContext(c).ListUsersTeamsForOrg(u, o)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+	}
 
 	logrus.Infof("Reading secrets %s/%s/%s from %s service", t, o, n, e)
 
@@ -251,7 +267,7 @@ func GetSecrets(c *gin.Context) {
 	}
 
 	// send API call to capture the total number of secrets
-	total, err := secret.FromContext(c, e).Count(t, o, n)
+	total, err := secret.FromContext(c, e).Count(t, o, n, teams)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get secret count for %s/%s/%s from %s service: %w", t, o, n, e, err)
@@ -267,7 +283,7 @@ func GetSecrets(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of secrets
-	s, err := secret.FromContext(c, e).List(t, o, n, page, perPage)
+	s, err := secret.FromContext(c, e).List(t, o, n, page, perPage, teams)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secrets for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
