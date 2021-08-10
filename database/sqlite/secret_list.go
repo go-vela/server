@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -82,10 +83,15 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []st
 			Scan(s).Error
 	case constants.SecretShared:
 		if n == "*" {
+			// GitHub teams are not case-sensitive, the DB is lowercase everything for matching
+			var lowerTeams []string
+			for _, t := range teams {
+				lowerTeams = append(lowerTeams, strings.ToLower(t))
+			}
 			err = c.Sqlite.
 				Table(constants.TableSecret).
 				Where("type = 'shared' AND org = ?", o).
-				Where("team in (?)", teams).
+				Where("LOWER(team) IN (?)", lowerTeams).
 				Order("id DESC").
 				Limit(perPage).
 				Offset(offset).

@@ -59,7 +59,6 @@ func (c *client) RepoAccess(u *library.User, org, repo string) (string, error) {
 // TeamAccess captures the user's access level for a team.
 func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	logrus.Tracef("Capturing %s access level to team %s/%s", u.GetName(), org, team)
-	team = strings.ToLower(team)
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 	teams := []*github.Team{}
@@ -87,7 +86,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	// iterate through each element in the teams
 	for _, t := range teams {
 		// skip the team if does not match the team we are checking
-		if !strings.EqualFold(team, strings.ToLower(t.GetName())) {
+		if !strings.EqualFold(team, t.GetName()) {
 			continue
 		}
 
@@ -137,7 +136,7 @@ func (c *client) ListUsersTeamsForOrg(u *library.User, org string) ([]string, er
 	for _, t := range teams {
 		// skip the org if does not match the org we are checking
 		if strings.EqualFold(org, t.GetOrganization().GetLogin()) {
-			userTeams = append(userTeams, strings.ToLower(t.GetName()))
+			userTeams = append(userTeams, t.GetName())
 		}
 	}
 

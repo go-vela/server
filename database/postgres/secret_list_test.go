@@ -336,7 +336,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 		AddRow(1, "shared", "foo", "", "bared", "foob", "baz", "{}", "{}", false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT * FROM \"secrets\" WHERE (type = 'shared' AND org = $1) AND team in ($2,$3) ORDER BY id DESC LIMIT 10").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT * FROM \"secrets\" WHERE (type = 'shared' AND org = $1) AND LOWER(team) IN ($2,$3) ORDER BY id DESC LIMIT 10").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

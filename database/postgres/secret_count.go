@@ -7,6 +7,7 @@ package postgres
 import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -35,11 +36,16 @@ func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, erro
 			Pluck("count", &s).Error
 	case constants.SecretShared:
 		if n == "*" {
+			// GitHub teams are not case-sensitive, the DB is lowercase everything for matching
+			var lowerTeams []string
+			for _, t := range teams {
+				lowerTeams = append(lowerTeams, strings.ToLower(t))
+			}
 			err = c.Postgres.
 				Table(constants.TableSecret).
 				Select("count(*)").
 				Where("type = 'shared' AND org = ?", o).
-				Where("team in (?)", teams).
+				Where("LOWER(team) IN (?)", lowerTeams).
 				Pluck("count", &s).Error
 		} else {
 			err = c.Postgres.
