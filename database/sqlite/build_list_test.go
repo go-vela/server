@@ -132,7 +132,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 	}{
 		{
 			failure: false,
-			want:    []*library.Build{_buildTwo, _buildOne},
+			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
 	filters := map[string]string{}
