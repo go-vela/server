@@ -14,7 +14,7 @@ require (
 	github.com/go-vela/types v0.9.0-rc2
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/google/go-cmp v0.5.6
-	github.com/google/go-github/v37 v37.0.0
+	github.com/google/go-github/v38 v38.1.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/vault/api v1.1.1
