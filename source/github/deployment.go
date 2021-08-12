@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v38/github"
 
 	"github.com/go-vela/types/library"
 
