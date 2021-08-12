@@ -5,11 +5,12 @@
 package sqlite
 
 import (
+	"strings"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -59,6 +60,8 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 
 // GetTypeSecretList gets a list of secrets by type,
 // owner, and name (repo or team) from the database.
+//
+// nolint: lll // ignore long line length
 func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []string) ([]*library.Secret, error) {
 	logrus.Tracef("listing %s secrets for %s/%s from the database", t, o, n)
 

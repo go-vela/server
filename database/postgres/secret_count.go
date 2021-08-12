@@ -5,9 +5,10 @@
 package postgres
 
 import (
+	"strings"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 )

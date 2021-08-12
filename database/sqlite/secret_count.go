@@ -5,9 +5,10 @@
 package sqlite
 
 import (
+	"strings"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 )

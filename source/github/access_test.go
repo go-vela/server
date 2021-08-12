@@ -389,7 +389,7 @@ func TestGithub_TeamList(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := []string{"justice", "league", "octocat"}
+	want := []string{"Justice League", "octocat"}
 
 	u := new(library.User)
 	u.SetName("foo")

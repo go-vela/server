@@ -6,10 +6,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/go-vela/server/source"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/go-vela/server/source"
 
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/secret"

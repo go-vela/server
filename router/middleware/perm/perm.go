@@ -89,16 +89,14 @@ func MustSecretAdmin() gin.HandlerFunc {
 			}
 		case constants.SecretShared:
 			if n == "*" && m == "GET" {
-				logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
+				logrus.Debugf("Gathering teams user %s is a member of in the org %s", u.GetName(), o)
 
-				// TODO: Get list of teams user is a part of and filter by team in []
 				teams, err := source.FromContext(c).ListUsersTeamsForOrg(u, o)
 				if err != nil {
 					logrus.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
 				}
 
 				if len(teams) == 0 {
-					// nolint: lll // ignore long line length due to error message
 					retErr := fmt.Errorf("user %s is not a member of any team for the org %s", u.GetName(), o)
 
 					util.HandleError(c, http.StatusUnauthorized, retErr)
