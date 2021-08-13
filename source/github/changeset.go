@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v38/github"
 
 	"github.com/sirupsen/logrus"
 )
@@ -21,8 +21,11 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 	client := c.newClientToken(u.GetToken())
 	s := []string{}
 
+	// set the max per page for the options to capture the commit
+	opts := github.ListOptions{PerPage: 100} // 100 is max
+
 	// send API call to capture the commit
-	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha)
+	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha, &opts)
 	if err != nil {
 		return nil, fmt.Errorf("Repositories.GetCommit returned error: %v", err)
 	}

@@ -78,12 +78,6 @@ func Establish() gin.HandlerFunc {
 			util.HandleError(c, http.StatusBadRequest, retErr)
 			return
 		}
-		if len(*e) == 0 {
-			retErr := fmt.Errorf("worker returned no executors")
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
 
 		ToContext(c, *e)
 		c.Next()
