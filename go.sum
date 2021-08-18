@@ -229,8 +229,6 @@ github.com/go-vela/pkg-queue v0.9.0-rc3 h1:ZwcOOyZx7PTV/GrgD+dC4+Tv4u3lGu2wgUnud
 github.com/go-vela/pkg-queue v0.9.0-rc3/go.mod h1:I5QoY5uNjvFRgPK/7NyxP9IuIw6WAV1lG861pjldndk=
 github.com/go-vela/sdk-go v0.9.0-rc3 h1:v9UhpYpSeynxtEogEKgvrLoXGmchf0vWz7fkAE1+Fzc=
 github.com/go-vela/sdk-go v0.9.0-rc3/go.mod h1:Od/wwAIhuBHEjtJSDDPezX8IohcAfoV+Itu1MBmaRqY=
-github.com/go-vela/types v0.9.0-rc3 h1:ucWTlDvIf1Hd3tUD4dC9plN0RbgPWny84vE/42oYctM=
-github.com/go-vela/types v0.9.0-rc3/go.mod h1:uiQ8TITRIemGwgnfACIHaTdcTVJaZTo7eO1HZeFgnHc=
 github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e/go.mod h1:bBOAhwG1umN6/6ZUMtDFBMQR8jRg9O75tm9K00oMsK4=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=

@@ -48,11 +48,15 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 	// variable to store query results
 	b := new([]database.Build)
 
+	filters := map[string]string{}
+	if len(deployment) > 0 {
+		filters["source"] = deployment
+	}
 	// send query to the database and store result in variable
 	err := c.Postgres.
 		Table(constants.TableBuild).
 		Select("*").
-		Where("source = %s", deployment).
+		Where(filters).
 		Limit(3).
 		Order("number DESC").
 		Scan(b).Error
