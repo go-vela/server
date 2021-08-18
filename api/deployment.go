@@ -6,6 +6,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/go-vela/server/database"
 	"net/http"
 	"strconv"
 
@@ -209,6 +210,24 @@ func GetDeployments(c *gin.Context) {
 		return
 	}
 
+	var dWithBs []*library.Deployment
+	for _, deployment := range d {
+		b, err := database.FromContext(c).GetDeploymentBuildList(*deployment.URL)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+		var builds []library.Build
+		for _, build := range b {
+			builds = append(builds, *build)
+		}
+		deployment.SetBuilds(builds)
+		dWithBs = append(dWithBs, deployment)
+	}
+
 	// create pagination object
 	pagination := Pagination{
 		Page:    page,
@@ -218,7 +237,7 @@ func GetDeployments(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, d)
+	c.JSON(http.StatusOK, dWithBs)
 }
 
 // swagger:operation GET /api/v1/deployments/{org}/{repo}/{deployment} deployment GetDeployment

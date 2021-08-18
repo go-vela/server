@@ -37,6 +37,9 @@ type Service interface {
 	// GetBuildList defines a function that gets
 	// a list of all builds.
 	GetBuildList() ([]*library.Build, error)
+	// GetDeploymentBuildList defines a function that gets
+	// a list of builds related to a deployment.
+	GetDeploymentBuildList(string) ([]*library.Build, error)
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
 	GetRepoBuildList(*library.Repo, map[string]string, int, int) ([]*library.Build, int64, error)
