@@ -40,7 +40,6 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 	return builds, err
 }
 
-
 // GetDeploymentBuildList gets a list of all builds from the database.
 func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, error) {
 	logrus.Trace("listing builds from the database")
