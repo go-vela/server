@@ -93,6 +93,77 @@ func TestSqlite_Client_GetBuildList(t *testing.T) {
 	}
 }
 
+func TestSqlite_Client_GetDeploymentBuildList(t *testing.T) {
+	// setup types
+	_buildOne := testBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepoID(1)
+	_buildOne.SetNumber(1)
+	_buildOne.SetEvent("deployment")
+	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetSource("https://github.com/github/octocat/deployments/1")
+
+	_buildTwo := testBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepoID(1)
+	_buildTwo.SetNumber(2)
+	_buildOne.SetEvent("deployment")
+	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetSource("https://github.com/github/octocat/deployments/1")
+
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new sqlite test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    []*library.Build
+	}{
+		{
+			failure: false,
+			want:    []*library.Build{_buildTwo, _buildOne},
+		},
+	}
+	// run tests
+	for _, test := range tests {
+		// defer cleanup of the repos table
+		defer _database.Sqlite.Exec("delete from repos;")
+
+		// defer cleanup of the builds table
+		defer _database.Sqlite.Exec("delete from builds;")
+
+		for _, build := range test.want {
+			// create the build in the database
+			err := _database.CreateBuild(build)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
+		}
+
+		got, err := _database.GetDeploymentBuildList("https://github.com/github/octocat/deployments/1")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetDeploymentBuildList should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetDeploymentBuildList returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetDeploymentBuildList is %v, want %v", got, test.want)
+		}
+	}
+}
+
 func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 	// setup types
 	_buildOne := testBuild()
