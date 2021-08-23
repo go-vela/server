@@ -6,9 +6,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/go-vela/server/database"
 	"net/http"
 	"strconv"
+
+	"github.com/go-vela/server/database"
 
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
