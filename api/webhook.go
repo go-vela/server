@@ -427,7 +427,6 @@ func PostWebhook(c *gin.Context) {
 			// send API call to set the status on the commit
 			err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 			if err != nil {
-				// nolint: lll // ignore long line length due to error message
 				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}
 
