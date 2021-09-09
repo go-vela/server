@@ -228,6 +228,16 @@ func CreateBuild(c *gin.Context) {
 	// skip the build if only the init or clone steps are found
 	skip := skipEmptyBuild(p)
 	if skip != "" {
+		// set build to successful status
+		input.SetStatus(constants.StatusSuccess)
+
+		// send API call to set the status on the commit
+		err = source.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		}
+
 		c.JSON(http.StatusOK, skip)
 		return
 	}
@@ -852,6 +862,15 @@ func RestartBuild(c *gin.Context) {
 	// skip the build if only the init or clone steps are found
 	skip := skipEmptyBuild(p)
 	if skip != "" {
+		// set build to successful status
+		b.SetStatus(constants.StatusSuccess)
+
+		// send API call to set the status on the commit
+		err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+		if err != nil {
+			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		}
+
 		c.JSON(http.StatusOK, skip)
 		return
 	}

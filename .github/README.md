@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/go-vela/server)](https://goreportcard.com/report/go-vela/server)
 [![codecov](https://codecov.io/gh/go-vela/server/branch/master/graph/badge.svg)](https://codecov.io/gh/go-vela/server)
 
-> Vela is in active development and is a pre-release product. Please use at your own risk in production.
+> Vela is in active development and is a pre-release product.
 >
 > Feel free to send us feedback at https://github.com/go-vela/community/issues/new.
 
