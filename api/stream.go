@@ -22,13 +22,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PostServiceStream represents the API handler to do stuff...
+// PostServiceStream represents the API handler that
+// streams service logs to the database
 func PostServiceStream(c *gin.Context) {
-	c.Header("Content-Type", "text/event-stream")
-	c.Header("Cache-Control", "no-cache")
-	c.Header("Connection", "keep-alive")
-	c.Header("X-Accel-Buffering", "no")
-
 	// capture middleware values
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -83,8 +79,8 @@ func PostServiceStream(c *gin.Context) {
 			default:
 				// update the existing log with the new bytes
 				//
-				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.AppendData
-				_log.AppendData(logs.Bytes())
+				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
+				_log.SetData(logs.Bytes())
 
 				// send API call to update the log
 				err = database.FromContext(c).UpdateLog(_log)
@@ -95,9 +91,6 @@ func PostServiceStream(c *gin.Context) {
 
 					return
 				}
-
-				// flush the buffer of logs
-				logs.Reset()
 			}
 		}
 	}()
@@ -110,19 +103,12 @@ func PostServiceStream(c *gin.Context) {
 		logs.Write(append(scanner.Bytes(), []byte("\n")...))
 	}
 
-	// send API call to capture the updated log
-	_log, _ = database.FromContext(c).GetServiceLog(s.GetID())
-
-	c.JSON(http.StatusOK, _log)
+	c.JSON(http.StatusNoContent, nil)
 }
 
-// PostStepStream represents the API handler to do stuff...
+// PostStepStream represents the API handler that
+// streams service logs to the database
 func PostStepStream(c *gin.Context) {
-	c.Header("Content-Type", "text/event-stream")
-	c.Header("Cache-Control", "no-cache")
-	c.Header("Connection", "keep-alive")
-	c.Header("X-Accel-Buffering", "no")
-
 	// capture middleware values
 	b := build.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -177,8 +163,8 @@ func PostStepStream(c *gin.Context) {
 			default:
 				// update the existing log with the new bytes
 				//
-				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.AppendData
-				_log.AppendData(logs.Bytes())
+				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
+				_log.SetData(logs.Bytes())
 
 				// send API call to update the log
 				err = database.FromContext(c).UpdateLog(_log)
@@ -189,9 +175,6 @@ func PostStepStream(c *gin.Context) {
 
 					return
 				}
-
-				// flush the buffer of logs
-				logs.Reset()
 			}
 		}
 	}()
@@ -204,8 +187,5 @@ func PostStepStream(c *gin.Context) {
 		logs.Write(append(scanner.Bytes(), []byte("\n")...))
 	}
 
-	// send API call to capture the updated log
-	_log, _ = database.FromContext(c).GetStepLog(s.GetID())
-
-	c.JSON(http.StatusOK, _log)
+	c.JSON(http.StatusNoContent, nil)
 }
