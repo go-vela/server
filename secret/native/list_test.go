@@ -61,7 +61,7 @@ func TestNative_List(t *testing.T) {
 
 	_ = s.Create("repo", "foo", "bar", sTwo)
 
-	got, err := s.List("repo", "foo", "bar", 1, 10)
+	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
 	if err != nil {
 		t.Errorf("List returned err: %v", err)
 	}
@@ -85,7 +85,7 @@ func TestNative_List_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.List("repo", "foo", "bar", 1, 10)
+	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
 	if err == nil {
 		t.Errorf("List should have returned err")
 	}

@@ -421,6 +421,15 @@ func PostWebhook(c *gin.Context) {
 		// skip the build if only the init or clone steps are found
 		skip := skipEmptyBuild(p)
 		if skip != "" {
+			// set build to successful status
+			b.SetStatus(constants.StatusSuccess)
+
+			// send API call to set the status on the commit
+			err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+			if err != nil {
+				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			}
+
 			c.JSON(http.StatusOK, skip)
 			return
 		}

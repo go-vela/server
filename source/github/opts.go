@@ -29,7 +29,9 @@ func WithAddress(address string) ClientOpt {
 			// check if the address is equal to the defaults
 			if !strings.EqualFold(c.config.Address, address) {
 				c.config.Address = strings.TrimSuffix(address, "/")
-				c.config.API = fmt.Sprintf("%s/%s", c.config.Address, "api/v3/")
+				if !strings.Contains(c.config.Address, "https://github.com") {
+					c.config.API = fmt.Sprintf("%s/%s", c.config.Address, "api/v3/")
+				}
 			}
 		}
 

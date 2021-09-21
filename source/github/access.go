@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v38/github"
 
 	"github.com/sirupsen/logrus"
 )
@@ -59,7 +59,6 @@ func (c *client) RepoAccess(u *library.User, org, repo string) (string, error) {
 // TeamAccess captures the user's access level for a team.
 func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	logrus.Tracef("Capturing %s access level to team %s/%s", u.GetName(), org, team)
-
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 	teams := []*github.Team{}
@@ -101,4 +100,45 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	}
 
 	return "", nil
+}
+
+// ListUsersTeamsForOrg captures the user's teams for an org.
+func (c *client) ListUsersTeamsForOrg(u *library.User, org string) ([]string, error) {
+	logrus.Tracef("Capturing %s team membership for org %s", u.GetName(), org)
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+	teams := []*github.Team{}
+
+	// set the max per page for the options to capture the list of repos
+	opts := github.ListOptions{PerPage: 100} // 100 is max
+
+	for {
+		// send API call to list all teams for the user
+		uTeams, resp, err := client.Teams.ListUserTeams(ctx, &opts)
+		if err != nil {
+			return []string{""}, err
+		}
+
+		teams = append(teams, uTeams...)
+
+		// break the loop if there is no more results to page through
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	var userTeams []string
+
+	// iterate through each element in the teams and filter teams for specified org
+	for _, t := range teams {
+		// skip the org if does not match the org we are checking
+		if strings.EqualFold(org, t.GetOrganization().GetLogin()) {
+			userTeams = append(userTeams, t.GetName())
+		}
+	}
+
+	return userTeams, nil
 }

@@ -118,7 +118,7 @@ func TestPostgres_Client_GetOrgBuildList(t *testing.T) {
 		AddRow(2, 1, 2, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT builds.* FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 ORDER BY number DESC LIMIT 10").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT builds.* FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 ORDER BY created DESC,id LIMIT 10").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -186,7 +186,7 @@ func TestPostgres_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 	).AddRow(1, 1, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT builds.* FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 WHERE \"visibility\" = $2 ORDER BY number DESC LIMIT 10").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT builds.* FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 WHERE \"visibility\" = $2 ORDER BY created DESC,id LIMIT 10").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
@@ -256,7 +256,7 @@ func TestPostgres_Client_GetOrgBuildListByEvent(t *testing.T) {
 		AddRow(2, 1, 2, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT builds.* FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 WHERE \"event\" = $2 ORDER BY number DESC LIMIT 10").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT builds.* FROM \"builds\" JOIN repos ON builds.repo_id = repos.id and repos.org = $1 WHERE \"event\" = $2 ORDER BY created DESC,id LIMIT 10").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

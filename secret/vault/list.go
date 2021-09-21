@@ -20,7 +20,7 @@ import (
 // We drop page and perPage as we are always returning all results.
 // Vault API doesn't seem to support pagination. Might result in undesired
 // behavior for fetching Vault secrets in paginated manner.
-func (c *client) List(sType, org, name string, _, _ int) ([]*library.Secret, error) {
+func (c *client) List(sType, org, name string, _, _ int, _ []string) ([]*library.Secret, error) {
 	logrus.Tracef("Listing vault %s secrets for %s/%s", sType, org, name)
 
 	var err error

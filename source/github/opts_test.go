@@ -13,15 +13,21 @@ func TestGithub_ClientOpt_WithAddress(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		address string
-		want    string
+		want    config
 	}{
 		{
 			address: "https://git.example.com",
-			want:    "https://git.example.com",
+			want: config{
+				Address: "https://git.example.com",
+				API:     "https://git.example.com/api/v3/",
+			},
 		},
 		{
 			address: "",
-			want:    defaultURL,
+			want: config{
+				Address: defaultURL,
+				API:     defaultAPI,
+			},
 		},
 	}
 
@@ -35,8 +41,12 @@ func TestGithub_ClientOpt_WithAddress(t *testing.T) {
 			t.Errorf("WithAddress returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(_service.config.Address, test.want) {
-			t.Errorf("WithAddress is %v, want %v", _service.config.Address, test.want)
+		if !reflect.DeepEqual(_service.config.Address, test.want.Address) {
+			t.Errorf("WithAddress is %v, want %v", _service.config.Address, test.want.Address)
+		}
+
+		if !reflect.DeepEqual(_service.config.API, test.want.API) {
+			t.Errorf("WithAddress API is %v, want %v", _service.config.API, test.want.API)
 		}
 	}
 }

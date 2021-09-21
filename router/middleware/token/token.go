@@ -17,8 +17,8 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/dgrijalva/jwt-go/request"
+	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v4/request"
 	"github.com/sirupsen/logrus"
 )
 

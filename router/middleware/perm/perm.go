@@ -50,6 +50,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 			return
 		}
 
+		m := c.Request.Method
 		t := c.Param("type")
 		o := c.Param("org")
 		n := c.Param("name")
@@ -87,21 +88,38 @@ func MustSecretAdmin() gin.HandlerFunc {
 				return
 			}
 		case constants.SecretShared:
-			logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
+			if n == "*" && m == "GET" {
+				logrus.Debugf("Gathering teams user %s is a member of in the org %s", u.GetName(), o)
 
-			perm, err := source.FromContext(c).TeamAccess(u, o, n)
-			if err != nil {
-				logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
+				teams, err := source.FromContext(c).ListUsersTeamsForOrg(u, o)
+				if err != nil {
+					logrus.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
+				}
+
+				if len(teams) == 0 {
+					retErr := fmt.Errorf("user %s is not a member of any team for the org %s", u.GetName(), o)
+
+					util.HandleError(c, http.StatusUnauthorized, retErr)
+
+					return
+				}
+			} else {
+				logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
+				perm, err := source.FromContext(c).TeamAccess(u, o, n)
+				if err != nil {
+					logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
+				}
+
+				if !strings.EqualFold(perm, "admin") {
+					// nolint: lll // ignore long line length due to error message
+					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
+
+					util.HandleError(c, http.StatusUnauthorized, retErr)
+
+					return
+				}
 			}
 
-			if !strings.EqualFold(perm, "admin") {
-				// nolint: lll // ignore long line length due to error message
-				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
-
-				util.HandleError(c, http.StatusUnauthorized, retErr)
-
-				return
-			}
 		default:
 			retErr := fmt.Errorf("invalid secret type: %v", t)
 
