@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v38/github"
+	"github.com/google/go-github/v39/github"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
