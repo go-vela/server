@@ -18,9 +18,9 @@ type Service interface {
 	// Get defines a function that captures a secret.
 	Get(string, string, string, string) (*library.Secret, error)
 	// List defines a function that captures a list of secrets.
-	List(string, string, string, int, int) ([]*library.Secret, error)
+	List(string, string, string, int, int, []string) ([]*library.Secret, error)
 	// Count defines a function that counts a list of secrets.
-	Count(string, string, string) (int64, error)
+	Count(string, string, string, []string) (int64, error)
 	// Create defines a function that creates a new secret.
 	Create(string, string, string, *library.Secret) error
 	// Update defines a function that updates an existing secret.

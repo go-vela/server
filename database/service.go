@@ -156,10 +156,10 @@ type Service interface {
 	GetSecretList() ([]*library.Secret, error)
 	// GetTypeSecretList defines a function that gets a list
 	// of secrets by type, owner, and name (repo or team).
-	GetTypeSecretList(string, string, string, int, int) ([]*library.Secret, error)
+	GetTypeSecretList(string, string, string, int, int, []string) ([]*library.Secret, error)
 	// GetTypeSecretCount defines a function that gets a count
 	// of secrets by type, owner, and name (repo or team).
-	GetTypeSecretCount(string, string, string) (int64, error)
+	GetTypeSecretCount(string, string, string, []string) (int64, error)
 	// CreateSecret defines a function that
 	// creates a new secret.
 	CreateSecret(*library.Secret) error

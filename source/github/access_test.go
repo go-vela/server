@@ -370,3 +370,45 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 		t.Errorf("TeamAccess is %v, want %v", got, want)
 	}
 }
+
+func TestGithub_TeamList(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/team_admin.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	want := []string{"Justice League", "octocat"}
+
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ListUsersTeamsForOrg(u, "github")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("TeamAccess returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("TeamAccess is %v, want %v", got, want)
+	}
+}
