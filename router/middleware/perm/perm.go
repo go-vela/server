@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/source"
@@ -74,7 +75,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretRepo:
 			logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 
-			perm, err := source.FromContext(c).RepoAccess(u, o, n)
+			perm, err := source.FromContext(c).RepoAccess(u, u.GetToken(), o, n)
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
@@ -143,7 +144,17 @@ func MustAdmin() gin.HandlerFunc {
 			return
 		}
 
-		perm, err := source.FromContext(c).RepoAccess(u, r.GetOrg(), r.GetName())
+		// send API call to capture the repo owner
+		ro, err := database.FromContext(c).GetUser(r.GetUserID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		perm, err := source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
@@ -177,7 +188,17 @@ func MustWrite() gin.HandlerFunc {
 			return
 		}
 
-		perm, err := source.FromContext(c).RepoAccess(u, r.GetOrg(), r.GetName())
+		// send API call to capture the repo owner
+		ro, err := database.FromContext(c).GetUser(r.GetUserID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		perm, err := source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}
@@ -219,7 +240,17 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 
-		perm, err := source.FromContext(c).RepoAccess(u, r.GetOrg(), r.GetName())
+		// send API call to capture the repo owner
+		ro, err := database.FromContext(c).GetUser(r.GetUserID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		perm, err := source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 		}

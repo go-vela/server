@@ -41,11 +41,11 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *client) RepoAccess(u *library.User, org, repo string) (string, error) {
+func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, error) {
 	logrus.Tracef("Capturing %s access level to repo %s/%s", u.GetName(), org, repo)
 
-	// create github oauth client with user's token
-	client := c.newClientToken(*u.Token)
+	// create github oauth client with the given token
+	client := c.newClientToken(token)
 
 	// send API call to capture repo access level for user
 	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, u.GetName())
