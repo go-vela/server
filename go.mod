@@ -12,7 +12,7 @@ require (
 	github.com/go-vela/compiler v0.9.0
 	github.com/go-vela/pkg-queue v0.9.0
 	github.com/go-vela/types v0.9.0
-	github.com/golang-jwt/jwt/v4 v4.0.0
+	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v39 v39.1.0
 	github.com/google/gofuzz v1.2.0 // indirect
