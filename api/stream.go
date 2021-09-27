@@ -82,7 +82,7 @@ func PostServiceStream(c *gin.Context) {
 				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
 				_log.SetData(logs.Bytes())
 
-				// send API call to update the log
+				// update the log in the database
 				err = database.FromContext(c).UpdateLog(_log)
 				if err != nil {
 					retErr := fmt.Errorf("unable to update logs for service %s/%d: %w", entry, s.GetNumber(), err)
@@ -166,7 +166,7 @@ func PostStepStream(c *gin.Context) {
 				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
 				_log.SetData(logs.Bytes())
 
-				// send API call to update the log
+				// update the log in the database
 				err = database.FromContext(c).UpdateLog(_log)
 				if err != nil {
 					retErr := fmt.Errorf("unable to update logs for step %s/%d: %w", entry, s.GetNumber(), err)
