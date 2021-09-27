@@ -44,10 +44,16 @@ type Service interface {
 	OrgAccess(*library.User, string) (string, error)
 	// RepoAccess defines a function that captures
 	// the user's access level for a repo.
-	RepoAccess(*library.User, string, string) (string, error)
+	RepoAccess(*library.User, string, string, string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
 	TeamAccess(*library.User, string, string) (string, error)
+
+	// Teams Source Interface Functions
+
+	// ListUsersTeamsForOrg defines a function that captures
+	// the user's teams for an org
+	ListUsersTeamsForOrg(*library.User, string) ([]string, error)
 
 	// Changeset Source Interface Functions
 

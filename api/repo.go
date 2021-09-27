@@ -148,10 +148,11 @@ func CreateRepo(c *gin.Context) {
 		r.SetPipelineType(constants.PipelineTypeYAML)
 	} else {
 		// ensure the pipeline type matches one of the expected values
-		if input.GetPipelineType() != constants.PipelineTypeYAML ||
-			input.GetPipelineType() != constants.PipelineTypeGo ||
+		if input.GetPipelineType() != constants.PipelineTypeYAML &&
+			input.GetPipelineType() != constants.PipelineTypeGo &&
 			input.GetPipelineType() != constants.PipelineTypeStarlark {
-			retErr := fmt.Errorf("pipeline_type of %s is invalid", input.GetPipelineType())
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("unable to create new repo %s: invalid pipeline_type provided %s", r.GetFullName(), input.GetPipelineType())
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
