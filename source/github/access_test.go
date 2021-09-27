@@ -220,7 +220,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(u, "github", "octocat")
+	got, err := client.RepoAccess(u, u.GetToken(), "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("RepoAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -250,7 +250,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(u, "github", "octocat")
+	got, err := client.RepoAccess(u, u.GetToken(), "github", "octocat")
 
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
