@@ -80,7 +80,7 @@ var Flags = []cli.Flag{
 		Name:     "source.webhook.addr",
 		Usage: "Alternative or proxy server address as a fully qualified url (<scheme>://<host>). " +
 			"Use this when the Vela server address that the source provider can send webhooks to " +
-			"differs from the server address the UI and oauth flows use, such as when the server" +
+			"differs from the server address the UI and oauth flows use, such as when the server " +
 			"is behind a Firewall or NAT, or when using something like ngrok to forward webhooks. " +
 			"(defaults to VELA_ADDR).",
 	},
