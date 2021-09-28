@@ -120,6 +120,7 @@ func NewTest(urls ...string) (*client, error) {
 		WithClientID("foo"),
 		WithClientSecret("bar"),
 		WithServerAddress(server),
+		WithServerWebhookAddress(""),
 		WithStatusContext("continuous-integration/vela"),
 		WithWebUIAddress(address),
 	)
