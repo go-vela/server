@@ -180,6 +180,59 @@ func TestGithub_ClientOpt_WithServerAddress(t *testing.T) {
 	}
 }
 
+func TestGithub_ClientOpt_WithServerWebhookAddress(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure        bool
+		address        string
+		webhookAddress string
+		want           string
+	}{
+		{
+			failure:        false,
+			address:        "https://vela.example.com",
+			webhookAddress: "",
+			want:           "https://vela.example.com",
+		},
+		{
+			failure:        false,
+			address:        "https://vela.example.com",
+			webhookAddress: "https://vela.example.com",
+			want:           "https://vela.example.com",
+		},
+		{
+			failure:        false,
+			address:        "https://vela.example.com",
+			webhookAddress: "https://vela-alternative.example.com",
+			want:           "https://vela-alternative.example.com",
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(
+			WithServerAddress(test.address),
+			WithServerWebhookAddress(test.webhookAddress),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithServerWebhookAddress should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithServerWebhookAddress returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(_service.config.ServerWebhookAddress, test.want) {
+			t.Errorf("WithServerWebhookAddress is %v, want %v", _service.config.ServerWebhookAddress, test.want)
+		}
+	}
+}
+
 func TestGithub_ClientOpt_WithStatusContext(t *testing.T) {
 	// setup tests
 	tests := []struct {
