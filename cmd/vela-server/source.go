@@ -18,15 +18,15 @@ func setupSource(c *cli.Context) (source.Service, error) {
 
 	// source configuration
 	_setup := &source.Setup{
-		Driver:        c.String("source.driver"),
-		Address:       c.String("source.addr"),
-		ClientID:      c.String("source.client"),
-		ClientSecret:  c.String("source.secret"),
-		ServerAddress: c.String("server-addr"),
+		Driver:               c.String("source.driver"),
+		Address:              c.String("source.addr"),
+		ClientID:             c.String("source.client"),
+		ClientSecret:         c.String("source.secret"),
+		ServerAddress:        c.String("server-addr"),
 		ServerWebhookAddress: c.String("source.webhook.addr"),
-		StatusContext: c.String("source.context"),
-		WebUIAddress:  c.String("webui-addr"),
-		Scopes:        c.StringSlice("source.scopes"),
+		StatusContext:        c.String("source.context"),
+		WebUIAddress:         c.String("webui-addr"),
+		Scopes:               c.StringSlice("source.scopes"),
 	}
 
 	// setup the source
