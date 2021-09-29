@@ -1,7 +1,5 @@
 module github.com/go-vela/server
 
-replace github.com/go-vela/types => github.com/JayCeeJr/types v0.9.1-beta
-
 go 1.16
 
 require (
