@@ -41,8 +41,6 @@ github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20O
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/FZambia/sentinel v1.0.0/go.mod h1:ytL1Am/RLlAoAXG6Kj5LNuw/TRRQrv2rt2FT26vP5gI=
-github.com/JayCeeJr/types v0.9.1-beta h1:ditrQ8KV51UnBJkg0EHX6LMe79qYOCEX9dHSZFZ76GY=
-github.com/JayCeeJr/types v0.9.1-beta/go.mod h1:uiQ8TITRIemGwgnfACIHaTdcTVJaZTo7eO1HZeFgnHc=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
@@ -232,6 +230,8 @@ github.com/go-vela/pkg-queue v0.9.0 h1:Ysn1NSLhkHWsLXZOJB4g73z65zhinoBpEWJDFE+oM
 github.com/go-vela/pkg-queue v0.9.0/go.mod h1:S3X9BK7l0+vBY1xMvbiSfNSEWCOuHxkRswRxnUj0u1I=
 github.com/go-vela/sdk-go v0.9.0 h1:tfn3Jm05aICaAiKzG8cqU2yFZKKDL+ntNqoB65WCrq0=
 github.com/go-vela/sdk-go v0.9.0/go.mod h1:YWqJ9+JaALHzCxr8rtBOGE/VUpNnYQlBkVGBuvq4j6E=
+github.com/go-vela/types v0.9.0 h1:vAwxYzG8KSDtvpSALOoHzac4wrMM+NFW1QxoXrjXWSc=
+github.com/go-vela/types v0.9.0/go.mod h1:uiQ8TITRIemGwgnfACIHaTdcTVJaZTo7eO1HZeFgnHc=
 github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e/go.mod h1:bBOAhwG1umN6/6ZUMtDFBMQR8jRg9O75tm9K00oMsK4=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
