@@ -120,6 +120,9 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	skip1, skipReason1 := webhook.ShouldSkip()
+	logrus.Tracef("skip status check:", skip1)
+	logrus.Tracef("skip reason", skipReason1)
 	// check if the hook should be skipped
 	if skip, skipReason := webhook.ShouldSkip(); skip {
 		c.JSON(http.StatusOK, fmt.Sprintf("skipping build: %s", skipReason))
@@ -128,6 +131,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
+	logrus.Tracef("hook: ", h)
+	logrus.Tracef("repo: ", r)
+	logrus.Tracef("build: ", b == nil)
 
 	defer func() {
 		// send API call to update the webhook

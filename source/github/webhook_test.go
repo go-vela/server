@@ -771,13 +771,13 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	}
 }
 
-func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
+func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	// setup router
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
 	// setup request
-	body, err := os.Open("testdata/hooks/issue_comment.json")
+	body, err := os.Open("testdata/hooks/issue_comment_created.json")
 	if err != nil {
 		t.Errorf("unable to open file: %v", err)
 	}
@@ -831,6 +831,59 @@ func TestGithub_ProcessWebhook_IssueComment(t *testing.T) {
 		Hook:     wantHook,
 		Repo:     wantRepo,
 		Build:    wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/issue_comment_deleted.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Host", "github.com")
+	request.Header.Set("X-GitHub-Version", "2.16.0")
+	request.Header.Set("X-GitHub-Event", "issue_comment")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("comment")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	want := &types.Webhook{
+		Comment:  "ok to test",
+		PRNumber: 0,
+		Hook:     wantHook,
+		Repo:     nil,
+		Build:    nil,
 	}
 
 	got, err := client.ProcessWebhook(request)
