@@ -327,8 +327,8 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
 
-	// skip if the comment action is not created
-	if !strings.EqualFold(payload.GetAction(), "created") {
+	// skip if the comment action is deleted
+	if strings.EqualFold(payload.GetAction(), "deleted") {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
 			Comment: payload.GetComment().GetBody(),
