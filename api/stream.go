@@ -22,6 +22,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const logUpdateInterval = 1 * time.Second
+
 // PostServiceStream represents the API handler that
 // streams service logs to the database
 func PostServiceStream(c *gin.Context) {
@@ -57,8 +59,8 @@ func PostServiceStream(c *gin.Context) {
 		// spawn "infinite" loop that will upload logs
 		// from the buffer until the channel is closed
 		for {
-			// sleep for "1s" before attempting to upload logs
-			time.Sleep(1 * time.Second)
+			// sleep before attempting to upload logs
+			time.Sleep(logUpdateInterval)
 
 			// create a non-blocking select to check if the channel is closed
 			select {
@@ -77,19 +79,23 @@ func PostServiceStream(c *gin.Context) {
 				return
 			// channel is not closed
 			default:
-				// update the existing log with the new bytes
-				//
-				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
-				_log.SetData(logs.Bytes())
+				// get the current size of log data
+				currBytesSize := len(_log.GetData())
 
-				// update the log in the database
-				err = database.FromContext(c).UpdateLog(_log)
-				if err != nil {
-					retErr := fmt.Errorf("unable to update logs for service %s/%d: %w", entry, s.GetNumber(), err)
+				// update the existing log with the new bytes if there is new data to add
+				if len(logs.Bytes()) > currBytesSize {
+					// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
+					_log.SetData(logs.Bytes())
 
-					util.HandleError(c, http.StatusInternalServerError, retErr)
+					// update the log in the database
+					err = database.FromContext(c).UpdateLog(_log)
+					if err != nil {
+						retErr := fmt.Errorf("unable to update logs for service %s/%d: %w", entry, s.GetNumber(), err)
 
-					return
+						util.HandleError(c, http.StatusInternalServerError, retErr)
+
+						return
+					}
 				}
 			}
 		}
@@ -141,8 +147,8 @@ func PostStepStream(c *gin.Context) {
 		// spawn "infinite" loop that will upload logs
 		// from the buffer until the channel is closed
 		for {
-			// sleep for "1s" before attempting to upload logs
-			time.Sleep(1 * time.Second)
+			// sleep before attempting to upload logs
+			time.Sleep(logUpdateInterval)
 
 			// create a non-blocking select to check if the channel is closed
 			select {
@@ -161,19 +167,23 @@ func PostStepStream(c *gin.Context) {
 				return
 				// channel is not closed
 			default:
-				// update the existing log with the new bytes
-				//
-				// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
-				_log.SetData(logs.Bytes())
+				// get the current size of log data
+				currBytesSize := len(_log.GetData())
 
-				// update the log in the database
-				err = database.FromContext(c).UpdateLog(_log)
-				if err != nil {
-					retErr := fmt.Errorf("unable to update logs for step %s/%d: %w", entry, s.GetNumber(), err)
+				// update the existing log with the new bytes if there is new data to add
+				if len(logs.Bytes()) > currBytesSize {
+					// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
+					_log.SetData(logs.Bytes())
 
-					util.HandleError(c, http.StatusInternalServerError, retErr)
+					// update the log in the database
+					err = database.FromContext(c).UpdateLog(_log)
+					if err != nil {
+						retErr := fmt.Errorf("unable to update logs for step %s/%d: %w", entry, s.GetNumber(), err)
 
-					return
+						util.HandleError(c, http.StatusInternalServerError, retErr)
+
+						return
+					}
 				}
 			}
 		}
