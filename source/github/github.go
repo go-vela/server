@@ -37,7 +37,7 @@ type config struct {
 	ClientSecret string
 	// specifies the Vela server address to use for the GitHub client
 	ServerAddress string
-	// specifies the Vela server address used when configuring the source provider to send webhooks to Vela
+	// specifies the Vela server address that the source provider should use to send Vela webhooks
 	ServerWebhookAddress string
 	// specifies the context for the commit status to use for the GitHub client
 	StatusContext string
