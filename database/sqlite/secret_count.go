@@ -5,6 +5,8 @@
 package sqlite
 
 import (
+	"strings"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 
@@ -13,7 +15,7 @@ import (
 
 // GetTypeSecretCount gets a count of secrets by type,
 // owner, and name (repo or team) from the database.
-func (c *client) GetTypeSecretCount(t, o, n string) (int64, error) {
+func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, error) {
 	logrus.Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
@@ -34,10 +36,24 @@ func (c *client) GetTypeSecretCount(t, o, n string) (int64, error) {
 			Raw(dml.SelectRepoSecretsCount, o, n).
 			Pluck("count", &s).Error
 	case constants.SecretShared:
-		err = c.Sqlite.
-			Table(constants.TableSecret).
-			Raw(dml.SelectSharedSecretsCount, o, n).
-			Pluck("count", &s).Error
+		if n == "*" {
+			// GitHub teams are not case-sensitive, the DB is lowercase everything for matching
+			var lowerTeams []string
+			for _, t := range teams {
+				lowerTeams = append(lowerTeams, strings.ToLower(t))
+			}
+			err = c.Sqlite.
+				Table(constants.TableSecret).
+				Select("count(*)").
+				Where("type = 'shared' AND org = ?", o).
+				Where("LOWER(team) IN (?)", lowerTeams).
+				Pluck("count", &s).Error
+		} else {
+			err = c.Sqlite.
+				Table(constants.TableSecret).
+				Raw(dml.SelectSharedSecretsCount, o, n).
+				Pluck("count", &s).Error
+		}
 	}
 
 	return s, err

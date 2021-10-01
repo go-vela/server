@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v39/github"
 	"golang.org/x/oauth2"
 )
 
@@ -76,6 +76,7 @@ func TestGithub_newClientToken(t *testing.T) {
 	// run test
 	got := client.newClientToken("foobar")
 
+	// nolint: staticcheck // ignore false positive
 	if got == nil {
 		t.Errorf("newClientToken is nil, want %v", want)
 	}

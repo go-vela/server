@@ -57,6 +57,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowDeploy(false)
 	want.SetAllowTag(false)
 	want.SetAllowComment(false)
+	want.SetPipelineType("yaml")
 
 	got := new(library.Repo)
 

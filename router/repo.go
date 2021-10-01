@@ -19,6 +19,7 @@ import (
 // POST   /api/v1/repos
 // GET    /api/v1/repos
 // GET    /api/v1/repos/:org
+// GET    /api/v1/repos/:org/builds
 // GET    /api/v1/repos/:org/:repo
 // PUT    /api/v1/repos/:org/:repo
 // DELETE /api/v1/repos/:org/:repo
@@ -58,7 +59,8 @@ func RepoHandlers(base *gin.RouterGroup) {
 		repos.GET("", api.GetRepos)
 		org := orgs.Group("/:org", org.Establish())
 		{
-			org.GET("", api.GetOrgBuilds)
+			org.GET("", api.GetOrgRepos)
+			org.GET("/builds", api.GetOrgBuilds)
 		} // end of org endpoints
 		// Repo endpoints
 		repo := repos.Group("/:org/:repo", repo.Establish())

@@ -12,44 +12,6 @@ SELECT *
 FROM builds;
 `
 
-	// ListRepoBuilds represents a query to list
-	// all builds for a repo_id in the database.
-	ListRepoBuilds = `
-SELECT *
-FROM builds
-WHERE repo_id = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
-	// ListRepoBuildsByEvent represents a query to select
-	// a build for a repo_id with a specific event type
-	// in the database.
-	ListRepoBuildsByEvent = `
-SELECT *
-FROM builds
-WHERE repo_id = ?
-AND event = ?
-ORDER BY number DESC
-LIMIT ?
-OFFSET ?;
-`
-	// ListOrgBuildsByEvent represents a joined query
-	// between the builds & repos table to select
-	// a build for an org with a specific event type
-	// in the database.
-	ListOrgBuildsByEvent = `
-SELECT builds.* 
-FROM builds JOIN repos 
-ON builds.repo_id = repos.id
-WHERE repos.org = ?
-AND builds.event = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
 	// SelectRepoBuild represents a query to select
 	// a build for a repo_id in the database.
 	SelectRepoBuild = `
@@ -69,18 +31,6 @@ WHERE repo_id = ?
 ORDER BY number DESC
 LIMIT 1;
 `
-	// ListOrgBuilds represents a joined query
-	// between the builds & repos table to select
-	// the last build for a org name in the database.
-	ListOrgBuilds = `
-SELECT builds.*
-FROM builds JOIN repos
-ON builds.repo_id = repos.id
-WHERE repos.org = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-		`
 
 	// SelectLastRepoBuildByBranch represents a query to
 	// select the last build for a repo_id and branch name
@@ -101,22 +51,6 @@ SELECT count(*) as count
 FROM builds;
 `
 
-	// SelectRepoBuildCount represents a query to select
-	// the count of builds for a repo_id in the database.
-	SelectRepoBuildCount = `
-SELECT count(*) as count
-FROM builds
-WHERE repo_id = ?;
-`
-	// SelectOrgBuildCount represents a joined query
-	// between the builds & repos table to select
-	// the count of builds for an org name in the database.
-	SelectOrgBuildCount = `
-SELECT count(*) as count
-FROM builds JOIN repos
-ON builds.repo_id = repos.id
-WHERE repos.org = ?;
-`
 	// SelectRepoBuildCountByEvent represents a query to select
 	// the count of builds for by repo and event type in the database.
 	SelectRepoBuildCountByEvent = `
@@ -124,17 +58,6 @@ SELECT count(*) as count
 FROM builds
 WHERE repo_id = ?
 AND event = ?;
-`
-
-	// SelectOrgBuildCountByEvent represents a joined query
-	// between the builds & repos table to select
-	// the count of builds for by org name and event type in the database.
-	SelectOrgBuildCountByEvent = `
-SELECT count(*) as count
-FROM builds JOIN repos
-ON builds.repo_id = repos.id
-WHERE repos.org = ?
-AND builds.event = ?;
 `
 
 	// SelectBuildsCountByStatus represents a query to select

@@ -28,6 +28,24 @@ func (c *client) GetRepoCount() (int64, error) {
 	return r, err
 }
 
+// GetOrgRepoCount gets a count of all repos for a specific org from the database.
+func (c *client) GetOrgRepoCount(org string, filters map[string]string) (int64, error) {
+	logrus.Tracef("getting count of repos for org %s in the database", org)
+
+	// variable to store query results
+	var r int64
+
+	// send query to the database and store result in variable
+	err := c.Postgres.
+		Table(constants.TableRepo).
+		Select("count(*)").
+		Where("org = ?", org).
+		Where(filters).
+		Pluck("count", &r).Error
+
+	return r, err
+}
+
 // GetUserRepoCount gets a count of all repos for a specific user from the database.
 func (c *client) GetUserRepoCount(u *library.User) (int64, error) {
 	logrus.Tracef("getting count of repos for user %s in the database", u.GetName())

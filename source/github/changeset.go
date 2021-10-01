@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v37/github"
+	"github.com/google/go-github/v39/github"
 
 	"github.com/sirupsen/logrus"
 )
@@ -21,10 +21,12 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 	client := c.newClientToken(u.GetToken())
 	s := []string{}
 
+	// set the max per page for the options to capture the commit
+	opts := github.ListOptions{PerPage: 100} // 100 is max
+
 	// send API call to capture the commit
-	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha)
+	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha, &opts)
 	if err != nil {
-		// nolint: golint // ignore capitalized error message
 		return nil, fmt.Errorf("Repositories.GetCommit returned error: %v", err)
 	}
 
@@ -52,7 +54,6 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 		// send API call to capture the files from the pull request
 		files, resp, err := client.PullRequests.ListFiles(ctx, r.GetOrg(), r.GetName(), number, &opts)
 		if err != nil {
-			// nolint: golint // ignore capitalized error message
 			return nil, fmt.Errorf("PullRequests.ListFiles returned error: %v", err)
 		}
 

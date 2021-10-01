@@ -333,7 +333,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), b.GetCommit())
+	config, err := source.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
@@ -421,6 +421,15 @@ func PostWebhook(c *gin.Context) {
 		// skip the build if only the init or clone steps are found
 		skip := skipEmptyBuild(p)
 		if skip != "" {
+			// set build to successful status
+			b.SetStatus(constants.StatusSuccess)
+
+			// send API call to set the status on the commit
+			err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+			if err != nil {
+				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			}
+
 			c.JSON(http.StatusOK, skip)
 			return
 		}

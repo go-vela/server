@@ -95,3 +95,15 @@ func WithEncryptionKey(key string) ClientOpt {
 		return nil
 	}
 }
+
+// WithSkipCreation sets the Sqlite skip creation logic in the database client.
+func WithSkipCreation(skipCreation bool) ClientOpt {
+	logrus.Trace("configuring skip creating objects in sqlite database client")
+
+	return func(c *client) error {
+		// set to skip creating tables and indexes in the sqlite client
+		c.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}
