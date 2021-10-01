@@ -25,7 +25,8 @@ import (
 const logUpdateInterval = 1 * time.Second
 
 // PostServiceStream represents the API handler that
-// streams service logs to the database
+// streams service logs to the database.
+// nolint: dupl // separate service/step functions for consistency with API
 func PostServiceStream(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -113,7 +114,8 @@ func PostServiceStream(c *gin.Context) {
 }
 
 // PostStepStream represents the API handler that
-// streams service logs to the database
+// streams service logs to the database.
+// nolint: dupl // separate service/step functions for consistency with API
 func PostStepStream(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
