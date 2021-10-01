@@ -95,3 +95,15 @@ func WithEncryptionKey(key string) ClientOpt {
 		return nil
 	}
 }
+
+// WithSkipCreation sets the Postgres skip creation logic in the database client.
+func WithSkipCreation(skipCreation bool) ClientOpt {
+	logrus.Trace("configuring skip creating objects in postgres database client")
+
+	return func(c *client) error {
+		// set to skip creating tables and indexes in the postgres client
+		c.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}

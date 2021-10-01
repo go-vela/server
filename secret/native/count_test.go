@@ -44,7 +44,7 @@ func TestNative_Count(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Count("repo", "foo", "bar")
+	got, err := s.Count("repo", "foo", "bar", []string{})
 	if err != nil {
 		t.Errorf("Count returned err: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestNative_Count_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Count("repo", "foo", "bar")
+	got, err := s.Count("repo", "foo", "bar", []string{})
 	if err == nil {
 		t.Errorf("Count should have returned err")
 	}

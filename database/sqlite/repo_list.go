@@ -57,7 +57,8 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 }
 
 // GetOrgRepoList gets a list of all repos by org from the database.
-func (c *client) GetOrgRepoList(org string, page, perPage int) ([]*library.Repo, error) {
+// nolint: lll // ignore long line length due to variable names
+func (c *client) GetOrgRepoList(org string, filters map[string]string, page, perPage int) ([]*library.Repo, error) {
 	logrus.Tracef("getting repos for org %s from the database", org)
 
 	// variable to store query results
@@ -69,7 +70,10 @@ func (c *client) GetOrgRepoList(org string, page, perPage int) ([]*library.Repo,
 	// send query to the database and store result in variable
 	err := c.Sqlite.
 		Table(constants.TableRepo).
-		Raw(dml.ListOrgRepos, org, perPage, offset).
+		Where("org = ?", org).
+		Where(filters).
+		Limit(perPage).
+		Offset(offset).
 		Scan(r).Error
 	if err != nil {
 		return nil, err

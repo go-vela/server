@@ -23,17 +23,6 @@ LIMIT ?
 OFFSET ?;
 `
 
-	// ListOrgRepos represents a query to list
-	// all repos for an org in the database.
-	ListOrgRepos = `
-SELECT *
-FROM repos
-WHERE org = ?
-ORDER BY id DESC
-LIMIT ?
-OFFSET ?;
-`
-
 	// SelectRepo represents a query to select a
 	// repo for an org and name in the database.
 	SelectRepo = `

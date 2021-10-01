@@ -86,7 +86,7 @@ func TestVault_Count_Org(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("org", "foo", "*")
+			got, err := s.Count("org", "foo", "*", []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
@@ -177,7 +177,7 @@ func TestVault_Count_Repo(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("repo", "foo", "bar")
+			got, err := s.Count("repo", "foo", "bar", []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
@@ -268,7 +268,7 @@ func TestVault_Count_Shared(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("shared", "foo", "bar")
+			got, err := s.Count("shared", "foo", "bar", []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -317,7 +317,7 @@ func TestVault_Count_InvalidType(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("invalid", "foo", "bar")
+			got, err := s.Count("invalid", "foo", "bar", []string{})
 			if err == nil {
 				t.Errorf("Count should have returned err")
 			}
@@ -361,7 +361,7 @@ func TestVault_Count_ClosedServer(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("repo", "foo", "bar")
+			got, err := s.Count("repo", "foo", "bar", []string{})
 			if err == nil {
 				t.Errorf("Count should have returned err")
 			}
@@ -429,7 +429,7 @@ func TestVault_Count_EmptyList(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("repo", "foo", "bar")
+			got, err := s.Count("repo", "foo", "bar", []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)
@@ -502,7 +502,7 @@ func TestVault_Count_InvalidList(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Count("repo", "foo", "bar")
+			got, err := s.Count("repo", "foo", "bar", []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Count returned %v, want %v", resp.Code, http.StatusOK)

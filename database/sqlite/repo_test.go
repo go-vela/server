@@ -21,6 +21,7 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+	_repo.SetPipelineType("yaml")
 
 	// setup the test database client
 	_database, err := NewTest()

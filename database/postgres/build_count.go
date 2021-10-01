@@ -45,7 +45,7 @@ func (c *client) GetBuildCountByStatus(status string) (int64, error) {
 }
 
 // GetOrgBuildCount gets the count of all builds by repo ID from the database.
-func (c *client) GetOrgBuildCount(org string) (int64, error) {
+func (c *client) GetOrgBuildCount(org string, filters map[string]string) (int64, error) {
 	logrus.Tracef("getting count of builds for org %s from the database", org)
 
 	// variable to store query results
@@ -54,30 +54,15 @@ func (c *client) GetOrgBuildCount(org string) (int64, error) {
 	// send query to the database and store result in variable
 	err := c.Postgres.
 		Table(constants.TableBuild).
-		Raw(dml.SelectOrgBuildCount, org).
-		Pluck("count", &b).Error
-
-	return b, err
-}
-
-// GetOrgBuildCountByEvent gets the count of all builds by org name and event from the database.
-func (c *client) GetOrgBuildCountByEvent(org string, event string) (int64, error) {
-	logrus.Tracef("getting count of builds for org %s by event %s from the database", org, event)
-
-	// variable to store query results
-	var b int64
-
-	// send query to the database and store result in variable
-	err := c.Postgres.
-		Table(constants.TableBuild).
-		Raw(dml.SelectOrgBuildCountByEvent, org, event).
-		Pluck("count", &b).Error
+		Joins("JOIN repos ON builds.repo_id = repos.id and repos.org = ?", org).
+		Where(filters).
+		Count(&b).Error
 
 	return b, err
 }
 
 // GetRepoBuildCount gets the count of all builds by repo ID from the database.
-func (c *client) GetRepoBuildCount(r *library.Repo) (int64, error) {
+func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]string) (int64, error) {
 	logrus.Tracef("getting count of builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
@@ -86,8 +71,9 @@ func (c *client) GetRepoBuildCount(r *library.Repo) (int64, error) {
 	// send query to the database and store result in variable
 	err := c.Postgres.
 		Table(constants.TableBuild).
-		Raw(dml.SelectRepoBuildCount, r.GetID()).
-		Pluck("count", &b).Error
+		Where("repo_id = ?", r.GetID()).
+		Where(filters).
+		Count(&b).Error
 
 	return b, err
 }

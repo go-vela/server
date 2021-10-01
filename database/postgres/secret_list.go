@@ -5,6 +5,8 @@
 package postgres
 
 import (
+	"strings"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -58,11 +60,12 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 
 // GetTypeSecretList gets a list of secrets by type,
 // owner, and name (repo or team) from the database.
-func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*library.Secret, error) {
+//
+// nolint: lll // ignore long line length
+func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []string) ([]*library.Secret, error) {
 	logrus.Tracef("listing %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
-
 	// variable to store query results
 	s := new([]database.Secret)
 	// calculate offset for pagination through results
@@ -81,10 +84,26 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int) ([]*librar
 			Raw(dml.ListRepoSecrets, o, n, perPage, offset).
 			Scan(s).Error
 	case constants.SecretShared:
-		err = c.Postgres.
-			Table(constants.TableSecret).
-			Raw(dml.ListSharedSecrets, o, n, perPage, offset).
-			Scan(s).Error
+		if n == "*" {
+			// GitHub teams are not case-sensitive, the DB is lowercase everything for matching
+			var lowerTeams []string
+			for _, t := range teams {
+				lowerTeams = append(lowerTeams, strings.ToLower(t))
+			}
+			err = c.Postgres.
+				Table(constants.TableSecret).
+				Where("type = 'shared' AND org = ?", o).
+				Where("LOWER(team) IN (?)", lowerTeams).
+				Order("id DESC").
+				Limit(perPage).
+				Offset(offset).
+				Scan(s).Error
+		} else {
+			err = c.Postgres.
+				Table(constants.TableSecret).
+				Raw(dml.ListSharedSecrets, o, n, perPage, offset).
+				Scan(s).Error
+		}
 	}
 	if err != nil {
 		return nil, err

@@ -30,6 +30,8 @@ type (
 		ConnectionOpen int
 		// specifies the encryption key to use for the Sqlite client
 		EncryptionKey string
+		// specifies to skip creating tables and indexes for the Sqlite client
+		SkipCreation bool
 	}
 
 	client struct {
@@ -40,7 +42,7 @@ type (
 
 // New returns a Database implementation that integrates with a Sqlite instance.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Sqlite client
 	c := new(client)
@@ -81,7 +83,7 @@ func New(opts ...ClientOpt) (*client, error) {
 //
 // This function is intended for running tests only.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func NewTest() (*client, error) {
 	// create new Sqlite client
 	c := new(client)
@@ -93,6 +95,7 @@ func NewTest() (*client, error) {
 		ConnectionIdle:   2,
 		ConnectionOpen:   0,
 		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+		SkipCreation:     false,
 	}
 	c.Sqlite = new(gorm.DB)
 
@@ -148,6 +151,13 @@ func setupDatabase(c *client) error {
 	err = c.Ping()
 	if err != nil {
 		return err
+	}
+
+	// check if we should skip creating database objects
+	if c.config.SkipCreation {
+		logrus.Warning("skipping creation of data tables and indexes in the sqlite database")
+
+		return nil
 	}
 
 	// create the tables in the database

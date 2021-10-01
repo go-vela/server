@@ -94,7 +94,7 @@ func GetPipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -110,7 +110,6 @@ func GetPipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
@@ -197,7 +196,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -213,7 +212,6 @@ func GetTemplates(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
@@ -225,7 +223,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// create map of templates for response body
-	t, err := setTemplateLinks(c, u, r, p.Templates)
+	t, err := setTemplateLinks(c, u, p.Templates)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set template links for %s@%s: %w", r.GetFullName(), ref, err)
 
@@ -311,7 +309,7 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -327,7 +325,6 @@ func ExpandPipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
@@ -342,6 +339,7 @@ func ExpandPipeline(c *gin.Context) {
 	t := p.Templates.Map()
 
 	// check if the pipeline contains stages
+	// nolint: dupl // ignore false positive
 	if len(p.Stages) > 0 {
 		// inject the templates into the stages
 		p.Stages, p.Secrets, p.Services, err = comp.ExpandStages(p, t)
@@ -442,7 +440,7 @@ func ValidatePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -458,7 +456,6 @@ func ValidatePipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
@@ -475,6 +472,7 @@ func ValidatePipeline(c *gin.Context) {
 		t := p.Templates.Map()
 
 		// check if the pipeline contains stages
+		// nolint: dupl // ignore false positive
 		if len(p.Stages) > 0 {
 			// inject the templates into the stages
 			p.Stages, p.Secrets, p.Services, err = comp.ExpandStages(p, t)
@@ -581,7 +579,7 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r.GetOrg(), r.GetName(), ref)
+	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -597,7 +595,6 @@ func CompilePipeline(c *gin.Context) {
 		WithRepo(r).
 		WithUser(u)
 
-	// parse the pipeline configuration file
 	p, err := comp.Parse(config)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
@@ -684,7 +681,7 @@ func CompilePipeline(c *gin.Context) {
 // for a list of templates and returns a map of library templates.
 //
 // nolint: lll // ignore long line length due to variable names
-func setTemplateLinks(c *gin.Context, u *library.User, r *library.Repo, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
+func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
 	m := make(map[string]*library.Template)
 	for _, t := range templates {
 		// convert to library type
