@@ -118,7 +118,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		hookURL := hook.Config["url"].(string)
 
 		// capture hook ID if the hook url matches
-		if hookURL == fmt.Sprintf("%s/webhook", c.config.ServerAddress) {
+		if hookURL == fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -153,7 +153,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 			eventIssueComment,
 		},
 		Config: map[string]interface{}{
-			"url":          fmt.Sprintf("%s/webhook", c.config.ServerAddress),
+			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
 			"content_type": "form",
 			"secret":       secret,
 		},

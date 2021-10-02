@@ -37,6 +37,8 @@ type config struct {
 	ClientSecret string
 	// specifies the Vela server address to use for the GitHub client
 	ServerAddress string
+	// specifies the Vela server address that the source provider should use to send Vela webhooks
+	ServerWebhookAddress string
 	// specifies the context for the commit status to use for the GitHub client
 	StatusContext string
 	// specifies the Vela web UI address to use for the GitHub client
@@ -118,6 +120,7 @@ func NewTest(urls ...string) (*client, error) {
 		WithClientID("foo"),
 		WithClientSecret("bar"),
 		WithServerAddress(server),
+		WithServerWebhookAddress(""),
 		WithStatusContext("continuous-integration/vela"),
 		WithWebUIAddress(address),
 	)
