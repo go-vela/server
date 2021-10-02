@@ -90,6 +90,24 @@ func WithServerAddress(address string) ClientOpt {
 	}
 }
 
+// WithServerWebhookAddress sets the Vela server webhook address in the source client.
+func WithServerWebhookAddress(address string) ClientOpt {
+	logrus.Trace("configuring Vela server webhook address in github source client")
+
+	return func(c *client) error {
+		// fallback to Vela server address if the provided Vela server webhook address is empty
+		if len(address) == 0 {
+			c.config.ServerWebhookAddress = c.config.ServerAddress
+			return nil
+		}
+
+		// set the Vela server webhook address in the github client
+		c.config.ServerWebhookAddress = address
+
+		return nil
+	}
+}
+
 // WithStatusContext sets the GitHub context for commit statuses in the source client.
 func WithStatusContext(context string) ClientOpt {
 	logrus.Trace("configuring context for commit statuses in github source client")
