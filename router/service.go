@@ -40,7 +40,7 @@ func ServiceHandlers(base *gin.RouterGroup) {
 			service.PUT("", perm.MustPlatformAdmin(), middleware.Payload(), api.UpdateService)
 			service.DELETE("", perm.MustPlatformAdmin(), api.DeleteService)
 
-			service.POST("/stream", api.PostServiceStream)
+			service.POST("/stream", perm.MustPlatformAdmin(), api.PostServiceStream)
 
 			// Log endpoints
 			LogServiceHandlers(service)
