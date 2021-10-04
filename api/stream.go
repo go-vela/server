@@ -24,6 +24,7 @@ import (
 
 const logUpdateInterval = 1 * time.Second
 
+// nolint:lll // due to api endpoint parameters
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/service/{service}/stream stream PostServiceStream
 //
 // Stream the logs for a service
@@ -163,6 +164,7 @@ func PostServiceStream(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// nolint:lll // due to api endpoint parameters
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/stream stream PostStepStream
 //
 // Stream the logs for a step
