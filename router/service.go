@@ -25,7 +25,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
-// POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/stream
+// POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/stream .
 func ServiceHandlers(base *gin.RouterGroup) {
 	// Services endpoints
 	services := base.Group("/services")

@@ -25,7 +25,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/stream
+// POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/stream .
 func StepHandlers(base *gin.RouterGroup) {
 	// Steps endpoints
 	steps := base.Group("/steps")
