@@ -24,6 +24,56 @@ import (
 
 const logUpdateInterval = 1 * time.Second
 
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/service/{service}/stream stream PostServiceStream
+//
+// Stream the logs for a service
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: service
+//   description: Service number
+//   required: true
+//   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing logs
+//   required: true
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '204':
+//     description: Successfully received logs
+//   '400':
+//     description: Unable to stream the logs
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to stream the logs
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to stream the logs
+//     schema:
+//       "$ref": "#/definitions/Error"
+
 // PostServiceStream represents the API handler that
 // streams service logs to the database.
 // nolint: dupl // separate service/step functions for consistency with API
@@ -112,6 +162,56 @@ func PostServiceStream(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, nil)
 }
+
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/stream stream PostStepStream
+//
+// Stream the logs for a step
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: step
+//   description: Step number
+//   required: true
+//   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing logs
+//   required: true
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '204':
+//     description: Successfully received logs
+//   '400':
+//     description: Unable to stream the logs
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to stream the logs
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to stream the logs
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // PostStepStream represents the API handler that
 // streams service logs to the database.
