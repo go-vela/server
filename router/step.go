@@ -40,7 +40,7 @@ func StepHandlers(base *gin.RouterGroup) {
 			step.PUT("", perm.MustPlatformAdmin(), middleware.Payload(), api.UpdateStep)
 			step.DELETE("", perm.MustPlatformAdmin(), api.DeleteStep)
 
-			step.POST("/stream", api.PostStepStream)
+			step.POST("/stream", perm.MustPlatformAdmin(), api.PostStepStream)
 
 			// Log endpoints
 			LogStepHandlers(step)
