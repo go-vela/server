@@ -30,6 +30,8 @@ type Setup struct {
 	ClientSecret string
 	// specifies the Vela server address to use for the source client
 	ServerAddress string
+	// specifies the Vela server address that the source provider should use to send Vela webhooks
+	ServerWebhookAddress string
 	// specifies the context for the commit status to use for the source client
 	StatusContext string
 	// specifies the Vela web UI address to use for the source client
@@ -51,6 +53,7 @@ func (s *Setup) Github() (Service, error) {
 		github.WithClientID(s.ClientID),
 		github.WithClientSecret(s.ClientSecret),
 		github.WithServerAddress(s.ServerAddress),
+		github.WithServerWebhookAddress(s.ServerWebhookAddress),
 		github.WithStatusContext(s.StatusContext),
 		github.WithWebUIAddress(s.WebUIAddress),
 		github.WithScopes(s.Scopes),
