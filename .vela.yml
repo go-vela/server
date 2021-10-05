@@ -1,0 +1,28 @@
+version: "1"
+
+steps:
+  - name: go build
+    image: golang:1.16
+    environment:
+      GOOS: linux
+      CGO_ENABLED: '1'
+    commands:
+      - make build-static-ci
+
+  - name: docker
+    image: docker.target.com/vela-plugins/docker:v0.5.1-1
+    pull: always
+    secrets: [ docker_username, docker_password ]
+    parameters:
+      registry: docker.target.com
+      tags: [ docker.target.com/rapid/emmanuel/vela-public:logstream ]
+
+secrets:
+  - name: docker_username
+    key: EmmanuelMeinen/artifactory_username
+    engine: native
+    type: org
+  - name: docker_password
+    key: EmmanuelMeinen/artifactory_password
+    engine: native
+    type: org
