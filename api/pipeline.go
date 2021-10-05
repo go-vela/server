@@ -494,7 +494,7 @@ func getBasePipeline(ctx *gin.Context) (string, string, *library.Repo, *library.
 
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
 
-		return output, ref, repo, user, nil, nil
+		return output, ref, repo, nil, nil, nil
 	}
 
 	// send API call to capture the pipeline configuration file
