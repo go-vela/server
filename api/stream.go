@@ -139,6 +139,8 @@ func PostServiceStream(c *gin.Context) {
 					// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
 					_log.SetData(logs.Bytes())
 
+					logrus.WithField("worker", b.GetHost()).Tracef("appending logs")
+
 					// update the log in the database
 					err = database.FromContext(c).UpdateLog(_log)
 					if err != nil {
@@ -278,6 +280,8 @@ func PostStepStream(c *gin.Context) {
 				if len(logs.Bytes()) > currBytesSize {
 					// https://pkg.go.dev/github.com/go-vela/types/library?tab=doc#Log.SetData
 					_log.SetData(logs.Bytes())
+
+					logrus.WithField("worker", b.GetHost()).Tracef("appending logs")
 
 					// update the log in the database
 					err = database.FromContext(c).UpdateLog(_log)
