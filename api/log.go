@@ -88,6 +88,7 @@ func GetBuildLogs(c *gin.Context) {
 // Create the logs for a service
 //
 // ---
+// deprecated: true
 // produces:
 // - application/json
 // parameters:
@@ -253,6 +254,7 @@ func GetServiceLog(c *gin.Context) {
 // Update the logs for a service
 //
 // ---
+// deprecated: true
 // produces:
 // - application/json
 // parameters:
@@ -431,6 +433,7 @@ func DeleteServiceLog(c *gin.Context) {
 // Create the logs for a step
 //
 // ---
+// deprecated: true
 // produces:
 // - application/json
 // parameters:
@@ -597,6 +600,7 @@ func GetStepLog(c *gin.Context) {
 // Update the logs for a step
 //
 // ---
+// deprecated: true
 // produces:
 // - application/json
 // parameters:
