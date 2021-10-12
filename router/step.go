@@ -24,7 +24,8 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/stream .
 func StepHandlers(base *gin.RouterGroup) {
 	// Steps endpoints
 	steps := base.Group("/steps")
@@ -38,6 +39,8 @@ func StepHandlers(base *gin.RouterGroup) {
 			step.GET("", perm.MustRead(), api.GetStep)
 			step.PUT("", perm.MustPlatformAdmin(), middleware.Payload(), api.UpdateStep)
 			step.DELETE("", perm.MustPlatformAdmin(), api.DeleteStep)
+
+			step.POST("/stream", perm.MustPlatformAdmin(), api.PostStepStream)
 
 			// Log endpoints
 			LogStepHandlers(step)
