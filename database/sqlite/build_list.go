@@ -40,6 +40,39 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 	return builds, err
 }
 
+// GetDeploymentBuildList gets a list of all builds from the database.
+func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, error) {
+	logrus.Trace("listing builds from the database")
+
+	// variable to store query results
+	b := new([]database.Build)
+	filters := map[string]string{}
+	if len(deployment) > 0 {
+		filters["source"] = deployment
+	}
+	// send query to the database and store result in variable
+	err := c.Sqlite.
+		Table(constants.TableBuild).
+		Select("*").
+		Where(filters).
+		Limit(3).
+		Order("number DESC").
+		Scan(b).Error
+
+	// variable we want to return
+	builds := []*library.Build{}
+	// iterate through all query results
+	for _, build := range *b {
+		// https://golang.org/doc/faq#closures_and_goroutines
+		tmp := build
+
+		// convert query result to library type
+		builds = append(builds, tmp.ToLibrary())
+	}
+
+	return builds, err
+}
+
 // GetOrgBuildList gets a list of all builds by org name from the database.
 // nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgBuildList(org string, filters map[string]string, page int, perPage int) ([]*library.Build, int64, error) {

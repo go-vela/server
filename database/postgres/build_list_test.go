@@ -84,6 +84,71 @@ func TestPostgres_Client_GetBuildList(t *testing.T) {
 	}
 }
 
+func TestPostgres_Client_GetDeploymentBuildList(t *testing.T) {
+	// setup types
+	_buildOne := testBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepoID(1)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetSource("https://github.com/github/octocat/deployments/1")
+
+	_buildTwo := testBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepoID(1)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetSource("https://github.com/github/octocat/deployments/1")
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows(
+		[]string{"id", "repo_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
+	).AddRow(2, 1, 2, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "https://github.com/github/octocat/deployments/1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
+		AddRow(1, 1, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "https://github.com/github/octocat/deployments/1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery("SELECT * FROM \"builds\" WHERE \"source\" = $1 ORDER BY number DESC LIMIT 3").WillReturnRows(_rows)
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    []*library.Build
+	}{
+		{
+			failure: false,
+			want:    []*library.Build{_buildTwo, _buildOne},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := _database.GetDeploymentBuildList("https://github.com/github/octocat/deployments/1")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetDeploymentBuildList should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetDeploymentBuildList returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetDeploymentBuildList is %v, want %v", got, test.want)
+		}
+	}
+}
+
 func TestPostgres_Client_GetOrgBuildList(t *testing.T) {
 	// setup types
 	_buildOne := testBuild()
