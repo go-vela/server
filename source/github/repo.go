@@ -264,6 +264,12 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		status.TargetURL = github.String(url)
 	}
 
+	// check if the build is skipped
+	if b.GetLink() == "" {
+		status.Description = github.String("build was skipped as no steps/stages found")
+		status.TargetURL = github.String("")
+	}
+
 	// send API call to create the status context for the commit
 	_, _, err := client.Repositories.CreateStatus(ctx, org, name, b.GetCommit(), status)
 
