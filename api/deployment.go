@@ -211,7 +211,7 @@ func GetDeployments(c *gin.Context) {
 		return
 	}
 
-	var dWithBs []*library.Deployment
+	dWithBs := []*library.Deployment{}
 	for _, deployment := range d {
 		b, err := database.FromContext(c).GetDeploymentBuildList(*deployment.URL)
 		if err != nil {
@@ -221,11 +221,14 @@ func GetDeployments(c *gin.Context) {
 
 			return
 		}
-		var builds []library.Build
+
+		builds := []library.Build{}
 		for _, build := range b {
 			builds = append(builds, *build)
 		}
+
 		deployment.SetBuilds(builds)
+
 		dWithBs = append(dWithBs, deployment)
 	}
 
