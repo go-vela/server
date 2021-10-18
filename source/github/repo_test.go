@@ -836,6 +836,50 @@ func TestGithub_Status_Killed(t *testing.T) {
 	}
 }
 
+func TestGithub_Status_Skipped(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.POST("/api/v3/repos/:org/:repo/statuses/:sha", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/status.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEvent(constants.EventPush)
+	b.SetStatus(constants.StatusSkipped)
+	b.SetCommit("abcd1234")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	err := client.Status(u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+}
+
 func TestGithub_Status_Error(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

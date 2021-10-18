@@ -210,6 +210,9 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	case constants.StatusKilled:
 		state = "failure"
 		description = "the build was killed"
+	case constants.StatusSkipped:
+		state = "success"
+		description = "build was skipped as no steps/stages found"
 	default:
 		state = "error"
 		description = "there was an error"
@@ -260,7 +263,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	}
 
 	// provide "Details" link in GitHub UI if server was configured with it
-	if len(c.config.WebUIAddress) > 0 {
+	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
 		status.TargetURL = github.String(url)
 	}
 

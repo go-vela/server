@@ -11,7 +11,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-vela/compiler v0.10.0-rc2
 	github.com/go-vela/pkg-queue v0.10.0-rc2
-	github.com/go-vela/types v0.10.0-rc2
+	github.com/go-vela/types v0.10.0-rc2.0.20211015204912-156a1362d2d7
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v39 v39.1.0
