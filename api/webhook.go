@@ -422,8 +422,7 @@ func PostWebhook(c *gin.Context) {
 		skip := skipEmptyBuild(p)
 		if skip != "" {
 			// set build to successful status
-			b.SetStatus(constants.StatusSuccess)
-			b.SetLink("")
+			b.SetStatus(constants.StatusSkipped)
 
 			// send API call to set the status on the commit
 			err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
