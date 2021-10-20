@@ -396,12 +396,16 @@ func GetUserSourceRepos(c *gin.Context) {
 		org := srepo.Org
 		name := srepo.Name
 		active := false
-
 		// library struct to omit optional fields
 		repo := library.Repo{
-			Org:    org,
-			Name:   name,
-			Active: &active,
+			Org:      org,
+			Name:     name,
+			FullName: srepo.FullName,
+			Link:     srepo.Link,
+			Clone:    srepo.Clone,
+			Branch:   srepo.Branch,
+			Private:  srepo.Private,
+			Active:   &active,
 		}
 		output[srepo.GetOrg()] = append(output[srepo.GetOrg()], repo)
 	}
@@ -442,6 +446,16 @@ func GetUserSourceRepos(c *gin.Context) {
 					if orgRepos[i].GetName() == dbRepo.GetName() {
 						active := dbRepo.GetActive()
 						(&orgRepos[i]).Active = &active
+						(&orgRepos[i]).ID = dbRepo.ID
+						(&orgRepos[i]).UserID = dbRepo.UserID
+						(&orgRepos[i]).Timeout = dbRepo.Timeout
+						(&orgRepos[i]).Visibility = dbRepo.Visibility
+						(&orgRepos[i]).Trusted = dbRepo.Trusted
+						(&orgRepos[i]).AllowPull = dbRepo.AllowPull
+						(&orgRepos[i]).AllowPush = dbRepo.AllowPush
+						(&orgRepos[i]).AllowDeploy = dbRepo.AllowDeploy
+						(&orgRepos[i]).AllowTag = dbRepo.AllowTag
+						(&orgRepos[i]).AllowComment = dbRepo.AllowComment
 					}
 				}
 			}
