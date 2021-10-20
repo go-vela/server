@@ -254,16 +254,6 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 
-		// send API call to capture the repo owner
-		ro, err := database.FromContext(c).GetUser(r.GetUserID())
-		if err != nil {
-			retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
 		// query source to determine requesters permissions for the repo using the requester's token
 		perm, err := source.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
@@ -271,6 +261,15 @@ func MustRead() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
+			ro, err := database.FromContext(c).GetUser(r.GetUserID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
 			perm, err = source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
