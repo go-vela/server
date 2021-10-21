@@ -93,7 +93,7 @@ In order to run a build in Vela, you'll need to add a repo to the locally runnin
 <p>
 
 1. Navigate to the `Source Repositories` page @ http://localhost:8888/account/source-repos
-  * For conveinence, you can reference our documentation to [learn how to enable a repo](https://go-vela.github.io/docs/usage/getting-started/enable_repo/).
+  * For conveinence, you can reference our documentation to [learn how to enable a repo](https://go-vela.github.io/docs/usage/enable_repo/).
 
 2. Click the blue drop down arrow on the left side next to the org that contains the repo you want to enable.
 
@@ -115,8 +115,8 @@ In order to run a build in Vela, you'll need to add a pipeline to the repo that 
 <details><summary>click to reveal content</summary>
 <p>
 
-1. Create a Vela [pipeline](https://go-vela.github.io/docs/concepts/pipeline/) to define a workflow for Vela to run.
-  * For convenience, you can reference our documentation to use [one of our sample pipelines](https://go-vela.github.io/docs/usage/samples/).
+1. Create a Vela [pipeline](https://go-vela.github.io/docs/tour/) to define a workflow for Vela to run.
+  * For convenience, you can reference our documentation to use [one of our example pipelines](https://go-vela.github.io/docs/usage/examples/).
 
 2. Add the pipeline to the repo that was enabled above.
 
@@ -158,23 +158,17 @@ The `server` Docker compose service hosts the Vela server and API.
 
 This component is used for processing web requests and managing resources in the database and publishing builds to the FIFO queue.
 
-For more information, please review [the official documentation](https://go-vela.github.io/docs/concepts/infrastructure/server/).
-
 ### Worker
 
 The `worker` Docker compose service hosts the Vela build daemon.
 
 This component is used for pulling builds from the FIFO queue and executing them based off their configuration.
 
-For more information, please review [the official documentation](https://go-vela.github.io/docs/concepts/infrastructure/worker/).
-
 ### UI
 
 The `ui` Docker compose service hosts the Vela UI.
 
 This component is used for providing a user-friendly interface for triggering actions in the Vela system.
-
-For more information, please review [the official documentation](https://go-vela.github.io/docs/concepts/infrastructure/ui/).
 
 ### Redis
 
