@@ -55,7 +55,7 @@ func Establish() gin.HandlerFunc {
 
 		// make the request to the worker and check the response
 		resp, err := client.Do(req)
-		if err != nil {
+		if err != nil || resp == nil {
 			// abandoned builds might have ran on a worker that no longer exists
 			// if the worker is unavailable write an empty slice ToContext
 			ToContext(c, *e)
