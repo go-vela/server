@@ -124,7 +124,7 @@ services:
   # https://www.postgresql.org/
   postgres:
     container_name: postgres
-    image: postgres:13-alpine
+    image: postgres:14-alpine
     networks:
       - vela
     environment:
