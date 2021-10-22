@@ -974,3 +974,63 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 
 	return false
 }
+
+func SyncRepos(c *gin.Context) {
+	// capture middleware values
+	u := user.Retrieve(c)
+	org := c.Param("org")
+	logrus.Infof("Reading repos for org %s", org)
+
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := source.FromContext(c).OrgAccess(u, org)
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
+	}
+
+	filters := map[string]string{}
+	// Only show public repos to non-admins
+	if perm != "admin" {
+		filters["visibility"] = "public"
+	}
+
+	// send API call to capture the total number of repos for the org
+	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	rDB := []*library.Repo{}
+	page := 0
+	for totalReposGrabbed := int64(0); totalReposGrabbed < t; totalReposGrabbed += 100 {
+		repos, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+		rDB = append(rDB, repos...)
+		page++
+	}
+
+	for i := int64(0); i < t; i++ {
+		repo := rDB[i]
+		_, err := source.FromContext(c).GetRepo(u, repo)
+		if err != nil {
+			repo.SetActive(false)
+			e := database.FromContext(c).UpdateRepo(repo)
+			if e != nil {
+				retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+		}
+	}
+}
