@@ -106,13 +106,10 @@ func TestPostgres_Client_CreateRepo(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// create expected return in mock
-	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "repos" ("user_id","hash","org","name","full_name","link","clone","branch","timeout","counter","visibility","private","trusted","active","allow_pull","allow_push","allow_deploy","allow_tag","allow_comment","pipeline_type","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) RETURNING "id"`).
+	_mock.ExpectExec(`INSERT INTO "repos" ("user_id","hash","org","name","full_name","link","clone","branch","timeout","counter","visibility","private","trusted","active","allow_pull","allow_push","allow_deploy","allow_tag","allow_comment","pipeline_type","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`).
 		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, "public", false, false, false, false, false, false, false, false, "yaml", 1).
-		WillReturnRows(_rows)
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
 	tests := []struct {
