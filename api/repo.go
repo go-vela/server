@@ -468,7 +468,7 @@ func GetOrgRepos(c *gin.Context) {
 		filters["visibility"] = "public"
 	}
 
-	filters["active"] = "true"
+	filters["active"] = c.DefaultQuery("active", "true")
 
 	// send API call to capture the total number of repos for the org
 	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
