@@ -240,13 +240,10 @@ func TestPostgres_Client_CreateSecret(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// create expected return in mock
-	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "secrets" ("org","repo","team","name","value","type","images","events","allow_command","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
+	_mock.ExpectExec(`INSERT INTO "secrets" ("org","repo","team","name","value","type","images","events","allow_command","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`).
 		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", "{}", "{}", false, 1).
-		WillReturnRows(_rows)
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests
 	tests := []struct {
