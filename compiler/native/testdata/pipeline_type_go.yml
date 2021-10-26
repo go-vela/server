@@ -1,0 +1,9 @@
+version: "1"
+
+{{$image := "alpine"}}
+
+steps:
+  - name: foo
+    parameters:
+      registry: foo
+    image: {{ $image }}
