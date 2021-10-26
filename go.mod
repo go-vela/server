@@ -17,7 +17,7 @@ require (
 	github.com/google/go-github/v39 v39.2.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0
-	github.com/hashicorp/vault/api v1.1.1
+	github.com/hashicorp/vault/api v1.2.0
 	github.com/joho/godotenv v1.4.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pkg/errors v0.9.1
