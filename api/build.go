@@ -17,8 +17,8 @@ import (
 
 	"github.com/go-vela/compiler/compiler"
 
-	"github.com/go-vela/pkg-queue/queue"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/repo"

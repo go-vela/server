@@ -5,7 +5,7 @@
 package main
 
 import (
-	"github.com/go-vela/pkg-queue/queue"
+	"github.com/go-vela/server/queue"
 
 	"github.com/sirupsen/logrus"
 
@@ -27,6 +27,6 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 
 	// setup the queue
 	//
-	// https://pkg.go.dev/github.com/go-vela/pkg-queue/queue?tab=doc#New
+	// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#New
 	return queue.New(_setup)
 }

@@ -10,8 +10,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/pkg-queue/queue"
-	"github.com/go-vela/pkg-queue/queue/redis"
+	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/redis"
 
 	"github.com/gin-gonic/gin"
 )
