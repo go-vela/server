@@ -9,7 +9,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/aws/aws-sdk-go v1.40.54
-	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
+	github.com/buildkite/yaml/v2 v2.2.0
 	github.com/drone/envsubst v1.0.3
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/gin-gonic/gin v1.7.4
