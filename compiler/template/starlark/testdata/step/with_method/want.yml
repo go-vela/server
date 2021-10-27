@@ -1,0 +1,11 @@
+version: 1
+steps:
+  - name: sample_build_foo
+    image: alpine:latest
+    commands:
+      - echo foo
+
+  - name: sample_build_bar
+    image: alpine:latest
+    commands:
+      - echo bar

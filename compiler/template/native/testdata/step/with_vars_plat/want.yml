@@ -1,0 +1,12 @@
+steps:
+  - name: sample_test
+    commands:
+      - echo octocat/hello-world
+      - echo octocat/hello-world
+      - echo octocat/hello-world
+      - echo octocat/hello-world
+      - echo
+    image: alpine
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]

@@ -1,0 +1,15 @@
+metadata:
+  template: true
+
+steps:
+  - name: test
+    commands:
+      - echo {{ vela "repo_full_name" }}
+      - echo {{ vela "REPO_FULL_NAME" }}
+      - echo {{ vela "vela_repo_full_name" }}
+      - echo {{ vela "VELA_REPO_FULL_NAME" }}
+      - echo {{ vela "non_existent" }}
+    image: alpine
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]

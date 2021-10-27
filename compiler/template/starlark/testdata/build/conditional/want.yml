@@ -1,0 +1,6 @@
+version: 1
+steps:
+  - name: build_foo
+    image: alpine:latest
+    commands:
+      - echo foo

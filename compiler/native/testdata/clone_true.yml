@@ -1,0 +1,11 @@
+---
+version: "1"
+metadata:
+  clone: true
+
+steps:
+  - name: foo
+    parameters:
+      registry: foo
+    image: alpine
+    pull: true

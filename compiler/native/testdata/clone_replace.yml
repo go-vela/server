@@ -1,0 +1,17 @@
+---
+version: "1"
+metadata:
+  clone: false
+
+steps:
+  - name: clone
+    image: target/vela-git:v0.4.0
+    parameters:
+      depth: 5
+    pull: always
+
+  - name: foo
+    parameters:
+      registry: foo
+    image: alpine
+    pull: true

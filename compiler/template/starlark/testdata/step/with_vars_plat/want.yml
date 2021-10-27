@@ -1,0 +1,6 @@
+version: 1
+steps:
+  - name: sample_echo octocat/hello-world
+    image: alpine:latest
+    commands:
+      - echo octocat/hello-world

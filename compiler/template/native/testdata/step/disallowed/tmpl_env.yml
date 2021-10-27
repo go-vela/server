@@ -1,0 +1,8 @@
+metadata:
+  template: true
+
+steps:
+  - name: echo
+    commands:
+      - echo {{ env "VELA_SOURCE_CLIENT" }}
+    image: alpine:latest

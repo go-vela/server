@@ -1,0 +1,12 @@
+---
+steps:
+  - name: docker
+    image: plugins/docker:18.09
+    parameters:
+      registry: index.docker.io
+      repo: github/octocat
+      tags:
+        - latest
+        - dev
+    pull: true
+    secrets: [ docker_username, docker_password ]
