@@ -1,0 +1,8 @@
+---
+version: "1"
+
+steps:
+  - name: foo
+    parameters:
+      registry: foo
+    image: alpine

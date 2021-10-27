@@ -1,0 +1,27 @@
+steps:
+  - name: sample_install
+    commands:
+      - go get ./...
+    image: golang:latest
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]
+
+  - name: sample_test_latest
+    commands:
+      - go test ./...
+    image: golang:latest
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]   
+
+  - name: sample_build
+    commands:
+      - go build
+    environment:
+      CGO_ENABLED: '0'
+      GOOS: linux
+    image: golang:latest
+    pull: true
+    ruleset:
+      event: [ push, pull_request ]

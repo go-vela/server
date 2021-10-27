@@ -1,0 +1,56 @@
+---
+version: "1"
+
+metadata:
+  template: false
+
+templates:
+  - name: gradle
+    source: github.example.com/github/octocat/template.yml
+    type: github
+
+stages:
+
+  gradle:
+    steps:
+      # would execute the following steps:
+      # 1. sample_get_dependencies
+      # 2. sample_test
+      # 3. sample_build
+      - name: sample
+        template:
+          name: gradle
+          vars:
+            image: openjdk:latest
+            environment: "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }"
+            pull_policy: "pull: true"
+
+  publish:
+    needs: [ gradle ]
+    steps:
+      - name: publish
+        image: plugins/docker:18.09
+        parameters:
+          registry: index.docker.io
+          repo: github/octocat
+          tags:
+            - latest
+            - dev
+        pull: true
+        secrets:
+          - source: docker_username
+            target: registry_username
+          - source: docker_password
+            target: registry_password
+
+secrets:
+  # Repo secrets
+  - name: docker_username
+    key: org/repo/docker/username
+    engine: native
+    type: repo
+
+  - name: docker_password
+    key: org/repo/docker/password
+    engine: vault
+    type: repo

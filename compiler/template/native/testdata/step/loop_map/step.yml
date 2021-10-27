@@ -1,0 +1,11 @@
+steps:
+  - name: sample
+    template:  
+      name: golang
+      vars:
+        pull_policy: "pull: true"
+        # loop over map of images
+        images:
+          latest: golang:latest
+        
+        

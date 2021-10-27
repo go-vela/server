@@ -1,0 +1,7 @@
+steps:
+  - name: sample
+    template:  
+      name: echo
+      vars:
+        image: golang:latest
+        pull_policy: "pull: true"

@@ -1,0 +1,30 @@
+metadata:
+  template: true
+
+steps:
+  - name: install
+    commands:
+      - go get ./...
+    image: {{ .image }}
+    {{ .pull_policy }}
+    ruleset:
+      event: [ push, pull_request ]
+
+  - name: test
+    commands:
+      - go test ./...
+    image: {{ .image }}
+    {{ .pull_policy }}
+    ruleset:
+      event: [ push, pull_request ]
+
+  - name: build
+    commands:
+      - go build
+    environment:
+      CGO_ENABLED: '0'
+      GOOS: linux
+    image: {{ .image }}
+    {{ .pull_policy }}
+    ruleset:
+      event: [ push, pull_request ]

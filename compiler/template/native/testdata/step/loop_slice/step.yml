@@ -1,0 +1,10 @@
+steps:
+  - name: sample
+    template:  
+      name: golang
+      vars:
+        pull_policy: "pull: true"
+        # loop over slice of images
+        images: [ golang:latest, golang:1.12, golang:1.13 ]
+        
+        

@@ -1,0 +1,75 @@
+---
+version: "1"
+
+metadata:
+  template: false
+
+environment:
+    HELLO: "Hello, Global Environment"  
+
+stages:
+
+  install:
+    steps:
+      - name: install
+        commands:
+          - ./gradlew downloadDependencies
+        environment:
+          GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+          GRADLE_USER_HOME: .gradle
+        image: openjdk:latest
+        pull: true
+
+  test:
+    needs: [ install ]
+    steps:
+      - name: test
+        commands:
+          - ./gradlew check
+        environment:
+          GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+          GRADLE_USER_HOME: .gradle
+        image: openjdk:latest
+        pull: true
+
+  build:
+    needs: [ install ]
+    steps:
+      - name: build
+        commands:
+          - ./gradlew build
+        environment:
+          - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+          - GRADLE_USER_HOME=.gradle
+        image: openjdk:latest
+        pull: true
+
+  publish:
+    needs: [ build ]
+    steps:
+      - name: publish
+        image: plugins/docker:18.09
+        parameters:
+          registry: index.docker.io
+          repo: github/octocat
+          tags:
+            - latest
+            - dev
+        pull: true
+        secrets:
+          - source: docker_username
+            target: registry_username
+          - source: docker_password
+            target: registry_password
+
+secrets:
+  # Repo secrets
+  - name: docker_username
+    key: org/repo/docker/username
+    engine: native
+    type: repo
+
+  - name: docker_password
+    key: org/repo/docker/password
+    engine: vault
+    type: repo

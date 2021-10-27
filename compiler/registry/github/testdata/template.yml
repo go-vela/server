@@ -1,0 +1,24 @@
+metadata:
+  template: true
+
+steps:
+  - name: get_dependencies
+    plugin: {{ .image }}
+    {{ .pull_policy }}
+    environment: {{ .environment }}
+    commands:
+      - ./gradlew downloadDependencies
+
+  - name: test
+    plugin: {{ .image }}
+    {{ .pull_policy }}
+    environment: {{ .environment }}
+    commands:
+      - ./gradlew check
+
+  - name: build
+    plugin: {{ .image }}
+    {{ .pull_policy }}
+    environment: {{ .environment }}
+    commands:
+      - ./gradlew build distTar
