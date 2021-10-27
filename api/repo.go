@@ -992,7 +992,7 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 //   type: string
 // responses:
 //   '200':
-//     description: Successfully retrieved the repo
+//     description: Successfully synchronized repos
 //     schema:
 //       type: string
 //   '500':
