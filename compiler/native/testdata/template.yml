@@ -1,0 +1,24 @@
+metadata:
+  template: true
+
+steps:
+  - name: install
+    commands:
+      - ./gradlew downloadDependencies
+    environment: {{ .environment }}
+    image: {{ .image }}
+    {{ .pull_policy }}
+
+  - name: test
+    commands:
+      - ./gradlew check
+    environment: {{ .environment }}
+    image: {{ .image }}
+    {{ .pull_policy }}
+
+  - name: build
+    commands:
+      - ./gradlew build
+    environment: {{ .environment }}
+    image: {{ .image }}
+    {{ .pull_policy }}

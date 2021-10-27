@@ -1,0 +1,15 @@
+steps:
+  - name: sample
+    template:  
+      name: golang
+      vars:
+        test: |
+          - name: test
+              commands:
+                - go test ./...
+              image: golang:latest
+              pull: true
+              ruleset:
+               event: [ push, pull_request ]
+        
+        

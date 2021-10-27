@@ -1,0 +1,10 @@
+steps:
+  - name: sample
+    template:  
+      name: build
+      vars:
+        tags: [latest, "1.14", "1.15"]
+        pull_policy: always
+        commands:
+          test: "go test ./..."
+          build: "go test ./..."          

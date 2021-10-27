@@ -1,0 +1,10 @@
+steps:
+  - name: sample
+    template:  
+      name: golang
+      vars:
+        image: golang:latest
+        pull_policy: "pull: true"
+        branch: master
+        
+        

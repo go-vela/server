@@ -1,0 +1,7 @@
+version: 1
+steps:
+  - name: sample_build
+    image: golang:latest
+    commands:
+      - go build
+      - go test
