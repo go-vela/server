@@ -237,10 +237,13 @@ func TestPostgres_Client_CreateLog(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// create expected return in mock
+	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+
 	// ensure the mock expects the query
-	_mock.ExpectExec(`INSERT INTO "logs" ("build_id","repo_id","service_id","step_id","data","id") VALUES ($1,$2,$3,$4,$5,$6)`).
+	_mock.ExpectQuery(`INSERT INTO "logs" ("build_id","repo_id","service_id","step_id","data","id") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`).
 		WithArgs(1, 1, nil, 1, AnyArgument{}, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
