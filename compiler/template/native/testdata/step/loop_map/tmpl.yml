@@ -1,0 +1,38 @@
+metadata:
+  template: true
+
+## template variables
+{{ $pull := .pull_policy }}
+
+steps:
+
+  - name: install
+    commands:
+      - go get ./...
+    image: golang:latest
+    {{ $pull }}
+    ruleset:
+      event: [ push, pull_request ]
+
+  {{ range $key, $value := .images }}
+
+  - name: test_{{ $key }}
+    commands:
+      - go test ./...
+    image: {{ $value }}
+    {{ $pull }}
+    ruleset:
+      event: [ push, pull_request ]
+
+  {{ end }}
+
+  - name: build
+    commands:
+      - go build
+    environment:
+      CGO_ENABLED: '0'
+      GOOS: linux
+    image: golang:latest
+    {{ $pull }}
+    ruleset:
+      event: [ push, pull_request ]

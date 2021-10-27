@@ -1,0 +1,4 @@
+steps:
+  - name: sample
+    template:
+      name: golang

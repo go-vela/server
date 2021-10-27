@@ -1,0 +1,28 @@
+---
+steps:
+  - name: install
+    commands:
+      - ./gradlew downloadDependencies
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      GRADLE_USER_HOME: .gradle
+    image: openjdk:latest
+    pull: true
+
+  - name: test
+    commands:
+      - ./gradlew check
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      GRADLE_USER_HOME: .gradle
+    image: openjdk:latest
+    pull: true
+
+  - name: build
+    commands:
+      - ./gradlew build
+    environment:
+      - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+      - GRADLE_USER_HOME=.gradle
+    image: openjdk:latest
+    pull: true

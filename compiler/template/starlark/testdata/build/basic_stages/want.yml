@@ -1,0 +1,30 @@
+version: "1"
+
+stages:
+  foo:
+    steps:
+      - name: build_foo
+        image: alpine:latest
+        commands:
+          - echo hello from foo
+        needs: [ "clone" ]
+        pull: not_present
+
+  bar:
+    steps:
+      - name: build_bar
+        image: alpine:latest
+        commands:
+          - echo hello from bar
+        needs: [ "clone" ]
+        pull: not_present
+
+  star:
+    steps:
+      - name: build_star
+        image: alpine:latest
+        commands:
+          - echo hello from star
+        needs: [ "clone" ]
+        pull: not_present
+

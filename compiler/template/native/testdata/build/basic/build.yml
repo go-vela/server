@@ -1,0 +1,11 @@
+version: "1"
+
+{{$steplist := list "foo" "bar" "star"}}
+
+steps:
+  {{range $step := $steplist}}
+- name: {{ $step }}
+  image: alpine
+  commands:
+    - echo hello from {{ $step }}
+  {{ end }}

@@ -1,0 +1,34 @@
+version: "1"
+
+{{$br := vela "vela_build_branch"}}
+{{$image := "golang:latest"}}
+
+steps:
+
+  {{ if (eq $br "master") }}
+
+  - name: install
+    commands:
+      - go get ./...
+    image: {{ $image }}
+    ruleset:
+      event: [ push, pull_request ]
+
+  {{ end }}
+
+  - name: test
+    commands:
+      - go test ./...
+    image: {{ $image }}
+    ruleset:
+      event: [ push, pull_request ]
+
+  - name: build
+    commands:
+      - go build
+    environment:
+      CGO_ENABLED: '0'
+      GOOS: linux
+    image: {{ $image }}
+    ruleset:
+      event: [ push, pull_request ]

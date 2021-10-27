@@ -1,0 +1,18 @@
+version: "1"
+
+steps:
+  - name: foo
+    image: alpine
+    pull: not_present
+    commands:
+      - echo hello from foo
+  - name: bar
+    image: alpine
+    pull: not_present
+    commands:
+      - echo hello from bar
+  - name: star
+    image: alpine
+    pull: not_present
+    commands:
+      - echo hello from star
