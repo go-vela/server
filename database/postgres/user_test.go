@@ -98,10 +98,13 @@ func TestPostgres_Client_CreateUser(t *testing.T) {
 	}
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// create expected return in mock
+	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+
 	// ensure the mock expects the query
-	_mock.ExpectExec(`INSERT INTO "users" ("name","refresh_token","token","hash","favorites","active","admin","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`).
+	_mock.ExpectQuery(`INSERT INTO "users" ("name","refresh_token","token","hash","favorites","active","admin","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
 		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, "{}", false, false, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
