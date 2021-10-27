@@ -975,6 +975,35 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 	return false
 }
 
+// swagger:operation GET /api/v1/{org}/sync repos SyncRepos
+//
+// Get all repos for the provided org in the configured backend
+//
+// ---
+// produces:
+// - application/json
+// security:
+//   - ApiKeyAuth: []
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully retrieved the repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to synchronize org repositories
+//     schema:
+//       "$ref": "#/definitions/Error"
+//
+// SyncRepos represents the API handler to
+// synchronize organization repositories between
+// GitHub and the database should a discrepancy
+// exist. Common after deleting GitHub repos.
 func SyncRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -1005,6 +1034,7 @@ func SyncRepos(c *gin.Context) {
 
 	repos := []*library.Repo{}
 	page := 0
+	// capture all repos belonging to a certain org in database
 	// nolint: gomnd // ignore magic number
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
 		r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100)
@@ -1019,8 +1049,10 @@ func SyncRepos(c *gin.Context) {
 		page++
 	}
 
+	// iterate through captured repos and check if they are in GitHub
 	for _, repo := range repos {
 		_, err := source.FromContext(c).GetRepo(u, repo)
+		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
 			repo.SetActive(false)
 			e := database.FromContext(c).UpdateRepo(repo)
@@ -1033,4 +1065,5 @@ func SyncRepos(c *gin.Context) {
 			}
 		}
 	}
+	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", org))
 }
