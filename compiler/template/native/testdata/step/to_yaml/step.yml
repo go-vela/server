@@ -3,8 +3,6 @@ steps:
     template:
       name: golang
       vars:
-        image: golang:latest
-        pull_policy: "pull: true"
         ruleset:
           event: [push, pull_request]
           branch: [master]
