@@ -1,8 +1,9 @@
 package native
 
 import (
-	"github.com/buildkite/yaml"
 	"strings"
+
+	"github.com/buildkite/yaml"
 
 	"github.com/go-vela/types/raw"
 )
