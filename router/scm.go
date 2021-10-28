@@ -17,7 +17,7 @@ import (
 // with the API handlers for source code management functionality.
 //
 // GET    /api/v1/scm/orgs/:org/sync
-// GET    /api/v1/scm/repos/:org/:repo/sync
+// GET    /api/v1/scm/repos/:org/:repo/sync .
 func ScmHandlers(base *gin.RouterGroup) {
 	repos := base.Group("/scm/repos")
 	orgs := base.Group("/scm/orgs")
