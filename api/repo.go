@@ -977,9 +977,9 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 	return false
 }
 
-// swagger:operation GET /api/v1/{org}/sync repos SyncRepos
+// swagger:operation GET /api/v1/scm/orgs/{org}/sync scm SyncRepos
 //
-// Get all repos for the provided org in the configured backend
+// Sync up repos from scm service and database in a specified org
 //
 // ---
 // produces:
@@ -1004,8 +1004,8 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 //
 // SyncRepos represents the API handler to
 // synchronize organization repositories between
-// GitHub and the database should a discrepancy
-// exist. Common after deleting GitHub repos.
+// SCM Service and the database should a discrepancy
+// exist. Common after deleting SCM repos.
 func SyncRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -1068,4 +1068,68 @@ func SyncRepos(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", org))
+}
+
+// swagger:operation GET /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
+//
+// Sync up scm service and database in the context of a specific repo
+//
+// ---
+// produces:
+// - application/json
+// security:
+//   - ApiKeyAuth: []
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//	 description: Name of the repo
+//   required: true
+//   type: string
+// responses:
+//   '200':
+//     description: Successfully synchronized repo
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to synchronize repo
+//     schema:
+//       "$ref": "#/definitions/Error"
+//
+// SyncRepo represents the API handler to
+// synchronize a single repository between
+// SCM service and the database should a discrepancy
+// exist. Common after deleting SCM repos.
+func SyncRepo(c *gin.Context) {
+	logrus.Infof("Reading repo %s/%s", c.Param("org"), c.Param("repo"))
+	// capture middleware values
+	u := user.Retrieve(c)
+	org := c.Param("org")
+	repo := c.Param("repo")
+
+	// retrieve repo from context
+	r, _ := database.FromContext(c).GetRepo(org, repo)
+
+	// retrieve repo from source code manager service
+	_, err := source.FromContext(c).GetRepo(u, r)
+
+	// if there is an error retrieving repo, we know it is deleted: sync time
+	if err != nil {
+		// set repo to inactive - do not delete
+		r.SetActive(false)
+		// update repo in database
+		e := database.FromContext(c).UpdateRepo(r)
+		if e != nil {
+			retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
 }

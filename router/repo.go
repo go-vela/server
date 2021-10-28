@@ -62,7 +62,7 @@ func RepoHandlers(base *gin.RouterGroup) {
 		{
 			org.GET("", api.GetOrgRepos)
 			org.GET("/builds", api.GetOrgBuilds)
-			org.GET("/sync", api.SyncRepos)
+			// org.GET("/sync", api.SyncRepos)
 		} // end of org endpoints
 		// Repo endpoints
 		repo := repos.Group("/:org/:repo", repo.Establish())
