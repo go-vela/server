@@ -1,0 +1,10 @@
+metadata:
+  template: true
+
+steps:
+  - name: install
+    commands:
+      - test
+    image: alpine
+    ruleset:
+      {{- toYaml .ruleset | nindent 6 }}

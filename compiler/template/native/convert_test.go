@@ -1,10 +1,9 @@
 package native
 
 import (
+	"github.com/go-vela/types/raw"
 	"reflect"
 	"testing"
-
-	"github.com/go-vela/types/raw"
 )
 
 func Test_convertPlatformVars(t *testing.T) {

@@ -1,6 +1,7 @@
 package native
 
 import (
+	"github.com/buildkite/yaml"
 	"strings"
 
 	"github.com/go-vela/types/raw"
@@ -21,6 +22,22 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 	envs["template_name"] = name
 
 	return envs
+}
+
+// toYAML takes an interface, marshals it to yaml, and returns a string. It will
+// always return a string, even on marshal error (empty string).
+//
+// This code is under copyright (full attribution in NOTICE) and is from:
+// https://github.com/helm/helm/blob/a499b4b179307c267bdf3ec49b880e3dbd2a5591/pkg/engine/funcs.go#L83
+//
+// This is designed to be called from a template.
+func toYAML(v interface{}) string {
+	data, err := yaml.Marshal(v)
+	if err != nil {
+		// Swallow errors inside of a template.
+		return ""
+	}
+	return strings.TrimSuffix(string(data), "\n")
 }
 
 type funcHandler struct {
