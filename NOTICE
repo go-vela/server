@@ -1,9 +1,9 @@
-This file contains the open source licenses for the following open source components in go-vela/server
+This file contains the open source licenses for the following open source components in go-vela/server/compiler
 
 1. drone-cli (commit bed84a32ff0f565b4bd6176e1d87c9b33ec83ed0)
 https://github.com/drone/drone-cli
 
-
+  
 Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -413,9 +413,8 @@ https://github.com/wonderix/shalm
    See the License for the specific language governing permissions and
    limitations under the License.
 
-2. helm (commit 02685e94bd3862afcb44f6cd7716dbeb69743567)
+3. helm (commit 02685e94bd3862afcb44f6cd7716dbeb69743567)
 https://github.com/helm/helm
-
 
                                  Apache License
                            Version 2.0, January 2004
