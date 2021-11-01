@@ -16,7 +16,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-vela/compiler v0.10.1-0.20211025223007-bdcd7b7f8de0
-	github.com/go-vela/sdk-go v0.10.0
+	github.com/go-vela/sdk-go v0.10.1
 	github.com/go-vela/types v0.10.0
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
@@ -27,7 +27,7 @@ require (
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.7.0
-	github.com/hashicorp/vault/api v1.2.0
+	github.com/hashicorp/vault/api v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pkg/errors v0.9.1
@@ -41,6 +41,6 @@ require (
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.2.1
 	gorm.io/driver/sqlite v1.2.3
-	gorm.io/gorm v1.22.0
-	k8s.io/apimachinery v0.22.2
+	gorm.io/gorm v1.22.2
+	k8s.io/apimachinery v0.22.3
 )
