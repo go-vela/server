@@ -1,0 +1,8 @@
+steps:
+  - name: sample_install
+    commands:
+      - test
+    image: alpine
+    ruleset:
+      event: [ push, pull_request ]
+      branch: [ master ]
