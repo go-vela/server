@@ -29,6 +29,7 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 // always return a string, even on marshal error (empty string).
 //
 // This code is under copyright (full attribution in NOTICE) and is from:
+// nolint: lll // ignore long line length due to url
 // https://github.com/helm/helm/blob/a499b4b179307c267bdf3ec49b880e3dbd2a5591/pkg/engine/funcs.go#L83
 //
 // This is designed to be called from a template.
