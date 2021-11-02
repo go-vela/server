@@ -32,6 +32,7 @@ func TestNative_RenderStep(t *testing.T) {
 		{"loop map", args{velaFile: "testdata/step/loop_map/step.yml", templateFile: "testdata/step/loop_map/tmpl.yml"}, "testdata/step/loop_map/want.yml", false},
 		{"loop slice", args{velaFile: "testdata/step/loop_slice/step.yml", templateFile: "testdata/step/loop_slice/tmpl.yml"}, "testdata/step/loop_slice/want.yml", false},
 		{"platform vars", args{velaFile: "testdata/step/with_vars_plat/step.yml", templateFile: "testdata/step/with_vars_plat/tmpl.yml"}, "testdata/step/with_vars_plat/want.yml", false},
+		{"to yaml", args{velaFile: "testdata/step/to_yaml/step.yml", templateFile: "testdata/step/to_yaml/tmpl.yml"}, "testdata/step/to_yaml/want.yml", false},
 		{"invalid template", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/invalid_template.yml"}, "", true},
 		{"invalid variable", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/invalid_variables.yml"}, "", true},
 		{"invalid yml", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/invalid.yml"}, "", true},

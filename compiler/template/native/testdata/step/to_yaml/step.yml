@@ -1,0 +1,8 @@
+steps:
+  - name: sample
+    template:
+      name: golang
+      vars:
+        ruleset:
+          event: [push, pull_request]
+          branch: [master]

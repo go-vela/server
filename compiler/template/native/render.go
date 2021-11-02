@@ -11,7 +11,7 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 
-	yaml "github.com/buildkite/yaml"
+	"github.com/buildkite/yaml"
 )
 
 // RenderStep combines the template with the step in the yaml pipeline.
@@ -22,7 +22,8 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(s.Environment, s.Name)}
 	templateFuncMap := map[string]interface{}{
-		"vela": velaFuncs.returnPlatformVar,
+		"vela":   velaFuncs.returnPlatformVar,
+		"toYaml": toYAML,
 	}
 	// modify Masterminds/sprig functions
 	// to remove OS functions
@@ -70,7 +71,8 @@ func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
 
 	velaFuncs := funcHandler{envs: convertPlatformVars(envs, "")}
 	templateFuncMap := map[string]interface{}{
-		"vela": velaFuncs.returnPlatformVar,
+		"vela":   velaFuncs.returnPlatformVar,
+		"toYaml": toYAML,
 	}
 	// modify Masterminds/sprig functions
 	// to remove OS functions
