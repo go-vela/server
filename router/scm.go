@@ -32,5 +32,5 @@ func ScmHandlers(base *gin.RouterGroup) {
 		{
 			repo.GET("/sync", api.SyncRepo)
 		} // end of repo endpoints
-	} // end of repos endpoints
+	} // end of scm endpoints
 }
