@@ -20,7 +20,11 @@ func TestSqlite_Client_GetSecret_Org(t *testing.T) {
 	_secret.SetName("bar")
 	_secret.SetValue("baz")
 	_secret.SetType("org")
-
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy(1)
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy(1)
+	_secret.SetLastBuildID(1)
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
@@ -85,6 +89,11 @@ func TestSqlite_Client_GetSecret_Repo(t *testing.T) {
 	_secret.SetName("baz")
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy(1)
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy(1)
+	_secret.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -150,6 +159,11 @@ func TestSqlite_Client_GetSecret_Shared(t *testing.T) {
 	_secret.SetName("baz")
 	_secret.SetValue("foob")
 	_secret.SetType("shared")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy(1)
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy(1)
+	_secret.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -215,6 +229,11 @@ func TestSqlite_Client_CreateSecret(t *testing.T) {
 	_secret.SetName("baz")
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy(1)
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy(1)
+	_secret.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -262,6 +281,11 @@ func TestSqlite_Client_UpdateSecret(t *testing.T) {
 	_secret.SetName("baz")
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy(1)
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy(1)
+	_secret.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -315,6 +339,11 @@ func TestSqlite_Client_DeleteSecret(t *testing.T) {
 	_secret.SetName("baz")
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy(1)
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy(1)
+	_secret.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -379,5 +408,10 @@ func testSecret() *library.Secret {
 		Images:       &arr,
 		Events:       &arr,
 		AllowCommand: &booL,
+		CreatedAt:    &i64,
+		CreatedBy:    &i64,
+		UpdatedAt:    &i64,
+		UpdatedBy:    &i64,
+		LastBuildID:  &i64,
 	}
 }

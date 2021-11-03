@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-vela/server/source"
 
@@ -90,6 +91,7 @@ func CreateSecret(c *gin.Context) {
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
+	u := user.Retrieve(c)
 
 	logrus.Infof("Creating secret %s/%s/%s for %s service", t, o, n, e)
 
@@ -110,6 +112,10 @@ func CreateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
+	input.SetCreatedAt(time.Now().UTC().Unix())
+	input.SetCreatedBy(u.GetID())
+	input.SetUpdatedAt(time.Now().UTC().Unix())
+	input.SetUpdatedBy(u.GetID())
 
 	if len(input.GetImages()) > 0 {
 		input.SetImages(unique(input.GetImages()))
@@ -468,6 +474,7 @@ func UpdateSecret(c *gin.Context) {
 	o := c.Param("org")
 	n := c.Param("name")
 	s := strings.TrimPrefix(c.Param("secret"), "/")
+	u := user.Retrieve(c)
 
 	logrus.Infof("Updating secret %s/%s/%s/%s for %s service", t, o, n, s, e)
 
@@ -489,6 +496,8 @@ func UpdateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
+	input.SetUpdatedAt(time.Now().UTC().Unix())
+	input.SetUpdatedBy(u.GetID())
 
 	if input.Images != nil {
 		// update images if set

@@ -25,6 +25,11 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
+	want.SetCreatedAt(1)
+	want.SetCreatedBy(1)
+	want.SetUpdatedAt(1)
+	want.SetUpdatedBy(1)
+	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -68,6 +73,11 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
+	want.SetCreatedAt(1)
+	want.SetCreatedBy(1)
+	want.SetUpdatedAt(1)
+	want.SetUpdatedBy(1)
+	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -111,6 +121,11 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
+	want.SetCreatedAt(1)
+	want.SetCreatedBy(1)
+	want.SetUpdatedAt(1)
+	want.SetUpdatedBy(1)
+	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -154,6 +169,11 @@ func TestNative_Create_Invalid(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
+	sec.SetCreatedAt(1)
+	sec.SetCreatedBy(1)
+	sec.SetUpdatedAt(1)
+	sec.SetUpdatedBy(1)
+	sec.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()

@@ -7,6 +7,7 @@ package native
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
@@ -25,6 +26,11 @@ func TestNative_Update(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
+	want.SetCreatedAt(1)
+	want.SetCreatedBy(1)
+	want.SetUpdatedAt(time.Now().UTC().Unix())
+	want.SetUpdatedBy(1)
+	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
