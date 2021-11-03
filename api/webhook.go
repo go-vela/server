@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/source"

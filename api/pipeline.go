@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-vela/compiler/compiler"
-	"github.com/go-vela/compiler/registry/github"
+	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/registry/github"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
