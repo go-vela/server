@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/server/router/middleware/user"
 
-	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/server/compiler"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
