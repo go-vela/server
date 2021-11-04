@@ -40,7 +40,6 @@ func TestSqlite_Client_GetTypeSecretCount_Org(t *testing.T) {
 	_secretOne.SetCreatedBy(1)
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy(1)
-	_secretOne.SetLastBuildID(1)
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -53,7 +52,6 @@ func TestSqlite_Client_GetTypeSecretCount_Org(t *testing.T) {
 	_secretTwo.SetCreatedBy(1)
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy(1)
-	_secretTwo.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -122,7 +120,6 @@ func TestSqlite_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	_secretOne.SetCreatedBy(1)
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy(1)
-	_secretOne.SetLastBuildID(1)
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -135,7 +132,6 @@ func TestSqlite_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	_secretTwo.SetCreatedBy(1)
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy(1)
-	_secretTwo.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -204,7 +200,6 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	_secretOne.SetCreatedBy(1)
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy(1)
-	_secretOne.SetLastBuildID(1)
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -217,7 +212,6 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	_secretTwo.SetCreatedBy(1)
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy(1)
-	_secretTwo.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -286,7 +280,6 @@ func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	_secretOne.SetCreatedBy(1)
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy(1)
-	_secretOne.SetLastBuildID(1)
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -299,7 +292,6 @@ func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	_secretTwo.SetCreatedBy(1)
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy(1)
-	_secretTwo.SetLastBuildID(1)
 
 	// setup the test database client
 	_database, err := NewTest()

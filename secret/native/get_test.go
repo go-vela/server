@@ -29,7 +29,6 @@ func TestNative_Get(t *testing.T) {
 	want.SetCreatedBy(1)
 	want.SetUpdatedAt(1)
 	want.SetUpdatedBy(1)
-	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()

@@ -29,7 +29,6 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetCreatedBy(1)
 	want.SetUpdatedAt(1)
 	want.SetUpdatedBy(1)
-	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -77,7 +76,6 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetCreatedBy(1)
 	want.SetUpdatedAt(1)
 	want.SetUpdatedBy(1)
-	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -125,7 +123,6 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetCreatedBy(1)
 	want.SetUpdatedAt(1)
 	want.SetUpdatedBy(1)
-	want.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -173,7 +170,6 @@ func TestNative_Create_Invalid(t *testing.T) {
 	sec.SetCreatedBy(1)
 	sec.SetUpdatedAt(1)
 	sec.SetUpdatedBy(1)
-	sec.SetLastBuildID(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
