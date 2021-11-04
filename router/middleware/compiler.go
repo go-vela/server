@@ -6,7 +6,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/server/compiler"
 )
 
 // Compiler is a middleware function that initializes the compiler and

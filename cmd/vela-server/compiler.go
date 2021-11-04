@@ -5,8 +5,8 @@
 package main
 
 import (
-	"github.com/go-vela/compiler/compiler"
-	"github.com/go-vela/compiler/compiler/native"
+	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/native"
 
 	"github.com/go-vela/types/constants"
 
