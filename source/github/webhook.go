@@ -77,8 +77,12 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 // processPushEvent is a helper function to process the push event.
 func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
 	logrus.Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
-
+	logrus.Tracef("THIS IS THE COMMENT BEFORE THE GOOD STUFF")
+	logrus.Tracef("Payload: %s", payload)
 	repo := payload.GetRepo()
+	pusherName := payload.GetPusher().Name
+	pusherEmail := payload.GetPusher().Email
+	logrus.Tracef("PUSHER INFO:\n Name: %s\n Email: %s\n", *pusherName, *pusherEmail)
 
 	// convert payload to library repo
 	r := new(library.Repo)
@@ -133,6 +137,9 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhoo
 		h.SetEvent(constants.EventTag)
 		// set the proper event for the build
 		b.SetEvent(constants.EventTag)
+
+		b.SetPusherName(*payload.GetPusher().Name)
+		b.SetPusherEmail(*payload.GetPusher().Email)
 
 		// set the proper branch from the base ref
 		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
