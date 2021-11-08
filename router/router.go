@@ -23,7 +23,7 @@
 //         in: header
 //         name: Authorization
 //       CookieAuth:
-//         description: Refresh token sent as cookie (swagger 2.0 doesn't support cookie)
+//         description: Refresh token sent as cookie (swagger 2.0 doesn't support cookie auth)
 //         type: apiKey
 //         in: header
 //         name: vela_refresh_token
