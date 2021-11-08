@@ -287,6 +287,16 @@ spec-gen:
 	@swagger generate spec -m -o ${SPEC_FILE}
 	@echo "### ${SPEC_FILE} created successfully"
 
+# The `spec-validate` target is intended to validate
+# an api-spec using go-swagger (https://goswagger.io)
+#
+# Usage: `make spec-validate`
+.PHONY: spec-validate
+spec-validate:
+	@echo
+	@echo "### Validating api spec using go-swagger"
+	@swagger validate ${SPEC_FILE}
+
 # The `spec-version-update` target is intended to update
 # the api-spec version in the generated api-spec
 # using the latest git tag.
@@ -301,9 +311,9 @@ spec-version-update:
 	@echo "### Updating api-spec version"
 	@jq '.info.version = "$(subst v,,${GITHUB_TAG})"' ${SPEC_FILE} | sponge ${SPEC_FILE}
 
-# The `spec` target will call spec-gen and
-# spec-version-update to create an api-spec.
+# The `spec` target will call spec-gen, spec-version-update
+# and spec-validate to create and validate an api-spec.
 #
 # Usage: `make spec`
 .PHONY: spec
-spec: spec-gen spec-version-update
+spec: spec-gen spec-version-update spec-validate
