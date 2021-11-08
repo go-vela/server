@@ -284,8 +284,8 @@ func TestSqlite_Client_GetPendingAndRunningBuilds(t *testing.T) {
 			want:    []*library.BuildQueue{_queueOne, _queueTwo},
 		},
 		{
-			failure: true,
-			want:    nil,
+			failure: false,
+			want:    []*library.BuildQueue{},
 		},
 	}
 
@@ -297,7 +297,7 @@ func TestSqlite_Client_GetPendingAndRunningBuilds(t *testing.T) {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		if test.want != nil {
+		if len(test.want) > 0 {
 			// create the builds in the database
 			err = _database.CreateBuild(_buildOne)
 			if err != nil {
