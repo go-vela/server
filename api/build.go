@@ -13,15 +13,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/server/router/middleware/user"
-
 	"github.com/go-vela/server/compiler"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
@@ -61,6 +59,10 @@ import (
 // security:
 //   - ApiKeyAuth: []
 // responses:
+//   '200':
+//     description: Request processed but build was skipped
+//     schema:
+//       type: string
 //   '201':
 //     description: Successfully created the build
 //     type: json
@@ -345,7 +347,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the build
+//     description: Successfully retrieved the builds
 //     schema:
 //       type: array
 //       items:
@@ -663,14 +665,14 @@ func GetOrgBuilds(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: build
-//   description: Build number to restart
+//   description: Build number to retrieve
 //   required: true
 //   type: integer
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully restarted the build
+//     description: Successfully retrieved the build
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
@@ -715,6 +717,10 @@ func GetBuild(c *gin.Context) {
 // security:
 //   - ApiKeyAuth: []
 // responses:
+//   '200':
+//     description: Request processed but build was skipped
+//     schema:
+//       type: string
 //   '201':
 //     description: Successfully restarted the build
 //     schema:
