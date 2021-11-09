@@ -8,6 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.16.0
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aws/aws-sdk-go v1.41.14
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
@@ -16,7 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/go-vela/types v0.11.0-rc1
+	github.com/go-vela/types v0.11.0-rc1.0.20211109203637-374249ce89c9
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.5.6
@@ -31,6 +32,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
+	github.com/microcosm-cc/bluemonday v1.0.16 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
