@@ -99,11 +99,6 @@ func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue
 		Raw(dml.SelectPendingAndRunningBuilds, after).
 		Scan(b)
 
-	// check if the query returned a record not found error or no rows were returned
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
-	}
-
 	// variable we want to return
 	builds := []*library.BuildQueue{}
 
