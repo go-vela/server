@@ -177,7 +177,7 @@ func CreateService(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to restart the list of services
+//     description: Unable to retrieve the list of services
 //     schema:
 //       "$ref": "#/definitions/Error"
 

@@ -57,6 +57,8 @@ const logUpdateInterval = 1 * time.Second
 //   name: body
 //   description: Payload containing logs
 //   required: true
+//   schema:
+//     type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -197,6 +199,8 @@ func PostServiceStream(c *gin.Context) {
 //   name: body
 //   description: Payload containing logs
 //   required: true
+//   schema:
+//     type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:

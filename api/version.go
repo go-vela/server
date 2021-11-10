@@ -24,7 +24,7 @@ import (
 //   '200':
 //     description: Successfully retrieved the Vela API version
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Version"
 
 // Version represents the API handler to
 // report the version number for Vela.
