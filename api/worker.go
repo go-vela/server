@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
+
 	"github.com/go-vela/types/library"
+
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,7 +38,7 @@ import (
 //   '201':
 //     description: Successfully created the worker
 //     schema:
-//       "$ref": "#/definitions/Worker"
+//       type: string
 //   '400':
 //     description: Unable to create the worker
 //     schema:

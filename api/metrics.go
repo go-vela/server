@@ -8,8 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+
+	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -51,7 +52,7 @@ var (
 //
 // ---
 // produces:
-// - application/json
+// - text/plain
 // parameters:
 // responses:
 //   '200':
