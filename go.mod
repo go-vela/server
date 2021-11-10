@@ -16,7 +16,7 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/go-vela/types v0.11.0-rc1.0.20211109203637-374249ce89c9
+	github.com/go-vela/types v0.11.0-rc3
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.5.6
