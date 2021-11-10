@@ -208,13 +208,13 @@ func ExpandPipeline(ctx *gin.Context) {
 		var err error
 
 		// create map of templates for easy lookup
-		t := pipeline.Templates.Map()
+		templates := pipeline.Templates.Map()
 
 		// check if the pipeline contains stages
 		// nolint: dupl // ignore false positive
 		if len(pipeline.Stages) > 0 {
 			// inject the templates into the stages
-			pipeline.Stages, pipeline.Secrets, pipeline.Services, pipeline.Environment, err = comp.ExpandStages(pipeline, t)
+			pipeline.Stages, pipeline.Secrets, pipeline.Services, pipeline.Environment, err = comp.ExpandStages(pipeline, templates)
 			if err != nil {
 				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("unable to expand stages in pipeline configuration for %s@%s: %w", repo.GetFullName(), ref, err)
@@ -225,7 +225,7 @@ func ExpandPipeline(ctx *gin.Context) {
 			}
 		} else {
 			// inject the templates into the steps
-			pipeline.Steps, pipeline.Secrets, pipeline.Services, pipeline.Environment, err = comp.ExpandSteps(pipeline, t)
+			pipeline.Steps, pipeline.Secrets, pipeline.Services, pipeline.Environment, err = comp.ExpandSteps(pipeline, templates)
 			if err != nil {
 				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("unable to expand steps in pipeline configuration for %s@%s: %w", repo.GetFullName(), ref, err)
@@ -476,7 +476,7 @@ func CompilePipeline(ctx *gin.Context) {
 }
 
 // getBasePipeline helper function retrieves the base pipeline from a
-// given context and returns the output, ref, repo, user, and pipeline.
+// given context and returns the output, ref, repo, user, pipeline, and compiler.
 // nolint: lll // ignore long line length due to variable names
 func getBasePipeline(ctx *gin.Context) (string, string, *library.Repo, *library.User, *yaml.Build, compiler.Engine) {
 	// capture middleware values
