@@ -18,19 +18,26 @@
 //
 //     SecurityDefinitions:
 //       ApiKeyAuth:
+//         description: Bearer token
 //         type: apiKey
 //         in: header
 //         name: Authorization
+//       CookieAuth:
+//         description: Refresh token sent as cookie (swagger 2.0 doesn't support cookie auth)
+//         type: apiKey
+//         in: header
+//         name: vela_refresh_token
 //
 // swagger:meta
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (

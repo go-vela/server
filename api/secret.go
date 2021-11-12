@@ -10,10 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-vela/server/source"
-
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/constants"
