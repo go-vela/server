@@ -14,17 +14,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/compiler/compiler"
+	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
+
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 

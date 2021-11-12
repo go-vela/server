@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/compiler/compiler"
-	"github.com/go-vela/compiler/compiler/native"
+	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/native"
 
 	"github.com/gin-gonic/gin"
 

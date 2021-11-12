@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/util"
+
 	"github.com/go-vela/types/library"
+
+	"github.com/gin-gonic/gin"
 )
 
 // swagger:operation GET /token-refresh authenticate GetRefreshAccessToken
@@ -21,12 +23,8 @@ import (
 // ---
 // produces:
 // - application/json
-// parameters:
-// - in: cookie
-//   name: vela_refresh_token
-//   required: true
-//   schema:
-//     type: string
+// security:
+//   - CookieAuth: []
 // responses:
 //   '200':
 //     description: Successfully refreshed a token

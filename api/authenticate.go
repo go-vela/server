@@ -13,13 +13,13 @@ import (
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /authenticate authenticate GetAuthenticate
@@ -188,25 +188,42 @@ func Authenticate(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Login{Token: &at})
 }
 
-// swagger:operation GET /authenticate/{type}/{port} authenticate GetAuthenticateType
+// swagger:operation GET /authenticate/web authenticate GetAuthenticateTypeWeb
 //
 // Authentication entrypoint that builds the right post-auth
-// redirect URL and redirects to /authenticate after
+// redirect URL for web authentication requests
+// and redirects to /authenticate after
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: query
+//   name: code
+//   description: the code received after identity confirmation
+//   type: string
+// - in: query
+//   name: state
+//   description: a random string
+//   type: string
+// responses:
+//   '307':
+//     description: Redirected for authentication
+
+// swagger:operation GET /authenticate/cli/{port} authenticate GetAuthenticateTypeCLI
+//
+// Authentication entrypoint that builds the right post-auth
+// redirect URL for CLI authentication requests
+// and redirects to /authenticate after
 //
 // ---
 // produces:
 // - application/json
 // parameters:
 // - in: path
-//   name: type
-//   description: the type of auth request
-//   type: string
-//   enum:
-//     - web
-//     - cli
-// - in: path
 //   name: port
-//   description: the port number (if type is 'cli')
+//   required: true
+//   description: the port number
 //   type: integer
 // - in: query
 //   name: code

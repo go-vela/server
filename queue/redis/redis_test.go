@@ -10,57 +10,86 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-vela/sdk-go/vela"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 )
 
+// The following functions were taken from
+// https://github.com/go-vela/sdk-go/blob/master/vela/go
+// which is the only reason go-vela/sdk-go is
+// a dependency for go-vela/server
+// TODO: consider moving to go-vela/types?
+
+// Bool is a helper routine that allocates a new boolean
+// value to store v and returns a pointer to it.
+func Bool(v bool) *bool { return &v }
+
+// Bytes is a helper routine that allocates a new byte
+// array value to store v and returns a pointer to it.
+func Bytes(v []byte) *[]byte { return &v }
+
+// Int is a helper routine that allocates a new integer
+// value to store v and returns a pointer to it.
+func Int(v int) *int { return &v }
+
+// Int64 is a helper routine that allocates a new 64 bit
+// integer value to store v and returns a pointer to it.
+func Int64(v int64) *int64 { return &v }
+
+// String is a helper routine that allocates a new string
+// value to store v and returns a pointer to it.
+func String(v string) *string { return &v }
+
+// Strings is a helper routine that allocates a new string
+// array value to store v and returns a pointer to it.
+func Strings(v []string) *[]string { return &v }
+
 // setup global variables used for testing.
 var (
 	_build = &library.Build{
-		ID:           vela.Int64(1),
-		Number:       vela.Int(1),
-		Parent:       vela.Int(1),
-		Event:        vela.String("push"),
-		Status:       vela.String("success"),
-		Error:        vela.String(""),
-		Enqueued:     vela.Int64(1563474077),
-		Created:      vela.Int64(1563474076),
-		Started:      vela.Int64(1563474077),
-		Finished:     vela.Int64(0),
-		Deploy:       vela.String(""),
-		Clone:        vela.String("https://github.com/github/octocat.git"),
-		Source:       vela.String("https://github.com/github/octocat/abcdefghi123456789"),
-		Title:        vela.String("push received from https://github.com/github/octocat"),
-		Message:      vela.String("First commit..."),
-		Commit:       vela.String("48afb5bdc41ad69bf22588491333f7cf71135163"),
-		Sender:       vela.String("OctoKitty"),
-		Author:       vela.String("OctoKitty"),
-		Branch:       vela.String("master"),
-		Ref:          vela.String("refs/heads/master"),
-		BaseRef:      vela.String(""),
-		Host:         vela.String("example.company.com"),
-		Runtime:      vela.String("docker"),
-		Distribution: vela.String("linux"),
+		ID:           Int64(1),
+		Number:       Int(1),
+		Parent:       Int(1),
+		Event:        String("push"),
+		Status:       String("success"),
+		Error:        String(""),
+		Enqueued:     Int64(1563474077),
+		Created:      Int64(1563474076),
+		Started:      Int64(1563474077),
+		Finished:     Int64(0),
+		Deploy:       String(""),
+		Clone:        String("https://github.com/github/octocat.git"),
+		Source:       String("https://github.com/github/octocat/abcdefghi123456789"),
+		Title:        String("push received from https://github.com/github/octocat"),
+		Message:      String("First commit..."),
+		Commit:       String("48afb5bdc41ad69bf22588491333f7cf71135163"),
+		Sender:       String("OctoKitty"),
+		Author:       String("OctoKitty"),
+		Branch:       String("master"),
+		Ref:          String("refs/heads/master"),
+		BaseRef:      String(""),
+		Host:         String("example.company.com"),
+		Runtime:      String("docker"),
+		Distribution: String("linux"),
 	}
 
 	_repo = &library.Repo{
-		ID:          vela.Int64(1),
-		Org:         vela.String("github"),
-		Name:        vela.String("octocat"),
-		FullName:    vela.String("github/octocat"),
-		Link:        vela.String("https://github.com/github/octocat"),
-		Clone:       vela.String("https://github.com/github/octocat.git"),
-		Branch:      vela.String("master"),
-		Timeout:     vela.Int64(60),
-		Visibility:  vela.String("public"),
-		Private:     vela.Bool(false),
-		Trusted:     vela.Bool(false),
-		Active:      vela.Bool(true),
-		AllowPull:   vela.Bool(false),
-		AllowPush:   vela.Bool(true),
-		AllowDeploy: vela.Bool(false),
-		AllowTag:    vela.Bool(false),
+		ID:          Int64(1),
+		Org:         String("github"),
+		Name:        String("octocat"),
+		FullName:    String("github/octocat"),
+		Link:        String("https://github.com/github/octocat"),
+		Clone:       String("https://github.com/github/octocat.git"),
+		Branch:      String("master"),
+		Timeout:     Int64(60),
+		Visibility:  String("public"),
+		Private:     Bool(false),
+		Trusted:     Bool(false),
+		Active:      Bool(true),
+		AllowPull:   Bool(false),
+		AllowPush:   Bool(true),
+		AllowDeploy: Bool(false),
+		AllowTag:    Bool(false),
 	}
 
 	_steps = &pipeline.Build{
@@ -111,12 +140,12 @@ var (
 	}
 
 	_user = &library.User{
-		ID:     vela.Int64(1),
-		Name:   vela.String("octocat"),
+		ID:     Int64(1),
+		Name:   String("octocat"),
 		Token:  nil,
 		Hash:   nil,
-		Active: vela.Bool(true),
-		Admin:  vela.Bool(false),
+		Active: Bool(true),
+		Admin:  Bool(false),
 	}
 )
 

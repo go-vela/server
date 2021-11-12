@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/go-vela/types"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-
-	"github.com/go-vela/types"
 )
 
 // swagger:operation GET /login authenticate GetLogin
@@ -24,9 +24,8 @@ import (
 // - in: query
 //   name: type
 //   description: the login type ("cli" or "web")
-//   schema:
-//     type: string
-//     enum:
+//   type: string
+//   enum:
 //     - web
 //     - cli
 // - in: query

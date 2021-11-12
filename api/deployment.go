@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"github.com/go-vela/server/database"
-
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/source"
