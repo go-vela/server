@@ -984,14 +984,14 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 // ---
 // produces:
 // - application/json
-// security:
-//   - ApiKeyAuth: []
 // parameters:
 // - in: path
 //   name: org
 //   description: Name of the org
 //   required: true
 //   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully synchronized repos
@@ -1001,7 +1001,7 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 //     description: Unable to synchronize org repositories
 //     schema:
 //       "$ref": "#/definitions/Error"
-//
+
 // SyncRepos represents the API handler to
 // synchronize organization repositories between
 // SCM Service and the database should a discrepancy
@@ -1077,8 +1077,6 @@ func SyncRepos(c *gin.Context) {
 // ---
 // produces:
 // - application/json
-// security:
-//   - ApiKeyAuth: []
 // parameters:
 // - in: path
 //   name: org
@@ -1087,19 +1085,21 @@ func SyncRepos(c *gin.Context) {
 //   type: string
 // - in: path
 //   name: repo
-//	 description: Name of the repo
+//   description: Name of the repo
 //   required: true
 //   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully synchronized repo
 //     schema:
-//       type: string
+//     type: string
 //   '500':
 //     description: Unable to synchronize repo
 //     schema:
 //       "$ref": "#/definitions/Error"
-//
+
 // SyncRepo represents the API handler to
 // synchronize a single repository between
 // SCM service and the database should a discrepancy
