@@ -26,9 +26,9 @@ func TestNative_Get(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
 	want.SetCreatedAt(1)
-	want.SetCreatedBy(1)
+	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)
-	want.SetUpdatedBy(1)
+	want.SetUpdatedBy("user2")
 
 	// setup database
 	db, _ := sqlite.NewTest()

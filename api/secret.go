@@ -112,9 +112,9 @@ func CreateSecret(c *gin.Context) {
 	input.SetRepo(n)
 	input.SetType(t)
 	input.SetCreatedAt(time.Now().UTC().Unix())
-	input.SetCreatedBy(u.GetID())
+	input.SetCreatedBy(u.GetName())
 	input.SetUpdatedAt(time.Now().UTC().Unix())
-	input.SetUpdatedBy(u.GetID())
+	input.SetUpdatedBy(u.GetName())
 
 	if len(input.GetImages()) > 0 {
 		input.SetImages(unique(input.GetImages()))
@@ -496,7 +496,7 @@ func UpdateSecret(c *gin.Context) {
 	input.SetRepo(n)
 	input.SetType(t)
 	input.SetUpdatedAt(time.Now().UTC().Unix())
-	input.SetUpdatedBy(u.GetID())
+	input.SetUpdatedBy(u.GetName())
 
 	if input.Images != nil {
 		// update images if set

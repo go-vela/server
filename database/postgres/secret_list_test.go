@@ -26,9 +26,9 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("repo")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(1)
@@ -38,9 +38,9 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("repo")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -57,8 +57,8 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"},
-	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false, 1, 1, 1, 1).
-		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", "{}", "{}", false, 1, 1, 1, 1)
+	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false, 1, "user", 1, "user2").
+		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", "{}", "{}", false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -106,9 +106,9 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 	_secretOne.SetValue("bar")
 	_secretOne.SetType("org")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(1)
@@ -118,9 +118,9 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("org")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -137,8 +137,8 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"},
-	).AddRow(1, "org", "foo", "*", "", "baz", "bar", "{}", "{}", false, 1, 1, 1, 1).
-		AddRow(1, "org", "foo", "*", "", "bar", "baz", "{}", "{}", false, 1, 1, 1, 1)
+	).AddRow(1, "org", "foo", "*", "", "baz", "bar", "{}", "{}", false, 1, "user", 1, "user2").
+		AddRow(1, "org", "foo", "*", "", "bar", "baz", "{}", "{}", false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -186,9 +186,9 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("repo")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(1)
@@ -198,9 +198,9 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("repo")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -217,8 +217,8 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"},
-	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false, 1, 1, 1, 1).
-		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", "{}", "{}", false, 1, 1, 1, 1)
+	).AddRow(1, "repo", "foo", "bar", "", "baz", "foob", "{}", "{}", false, 1, "user", 1, "user2").
+		AddRow(1, "repo", "foo", "bar", "", "foob", "baz", "{}", "{}", false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -266,9 +266,9 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("shared")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(1)
@@ -278,9 +278,9 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -297,8 +297,8 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"},
-	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false, 1, 1, 1, 1).
-		AddRow(1, "shared", "foo", "", "bar", "foob", "baz", "{}", "{}", false, 1, 1, 1, 1)
+	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false, 1, "user", 1, "user2").
+		AddRow(1, "shared", "foo", "", "bar", "foob", "baz", "{}", "{}", false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -346,9 +346,9 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("shared")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(1)
@@ -358,9 +358,9 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -372,8 +372,8 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"},
-	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false, 1, 1, 1, 1).
-		AddRow(1, "shared", "foo", "", "bared", "foob", "baz", "{}", "{}", false, 1, 1, 1, 1)
+	).AddRow(1, "shared", "foo", "", "bar", "baz", "foob", "{}", "{}", false, 1, "user", 1, "user2").
+		AddRow(1, "shared", "foo", "", "bared", "foob", "baz", "{}", "{}", false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery("SELECT * FROM \"secrets\" WHERE (type = 'shared' AND org = $1) AND LOWER(team) IN ($2,$3) ORDER BY id DESC LIMIT 10").WillReturnRows(_rows)

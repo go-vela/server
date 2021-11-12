@@ -21,9 +21,9 @@ func TestSqlite_Client_GetSecret_Org(t *testing.T) {
 	_secret.SetValue("baz")
 	_secret.SetType("org")
 	_secret.SetCreatedAt(1)
-	_secret.SetCreatedBy(1)
+	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
-	_secret.SetUpdatedBy(1)
+	_secret.SetUpdatedBy("user2")
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
@@ -89,9 +89,9 @@ func TestSqlite_Client_GetSecret_Repo(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 	_secret.SetCreatedAt(1)
-	_secret.SetCreatedBy(1)
+	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
-	_secret.SetUpdatedBy(1)
+	_secret.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -158,9 +158,9 @@ func TestSqlite_Client_GetSecret_Shared(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("shared")
 	_secret.SetCreatedAt(1)
-	_secret.SetCreatedBy(1)
+	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
-	_secret.SetUpdatedBy(1)
+	_secret.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -227,9 +227,9 @@ func TestSqlite_Client_CreateSecret(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 	_secret.SetCreatedAt(1)
-	_secret.SetCreatedBy(1)
+	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
-	_secret.SetUpdatedBy(1)
+	_secret.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -278,9 +278,9 @@ func TestSqlite_Client_UpdateSecret(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 	_secret.SetCreatedAt(1)
-	_secret.SetCreatedBy(1)
+	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
-	_secret.SetUpdatedBy(1)
+	_secret.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -335,9 +335,9 @@ func TestSqlite_Client_DeleteSecret(t *testing.T) {
 	_secret.SetValue("foob")
 	_secret.SetType("repo")
 	_secret.SetCreatedAt(1)
-	_secret.SetCreatedBy(1)
+	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
-	_secret.SetUpdatedBy(1)
+	_secret.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -403,8 +403,8 @@ func testSecret() *library.Secret {
 		Events:       &arr,
 		AllowCommand: &booL,
 		CreatedAt:    &i64,
-		CreatedBy:    &i64,
+		CreatedBy:    &str,
 		UpdatedAt:    &i64,
-		UpdatedBy:    &i64,
+		UpdatedBy:    &str,
 	}
 }

@@ -37,9 +37,9 @@ func TestSqlite_Client_GetTypeSecretCount_Org(t *testing.T) {
 	_secretOne.SetValue("bar")
 	_secretOne.SetType("org")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -49,9 +49,9 @@ func TestSqlite_Client_GetTypeSecretCount_Org(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("org")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -117,9 +117,9 @@ func TestSqlite_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("repo")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -129,9 +129,9 @@ func TestSqlite_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("repo")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -197,9 +197,9 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("shared")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -209,9 +209,9 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -277,9 +277,9 @@ func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	_secretOne.SetValue("foob")
 	_secretOne.SetType("shared")
 	_secretOne.SetCreatedAt(1)
-	_secretOne.SetCreatedBy(1)
+	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
-	_secretOne.SetUpdatedBy(1)
+	_secretOne.SetUpdatedBy("user2")
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -289,9 +289,9 @@ func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	_secretTwo.SetValue("baz")
 	_secretTwo.SetType("shared")
 	_secretTwo.SetCreatedAt(1)
-	_secretTwo.SetCreatedBy(1)
+	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
-	_secretTwo.SetUpdatedBy(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	// setup the test database client
 	_database, err := NewTest()
