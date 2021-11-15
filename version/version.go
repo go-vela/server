@@ -9,8 +9,8 @@ import (
 	"runtime"
 
 	"github.com/Masterminds/semver/v3"
-
 	"github.com/go-vela/types/version"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -32,6 +32,14 @@ var (
 
 // New creates a new version object for Vela that is used throughout the application.
 func New() *version.Version {
+	// check if a semantic tag was provided
+	if len(Tag) == 0 {
+		logrus.Warningf("no semantic tag provided - defaulting to v0.0.0")
+
+		// set a fallback default for the tag
+		Tag = "v0.0.0"
+	}
+
 	v, err := semver.NewVersion(Tag)
 	if err != nil {
 		fmt.Println(fmt.Errorf("unable to parse semantic version for %s: %v", Tag, err))
