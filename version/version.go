@@ -23,7 +23,7 @@ var (
 	// Date represents the build date information for the package.
 	Date string
 	// Go represents the golang version information for the package.
-	Go string
+	Go = runtime.Version()
 	// OS represents the operating system information for the package.
 	OS = runtime.GOOS
 	// Tag represents the git tag information for the package.
