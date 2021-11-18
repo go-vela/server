@@ -3,7 +3,7 @@
 // Use of this source code is governed by the LICENSE file in this repository.
 
 // Package github provides the ability for Vela to
-// integrate with GitHub or GitHub Enterprise as a source provider.
+// integrate with GitHub or GitHub Enterprise as a scm provider.
 //
 // Usage:
 //

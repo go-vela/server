@@ -6,7 +6,7 @@ package github
 
 import "github.com/go-vela/types/constants"
 
-// Driver outputs the configured source driver.
+// Driver outputs the configured scm driver.
 func (c *client) Driver() string {
 	return constants.DriverGithub
 }
