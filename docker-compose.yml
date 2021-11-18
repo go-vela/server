@@ -29,8 +29,8 @@ services:
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       QUEUE_ROUTES: 'docker,local,docker:local'
-      SOURCE_DRIVER: github
-      SOURCE_CONTEXT: 'continuous-integration/vela'
+      SCM_DRIVER: github
+      SCM_CONTEXT: 'continuous-integration/vela'
       SECRET_VAULT: 'true'
       SECRET_VAULT_ADDR: 'http://vault:8200'
       SECRET_VAULT_TOKEN: vela
