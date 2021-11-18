@@ -16,36 +16,36 @@ import (
 
 // Setup represents the configuration necessary for
 // creating a Vela service capable of integrating
-// with a configured source system.
+// with a configured scm system.
 type Setup struct {
-	// Source Configuration
+	// scm Configuration
 
-	// specifies the driver to use for the source client
+	// specifies the driver to use for the scm client
 	Driver string
-	// specifies the address to use for the source client
+	// specifies the address to use for the scm client
 	Address string
-	// specifies the OAuth client ID from the source system to use for the source client
+	// specifies the OAuth client ID from the scm system to use for the scm client
 	ClientID string
-	// specifies the OAuth client secret from the source system to use for the source client
+	// specifies the OAuth client secret from the scm system to use for the scm client
 	ClientSecret string
-	// specifies the Vela server address to use for the source client
+	// specifies the Vela server address to use for the scm client
 	ServerAddress string
-	// specifies the Vela server address that the source provider should use to send Vela webhooks
+	// specifies the Vela server address that the scm provider should use to send Vela webhooks
 	ServerWebhookAddress string
-	// specifies the context for the commit status to use for the source client
+	// specifies the context for the commit status to use for the scm client
 	StatusContext string
-	// specifies the Vela web UI address to use for the source client
+	// specifies the Vela web UI address to use for the scm client
 	WebUIAddress string
-	// specifies the OAuth scopes to use for the source client
+	// specifies the OAuth scopes to use for the scm client
 	Scopes []string
 }
 
 // Github creates and returns a Vela service capable of
-// integrating with a Github source system.
+// integrating with a Github scm system.
 func (s *Setup) Github() (Service, error) {
-	logrus.Trace("creating github source client from setup")
+	logrus.Trace("creating github scm client from setup")
 
-	// create new Github source service
+	// create new Github scm service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/scm/github?tab=doc#New
 	return github.New(
@@ -61,55 +61,55 @@ func (s *Setup) Github() (Service, error) {
 }
 
 // Gitlab creates and returns a Vela service capable of
-// integrating with a Gitlab source system.
+// integrating with a Gitlab scm system.
 func (s *Setup) Gitlab() (Service, error) {
-	logrus.Trace("creating gitlab source client from setup")
+	logrus.Trace("creating gitlab scm client from setup")
 
-	return nil, fmt.Errorf("unsupported source driver: %s", constants.DriverGitlab)
+	return nil, fmt.Errorf("unsupported scm driver: %s", constants.DriverGitlab)
 }
 
 // Validate verifies the necessary fields for the
 // provided configuration are populated correctly.
 func (s *Setup) Validate() error {
-	logrus.Trace("validating source setup for client")
+	logrus.Trace("validating scm setup for client")
 
-	// verify a source driver was provided
+	// verify a scm driver was provided
 	if len(s.Driver) == 0 {
-		return fmt.Errorf("no source driver provided")
+		return fmt.Errorf("no scm driver provided")
 	}
 
-	// verify a source address was provided
+	// verify a scm address was provided
 	if len(s.Address) == 0 {
-		return fmt.Errorf("no source address provided")
+		return fmt.Errorf("no scm address provided")
 	}
 
-	// check if the source address has a scheme
+	// check if the scm address has a scheme
 	if !strings.Contains(s.Address, "://") {
-		return fmt.Errorf("source address must be fully qualified (<scheme>://<host>)")
+		return fmt.Errorf("scm address must be fully qualified (<scheme>://<host>)")
 	}
 
-	// check if the source address has a trailing slash
+	// check if the scm address has a trailing slash
 	if strings.HasSuffix(s.Address, "/") {
-		return fmt.Errorf("source address must not have trailing slash")
+		return fmt.Errorf("scm address must not have trailing slash")
 	}
 
-	// verify a source OAuth client ID was provided
+	// verify a scm OAuth client ID was provided
 	if len(s.ClientID) == 0 {
-		return fmt.Errorf("no source client id provided")
+		return fmt.Errorf("no scm client id provided")
 	}
 
-	// verify a source OAuth client secret was provided
+	// verify a scm OAuth client secret was provided
 	if len(s.ClientSecret) == 0 {
-		return fmt.Errorf("no source client secret provided")
+		return fmt.Errorf("no scm client secret provided")
 	}
 
-	// verify a source status context secret was provided
+	// verify a scm status context secret was provided
 	if len(s.StatusContext) == 0 {
-		return fmt.Errorf("no source status context provided")
+		return fmt.Errorf("no scm status context provided")
 	}
 
 	if len(s.Scopes) == 0 {
-		return fmt.Errorf("no source scopes provided")
+		return fmt.Errorf("no scm scopes provided")
 	}
 
 	// setup is valid

@@ -18,68 +18,68 @@ var Flags = []cli.Flag{
 	// Logger Flags
 
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_LOG_FORMAT", "SOURCE_LOG_FORMAT", "VELA_LOG_FORMAT"},
-		FilePath: "/vela/source/log_format",
+		EnvVars:  []string{"VELA_SCM_LOG_FORMAT", "SCM_LOG_FORMAT", "VELA_LOG_FORMAT"},
+		FilePath: "/vela/scm/log_format",
 		Name:     "scm.log.format",
 		Usage:    "format of logs to output",
 		Value:    "json",
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_LOG_LEVEL", "SOURCE_LOG_LEVEL", "VELA_LOG_LEVEL"},
-		FilePath: "/vela/source/log_level",
+		EnvVars:  []string{"VELA_SCM_LOG_LEVEL", "SCM_LOG_LEVEL", "VELA_LOG_LEVEL"},
+		FilePath: "/vela/scm/log_level",
 		Name:     "scm.log.level",
 		Usage:    "level of logs to output",
 		Value:    "info",
 	},
 
-	// Source Flags
+	// scm Flags
 
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_DRIVER", "SOURCE_DRIVER"},
-		FilePath: "/vela/source/driver",
+		EnvVars:  []string{"VELA_SCM_DRIVER", "SCM_DRIVER"},
+		FilePath: "/vela/scm/driver",
 		Name:     "scm.driver",
 		Usage:    "driver to be used for the version control system",
 		Value:    constants.DriverGithub,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_ADDR", "SOURCE_ADDR"},
-		FilePath: "/vela/source/addr",
+		EnvVars:  []string{"VELA_SCM_ADDR", "SCM_ADDR"},
+		FilePath: "/vela/scm/addr",
 		Name:     "scm.addr",
 		Usage:    "fully qualified url (<scheme>://<host>) for the version control system",
 		Value:    "https://github.com",
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_CLIENT", "SOURCE_CLIENT"},
-		FilePath: "/vela/source/client",
+		EnvVars:  []string{"VELA_SCM_CLIENT", "SCM_CLIENT"},
+		FilePath: "/vela/scm/client",
 		Name:     "scm.client",
 		Usage:    "OAuth client id from version control system",
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_SECRET", "SOURCE_SECRET"},
-		FilePath: "/vela/source/secret",
+		EnvVars:  []string{"VELA_SCM_SECRET", "SCM_SECRET"},
+		FilePath: "/vela/scm/secret",
 		Name:     "scm.secret",
 		Usage:    "OAuth client secret from version control system",
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_CONTEXT", "SOURCE_CONTEXT"},
-		FilePath: "/vela/source/context",
+		EnvVars:  []string{"VELA_SCM_CONTEXT", "SCM_CONTEXT"},
+		FilePath: "/vela/scm/context",
 		Name:     "scm.context",
 		Usage:    "context for commit status in version control system",
 		Value:    "continuous-integration/vela",
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"VELA_SOURCE_SCOPES", "SOURCE_SCOPES"},
-		FilePath: "/vela/source/scopes",
+		EnvVars:  []string{"VELA_SCM_SCOPES", "SCM_SCOPES"},
+		FilePath: "/vela/scm/scopes",
 		Name:     "scm.scopes",
 		Usage:    "OAuth scopes to be used for the version control system",
 		Value:    cli.NewStringSlice("repo", "repo:status", "user:email", "read:user", "read:org"),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SOURCE_WEBHOOK_ADDR", "SOURCE_WEBHOOK_ADDR"},
-		FilePath: "/vela/source/webhook_addr",
+		EnvVars:  []string{"VELA_SCM_WEBHOOK_ADDR", "SCM_WEBHOOK_ADDR"},
+		FilePath: "/vela/scm/webhook_addr",
 		Name:     "scm.webhook.addr",
 		Usage: "Alternative or proxy server address as a fully qualified url (<scheme>://<host>). " +
-			"Use this when the Vela server address that the source provider can send webhooks to " +
+			"Use this when the Vela server address that the scm provider can send webhooks to " +
 			"differs from the server address the UI and oauth flows use, such as when the server " +
 			"is behind a Firewall or NAT, or when using something like ngrok to forward webhooks. " +
 			"(defaults to VELA_ADDR).",

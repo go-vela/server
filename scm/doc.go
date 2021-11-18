@@ -3,7 +3,7 @@
 // Use of this source code is governed by the LICENSE file in this repository.
 
 // package scm provides the ability for Vela to integrate
-// with different supported Source control providers.
+// with different supported SCM providers.
 //
 // Usage:
 //

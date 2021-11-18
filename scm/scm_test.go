@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestSource_New(t *testing.T) {
+func TestSCM_New(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool

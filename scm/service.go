@@ -12,15 +12,15 @@ import (
 )
 
 // Service represents the interface for Vela integrating
-// with the different supported source providers.
+// with the different supported scm providers.
 type Service interface {
 	// Service Interface Functions
 
 	// Driver defines a function that outputs
-	// the configured source driver.
+	// the configured scm driver.
 	Driver() string
 
-	// Authentication Source Interface Functions
+	// Authentication SCM Interface Functions
 
 	// Authorize defines a function that uses the
 	// given access token to authorize the user.
@@ -37,7 +37,7 @@ type Service interface {
 	// the OAuth workflow for the session.
 	Login(http.ResponseWriter, *http.Request) (string, error)
 
-	// Access Source Interface Functions
+	// Access SCM Interface Functions
 
 	// OrgAccess defines a function that captures
 	// the user's access level for an org.
@@ -49,13 +49,13 @@ type Service interface {
 	// the user's access level for a team.
 	TeamAccess(*library.User, string, string) (string, error)
 
-	// Teams Source Interface Functions
+	// Teams SCM Interface Functions
 
 	// ListUsersTeamsForOrg defines a function that captures
 	// the user's teams for an org
 	ListUsersTeamsForOrg(*library.User, string) ([]string, error)
 
-	// Changeset Source Interface Functions
+	// Changeset SCM Interface Functions
 
 	// Changeset defines a function that captures the list
 	// of files changed for a commit.
@@ -68,7 +68,7 @@ type Service interface {
 	// https://en.wikipedia.org/wiki/Changeset.
 	ChangesetPR(*library.User, *library.Repo, int) ([]string, error)
 
-	// Deployment Source Interface Functions
+	// Deployment SCM Interface Functions
 
 	// GetDeployment defines a function that
 	// gets a deployment by number and repo.
@@ -83,7 +83,7 @@ type Service interface {
 	// creates a new deployment.
 	CreateDeployment(*library.User, *library.Repo, *library.Deployment) error
 
-	// Repo Source Interface Functions
+	// Repo SCM Interface Functions
 
 	// Config defines a function that captures
 	// the pipeline configuration from a repo.
@@ -114,7 +114,7 @@ type Service interface {
 	// a repository file's html_url.
 	GetHTMLURL(*library.User, string, string, string, string) (string, error)
 
-	// Webhook Source Interface Functions
+	// Webhook SCM Interface Functions
 
 	// ProcessWebhook defines a function that
 	// parses the webhook from a repo.
