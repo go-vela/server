@@ -11,11 +11,11 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// helper function to setup the source from the CLI arguments.
-func setupSource(c *cli.Context) (scm.Service, error) {
-	logrus.Debug("Creating source client from CLI configuration")
+// helper function to setup the scm from the CLI arguments.
+func setupSCM(c *cli.Context) (scm.Service, error) {
+	logrus.Debug("Creating scm client from CLI configuration")
 
-	// source configuration
+	// scm configuration
 	_setup := &scm.Setup{
 		Driver:               c.String("scm.driver"),
 		Address:              c.String("scm.addr"),
@@ -28,7 +28,7 @@ func setupSource(c *cli.Context) (scm.Service, error) {
 		Scopes:               c.StringSlice("scm.scopes"),
 	}
 
-	// setup the source
+	// setup the scm
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#New
 	return scm.New(_setup)
