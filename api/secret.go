@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
-	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/constants"
@@ -232,7 +232,7 @@ func GetSecrets(c *gin.Context) {
 	// get list of user's teams if type is shared secret and team is '*'
 	if t == "shared" && n == "*" {
 		var err error
-		teams, err = source.FromContext(c).ListUsersTeamsForOrg(u, o)
+		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
 

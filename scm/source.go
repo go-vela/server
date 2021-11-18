@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package source
+package scm
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ import (
 func New(s *Setup) (Service, error) {
 	// validate the setup being provided
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/source?tab=doc#Setup.Validate
+	// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#Setup.Validate
 	err := s.Validate()
 	if err != nil {
 		return nil, err
@@ -35,12 +35,12 @@ func New(s *Setup) (Service, error) {
 	case constants.DriverGithub:
 		// handle the Github source driver being provided
 		//
-		// https://pkg.go.dev/github.com/go-vela/server/source?tab=doc#Setup.Github
+		// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#Setup.Github
 		return s.Github()
 	case constants.DriverGitlab:
 		// handle the Gitlab source driver being provided
 		//
-		// https://pkg.go.dev/github.com/go-vela/server/source?tab=doc#Setup.Gitlab
+		// https://pkg.go.dev/github.com/go-vela/server/scm?tab=doc#Setup.Gitlab
 		return s.Gitlab()
 	default:
 		// handle an invalid source driver being provided

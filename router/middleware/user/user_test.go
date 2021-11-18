@@ -15,8 +15,8 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/router/middleware/token"
-	"github.com/go-vela/server/source"
-	"github.com/go-vela/server/source/github"
+	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/scm/github"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -101,7 +101,7 @@ func TestUser_Establish(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(Establish())
 	engine.GET("/users/:user", func(c *gin.Context) {
 		got = Retrieve(c)
@@ -212,7 +212,7 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(Establish())
 
 	// run test
@@ -253,7 +253,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(Establish())
 	engine.GET("/users/:user", func(c *gin.Context) {
 		got = Retrieve(c)

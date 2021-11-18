@@ -2,13 +2,13 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package source
+package scm
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/server/source/github"
+	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
@@ -47,7 +47,7 @@ func (s *Setup) Github() (Service, error) {
 
 	// create new Github source service
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/source/github?tab=doc#New
+	// https://pkg.go.dev/github.com/go-vela/server/scm/github?tab=doc#New
 	return github.New(
 		github.WithAddress(s.Address),
 		github.WithClientID(s.ClientID),

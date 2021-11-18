@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/library"
@@ -379,7 +379,7 @@ func GetUserSourceRepos(c *gin.Context) {
 	output := make(map[string][]library.Repo)
 
 	// send API call to capture the list of repos for the user
-	srcRepos, err := source.FromContext(c).ListUserRepos(u)
+	srcRepos, err := scm.FromContext(c).ListUserRepos(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get source repos for user %s: %w", u.GetName(), err)
 

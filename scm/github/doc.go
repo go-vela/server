@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/source/github"
+// 	import "github.com/go-vela/server/scm/github"
 package github

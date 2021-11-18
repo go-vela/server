@@ -11,10 +11,10 @@ import (
 
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/scm"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
@@ -94,7 +94,7 @@ func GetPipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -196,7 +196,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -309,7 +309,7 @@ func ExpandPipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -440,7 +440,7 @@ func ValidatePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -579,7 +579,7 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, ref)
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, ref)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s@%s: %w", r.GetFullName(), ref, err)
@@ -705,7 +705,7 @@ func setTemplateLinks(c *gin.Context, u *library.User, templates yaml.TemplateSl
 		}
 
 		// retrieve link to template file from github
-		link, err := source.FromContext(c).GetHTMLURL(u, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(c).GetHTMLURL(u, src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get html url for %s/%s/%s/@%s: %w", src.Org, src.Repo, src.Name, src.Ref, err)
 
