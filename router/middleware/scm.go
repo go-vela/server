@@ -9,9 +9,9 @@ import (
 	"github.com/go-vela/server/scm"
 )
 
-// Source is a middleware function that initializes the source and
+// Scm is a middleware function that initializes the scm and
 // attaches to the context of every http.Request.
-func Source(s scm.Service) gin.HandlerFunc {
+func Scm(s scm.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		scm.ToContext(c, s)
 		c.Next()

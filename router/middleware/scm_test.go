@@ -16,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestMiddleware_Source(t *testing.T) {
+func TestMiddleware_Scm(t *testing.T) {
 	// setup types
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
@@ -33,7 +33,7 @@ func TestMiddleware_Source(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Source(want))
+	engine.Use(Scm(want))
 	engine.GET("/health", func(c *gin.Context) {
 		got = scm.FromContext(c)
 
@@ -44,10 +44,10 @@ func TestMiddleware_Source(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Source returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("Scm returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Source is %v, want %v", got, want)
+		t.Errorf("Scm is %v, want %v", got, want)
 	}
 }
