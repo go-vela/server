@@ -358,15 +358,13 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 	// send API call to capture the repo owner
 	user, err := database.FromContext(ctx).GetUser(repo.GetUserID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to get owner for %s: %w", repo.GetFullName(), err)
-		return nil, nil, retErr
+		return nil, nil, fmt.Errorf("unable to get owner for %s: %w", repo.GetFullName(), err)
 	}
 
 	// send API call to capture the pipeline configuration file
 	config, err := source.FromContext(ctx).ConfigBackoff(user, repo, ref)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", repoName(ctx), err)
-		return nil, nil, retErr
+		return nil, nil, fmt.Errorf("unable to get pipeline configuration for %s: %w", repoName(ctx), err)
 	}
 
 	// create the compiler with extra information embedded into it
@@ -377,8 +375,7 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 
 	pipeline, err := comp.Parse(config)
 	if err != nil {
-		retErr := fmt.Errorf("unable to parse pipeline configuration for %s: %w", repoName(ctx), err)
-		return nil, nil, retErr
+		return nil, nil, fmt.Errorf("unable to parse pipeline configuration for %s: %w", repoName(ctx), err)
 	}
 
 	return pipeline, comp, nil
@@ -404,22 +401,19 @@ func getTemplateLinks(ctx *gin.Context, templates yaml.TemplateSlice) (map[strin
 		// no address or token needed for Parse
 		cl, err := github.New("", "")
 		if err != nil {
-			retErr := fmt.Errorf("unable to create compiler github client: %w", err)
-			return nil, retErr
+			return nil, fmt.Errorf("unable to create compiler github client: %w", err)
 		}
 
 		// parse template source
 		src, err := cl.Parse(tmpl.GetSource())
 		if err != nil {
-			retErr := fmt.Errorf("unable to parse source for %s: %w", tmpl.GetSource(), err)
-			return nil, retErr
+			return nil, fmt.Errorf("unable to parse source for %s: %w", tmpl.GetSource(), err)
 		}
 
 		// retrieve link to template file from github
 		link, err := source.FromContext(ctx).GetHTMLURL(u, src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
-			retErr := fmt.Errorf("unable to get html url for %s/%s/%s/@%s: %w", src.Org, src.Repo, src.Name, src.Ref, err)
-			return nil, retErr
+			return nil, fmt.Errorf("unable to get html url for %s/%s/%s/@%s: %w", src.Org, src.Repo, src.Name, src.Ref, err)
 		}
 
 		// set link to template file
