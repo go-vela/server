@@ -37,7 +37,7 @@ type config struct {
 	ClientSecret string
 	// specifies the Vela server address to use for the GitHub client
 	ServerAddress string
-	// specifies the Vela server address that the source provider should use to send Vela webhooks
+	// specifies the Vela server address that the scm provider should use to send Vela webhooks
 	ServerWebhookAddress string
 	// specifies the context for the commit status to use for the GitHub client
 	StatusContext string
@@ -53,7 +53,7 @@ type client struct {
 	AuthReq *github.AuthorizationRequest
 }
 
-// New returns a Source implementation that integrates with
+// New returns a SCM implementation that integrates with
 // a GitHub or a GitHub Enterprise instance.
 //
 // nolint: revive // ignore returning unexported client
@@ -100,7 +100,7 @@ func New(opts ...ClientOpt) (*client, error) {
 	return c, nil
 }
 
-// NewTest returns a Source implementation that integrates with the provided
+// NewTest returns a SCM implementation that integrates with the provided
 // mock server. Only the url from the mock server is required.
 //
 // This function is intended for running tests only.

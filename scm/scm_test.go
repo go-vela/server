@@ -2,13 +2,13 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package source
+package scm
 
 import (
 	"testing"
 )
 
-func TestSource_New(t *testing.T) {
+func TestSCM_New(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool

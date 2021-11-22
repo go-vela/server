@@ -2,14 +2,14 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package source
+package scm
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestSource_Setup_Github(t *testing.T) {
+func TestSCM_Setup_Github(t *testing.T) {
 	// setup types
 	_setup := &Setup{
 		Driver:               "github",
@@ -25,7 +25,7 @@ func TestSource_Setup_Github(t *testing.T) {
 
 	_github, err := _setup.Github()
 	if err != nil {
-		t.Errorf("unable to setup source: %v", err)
+		t.Errorf("unable to setup scm: %v", err)
 	}
 
 	// setup tests
@@ -68,7 +68,7 @@ func TestSource_Setup_Github(t *testing.T) {
 	}
 }
 
-func TestSource_Setup_Gitlab(t *testing.T) {
+func TestSCM_Setup_Gitlab(t *testing.T) {
 	// setup types
 	_setup := &Setup{
 		Driver:               "gitlab",
@@ -92,7 +92,7 @@ func TestSource_Setup_Gitlab(t *testing.T) {
 	}
 }
 
-func TestSource_Setup_Validate(t *testing.T) {
+func TestSCM_Setup_Validate(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool

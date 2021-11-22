@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/constants"
@@ -60,7 +60,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretOrg:
 			logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
 
-			perm, err := source.FromContext(c).OrgAccess(u, o)
+			perm, err := scm.FromContext(c).OrgAccess(u, o)
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
 			}
@@ -75,7 +75,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretRepo:
 			logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 
-			perm, err := source.FromContext(c).RepoAccess(u, u.GetToken(), o, n)
+			perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, n)
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
@@ -92,7 +92,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 			if n == "*" && m == "GET" {
 				logrus.Debugf("Gathering teams user %s is a member of in the org %s", u.GetName(), o)
 
-				teams, err := source.FromContext(c).ListUsersTeamsForOrg(u, o)
+				teams, err := scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 				if err != nil {
 					logrus.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
 				}
@@ -106,7 +106,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 				}
 			} else {
 				logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
-				perm, err := source.FromContext(c).TeamAccess(u, o, n)
+				perm, err := scm.FromContext(c).TeamAccess(u, o, n)
 				if err != nil {
 					logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
 				}
@@ -145,7 +145,7 @@ func MustAdmin() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := source.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
@@ -160,7 +160,7 @@ func MustAdmin() gin.HandlerFunc {
 				return
 			}
 
-			perm, err = source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -196,7 +196,7 @@ func MustWrite() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := source.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
@@ -211,7 +211,7 @@ func MustWrite() gin.HandlerFunc {
 				return
 			}
 
-			perm, err = source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -255,7 +255,7 @@ func MustRead() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := source.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
@@ -270,7 +270,7 @@ func MustRead() gin.HandlerFunc {
 				return
 			}
 
-			perm, err = source.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}

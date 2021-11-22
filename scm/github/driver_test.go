@@ -24,7 +24,7 @@ func TestGitHub_Driver(t *testing.T) {
 		WithWebUIAddress("https://vela.example.com"),
 	)
 	if err != nil {
-		t.Errorf("unable to create source service: %v", err)
+		t.Errorf("unable to create scm service: %v", err)
 	}
 
 	// run test

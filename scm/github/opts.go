@@ -11,12 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ClientOpt represents a configuration option to initialize the source client.
+// ClientOpt represents a configuration option to initialize the scm client.
 type ClientOpt func(*client) error
 
-// WithAddress sets the GitHub address in the source client.
+// WithAddress sets the GitHub address in the scm client.
 func WithAddress(address string) ClientOpt {
-	logrus.Trace("configuring address in github source client")
+	logrus.Trace("configuring address in github scm client")
 
 	return func(c *client) error {
 		// set a default address for the client
@@ -39,9 +39,9 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithClientID sets the GitHub OAuth client ID in the source client.
+// WithClientID sets the GitHub OAuth client ID in the scm client.
 func WithClientID(id string) ClientOpt {
-	logrus.Trace("configuring OAuth client ID in github source client")
+	logrus.Trace("configuring OAuth client ID in github scm client")
 
 	return func(c *client) error {
 		// check if the OAuth client ID provided is empty
@@ -56,9 +56,9 @@ func WithClientID(id string) ClientOpt {
 	}
 }
 
-// WithClientSecret sets the GitHub OAuth client secret in the source client.
+// WithClientSecret sets the GitHub OAuth client secret in the scm client.
 func WithClientSecret(secret string) ClientOpt {
-	logrus.Trace("configuring OAuth client secret in github source client")
+	logrus.Trace("configuring OAuth client secret in github scm client")
 
 	return func(c *client) error {
 		// check if the OAuth client secret provided is empty
@@ -73,9 +73,9 @@ func WithClientSecret(secret string) ClientOpt {
 	}
 }
 
-// WithServerAddress sets the Vela server address in the source client.
+// WithServerAddress sets the Vela server address in the scm client.
 func WithServerAddress(address string) ClientOpt {
-	logrus.Trace("configuring Vela server address in github source client")
+	logrus.Trace("configuring Vela server address in github scm client")
 
 	return func(c *client) error {
 		// check if the Vela server address provided is empty
@@ -90,9 +90,9 @@ func WithServerAddress(address string) ClientOpt {
 	}
 }
 
-// WithServerWebhookAddress sets the Vela server webhook address in the source client.
+// WithServerWebhookAddress sets the Vela server webhook address in the scm client.
 func WithServerWebhookAddress(address string) ClientOpt {
-	logrus.Trace("configuring Vela server webhook address in github source client")
+	logrus.Trace("configuring Vela server webhook address in github scm client")
 
 	return func(c *client) error {
 		// fallback to Vela server address if the provided Vela server webhook address is empty
@@ -108,9 +108,9 @@ func WithServerWebhookAddress(address string) ClientOpt {
 	}
 }
 
-// WithStatusContext sets the GitHub context for commit statuses in the source client.
+// WithStatusContext sets the GitHub context for commit statuses in the scm client.
 func WithStatusContext(context string) ClientOpt {
-	logrus.Trace("configuring context for commit statuses in github source client")
+	logrus.Trace("configuring context for commit statuses in github scm client")
 
 	return func(c *client) error {
 		// check if the context for the commit statuses provided is empty
@@ -125,9 +125,9 @@ func WithStatusContext(context string) ClientOpt {
 	}
 }
 
-// WithWebUIAddress sets the Vela web UI address in the source client.
+// WithWebUIAddress sets the Vela web UI address in the scm client.
 func WithWebUIAddress(address string) ClientOpt {
-	logrus.Trace("configuring Vela web UI address in github source client")
+	logrus.Trace("configuring Vela web UI address in github scm client")
 
 	return func(c *client) error {
 		// set the Vela web UI address in the github client
@@ -137,9 +137,9 @@ func WithWebUIAddress(address string) ClientOpt {
 	}
 }
 
-// WithScopes sets the GitHub OAuth scopes in the source client.
+// WithScopes sets the GitHub OAuth scopes in the scm client.
 func WithScopes(scopes []string) ClientOpt {
-	logrus.Trace("configuring oauth scopes in github source client")
+	logrus.Trace("configuring oauth scopes in github scm client")
 
 	return func(c *client) error {
 		// check if the scopes provided is empty

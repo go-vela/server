@@ -20,7 +20,7 @@ import (
 	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
@@ -163,7 +163,7 @@ func CreateBuild(c *gin.Context) {
 	// check if the build event is not pull_request
 	if !strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
-		files, err = source.FromContext(c).Changeset(u, r, input.GetCommit())
+		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
@@ -188,7 +188,7 @@ func CreateBuild(c *gin.Context) {
 		}
 
 		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ChangesetPR(u, r, number)
+		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
@@ -200,7 +200,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
@@ -234,7 +234,7 @@ func CreateBuild(c *gin.Context) {
 		input.SetStatus(constants.StatusSuccess)
 
 		// send API call to set the status on the commit
-		err = source.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
@@ -258,7 +258,7 @@ func CreateBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, input)
 
 	// send API call to set the status on the commit
-	err = source.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
@@ -613,7 +613,7 @@ func GetOrgBuilds(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := source.FromContext(c).OrgAccess(u, o)
+	perm, err := scm.FromContext(c).OrgAccess(u, o)
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -801,7 +801,7 @@ func RestartBuild(c *gin.Context) {
 	// check if the build event is not pull_request
 	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
-		files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
+		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
@@ -826,7 +826,7 @@ func RestartBuild(c *gin.Context) {
 		}
 
 		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ChangesetPR(u, r, number)
+		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
@@ -838,7 +838,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
@@ -872,7 +872,7 @@ func RestartBuild(c *gin.Context) {
 		b.SetStatus(constants.StatusSkipped)
 
 		// send API call to set the status on the commit
-		err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
@@ -904,7 +904,7 @@ func RestartBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, b)
 
 	// send API call to set the status on the commit
-	err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
@@ -1067,7 +1067,7 @@ func UpdateBuild(c *gin.Context) {
 		}
 
 		// send API call to set the status on the commit
-		err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)

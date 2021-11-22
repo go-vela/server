@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/constants"
@@ -91,7 +91,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// get repo information from the source
-	r, err := source.FromContext(c).GetRepo(u, input)
+	r, err := scm.FromContext(c).GetRepo(u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -204,7 +204,7 @@ func CreateRepo(c *gin.Context) {
 
 	// send API call to create the webhook
 	if c.Value("webhookvalidation").(bool) {
-		_, err = source.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+		_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -457,7 +457,7 @@ func GetOrgRepos(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := source.FromContext(c).OrgAccess(u, org)
+	perm, err := scm.FromContext(c).OrgAccess(u, org)
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
 	}
@@ -780,7 +780,7 @@ func DeleteRepo(c *gin.Context) {
 	logrus.Infof("Deleting repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
-	err := source.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+	err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -854,7 +854,7 @@ func RepairRepo(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	s := source.FromContext(c)
+	s := scm.FromContext(c)
 
 	logrus.Infof("Repairing repo %s", r.GetFullName())
 
@@ -1013,7 +1013,7 @@ func SyncRepos(c *gin.Context) {
 	logrus.Infof("Reading repos for org %s", org)
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := source.FromContext(c).OrgAccess(u, org)
+	perm, err := scm.FromContext(c).OrgAccess(u, org)
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
 	}
@@ -1053,7 +1053,7 @@ func SyncRepos(c *gin.Context) {
 
 	// iterate through captured repos and check if they are in GitHub
 	for _, repo := range repos {
-		_, err := source.FromContext(c).GetRepo(u, repo)
+		_, err := scm.FromContext(c).GetRepo(u, repo)
 		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
 			repo.SetActive(false)
@@ -1115,7 +1115,7 @@ func SyncRepo(c *gin.Context) {
 	r, _ := database.FromContext(c).GetRepo(org, repo)
 
 	// retrieve repo from source code manager service
-	_, err := source.FromContext(c).GetRepo(u, r)
+	_, err := scm.FromContext(c).GetRepo(u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: sync time
 	if err != nil {
