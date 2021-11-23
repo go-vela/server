@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/library"
@@ -89,7 +89,7 @@ func CreateDeployment(c *gin.Context) {
 	}
 
 	// send API call to create the deployment
-	err = source.FromContext(c).CreateDeployment(u, r, input)
+	err = scm.FromContext(c).CreateDeployment(u, r, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
 
@@ -191,7 +191,7 @@ func GetDeployments(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
-	t, err := source.FromContext(c).GetDeploymentCount(u, r)
+	t, err := scm.FromContext(c).GetDeploymentCount(u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
 
@@ -201,7 +201,7 @@ func GetDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of steps for the build
-	d, err := source.FromContext(c).GetDeploymentList(u, r, page, perPage)
+	d, err := scm.FromContext(c).GetDeploymentList(u, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 
@@ -302,7 +302,7 @@ func GetDeployment(c *gin.Context) {
 	}
 
 	// send API call to capture the deployment
-	d, err := source.FromContext(c).GetDeployment(u, r, int64(number))
+	d, err := scm.FromContext(c).GetDeployment(u, r, int64(number))
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment %s/%d: %w", r.GetFullName(), number, err)
 
