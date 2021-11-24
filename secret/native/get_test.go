@@ -25,6 +25,10 @@ func TestNative_Get(t *testing.T) {
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowCommand(false)
+	want.SetCreatedAt(1)
+	want.SetCreatedBy("user")
+	want.SetUpdatedAt(1)
+	want.SetUpdatedBy("user2")
 
 	// setup database
 	db, _ := sqlite.NewTest()

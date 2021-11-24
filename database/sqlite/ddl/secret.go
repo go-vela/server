@@ -21,6 +21,10 @@ secrets (
 	images        TEXT,
 	events        TEXT,
 	allow_command BOOLEAN,
+	created_at    INTEGER,
+	created_by	  TEXT,
+	updated_at    INTEGER,
+	updated_by    TEXT,
 	UNIQUE(type, org, repo, name),
 	UNIQUE(type, org, team, name)
 );
