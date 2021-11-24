@@ -25,6 +25,10 @@ func TestNative_List(t *testing.T) {
 	sOne.SetImages([]string{"foo", "bar"})
 	sOne.SetEvents([]string{"foo", "bar"})
 	sOne.SetAllowCommand(false)
+	sOne.SetCreatedAt(1)
+	sOne.SetCreatedBy("user")
+	sOne.SetUpdatedAt(1)
+	sOne.SetUpdatedBy("user2")
 
 	sTwo := new(library.Secret)
 	sTwo.SetID(2)
@@ -37,6 +41,10 @@ func TestNative_List(t *testing.T) {
 	sTwo.SetImages([]string{"foo", "bar"})
 	sTwo.SetEvents([]string{"foo", "bar"})
 	sTwo.SetAllowCommand(false)
+	sTwo.SetCreatedAt(1)
+	sTwo.SetCreatedBy("user")
+	sTwo.SetUpdatedAt(1)
+	sTwo.SetUpdatedBy("user2")
 
 	want := []*library.Secret{sTwo, sOne}
 
