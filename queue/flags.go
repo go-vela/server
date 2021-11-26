@@ -62,11 +62,10 @@ var Flags = []cli.Flag{
 		Value:    cli.NewStringSlice(constants.DefaultRoute),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"VELA_QUEUE_DEFAULT_ROUTE", "QUEUE_DEFAULT_ROUTE"},
-		FilePath: "/vela/queue/default_route",
-		Name:     "queue.default-route",
-		Usage:    "injects the default route into routes",
-		Value:    true,
+		EnvVars:  []string{"VELA_QUEUE_ROUTES_SKIP_DEFAULT", "QUEUE_ROUTES_SKIP_DEFAULT"},
+		FilePath: "/vela/queue/routes_skip_default",
+		Name:     "queue.routes.skip-default",
+		Usage:    "whether to skip adding the default route to routes",
 	},
 	&cli.DurationFlag{
 		EnvVars:  []string{"VELA_QUEUE_POP_TIMEOUT", "QUEUE_POP_TIMEOUT"},

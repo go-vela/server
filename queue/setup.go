@@ -29,7 +29,7 @@ type Setup struct {
 	// specifies a list of routes (channels/topics) for managing builds for the queue client
 	Routes []string
 	// specifies whether or not to include the default route
-	DefaultRoute bool
+	SkipDefaultRoute bool
 	// specifies the timeout for pop requests for the queue client
 	Timeout time.Duration
 }
@@ -41,7 +41,7 @@ func (s *Setup) Redis() (Service, error) {
 
 	// check if default route is to be used
 	// and append it if it is not included in routes
-	if s.DefaultRoute && !strings.Contains(strings.Join(s.Routes, ","), constants.DefaultRoute) {
+	if !s.SkipDefaultRoute && !strings.Contains(strings.Join(s.Routes, ","), constants.DefaultRoute) {
 		s.Routes = append(s.Routes, constants.DefaultRoute)
 	}
 
