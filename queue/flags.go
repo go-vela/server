@@ -61,6 +61,13 @@ var Flags = []cli.Flag{
 		Usage:    "list of routes (channels/topics) to publish builds",
 		Value:    cli.NewStringSlice(constants.DefaultRoute),
 	},
+	&cli.BoolFlag{
+		EnvVars:  []string{"VELA_QUEUE_DEFAULT_ROUTE", "QUEUE_DEFAULT_ROUTE"},
+		FilePath: "/vela/queue/default_route",
+		Name:     "queue.default-route",
+		Usage:    "injects the default route into routes",
+		Value:    true,
+	},
 	&cli.DurationFlag{
 		EnvVars:  []string{"VELA_QUEUE_POP_TIMEOUT", "QUEUE_POP_TIMEOUT"},
 		FilePath: "/vela/queue/pop_timeout",

@@ -18,11 +18,12 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 
 	// queue configuration
 	_setup := &queue.Setup{
-		Driver:  c.String("queue.driver"),
-		Address: c.String("queue.addr"),
-		Cluster: c.Bool("queue.cluster"),
-		Routes:  c.StringSlice("queue.routes"),
-		Timeout: c.Duration("queue.pop.timeout"),
+		Driver:       c.String("queue.driver"),
+		Address:      c.String("queue.addr"),
+		Cluster:      c.Bool("queue.cluster"),
+		Routes:       c.StringSlice("queue.routes"),
+		DefaultRoute: c.Bool("queue.default-route"),
+		Timeout:      c.Duration("queue.pop.timeout"),
 	}
 
 	// setup the queue
