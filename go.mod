@@ -28,6 +28,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/hashicorp/vault/api v1.3.0
 	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/jenkins-x/go-scm v1.10.10
 	github.com/joho/godotenv v1.4.0
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
