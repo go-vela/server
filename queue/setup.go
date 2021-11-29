@@ -45,7 +45,7 @@ func (s *Setup) Redis() (Service, error) {
 		s.Routes = append(s.Routes, constants.DefaultRoute)
 	}
 
-	logrus.Debugf("redis queue routes set to: %s", s.Routes)
+	logrus.Tracef("redis queue routes set to: %s", s.Routes)
 
 	// create new Redis queue service
 	//
