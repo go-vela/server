@@ -5,8 +5,6 @@
 package router
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware/org"
@@ -23,7 +21,6 @@ func ScmHandlers(base *gin.RouterGroup) {
 	orgs := base.Group("/scm/orgs")
 	{
 		org := orgs.Group("/:org", org.Establish())
-		fmt.Printf("ORG: %s", org.BasePath())
 		{
 			org.GET("/sync", api.SyncRepos)
 		} // end of org endpoints
