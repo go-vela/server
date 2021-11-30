@@ -61,12 +61,6 @@ var Flags = []cli.Flag{
 		Usage:    "list of routes (channels/topics) to publish builds",
 		Value:    cli.NewStringSlice(constants.DefaultRoute),
 	},
-	&cli.BoolFlag{
-		EnvVars:  []string{"VELA_QUEUE_ROUTES_SKIP_DEFAULT", "QUEUE_ROUTES_SKIP_DEFAULT"},
-		FilePath: "/vela/queue/routes_skip_default",
-		Name:     "queue.routes.skip-default",
-		Usage:    "whether to skip adding the default route to routes",
-	},
 	&cli.DurationFlag{
 		EnvVars:  []string{"VELA_QUEUE_POP_TIMEOUT", "QUEUE_POP_TIMEOUT"},
 		FilePath: "/vela/queue/pop_timeout",

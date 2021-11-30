@@ -28,8 +28,6 @@ type Setup struct {
 	Cluster bool
 	// specifies a list of routes (channels/topics) for managing builds for the queue client
 	Routes []string
-	// specifies whether or not to include the default route
-	SkipDefaultRoute bool
 	// specifies the timeout for pop requests for the queue client
 	Timeout time.Duration
 }
@@ -38,14 +36,6 @@ type Setup struct {
 // of integrating with a Redis queue.
 func (s *Setup) Redis() (Service, error) {
 	logrus.Trace("creating redis queue client from setup")
-
-	// check if default route is to be used
-	// and append it if it is not included in routes
-	if !s.SkipDefaultRoute && !strings.Contains(strings.Join(s.Routes, ","), constants.DefaultRoute) {
-		s.Routes = append(s.Routes, constants.DefaultRoute)
-	}
-
-	logrus.Tracef("redis queue routes set to: %s", s.Routes)
 
 	// create new Redis queue service
 	//
