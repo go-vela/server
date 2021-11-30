@@ -7,10 +7,12 @@ package native
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"golang.org/x/oauth2"
 
 	"github.com/jenkins-x/go-scm/scm"
+	"github.com/jenkins-x/go-scm/scm/driver/fake"
 	"github.com/jenkins-x/go-scm/scm/factory"
 )
 
@@ -24,34 +26,35 @@ const (
 
 var ctx = context.Background()
 
-type config struct {
-	// specifies the address to use for the SCM client
-	Address string
-	// specifies the API endpoint to use for the SCM client
-	API string
-	// specifies the OAuth client ID from SCM to use for the SCM client
-	ClientID string
-	// specifies the OAuth client secret from SCM to use for the SCM client
-	ClientSecret string
-	// specifies which driver to use in the scm package
-	Kind string
-	// specifies the Vela server address to use for the SCM client
-	ServerAddress string
-	// specifies the Vela server address that the scm provider should use to send Vela webhooks
-	ServerWebhookAddress string
-	// specifies the context for the commit status to use for the SCM client
-	StatusContext string
-	// specifies the Vela web UI address to use for the SCM client
-	WebUIAddress string
-	// specifies the OAuth scopes to use for the SCM client
-	Scopes []string
-}
+type (
+	config struct {
+		// specifies the address to use for the SCM client
+		Address string
+		// specifies the API endpoint to use for the SCM client
+		API string
+		// specifies the OAuth client ID from SCM to use for the SCM client
+		ClientID string
+		// specifies the OAuth client secret from SCM to use for the SCM client
+		ClientSecret string
+		// specifies which driver to use in the scm package
+		Kind string
+		// specifies the Vela server address to use for the SCM client
+		ServerAddress string
+		// specifies the Vela server address that the scm provider should use to send Vela webhooks
+		ServerWebhookAddress string
+		// specifies the context for the commit status to use for the SCM client
+		StatusContext string
+		// specifies the Vela web UI address to use for the SCM client
+		WebUIAddress string
+		// specifies the OAuth scopes to use for the SCM client
+		Scopes []string
+	}
 
-type client struct {
-	config *config
-	OAuth  *oauth2.Config
-	// AuthReq *github.AuthorizationRequest
-}
+	client struct {
+		config *config
+		OAuth  *oauth2.Config
+	}
+)
 
 // New returns a SCM implementation that integrates with
 // a SCM or a SCM Enterprise instance.
@@ -105,6 +108,7 @@ func NewTest(urls ...string) (*client, error) {
 		WithAddress(address),
 		WithClientID("foo"),
 		WithClientSecret("bar"),
+		WithKind("fake"),
 		WithServerAddress(server),
 		WithServerWebhookAddress(""),
 		WithStatusContext("continuous-integration/vela"),
@@ -113,12 +117,23 @@ func NewTest(urls ...string) (*client, error) {
 }
 
 // helper function to return the SCM OAuth client.
-func (c *client) newClientToken(token string) *scm.Client {
-	// create the scm client from the OAuth client
-	scm, err := factory.NewClient(c.config.Kind, c.config.Address, token)
-	if err != nil {
-		return nil
+func (c *client) newClientToken(token string) (*scm.Client, error) {
+	// return a fake client when testing
+	if strings.EqualFold(c.config.Kind, "fake") {
+		fakeSCM, data := fake.NewDefault()
+
+		// load the fake data for testing
+		load(data)
+
+		return fakeSCM, nil
 	}
 
-	return scm
+	return factory.NewClient(c.config.Kind, c.config.Address, token)
+}
+
+// helper function to load fake data into the test SCM client for Go tests.
+func load(d *fake.Data) {
+	d.UserPermissions["github/octocat"] = map[string]string{}
+	d.UserPermissions["github/octocat"]["foo"] = "admin"
+	d.UserPermissions["github/octocat"]["notfound"] = ""
 }

@@ -69,7 +69,7 @@ func TestNative_newClientToken(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got := client.newClientToken("foobar")
+	got, _ := client.newClientToken("foobar")
 
 	// nolint: staticcheck // ignore false positive
 	if got == nil {

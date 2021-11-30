@@ -21,7 +21,10 @@ func (c *client) Authorize(token string) (string, error) {
 	logrus.Trace("Authorizing user with token")
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(token)
+	client, err := c.newClientToken(token)
+	if err != nil {
+		return "", err
+	}
 
 	// send API call to capture the current user making the call
 	u, _, err := client.Users.Find(ctx)
