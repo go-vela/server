@@ -17,8 +17,8 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/source"
-	"github.com/go-vela/server/source/github"
+	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/library"
 )
 
@@ -71,7 +71,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(MustPlatformAdmin())
 	engine.GET("/admin/users", func(c *gin.Context) {
@@ -136,7 +136,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(MustPlatformAdmin())
 	engine.GET("/admin/users", func(c *gin.Context) {
@@ -215,7 +215,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustAdmin())
@@ -295,7 +295,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustAdmin())
@@ -375,7 +375,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustAdmin())
@@ -455,7 +455,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
@@ -535,7 +535,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
@@ -615,7 +615,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
@@ -695,7 +695,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
@@ -775,7 +775,7 @@ func TestPerm_MustRead(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
@@ -855,7 +855,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
@@ -935,7 +935,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
@@ -1015,7 +1015,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
@@ -1095,7 +1095,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
@@ -1175,7 +1175,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(func(c *gin.Context) { source.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())

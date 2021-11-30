@@ -9,10 +9,11 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
-	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/constants"
@@ -89,6 +90,7 @@ func CreateSecret(c *gin.Context) {
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
+	u := user.Retrieve(c)
 
 	logrus.Infof("Creating secret %s/%s/%s for %s service", t, o, n, e)
 
@@ -109,6 +111,10 @@ func CreateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
+	input.SetCreatedAt(time.Now().UTC().Unix())
+	input.SetCreatedBy(u.GetName())
+	input.SetUpdatedAt(time.Now().UTC().Unix())
+	input.SetUpdatedBy(u.GetName())
 
 	if len(input.GetImages()) > 0 {
 		input.SetImages(unique(input.GetImages()))
@@ -232,7 +238,7 @@ func GetSecrets(c *gin.Context) {
 	// get list of user's teams if type is shared secret and team is '*'
 	if t == "shared" && n == "*" {
 		var err error
-		teams, err = source.FromContext(c).ListUsersTeamsForOrg(u, o)
+		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
 
@@ -467,6 +473,7 @@ func UpdateSecret(c *gin.Context) {
 	o := c.Param("org")
 	n := c.Param("name")
 	s := strings.TrimPrefix(c.Param("secret"), "/")
+	u := user.Retrieve(c)
 
 	logrus.Infof("Updating secret %s/%s/%s/%s for %s service", t, o, n, s, e)
 
@@ -488,6 +495,8 @@ func UpdateSecret(c *gin.Context) {
 	input.SetOrg(o)
 	input.SetRepo(n)
 	input.SetType(t)
+	input.SetUpdatedAt(time.Now().UTC().Unix())
+	input.SetUpdatedBy(u.GetName())
 
 	if input.Images != nil {
 		// update images if set

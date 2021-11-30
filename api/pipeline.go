@@ -12,10 +12,10 @@ import (
 
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/scm"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/source"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
@@ -362,7 +362,7 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(ctx).ConfigBackoff(user, repo, ref)
+	config, err := scm.FromContext(ctx).ConfigBackoff(user, repo, ref)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to get pipeline configuration for %s: %w", repoName(ctx), err)
 	}
@@ -411,7 +411,7 @@ func getTemplateLinks(ctx *gin.Context, templates yaml.TemplateSlice) (map[strin
 		}
 
 		// retrieve link to template file from github
-		link, err := source.FromContext(ctx).GetHTMLURL(u, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(ctx).GetHTMLURL(u, src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get html url for %s/%s/%s/@%s: %w", src.Org, src.Repo, src.Name, src.Ref, err)
 		}

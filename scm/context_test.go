@@ -2,19 +2,19 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package source
+package scm
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-vela/server/source/github"
+	"github.com/go-vela/server/scm/github"
 
 	"github.com/gin-gonic/gin"
 )
 
-func TestSource_FromContext(t *testing.T) {
+func TestSCM_FromContext(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -38,7 +38,7 @@ func TestSource_FromContext(t *testing.T) {
 	}
 }
 
-func TestSource_FromContext_Bad(t *testing.T) {
+func TestSCM_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -53,7 +53,7 @@ func TestSource_FromContext_Bad(t *testing.T) {
 	}
 }
 
-func TestSource_FromContext_WrongType(t *testing.T) {
+func TestSCM_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -68,7 +68,7 @@ func TestSource_FromContext_WrongType(t *testing.T) {
 	}
 }
 
-func TestSource_FromContext_Empty(t *testing.T) {
+func TestSCM_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -82,7 +82,7 @@ func TestSource_FromContext_Empty(t *testing.T) {
 	}
 }
 
-func TestSource_ToContext(t *testing.T) {
+func TestSCM_ToContext(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 

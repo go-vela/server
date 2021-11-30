@@ -21,6 +21,10 @@ secrets (
 	images        VARCHAR(1000),
 	events        VARCHAR(1000),
 	allow_command BOOLEAN,
+	created_at    INTEGER,
+	created_by    VARCHAR(250),
+	updated_at    INTEGER,
+	updated_by    VARCHAR(250),
 	UNIQUE(type, org, repo, name),
 	UNIQUE(type, org, team, name)
 );

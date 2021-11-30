@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
@@ -76,7 +76,7 @@ func Authenticate(c *gin.Context) {
 	code := c.Request.FormValue("code")
 	if len(code) == 0 {
 		// start the initial OAuth workflow
-		oAuthState, err = source.FromContext(c).Login(c.Writer, c.Request)
+		oAuthState, err = scm.FromContext(c).Login(c.Writer, c.Request)
 		if err != nil {
 			retErr := fmt.Errorf("unable to login user: %w", err)
 
@@ -87,7 +87,7 @@ func Authenticate(c *gin.Context) {
 	}
 
 	// complete the OAuth workflow and authenticates the user
-	newUser, err := source.FromContext(c).Authenticate(c.Writer, c.Request, oAuthState)
+	newUser, err := scm.FromContext(c).Authenticate(c.Writer, c.Request, oAuthState)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 
@@ -308,7 +308,7 @@ func AuthenticateType(c *gin.Context) {
 // the API.
 func AuthenticateToken(c *gin.Context) {
 	// attempt to get user from source
-	u, err := source.FromContext(c).AuthenticateToken(c.Request)
+	u, err := scm.FromContext(c).AuthenticateToken(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 

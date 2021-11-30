@@ -85,13 +85,13 @@ func metadataQueue(c *cli.Context) (*types.Queue, error) {
 func metadataSource(c *cli.Context) (*types.Source, error) {
 	logrus.Trace("Creating source metadata from CLI configuration")
 
-	u, err := url.Parse(c.String("source.addr"))
+	u, err := url.Parse(c.String("scm.addr"))
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.Source{
-		Driver: c.String("source.driver"),
+		Driver: c.String("scm.driver"),
 		Host:   u.Host,
 	}, nil
 }

@@ -17,7 +17,7 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
-	"github.com/go-vela/server/source"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types"
@@ -114,7 +114,7 @@ func PostWebhook(c *gin.Context) {
 
 	// process the webhook from the source control provider
 	// comment, number, h, r, b
-	webhook, err := source.FromContext(c).ProcessWebhook(c.Request)
+	webhook, err := scm.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -210,7 +210,7 @@ func PostWebhook(c *gin.Context) {
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
-		err = source.FromContext(c).VerifyWebhook(dupRequest, r)
+		err = scm.FromContext(c).VerifyWebhook(dupRequest, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to verify webhook: %v", err)
 			util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -280,7 +280,7 @@ func PostWebhook(c *gin.Context) {
 	// if this is a comment on a pull_request event
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
 		// nolint: lll // ignore long line length due to variable names
-		commit, branch, baseref, headref, err := source.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
+		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
@@ -305,7 +305,7 @@ func PostWebhook(c *gin.Context) {
 		// check if the build event is not pull_request
 		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 			// send API call to capture list of files changed for the commit
-			files, err = source.FromContext(c).Changeset(u, r, b.GetCommit())
+			files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -321,7 +321,7 @@ func PostWebhook(c *gin.Context) {
 	// check if the build event is a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = source.FromContext(c).ChangesetPR(u, r, webhook.PRNumber)
+		files, err = scm.FromContext(c).ChangesetPR(u, r, webhook.PRNumber)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -334,7 +334,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := source.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
@@ -426,7 +426,7 @@ func PostWebhook(c *gin.Context) {
 			b.SetStatus(constants.StatusSkipped)
 
 			// send API call to set the status on the commit
-			err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+			err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 			if err != nil {
 				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}
@@ -494,7 +494,7 @@ func PostWebhook(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 
 	// send API call to set the status on the commit
-	err = source.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}

@@ -10,18 +10,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/source"
-	"github.com/go-vela/server/source/github"
+	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/scm/github"
 
 	"github.com/gin-gonic/gin"
 )
 
-func TestMiddleware_Source(t *testing.T) {
+func TestMiddleware_Scm(t *testing.T) {
 	// setup types
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	var got source.Service
+	var got scm.Service
 
 	want, _ := github.NewTest(s.URL)
 
@@ -33,9 +33,9 @@ func TestMiddleware_Source(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Source(want))
+	engine.Use(Scm(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = source.FromContext(c)
+		got = scm.FromContext(c)
 
 		c.Status(http.StatusOK)
 	})
@@ -44,10 +44,10 @@ func TestMiddleware_Source(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Source returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("Scm returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Source is %v, want %v", got, want)
+		t.Errorf("Scm is %v, want %v", got, want)
 	}
 }
