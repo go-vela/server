@@ -37,11 +37,6 @@ type Setup struct {
 func (s *Setup) Redis() (Service, error) {
 	logrus.Trace("creating redis queue client from setup")
 
-	// check if the default route is provided
-	if !strings.Contains(strings.Join(s.Routes, ","), constants.DefaultRoute) {
-		s.Routes = append(s.Routes, constants.DefaultRoute)
-	}
-
 	// create new Redis queue service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/queue/redis?tab=doc#New
