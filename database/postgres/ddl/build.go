@@ -62,4 +62,13 @@ IF NOT EXISTS
 builds_status
 ON builds (status);
 `
+
+	// CreateBuildCreatedIndex represents a query to create an
+	// index on the builds table for the created column.
+	CreateBuildCreatedIndex = `
+CREATE INDEX CONCURRENTLY
+IF NOT EXISTS
+builds_created
+ON builds (created);
+`
 )
