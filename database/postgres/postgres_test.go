@@ -85,6 +85,7 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	// ensure the mock expects the index queries
 	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateBuildStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateBuildCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateHookRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateLogBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateRepoOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -201,6 +202,7 @@ func TestPostgres_createIndexes(t *testing.T) {
 	// ensure the mock expects the index queries
 	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateBuildStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(ddl.CreateBuildCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateHookRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateLogBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateRepoOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
