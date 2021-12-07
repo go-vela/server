@@ -48,7 +48,8 @@ func TestNative_EnvironmentStages(t *testing.T) {
 
 	want := yaml.StageSlice{
 		&yaml.Stage{
-			Name: str,
+			Name:        str,
+			Environment: env,
 			Steps: yaml.StepSlice{
 				&yaml.Step{
 					Environment: env,

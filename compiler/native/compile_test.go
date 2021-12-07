@@ -99,7 +99,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 		},
 		Stages: pipeline.StageSlice{
 			&pipeline.Stage{
-				Name: "init",
+				Name:        "init",
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_init_init",
@@ -113,7 +114,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name: "clone",
+				Name:        "clone",
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_clone_clone",
@@ -127,8 +129,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "install",
-				Needs: []string{"clone"},
+				Name:        "install",
+				Needs:       []string{"clone"},
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_install_install",
@@ -144,8 +147,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "test",
-				Needs: []string{"install", "clone"},
+				Name:        "test",
+				Needs:       []string{"install", "clone"},
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_test_test",
@@ -161,8 +165,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "build",
-				Needs: []string{"install", "clone"},
+				Name:        "build",
+				Needs:       []string{"install", "clone"},
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_build_build",
@@ -178,8 +183,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "publish",
-				Needs: []string{"build", "clone"},
+				Name:        "publish",
+				Needs:       []string{"build", "clone"},
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_publish_publish",
@@ -666,7 +672,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		},
 		Stages: pipeline.StageSlice{
 			&pipeline.Stage{
-				Name: "init",
+				Name:        "init",
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_init_init",
@@ -680,7 +687,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name: "clone",
+				Name:        "clone",
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_clone_clone",
@@ -694,8 +702,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "gradle",
-				Needs: []string{"clone"},
+				Name:        "gradle",
+				Needs:       []string{"clone"},
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_gradle_sample_install",
@@ -733,8 +742,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "publish",
-				Needs: []string{"gradle", "clone"},
+				Name:        "publish",
+				Needs:       []string{"gradle", "clone"},
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_publish_publish",
