@@ -83,7 +83,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
-		"HELLO": "Hello, Global Message",
+		"HELLO": "Hello, Stage Message",
 	}
 
 	str := "foo"
@@ -202,7 +202,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 				"VELA_USER_NAME":           "",
 				"VELA_VERSION":             "TODO",
 				"VELA_WORKSPACE":           "/vela/src",
-				"HELLO":                    "Hello, Global Message",
+				"HELLO":                    "Hello, Stage Message",
 			},
 		},
 	}

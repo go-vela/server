@@ -60,8 +60,7 @@ func TestNative_SubstituteStages(t *testing.T) {
 
 	want := yaml.StageSlice{
 		{
-			Name:        "simple",
-			Environment: nil,
+			Name: "simple",
 			Steps: yaml.StepSlice{
 				{
 					Commands:    []string{"echo baz", "echo ${BAR}"},
@@ -73,8 +72,7 @@ func TestNative_SubstituteStages(t *testing.T) {
 			},
 		},
 		{
-			Name:        "advanced",
-			Environment: nil,
+			Name: "advanced",
 			Steps: yaml.StepSlice{
 				{
 					Commands:    []string{"echo \"{\\\"hello\\\":\\n  \\\"world\\\"}\""},
@@ -86,8 +84,7 @@ func TestNative_SubstituteStages(t *testing.T) {
 			},
 		},
 		{
-			Name:        "not_found",
-			Environment: nil,
+			Name: "not_found",
 			Steps: yaml.StepSlice{
 				{
 					Commands:    []string{"echo $NOT_FOUND", "echo ${NOT_FOUND}", "echo ${NOT_FOUND}"},

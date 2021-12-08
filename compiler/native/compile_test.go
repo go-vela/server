@@ -56,6 +56,14 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	initEnv := environment(nil, m, nil, nil)
 	initEnv["HELLO"] = "Hello, Global Environment"
 
+	stageEnvInstall := environment(nil, m, nil, nil)
+	stageEnvInstall["HELLO"] = "Hello, Global Environment"
+	stageEnvInstall["GRADLE_USER_HOME"] = ".gradle"
+
+	stageEnvTest := environment(nil, m, nil, nil)
+	stageEnvTest["HELLO"] = "Hello, Global Environment"
+	stageEnvTest["GRADLE_USER_HOME"] = "willBeOverwrittenInStep"
+
 	cloneEnv := environment(nil, m, nil, nil)
 	cloneEnv["HELLO"] = "Hello, Global Environment"
 
@@ -131,7 +139,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 			&pipeline.Stage{
 				Name:        "install",
 				Needs:       []string{"clone"},
-				Environment: initEnv,
+				Environment: stageEnvInstall,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_install_install",
@@ -149,7 +157,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 			&pipeline.Stage{
 				Name:        "test",
 				Needs:       []string{"install", "clone"},
-				Environment: initEnv,
+				Environment: stageEnvTest,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_test_test",

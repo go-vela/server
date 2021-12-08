@@ -137,8 +137,6 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("-----EASTON LOGGING-----")
-		fmt.Println(p.Stages[0].Environment["TEST_ONE"])
 
 		// inject the substituted environment variables into the stages
 		p.Stages, err = c.SubstituteStages(p.Stages)
