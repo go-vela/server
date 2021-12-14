@@ -7,8 +7,8 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
-	github.com/alicebob/miniredis/v2 v2.16.1
-	github.com/aws/aws-sdk-go v1.41.14
+	github.com/alicebob/miniredis/v2 v2.17.0
+	github.com/aws/aws-sdk-go v1.42.19
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/drone/envsubst v1.0.3
@@ -17,7 +17,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-vela/types v0.11.1-0.20211117152001-4dc404f4aabc
-	github.com/golang-jwt/jwt/v4 v4.1.0
+	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v39 v39.2.0
@@ -38,7 +38,7 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/ugorji/go v1.1.11 // indirect
 	github.com/urfave/cli/v2 v2.3.0
-	go.starlark.net v0.0.0-20211013185944-b0039bd2cfe3
+	go.starlark.net v0.0.0-20211203141949-70c0e40ae128
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sys v0.0.0-20210806184541-e5e7981a1069 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
