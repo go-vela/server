@@ -72,6 +72,8 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 }
 
 // processPushEvent is a helper function to process the push event.
+//
+// nolint: lll // ignore long line length due to variable names
 func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
 	c.Logger.Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
 
@@ -146,6 +148,8 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 }
 
 // processPREvent is a helper function to process the pull_request event.
+//
+// nolint: lll // ignore long line length due to variable names
 func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
 	c.Logger.Tracef("processing pull_request GitHub webhook for %s", payload.GetRepo().GetFullName())
 

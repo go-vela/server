@@ -87,6 +87,8 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 }
 
 // CreateSecret creates a new secret in the database.
+//
+// nolint: dupl // ignore similar code with update
 func (c *client) CreateSecret(s *library.Secret) error {
 	c.Logger.Tracef("creating %s secret %s in the database", s.GetType(), s.GetName())
 
@@ -114,6 +116,8 @@ func (c *client) CreateSecret(s *library.Secret) error {
 }
 
 // UpdateSecret updates a secret in the database.
+//
+// nolint: dupl // ignore similar code with create
 func (c *client) UpdateSecret(s *library.Secret) error {
 	c.Logger.Tracef("updating %s secret %s in the database", s.GetType(), s.GetName())
 
