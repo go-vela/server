@@ -7,19 +7,16 @@ package github
 import (
 	"encoding/json"
 
+	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 	"github.com/google/go-github/v39/github"
-
-	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
 //
 // nolint: lll // ignore long line length due to variable names
 func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
-	logrus.Tracef("capturing deployment %d for %s", id, r.GetFullName())
+	c.Logger.Tracef("capturing deployment %d for %s", id, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -33,7 +30,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 	var payload *raw.StringSliceMap
 	err = json.Unmarshal(deployment.Payload, &payload)
 	if err != nil {
-		logrus.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
+		c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 	}
 
 	return &library.Deployment{
@@ -52,7 +49,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 
 // GetDeploymentCount counts a list of deployments from the GitHub repo.
 func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, error) {
-	logrus.Tracef("counting deployments for %s", r.GetFullName())
+	c.Logger.Tracef("counting deployments for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -92,7 +89,7 @@ func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, er
 //
 // nolint: lll // ignore long line length due to variable names
 func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
-	logrus.Tracef("capturing deployments for %s", r.GetFullName())
+	c.Logger.Tracef("capturing deployments for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -119,7 +116,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 		var payload *raw.StringSliceMap
 		err := json.Unmarshal(deployment.Payload, &payload)
 		if err != nil {
-			logrus.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
+			c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 		}
 		// convert query result to library type
 		deployments = append(deployments, &library.Deployment{
@@ -141,7 +138,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 
 // CreateDeployment creates a new deployment for the GitHub repo.
 func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.Deployment) error {
-	logrus.Tracef("creating deployment for %s", r.GetFullName())
+	c.Logger.Tracef("creating deployment for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)

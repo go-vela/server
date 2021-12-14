@@ -11,12 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v39/github"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
+	"github.com/google/go-github/v39/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -50,7 +47,7 @@ func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (da
 
 // Config gets the pipeline configuration from the GitHub repo.
 func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, error) {
-	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", r.GetOrg(), r.GetName(), ref)
+	c.Logger.Tracef("Capturing configuration file for %s/%s/commit/%s", r.GetOrg(), r.GetName(), ref)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -91,7 +88,7 @@ func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, e
 
 // Disable deactivates a repo by deleting the webhook.
 func (c *client) Disable(u *library.User, org, name string) error {
-	logrus.Tracef("Deleting repository webhook for %s/%s", org, name)
+	c.Logger.Tracef("Deleting repository webhook for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -139,7 +136,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 // Enable activates a repo by creating the webhook.
 func (c *client) Enable(u *library.User, org, name, secret string) (string, error) {
-	logrus.Tracef("Creating repository webhook for %s/%s", org, name)
+	c.Logger.Tracef("Creating repository webhook for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -178,7 +175,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 
 // Status sends the commit status for the given SHA from the GitHub repo.
 func (c *client) Status(u *library.User, b *library.Build, org, name string) error {
-	logrus.Tracef("Setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
+	c.Logger.Tracef("Setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -275,7 +272,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 
 // GetRepo gets repo information from Github.
 func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error) {
-	logrus.Tracef("Retrieving repository information for %s", r.GetFullName())
+	c.Logger.Tracef("Retrieving repository information for %s", r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
@@ -291,7 +288,7 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 
 // ListUserRepos returns a list of all repos the user has access to.
 func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
-	logrus.Tracef("Listing source repositories for %s", u.GetName())
+	c.Logger.Tracef("Listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
@@ -352,7 +349,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 // a pull request for a repo.
 // nolint:lll // function signature is lengthy
 func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
-	logrus.Tracef("Listing source repositories for %s", u.GetName())
+	c.Logger.Tracef("Listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
@@ -372,7 +369,7 @@ func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (s
 
 // GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
 func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (string, error) {
-	logrus.Tracef("Capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
+	c.Logger.Tracef("Capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)

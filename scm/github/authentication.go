@@ -15,13 +15,11 @@ import (
 	"github.com/go-vela/server/random"
 	"github.com/go-vela/types/library"
 	"github.com/google/go-github/v39/github"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Authorize uses the given access token to authorize the user.
 func (c *client) Authorize(token string) (string, error) {
-	logrus.Trace("Authorizing user with token")
+	c.Logger.Trace("Authorizing user with token")
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(token)
@@ -37,7 +35,7 @@ func (c *client) Authorize(token string) (string, error) {
 
 // Login begins the authentication workflow for the session.
 func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
-	logrus.Trace("Processing login request")
+	c.Logger.Trace("Processing login request")
 
 	// generate a random string for creating the OAuth state
 	//
@@ -64,7 +62,7 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 //
 // nolint: lll // ignore long line length due to variable names
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
-	logrus.Trace("Authenticating user")
+	c.Logger.Trace("Authenticating user")
 
 	// get the OAuth code
 	code := r.FormValue("code")
@@ -105,7 +103,7 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 // AuthenticateToken completes the authentication workflow
 // for the session and returns the remote user details.
 func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
-	logrus.Trace("Authenticating user via token")
+	c.Logger.Trace("Authenticating user via token")
 
 	token := r.Header.Get("Token")
 	if len(token) == 0 {

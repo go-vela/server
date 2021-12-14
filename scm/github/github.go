@@ -10,6 +10,8 @@ import (
 	"net/url"
 
 	"github.com/google/go-github/v39/github"
+	"github.com/sirupsen/logrus"
+
 	"golang.org/x/oauth2"
 )
 
@@ -51,6 +53,8 @@ type client struct {
 	config  *config
 	OAuth   *oauth2.Config
 	AuthReq *github.AuthorizationRequest
+	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
+	Logger *logrus.Entry
 }
 
 // New returns a SCM implementation that integrates with
@@ -65,6 +69,16 @@ func New(opts ...ClientOpt) (*client, error) {
 	c.config = new(config)
 	c.OAuth = new(oauth2.Config)
 	c.AuthReq = new(github.AuthorizationRequest)
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#StandardLogger
+	logger := logrus.StandardLogger()
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
+	c.Logger = logrus.NewEntry(logger)
 
 	// apply all provided configuration options
 	for _, opt := range opts {
