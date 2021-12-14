@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/sirupsen/logrus"
@@ -55,9 +56,9 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 				fields["body"] = body
 			}
 
-			user := user.Retrieve(c)
-			if user != nil {
-				fields["user"] = user.Name
+			build := build.Retrieve(c)
+			if build != nil {
+				fields["build"] = build.Number
 			}
 
 			repo := repo.Retrieve(c)
@@ -65,14 +66,19 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 				fields["repo"] = repo.FullName
 			}
 
-			build := build.Retrieve(c)
-			if build != nil {
-				fields["build"] = build.Number
+			service := service.Retrieve(c)
+			if service != nil {
+				fields["service"] = service.Number
 			}
 
 			step := step.Retrieve(c)
 			if step != nil {
 				fields["step"] = step.Number
+			}
+
+			user := user.Retrieve(c)
+			if user != nil {
+				fields["user"] = user.Name
 			}
 
 			entry := logger.WithFields(fields)
