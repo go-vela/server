@@ -12,7 +12,6 @@ import (
 	"github.com/go-vela/types/library"
 
 	"github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 )
 
 // List captures a list of secrets.
@@ -21,7 +20,7 @@ import (
 // Vault API doesn't seem to support pagination. Might result in undesired
 // behavior for fetching Vault secrets in paginated manner.
 func (c *client) List(sType, org, name string, _, _ int, _ []string) ([]*library.Secret, error) {
-	logrus.Tracef("Listing vault %s secrets for %s/%s", sType, org, name)
+	c.Logger.Tracef("listing vault %s secrets for %s/%s", sType, org, name)
 
 	var err error
 

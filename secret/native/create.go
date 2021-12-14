@@ -9,13 +9,11 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Create creates a new secret.
 func (c *client) Create(sType, org, name string, s *library.Secret) error {
-	logrus.Tracef("Creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
+	c.Logger.Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// create the secret for the native service
 	switch sType {

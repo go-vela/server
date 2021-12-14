@@ -4,11 +4,9 @@
 
 package native
 
-import "github.com/sirupsen/logrus"
-
 // Delete deletes a secret.
 func (c *client) Delete(sType, org, name, path string) error {
-	logrus.Tracef("Deleting native %s secret %s for %s/%s", sType, path, org, name)
+	c.Logger.Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
 
 	// capture the secret from the native service
 	s, err := c.Database.GetSecret(sType, org, name, path)

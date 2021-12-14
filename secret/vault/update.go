@@ -11,13 +11,11 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Update updates a secret.
 func (c *client) Update(sType, org, name string, s *library.Secret) error {
-	logrus.Tracef("Updating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
+	c.Logger.Tracef("updating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// capture the secret from the Vault service
 	sec, err := c.Get(sType, org, name, s.GetName())

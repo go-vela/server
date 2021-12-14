@@ -10,12 +10,11 @@ import (
 	"github.com/go-vela/types/constants"
 
 	"github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 )
 
 // Count counts a list of secrets.
 func (c *client) Count(sType, org, name string, _ []string) (i int64, err error) {
-	logrus.Tracef("Counting vault %s secrets for %s/%s", sType, org, name)
+	c.Logger.Tracef("counting vault %s secrets for %s/%s", sType, org, name)
 
 	// nolint: staticcheck // ignore false positive
 	vault := new(api.Secret)

@@ -11,12 +11,11 @@ import (
 	"github.com/go-vela/types/library"
 
 	"github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 )
 
 // Get captures a secret.
 func (c *client) Get(sType, org, name, path string) (s *library.Secret, err error) {
-	logrus.Tracef("Getting vault %s secret %s for %s/%s", sType, path, org, name)
+	c.Logger.Tracef("getting vault %s secret %s for %s/%s", sType, path, org, name)
 
 	// nolint: ineffassign,staticcheck // ignore false positive
 	vault := new(api.Secret)

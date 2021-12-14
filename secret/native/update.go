@@ -6,13 +6,11 @@ package native
 
 import (
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Update updates an existing secret.
 func (c *client) Update(sType, org, name string, s *library.Secret) error {
-	logrus.Tracef("Updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
+	c.Logger.Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// capture the secret from the native service
 	sec, err := c.Database.GetSecret(sType, org, name, s.GetName())

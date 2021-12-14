@@ -6,13 +6,11 @@ package native
 
 import (
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Get captures a secret.
 func (c *client) Get(sType, org, name, path string) (*library.Secret, error) {
-	logrus.Tracef("Getting native %s secret %s for %s/%s", sType, path, org, name)
+	c.Logger.Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
 
 	// capture the secret from the native service
 	s, err := c.Database.GetSecret(sType, org, name, path)

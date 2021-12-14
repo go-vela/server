@@ -11,13 +11,11 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Create creates a new secret.
 func (c *client) Create(sType, org, name string, s *library.Secret) error {
-	logrus.Tracef("Creating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
+	c.Logger.Tracef("creating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// validate the secret
 	err := database.SecretFromLibrary(s).Validate()
