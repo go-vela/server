@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
 	"github.com/hashicorp/vault/api"
 )
 

@@ -8,11 +8,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
+	"github.com/sirupsen/logrus"
 )
 
 const (

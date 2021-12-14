@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/constants"
-
 	"github.com/hashicorp/vault/api"
 )
 
