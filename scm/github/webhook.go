@@ -20,6 +20,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type GitHook struct {
+	Changes struct {
+		Repository struct {
+			Name struct {
+				From string `json:"from"`
+			} `json:"name"`
+		} `json:"repository"`
+	} `json:"changes"`
+}
+
 // ProcessWebhook parses the webhook from a repo.
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	logrus.Tracef("Processing GitHub webhook")
@@ -43,6 +53,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
+
 	if err != nil {
 		return &types.Webhook{Hook: h}, nil
 	}
@@ -57,6 +68,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		return processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
 		return processIssueCommentEvent(h, event)
+	case *github.RepositoryEvent:
+		var gitHook GitHook
+		err = json.Unmarshal(payload, &gitHook)
+		if err != nil {
+			return &types.Webhook{Hook: h}, nil
+		}
+		return processRepositoryEvent(h, event, &gitHook)
 	}
 
 	return &types.Webhook{Hook: h}, nil
@@ -377,5 +395,45 @@ func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent
 		Hook:     h,
 		Repo:     r,
 		Build:    b,
+	}, nil
+}
+
+// processRepositoryEvent is a helper function to process the repository event.
+// nolint: lll // ignore long line length due to error message
+func processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent, gh *GitHook) (*types.Webhook, error) {
+	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	repo := payload.GetRepo()
+
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+
+	// if action is renamed, then get the previous name from payload
+	if payload.GetAction() == "renamed" {
+		nameHistory := append(r.GetNameHistory(), gh.Changes.Repository.Name.From)
+		r.SetNameHistory(nameHistory)
+		fmt.Println(r.GetNameHistory())
+		// update hook object event type
+		h.SetEvent(constants.EventRepositoryRename)
+	} else {
+		h.SetEvent(constants.EventRepository)
+	}
+
+	h.SetBranch(r.GetBranch())
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	return &types.Webhook{
+		Comment: "",
+		Hook:    h,
+		Repo:    r,
 	}, nil
 }

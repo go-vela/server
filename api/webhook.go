@@ -139,7 +139,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// check if build was parsed from webhook
-	if b == nil {
+	if b == nil && h.GetEvent() != "repositoryRename" {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -158,8 +158,20 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	if h.GetEvent() == "repositoryRename" {
+		err = renameRepository(h, r, c)
+		if err != nil {
+			util.HandleError(c, http.StatusBadRequest, err)
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(err.Error())
+			return
+		}
+		return
+	}
+
 	// send API call to capture parsed repo from webhook
 	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -550,4 +562,100 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 			return
 		}
 	}
+}
+
+func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
+	// get the old name of the repo
+	nameHistory := r.GetNameHistory()
+	lastName := nameHistory[len(nameHistory)-1]
+	// get the repo from the database that matches the old name
+	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), lastName)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to get repo from database", baseErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+		return retErr
+	}
+
+	// update the repo name information
+	dbR.SetName(r.GetName())
+	dbR.SetFullName(r.GetFullName())
+	dbR.SetClone(r.GetClone())
+	dbR.SetLink(r.GetLink())
+	dbR.SetNameHistory(append(dbR.GetNameHistory(), lastName))
+
+	// update the repo in the database
+	err = database.FromContext(c).UpdateRepo(dbR)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo in database", baseErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+		return retErr
+	}
+
+	// get the repo user from the database
+	user, err := database.FromContext(c).GetUser(dbR.GetUserID())
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to retrieve user in database", baseErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+		return retErr
+	}
+
+	// update the user favorites slice
+	favorites := []string{}
+	lastFullName := r.GetOrg() + "/" + lastName
+	for _, fav := range user.GetFavorites() {
+		if fav != lastFullName {
+			favorites = append(favorites, fav)
+		} else {
+			favorites = append(favorites, r.GetFullName())
+		}
+	}
+	user.SetFavorites(favorites)
+
+	// update the user in the database
+	err = database.FromContext(c).UpdateUser(user)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return retErr
+	}
+
+	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), lastName, []string{})
+	if err != nil {
+		retErr := fmt.Errorf("unable to get secrets for repo %s: %w", lastName, err)
+
+		return retErr
+	}
+	secrets := []*library.Secret{}
+	page := 1
+	// capture all secrets belonging to certain repo in database
+	// nolint: gomnd // ignore magic number
+	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
+		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), lastName, page, 100, []string{})
+		if err != nil {
+			retErr := fmt.Errorf("unable to get secret list for repo %s: %w", lastName, err)
+			return retErr
+		}
+		secrets = append(secrets, s...)
+		page++
+	}
+
+	for _, secret := range secrets {
+		secret.SetRepo(r.GetName())
+		err = database.FromContext(c).UpdateSecret(secret)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update secret for repo %s: %w", r.GetName(), err)
+
+			return retErr
+		}
+	}
+
+	c.JSON(http.StatusOK, r)
+	return nil
 }
