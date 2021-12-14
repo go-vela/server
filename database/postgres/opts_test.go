@@ -8,12 +8,16 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 func TestPostgres_ClientOpt_WithAddress(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
@@ -59,6 +63,8 @@ func TestPostgres_ClientOpt_WithCompressionLevel(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
@@ -93,6 +99,8 @@ func TestPostgres_ClientOpt_WithConnectionLife(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
@@ -127,6 +135,8 @@ func TestPostgres_ClientOpt_WithConnectionIdle(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
@@ -161,6 +171,8 @@ func TestPostgres_ClientOpt_WithConnectionOpen(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
@@ -195,6 +207,8 @@ func TestPostgres_ClientOpt_WithEncryptionKey(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
@@ -240,6 +254,8 @@ func TestPostgres_ClientOpt_WithSkipCreation(t *testing.T) {
 	// setup types
 	c := new(client)
 	c.config = new(config)
+	logger := logrus.StandardLogger()
+	c.Logger = logrus.NewEntry(logger)
 
 	// setup tests
 	tests := []struct {
