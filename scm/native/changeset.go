@@ -50,7 +50,9 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 	}
 
 	changes := []*scm.Change{}
-	opts := scm.ListOptions{}
+	opts := scm.ListOptions{
+		Size: 100,
+	}
 
 	for {
 		// send API call to capture the files from the pull request

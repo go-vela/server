@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/oauth2"
 
+	"github.com/go-vela/types/raw"
 	"github.com/jenkins-x/go-scm/scm"
 	"github.com/jenkins-x/go-scm/scm/driver/fake"
 	"github.com/jenkins-x/go-scm/scm/factory"
@@ -136,4 +137,24 @@ func load(d *fake.Data) {
 	d.UserPermissions["github/octocat"] = map[string]string{}
 	d.UserPermissions["github/octocat"]["foo"] = "admin"
 	d.UserPermissions["github/octocat"]["notfound"] = ""
+
+	d.Deployments["foo/bar"] = []*scm.Deployment{
+		{
+			ID:                  "1",
+			Namespace:           "",
+			Name:                "",
+			Link:                "https://api.github.com/repos/foo/bar/deployments/1",
+			Sha:                 "a84d88e7554fc1fa21bcbc4efae3c782a70d2b9d",
+			Ref:                 "topic-branch",
+			Task:                "deploy",
+			FullName:            "foo/bar",
+			Description:         "Deploy request from Vela",
+			OriginalEnvironment: "",
+			Environment:         "production",
+			RepositoryLink:      "",
+			StatusLink:          "",
+			Author:              &scm.User{Login: "octocat"},
+			Payload:             raw.StringSliceMap{"deploy": "migrate"},
+		},
+	}
 }
