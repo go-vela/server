@@ -9,14 +9,12 @@ import (
 
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetTypeSecretCount gets a count of secrets by type,
 // owner, and name (repo or team) from the database.
 func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, error) {
-	logrus.Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
+	c.Logger.Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
 

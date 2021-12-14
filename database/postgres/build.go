@@ -12,8 +12,6 @@ import (
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 
-	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
 )
 
@@ -21,7 +19,7 @@ import (
 //
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
-	logrus.Tracef("getting build %s/%d from the database", r.GetFullName(), number)
+	c.Logger.Tracef("getting build %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
 	b := new(database.Build)
@@ -42,7 +40,7 @@ func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 
 // GetLastBuild gets the last build by repo ID from the database.
 func (c *client) GetLastBuild(r *library.Repo) (*library.Build, error) {
-	logrus.Tracef("getting last build for repo %s from the database", r.GetFullName())
+	c.Logger.Tracef("getting last build for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	b := new(database.Build)
@@ -65,7 +63,7 @@ func (c *client) GetLastBuild(r *library.Repo) (*library.Build, error) {
 // GetLastBuildByBranch gets the last build by repo ID and branch from the database.
 func (c *client) GetLastBuildByBranch(r *library.Repo, branch string) (*library.Build, error) {
 	// nolint: lll // ignore long line length due to log message
-	logrus.Tracef("getting last build for repo %s on branch %s from the database", r.GetFullName(), branch)
+	c.Logger.Tracef("getting last build for repo %s on branch %s from the database", r.GetFullName(), branch)
 
 	// variable to store query results
 	b := new(database.Build)
@@ -88,7 +86,7 @@ func (c *client) GetLastBuildByBranch(r *library.Repo, branch string) (*library.
 // GetPendingAndRunningBuilds returns the list of pending
 // and running builds within the given timeframe.
 func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue, error) {
-	logrus.Trace("getting pending and running builds from the database")
+	c.Logger.Trace("getting pending and running builds from the database")
 
 	// variable to store query results
 	b := new([]database.BuildQueue)
@@ -116,7 +114,7 @@ func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue
 
 // CreateBuild creates a new build in the database.
 func (c *client) CreateBuild(b *library.Build) error {
-	logrus.Tracef("creating build %d in the database", b.GetNumber())
+	c.Logger.Tracef("creating build %d in the database", b.GetNumber())
 
 	// cast to database type
 	build := database.BuildFromLibrary(b)
@@ -135,7 +133,7 @@ func (c *client) CreateBuild(b *library.Build) error {
 
 // UpdateBuild updates a build in the database.
 func (c *client) UpdateBuild(b *library.Build) error {
-	logrus.Tracef("updating build %d in the database", b.GetNumber())
+	c.Logger.Tracef("updating build %d in the database", b.GetNumber())
 
 	// cast to database type
 	build := database.BuildFromLibrary(b)
@@ -154,7 +152,7 @@ func (c *client) UpdateBuild(b *library.Build) error {
 
 // DeleteBuild deletes a build by unique ID from the database.
 func (c *client) DeleteBuild(id int64) error {
-	logrus.Tracef("deleting build %d in the database", id)
+	c.Logger.Tracef("deleting build %d in the database", id)
 
 	// send query to the database
 	return c.Postgres.

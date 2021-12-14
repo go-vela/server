@@ -9,13 +9,11 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetWorkerList gets a list of all workers from the database.
 func (c *client) GetWorkerList() ([]*library.Worker, error) {
-	logrus.Trace("listing workers from the database")
+	c.Logger.Trace("listing workers from the database")
 
 	// variable to store query results
 	w := new([]database.Worker)

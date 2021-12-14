@@ -8,13 +8,11 @@ import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetBuildStepCount gets a count of all steps by build ID from the database.
 func (c *client) GetBuildStepCount(b *library.Build) (int64, error) {
-	logrus.Tracef("getting count of steps for build %d from the database", b.GetNumber())
+	c.Logger.Tracef("getting count of steps for build %d from the database", b.GetNumber())
 
 	// variable to store query results
 	var s int64
@@ -31,7 +29,7 @@ func (c *client) GetBuildStepCount(b *library.Build) (int64, error) {
 // GetStepImageCount gets a count of all step images
 // and the count of their occurrence in the database.
 func (c *client) GetStepImageCount() (map[string]float64, error) {
-	logrus.Tracef("getting count of all images for steps from the database")
+	c.Logger.Tracef("getting count of all images for steps from the database")
 
 	type imageCount struct {
 		Image string
@@ -58,7 +56,7 @@ func (c *client) GetStepImageCount() (map[string]float64, error) {
 // GetStepStatusCount gets a list of all step statuses
 // and the count of their occurrence in the database.
 func (c *client) GetStepStatusCount() (map[string]float64, error) {
-	logrus.Trace("getting count of all statuses for steps from the database")
+	c.Logger.Trace("getting count of all statuses for steps from the database")
 
 	type statusCount struct {
 		Status string

@@ -12,8 +12,6 @@ import (
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 
-	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
 )
 
@@ -21,7 +19,7 @@ import (
 //
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
-	logrus.Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
+	c.Logger.Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
 	h := new(database.Hook)
@@ -42,7 +40,7 @@ func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
 
 // GetLastHook gets the last hook by repo ID from the database.
 func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
-	logrus.Tracef("getting last hook for repo %s from the database", r.GetFullName())
+	c.Logger.Tracef("getting last hook for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	h := new(database.Hook)
@@ -64,7 +62,7 @@ func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
 
 // CreateHook creates a new hook in the database.
 func (c *client) CreateHook(h *library.Hook) error {
-	logrus.Tracef("creating hook %d in the database", h.GetNumber())
+	c.Logger.Tracef("creating hook %d in the database", h.GetNumber())
 
 	// cast to database type
 	hook := database.HookFromLibrary(h)
@@ -83,7 +81,7 @@ func (c *client) CreateHook(h *library.Hook) error {
 
 // UpdateHook updates a hook in the database.
 func (c *client) UpdateHook(h *library.Hook) error {
-	logrus.Tracef("updating hook %d in the database", h.GetNumber())
+	c.Logger.Tracef("updating hook %d in the database", h.GetNumber())
 
 	// cast to database type
 	hook := database.HookFromLibrary(h)
@@ -102,7 +100,7 @@ func (c *client) UpdateHook(h *library.Hook) error {
 
 // DeleteHook deletes a hook by unique ID from the database.
 func (c *client) DeleteHook(id int64) error {
-	logrus.Tracef("deleting hook %d in the database", id)
+	c.Logger.Tracef("deleting hook %d in the database", id)
 
 	// send query to the database
 	return c.Postgres.

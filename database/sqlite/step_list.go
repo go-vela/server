@@ -10,13 +10,11 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetStepList gets a list of all steps from the database.
 func (c *client) GetStepList() ([]*library.Step, error) {
-	logrus.Trace("listing steps from the database")
+	c.Logger.Trace("listing steps from the database")
 
 	// variable to store query results
 	s := new([]database.Step)
@@ -43,12 +41,12 @@ func (c *client) GetStepList() ([]*library.Step, error) {
 
 // GetBuildStepList gets a list of steps by build ID from the database.
 func (c *client) GetBuildStepList(b *library.Build, page, perPage int) ([]*library.Step, error) {
-	logrus.Tracef("listing steps for build %d from the database", b.GetNumber())
+	c.Logger.Tracef("listing steps for build %d from the database", b.GetNumber())
 
 	// variable to store query results
 	s := new([]database.Step)
 	// calculate offset for pagination through results
-	offset := (perPage * (page - 1))
+	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
 	err := c.Sqlite.

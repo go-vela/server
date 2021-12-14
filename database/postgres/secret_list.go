@@ -11,15 +11,13 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetSecretList gets a list of all secrets from the database.
 //
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetSecretList() ([]*library.Secret, error) {
-	logrus.Tracef("listing secrets from the database")
+	c.Logger.Tracef("listing secrets from the database")
 
 	// variable to store query results
 	s := new([]database.Secret)
@@ -48,7 +46,7 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted secrets
-			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
+			c.Logger.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
 		}
 
 		// convert query result to library type
@@ -63,13 +61,13 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 //
 // nolint: lll // ignore long line length
 func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []string) ([]*library.Secret, error) {
-	logrus.Tracef("listing %s secrets for %s/%s from the database", t, o, n)
+	c.Logger.Tracef("listing %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
 	// variable to store query results
 	s := new([]database.Secret)
 	// calculate offset for pagination through results
-	offset := (perPage * (page - 1))
+	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
 	switch t {
@@ -124,7 +122,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []st
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted secrets
-			logrus.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
+			c.Logger.Errorf("unable to decrypt secret %d: %v", tmp.ID.Int64, err)
 		}
 
 		// convert query result to library type

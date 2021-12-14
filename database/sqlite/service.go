@@ -11,14 +11,13 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetService gets a service by number and build ID from the database.
 func (c *client) GetService(number int, b *library.Build) (*library.Service, error) {
-	logrus.Tracef("getting service %d for build %d from the database", number, b.GetNumber())
+	c.Logger.Tracef("getting service %d for build %d from the database", number, b.GetNumber())
 
 	// variable to store query results
 	s := new(database.Service)
@@ -39,7 +38,7 @@ func (c *client) GetService(number int, b *library.Build) (*library.Service, err
 
 // CreateService creates a new service in the database.
 func (c *client) CreateService(s *library.Service) error {
-	logrus.Tracef("creating service %s in the database", s.GetName())
+	c.Logger.Tracef("creating service %s in the database", s.GetName())
 
 	// cast to database type
 	service := database.ServiceFromLibrary(s)
@@ -58,7 +57,7 @@ func (c *client) CreateService(s *library.Service) error {
 
 // UpdateService updates a service in the database.
 func (c *client) UpdateService(s *library.Service) error {
-	logrus.Tracef("updating service %s in the database", s.GetName())
+	c.Logger.Tracef("updating service %s in the database", s.GetName())
 
 	// cast to database type
 	service := database.ServiceFromLibrary(s)
@@ -77,7 +76,7 @@ func (c *client) UpdateService(s *library.Service) error {
 
 // DeleteService deletes a service by unique ID from the database.
 func (c *client) DeleteService(id int64) error {
-	logrus.Tracef("deleting service %d from the database", id)
+	c.Logger.Tracef("deleting service %d from the database", id)
 
 	// send query to the database
 	return c.Sqlite.

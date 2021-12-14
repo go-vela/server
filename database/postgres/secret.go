@@ -12,14 +12,13 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetSecret gets a secret by type, org, name (repo or team) and secret name from the database.
 func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) {
-	logrus.Tracef("getting %s secret %s for %s/%s from the database", t, secretName, o, n)
+	c.Logger.Tracef("getting %s secret %s for %s/%s from the database", t, secretName, o, n)
 
 	var err error
 
@@ -77,7 +76,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
-		logrus.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n, err)
+		c.Logger.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n, err)
 
 		// return the unencrypted secret
 		return s.ToLibrary(), nil
@@ -89,7 +88,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 
 // CreateSecret creates a new secret in the database.
 func (c *client) CreateSecret(s *library.Secret) error {
-	logrus.Tracef("creating %s secret %s in the database", s.GetType(), s.GetName())
+	c.Logger.Tracef("creating %s secret %s in the database", s.GetType(), s.GetName())
 
 	// cast to database type
 	secret := database.SecretFromLibrary(s)
@@ -116,7 +115,7 @@ func (c *client) CreateSecret(s *library.Secret) error {
 
 // UpdateSecret updates a secret in the database.
 func (c *client) UpdateSecret(s *library.Secret) error {
-	logrus.Tracef("updating %s secret %s in the database", s.GetType(), s.GetName())
+	c.Logger.Tracef("updating %s secret %s in the database", s.GetType(), s.GetName())
 
 	// cast to database type
 	secret := database.SecretFromLibrary(s)
@@ -143,7 +142,7 @@ func (c *client) UpdateSecret(s *library.Secret) error {
 
 // DeleteSecret deletes a secret by unique ID from the database.
 func (c *client) DeleteSecret(id int64) error {
-	logrus.Tracef("Deleting secret %d from the database", id)
+	c.Logger.Tracef("Deleting secret %d from the database", id)
 
 	// send query to the database
 	return c.Postgres.

@@ -11,14 +11,13 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetWorker gets a worker by hostname from the database.
 func (c *client) GetWorker(hostname string) (*library.Worker, error) {
-	logrus.Tracef("getting worker %s from the database", hostname)
+	c.Logger.Tracef("getting worker %s from the database", hostname)
 
 	// variable to store query results
 	w := new(database.Worker)
@@ -39,7 +38,7 @@ func (c *client) GetWorker(hostname string) (*library.Worker, error) {
 
 // GetWorker gets a worker by address from the database.
 func (c *client) GetWorkerByAddress(address string) (*library.Worker, error) {
-	logrus.Tracef("getting worker %s from the database", address)
+	c.Logger.Tracef("getting worker %s from the database", address)
 
 	// variable to store query results
 	w := new(database.Worker)
@@ -60,7 +59,7 @@ func (c *client) GetWorkerByAddress(address string) (*library.Worker, error) {
 
 // CreateWorker creates a new worker in the database.
 func (c *client) CreateWorker(w *library.Worker) error {
-	logrus.Tracef("creating worker %s in the database", w.GetHostname())
+	c.Logger.Tracef("creating worker %s in the database", w.GetHostname())
 
 	// cast to database type
 	worker := database.WorkerFromLibrary(w)
@@ -79,7 +78,7 @@ func (c *client) CreateWorker(w *library.Worker) error {
 
 // UpdateWorker updates a worker in the database.
 func (c *client) UpdateWorker(w *library.Worker) error {
-	logrus.Tracef("updating worker %s in the database", w.GetHostname())
+	c.Logger.Tracef("updating worker %s in the database", w.GetHostname())
 
 	// cast to database type
 	worker := database.WorkerFromLibrary(w)
@@ -98,7 +97,7 @@ func (c *client) UpdateWorker(w *library.Worker) error {
 
 // DeleteWorker deletes a worker by unique ID from the database.
 func (c *client) DeleteWorker(id int64) error {
-	logrus.Tracef("deleting worker %d in the database", id)
+	c.Logger.Tracef("deleting worker %d in the database", id)
 
 	// send query to the database
 	return c.Sqlite.

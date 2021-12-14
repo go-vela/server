@@ -12,16 +12,15 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetUser gets a user by unique ID from the database.
 //
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetUser(id int64) (*library.User, error) {
-	logrus.Tracef("getting user %d from the database", id)
+	c.Logger.Tracef("getting user %d from the database", id)
 
 	// variable to store query results
 	u := new(database.User)
@@ -45,7 +44,7 @@ func (c *client) GetUser(id int64) (*library.User, error) {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted users
-		logrus.Errorf("unable to decrypt user %d: %v", id, err)
+		c.Logger.Errorf("unable to decrypt user %d: %v", id, err)
 
 		// return the unencrypted user
 		return u.ToLibrary(), result.Error
@@ -59,7 +58,7 @@ func (c *client) GetUser(id int64) (*library.User, error) {
 //
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetUserName(name string) (*library.User, error) {
-	logrus.Tracef("getting user %s from the database", name)
+	c.Logger.Tracef("getting user %s from the database", name)
 
 	// variable to store query results
 	u := new(database.User)
@@ -83,7 +82,7 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted users
-		logrus.Errorf("unable to decrypt user %s: %v", name, err)
+		c.Logger.Errorf("unable to decrypt user %s: %v", name, err)
 
 		// return the unencrypted user
 		return u.ToLibrary(), result.Error
@@ -95,7 +94,7 @@ func (c *client) GetUserName(name string) (*library.User, error) {
 
 // CreateUser creates a new user in the database.
 func (c *client) CreateUser(u *library.User) error {
-	logrus.Tracef("creating user %s from the database", u.GetName())
+	c.Logger.Tracef("creating user %s from the database", u.GetName())
 
 	// cast to database type
 	//
@@ -126,7 +125,7 @@ func (c *client) CreateUser(u *library.User) error {
 
 // UpdateUser updates a user in the database.
 func (c *client) UpdateUser(u *library.User) error {
-	logrus.Tracef("updating user %s from the database", u.GetName())
+	c.Logger.Tracef("updating user %s from the database", u.GetName())
 
 	// cast to database type
 	//
@@ -157,7 +156,7 @@ func (c *client) UpdateUser(u *library.User) error {
 
 // DeleteUser deletes a user by unique ID from the database.
 func (c *client) DeleteUser(id int64) error {
-	logrus.Tracef("deleting user %d from the database", id)
+	c.Logger.Tracef("deleting user %d from the database", id)
 
 	// send query to the database
 	return c.Postgres.
