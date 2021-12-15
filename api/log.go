@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -581,6 +583,31 @@ func GetStepLog(c *gin.Context) {
 
 	// send API call to capture the step logs
 	l, err := database.FromContext(c).GetStepLog(s.GetID())
+	data := string(l.GetData())
+	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), r.GetName(), []string{})
+	if err != nil {
+		fmt.Errorf("unable to get secrets for repo %s: %w", r.GetName(), err)
+	}
+	secretValues := []string{}
+	page := 1
+	// capture all secrets belonging to certain repo in database
+	// nolint: gomnd // ignore magic number
+	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
+		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), r.GetName(), page, 100, []string{})
+		if err != nil {
+			fmt.Errorf("unable to get secret list for repo %s: %w", r.GetName(), err)
+		}
+		for _, secret := range s {
+			secretValues = append(secretValues, secret.GetValue())
+		}
+		page++
+	}
+
+	for _, value := range secretValues {
+		data = strings.ReplaceAll(data, value, "********")
+	}
+	l.SetData([]byte(data))
+
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get logs for step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
