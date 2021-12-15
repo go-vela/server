@@ -7,6 +7,8 @@ package middleware
 import (
 	"time"
 
+	"github.com/go-vela/server/router/middleware/org"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -62,9 +64,14 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 				fields["build"] = build.Number
 			}
 
+			org := org.Retrieve(c)
+			if org != "" {
+				fields["org"] = org
+			}
+
 			repo := repo.Retrieve(c)
 			if repo != nil {
-				fields["repo"] = repo.FullName
+				fields["repo"] = repo.Name
 			}
 
 			service := service.Retrieve(c)
