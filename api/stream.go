@@ -11,6 +11,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/user"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -83,12 +86,25 @@ const logUpdateInterval = 1 * time.Second
 func PostServiceStream(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
+	u := user.Retrieve(c)
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	logrus.Infof("streaming logs for service %d for build %s", s.GetNumber(), entry)
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"build":   b.GetNumber(),
+		"org":     o,
+		"repo":    r.GetName(),
+		"service": s.GetNumber(),
+		"user":    u.GetName(),
+	})
+
+	logger.Infof("streaming logs for service %s/%d", entry, s.GetNumber())
 
 	// create new buffer for uploading logs
 	logs := new(bytes.Buffer)
@@ -108,7 +124,7 @@ func PostServiceStream(c *gin.Context) {
 	}
 
 	go func() {
-		logrus.Debugf("polling request body buffer for service %d for build %s", s.GetNumber(), entry)
+		logger.Debugf("polling request body buffer for service %s/%d", entry, s.GetNumber())
 
 		// spawn "infinite" loop that will upload logs
 		// from the buffer until the channel is closed
@@ -122,12 +138,12 @@ func PostServiceStream(c *gin.Context) {
 			//
 			// this is a safety mechanism
 			case <-time.After(time.Duration(r.GetTimeout()) * time.Minute):
-				logrus.Tracef("repo timeout of %d exceeded", r.GetTimeout())
+				logger.Tracef("repo timeout of %d exceeded", r.GetTimeout())
 
 				return
 			// channel is closed
 			case <-done:
-				logrus.Trace("channel closed for polling container logs")
+				logger.Trace("channel closed for polling container logs")
 
 				// return out of the go routine
 				return
@@ -155,7 +171,7 @@ func PostServiceStream(c *gin.Context) {
 		}
 	}()
 
-	logrus.Debugf("scanning request body for service %d for build %s", s.GetNumber(), entry)
+	logger.Debugf("scanning request body for service %s/%d", entry, s.GetNumber())
 
 	scanner := bufio.NewScanner(c.Request.Body)
 	for scanner.Scan() {
@@ -225,12 +241,25 @@ func PostServiceStream(c *gin.Context) {
 func PostStepStream(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
+	u := user.Retrieve(c)
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
-	logrus.Infof("streaming logs for step %d for build %s", s.GetNumber(), entry)
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"step":  s.GetNumber(),
+		"user":  u.GetName(),
+	})
+
+	logger.Infof("streaming logs for step %s/%d", entry, s.GetNumber())
 
 	// create new buffer for uploading logs
 	logs := new(bytes.Buffer)
@@ -250,7 +279,7 @@ func PostStepStream(c *gin.Context) {
 	}
 
 	go func() {
-		logrus.Debugf("polling request body buffer for step %d for build %s", s.GetNumber(), entry)
+		logger.Debugf("polling request body buffer for step %s/%d", entry, s.GetNumber())
 
 		// spawn "infinite" loop that will upload logs
 		// from the buffer until the channel is closed
@@ -264,12 +293,12 @@ func PostStepStream(c *gin.Context) {
 			//
 			// this is a safety mechanism
 			case <-time.After(time.Duration(r.GetTimeout()) * time.Minute):
-				logrus.Tracef("repo timeout of %d exceeded", r.GetTimeout())
+				logger.Tracef("repo timeout of %d exceeded", r.GetTimeout())
 
 				return
 			// channel is closed
 			case <-done:
-				logrus.Trace("channel closed for polling container logs")
+				logger.Trace("channel closed for polling container logs")
 
 				// return out of the go routine
 				return
@@ -297,7 +326,7 @@ func PostStepStream(c *gin.Context) {
 		}
 	}()
 
-	logrus.Debugf("scanning request body for step %d for build %s", s.GetNumber(), entry)
+	logger.Debugf("scanning request body for step %s/%d", entry, s.GetNumber())
 
 	scanner := bufio.NewScanner(c.Request.Body)
 	for scanner.Scan() {

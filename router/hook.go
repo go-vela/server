@@ -7,6 +7,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
 	"github.com/go-vela/server/router/middleware/repo"
 )
@@ -21,7 +22,7 @@ import (
 // DELETE /api/v1/hooks/:org/:repo/:hook .
 func HookHandlers(base *gin.RouterGroup) {
 	// Hooks endpoints
-	hooks := base.Group("/hooks/:org/:repo", repo.Establish())
+	hooks := base.Group("/hooks/:org/:repo", org.Establish(), repo.Establish())
 	{
 		hooks.POST("", perm.MustPlatformAdmin(), api.CreateHook)
 		hooks.GET("", perm.MustRead(), api.GetHooks)
