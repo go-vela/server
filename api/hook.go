@@ -188,8 +188,6 @@ func CreateHook(c *gin.Context) {
 
 // GetHooks represents the API handler to capture a list
 // of webhooks from the configured backend.
-//
-// nolint: dupl // ignore false positive
 func GetHooks(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

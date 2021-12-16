@@ -318,8 +318,6 @@ func CreateRepo(c *gin.Context) {
 
 // GetRepos represents the API handler to capture a list
 // of repos for a user from the configured backend.
-//
-// nolint: dupl // ignore false positive
 func GetRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

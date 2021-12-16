@@ -249,6 +249,8 @@ func CreateSecret(c *gin.Context) {
 
 // GetSecrets represents the API handler to capture
 // a list of secrets from the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func GetSecrets(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

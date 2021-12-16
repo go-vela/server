@@ -288,7 +288,7 @@ func CreateBuild(c *gin.Context) {
 }
 
 // skipEmptyBuild checks if the build should be skipped due to it
-// not containing any steps besides init or clone
+// not containing any steps besides init or clone.
 func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
@@ -383,6 +383,8 @@ func skipEmptyBuild(p *pipeline.Build) string {
 
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
@@ -550,6 +552,8 @@ func GetBuilds(c *gin.Context) {
 
 // GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
@@ -814,7 +818,6 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the last build for the repo
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get last build for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -891,7 +894,6 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -908,7 +910,6 @@ func RestartBuild(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -943,6 +944,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to update repo for ensuring counter is incremented
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
+		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %v", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -1042,7 +1044,6 @@ func UpdateBuild(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to decode JSON for build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -1361,6 +1362,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 
 // CancelBuild represents the API handler to
 // cancel a running build.
+//
+// nolint: funlen // ignore function length due to comments
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
