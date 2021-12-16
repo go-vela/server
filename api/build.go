@@ -1395,7 +1395,7 @@ func CancelBuild(c *gin.Context) {
 	// retrieve the worker info
 	w, err := database.FromContext(c).GetWorker(b.GetHost())
 	if err != nil {
-		retErr := fmt.Errorf("unable to get worker: %w", err)
+		retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 		return
 	}
@@ -1458,7 +1458,7 @@ func CancelBuild(c *gin.Context) {
 	b.SetStatus(constants.StatusCanceled)
 	err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update status for build %d: %w", b.Number, err)
+		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		return
 	}
@@ -1471,7 +1471,7 @@ func CancelBuild(c *gin.Context) {
 		// retrieve build steps (per page) from the database
 		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve steps for build %d: %w", b.Number, err)
+			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
@@ -1497,7 +1497,7 @@ func CancelBuild(c *gin.Context) {
 			step.SetStatus(constants.StatusCanceled)
 			err = database.FromContext(c).UpdateStep(step)
 			if err != nil {
-				retErr := fmt.Errorf("unable to update step %s for build %d: %w", step.GetName(), b.Number, err)
+				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
@@ -1511,7 +1511,7 @@ func CancelBuild(c *gin.Context) {
 		// retrieve build services (per page) from the database
 		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve services for build %d: %w", b.Number, err)
+			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
@@ -1537,9 +1537,9 @@ func CancelBuild(c *gin.Context) {
 			service.SetStatus(constants.StatusCanceled)
 			err = database.FromContext(c).UpdateService(service)
 			if err != nil {
-				retErr := fmt.Errorf("unable to update service %s for build %d: %w",
+				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
 					service.GetName(),
-					b.Number,
+					entry,
 					err,
 				)
 				util.HandleError(c, http.StatusNotFound, retErr)
