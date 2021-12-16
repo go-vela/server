@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/router/middleware/org"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
@@ -217,6 +219,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustAdmin())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -297,6 +300,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustAdmin())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -377,6 +381,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustAdmin())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -457,6 +462,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -537,6 +543,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -617,6 +624,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -697,6 +705,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustWrite())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -777,6 +786,7 @@ func TestPerm_MustRead(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -857,6 +867,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -937,6 +948,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -1017,6 +1029,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -1097,6 +1110,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
@@ -1177,6 +1191,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
 	engine.Use(user.Establish())
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(MustRead())
 	engine.GET("/test/:org/:repo", func(c *gin.Context) {
