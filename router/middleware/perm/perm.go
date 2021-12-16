@@ -49,6 +49,8 @@ func MustPlatformAdmin() gin.HandlerFunc {
 }
 
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
+//
+// nolint: funlen // ignore function length due to comments
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
@@ -180,6 +182,7 @@ func MustAdmin() gin.HandlerFunc {
 			"user": u.GetName(),
 		})
 
+		// nolint: lll // ignore long line length due to parameters
 		logger.Debugf("verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
