@@ -73,7 +73,7 @@ var baseErr = "unable to process webhook"
 //
 // nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
 func PostWebhook(c *gin.Context) {
-	logrus.Info("Webhook received")
+	logrus.Info("webhook received")
 
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)

@@ -49,7 +49,6 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 				"method":     c.Request.Method,
 				"path":       path,
 				"status":     c.Writer.Status(),
-				"time":       end.Format(timeFormat),
 				"user-agent": c.Request.UserAgent(),
 				"version":    c.GetHeader("X-Vela-Version"),
 			}
