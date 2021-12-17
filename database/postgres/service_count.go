@@ -8,11 +8,14 @@ import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetBuildServiceCount gets a count of all services by build ID from the database.
 func (c *client) GetBuildServiceCount(b *library.Build) (int64, error) {
-	c.Logger.Tracef("getting count of services for build %d from the database", b.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+	}).Tracef("getting count of services for build %d from the database", b.GetNumber())
 
 	// variable to store query results
 	var s int64

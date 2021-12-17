@@ -8,6 +8,7 @@ import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetRepoCount gets a count of all repos from the database.
@@ -28,7 +29,9 @@ func (c *client) GetRepoCount() (int64, error) {
 
 // GetOrgRepoCount gets a count of all repos for a specific org from the database.
 func (c *client) GetOrgRepoCount(org string, filters map[string]string) (int64, error) {
-	c.Logger.Tracef("getting count of repos for org %s in the database", org)
+	c.Logger.WithFields(logrus.Fields{
+		"org": org,
+	}).Tracef("getting count of repos for org %s from the database", org)
 
 	// variable to store query results
 	var r int64
@@ -46,7 +49,9 @@ func (c *client) GetOrgRepoCount(org string, filters map[string]string) (int64, 
 
 // GetUserRepoCount gets a count of all repos for a specific user from the database.
 func (c *client) GetUserRepoCount(u *library.User) (int64, error) {
-	c.Logger.Tracef("getting count of repos for user %s in the database", u.GetName())
+	c.Logger.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Tracef("getting count of repos for user %s in the database", u.GetName())
 
 	// variable to store query results
 	var r int64

@@ -7,6 +7,8 @@ package postgres
 import (
 	"errors"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -17,9 +19,13 @@ import (
 
 // GetHook gets a hook by number and repo ID from the database.
 //
-// nolint: dupl // ignore false positive of duplicate code
+// nolint: dupl // ignore similar code with build
 func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
-	c.Logger.Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
+	c.Logger.WithFields(logrus.Fields{
+		"hook": number,
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("getting hook %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
 	h := new(database.Hook)
@@ -40,7 +46,10 @@ func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
 
 // GetLastHook gets the last hook by repo ID from the database.
 func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
-	c.Logger.Tracef("getting last hook for repo %s from the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("getting last hook for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	h := new(database.Hook)
@@ -62,7 +71,9 @@ func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
 
 // CreateHook creates a new hook in the database.
 func (c *client) CreateHook(h *library.Hook) error {
-	c.Logger.Tracef("creating hook %d in the database", h.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"hook": h.GetNumber(),
+	}).Tracef("creating hook %d in the database", h.GetNumber())
 
 	// cast to database type
 	hook := database.HookFromLibrary(h)
@@ -81,7 +92,9 @@ func (c *client) CreateHook(h *library.Hook) error {
 
 // UpdateHook updates a hook in the database.
 func (c *client) UpdateHook(h *library.Hook) error {
-	c.Logger.Tracef("updating hook %d in the database", h.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"hook": h.GetNumber(),
+	}).Tracef("updating hook %d in the database", h.GetNumber())
 
 	// cast to database type
 	hook := database.HookFromLibrary(h)

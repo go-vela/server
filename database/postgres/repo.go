@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -18,7 +20,10 @@ import (
 
 // GetRepo gets a repo by org and name from the database.
 func (c *client) GetRepo(org, name string) (*library.Repo, error) {
-	c.Logger.Tracef("getting repo %s/%s from the database", org, name)
+	c.Logger.WithFields(logrus.Fields{
+		"org":  org,
+		"repo": name,
+	}).Tracef("getting repo %s/%s from the database", org, name)
 
 	// variable to store query results
 	r := new(database.Repo)
@@ -53,8 +58,13 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 }
 
 // CreateRepo creates a new repo in the database.
+//
+// nolint: dupl // ignore similar code with update
 func (c *client) CreateRepo(r *library.Repo) error {
-	c.Logger.Tracef("creating repo %s in the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("creating repo %s in the database", r.GetFullName())
 
 	// cast to database type
 	repo := database.RepoFromLibrary(r)
@@ -80,8 +90,13 @@ func (c *client) CreateRepo(r *library.Repo) error {
 }
 
 // UpdateRepo updates a repo in the database.
+//
+// nolint: dupl // ignore similar code with create
 func (c *client) UpdateRepo(r *library.Repo) error {
-	c.Logger.Tracef("updating repo %s in the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("updating repo %s in the database", r.GetFullName())
 
 	// cast to database type
 	repo := database.RepoFromLibrary(r)

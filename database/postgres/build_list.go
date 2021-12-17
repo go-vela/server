@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetBuildList gets a list of all builds from the database.
@@ -40,7 +41,9 @@ func (c *client) GetBuildList() ([]*library.Build, error) {
 
 // GetDeploymentBuildList gets a list of all builds from the database.
 func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, error) {
-	c.Logger.Trace("listing builds from the database")
+	c.Logger.WithFields(logrus.Fields{
+		"deployment": deployment,
+	}).Tracef("listing builds for deployment %s from the database", deployment)
 
 	// variable to store query results
 	b := new([]database.Build)
@@ -50,6 +53,8 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 		filters["source"] = deployment
 	}
 	// send query to the database and store result in variable
+	//
+	// nolint: gomnd // ignore magic number
 	err := c.Postgres.
 		Table(constants.TableBuild).
 		Select("*").
@@ -76,7 +81,9 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 //
 // nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgBuildList(org string, filters map[string]string, page, perPage int) ([]*library.Build, int64, error) {
-	c.Logger.Tracef("listing builds for org %s from the database", org)
+	c.Logger.WithFields(logrus.Fields{
+		"org": org,
+	}).Tracef("listing builds for org %s from the database", org)
 
 	// variables to store query results
 	b := new([]database.Build)
@@ -125,7 +132,10 @@ func (c *client) GetOrgBuildList(org string, filters map[string]string, page, pe
 //
 // nolint: lll // ignore long line length due to variable names
 func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]string, page, perPage int) ([]*library.Build, int64, error) {
-	c.Logger.Tracef("listing builds for repo %s from the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("listing builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	b := new([]database.Build)

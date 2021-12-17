@@ -11,7 +11,7 @@ import (
 
 // Ping sends a "ping" request with backoff to the database.
 func (c *client) Ping() error {
-	c.Logger.Trace("sending ping requests to the sqlite database")
+	c.Logger.Trace("sending ping requests to the database")
 
 	// create a loop to attempt ping requests 5 times
 	for i := 0; i < 5; i++ {

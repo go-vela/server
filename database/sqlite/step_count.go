@@ -8,11 +8,14 @@ import (
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetBuildStepCount gets a count of all steps by build ID from the database.
 func (c *client) GetBuildStepCount(b *library.Build) (int64, error) {
-	c.Logger.Tracef("getting count of steps for build %d from the database", b.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+	}).Tracef("getting count of steps for build %d from the database", b.GetNumber())
 
 	// variable to store query results
 	var s int64

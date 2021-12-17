@@ -7,6 +7,8 @@ package postgres
 import (
 	"errors"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -17,7 +19,10 @@ import (
 
 // GetStep gets a step by number and build ID from the database.
 func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
-	c.Logger.Tracef("getting step %d for build %d from the database", number, b.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"step":  number,
+	}).Tracef("getting step %d for build %d from the database", number, b.GetNumber())
 
 	// variable to store query results
 	s := new(database.Step)
@@ -38,7 +43,9 @@ func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
 
 // CreateStep creates a new step in the database.
 func (c *client) CreateStep(s *library.Step) error {
-	c.Logger.Tracef("creating step %s in the database", s.GetName())
+	c.Logger.WithFields(logrus.Fields{
+		"step": s.GetNumber(),
+	}).Tracef("creating step %s in the database", s.GetName())
 
 	// cast to database type
 	step := database.StepFromLibrary(s)
@@ -57,7 +64,9 @@ func (c *client) CreateStep(s *library.Step) error {
 
 // UpdateStep updates a step in the database.
 func (c *client) UpdateStep(s *library.Step) error {
-	c.Logger.Tracef("updating step %s in the database", s.GetName())
+	c.Logger.WithFields(logrus.Fields{
+		"step": s.GetNumber(),
+	}).Tracef("updating step %s in the database", s.GetName())
 
 	// cast to database type
 	step := database.StepFromLibrary(s)

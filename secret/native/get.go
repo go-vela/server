@@ -5,12 +5,35 @@
 package native
 
 import (
+	"strings"
+
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // Get captures a secret.
 func (c *client) Get(sType, org, name, path string) (*library.Secret, error) {
-	c.Logger.Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":    org,
+		"repo":   name,
+		"secret": path,
+		"type":   sType,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(sType, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":    org,
+			"team":   name,
+			"secret": path,
+			"type":   sType,
+		}
+	}
+
+	c.Logger.WithFields(fields).Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
 
 	// capture the secret from the native service
 	s, err := c.Database.GetSecret(sType, org, name, path)

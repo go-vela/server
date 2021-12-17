@@ -2,7 +2,6 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore false positive
 package postgres
 
 import (
@@ -10,6 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetHookList gets a list of all hooks from the database.
@@ -41,7 +41,10 @@ func (c *client) GetHookList() ([]*library.Hook, error) {
 
 // GetRepoHookList gets a list of hooks by repo ID from the database.
 func (c *client) GetRepoHookList(r *library.Repo, page, perPage int) ([]*library.Hook, error) {
-	c.Logger.Tracef("listing hooks for repo %s from the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("listing hooks for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	h := new([]database.Hook)

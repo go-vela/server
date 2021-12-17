@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
@@ -19,7 +21,24 @@ import (
 // Vault API doesn't seem to support pagination. Might result in undesired
 // behavior for fetching Vault secrets in paginated manner.
 func (c *client) List(sType, org, name string, _, _ int, _ []string) ([]*library.Secret, error) {
-	c.Logger.Tracef("listing vault %s secrets for %s/%s", sType, org, name)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":  org,
+		"repo": name,
+		"type": sType,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(sType, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":  org,
+			"team": name,
+			"type": sType,
+		}
+	}
+
+	c.Logger.WithFields(fields).Tracef("listing vault %s secrets for %s/%s", sType, org, name)
 
 	var err error
 

@@ -38,7 +38,7 @@ type client struct {
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Redis client
 	c := new(client)
@@ -56,7 +56,7 @@ func New(opts ...ClientOpt) (*client, error) {
 	// create new logger for the client
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
-	c.Logger = logrus.NewEntry(logger)
+	c.Logger = logrus.NewEntry(logger).WithField("queue", c.Driver())
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -166,13 +166,13 @@ func pingQueue(c *client) error {
 // NewTest returns a Queue implementation that
 // integrates with a local Redis instance.
 //
-// It's possible to overide this with env variables,
+// It's possible to override this with env variables,
 // which gets used as a part of integration testing
 // with the different supported backends.
 //
 // This function is intended for running tests only.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func NewTest(channels ...string) (*client, error) {
 	// create a local fake redis instance
 	//

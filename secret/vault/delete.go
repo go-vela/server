@@ -6,13 +6,35 @@ package vault
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
 )
 
 // Delete deletes a secret.
 func (c *client) Delete(sType, org, name, path string) error {
-	c.Logger.Tracef("deleting vault %s secret %s for %s/%s", sType, path, org, name)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":    org,
+		"repo":   name,
+		"secret": path,
+		"type":   sType,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(sType, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":    org,
+			"team":   name,
+			"secret": path,
+			"type":   sType,
+		}
+	}
+
+	c.Logger.WithFields(fields).Tracef("deleting vault %s secret %s for %s/%s", sType, path, org, name)
 
 	// delete the secret from the Vault service
 	switch sType {

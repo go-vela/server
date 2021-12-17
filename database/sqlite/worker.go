@@ -7,6 +7,8 @@ package sqlite
 import (
 	"errors"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -17,7 +19,9 @@ import (
 
 // GetWorker gets a worker by hostname from the database.
 func (c *client) GetWorker(hostname string) (*library.Worker, error) {
-	c.Logger.Tracef("getting worker %s from the database", hostname)
+	c.Logger.WithFields(logrus.Fields{
+		"worker": hostname,
+	}).Tracef("getting worker %s from the database", hostname)
 
 	// variable to store query results
 	w := new(database.Worker)
@@ -38,7 +42,7 @@ func (c *client) GetWorker(hostname string) (*library.Worker, error) {
 
 // GetWorker gets a worker by address from the database.
 func (c *client) GetWorkerByAddress(address string) (*library.Worker, error) {
-	c.Logger.Tracef("getting worker %s from the database", address)
+	c.Logger.Tracef("getting worker by address %s from the database", address)
 
 	// variable to store query results
 	w := new(database.Worker)
@@ -59,7 +63,9 @@ func (c *client) GetWorkerByAddress(address string) (*library.Worker, error) {
 
 // CreateWorker creates a new worker in the database.
 func (c *client) CreateWorker(w *library.Worker) error {
-	c.Logger.Tracef("creating worker %s in the database", w.GetHostname())
+	c.Logger.WithFields(logrus.Fields{
+		"worker": w.GetHostname(),
+	}).Tracef("creating worker %s in the database", w.GetHostname())
 
 	// cast to database type
 	worker := database.WorkerFromLibrary(w)
@@ -78,7 +84,9 @@ func (c *client) CreateWorker(w *library.Worker) error {
 
 // UpdateWorker updates a worker in the database.
 func (c *client) UpdateWorker(w *library.Worker) error {
-	c.Logger.Tracef("updating worker %s in the database", w.GetHostname())
+	c.Logger.WithFields(logrus.Fields{
+		"worker": w.GetHostname(),
+	}).Tracef("updating worker %s in the database", w.GetHostname())
 
 	// cast to database type
 	worker := database.WorkerFromLibrary(w)

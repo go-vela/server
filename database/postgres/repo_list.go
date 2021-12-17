@@ -9,9 +9,11 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetRepoList gets a list of all repos from the database.
+//
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetRepoList() ([]*library.Repo, error) {
 	c.Logger.Trace("listing repos from the database")
@@ -54,9 +56,12 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 }
 
 // GetOrgRepoList gets a list of all repos by org from the database.
+//
 // nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgRepoList(org string, filters map[string]string, page, perPage int) ([]*library.Repo, error) {
-	c.Logger.Tracef("getting repos for org %s from the database", org)
+	c.Logger.WithFields(logrus.Fields{
+		"org": org,
+	}).Tracef("listing repos for org %s from the database", org)
 
 	// variable to store query results
 	r := new([]database.Repo)
@@ -104,7 +109,9 @@ func (c *client) GetOrgRepoList(org string, filters map[string]string, page, per
 
 // GetUserRepoList gets a list of all repos by user ID from the database.
 func (c *client) GetUserRepoList(u *library.User, page, perPage int) ([]*library.Repo, error) {
-	c.Logger.Tracef("listing repos for user %s from the database", u.GetName())
+	c.Logger.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Tracef("listing repos for user %s from the database", u.GetName())
 
 	// variable to store query results
 	r := new([]database.Repo)

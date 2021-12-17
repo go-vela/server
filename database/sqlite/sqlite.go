@@ -61,7 +61,7 @@ func New(opts ...ClientOpt) (*client, error) {
 	// create new logger for the client
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
-	c.Logger = logrus.NewEntry(logger)
+	c.Logger = logrus.NewEntry(logger).WithField("database", c.Driver())
 
 	// apply all provided configuration options
 	for _, opt := range opts {

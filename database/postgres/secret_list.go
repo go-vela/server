@@ -7,6 +7,8 @@ package postgres
 import (
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -61,7 +63,25 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 //
 // nolint: lll // ignore long line length
 func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []string) ([]*library.Secret, error) {
-	c.Logger.Tracef("listing %s secrets for %s/%s from the database", t, o, n)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":  o,
+		"repo": n,
+		"type": t,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(t, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":  o,
+			"team": n,
+			"type": t,
+		}
+	}
+
+	// nolint: lll // ignore long line length due to parameters
+	c.Logger.WithFields(fields).Tracef("listing %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
 	// variable to store query results

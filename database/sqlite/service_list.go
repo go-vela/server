@@ -2,7 +2,6 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore false positive of duplicate code
 package sqlite
 
 import (
@@ -10,6 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // GetServiceList gets a list of all services from the database.
@@ -43,7 +43,9 @@ func (c *client) GetServiceList() ([]*library.Service, error) {
 //
 // nolint: lll // ignore long line length due to parameters
 func (c *client) GetBuildServiceList(b *library.Build, page, perPage int) ([]*library.Service, error) {
-	c.Logger.Tracef("listing services for build %d from the database", b.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+	}).Tracef("listing services for build %d from the database", b.GetNumber())
 
 	// variable to store query results
 	s := new([]database.Service)

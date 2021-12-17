@@ -7,13 +7,19 @@ package github
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/library"
 	"github.com/google/go-github/v39/github"
 )
 
 // Changeset captures the list of files changed for a commit.
 func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]string, error) {
-	c.Logger.Tracef("capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Tracef("capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
@@ -38,7 +44,11 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 
 // ChangesetPR captures the list of files changed for a pull request.
 func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]string, error) {
-	c.Logger.Tracef("capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Tracef("capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
