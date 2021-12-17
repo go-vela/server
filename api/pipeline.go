@@ -10,19 +10,19 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
-	"github.com/go-vela/server/scm"
-
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
-
-	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -76,6 +76,20 @@ const (
 // GetPipeline represents the API handler to capture a
 // pipeline configuration for a repo from the the source provider.
 func GetPipeline(ctx *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(ctx)
+	r := repo.Retrieve(ctx)
+	u := user.Retrieve(ctx)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Infof("reading pipeline for repo %s", r.GetFullName())
+
 	pipeline, _, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
@@ -131,6 +145,20 @@ func GetPipeline(ctx *gin.Context) {
 // GetTemplates represents the API handler to capture a
 // map of templates utilized by a pipeline configuration.
 func GetTemplates(ctx *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(ctx)
+	r := repo.Retrieve(ctx)
+	u := user.Retrieve(ctx)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Infof("reading templates from pipeline for repo %s", r.GetFullName())
+
 	pipeline, _, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
@@ -195,6 +223,20 @@ func GetTemplates(ctx *gin.Context) {
 // ExpandPipeline represents the API handler to capture and
 // expand a pipeline configuration.
 func ExpandPipeline(ctx *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(ctx)
+	r := repo.Retrieve(ctx)
+	u := user.Retrieve(ctx)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Infof("expanding templates from pipeline for repo %s", r.GetFullName())
+
 	pipeline, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
@@ -254,6 +296,20 @@ func ExpandPipeline(ctx *gin.Context) {
 // ValidatePipeline represents the API handler to capture, expand and
 // validate a pipeline configuration.
 func ValidatePipeline(ctx *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(ctx)
+	r := repo.Retrieve(ctx)
+	u := user.Retrieve(ctx)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Infof("validating pipeline for repo %s", r.GetFullName())
+
 	pipeline, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
@@ -325,6 +381,20 @@ func ValidatePipeline(ctx *gin.Context) {
 // expand and compile a pipeline configuration.
 //
 func CompilePipeline(ctx *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(ctx)
+	r := repo.Retrieve(ctx)
+	u := user.Retrieve(ctx)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Infof("compiling pipeline for repo %s", r.GetFullName())
+
 	pipeline, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
