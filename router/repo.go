@@ -53,32 +53,30 @@ import (
 func RepoHandlers(base *gin.RouterGroup) {
 	// Repos endpoints
 	repos := base.Group("/repos")
+	orgs := base.Group("/repos")
 	{
 		repos.POST("", middleware.Payload(), api.CreateRepo)
 		repos.GET("", api.GetRepos)
-
-		// Org endpoints
-		org := repos.Group("/:org", org.Establish())
+		org := orgs.Group("/:org", org.Establish())
 		{
 			org.GET("", api.GetOrgRepos)
 			org.GET("/builds", api.GetOrgBuilds)
-
-			// Repo endpoints
-			repo := org.Group("/:repo", repo.Establish())
-			{
-				repo.GET("", perm.MustRead(), api.GetRepo)
-				repo.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
-				repo.DELETE("", perm.MustAdmin(), api.DeleteRepo)
-				repo.PATCH("/repair", perm.MustAdmin(), api.RepairRepo)
-				repo.PATCH("/chown", perm.MustAdmin(), api.ChownRepo)
-
-				// Build endpoints
-				// * Service endpoints
-				//   * Log endpoints
-				// * Step endpoints
-				//   * Log endpoints
-				BuildHandlers(repo)
-			} // end of repo endpoints
 		} // end of org endpoints
+		// Repo endpoints
+		repo := repos.Group("/:org/:repo", repo.Establish())
+		{
+			repo.GET("", perm.MustRead(), api.GetRepo)
+			repo.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
+			repo.DELETE("", perm.MustAdmin(), api.DeleteRepo)
+			repo.PATCH("/repair", perm.MustAdmin(), api.RepairRepo)
+			repo.PATCH("/chown", perm.MustAdmin(), api.ChownRepo)
+
+			// Build endpoints
+			// * Service endpoints
+			//   * Log endpoints
+			// * Step endpoints
+			//   * Log endpoints
+			BuildHandlers(repo)
+		} // end of repo endpoints
 	} // end of repos endpoints
 }

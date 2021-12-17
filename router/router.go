@@ -34,7 +34,6 @@ package router
 import (
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 
@@ -59,7 +58,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.Use(middleware.Secure)
 
 	// Badge endpoint
-	r.GET("/badge/:org/:repo/status.svg", org.Establish(), repo.Establish(), api.GetBadge)
+	r.GET("/badge/:org/:repo/status.svg", repo.Establish(), api.GetBadge)
 
 	// Health endpoint
 	r.GET("/health", api.Health)

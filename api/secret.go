@@ -82,47 +82,25 @@ import (
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
 func CreateSecret(c *gin.Context) {
+	// define the default events to enable for a secret
+	defaultEvents := []string{constants.EventPush, constants.EventTag, constants.EventDeploy}
+
 	// capture middleware values
-	u := user.Retrieve(c)
 	e := c.Param("engine")
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
+	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%s/%s", t, o, n)
-
-	// create log fields from API metadata
-	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"type":   t,
-		"user":   u.GetName(),
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
-	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("creating new secret %s for %s service", entry, e)
+	logrus.Infof("Creating secret %s/%s/%s for %s service", t, o, n, e)
 
 	// capture body from API request
 	input := new(library.Secret)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %w", entry, e, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s for %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -148,7 +126,7 @@ func CreateSecret(c *gin.Context) {
 
 	if len(input.GetEvents()) == 0 {
 		// set default events to enable for the secret
-		input.SetEvents([]string{constants.EventPush, constants.EventTag, constants.EventDeploy})
+		input.SetEvents(defaultEvents)
 	}
 
 	if input.AllowCommand == nil {
@@ -165,7 +143,7 @@ func CreateSecret(c *gin.Context) {
 	// send API call to create the secret
 	err = secret.FromContext(c, e).Create(t, o, n, input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create secret %s for %s service: %w", entry, e, err)
+		retErr := fmt.Errorf("unable to create secret %s/%s/%s for %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -173,7 +151,6 @@ func CreateSecret(c *gin.Context) {
 	}
 
 	s, _ := secret.FromContext(c, e).Get(t, o, n, input.GetName())
-
 	c.JSON(http.StatusOK, s.Sanitize())
 }
 
@@ -249,19 +226,17 @@ func CreateSecret(c *gin.Context) {
 
 // GetSecrets represents the API handler to capture
 // a list of secrets from the configured backend.
-//
-// nolint: funlen // ignore function length due to comments
 func GetSecrets(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
 	e := c.Param("engine")
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
-
+	u := user.Retrieve(c)
 	var teams []string
+
 	// get list of user's teams if type is shared secret and team is '*'
-	if t == constants.SecretShared && n == "*" {
+	if t == "shared" && n == "*" {
 		var err error
 		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 		if err != nil {
@@ -273,39 +248,13 @@ func GetSecrets(c *gin.Context) {
 		}
 	}
 
-	entry := fmt.Sprintf("%s/%s/%s", t, o, n)
-
-	// create log fields from API metadata
-	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"type":   t,
-		"user":   u.GetName(),
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
-	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("reading secrets %s from %s service", entry, e)
+	logrus.Infof("Reading secrets %s/%s/%s from %s service", t, o, n, e)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to convert page query parameter for %s from %s service: %w", entry, e, err)
+		retErr := fmt.Errorf("unable to convert page query parameter for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -316,7 +265,7 @@ func GetSecrets(c *gin.Context) {
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to convert per_page query parameter for %s from %s service: %w", entry, e, err)
+		retErr := fmt.Errorf("unable to convert per_page query parameter for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -326,7 +275,8 @@ func GetSecrets(c *gin.Context) {
 	// send API call to capture the total number of secrets
 	total, err := secret.FromContext(c, e).Count(t, o, n, teams)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get secret count for %s from %s service: %w", entry, e, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to get secret count for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -341,7 +291,7 @@ func GetSecrets(c *gin.Context) {
 	// send API call to capture the list of secrets
 	s, err := secret.FromContext(c, e).List(t, o, n, page, perPage, teams)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get secrets for %s from %s service: %w", entry, e, err)
+		retErr := fmt.Errorf("unable to get secrets for %s/%s/%s from %s service: %w", t, o, n, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -432,47 +382,19 @@ func GetSecret(c *gin.Context) {
 	n := c.Param("name")
 	s := strings.TrimPrefix(c.Param("secret"), "/")
 
-	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
-
-	// create log fields from API metadata
-	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"secret": s,
-		"type":   t,
-		"user":   u.GetName(),
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"secret": s,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
-	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("reading secret %s from %s service", entry, e)
+	logrus.Infof("Reading secret %s/%s/%s/%s from %s service", t, o, n, s, e)
 
 	// send API call to capture the secret
 	secret, err := secret.FromContext(c, e).Get(t, o, n, s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get secret %s from %s service: %w", entry, e, err)
+		retErr := fmt.Errorf("unable to get secret %s/%s/%s/%s from %s service: %w", t, o, n, s, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	// only allow workers to access the full secret with the value
+	// only allow agents to access the full secret with the value
 	if u.GetAdmin() && u.GetName() == "vela-worker" {
 		c.JSON(http.StatusOK, secret)
 
@@ -546,49 +468,22 @@ func GetSecret(c *gin.Context) {
 // UpdateSecret updates a secret for the provided secrets service.
 func UpdateSecret(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
 	e := c.Param("engine")
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
 	s := strings.TrimPrefix(c.Param("secret"), "/")
+	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
-
-	// create log fields from API metadata
-	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"secret": s,
-		"type":   t,
-		"user":   u.GetName(),
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"secret": s,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
-	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("updating secret %s for %s service", entry, e)
+	logrus.Infof("Updating secret %s/%s/%s/%s for %s service", t, o, n, s, e)
 
 	// capture body from API request
 	input := new(library.Secret)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %v", entry, e, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for secret %s/%s/%s/%s for %s service: %v", t, o, n, s, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -627,7 +522,7 @@ func UpdateSecret(c *gin.Context) {
 	// send API call to update the secret
 	err = secret.FromContext(c, e).Update(t, o, n, input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update secret %s for %s service: %w", entry, e, err)
+		retErr := fmt.Errorf("unable to update secret %s/%s/%s/%s for %s service: %w", t, o, n, s, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -694,54 +589,26 @@ func UpdateSecret(c *gin.Context) {
 // DeleteSecret deletes a secret from the provided secrets service.
 func DeleteSecret(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
 	e := c.Param("engine")
 	t := c.Param("type")
 	o := c.Param("org")
 	n := c.Param("name")
 	s := strings.TrimPrefix(c.Param("secret"), "/")
 
-	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
-
-	// create log fields from API metadata
-	fields := logrus.Fields{
-		"engine": e,
-		"org":    o,
-		"repo":   n,
-		"secret": s,
-		"type":   t,
-		"user":   u.GetName(),
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(t, constants.SecretShared) {
-		// update log fields from API metadata
-		fields = logrus.Fields{
-			"engine": e,
-			"org":    o,
-			"secret": s,
-			"team":   n,
-			"type":   t,
-			"user":   u.GetName(),
-		}
-	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("deleting secret %s from %s service", entry, e)
+	logrus.Infof("Deleting secret %s/%s/%s/%s from %s service", t, o, n, s, e)
 
 	// send API call to remove the secret
 	err := secret.FromContext(c, e).Delete(t, o, n, s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete secret %s from %s service: %w", entry, e, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to delete secret %s/%s/%s/%s from %s service: %w", t, o, n, s, e, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("secret %s deleted from %s service", entry, e))
+	c.JSON(http.StatusOK, fmt.Sprintf("Secret %s/%s/%s/%s deleted from %s service", t, o, n, s, e))
 }
 
 // unique is a helper function that takes a slice and

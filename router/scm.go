@@ -17,23 +17,17 @@ import (
 // GET    /api/v1/scm/orgs/:org/sync
 // GET    /api/v1/scm/repos/:org/:repo/sync .
 func ScmHandlers(base *gin.RouterGroup) {
-	// SCM orgs endpoints
+	repos := base.Group("/scm/repos")
 	orgs := base.Group("/scm/orgs")
 	{
-		// SCM org endpoints
 		org := orgs.Group("/:org", org.Establish())
 		{
 			org.GET("/sync", api.SyncRepos)
-		} // end of SCM org endpoints
-	} // end of SCM orgs endpoints
-
-	// SCM repos endpoints
-	repos := base.Group("/scm/repos")
-	{
-		// SCM repo endpoints
-		repo := repos.Group("/:org/:repo", org.Establish(), repo.Establish())
+		} // end of org endpoints
+		// Repo endpoints
+		repo := repos.Group("/:org/:repo", repo.Establish())
 		{
 			repo.GET("/sync", api.SyncRepo)
-		} // end of SCM repo endpoints
-	} // end of SCM repos endpoints
+		} // end of repo endpoints
+	} // end of scm endpoints
 }

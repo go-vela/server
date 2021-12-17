@@ -9,9 +9,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -30,21 +27,17 @@ func Retrieve(c *gin.Context) *library.Step {
 // Establish sets the step in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// capture middleware values
-		b := build.Retrieve(c)
-		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
-		u := user.Retrieve(c)
-
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", o, c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
 
+		b := build.Retrieve(c)
 		if b == nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("build %s not found for repo %s", c.Param("build"), r.GetFullName())
+			retErr := fmt.Errorf("build %s not found for repo %s/%s", c.Param("build"), c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
@@ -63,17 +56,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// update engine logger with API metadata
-		//
-		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-		logrus.WithFields(logrus.Fields{
-			"build": b.GetNumber(),
-			"org":   o,
-			"step":  number,
-			"repo":  r.GetName(),
-			"user":  u.GetName(),
-		}).Debugf("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
-
+		logrus.Debugf("Reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 		s, err := database.FromContext(c).GetStep(number, b)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message

@@ -10,9 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
@@ -67,25 +64,17 @@ import (
 // a webhook in the configured backend.
 func CreateHook(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("creating new hook for repo %s", r.GetFullName())
+	logrus.Infof("Creating new webhook for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Hook)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for new hook for repo %s: %w", r.GetFullName(), err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for new webhook for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -119,7 +108,7 @@ func CreateHook(c *gin.Context) {
 	// send API call to create the webhook
 	err = database.FromContext(c).CreateHook(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create hook for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to create webhook for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -188,20 +177,13 @@ func CreateHook(c *gin.Context) {
 
 // GetHooks represents the API handler to capture a list
 // of webhooks from the configured backend.
+//
+// nolint: dupl // ignore false positive
 func GetHooks(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading hooks for repo %s", r.GetFullName())
+	logrus.Infof("Reading webhooks for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -305,22 +287,10 @@ func GetHooks(c *gin.Context) {
 // webhook from the configured backend.
 func GetHook(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	hook := c.Param("hook")
 
-	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"hook": hook,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading hook %s", entry)
+	logrus.Infof("Reading webhook %s/%s", r.GetFullName(), hook)
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
@@ -334,7 +304,7 @@ func GetHook(c *gin.Context) {
 	// send API call to capture the webhook
 	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -397,29 +367,17 @@ func GetHook(c *gin.Context) {
 // a webhook in the configured backend.
 func UpdateHook(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	hook := c.Param("hook")
 
-	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"hook": hook,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("updating hook %s", entry)
+	logrus.Infof("Updating webhook %s/%s", r.GetFullName(), hook)
 
 	// capture body from API request
 	input := new(library.Hook)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for hook %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to decode JSON for webhook %s/%s: %w", r.GetFullName(), hook, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -438,7 +396,7 @@ func UpdateHook(c *gin.Context) {
 	// send API call to capture the webhook
 	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), number, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -484,7 +442,7 @@ func UpdateHook(c *gin.Context) {
 	// send API call to update the webhook
 	err = database.FromContext(c).UpdateHook(h)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update hook %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to update webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -544,22 +502,10 @@ func UpdateHook(c *gin.Context) {
 // a webhook from the configured backend.
 func DeleteHook(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 	hook := c.Param("hook")
 
-	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"hook": hook,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("deleting hook %s", entry)
+	logrus.Infof("Deleting webhook %s/%s", r.GetFullName(), hook)
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {
@@ -573,7 +519,7 @@ func DeleteHook(c *gin.Context) {
 	// send API call to capture the webhook
 	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get hook %s: %w", hook, err)
+		retErr := fmt.Errorf("unable to get webhook %s/%d: %w", r.GetFullName(), number, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -583,12 +529,12 @@ func DeleteHook(c *gin.Context) {
 	// send API call to remove the webhook
 	err = database.FromContext(c).DeleteHook(h.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete hook %s: %w", hook, err)
+		retErr := fmt.Errorf("unable to delete webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("hook %s deleted", entry))
+	c.JSON(http.StatusOK, fmt.Sprintf("Webhook %s/%d deleted", r.GetFullName(), h.GetNumber()))
 }

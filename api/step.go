@@ -10,17 +10,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
-	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
+
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -76,28 +76,17 @@ import (
 func CreateStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("creating new step for build %s", entry)
+	logrus.Infof("Creating new step for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// capture body from API request
 	input := new(library.Step)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for new step for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for new step for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -119,7 +108,8 @@ func CreateStep(c *gin.Context) {
 	// send API call to create the step
 	err = database.FromContext(c).CreateStep(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create step for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to create step for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -196,26 +186,15 @@ func CreateStep(c *gin.Context) {
 func GetSteps(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("reading steps for build %s", entry)
+	logrus.Infof("Reading steps for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -225,7 +204,8 @@ func GetSteps(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -240,7 +220,8 @@ func GetSteps(c *gin.Context) {
 	// send API call to capture the total number of steps for the build
 	t, err := database.FromContext(c).GetBuildStepCount(b)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get steps count for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to get steps count for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -250,7 +231,8 @@ func GetSteps(c *gin.Context) {
 	// send API call to capture the list of steps for the build
 	s, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get steps for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to get steps for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -310,21 +292,12 @@ func GetSteps(c *gin.Context) {
 func GetStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	s := step.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"step":  s.GetNumber(),
-		"user":  u.GetName(),
-	}).Infof("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
+	logrus.Infof("Reading step %s/%d/%s", r.GetFullName(), b.GetNumber(), c.Param("step"))
+
+	// retrieve step from context
+	s := step.Retrieve(c)
 
 	c.JSON(http.StatusOK, s)
 }
@@ -384,30 +357,18 @@ func GetStep(c *gin.Context) {
 func UpdateStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"step":  s.GetNumber(),
-		"user":  u.GetName(),
-	}).Infof("updating step %s", entry)
+	logrus.Infof("Updating step %d for build %s/%d", s.GetNumber(), r.GetFullName(), b.GetNumber())
 
 	// capture body from API request
 	input := new(library.Step)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for step %s: %v", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -458,7 +419,8 @@ func UpdateStep(c *gin.Context) {
 	// send API call to update the step
 	err = database.FromContext(c).UpdateStep(s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update step %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to update step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -518,35 +480,24 @@ func UpdateStep(c *gin.Context) {
 func DeleteStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"step":  s.GetNumber(),
-		"user":  u.GetName(),
-	}).Infof("deleting step %s", entry)
+	logrus.Infof("Deleting step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
 	// send API call to remove the step
 	err := database.FromContext(c).DeleteStep(s.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete step %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to delete step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("step %s deleted", entry))
+	// nolint: lll // ignore long line length due to return message
+	c.JSON(http.StatusOK, fmt.Sprintf("Step %s/%d/%d deleted", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }
 
 // planSteps is a helper function to plan all steps

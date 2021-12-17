@@ -10,8 +10,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/router/middleware/org"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
@@ -104,7 +102,6 @@ func TestBuild_Establish(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds/:build", func(c *gin.Context) {
@@ -180,7 +177,6 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds", func(c *gin.Context) {
@@ -226,7 +222,6 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds/:build", func(c *gin.Context) {
@@ -272,7 +267,6 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds/:build", func(c *gin.Context) {

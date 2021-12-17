@@ -10,9 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -79,28 +76,17 @@ import (
 func CreateService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("creating new service for build %s", entry)
+	logrus.Infof("Creating new service for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// capture body from API request
 	input := new(library.Service)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for new service for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for new service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -122,7 +108,8 @@ func CreateService(c *gin.Context) {
 	// send API call to create the service
 	err = database.FromContext(c).CreateService(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create service for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to create service for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -199,26 +186,15 @@ func CreateService(c *gin.Context) {
 func GetServices(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("reading services for build %s", entry)
+	logrus.Infof("Reading services for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -228,7 +204,8 @@ func GetServices(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -243,7 +220,8 @@ func GetServices(c *gin.Context) {
 	// send API call to capture the total number of services for the build
 	t, err := database.FromContext(c).GetBuildServiceCount(b)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get services count for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to get services count for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -253,7 +231,8 @@ func GetServices(c *gin.Context) {
 	// send API call to capture the list of services for the build
 	s, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get services for build %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to get services for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -323,21 +302,12 @@ func GetServices(c *gin.Context) {
 func GetService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	s := service.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"service": s.GetNumber(),
-		"user":    u.GetName(),
-	}).Infof("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
+	logrus.Infof("Reading service %s/%d/%s", r.GetFullName(), b.GetNumber(), c.Param("service"))
+
+	// retrieve service from context
+	s := service.Retrieve(c)
 
 	c.JSON(http.StatusOK, s)
 }
@@ -399,30 +369,18 @@ func GetService(c *gin.Context) {
 func UpdateService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"service": s.GetNumber(),
-		"user":    u.GetName(),
-	}).Infof("updating service %s", entry)
+	logrus.Infof("Updating service %d for build %s/%d", s.GetNumber(), r.GetFullName(), b.GetNumber())
 
 	// capture body from API request
 	input := new(library.Service)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for service %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to decode JSON for service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -458,7 +416,8 @@ func UpdateService(c *gin.Context) {
 	// send API call to update the service
 	err = database.FromContext(c).UpdateService(s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update service %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to update service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -520,35 +479,24 @@ func UpdateService(c *gin.Context) {
 func DeleteService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
-	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"build":   b.GetNumber(),
-		"org":     o,
-		"repo":    r.GetName(),
-		"service": s.GetNumber(),
-		"user":    u.GetName(),
-	}).Infof("deleting service %s", entry)
+	logrus.Infof("Deleting service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
 	// send API call to remove the service
 	err := database.FromContext(c).DeleteService(s.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete service %s: %w", entry, err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to delete service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), s.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("service %s deleted", entry))
+	// nolint: lll // ignore long line length due to return message
+	c.JSON(http.StatusOK, fmt.Sprintf("Service %s/%d/%d deleted", r.GetFullName(), b.GetNumber(), s.GetNumber()))
 }
 
 // planServices is a helper function to plan all services

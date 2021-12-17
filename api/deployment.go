@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-vela/server/router/middleware/org"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
@@ -61,18 +59,10 @@ import (
 // create a deployment in the configured backend.
 func CreateDeployment(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("creating new deployment for repo %s", r.GetFullName())
+	logrus.Infof("Creating new deployment for %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Deployment)
@@ -169,18 +159,10 @@ func CreateDeployment(c *gin.Context) {
 // a list of deployments from the configured backend.
 func GetDeployments(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading deployments for repo %s", r.GetFullName())
+	logrus.Infof("Reading deployments for %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -304,21 +286,11 @@ func GetDeployments(c *gin.Context) {
 // capture a deployment from the configured backend.
 func GetDeployment(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	deployment := c.Param("deployment")
 
-	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading deployment %s", entry)
+	logrus.Infof("Reading deployment %s/%s", r.GetFullName(), deployment)
 
 	number, err := strconv.Atoi(deployment)
 	if err != nil {
@@ -332,7 +304,7 @@ func GetDeployment(c *gin.Context) {
 	// send API call to capture the deployment
 	d, err := scm.FromContext(c).GetDeployment(u, r, int64(number))
 	if err != nil {
-		retErr := fmt.Errorf("unable to get deployment %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to get deployment %s/%d: %w", r.GetFullName(), number, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

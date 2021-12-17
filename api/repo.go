@@ -11,8 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-vela/server/router/middleware/org"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
@@ -71,13 +69,14 @@ import (
 
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
-//
-// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
+// nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	allowlist := c.Value("allowlist").([]string)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
+
+	logrus.Info("Creating new repo")
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -90,15 +89,6 @@ func CreateRepo(c *gin.Context) {
 
 		return
 	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  input.GetOrg(),
-		"repo": input.GetName(),
-		"user": u.GetName(),
-	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
 	r, err := scm.FromContext(c).GetRepo(u, input)
@@ -318,16 +308,12 @@ func CreateRepo(c *gin.Context) {
 
 // GetRepos represents the API handler to capture a list
 // of repos for a user from the configured backend.
+//
+// nolint: dupl // ignore false positive
 func GetRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Infof("reading repos for user %s", u.GetName())
+	logrus.Infof("Reading repos for user %s", u.GetName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -437,19 +423,12 @@ func GetRepos(c *gin.Context) {
 //       "$ref": "#/definitions/Error"
 
 // GetOrgRepos represents the API handler to capture a list
-// of repos for an org from the configured backend.
+// of repos for a org from the configured backend.
 func GetOrgRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	org := c.Param("org")
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  org,
-		"user": u.GetName(),
-	}).Infof("reading repos for org %s", org)
+	logrus.Infof("Reading repos for org %s", org)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -552,19 +531,10 @@ func GetOrgRepos(c *gin.Context) {
 // GetRepo represents the API handler to
 // capture a repo from the configured backend.
 func GetRepo(c *gin.Context) {
-	// capture middleware values
-	o := org.Retrieve(c)
-	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	logrus.Infof("Reading repo %s/%s", c.Param("org"), c.Param("repo"))
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("reading repo %s", r.GetFullName())
+	// retrieve repo from context
+	r := repo.Retrieve(c)
 
 	c.JSON(http.StatusOK, r)
 }
@@ -619,18 +589,9 @@ func GetRepo(c *gin.Context) {
 // nolint: funlen // ignore function length due to comments and conditionals
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("updating repo %s", r.GetFullName())
+	logrus.Infof("Updating repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -813,18 +774,10 @@ func UpdateRepo(c *gin.Context) {
 // a repo from the configured backend.
 func DeleteRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("deleting repo %s", r.GetFullName())
+	logrus.Infof("Deleting repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
 	err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
@@ -862,7 +815,7 @@ func DeleteRepo(c *gin.Context) {
 	// 	return
 	// }
 
-	c.JSON(http.StatusOK, fmt.Sprintf("repo %s deleted", r.GetFullName()))
+	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s deleted", r.GetFullName()))
 }
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
@@ -899,21 +852,14 @@ func DeleteRepo(c *gin.Context) {
 // and then create a webhook for a repo.
 func RepairRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	s := scm.FromContext(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("repairing repo %s", r.GetFullName())
+	logrus.Infof("Repairing repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
-	err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+	err := s.Disable(u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -923,7 +869,7 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+	_, err = s.Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -947,7 +893,7 @@ func RepairRepo(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("repo %s repaired", r.GetFullName()))
+	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s repaired", r.GetFullName()))
 }
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/chown repos ChownRepo
@@ -984,18 +930,10 @@ func RepairRepo(c *gin.Context) {
 // the owner of a repo in the configured backend.
 func ChownRepo(c *gin.Context) {
 	// capture middleware values
-	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"org":  o,
-		"repo": r.GetName(),
-		"user": u.GetName(),
-	}).Infof("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
+	logrus.Infof("Changing owner of repo %s", r.GetFullName())
 
 	// update repo owner
 	r.SetUserID(u.GetID())
@@ -1010,7 +948,7 @@ func ChownRepo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("repo %s changed owner", r.GetFullName()))
+	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s changed owner", r.GetFullName()))
 }
 
 // checkAllowlist is a helper function to ensure only repos in the
@@ -1037,4 +975,161 @@ func checkAllowlist(r *library.Repo, allowlist []string) bool {
 	}
 
 	return false
+}
+
+// swagger:operation GET /api/v1/scm/orgs/{org}/sync scm SyncRepos
+//
+// Sync up repos from scm service and database in a specified org
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully synchronized repos
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to synchronize org repositories
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// SyncRepos represents the API handler to
+// synchronize organization repositories between
+// SCM Service and the database should a discrepancy
+// exist. Common after deleting SCM repos.
+func SyncRepos(c *gin.Context) {
+	// capture middleware values
+	u := user.Retrieve(c)
+	org := c.Param("org")
+	logrus.Infof("Reading repos for org %s", org)
+
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := scm.FromContext(c).OrgAccess(u, org)
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
+	}
+
+	filters := map[string]string{}
+	// Only show public repos to non-admins
+	if perm != "admin" {
+		filters["visibility"] = "public"
+	}
+
+	// send API call to capture the total number of repos for the org
+	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	repos := []*library.Repo{}
+	page := 0
+	// capture all repos belonging to a certain org in database
+	// nolint: gomnd // ignore magic number
+	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
+		r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+		repos = append(repos, r...)
+		page++
+	}
+
+	// iterate through captured repos and check if they are in GitHub
+	for _, repo := range repos {
+		_, err := scm.FromContext(c).GetRepo(u, repo)
+		// if repo cannot be captured from GitHub, set to inactive in database
+		if err != nil {
+			repo.SetActive(false)
+			e := database.FromContext(c).UpdateRepo(repo)
+			if e != nil {
+				retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+		}
+	}
+	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", org))
+}
+
+// swagger:operation GET /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
+//
+// Sync up scm service and database in the context of a specific repo
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully synchronized repo
+//     schema:
+//     type: string
+//   '500':
+//     description: Unable to synchronize repo
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// SyncRepo represents the API handler to
+// synchronize a single repository between
+// SCM service and the database should a discrepancy
+// exist. Common after deleting SCM repos.
+func SyncRepo(c *gin.Context) {
+	logrus.Infof("Reading repo %s/%s", c.Param("org"), c.Param("repo"))
+	// capture middleware values
+	u := user.Retrieve(c)
+	org := c.Param("org")
+	repo := c.Param("repo")
+
+	// retrieve repo from context
+	r, _ := database.FromContext(c).GetRepo(org, repo)
+
+	// retrieve repo from source code manager service
+	_, err := scm.FromContext(c).GetRepo(u, r)
+
+	// if there is an error retrieving repo, we know it is deleted: sync time
+	if err != nil {
+		// set repo to inactive - do not delete
+		r.SetActive(false)
+		// update repo in database
+		e := database.FromContext(c).UpdateRepo(r)
+		if e != nil {
+			retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
 }

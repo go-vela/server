@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-vela/server/router/middleware/user"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
@@ -53,8 +51,7 @@ import (
 // CreateWorker represents the API handler to
 // create a worker in the configured backend.
 func CreateWorker(c *gin.Context) {
-	// capture middleware values
-	u := user.Retrieve(c)
+	logrus.Info("Creating new worker")
 
 	// capture body from API request
 	input := new(library.Worker)
@@ -67,14 +64,6 @@ func CreateWorker(c *gin.Context) {
 
 		return
 	}
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": input.GetHostname(),
-	}).Infof("creating new worker %s", input.GetHostname())
 
 	err = database.FromContext(c).CreateWorker(input)
 	if err != nil {
@@ -112,16 +101,6 @@ func CreateWorker(c *gin.Context) {
 // GetWorkers represents the API handler to capture a
 // list of workers from the configured backend.
 func GetWorkers(c *gin.Context) {
-	// capture middleware values
-	u := user.Retrieve(c)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Info("reading workers")
-
 	w, err := database.FromContext(c).GetWorkerList()
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
@@ -162,18 +141,7 @@ func GetWorkers(c *gin.Context) {
 // GetWorker represents the API handler to capture a
 // worker from the configured backend.
 func GetWorker(c *gin.Context) {
-	// capture middleware values
-	u := user.Retrieve(c)
 	w := worker.Retrieve(c)
-
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": w.GetHostname(),
-	}).Infof("reading worker %s", w.GetHostname())
-
 	w, err := database.FromContext(c).GetWorker(w.GetHostname())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
@@ -229,25 +197,28 @@ func GetWorker(c *gin.Context) {
 // create a worker in the configured backend.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
-	w := worker.Retrieve(c)
+	worker := c.Param("worker")
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": w.GetHostname(),
-	}).Infof("updating worker %s", w.GetHostname())
+	logrus.Infof("Updating worker %s", worker)
 
 	// capture body from API request
 	input := new(library.Worker)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for worker %s: %w", w.GetHostname(), err)
+		retErr := fmt.Errorf("unable to decode JSON for worker %s: %w", worker, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the worker
+	w, err := database.FromContext(c).GetWorker(worker)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get worker %s: %w", worker, err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
 	}
@@ -275,7 +246,7 @@ func UpdateWorker(c *gin.Context) {
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
+		retErr := fmt.Errorf("unable to update worker %s: %w", worker, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -283,7 +254,7 @@ func UpdateWorker(c *gin.Context) {
 	}
 
 	// send API call to capture the updated worker
-	w, _ = database.FromContext(c).GetWorker(w.GetHostname())
+	w, _ = database.FromContext(c).GetWorker(worker)
 
 	c.JSON(http.StatusOK, w)
 }
@@ -317,16 +288,9 @@ func UpdateWorker(c *gin.Context) {
 // a worker from the configured backend.
 func DeleteWorker(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
 	w := worker.Retrieve(c)
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
-		"user":   u.GetName(),
-		"worker": w.GetHostname(),
-	}).Infof("deleting worker %s", w.GetHostname())
+	logrus.Infof("Deleting worker %s", w.GetHostname())
 
 	// send API call to remove the step
 	err := database.FromContext(c).DeleteWorker(w.GetID())
@@ -338,5 +302,5 @@ func DeleteWorker(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("worker %s deleted", w.GetHostname()))
+	c.JSON(http.StatusOK, fmt.Sprintf("Worker %s deleted", w.GetHostname()))
 }
