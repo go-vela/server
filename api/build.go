@@ -298,6 +298,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
+	// nolint: gomnd // ignore magic number
 	if len(p.Stages) == 2 {
 		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
 			return "skipping build since only init and clone stages found"
@@ -310,6 +311,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
+	// nolint: gomnd // ignore magic number
 	if len(p.Steps) == 2 {
 		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
 			return "skipping build since only init and clone steps found"
@@ -653,6 +655,8 @@ func GetOrgBuilds(c *gin.Context) {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
+	//
+	// nolint: goconst // ignore admin constant
 	if perm != "admin" {
 		filters["visibility"] = constants.VisibilityPublic
 	}
