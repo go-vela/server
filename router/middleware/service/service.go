@@ -43,7 +43,6 @@ func Establish() gin.HandlerFunc {
 		}
 
 		if b == nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("build %s not found for repo %s", c.Param("build"), r.GetFullName())
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return

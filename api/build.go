@@ -289,6 +289,8 @@ func CreateBuild(c *gin.Context) {
 
 // skipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
+//
+// nolint: goconst // ignore init and clone constants
 func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
@@ -652,7 +654,7 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 	// Only show public repos to non-admins
 	if perm != "admin" {
-		filters["visibility"] = "public"
+		filters["visibility"] = constants.VisibilityPublic
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
