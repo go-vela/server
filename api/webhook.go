@@ -272,6 +272,72 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// send API call to capture the number of running builds for the repo
+	running, err := database.FromContext(c).GetRepoBuildCount(r, map[string]string{
+		"status": constants.StatusRunning,
+	})
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: unable to get count of running builds for repo %s", baseErr, r.GetFullName())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// check if the number of running builds exceeds the limit for the repo
+	if int(running) >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// send API call to capture the number of pending builds for the repo
+	pending, err := database.FromContext(c).GetRepoBuildCount(r, map[string]string{
+		"status": constants.StatusPending,
+	})
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: unable to get count of pending builds for repo %s", baseErr, r.GetFullName())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// check if the number of pending builds exceeds the limit for the repo
+	if int(pending) >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// check if the number of pending and running builds exceeds the limit for the repo
+	if (int(running) + int(pending)) >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
 	// update fields in build object
 	b.SetNumber(r.GetCounter())
 	b.SetParent(b.GetNumber())
