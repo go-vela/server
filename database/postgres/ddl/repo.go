@@ -20,6 +20,7 @@ repos (
 	link          VARCHAR(1000),
 	clone         VARCHAR(1000),
 	branch        VARCHAR(250),
+	build_limit   INTEGER,
 	timeout       INTEGER,
 	counter       INTEGER,
 	visibility    TEXT,

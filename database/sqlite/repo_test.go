@@ -253,6 +253,7 @@ func testRepo() *library.Repo {
 		Link:         &str,
 		Clone:        &str,
 		Branch:       &str,
+		BuildLimit:   &i,
 		Timeout:      &i64,
 		Counter:      &i,
 		Visibility:   &str,
