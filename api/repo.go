@@ -113,13 +113,13 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set the limit field based off the input provided
-	if input.GetLimit() == 0 && defaultLimit == 0 {
+	if input.GetBuildLimit() == 0 && defaultLimit == 0 {
 		// default build limit to 10
 		r.SetTimeout(constants.BuildLimitDefault)
-	} else if input.GetLimit() == 0 {
-		r.SetLimit(defaultLimit)
+	} else if input.GetBuildLimit() == 0 {
+		r.SetBuildLimit(defaultLimit)
 	} else {
-		r.SetLimit(input.GetLimit())
+		r.SetBuildLimit(input.GetBuildLimit())
 	}
 
 	// set the timeout field based off the input provided
@@ -622,13 +622,13 @@ func UpdateRepo(c *gin.Context) {
 		r.SetBranch(input.GetBranch())
 	}
 
-	if input.GetLimit() > 0 {
+	if input.GetBuildLimit() > 0 {
 		// update build limit if set
-		r.SetLimit(
+		r.SetBuildLimit(
 			util.MaxInt(
 				constants.BuildLimitMin,
 				util.MinInt(
-					input.GetLimit(),
+					input.GetBuildLimit(),
 					constants.BuildLimitMax,
 				), // clamp max
 			), // clamp min
