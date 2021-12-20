@@ -74,6 +74,7 @@ func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	allowlist := c.Value("allowlist").([]string)
+	defaultLimit := c.Value("defaultLimit").(int)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 
 	logrus.Info("Creating new repo")
@@ -111,11 +112,21 @@ func CreateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
+	// set the limit field based off the input provided
+	if input.GetLimit() == 0 && defaultLimit == 0 {
+		// default build limit to 10
+		r.SetTimeout(constants.BuildLimitDefault)
+	} else if input.GetLimit() == 0 {
+		r.SetLimit(defaultLimit)
+	} else {
+		r.SetLimit(input.GetLimit())
+	}
+
 	// set the timeout field based off the input provided
 	if input.GetTimeout() == 0 && defaultTimeout == 0 {
 		// default build timeout to 30m
 		r.SetTimeout(constants.BuildTimeoutDefault)
-	} else if input.GetTimeout() == 0 && defaultTimeout != 0 {
+	} else if input.GetTimeout() == 0 {
 		r.SetTimeout(defaultTimeout)
 	} else {
 		r.SetTimeout(input.GetTimeout())
@@ -609,6 +620,19 @@ func UpdateRepo(c *gin.Context) {
 	if len(input.GetBranch()) > 0 {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
+	}
+
+	if input.GetLimit() > 0 {
+		// update build limit if set
+		r.SetLimit(
+			util.MaxInt(
+				constants.BuildLimitMin,
+				util.MinInt(
+					input.GetLimit(),
+					constants.BuildLimitMax,
+				), // clamp max
+			), // clamp min
+		)
 	}
 
 	if input.GetTimeout() > 0 {
