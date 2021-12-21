@@ -52,9 +52,6 @@ type Service interface {
 	// GetOrgBuildCount defines a function that
 	// gets the count of builds by org.
 	GetOrgBuildCount(string, map[string]interface{}) (int64, error)
-	// GetRepoBuildCountByEvent defines a function that
-	// gets the count of builds by repo ID and event type.
-	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
 	// GetPendingAndRunningBuilds defines a function that
 	// gets the list of pending and running builds.
 	GetPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)

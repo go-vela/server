@@ -77,20 +77,3 @@ func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]interface
 
 	return b, err
 }
-
-// GetRepoBuildCountByEvent gets the count of all builds by repo ID and event from the database.
-func (c *client) GetRepoBuildCountByEvent(r *library.Repo, event string) (int64, error) {
-	// nolint: lll // ignore long line length due to log message
-	logrus.Tracef("getting count of builds for repo %s by event %s from the database", r.GetFullName(), event)
-
-	// variable to store query results
-	var b int64
-
-	// send query to the database and store result in variable
-	err := c.Sqlite.
-		Table(constants.TableBuild).
-		Raw(dml.SelectRepoBuildCountByEvent, r.GetID(), event).
-		Pluck("count", &b).Error
-
-	return b, err
-}
