@@ -127,46 +127,16 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the number of running builds for the repo
-	running, err := database.FromContext(c).GetRepoBuildCount(r, map[string]string{
-		"status": constants.StatusRunning,
-	})
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to create new build: unable to get count of running builds for repo %s", r.GetFullName())
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// check if the number of running builds exceeds the limit for the repo
-	if int(running) >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the number of pending builds for the repo
-	pending, err := database.FromContext(c).GetRepoBuildCount(r, map[string]string{
-		"status": constants.StatusPending,
-	})
-	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to create new build: unable to get count of pending builds for repo %s", r.GetFullName())
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// check if the number of pending builds exceeds the limit for the repo
-	if int(pending) >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
+		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -174,7 +144,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if (int(running) + int(pending)) >= r.GetBuildLimit() {
+	if int(builds) >= r.GetBuildLimit() {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
@@ -816,46 +786,16 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the number of running builds for the repo
-	running, err := database.FromContext(c).GetRepoBuildCount(r, map[string]string{
-		"status": constants.StatusRunning,
-	})
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to restart build: unable to get count of running builds for repo %s", r.GetFullName())
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// check if the number of running builds exceeds the limit for the repo
-	if int(running) >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the number of pending builds for the repo
-	pending, err := database.FromContext(c).GetRepoBuildCount(r, map[string]string{
-		"status": constants.StatusPending,
-	})
-	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to restart build: unable to get count of pending builds for repo %s", r.GetFullName())
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// check if the number of pending builds exceeds the limit for the repo
-	if int(pending) >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
+		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -863,7 +803,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if (int(running) + int(pending)) >= r.GetBuildLimit() {
+	if int(builds) >= r.GetBuildLimit() {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
