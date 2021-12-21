@@ -45,7 +45,7 @@ func (c *client) GetBuildCountByStatus(status string) (int64, error) {
 }
 
 // GetOrgBuildCount gets the count of all builds by repo ID from the database.
-func (c *client) GetOrgBuildCount(org string, filters map[string]string) (int64, error) {
+func (c *client) GetOrgBuildCount(org string, filters map[string]interface{}) (int64, error) {
 	logrus.Tracef("getting count of builds for org %s from the database", org)
 
 	// variable to store query results
@@ -62,7 +62,7 @@ func (c *client) GetOrgBuildCount(org string, filters map[string]string) (int64,
 }
 
 // GetRepoBuildCount gets the count of all builds by repo ID from the database.
-func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]string) (int64, error) {
+func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]interface{}) (int64, error) {
 	logrus.Tracef("getting count of builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results

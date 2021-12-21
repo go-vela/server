@@ -77,7 +77,7 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 // GetOrgBuildList gets a list of all builds by org name and allows filters from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetOrgBuildList(org string, filters map[string]string, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for org %s from the database", org)
 
 	// variables to store query results
@@ -97,7 +97,7 @@ func (c *client) GetOrgBuildList(org string, filters map[string]string, page, pe
 	}
 
 	// calculate offset for pagination through results
-	offset := (perPage * (page - 1))
+	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
 	err = c.Postgres.
@@ -126,7 +126,7 @@ func (c *client) GetOrgBuildList(org string, filters map[string]string, page, pe
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]string, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
 	logrus.Tracef("listing builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
@@ -146,7 +146,7 @@ func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]string, pa
 	}
 
 	// calculate offset for pagination through results
-	offset := (perPage * (page - 1))
+	offset := perPage * (page - 1)
 
 	err = c.Postgres.
 		Table(constants.TableBuild).

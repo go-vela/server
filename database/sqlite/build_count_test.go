@@ -205,7 +205,9 @@ func TestSqlite_Client_GetOrgBuildCount(t *testing.T) {
 			want:    2,
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -293,8 +295,11 @@ func TestSqlite_Client_GetOrgBuildCountByEvent(t *testing.T) {
 			want:    2,
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -381,7 +386,7 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {

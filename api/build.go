@@ -399,7 +399,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]string{}
+		filters = map[string]interface{}{}
 		b       []*library.Build
 		t       int64
 	)
@@ -557,7 +557,7 @@ func GetBuilds(c *gin.Context) {
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]string{}
+		filters = map[string]interface{}{}
 		b       []*library.Build
 		t       int64
 	)
