@@ -396,6 +396,8 @@ func skipEmptyBuild(p *pipeline.Build) string {
 
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
@@ -554,6 +556,8 @@ func GetBuilds(c *gin.Context) {
 
 // GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
+//
+// nolint: funlen // ignore function length due to comments
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (

@@ -280,7 +280,6 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the number of pending or running builds for the repo
 	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
