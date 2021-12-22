@@ -179,7 +179,7 @@ func CreateBuild(c *gin.Context) {
 		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -193,7 +193,7 @@ func CreateBuild(c *gin.Context) {
 		number, err := getPRNumberFromBuild(input)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -204,7 +204,7 @@ func CreateBuild(c *gin.Context) {
 		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
