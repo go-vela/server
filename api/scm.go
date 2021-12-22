@@ -107,6 +107,11 @@ func SyncRepos(c *gin.Context) {
 
 				return
 			}
+			e = updateUserFavorites(c, repo)
+			if e != nil {
+				util.HandleError(c, http.StatusInternalServerError, e)
+				return
+			}
 		}
 	}
 	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", org))
@@ -172,6 +177,42 @@ func SyncRepo(c *gin.Context) {
 
 			return
 		}
+		e = updateUserFavorites(c, r)
+		if e != nil {
+			util.HandleError(c, http.StatusInternalServerError, e)
+			return
+		}
 	}
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+}
+
+// updateUserFavorites is a helper function that takes a repo
+// that has been deleted from the SCM and ensures that it does
+// not appear in the user's favorites after its deletion.
+func updateUserFavorites(c *gin.Context, r *library.Repo) error {
+	// get user from the database
+	u, e := database.FromContext(c).GetUser(r.GetUserID())
+	if e != nil {
+		retErr := fmt.Errorf("%s: failed to retrieve user in database", baseErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return retErr
+	}
+
+	// if deleted repo exists in favorites, remove it
+	favorites := []string{}
+	for _, fav := range u.GetFavorites() {
+		if fav != r.GetFullName() {
+			favorites = append(favorites, fav)
+		}
+	}
+	u.SetFavorites(favorites)
+
+	// update the user favorites slice
+	err := database.FromContext(c).UpdateUser(u)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		return retErr
+	}
+	return nil
 }
