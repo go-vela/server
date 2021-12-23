@@ -15,8 +15,8 @@ import (
 
 func TestMiddleware_DefaultLimit(t *testing.T) {
 	// setup types
-	var got int
-	want := 10
+	var got int64
+	want := int64(10)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -28,7 +28,7 @@ func TestMiddleware_DefaultLimit(t *testing.T) {
 	// setup mock server
 	engine.Use(DefaultLimit(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("defaultLimit").(int)
+		got = c.Value("defaultLimit").(int64)
 
 		c.Status(http.StatusOK)
 	})

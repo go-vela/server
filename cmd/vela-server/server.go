@@ -95,7 +95,7 @@ func server(c *cli.Context) error {
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
-		middleware.DefaultLimit(c.Int("default-build-limit")),
+		middleware.DefaultLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
 		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
 		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),

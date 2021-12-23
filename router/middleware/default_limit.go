@@ -10,7 +10,7 @@ import (
 
 // DefaultLimit is a middleware function that attaches the defaultLimit
 // to enable the server to override the default build limit.
-func DefaultLimit(defaultLimit int) gin.HandlerFunc {
+func DefaultLimit(defaultLimit int64) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("defaultLimit", defaultLimit)
 		c.Next()
