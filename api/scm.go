@@ -99,17 +99,17 @@ func SyncRepos(c *gin.Context) {
 		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
 			repo.SetActive(false)
-			e := database.FromContext(c).UpdateRepo(repo)
-			if e != nil {
+			err := database.FromContext(c).UpdateRepo(repo)
+			if err != nil {
 				retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
 
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				return
 			}
-			e = updateUserFavorites(c, repo)
-			if e != nil {
-				util.HandleError(c, http.StatusInternalServerError, e)
+			err = updateUserFavorites(c, repo)
+			if err != nil {
+				util.HandleError(c, http.StatusInternalServerError, err)
 				return
 			}
 		}
@@ -169,17 +169,17 @@ func SyncRepo(c *gin.Context) {
 		// set repo to inactive - do not delete
 		r.SetActive(false)
 		// update repo in database
-		e := database.FromContext(c).UpdateRepo(r)
-		if e != nil {
+		err := database.FromContext(c).UpdateRepo(r)
+		if err != nil {
 			retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
 		}
-		e = updateUserFavorites(c, r)
-		if e != nil {
-			util.HandleError(c, http.StatusInternalServerError, e)
+		err = updateUserFavorites(c, r)
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
 			return
 		}
 	}
@@ -191,8 +191,8 @@ func SyncRepo(c *gin.Context) {
 // not appear in the user's favorites after its deletion.
 func updateUserFavorites(c *gin.Context, r *library.Repo) error {
 	// get user from the database
-	u, e := database.FromContext(c).GetUser(r.GetUserID())
-	if e != nil {
+	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	if err != nil {
 		retErr := fmt.Errorf("%s: failed to retrieve user in database", baseErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		return retErr
@@ -208,7 +208,7 @@ func updateUserFavorites(c *gin.Context, r *library.Repo) error {
 	u.SetFavorites(favorites)
 
 	// update the user favorites slice
-	err := database.FromContext(c).UpdateUser(u)
+	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
