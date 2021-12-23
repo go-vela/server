@@ -290,7 +290,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if int(builds) >= r.GetBuildLimit() {
+	if builds >= r.GetBuildLimit() {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 		util.HandleError(c, http.StatusBadRequest, retErr)

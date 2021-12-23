@@ -95,7 +95,7 @@ func main() {
 			Usage:   "determines whether or not use cookies with secure flag set.  useful for testing.",
 			Value:   true,
 		},
-		&cli.IntFlag{
+		&cli.Int64Flag{
 			EnvVars: []string{"VELA_DEFAULT_BUILD_LIMIT"},
 			Name:    "default-build-limit",
 			Usage:   "override default build limit",

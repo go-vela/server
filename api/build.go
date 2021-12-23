@@ -144,7 +144,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if int(builds) >= r.GetBuildLimit() {
+	if builds >= r.GetBuildLimit() {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
@@ -807,7 +807,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if int(builds) >= r.GetBuildLimit() {
+	if builds >= r.GetBuildLimit() {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
