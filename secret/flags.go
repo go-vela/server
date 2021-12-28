@@ -15,24 +15,6 @@ import (
 //
 // https://pkg.go.dev/github.com/urfave/cli?tab=doc#Flag
 var Flags = []cli.Flag{
-
-	// Logger Flags
-
-	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SECRET_LOG_FORMAT", "SECRET_LOG_FORMAT", "VELA_LOG_FORMAT"},
-		FilePath: "/vela/secret/log_format",
-		Name:     "secret.log.format",
-		Usage:    "format of logs to output",
-		Value:    "json",
-	},
-	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SECRET_LOG_LEVEL", "SECRET_LOG_LEVEL", "VELA_LOG_LEVEL"},
-		FilePath: "/vela/secret/log_level",
-		Name:     "secret.log.level",
-		Usage:    "level of logs to output",
-		Value:    "info",
-	},
-
 	// Secret Flags
 
 	&cli.BoolFlag{

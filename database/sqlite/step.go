@@ -7,18 +7,22 @@ package sqlite
 import (
 	"errors"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetStep gets a step by number and build ID from the database.
 func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
-	logrus.Tracef("getting step %d for build %d from the database", number, b.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"step":  number,
+	}).Tracef("getting step %d for build %d from the database", number, b.GetNumber())
 
 	// variable to store query results
 	s := new(database.Step)
@@ -39,7 +43,9 @@ func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
 
 // CreateStep creates a new step in the database.
 func (c *client) CreateStep(s *library.Step) error {
-	logrus.Tracef("creating step %s in the database", s.GetName())
+	c.Logger.WithFields(logrus.Fields{
+		"step": s.GetNumber(),
+	}).Tracef("creating step %s in the database", s.GetName())
 
 	// cast to database type
 	step := database.StepFromLibrary(s)
@@ -58,7 +64,9 @@ func (c *client) CreateStep(s *library.Step) error {
 
 // UpdateStep updates a step in the database.
 func (c *client) UpdateStep(s *library.Step) error {
-	logrus.Tracef("updating step %s in the database", s.GetName())
+	c.Logger.WithFields(logrus.Fields{
+		"step": s.GetNumber(),
+	}).Tracef("updating step %s in the database", s.GetName())
 
 	// cast to database type
 	step := database.StepFromLibrary(s)
@@ -77,7 +85,7 @@ func (c *client) UpdateStep(s *library.Step) error {
 
 // DeleteStep deletes a step by unique ID from the database.
 func (c *client) DeleteStep(id int64) error {
-	logrus.Tracef("deleting step %d from the database", id)
+	c.Logger.Tracef("deleting step %d from the database", id)
 
 	// send query to the database
 	return c.Sqlite.

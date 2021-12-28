@@ -6,18 +6,16 @@ package redis
 
 import (
 	"context"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Push inserts an item to the specified channel in the queue.
 func (c *client) Push(ctx context.Context, channel string, item []byte) error {
-	logrus.Tracef("pushing item to queue %s", channel)
+	c.Logger.Tracef("pushing item to queue %s", channel)
 
 	// build a redis queue command to push an item to queue
 	//
 	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.RPush
-	pushCmd := c.Queue.RPush(ctx, channel, item)
+	pushCmd := c.Redis.RPush(ctx, channel, item)
 
 	// blocking call to push an item to queue and return err
 	//
