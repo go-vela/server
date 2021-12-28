@@ -16,11 +16,11 @@ import (
 	"github.com/go-vela/types/yaml"
 )
 
-// EnvironmentSteps injects environment variables
-// for each step in a yaml configuration.
+// EnvironmentStages injects environment variables
+// for each stage in a yaml configuration.
 // nolint:lll // ignore function line length
 func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceMap) (yaml.StageSlice, error) {
-	// iterate through all steps
+	// iterate through all stages
 	for _, stage := range s {
 		_, err := c.EnvironmentStage(stage, globalEnv)
 		if err != nil {
@@ -31,8 +31,8 @@ func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceM
 	return s, nil
 }
 
-// EnvironmentStages injects environment variables
-// for each step in every stage in a yaml configuration.
+// EnvironmentStage injects environment variables
+// for each stage in a yaml configuration.
 // nolint:lll // ignore function line length
 func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
 	// make empty map of environment variables
@@ -51,16 +51,16 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 	}
 
 	// inject the default environment
-	// variables to the build step
+	// variables to the build stage
 	// we do this after injecting the declared environment
 	// to ensure the default env overrides any conflicts
 	for k, v := range defaultEnv {
 		env[k] = v
 	}
 
-	// overwrite existing build step environment
+	// overwrite existing build stage environment
 	s.Environment = env
-	// iterate through all stages
+
 	// inject the environment variables into the steps for the stage
 	steps, err := c.EnvironmentSteps(s.Steps, env)
 	if err != nil {
@@ -73,7 +73,7 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 }
 
 // EnvironmentSteps injects environment variables
-// for each step in a yaml configuration.
+// for each step in a stage for the yaml configuration.
 // nolint:lll // ignore function line length
 func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap) (yaml.StepSlice, error) {
 	// iterate through all steps
@@ -108,8 +108,8 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 		}
 	}
 
-	// inject the declared global environment
-	// WARNING: local env can override global
+	// inject the declared stage environment
+	// WARNING: local env can override global + stage
 	env = appendMap(env, stageEnv)
 
 	// inject the declared environment
