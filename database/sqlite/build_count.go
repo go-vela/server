@@ -8,13 +8,12 @@ import (
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
 	"github.com/sirupsen/logrus"
 )
 
 // GetBuildCount gets a count of all builds from the database.
 func (c *client) GetBuildCount() (int64, error) {
-	logrus.Trace("getting count of builds from the database")
+	c.Logger.Trace("getting count of builds from the database")
 
 	// variable to store query results
 	var b int64
@@ -30,7 +29,7 @@ func (c *client) GetBuildCount() (int64, error) {
 
 // GetBuildCountByStatus gets a count of all builds by status from the database.
 func (c *client) GetBuildCountByStatus(status string) (int64, error) {
-	logrus.Tracef("getting count of builds by status %s from the database", status)
+	c.Logger.Tracef("getting count of builds by status %s from the database", status)
 
 	// variable to store query results
 	var b int64
@@ -46,7 +45,9 @@ func (c *client) GetBuildCountByStatus(status string) (int64, error) {
 
 // GetOrgBuildCount gets the count of all builds by repo ID from the database.
 func (c *client) GetOrgBuildCount(org string, filters map[string]string) (int64, error) {
-	logrus.Tracef("getting count of builds for org %s from the database", org)
+	c.Logger.WithFields(logrus.Fields{
+		"org": org,
+	}).Tracef("getting count of builds for org %s from the database", org)
 
 	// variable to store query results
 	var b int64
@@ -63,7 +64,10 @@ func (c *client) GetOrgBuildCount(org string, filters map[string]string) (int64,
 
 // GetRepoBuildCount gets the count of all builds by repo ID from the database.
 func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]string) (int64, error) {
-	logrus.Tracef("getting count of builds for repo %s from the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"name": r.GetName(),
+	}).Tracef("getting count of builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	var b int64
@@ -81,7 +85,10 @@ func (c *client) GetRepoBuildCount(r *library.Repo, filters map[string]string) (
 // GetRepoBuildCountByEvent gets the count of all builds by repo ID and event from the database.
 func (c *client) GetRepoBuildCountByEvent(r *library.Repo, event string) (int64, error) {
 	// nolint: lll // ignore long line length due to log message
-	logrus.Tracef("getting count of builds for repo %s by event %s from the database", r.GetFullName(), event)
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"name": r.GetName(),
+	}).Tracef("getting count of builds for repo %s by event %s from the database", r.GetFullName(), event)
 
 	// variable to store query results
 	var b int64

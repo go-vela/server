@@ -7,19 +7,41 @@ package sqlite
 import (
 	"errors"
 	"fmt"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetSecret gets a secret by type, org, name (repo or team) and secret name from the database.
 func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) {
-	logrus.Tracef("getting %s secret %s for %s/%s from the database", t, secretName, o, n)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":    o,
+		"repo":   n,
+		"secret": secretName,
+		"type":   t,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(t, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":    o,
+			"team":   n,
+			"secret": secretName,
+			"type":   t,
+		}
+	}
+
+	// nolint: lll // ignore long line length due to parameters
+	c.Logger.WithFields(fields).Tracef("getting %s secret %s for %s/%s from the database", t, secretName, o, n)
 
 	var err error
 
@@ -77,7 +99,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted secrets
-		logrus.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n, err)
+		c.Logger.Errorf("unable to decrypt %s secret %s for %s/%s: %v", t, secretName, o, n, err)
 
 		// return the unencrypted secret
 		return s.ToLibrary(), nil
@@ -88,8 +110,30 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 }
 
 // CreateSecret creates a new secret in the database.
+//
+// nolint: dupl // ignore similar code with update
 func (c *client) CreateSecret(s *library.Secret) error {
-	logrus.Tracef("creating %s secret %s in the database", s.GetType(), s.GetName())
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":    s.GetOrg(),
+		"repo":   s.GetRepo(),
+		"secret": s.GetName(),
+		"type":   s.GetType(),
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(s.GetType(), constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":    s.GetOrg(),
+			"team":   s.GetTeam(),
+			"secret": s.GetName(),
+			"type":   s.GetType(),
+		}
+	}
+
+	// nolint: lll // ignore long line length due to parameters
+	c.Logger.WithFields(fields).Tracef("creating %s secret %s in the database", s.GetType(), s.GetName())
 
 	// cast to database type
 	secret := database.SecretFromLibrary(s)
@@ -115,8 +159,30 @@ func (c *client) CreateSecret(s *library.Secret) error {
 }
 
 // UpdateSecret updates a secret in the database.
+//
+// nolint: dupl // ignore similar code with create
 func (c *client) UpdateSecret(s *library.Secret) error {
-	logrus.Tracef("updating %s secret %s in the database", s.GetType(), s.GetName())
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":    s.GetOrg(),
+		"repo":   s.GetRepo(),
+		"secret": s.GetName(),
+		"type":   s.GetType(),
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(s.GetType(), constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":    s.GetOrg(),
+			"team":   s.GetTeam(),
+			"secret": s.GetName(),
+			"type":   s.GetType(),
+		}
+	}
+
+	// nolint: lll // ignore long line length due to parameters
+	c.Logger.WithFields(fields).Tracef("updating %s secret %s in the database", s.GetType(), s.GetName())
 
 	// cast to database type
 	secret := database.SecretFromLibrary(s)
@@ -143,7 +209,7 @@ func (c *client) UpdateSecret(s *library.Secret) error {
 
 // DeleteSecret deletes a secret by unique ID from the database.
 func (c *client) DeleteSecret(id int64) error {
-	logrus.Tracef("Deleting secret %d from the database", id)
+	c.Logger.Tracef("Deleting secret %d from the database", id)
 
 	// send query to the database
 	return c.Sqlite.

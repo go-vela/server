@@ -7,18 +7,16 @@ package redis
 import (
 	"fmt"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
-// ClientOpt represents a configuration option to initialize the queue client.
+// ClientOpt represents a configuration option to initialize the queue client for Redis.
 type ClientOpt func(*client) error
 
-// WithAddress sets the Redis address in the queue client.
+// WithAddress sets the address in the queue client for Redis.
 func WithAddress(address string) ClientOpt {
-	logrus.Trace("configuring address in redis queue client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring address in redis queue client")
+
 		// check if the address provided is empty
 		if len(address) == 0 {
 			return fmt.Errorf("no Redis queue address provided")
@@ -31,11 +29,11 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithChannels sets the Redis channels in the queue client.
+// WithChannels sets the channels in the queue client for Redis.
 func WithChannels(channels ...string) ClientOpt {
-	logrus.Trace("configuring channels in redis queue client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring channels in redis queue client")
+
 		// check if the channels provided are empty
 		if len(channels) == 0 {
 			return fmt.Errorf("no Redis queue channels provided")
@@ -48,11 +46,11 @@ func WithChannels(channels ...string) ClientOpt {
 	}
 }
 
-// WithCluster sets the Redis clustering mode in the queue client.
+// WithCluster sets the clustering mode in the queue client for Redis.
 func WithCluster(cluster bool) ClientOpt {
-	logrus.Trace("configuring clustering mode in redis queue client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring clustering mode in redis queue client")
+
 		// set the queue clustering mode in the redis client
 		c.config.Cluster = cluster
 
@@ -60,11 +58,11 @@ func WithCluster(cluster bool) ClientOpt {
 	}
 }
 
-// WithTimeout sets the Redis timeout in the queue client.
+// WithTimeout sets the timeout in the queue client for Redis.
 func WithTimeout(timeout time.Duration) ClientOpt {
-	logrus.Trace("configuring timeout in redis queue client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring timeout in redis queue client")
+
 		// set the queue timeout in the redis client
 		c.config.Timeout = timeout
 

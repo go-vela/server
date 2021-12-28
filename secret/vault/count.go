@@ -6,16 +6,34 @@ package vault
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
-
 	"github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 )
 
 // Count counts a list of secrets.
 func (c *client) Count(sType, org, name string, _ []string) (i int64, err error) {
-	logrus.Tracef("Counting vault %s secrets for %s/%s", sType, org, name)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":  org,
+		"repo": name,
+		"type": sType,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(sType, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":  org,
+			"team": name,
+			"type": sType,
+		}
+	}
+
+	c.Logger.WithFields(fields).Tracef("counting vault %s secrets for %s/%s", sType, org, name)
 
 	// nolint: staticcheck // ignore false positive
 	vault := new(api.Secret)
