@@ -56,7 +56,8 @@ import (
 // CreateUser represents the API handler to create
 // a user in the configured backend.
 func CreateUser(c *gin.Context) {
-	logrus.Info("Creating new user")
+	// capture middleware values
+	u := user.Retrieve(c)
 
 	// capture body from API request
 	input := new(library.User)
@@ -70,6 +71,13 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("creating new user %s", input.GetName())
+
 	// send API call to create the user
 	err = database.FromContext(c).CreateUser(input)
 	if err != nil {
@@ -81,9 +89,9 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// send API call to capture the created user
-	u, _ := database.FromContext(c).GetUserName(input.GetName())
+	user, _ := database.FromContext(c).GetUserName(input.GetName())
 
-	c.JSON(http.StatusCreated, u)
+	c.JSON(http.StatusCreated, user)
 }
 
 // swagger:operation GET /api/v1/users users GetUsers
@@ -133,7 +141,15 @@ func CreateUser(c *gin.Context) {
 // GetUsers represents the API handler to capture a list
 // of users from the configured backend.
 func GetUsers(c *gin.Context) {
-	logrus.Info("Reading lite users")
+	// capture middleware values
+	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Info("reading lite users")
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -171,7 +187,7 @@ func GetUsers(c *gin.Context) {
 	}
 
 	// send API call to capture the list of users
-	u, err := database.FromContext(c).GetUserLiteList(page, perPage)
+	users, err := database.FromContext(c).GetUserLiteList(page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get users: %w", err)
 
@@ -189,7 +205,7 @@ func GetUsers(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, u)
+	c.JSON(http.StatusOK, users)
 }
 
 // swagger:operation GET /api/v1/user users GetCurrentUser
@@ -210,10 +226,15 @@ func GetUsers(c *gin.Context) {
 // GetCurrentUser represents the API handler to capture the
 // currently authenticated user from the configured backend.
 func GetCurrentUser(c *gin.Context) {
-	logrus.Infof("Reading current user")
-
-	// retrieve user from context
+	// capture middleware values
 	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("reading current user %s", u.GetName())
 
 	c.JSON(http.StatusOK, u)
 }
@@ -255,10 +276,15 @@ func GetCurrentUser(c *gin.Context) {
 // UpdateCurrentUser represents the API handler to capture and
 // update the currently authenticated user from the configured backend.
 func UpdateCurrentUser(c *gin.Context) {
-	// retrieve user from context
+	// capture middleware values
 	u := user.Retrieve(c)
 
-	logrus.Infof("Updating current user %s", u.GetName())
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("updating current user %s", u.GetName())
 
 	// capture body from API request
 	input := new(library.User)
@@ -330,9 +356,15 @@ func UpdateCurrentUser(c *gin.Context) {
 // user from the configured backend.
 func GetUser(c *gin.Context) {
 	// capture middleware values
+	u := user.Retrieve(c)
 	user := c.Param("user")
 
-	logrus.Infof("Reading user %s", user)
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("reading user %s", user)
 
 	// send API call to capture the user
 	u, err := database.FromContext(c).GetUserName(user)
@@ -372,7 +404,12 @@ func GetUserSourceRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 
-	logrus.Infof("Getting list of available repos for user %s", u.GetName())
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("reading available SCM repos for user %s", u.GetName())
 
 	// variables to capture requested data
 	dbRepos := []*library.Repo{}
@@ -381,7 +418,7 @@ func GetUserSourceRepos(c *gin.Context) {
 	// send API call to capture the list of repos for the user
 	srcRepos, err := scm.FromContext(c).ListUserRepos(u)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get source repos for user %s: %w", u.GetName(), err)
+		retErr := fmt.Errorf("unable to get SCM repos for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -494,9 +531,15 @@ func GetUserSourceRepos(c *gin.Context) {
 // a user in the configured backend.
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
+	u := user.Retrieve(c)
 	user := c.Param("user")
 
-	logrus.Infof("Updating user %s", user)
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("updating user %s", user)
 
 	// capture body from API request
 	input := new(library.User)
@@ -511,7 +554,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// send API call to capture the user
-	u, err := database.FromContext(c).GetUserName(user)
+	u, err = database.FromContext(c).GetUserName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 
@@ -585,9 +628,15 @@ func UpdateUser(c *gin.Context) {
 // a user from the configured backend.
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
+	u := user.Retrieve(c)
 	user := c.Param("user")
 
-	logrus.Infof("Deleting user %s", user)
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("deleting user %s", user)
 
 	// send API call to capture the user
 	u, err := database.FromContext(c).GetUserName(user)
@@ -609,7 +658,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("User %s deleted", u.GetName()))
+	c.JSON(http.StatusOK, fmt.Sprintf("user %s deleted", u.GetName()))
 }
 
 // swagger:operation POST /api/v1/user/token users CreateToken
@@ -637,7 +686,12 @@ func CreateToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 
-	logrus.Infof("Composing token for user %s", u.GetName())
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("composing token for user %s", u.GetName())
 
 	// compose JWT token for user
 	rt, at, err := token.Compose(c, u)
@@ -689,7 +743,12 @@ func DeleteToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 
-	logrus.Infof("Revoking token for user %s", u.GetName())
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Infof("revoking token for user %s", u.GetName())
 
 	// create unique id for the user
 	uid, err := uuid.NewRandom()
