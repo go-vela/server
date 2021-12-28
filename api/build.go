@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/router/middleware/org"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -88,9 +90,20 @@ import (
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
 
-	logrus.Infof("Creating new build for repo %s", r.GetFullName())
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	})
+
+	logger.Infof("creating new build for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Build)
@@ -118,7 +131,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the repo owner
-	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	u, err = database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -192,7 +205,7 @@ func CreateBuild(c *gin.Context) {
 		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -206,7 +219,7 @@ func CreateBuild(c *gin.Context) {
 		number, err := getPRNumberFromBuild(input)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to create build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -217,7 +230,7 @@ func CreateBuild(c *gin.Context) {
 		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -263,7 +276,7 @@ func CreateBuild(c *gin.Context) {
 		err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+			logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 		}
 
 		c.JSON(http.StatusOK, skip)
@@ -287,7 +300,7 @@ func CreateBuild(c *gin.Context) {
 	err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
-		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
 
 	// publish the build to the queue
@@ -301,7 +314,9 @@ func CreateBuild(c *gin.Context) {
 }
 
 // skipEmptyBuild checks if the build should be skipped due to it
-// not containing any steps besides init or clone
+// not containing any steps besides init or clone.
+//
+// nolint: goconst // ignore init and clone constants
 func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
@@ -309,6 +324,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
+	// nolint: gomnd // ignore magic number
 	if len(p.Stages) == 2 {
 		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
 			return "skipping build since only init and clone stages found"
@@ -321,6 +337,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
+	// nolint: gomnd // ignore magic number
 	if len(p.Steps) == 2 {
 		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
 			return "skipping build since only init and clone steps found"
@@ -407,7 +424,18 @@ func GetBuilds(c *gin.Context) {
 	)
 
 	// capture middleware values
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Infof("reading builds for repo %s", r.GetFullName())
 
 	// capture the branch name parameter
 	branch := c.Query("branch")
@@ -454,8 +482,6 @@ func GetBuilds(c *gin.Context) {
 		// add status to filters map
 		filters["status"] = status
 	}
-
-	logrus.Infof("Reading builds for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -566,9 +592,18 @@ func GetOrgBuilds(c *gin.Context) {
 		t       int64
 	)
 
-	u := user.Retrieve(c)
 	// capture middleware values
-	o := c.Param("org")
+	o := org.Retrieve(c)
+	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"user": u.GetName(),
+	}).Infof("reading builds for org %s", o)
+
 	// capture the branch name parameter
 	branch := c.Query("branch")
 	// capture the event type parameter
@@ -615,8 +650,6 @@ func GetOrgBuilds(c *gin.Context) {
 		filters["status"] = status
 	}
 
-	logrus.Infof("Reading builds for org %s", o)
-
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
@@ -648,8 +681,10 @@ func GetOrgBuilds(c *gin.Context) {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
+	//
+	// nolint: goconst // ignore admin constant
 	if perm != "admin" {
-		filters["visibility"] = "public"
+		filters["visibility"] = constants.VisibilityPublic
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
@@ -711,12 +746,20 @@ func GetOrgBuilds(c *gin.Context) {
 // a build for a repo from the configured backend.
 func GetBuild(c *gin.Context) {
 	// capture middleware values
-	r := repo.Retrieve(c)
-
-	logrus.Infof("Reading build %s/%s", r.GetFullName(), c.Param("build"))
-
-	// retrieve build from context
 	b := build.Retrieve(c)
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  u.GetName(),
+	}).Infof("reading build %s/%d", r.GetFullName(), b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 }
@@ -776,9 +819,23 @@ func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
 	b := build.Retrieve(c)
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
 
-	logrus.Infof("Restarting build %s/%d", r.GetFullName(), b.GetNumber())
+	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  u.GetName(),
+	})
+
+	logger.Infof("restarting build %s", entry)
 
 	// send API call to capture the repo owner
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
@@ -819,8 +876,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the last build for the repo
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to get last build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to get last build for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -885,7 +941,7 @@ func RestartBuild(c *gin.Context) {
 		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to restart build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -896,8 +952,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -913,8 +968,7 @@ func RestartBuild(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -930,7 +984,7 @@ func RestartBuild(c *gin.Context) {
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
-			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			logger.Errorf("unable to set commit status for %s: %v", entry, err)
 		}
 
 		c.JSON(http.StatusOK, skip)
@@ -948,7 +1002,8 @@ func RestartBuild(c *gin.Context) {
 	// send API call to update repo for ensuring counter is incremented
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %v", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
@@ -962,8 +1017,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		logger.Errorf("unable to set commit status for build %s: %v", entry, err)
 	}
 
 	// publish the build to the queue
@@ -1027,17 +1081,28 @@ func RestartBuild(c *gin.Context) {
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
 
-	logrus.Infof("Updating build %s/%d", r.GetFullName(), b.GetNumber())
+	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  u.GetName(),
+	}).Infof("updating build %s", entry)
 
 	// capture body from API request
 	input := new(library.Build)
 
 	err := c.Bind(input)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to decode JSON for build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to decode JSON for build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -1098,7 +1163,7 @@ func UpdateBuild(c *gin.Context) {
 	// send API call to update the build
 	err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to update build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -1119,14 +1184,13 @@ func UpdateBuild(c *gin.Context) {
 		// send API call to capture the repo owner
 		u, err := database.FromContext(c).GetUser(r.GetUserID())
 		if err != nil {
-			logrus.Errorf("unable to get owner for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
 		}
 
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
-			logrus.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
 	}
 }
@@ -1175,21 +1239,33 @@ func UpdateBuild(c *gin.Context) {
 func DeleteBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
+	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
 
-	logrus.Infof("Deleting build %s/%d", r.GetFullName(), b.GetNumber())
+	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  u.GetName(),
+	}).Infof("deleting build %s", entry)
 
 	// send API call to remove the build
 	err := database.FromContext(c).DeleteBuild(b.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete build %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("unable to delete build %s: %v", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("Build %s/%d deleted", r.GetFullName(), b.GetNumber()))
+	c.JSON(http.StatusOK, fmt.Sprintf("build %s deleted", entry))
 }
 
 // getPRNumberFromBuild is a helper function to
@@ -1344,39 +1420,43 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 
 // CancelBuild represents the API handler to
 // cancel a running build.
+//
+// nolint: funlen // ignore function length due to comments
 func CancelBuild(c *gin.Context) {
-	r := repo.Retrieve(c)
+	// capture middleware values
 	b := build.Retrieve(c)
 	e := executors.Retrieve(c)
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
 
-	// check to see if build is pending
-	// todo: remove builds from the queue
-	if strings.EqualFold(b.GetStatus(), constants.StatusPending) {
-		retErr := fmt.Errorf("found build %s/%d but its status was %s",
-			r.GetFullName(),
-			b.GetNumber(),
-			b.GetStatus(),
-		)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-		return
-	}
+	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  u.GetName(),
+	}).Infof("canceling build %s", entry)
+
+	// TODO: add support for removing builds from the queue
+	//
 	// check to see if build is not running
-	// https://github.com/go-vela/types/blob/master/constants/status.go
 	if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
-		retErr := fmt.Errorf("found build %s/%d but its status was %s",
-			r.GetFullName(),
-			b.GetNumber(),
-			b.GetStatus(),
-		)
+		retErr := fmt.Errorf("found build %s but its status was %s", entry, b.GetStatus())
+
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
 	// retrieve the worker info
 	w, err := database.FromContext(c).GetWorker(b.GetHost())
 	if err != nil {
-		retErr := fmt.Errorf("unable to get worker: %w", err)
+		retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 		return
 	}
@@ -1439,7 +1519,7 @@ func CancelBuild(c *gin.Context) {
 	b.SetStatus(constants.StatusCanceled)
 	err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update status for build %d: %w", b.Number, err)
+		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 		return
 	}
@@ -1452,7 +1532,7 @@ func CancelBuild(c *gin.Context) {
 		// retrieve build steps (per page) from the database
 		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve steps for build %d: %w", b.Number, err)
+			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
@@ -1478,7 +1558,7 @@ func CancelBuild(c *gin.Context) {
 			step.SetStatus(constants.StatusCanceled)
 			err = database.FromContext(c).UpdateStep(step)
 			if err != nil {
-				retErr := fmt.Errorf("unable to update step %s for build %d: %w", step.GetName(), b.Number, err)
+				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
@@ -1492,7 +1572,7 @@ func CancelBuild(c *gin.Context) {
 		// retrieve build services (per page) from the database
 		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve services for build %d: %w", b.Number, err)
+			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 			return
 		}
@@ -1518,9 +1598,9 @@ func CancelBuild(c *gin.Context) {
 			service.SetStatus(constants.StatusCanceled)
 			err = database.FromContext(c).UpdateService(service)
 			if err != nil {
-				retErr := fmt.Errorf("unable to update service %s for build %d: %w",
+				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
 					service.GetName(),
-					b.Number,
+					entry,
 					err,
 				)
 				util.HandleError(c, http.StatusNotFound, retErr)

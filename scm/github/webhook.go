@@ -11,18 +11,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
+	"github.com/google/go-github/v39/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
-	logrus.Tracef("Processing GitHub webhook")
+	c.Logger.Tracef("processing GitHub webhook")
 
 	h := new(library.Hook)
 	h.SetNumber(1)
@@ -50,13 +49,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
-		return processPushEvent(h, event)
+		return c.processPushEvent(h, event)
 	case *github.PullRequestEvent:
-		return processPREvent(h, event)
+		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
-		return processDeploymentEvent(h, event)
+		return c.processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
-		return processIssueCommentEvent(h, event)
+		return c.processIssueCommentEvent(h, event)
 	}
 
 	return &types.Webhook{Hook: h}, nil
@@ -64,7 +63,10 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 
 // VerifyWebhook verifies the webhook from a repo.
 func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
-	logrus.Tracef("Verifying GitHub webhook for %s", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("verifying GitHub webhook for %s", r.GetFullName())
 
 	_, err := github.ValidatePayload(request, []byte(r.GetHash()))
 	if err != nil {
@@ -75,8 +77,13 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 }
 
 // processPushEvent is a helper function to process the push event.
-func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
-	logrus.Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
+//
+// nolint: lll // ignore long line length due to variable names
+func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing push GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	repo := payload.GetRepo()
 
@@ -149,8 +156,13 @@ func processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhoo
 }
 
 // processPREvent is a helper function to process the pull_request event.
-func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
-	logrus.Tracef("processing pull_request GitHub webhook for %s", payload.GetRepo().GetFullName())
+//
+// nolint: lll // ignore long line length due to variable names
+func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing pull_request GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	// update the hook object
 	h.SetBranch(payload.GetPullRequest().GetBase().GetRef())
@@ -231,8 +243,11 @@ func processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.W
 // processDeploymentEvent is a helper function to process the deployment event.
 //
 // nolint: lll // ignore long line length due to variable names
-func processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
-	logrus.Tracef("processing deployment GitHub webhook for %s", payload.GetRepo().GetFullName())
+func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing deployment GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
@@ -318,8 +333,11 @@ func processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*
 // processIssueCommentEvent is a helper function to process the issue comment event.
 //
 // nolint: lll // ignore long line length due to variable names
-func processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
-	logrus.Tracef("processing issue_comment GitHub webhook for %s", payload.GetRepo().GetFullName())
+func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing issue_comment GitHub webhook for %s", payload.GetRepo().GetFullName())
 
 	// update the hook object
 	h.SetEvent(constants.EventComment)

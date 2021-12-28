@@ -73,7 +73,7 @@ var baseErr = "unable to process webhook"
 //
 // nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
 func PostWebhook(c *gin.Context) {
-	logrus.Info("Webhook received")
+	logrus.Info("webhook received")
 
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -308,7 +308,6 @@ func PostWebhook(c *gin.Context) {
 
 	// if this is a comment on a pull_request event
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
-		// nolint: lll // ignore long line length due to variable names
 		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message

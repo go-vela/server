@@ -9,15 +9,13 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetUserList gets a list of all users from the database.
 //
 // nolint: dupl // ignore false positive of duplicate code
 func (c *client) GetUserList() ([]*library.User, error) {
-	logrus.Trace("listing users from the database")
+	c.Logger.Trace("listing users from the database")
 
 	// variable to store query results
 	u := new([]database.User)
@@ -46,7 +44,7 @@ func (c *client) GetUserList() ([]*library.User, error) {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted users
-			logrus.Errorf("unable to decrypt user %d: %v", tmp.ID.Int64, err)
+			c.Logger.Errorf("unable to decrypt user %d: %v", tmp.ID.Int64, err)
 		}
 
 		// convert query result to library type
@@ -60,12 +58,12 @@ func (c *client) GetUserList() ([]*library.User, error) {
 
 // GetUserLiteList gets a lite list of all users from the database.
 func (c *client) GetUserLiteList(page, perPage int) ([]*library.User, error) {
-	logrus.Trace("listing lite users from the database")
+	c.Logger.Trace("listing lite users from the database")
 
 	// variable to store query results
 	u := new([]database.User)
 	// calculate offset for pagination through results
-	offset := (perPage * (page - 1))
+	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
 	err := c.Sqlite.

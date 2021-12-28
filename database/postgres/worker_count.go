@@ -7,13 +7,11 @@ package postgres
 import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetWorkerCount gets a count of all workers from the database.
 func (c *client) GetWorkerCount() (int64, error) {
-	logrus.Trace("getting count of workers from the database")
+	c.Logger.Trace("getting count of workers from the database")
 
 	// variable to store query results
 	var w int64

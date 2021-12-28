@@ -8,13 +8,14 @@ import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
 	"github.com/sirupsen/logrus"
 )
 
 // GetBuildServiceCount gets a count of all services by build ID from the database.
 func (c *client) GetBuildServiceCount(b *library.Build) (int64, error) {
-	logrus.Tracef("getting count of services for build %d from the database", b.GetNumber())
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+	}).Tracef("getting count of services for build %d from the database", b.GetNumber())
 
 	// variable to store query results
 	var s int64
@@ -31,7 +32,7 @@ func (c *client) GetBuildServiceCount(b *library.Build) (int64, error) {
 // GetServiceImageCount gets a count of all service images
 // and the count of their occurrence in the database.
 func (c *client) GetServiceImageCount() (map[string]float64, error) {
-	logrus.Tracef("getting count of all images for services from the database")
+	c.Logger.Tracef("getting count of all images for services from the database")
 
 	type imageCount struct {
 		Image string
@@ -58,7 +59,7 @@ func (c *client) GetServiceImageCount() (map[string]float64, error) {
 // GetServiceStatusCount gets a list of all service statuses
 // and the count of their occurrence in the database.
 func (c *client) GetServiceStatusCount() (map[string]float64, error) {
-	logrus.Trace("getting count of all statuses for services from the database")
+	c.Logger.Trace("getting count of all statuses for services from the database")
 
 	type statusCount struct {
 		Status string

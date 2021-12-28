@@ -11,12 +11,11 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/pipeline"
-	"github.com/sirupsen/logrus"
 )
 
 // Route decides which route a build gets placed within the queue.
 func (c *client) Route(w *pipeline.Worker) (string, error) {
-	logrus.Tracef("deciding route from queue channels %s", c.config.Channels)
+	c.Logger.Tracef("deciding route from queue channels %s", c.config.Channels)
 
 	// create buffer to store route
 	buf := bytes.Buffer{}

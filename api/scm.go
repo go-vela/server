@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,14 +50,23 @@ import (
 // exist. Common after deleting SCM repos.
 func SyncRepos(c *gin.Context) {
 	// capture middleware values
+	o := org.Retrieve(c)
 	u := user.Retrieve(c)
-	org := c.Param("org")
-	logrus.Infof("Reading repos for org %s", org)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"user": u.GetName(),
+	})
+
+	logger.Infof("syncing repos for org %s", o)
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(u, org)
+	perm, err := scm.FromContext(c).OrgAccess(u, o)
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
+		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
 	filters := map[string]string{}
@@ -67,9 +76,9 @@ func SyncRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
+	t, err := database.FromContext(c).GetOrgRepoCount(o, filters)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -81,9 +90,9 @@ func SyncRepos(c *gin.Context) {
 	// capture all repos belonging to a certain org in database
 	// nolint: gomnd // ignore magic number
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100)
+		r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, 100)
 		if err != nil {
-			retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -99,9 +108,10 @@ func SyncRepos(c *gin.Context) {
 		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
 			repo.SetActive(false)
-			e := database.FromContext(c).UpdateRepo(repo)
-			if e != nil {
-				retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
+
+			err := database.FromContext(c).UpdateRepo(repo)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -109,7 +119,8 @@ func SyncRepos(c *gin.Context) {
 			}
 		}
 	}
-	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", org))
+
+	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", o))
 }
 
 // swagger:operation GET /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
@@ -147,14 +158,21 @@ func SyncRepos(c *gin.Context) {
 // SCM service and the database should a discrepancy
 // exist. Common after deleting SCM repos.
 func SyncRepo(c *gin.Context) {
-	logrus.Infof("Reading repo %s/%s", c.Param("org"), c.Param("repo"))
 	// capture middleware values
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	org := c.Param("org")
-	repo := c.Param("repo")
 
-	// retrieve repo from context
-	r, _ := database.FromContext(c).GetRepo(org, repo)
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	})
+
+	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
 	_, err := scm.FromContext(c).GetRepo(u, r)
@@ -163,15 +181,17 @@ func SyncRepo(c *gin.Context) {
 	if err != nil {
 		// set repo to inactive - do not delete
 		r.SetActive(false)
+
 		// update repo in database
-		e := database.FromContext(c).UpdateRepo(r)
-		if e != nil {
-			retErr := fmt.Errorf("unable to update repo for org %s: %w", org, err)
+		err := database.FromContext(c).UpdateRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
 		}
 	}
+
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
 }

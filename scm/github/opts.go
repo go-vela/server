@@ -7,18 +7,16 @@ package github
 import (
 	"fmt"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
-// ClientOpt represents a configuration option to initialize the scm client.
+// ClientOpt represents a configuration option to initialize the scm client for GitHub.
 type ClientOpt func(*client) error
 
-// WithAddress sets the GitHub address in the scm client.
+// WithAddress sets the GitHub address in the scm client for GitHub.
 func WithAddress(address string) ClientOpt {
-	logrus.Trace("configuring address in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring address in github scm client")
+
 		// set a default address for the client
 		c.config.Address = defaultURL
 		// set a default API address for the client
@@ -39,11 +37,11 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithClientID sets the GitHub OAuth client ID in the scm client.
+// WithClientID sets the OAuth client ID in the scm client for GitHub.
 func WithClientID(id string) ClientOpt {
-	logrus.Trace("configuring OAuth client ID in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring OAuth client ID in github scm client")
+
 		// check if the OAuth client ID provided is empty
 		if len(id) == 0 {
 			return fmt.Errorf("no GitHub OAuth client ID provided")
@@ -56,11 +54,11 @@ func WithClientID(id string) ClientOpt {
 	}
 }
 
-// WithClientSecret sets the GitHub OAuth client secret in the scm client.
+// WithClientSecret sets the OAuth client secret in the scm client for GitHub.
 func WithClientSecret(secret string) ClientOpt {
-	logrus.Trace("configuring OAuth client secret in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring OAuth client secret in github scm client")
+
 		// check if the OAuth client secret provided is empty
 		if len(secret) == 0 {
 			return fmt.Errorf("no GitHub OAuth client secret provided")
@@ -73,11 +71,11 @@ func WithClientSecret(secret string) ClientOpt {
 	}
 }
 
-// WithServerAddress sets the Vela server address in the scm client.
+// WithServerAddress sets the Vela server address in the scm client for GitHub.
 func WithServerAddress(address string) ClientOpt {
-	logrus.Trace("configuring Vela server address in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring Vela server address in github scm client")
+
 		// check if the Vela server address provided is empty
 		if len(address) == 0 {
 			return fmt.Errorf("no Vela server address provided")
@@ -90,11 +88,11 @@ func WithServerAddress(address string) ClientOpt {
 	}
 }
 
-// WithServerWebhookAddress sets the Vela server webhook address in the scm client.
+// WithServerWebhookAddress sets the Vela server webhook address in the scm client for GitHub.
 func WithServerWebhookAddress(address string) ClientOpt {
-	logrus.Trace("configuring Vela server webhook address in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring Vela server webhook address in github scm client")
+
 		// fallback to Vela server address if the provided Vela server webhook address is empty
 		if len(address) == 0 {
 			c.config.ServerWebhookAddress = c.config.ServerAddress
@@ -108,11 +106,11 @@ func WithServerWebhookAddress(address string) ClientOpt {
 	}
 }
 
-// WithStatusContext sets the GitHub context for commit statuses in the scm client.
+// WithStatusContext sets the context for commit statuses in the scm client for GitHub.
 func WithStatusContext(context string) ClientOpt {
-	logrus.Trace("configuring context for commit statuses in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring context for commit statuses in github scm client")
+
 		// check if the context for the commit statuses provided is empty
 		if len(context) == 0 {
 			return fmt.Errorf("no GitHub context for commit statuses provided")
@@ -125,11 +123,11 @@ func WithStatusContext(context string) ClientOpt {
 	}
 }
 
-// WithWebUIAddress sets the Vela web UI address in the scm client.
+// WithWebUIAddress sets the Vela web UI address in the scm client for GitHub.
 func WithWebUIAddress(address string) ClientOpt {
-	logrus.Trace("configuring Vela web UI address in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring Vela web UI address in github scm client")
+
 		// set the Vela web UI address in the github client
 		c.config.WebUIAddress = address
 
@@ -137,11 +135,11 @@ func WithWebUIAddress(address string) ClientOpt {
 	}
 }
 
-// WithScopes sets the GitHub OAuth scopes in the scm client.
+// WithScopes sets the OAuth scopes in the scm client for GitHub.
 func WithScopes(scopes []string) ClientOpt {
-	logrus.Trace("configuring oauth scopes in github scm client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring oauth scopes in github scm client")
+
 		// check if the scopes provided is empty
 		if len(scopes) == 0 {
 			return fmt.Errorf("no GitHub OAuth scopes provided")

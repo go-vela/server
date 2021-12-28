@@ -12,14 +12,13 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetBuildLogs gets a collection of logs for a build by unique ID from the database.
 func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
-	logrus.Tracef("listing logs for build %d from the database", id)
+	c.Logger.Tracef("listing logs for build %d from the database", id)
 
 	// variable to store query results
 	l := new([]database.Log)
@@ -48,7 +47,7 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it
 			// which allows us to fetch uncompressed logs
-			logrus.Errorf("unable to decompress logs for build %d: %v", id, err)
+			c.Logger.Errorf("unable to decompress logs for build %d: %v", id, err)
 		}
 
 		// convert query result to library type
@@ -62,7 +61,7 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 //
 // nolint: dupl // ignore similar code with service
 func (c *client) GetStepLog(id int64) (*library.Log, error) {
-	logrus.Tracef("getting log for step %d from the database", id)
+	c.Logger.Tracef("getting log for step %d from the database", id)
 
 	// variable to store query results
 	l := new(database.Log)
@@ -86,7 +85,7 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch uncompressed logs
-		logrus.Errorf("unable to decompress logs for step %d: %v", id, err)
+		c.Logger.Errorf("unable to decompress logs for step %d: %v", id, err)
 
 		// return the uncompressed log
 		return l.ToLibrary(), result.Error
@@ -100,7 +99,7 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 //
 // nolint: dupl // ignore similar code with step
 func (c *client) GetServiceLog(id int64) (*library.Log, error) {
-	logrus.Tracef("getting log for service %d from the database", id)
+	c.Logger.Tracef("getting log for service %d from the database", id)
 
 	// variable to store query results
 	l := new(database.Log)
@@ -124,7 +123,7 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allowing us to fetch uncompressed logs
-		logrus.Errorf("unable to decompress logs for service %d: %v", id, err)
+		c.Logger.Errorf("unable to decompress logs for service %d: %v", id, err)
 
 		// return the uncompressed log
 		return l.ToLibrary(), result.Error
@@ -140,9 +139,9 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 func (c *client) CreateLog(l *library.Log) error {
 	// check if the log entry is for a step
 	if l.GetStepID() > 0 {
-		logrus.Tracef("creating log for step %d in the database", l.GetStepID())
+		c.Logger.Tracef("creating log for step %d in the database", l.GetStepID())
 	} else {
-		logrus.Tracef("creating log for service %d in the database", l.GetServiceID())
+		c.Logger.Tracef("creating log for service %d in the database", l.GetServiceID())
 	}
 
 	// cast to database type
@@ -174,9 +173,9 @@ func (c *client) CreateLog(l *library.Log) error {
 func (c *client) UpdateLog(l *library.Log) error {
 	// check if the log entry is for a step
 	if l.GetStepID() > 0 {
-		logrus.Tracef("updating log for step %d in the database", l.GetStepID())
+		c.Logger.Tracef("updating log for step %d in the database", l.GetStepID())
 	} else {
-		logrus.Tracef("updating log for service %d in the database", l.GetServiceID())
+		c.Logger.Tracef("updating log for service %d in the database", l.GetServiceID())
 	}
 
 	// cast to database type
@@ -204,7 +203,7 @@ func (c *client) UpdateLog(l *library.Log) error {
 
 // DeleteLog deletes a log by unique ID from the database.
 func (c *client) DeleteLog(id int64) error {
-	logrus.Tracef("deleting log %d from the database", id)
+	c.Logger.Tracef("deleting log %d from the database", id)
 
 	// send query to the database
 	return c.Postgres.

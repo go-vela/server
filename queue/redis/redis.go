@@ -29,22 +29,34 @@ type config struct {
 
 type client struct {
 	config  *config
-	Queue   *redis.Client
+	Redis   *redis.Client
 	Options *redis.Options
+	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
+	Logger *logrus.Entry
 }
 
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Redis client
 	c := new(client)
 
 	// create new fields
 	c.config = new(config)
-	c.Queue = new(redis.Client)
+	c.Redis = new(redis.Client)
 	c.Options = new(redis.Options)
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#StandardLogger
+	logger := logrus.StandardLogger()
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
+	c.Logger = logrus.NewEntry(logger).WithField("queue", c.Driver())
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -66,14 +78,14 @@ func New(opts ...ClientOpt) (*client, error) {
 	// check if clustering mode is enabled
 	if c.config.Cluster {
 		// create the Redis cluster client from the options
-		c.Queue = redis.NewFailoverClient(failoverFromOptions(c.Options))
+		c.Redis = redis.NewFailoverClient(failoverFromOptions(c.Options))
 	} else {
 		// create the Redis client from the parsed url
-		c.Queue = redis.NewClient(c.Options)
+		c.Redis = redis.NewClient(c.Options)
 	}
 
 	// ping the queue
-	err = pingQueue(c.Queue)
+	err = pingQueue(c)
 	if err != nil {
 		return nil, err
 	}
@@ -133,13 +145,13 @@ func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 // This will ensure we have properly established a
 // connection to the Redis queue instance before
 // we try to set it up.
-func pingQueue(client *redis.Client) error {
+func pingQueue(c *client) error {
 	// attempt 10 times
 	for i := 0; i < 10; i++ {
 		// send ping request to client
-		err := client.Ping(context.Background()).Err()
+		err := c.Redis.Ping(context.Background()).Err()
 		if err != nil {
-			logrus.Debugf("unable to ping Redis queue. Retrying in %v", (time.Duration(i) * time.Second))
+			c.Logger.Debugf("unable to ping Redis queue. Retrying in %v", time.Duration(i)*time.Second)
 			time.Sleep(1 * time.Second)
 
 			continue
@@ -154,13 +166,13 @@ func pingQueue(client *redis.Client) error {
 // NewTest returns a Queue implementation that
 // integrates with a local Redis instance.
 //
-// It's possible to overide this with env variables,
+// It's possible to override this with env variables,
 // which gets used as a part of integration testing
 // with the different supported backends.
 //
 // This function is intended for running tests only.
 //
-// nolint: golint // ignore returning unexported client
+// nolint: revive // ignore returning unexported client
 func NewTest(channels ...string) (*client, error) {
 	// create a local fake redis instance
 	//
