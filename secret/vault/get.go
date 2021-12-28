@@ -6,17 +6,37 @@ package vault
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
 	"github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 )
 
 // Get captures a secret.
 func (c *client) Get(sType, org, name, path string) (s *library.Secret, err error) {
-	logrus.Tracef("Getting vault %s secret %s for %s/%s", sType, path, org, name)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":    org,
+		"repo":   name,
+		"secret": path,
+		"type":   sType,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(sType, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":    org,
+			"team":   name,
+			"secret": path,
+			"type":   sType,
+		}
+	}
+
+	c.Logger.WithFields(fields).Tracef("getting vault %s secret %s for %s/%s", sType, path, org, name)
 
 	// nolint: ineffassign,staticcheck // ignore false positive
 	vault := new(api.Secret)

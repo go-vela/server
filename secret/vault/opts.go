@@ -7,18 +7,16 @@ package vault
 import (
 	"fmt"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
-// ClientOpt represents a configuration option to initialize the secret client.
+// ClientOpt represents a configuration option to initialize the secret client for Vault.
 type ClientOpt func(*client) error
 
-// WithAddress sets the Vault address in the secret client.
+// WithAddress sets the address in the secret client for Vault.
 func WithAddress(address string) ClientOpt {
-	logrus.Trace("configuring address in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring address in vault secret client")
+
 		// check if the Vault address provided is empty
 		if len(address) == 0 {
 			return fmt.Errorf("no Vault address provided")
@@ -31,11 +29,11 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithAuthMethod sets the Vault authentication method in the secret client.
+// WithAuthMethod sets the authentication method in the secret client for Vault.
 func WithAuthMethod(authMethod string) ClientOpt {
-	logrus.Trace("configuring authentication method in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring authentication method in vault secret client")
+
 		// set the authentication method in the vault client
 		c.config.AuthMethod = authMethod
 
@@ -43,11 +41,11 @@ func WithAuthMethod(authMethod string) ClientOpt {
 	}
 }
 
-// WithAWSRole sets the Vault AWS role in the secret client.
+// WithAWSRole sets the AWS role in the secret client for Vault.
 func WithAWSRole(awsRole string) ClientOpt {
-	logrus.Trace("configuring AWS role in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring AWS role in vault secret client")
+
 		// set the AWS role in the vault client
 		c.config.AWSRole = awsRole
 
@@ -55,11 +53,11 @@ func WithAWSRole(awsRole string) ClientOpt {
 	}
 }
 
-// WithPrefix sets the Vault prefix in the secret client.
+// WithPrefix sets the prefix in the secret client for Vault.
 func WithPrefix(prefix string) ClientOpt {
-	logrus.Trace("configuring prefix in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring prefix in vault secret client")
+
 		// set the prefix in the vault client
 		c.config.Prefix = prefix
 
@@ -67,11 +65,11 @@ func WithPrefix(prefix string) ClientOpt {
 	}
 }
 
-// WithToken sets the Vault token in the secret client.
+// WithToken sets the token in the secret client for Vault.
 func WithToken(token string) ClientOpt {
-	logrus.Trace("configuring token in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring token in vault secret client")
+
 		// set the token in the vault client
 		c.config.Token = token
 
@@ -79,11 +77,11 @@ func WithToken(token string) ClientOpt {
 	}
 }
 
-// WithTokenDuration sets the Vault token duration in the secret client.
+// WithTokenDuration sets the token duration in the secret client for Vault.
 func WithTokenDuration(tokenDuration time.Duration) ClientOpt {
-	logrus.Trace("configuring token duration in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring token duration in vault secret client")
+
 		// set the token duration in the vault client
 		c.config.TokenDuration = tokenDuration
 
@@ -91,11 +89,11 @@ func WithTokenDuration(tokenDuration time.Duration) ClientOpt {
 	}
 }
 
-// WithVersion sets the Vault version in the secret client.
+// WithVersion sets the version in the secret client for Vault.
 func WithVersion(version string) ClientOpt {
-	logrus.Trace("configuring version in vault secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring version in vault secret client")
+
 		// check if the Vault version provided is empty
 		if len(version) == 0 {
 			return fmt.Errorf("no Vault version provided")

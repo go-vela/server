@@ -16,24 +16,6 @@ import (
 //
 // https://pkg.go.dev/github.com/urfave/cli?tab=doc#Flag
 var Flags = []cli.Flag{
-
-	// Logger Flags
-
-	&cli.StringFlag{
-		EnvVars:  []string{"VELA_DATABASE_LOG_FORMAT", "DATABASE_LOG_FORMAT", "VELA_LOG_FORMAT"},
-		FilePath: "/vela/database/log_format",
-		Name:     "database.log.format",
-		Usage:    "format of logs to output",
-		Value:    "json",
-	},
-	&cli.StringFlag{
-		EnvVars:  []string{"VELA_DATABASE_LOG_LEVEL", "DATABASE_LOG_LEVEL", "VELA_LOG_LEVEL"},
-		FilePath: "/vela/database/log_level",
-		Name:     "database.log.level",
-		Usage:    "level of logs to output",
-		Value:    "info",
-	},
-
 	// Database Flags
 
 	&cli.StringFlag{

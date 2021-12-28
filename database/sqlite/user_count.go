@@ -7,13 +7,11 @@ package sqlite
 import (
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetUserCount gets a count of all users from the database.
 func (c *client) GetUserCount() (int64, error) {
-	logrus.Trace("getting count of users from the database")
+	c.Logger.Trace("getting count of users from the database")
 
 	// variable to store query results
 	var u int64

@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -50,6 +51,8 @@ type (
 		AWS    *awsCfg
 		Vault  *api.Client
 		TTL    time.Duration
+		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
+		Logger *logrus.Entry
 	}
 )
 
@@ -64,6 +67,16 @@ func New(opts ...ClientOpt) (*client, error) {
 	c.config = new(config)
 	c.AWS = new(awsCfg)
 	c.Vault = new(api.Client)
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#StandardLogger
+	logger := logrus.StandardLogger()
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
+	c.Logger = logrus.NewEntry(logger).WithField("engine", c.Driver())
 
 	// apply all provided configuration options
 	for _, opt := range opts {

@@ -7,16 +7,34 @@ package sqlite
 import (
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
-
-	"github.com/sirupsen/logrus"
 )
 
 // GetTypeSecretCount gets a count of secrets by type,
 // owner, and name (repo or team) from the database.
 func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, error) {
-	logrus.Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
+	// create log fields from secret metadata
+	fields := logrus.Fields{
+		"org":  o,
+		"repo": n,
+		"type": t,
+	}
+
+	// check if secret is a shared secret
+	if strings.EqualFold(t, constants.SecretShared) {
+		// update log fields from secret metadata
+		fields = logrus.Fields{
+			"org":  o,
+			"team": n,
+			"type": t,
+		}
+	}
+
+	// nolint: lll // ignore long line length due to parameters
+	c.Logger.WithFields(fields).Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
 
