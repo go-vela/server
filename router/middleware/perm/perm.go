@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -27,7 +28,12 @@ func MustPlatformAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
 
-		logrus.Debugf("Verifying user %s is a platform admin", u.GetName())
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"user": u.GetName(),
+		}).Debugf("verifying user %s is a platform admin", u.GetName())
 
 		switch {
 		case globalPerms(u):
@@ -43,26 +49,54 @@ func MustPlatformAdmin() gin.HandlerFunc {
 }
 
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
+//
+// nolint: funlen // ignore function length due to comments
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
+		e := c.Param("engine")
+		t := c.Param("type")
+		o := c.Param("org")
+		n := c.Param("name")
+		m := c.Request.Method
+
+		// create log fields from API metadata
+		fields := logrus.Fields{
+			"engine": e,
+			"org":    o,
+			"repo":   n,
+			"type":   t,
+			"user":   u.GetName(),
+		}
+
+		// check if secret is a shared secret
+		if strings.EqualFold(t, constants.SecretShared) {
+			// update log fields from API metadata
+			fields = logrus.Fields{
+				"engine": e,
+				"org":    o,
+				"team":   n,
+				"type":   t,
+				"user":   u.GetName(),
+			}
+		}
+
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logger := logrus.WithFields(fields)
 
 		if globalPerms(u) {
 			return
 		}
 
-		m := c.Request.Method
-		t := c.Param("type")
-		o := c.Param("org")
-		n := c.Param("name")
-
 		switch t {
 		case constants.SecretOrg:
-			logrus.Debugf("Verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
+			logger.Debugf("verifying user %s has 'admin' permissions for org %s", u.GetName(), o)
 
 			perm, err := scm.FromContext(c).OrgAccess(u, o)
 			if err != nil {
-				logrus.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
+				logger.Errorf("unable to get user %s access level for org %s: %v", u.GetName(), o, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
@@ -73,11 +107,11 @@ func MustSecretAdmin() gin.HandlerFunc {
 				return
 			}
 		case constants.SecretRepo:
-			logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
+			logger.Debugf("verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 
 			perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, n)
 			if err != nil {
-				logrus.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
+				logger.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
 
 			if !strings.EqualFold(perm, "admin") {
@@ -90,11 +124,11 @@ func MustSecretAdmin() gin.HandlerFunc {
 			}
 		case constants.SecretShared:
 			if n == "*" && m == "GET" {
-				logrus.Debugf("Gathering teams user %s is a member of in the org %s", u.GetName(), o)
+				logger.Debugf("gathering teams user %s is a member of in the org %s", u.GetName(), o)
 
 				teams, err := scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 				if err != nil {
-					logrus.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
+					logger.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
 				}
 
 				if len(teams) == 0 {
@@ -105,10 +139,11 @@ func MustSecretAdmin() gin.HandlerFunc {
 					return
 				}
 			} else {
-				logrus.Debugf("Verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
+				logger.Debugf("verifying user %s has 'admin' permissions for team %s/%s", u.GetName(), o, n)
+
 				perm, err := scm.FromContext(c).TeamAccess(u, o, n)
 				if err != nil {
-					logrus.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
+					logger.Errorf("unable to get user %s access level for team %s/%s: %v", u.GetName(), o, n, err)
 				}
 
 				if !strings.EqualFold(perm, "admin") {
@@ -134,11 +169,21 @@ func MustSecretAdmin() gin.HandlerFunc {
 // MustAdmin ensures the user has admin access to the repo.
 func MustAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 
-		// nolint: lll // ignore long line length due to log message
-		logrus.Debugf("Verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logger := logrus.WithFields(logrus.Fields{
+			"org":  o,
+			"repo": r.GetName(),
+			"user": u.GetName(),
+		})
+
+		// nolint: lll // ignore long line length due to parameters
+		logger.Debugf("verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
 			return
@@ -162,7 +207,7 @@ func MustAdmin() gin.HandlerFunc {
 
 			perm, err = scm.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
 		}
 
@@ -170,7 +215,6 @@ func MustAdmin() gin.HandlerFunc {
 		// nolint: goconst // ignore making constant
 		case "admin":
 			return
-
 		default:
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
@@ -185,11 +229,21 @@ func MustAdmin() gin.HandlerFunc {
 // MustWrite ensures the user has admin or write access to the repo.
 func MustWrite() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
 
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logger := logrus.WithFields(logrus.Fields{
+			"org":  o,
+			"repo": r.GetName(),
+			"user": u.GetName(),
+		})
+
 		// nolint: lll // ignore long line length due to log message
-		logrus.Debugf("Verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
+		logger.Debugf("verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
 			return
@@ -213,7 +267,7 @@ func MustWrite() gin.HandlerFunc {
 
 			perm, err = scm.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
 		}
 
@@ -236,19 +290,29 @@ func MustWrite() gin.HandlerFunc {
 // MustRead ensures the user has admin, write or read access to the repo.
 func MustRead() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logger := logrus.WithFields(logrus.Fields{
+			"org":  o,
+			"repo": r.GetName(),
+			"user": u.GetName(),
+		})
 
 		// check if the repo visibility field is set to public
 		if strings.EqualFold(r.GetVisibility(), constants.VisibilityPublic) {
 			// nolint: lll // ignore long line length due to log message
-			logrus.Debugf("repo %s has %s visibility - skipping 'read' check for user %s", r.GetFullName(), r.GetVisibility(), u.GetName())
+			logger.Debugf("skipping 'read' check for repo %s with %s visibility for user %s", r.GetFullName(), r.GetVisibility(), u.GetName())
 
 			return
 		}
 
 		// nolint: lll // ignore long line length due to log message
-		logrus.Debugf("Verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
+		logger.Debugf("verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
 			return
@@ -272,7 +336,7 @@ func MustRead() gin.HandlerFunc {
 
 			perm, err = scm.FromContext(c).RepoAccess(u, ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
 		}
 
@@ -283,7 +347,6 @@ func MustRead() gin.HandlerFunc {
 			return
 		case "read":
 			return
-
 		default:
 			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())

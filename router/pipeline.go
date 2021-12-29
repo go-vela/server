@@ -7,6 +7,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 )
 
@@ -20,7 +21,7 @@ import (
 // POST /api/v1/pipelines/:org/:repo/validate .
 func PipelineHandlers(base *gin.RouterGroup) {
 	// Pipelines endpoints
-	pipelines := base.Group("pipelines/:org/:repo", repo.Establish())
+	pipelines := base.Group("pipelines/:org/:repo", org.Establish(), repo.Establish())
 	{
 		pipelines.GET("", api.GetPipeline)
 		pipelines.GET("/templates", api.GetTemplates)

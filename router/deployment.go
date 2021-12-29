@@ -6,6 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/router/middleware/org"
 
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware/perm"
@@ -20,7 +21,7 @@ import (
 // GET    /api/v1/deployments/:org/:repo/:deployment .
 func DeploymentHandlers(base *gin.RouterGroup) {
 	// Deployments endpoints
-	deployments := base.Group("/deployments/:org/:repo", repo.Establish())
+	deployments := base.Group("/deployments/:org/:repo", org.Establish(), repo.Establish())
 	{
 		deployments.POST("", perm.MustWrite(), api.CreateDeployment)
 		deployments.GET("", perm.MustRead(), api.GetDeployments)

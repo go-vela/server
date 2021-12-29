@@ -38,7 +38,7 @@ func TestRedis_Pop(t *testing.T) {
 	}
 
 	// push item to queue
-	err = _redis.Queue.RPush(context.Background(), "vela", bytes).Err()
+	err = _redis.Redis.RPush(context.Background(), "vela", bytes).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
@@ -60,7 +60,7 @@ func TestRedis_Pop(t *testing.T) {
 	badChannel.config.Channels = nil
 
 	// push nothing to queue
-	err = badChannel.Queue.RPush(context.Background(), "vela", nil).Err()
+	err = badChannel.Redis.RPush(context.Background(), "vela", nil).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
@@ -72,7 +72,7 @@ func TestRedis_Pop(t *testing.T) {
 	}
 
 	// push nothing to queue
-	err = badItem.Queue.RPush(context.Background(), "vela", nil).Err()
+	err = badItem.Redis.RPush(context.Background(), "vela", nil).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}

@@ -17,7 +17,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
-	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/golang-jwt/jwt/v4/request"
 	"github.com/sirupsen/logrus"
 )
@@ -112,7 +112,7 @@ func Parse(t string, db database.Service) (*library.User, error) {
 		}
 
 		// lookup the user in the database
-		logrus.Debugf("Reading user %s", name)
+		logrus.WithField("user", name).Debugf("reading user %s", name)
 		u, err = db.GetUserName(name)
 		return []byte(u.GetHash()), err
 	})

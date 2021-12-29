@@ -47,7 +47,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Parsing user access token")
+		logrus.Debugf("parsing user access token")
 
 		// parse and validate the token and return the associated the user
 		u, err := token.Parse(at, database.FromContext(c))
