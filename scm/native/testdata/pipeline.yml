@@ -1,0 +1,15 @@
+---
+version: "1"
+
+metadata:
+  os: linux
+
+steps:
+  - name: build
+    image: openjdk:latest
+    pull: true
+    environment:
+      GRADLE_USER_HOME: .gradle
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
+    commands:
+      - ./gradlew build distTar
