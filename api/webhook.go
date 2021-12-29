@@ -565,10 +565,9 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// get the old name of the repo
-	nameHistory := r.GetNameHistory()
-	lastName := nameHistory[len(nameHistory)-1]
+	previousName := r.GetPreviousName()
 	// get the repo from the database that matches the old name
-	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), lastName)
+	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), previousName)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo from database", baseErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -582,7 +581,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	dbR.SetFullName(r.GetFullName())
 	dbR.SetClone(r.GetClone())
 	dbR.SetLink(r.GetLink())
-	dbR.SetNameHistory(append(dbR.GetNameHistory(), lastName))
+	dbR.SetPreviousName(previousName)
 
 	// update the repo in the database
 	err = database.FromContext(c).UpdateRepo(dbR)
@@ -606,7 +605,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 
 	// update the user favorites slice
 	favorites := []string{}
-	lastFullName := r.GetOrg() + "/" + lastName
+	lastFullName := r.GetOrg() + "/" + previousName
 	for _, fav := range user.GetFavorites() {
 		if fav != lastFullName {
 			favorites = append(favorites, fav)
@@ -625,9 +624,9 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		return retErr
 	}
 
-	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), lastName, []string{})
+	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
-		retErr := fmt.Errorf("unable to get secrets for repo %s: %w", lastName, err)
+		retErr := fmt.Errorf("unable to get secrets for repo %s: %w", previousName, err)
 
 		return retErr
 	}
@@ -636,9 +635,9 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// capture all secrets belonging to certain repo in database
 	// nolint: gomnd // ignore magic number
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), lastName, page, 100, []string{})
+		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
 		if err != nil {
-			retErr := fmt.Errorf("unable to get secret list for repo %s: %w", lastName, err)
+			retErr := fmt.Errorf("unable to get secret list for repo %s: %w", previousName, err)
 			return retErr
 		}
 		secrets = append(secrets, s...)

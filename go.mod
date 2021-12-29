@@ -17,7 +17,7 @@ require (
 	github.com/go-vela/types v0.11.1-0.20211229145703-a10f36c258de
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/google/go-cmp v0.5.6
-	github.com/google/go-github/v41 v41.0.0-a899e0fadbec05084dfdec2348894072025e4d42
+	github.com/google/go-github/v39 v39.2.0
 	github.com/google/uuid v1.3.0
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/go-cleanhttp v0.5.2
@@ -66,7 +66,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
-	github.com/google/go-github/v41 v41.0.1-0.20211227215900-a899e0fadbec // indirect
+	github.com/google/go-github/v41 v41.0.1-0.20211227215900-a899e0fadbec
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect

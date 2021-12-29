@@ -22,7 +22,7 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
-	_repo.SetNameHistory([]string{})
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -89,7 +89,7 @@ func TestSqlite_Client_CreateRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
-	_repo.SetNameHistory([]string{})
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -138,7 +138,7 @@ func TestSqlite_Client_UpdateRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
-	_repo.SetNameHistory([]string{})
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -193,7 +193,7 @@ func TestSqlite_Client_DeleteRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
-	_repo.SetNameHistory([]string{})
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -246,7 +246,6 @@ func testRepo() *library.Repo {
 	i := 0
 	str := ""
 	b := false
-	arr := []string{}
 
 	return &library.Repo{
 		ID:           &i64,
@@ -269,6 +268,6 @@ func testRepo() *library.Repo {
 		AllowDeploy:  &b,
 		AllowTag:     &b,
 		AllowComment: &b,
-		NameHistory:  &arr,
+		PreviousName: &str,
 	}
 }
