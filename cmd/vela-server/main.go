@@ -102,6 +102,12 @@ func main() {
 			Value:   constants.BuildLimitDefault,
 		},
 		&cli.Int64Flag{
+			EnvVars: []string{"VELA_MAX_BUILD_LIMIT"},
+			Name:    "max-build-limit",
+			Usage:   "override max build limit",
+			Value:   constants.BuildLimitMax,
+		},
+		&cli.Int64Flag{
 			EnvVars: []string{"VELA_DEFAULT_BUILD_TIMEOUT"},
 			Name:    "default-build-timeout",
 			Usage:   "override default build timeout (minutes)",

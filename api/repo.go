@@ -77,8 +77,9 @@ func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	allowlist := c.Value("allowlist").([]string)
-	defaultLimit := c.Value("defaultLimit").(int64)
+	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
+	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -122,12 +123,19 @@ func CreateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
-	// set the limit field based off the input provided
-	if input.GetBuildLimit() == 0 && defaultLimit == 0 {
+	// set the build limit field based off the input provided
+	if input.GetBuildLimit() == 0 && defaultBuildLimit == 0 {
 		// default build limit to 10
-		r.SetTimeout(constants.BuildLimitDefault)
+		r.SetBuildLimit(constants.BuildLimitDefault)
 	} else if input.GetBuildLimit() == 0 {
-		r.SetBuildLimit(defaultLimit)
+		// default build limit to value configured by server
+		r.SetBuildLimit(defaultBuildLimit)
+	} else if input.GetBuildLimit() > constants.BuildLimitMax && maxBuildLimit == 0 {
+		// set build limit to 30 to prevent limit from exceeding max
+		r.SetBuildLimit(constants.BuildLimitMax)
+	} else if input.GetBuildLimit() > maxBuildLimit {
+		// set build limit to value configured by server to prevent limit from exceeding max
+		r.SetBuildLimit(maxBuildLimit)
 	} else {
 		r.SetBuildLimit(input.GetBuildLimit())
 	}
@@ -633,6 +641,7 @@ func UpdateRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 
 	// update engine logger with API metadata
 	//
@@ -661,8 +670,9 @@ func UpdateRepo(c *gin.Context) {
 		r.SetBranch(input.GetBranch())
 	}
 
-	if input.GetBuildLimit() > 0 {
-		// update build limit if set
+	// update build limit if set
+	if input.GetBuildLimit() > 0 && maxBuildLimit == 0 {
+		// allow build limit between 1 - 30
 		r.SetBuildLimit(
 			int64(
 				util.MaxInt(
@@ -670,6 +680,19 @@ func UpdateRepo(c *gin.Context) {
 					util.MinInt(
 						int(input.GetBuildLimit()),
 						constants.BuildLimitMax,
+					), // clamp max
+				), // clamp min
+			),
+		)
+	} else if input.GetBuildLimit() > 0 {
+		// allow build limit between 1 - value configured by server
+		r.SetBuildLimit(
+			int64(
+				util.MaxInt(
+					constants.BuildLimitMin,
+					util.MinInt(
+						int(input.GetBuildLimit()),
+						int(maxBuildLimit),
 					), // clamp max
 				), // clamp min
 			),
