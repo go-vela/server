@@ -5,6 +5,7 @@
 package native
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -29,10 +30,16 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		return nil, err
 	}
 
-	h := extractHook(request, c.config.Kind)
+	h := new(library.Hook)
+	h.SetNumber(1)
+	h.SetCreated(time.Now().UTC().Unix())
+	//TODO: What do here...
+	// h.SetHost("github.com")
+	h.SetStatus(constants.StatusSuccess)
 
-	webhook, err := client.Webhooks.Parse(request, nil)
+	webhook, err := client.Webhooks.Parse(request, secretFunc)
 	if err != nil {
+		logrus.Errorf("%v", err)
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -59,28 +66,6 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 	return nil
 }
 
-func extractHook(request *http.Request, kind string) *library.Hook {
-	h := new(library.Hook)
-	h.SetNumber(1)
-	h.SetCreated(time.Now().UTC().Unix())
-	//TODO: What do here...
-	// h.SetHost("github.com")
-	h.SetStatus(constants.StatusSuccess)
-
-	switch kind {
-	case "bitbucket", "bitbucketcloud":
-		h.SetSourceID(request.Header.Get("X-Hook-UUID"))
-	case "github":
-		h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
-
-		if len(request.Header.Get("X-GitHub-Enterprise-Host")) > 0 {
-			h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
-		}
-	}
-
-	return h
-}
-
 // processPushEvent is a helper function to process the push event.
 func processPushEvent(h *library.Hook, payload *scm.PushHook) (*types.Webhook, error) {
 	logrus.Tracef("processing push SCM webhook for %s", payload.Repo.FullName)
@@ -104,6 +89,7 @@ func processPushEvent(h *library.Hook, payload *scm.PushHook) (*types.Webhook, e
 	b.SetBaseRef(payload.BaseRef)
 
 	// update the hook object
+	h.SetSourceID(payload.GUID)
 	h.SetBranch(b.GetBranch())
 	h.SetEvent(constants.EventPush)
 	h.SetLink(
@@ -146,6 +132,7 @@ func processPREvent(h *library.Hook, payload *scm.PullRequestHook) (*types.Webho
 	logrus.Tracef("processing pull_request SCM webhook for %s", payload.Repo.FullName)
 
 	// update the hook object
+	h.SetSourceID(payload.GUID)
 	h.SetBranch(payload.PullRequest.Base.Ref)
 	h.SetEvent(constants.EventPull)
 	h.SetLink(
@@ -265,6 +252,7 @@ func processIssueCommentEvent(h *library.Hook, payload *scm.PullRequestCommentHo
 	r := toRepo(&payload.Repo)
 
 	// update the hook object
+	h.SetSourceID(payload.GUID)
 	h.SetEvent(constants.EventComment)
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.Repo.FullName),
@@ -328,4 +316,16 @@ func toMap(src interface{}) map[string]string {
 		dst[k] = fmt.Sprint(v)
 	}
 	return dst
+}
+
+// helper function to create secret slug for repo validation
+func secretFunc(webhook scm.Webhook) (string, error) {
+	repo := webhook.Repository()
+
+	secret := scm.Join(repo.Namespace, repo.Name)
+	if secret == "" {
+		return secret, errors.New("unable to find repository")
+	}
+
+	return secret, nil
 }
