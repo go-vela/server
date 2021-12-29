@@ -117,6 +117,7 @@ func SyncRepos(c *gin.Context) {
 
 				return
 			}
+
 			err = updateUserFavorites(c, repo)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
@@ -196,6 +197,7 @@ func SyncRepo(c *gin.Context) {
 
 			return
 		}
+
 		err = updateUserFavorites(c, r)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
@@ -214,7 +216,6 @@ func updateUserFavorites(c *gin.Context, r *library.Repo) error {
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to retrieve user in database", baseErr)
-		util.HandleError(c, http.StatusBadRequest, retErr)
 		return retErr
 	}
 
@@ -231,8 +232,8 @@ func updateUserFavorites(c *gin.Context, r *library.Repo) error {
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
 		return retErr
 	}
+
 	return nil
 }
