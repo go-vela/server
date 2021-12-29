@@ -10,6 +10,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/server/router/middleware/org"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
@@ -82,6 +84,7 @@ func TestRepo_Establish(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(org.Establish())
 	engine.Use(Establish())
 	engine.GET("/:org/:repo", func(c *gin.Context) {
 		got = Retrieve(c)

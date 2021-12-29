@@ -8,13 +8,15 @@ import (
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
 	"github.com/sirupsen/logrus"
 )
 
 // GetRepoHookCount gets the count of webhooks by repo ID from the database.
 func (c *client) GetRepoHookCount(r *library.Repo) (int64, error) {
-	logrus.Tracef("getting count of hooks for repo %s from the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("getting count of hooks for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	var h int64

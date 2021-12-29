@@ -8,11 +8,9 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
-	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 // initialize obtains the vault token from the given auth method
@@ -61,7 +59,7 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 		return "", 0, err
 	}
 
-	logrus.Trace("getting token from vault")
+	c.Logger.Trace("getting token from vault")
 	secret, err := c.Vault.Logical().Write("auth/aws/login", headers)
 	if err != nil {
 		return "", 0, err
@@ -77,7 +75,8 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 // generateAwsAuthHeader will generate the necessary data
 // to send to the Vault server for generating a token.
 func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
-	logrus.Trace("generating auth headers for vault")
+	c.Logger.Trace("generating auth headers for vault")
+
 	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
 
 	// sign the request
@@ -126,9 +125,9 @@ func (c *client) refreshToken() {
 		}
 
 		if err != nil {
-			logrus.Errorf("failed to refresh vault token: %s", err)
+			c.Logger.Errorf("failed to refresh vault token: %s", err)
 		} else {
-			logrus.Trace("successfully refreshed vault token")
+			c.Logger.Trace("successfully refreshed vault token")
 		}
 	}
 }

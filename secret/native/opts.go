@@ -8,18 +8,16 @@ import (
 	"fmt"
 
 	"github.com/go-vela/server/database"
-
-	"github.com/sirupsen/logrus"
 )
 
-// ClientOpt represents a configuration option to initialize the secret client.
+// ClientOpt represents a configuration option to initialize the secret client for Native.
 type ClientOpt func(*client) error
 
-// WithDatabase sets the Vela database service in the secret client.
+// WithDatabase sets the Vela database service in the secret client for Native.
 func WithDatabase(d database.Service) ClientOpt {
-	logrus.Trace("configuring database service in native secret client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring database service in native secret client")
+
 		// check if the Vela database service provided is empty
 		if d == nil {
 			return fmt.Errorf("no Vela database service provided")

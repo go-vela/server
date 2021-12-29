@@ -14,15 +14,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
-
+	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
-
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 )
@@ -41,6 +40,13 @@ func TestMiddleware_Logger(t *testing.T) {
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 
+	svc := new(library.Service)
+	svc.SetID(1)
+	svc.SetRepoID(1)
+	svc.SetBuildID(1)
+	svc.SetNumber(1)
+	svc.SetName("foo")
+
 	s := new(library.Step)
 	s.SetID(1)
 	s.SetRepoID(1)
@@ -52,6 +58,11 @@ func TestMiddleware_Logger(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
+
+	w := new(library.Worker)
+	w.SetID(1)
+	w.SetHostname("worker_0")
+	w.SetAddress("localhost")
 
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
@@ -70,8 +81,10 @@ func TestMiddleware_Logger(t *testing.T) {
 	// setup mock server
 	engine.Use(func(c *gin.Context) { build.ToContext(c, b) })
 	engine.Use(func(c *gin.Context) { repo.ToContext(c, r) })
+	engine.Use(func(c *gin.Context) { service.ToContext(c, svc) })
 	engine.Use(func(c *gin.Context) { step.ToContext(c, s) })
 	engine.Use(func(c *gin.Context) { user.ToContext(c, u) })
+	engine.Use(func(c *gin.Context) { worker.ToContext(c, w) })
 	engine.Use(Payload())
 	engine.Use(Logger(logger, time.RFC3339, true))
 	engine.POST("/foobar", func(c *gin.Context) {

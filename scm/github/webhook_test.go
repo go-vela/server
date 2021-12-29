@@ -938,7 +938,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetNameHistory([]string{"Hello-Old-World"})
+	wantRepo.SetPreviousName("Hello-Old-World")
 
 	want := &types.Webhook{
 		Comment: "",

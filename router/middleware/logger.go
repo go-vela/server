@@ -7,11 +7,15 @@ package middleware
 import (
 	"time"
 
+	"github.com/go-vela/server/router/middleware/org"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,14 +44,13 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {
 			fields := logrus.Fields{
-				"api-version": c.GetHeader("X-Vela-Version"),
-				"status":      c.Writer.Status(),
-				"method":      c.Request.Method,
-				"path":        path,
-				"ip":          c.ClientIP(),
-				"latency":     latency,
-				"user-agent":  c.Request.UserAgent(),
-				"time":        end.Format(timeFormat),
+				"ip":         c.ClientIP(),
+				"latency":    latency,
+				"method":     c.Request.Method,
+				"path":       path,
+				"status":     c.Writer.Status(),
+				"user-agent": c.Request.UserAgent(),
+				"version":    c.GetHeader("X-Vela-Version"),
 			}
 
 			body := c.Value("payload")
@@ -55,24 +58,39 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 				fields["body"] = body
 			}
 
-			user := user.Retrieve(c)
-			if user != nil {
-				fields["user"] = user.Name
-			}
-
-			repo := repo.Retrieve(c)
-			if repo != nil {
-				fields["repo"] = repo.FullName
-			}
-
 			build := build.Retrieve(c)
 			if build != nil {
 				fields["build"] = build.Number
 			}
 
+			org := org.Retrieve(c)
+			if org != "" {
+				fields["org"] = org
+			}
+
+			repo := repo.Retrieve(c)
+			if repo != nil {
+				fields["repo"] = repo.Name
+			}
+
+			service := service.Retrieve(c)
+			if service != nil {
+				fields["service"] = service.Number
+			}
+
 			step := step.Retrieve(c)
 			if step != nil {
 				fields["step"] = step.Number
+			}
+
+			user := user.Retrieve(c)
+			if user != nil {
+				fields["user"] = user.Name
+			}
+
+			worker := worker.Retrieve(c)
+			if worker != nil {
+				fields["worker"] = worker.Hostname
 			}
 
 			entry := logger.WithFields(fields)
