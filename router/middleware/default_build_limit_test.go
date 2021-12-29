@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestMiddleware_DefaultLimit(t *testing.T) {
+func TestMiddleware_DefaultBuildLimit(t *testing.T) {
 	// setup types
 	var got int64
 	want := int64(10)
@@ -26,9 +26,9 @@ func TestMiddleware_DefaultLimit(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(DefaultLimit(want))
+	engine.Use(DefaultBuildLimit(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("defaultLimit").(int64)
+		got = c.Value("defaultBuildLimit").(int64)
 
 		c.Status(http.StatusOK)
 	})
@@ -37,10 +37,10 @@ func TestMiddleware_DefaultLimit(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("DefaultLimit returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("DefaultBuildLimit returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("DefaultLimit is %v, want %v", got, want)
+		t.Errorf("DefaultBuildLimit is %v, want %v", got, want)
 	}
 }
