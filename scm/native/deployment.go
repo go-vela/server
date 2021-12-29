@@ -33,7 +33,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 		return nil, err
 	}
 
-	payload, err := converPayload(deployment.Payload)
+	payload, err := convertPayload(deployment.Payload)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 
 	// iterate through all API results
 	for _, deployment := range d {
-		payload, err := converPayload(deployment.Payload)
+		payload, err := convertPayload(deployment.Payload)
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +205,7 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 }
 
 // helper function to handle converting generic payloads into known StringSliceMap type
-func converPayload(i interface{}) (*raw.StringSliceMap, error) {
+func convertPayload(i interface{}) (*raw.StringSliceMap, error) {
 	var payload *raw.StringSliceMap
 
 	bytes, err := json.Marshal(i)

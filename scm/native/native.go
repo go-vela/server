@@ -157,4 +157,25 @@ func load(d *fake.Data) {
 			Payload:             raw.StringSliceMap{"deploy": "migrate"},
 		},
 	}
+
+	d.ContentDir = "testdata/pipeline.yml"
+
+	d.Hooks["foo/bar"] = []*scm.Hook{
+		{
+			ID:         "0",
+			Name:       "bad/hook",
+			Target:     "bla",
+			Events:     []string{},
+			Active:     false,
+			SkipVerify: false,
+		},
+		{
+			ID:         "1",
+			Name:       "foo/bar",
+			Target:     "fake.com/webhook",
+			Events:     []string{"push", "pull_request", "comment", "tag"},
+			Active:     true,
+			SkipVerify: true,
+		},
+	}
 }
