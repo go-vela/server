@@ -173,6 +173,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
+// nolint:funlen // ignore the length of this function
 func (c *client) Status(u *library.User, b *library.Build, org, name string) error {
 	logrus.Tracef("Setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 

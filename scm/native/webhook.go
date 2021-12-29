@@ -290,7 +290,7 @@ func processIssueCommentEvent(h *library.Hook, payload *scm.PullRequestCommentHo
 	}, nil
 }
 
-// helper function to conver scm repo into library
+// helper function to conver scm repo into library.
 func toRepo(repo *scm.Repository) *library.Repo {
 	// convert payload to library repo
 	r := new(library.Repo)
@@ -305,7 +305,7 @@ func toRepo(repo *scm.Repository) *library.Repo {
 	return r
 }
 
-// helper function to convert interface deployment payload into a map of strings
+// helper function to convert interface deployment payload into a map of strings.
 func toMap(src interface{}) map[string]string {
 	set, ok := src.(map[string]interface{})
 	if !ok {
@@ -318,7 +318,7 @@ func toMap(src interface{}) map[string]string {
 	return dst
 }
 
-// helper function to create secret slug for repo validation
+// helper function to create secret slug for repo validation.
 func secretFunc(webhook scm.Webhook) (string, error) {
 	repo := webhook.Repository()
 

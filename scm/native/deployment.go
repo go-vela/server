@@ -28,6 +28,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 	}
 
 	// send API call to capture the deployment
+	//nolint:gomnd // ignore base 10 conversion
 	deployment, _, err := client.Deployments.Find(ctx, r.GetFullName(), strconv.FormatInt(id, 10))
 	if err != nil {
 		return nil, err
@@ -38,6 +39,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 		return nil, err
 	}
 
+	//nolint:gomnd // ignore base 10 conversion
 	deploymentID, err := strconv.ParseInt(deployment.ID, 10, 64)
 	if err == nil {
 		logrus.Tracef("Unable to convert deployment id %s to int64: %v", deployment.ID, err)
@@ -125,6 +127,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 			return nil, err
 		}
 
+		//nolint:gomnd // ignore base 10 conversion
 		deploymentID, err := strconv.ParseInt(deployment.ID, 10, 64)
 		if err == nil {
 			logrus.Tracef("Unable to convert deployment id %s to int64: %v", deployment.ID, err)
@@ -186,6 +189,7 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 		return err
 	}
 
+	//nolint:gomnd // ignore base 10 conversion
 	deploymentID, err := strconv.ParseInt(deploy.ID, 10, 64)
 	if err == nil {
 		logrus.Tracef("Unable to convert deployment id %s to int64: %v", deploy.ID, err)
@@ -204,7 +208,7 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 	return nil
 }
 
-// helper function to handle converting generic payloads into known StringSliceMap type
+// helper function to handle converting generic payloads into known StringSliceMap type.
 func convertPayload(i interface{}) (*raw.StringSliceMap, error) {
 	var payload *raw.StringSliceMap
 

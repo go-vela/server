@@ -111,6 +111,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 			for _, member := range members {
 				if strings.EqualFold(u.GetName(), member.Login) {
 					if member.IsAdmin {
+						// nolint:goconst // do not make this a constant
 						return "admin", nil
 					}
 					return "write", nil

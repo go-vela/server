@@ -17,14 +17,6 @@ import (
 	"github.com/jenkins-x/go-scm/scm/factory"
 )
 
-const (
-	// events for repo webhooks.
-	eventPush         = "push"
-	eventPullRequest  = "pull_request"
-	eventDeployment   = "deployment"
-	eventIssueComment = "issue_comment"
-)
-
 var ctx = context.Background()
 
 type (
