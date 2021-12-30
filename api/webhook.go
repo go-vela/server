@@ -501,6 +501,7 @@ func PostWebhook(c *gin.Context) {
 	// publish the build to the queue
 	go publishToQueue(
 		queue.FromGinContext(c),
+		database.FromContext(c),
 		p,
 		b,
 		r,
@@ -512,10 +513,7 @@ func PostWebhook(c *gin.Context) {
 // a build item and publishes it to the queue.
 //
 // nolint: lll // ignore long line length due to variables
-func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	// update fields in build object
-	b.SetEnqueued(time.Now().UTC().Unix())
-
+func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
 	item := types.ToItem(p, b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
@@ -523,6 +521,9 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 	byteItem, err := json.Marshal(item)
 	if err != nil {
 		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		cleanBuild(db, b, nil, nil)
 
 		return
 	}
@@ -532,6 +533,9 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 	route, err := queue.Route(&p.Worker)
 	if err != nil {
 		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		cleanBuild(db, b, nil, nil)
 
 		return
 	}
@@ -546,7 +550,19 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 		if err != nil {
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
+			// error out the build
+			cleanBuild(db, b, nil, nil)
+
 			return
 		}
+	}
+
+	// update fields in build object
+	b.SetEnqueued(time.Now().UTC().Unix())
+
+	// update the build in the db to reflect the time it was enqueued
+	err = db.UpdateBuild(b)
+	if err != nil {
+		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
 }
