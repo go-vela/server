@@ -215,8 +215,7 @@ func updateUserFavorites(c *gin.Context, r *library.Repo) error {
 	// get user from the database
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to retrieve user in database", baseErr)
-		return retErr
+		return fmt.Errorf("%s: failed to retrieve user in database", baseErr)
 	}
 
 	// if deleted repo exists in favorites, remove it
@@ -231,8 +230,7 @@ func updateUserFavorites(c *gin.Context, r *library.Repo) error {
 	// update the user favorites slice
 	err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
-		return retErr
+		return fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
 	}
 
 	return nil
