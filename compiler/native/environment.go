@@ -45,7 +45,7 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 	env = appendMap(env, globalEnv)
 
 	// inject the declared environment
-	// variables to the build step
+	// variables to the build stage
 	for k, v := range s.Environment {
 		env[k] = v
 	}
