@@ -20,7 +20,7 @@ import (
 func (c *client) Authorize(token string) (string, error) {
 	logrus.Trace("Authorizing user with token")
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(token)
 	if err != nil {
 		return "", err

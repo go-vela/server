@@ -48,11 +48,11 @@ func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (da
 	return
 }
 
-// Config gets the pipeline configuration from the GitHub repo.
+// Config gets the pipeline configuration from the SCM repo.
 func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, error) {
 	logrus.Tracef("Capturing configuration file for %s/%s/commit/%s", r.GetOrg(), r.GetName(), ref)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, e
 func (c *client) Disable(u *library.User, org, name string) error {
 	logrus.Tracef("Deleting repository webhook for %s/%s", org, name)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 func (c *client) Enable(u *library.User, org, name, secret string) (string, error) {
 	logrus.Tracef("Creating repository webhook for %s/%s", org, name)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return "", err
@@ -172,12 +172,12 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 	return url, err
 }
 
-// Status sends the commit status for the given SHA from the GitHub repo.
+// Status sends the commit status for the given SHA from the SCM repo.
 // nolint:funlen // ignore the length of this function
 func (c *client) Status(u *library.User, b *library.Build, org, name string) error {
 	logrus.Tracef("Setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return err
@@ -241,7 +241,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 			State:       state.String(),
 		}
 
-		// provide "Details" link in GitHub UI if server was configured with it
+		// provide "Details" link in SCM UI if server was configured with it
 		if len(c.config.WebUIAddress) > 0 {
 			status.LogLink = fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
 		}
@@ -263,7 +263,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		State: state,
 	}
 
-	// provide "Details" link in GitHub UI if server was configured with it
+	// provide "Details" link in SCM UI if server was configured with it
 	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
 		status.Target = fmt.Sprintf("%s/%s/%s/%d", c.config.WebUIAddress, org, name, b.GetNumber())
 	}
@@ -279,11 +279,11 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 	return err
 }
 
-// GetRepo gets repo information from Github.
+// GetRepo gets repo information from SCM.
 func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error) {
 	logrus.Tracef("Retrieving repository information for %s", r.GetFullName())
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return nil, err
@@ -302,7 +302,7 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	logrus.Tracef("Listing source repositories for %s", u.GetName())
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return nil, err
@@ -352,7 +352,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
 	logrus.Tracef("Listing source repositories for %s", u.GetName())
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return "", "", "", "", err
@@ -371,11 +371,11 @@ func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (s
 	return commit, branch, baseref, headref, nil
 }
 
-// GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
+// GetHTMLURL retrieves the html_url from repository contents from the SCM repo.
 func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (string, error) {
 	logrus.Tracef("Capturing html_url for %s/%s/%s@%s", org, repo, name, ref)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return "", err

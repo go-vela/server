@@ -17,7 +17,7 @@ import (
 func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]string, error) {
 	logrus.Tracef("Capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]string, error) {
 	logrus.Tracef("Capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return nil, err

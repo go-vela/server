@@ -18,7 +18,7 @@ import (
 func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 	logrus.Tracef("Capturing %s access level to org %s", u.GetName(), org)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return "", err
@@ -56,7 +56,7 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, error) {
 	logrus.Tracef("Capturing %s access level to repo %s/%s", u.GetName(), org, repo)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return "", err
@@ -75,7 +75,7 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	logrus.Tracef("Capturing %s access level to team %s/%s", u.GetName(), org, team)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return "", err
@@ -127,7 +127,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 func (c *client) ListUsersTeamsForOrg(u *library.User, org string) ([]string, error) {
 	logrus.Tracef("Capturing %s team membership for org %s", u.GetName(), org)
 
-	// create GitHub OAuth client with user's token
+	// create SCM OAuth client with user's token
 	client, err := c.newClientToken(*u.Token)
 	if err != nil {
 		return nil, err
