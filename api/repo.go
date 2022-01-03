@@ -718,6 +718,11 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowComment(input.GetAllowComment())
 	}
 
+	if input.Trusted != nil {
+		// update trusted if set
+		r.SetTrusted(input.GetTrusted())
+	}
+
 	// set default events if no events are enabled
 	if !r.GetAllowPull() && !r.GetAllowPush() &&
 		!r.GetAllowDeploy() && !r.GetAllowTag() &&

@@ -19,6 +19,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"gopkg.in/square/go-jose.v2"
 
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
@@ -333,7 +334,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+	config, signature, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
@@ -341,6 +342,19 @@ func PostWebhook(c *gin.Context) {
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// check if signature signs the incoming pipeline
+	err = checkSignature(config, signature, r)
+
+	// signature check failed
+	if err != nil {
+		util.HandleError(c, http.StatusBadRequest, err)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(err.Error())
 
 		return
 	}
@@ -506,6 +520,44 @@ func PostWebhook(c *gin.Context) {
 		r,
 		u,
 	)
+}
+
+// checkSignature is a helper function that verifies
+// the repo signature file signs the incoming pipeline.
+func checkSignature(cfg []byte, sig []byte, repo *library.Repo) error {
+	// sig is nil when repo has trusted value of false
+	if sig == nil {
+		return nil
+	}
+
+	// create new signer
+	key := jose.SigningKey{
+		Algorithm: jose.HS256,
+		Key:       []byte(repo.GetHash()),
+	}
+	signer, err := jose.NewSigner(key, nil)
+	if err != nil {
+		return err
+	}
+
+	// sign the incoming pipeline
+	signed, err := signer.Sign(cfg)
+	if err != nil {
+		return err
+	}
+
+	// serialize the signature of the incoming pipeline
+	cfgSig, err := signed.CompactSerialize()
+	if err != nil {
+		return err
+	}
+
+	// compare incoming pipeline signature to signature file
+	if !strings.EqualFold(cfgSig, string(sig)) {
+		err = fmt.Errorf("pipeline does not match the signature for repo %v", repo.GetName())
+		return err
+	}
+	return nil
 }
 
 // publishToQueue is a helper function that creates

@@ -21,13 +21,13 @@ import (
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
 // nolint: lll // ignore long line length due to input arguments
-func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, err error) {
+func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, signature []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
 		// attempt to fetch the config
-		data, err = c.Config(u, r, ref)
+		data, signature, err = c.Config(u, r, ref)
 
 		// return err if the last attempt returns error
 		if err != nil && i == retryLimit-1 {
@@ -48,7 +48,7 @@ func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (da
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, error) {
+func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, []byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -59,6 +59,7 @@ func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, e
 	client := c.newClientToken(*u.Token)
 
 	files := []string{".vela.yml", ".vela.yaml"}
+	sigFile := ".vela.sig"
 
 	if strings.EqualFold(r.GetPipelineType(), constants.PipelineTypeStarlark) {
 		files = append(files, ".vela.star", ".vela.py")
@@ -74,7 +75,7 @@ func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, e
 		data, _, resp, err := client.Repositories.GetContents(ctx, r.GetOrg(), r.GetName(), file, opts)
 		if err != nil {
 			if resp.StatusCode != http.StatusNotFound {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 
@@ -82,14 +83,32 @@ func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, e
 		if data != nil {
 			strData, err := data.GetContent()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
+			}
+			// if repo is set to trusted, grab signature file
+			if r.GetTrusted() {
+				// send API call to capture the .vela.sig configuration
+				signature, _, resp, err := client.Repositories.GetContents(ctx, r.GetOrg(), r.GetName(), sigFile, opts)
+				if err != nil {
+					if resp.StatusCode != http.StatusNotFound {
+						return nil, nil, err
+					}
+				}
+				// signature is not nil if .vela.sig exists
+				if signature != nil {
+					strSig, err := signature.GetContent()
+					if err != nil {
+						return nil, nil, err
+					}
+					return []byte(strData), []byte(strSig), nil
+				}
 			}
 
-			return []byte(strData), nil
+			return []byte(strData), nil, nil
 		}
 	}
 
-	return nil, fmt.Errorf("no valid pipeline configuration file (%s) found", strings.Join(files, ","))
+	return nil, nil, fmt.Errorf("no valid pipeline configuration file (%s) found", strings.Join(files, ","))
 }
 
 // Disable deactivates a repo by deleting the webhook.

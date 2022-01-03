@@ -18,6 +18,7 @@ import (
 // GET  /api/v1/pipelines/:org/:repo/templates
 // POST /api/v1/pipelines/:org/:repo/expand
 // POST /api/v1/pipelines/:org/:repo/compile
+// POST /api/v1/pipelines/:org/:repo/sign
 // POST /api/v1/pipelines/:org/:repo/validate .
 func PipelineHandlers(base *gin.RouterGroup) {
 	// Pipelines endpoints
@@ -27,6 +28,7 @@ func PipelineHandlers(base *gin.RouterGroup) {
 		pipelines.GET("/templates", api.GetTemplates)
 		pipelines.POST("/expand", api.ExpandPipeline)
 		pipelines.POST("/validate", api.ValidatePipeline)
+		pipelines.POST("/sign", api.SignPipeline)
 		pipelines.POST("/compile", api.CompilePipeline)
 	} // end of pipelines endpoints
 }

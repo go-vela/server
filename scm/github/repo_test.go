@@ -36,14 +36,20 @@ func TestGithub_Config_YML(t *testing.T) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/yml.json")
+		c.File("testdata/signature.json")
 	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	wantCfg, err := ioutil.ReadFile("testdata/pipeline.yml")
 	if err != nil {
-		t.Errorf("Config reading file returned err: %v", err)
+		t.Errorf("Config reading pipeline file returned err: %v", err)
+	}
+
+	wantSig, err := ioutil.ReadFile("testdata/pipeline.yml")
+	if err != nil {
+		t.Errorf("Config reading signature file returned err: %v", err)
 	}
 
 	// setup types
@@ -54,11 +60,12 @@ func TestGithub_Config_YML(t *testing.T) {
 	r := new(library.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
+	r.SetTrusted(true)
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	gotCfg, gotSig, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -68,8 +75,12 @@ func TestGithub_Config_YML(t *testing.T) {
 		t.Errorf("Config returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Config is %v, want %v", got, want)
+	if !reflect.DeepEqual(gotCfg, wantCfg) {
+		t.Errorf("Config is %v, want %v", gotCfg, wantCfg)
+	}
+
+	if !reflect.DeepEqual(gotSig, wantSig) {
+		t.Errorf("Signature is %v, want %v", gotSig, wantSig)
 	}
 }
 
@@ -90,15 +101,19 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/yml.json")
+		c.File("testdata/signature.json")
 	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	wantCfg, err := ioutil.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
+
+	// repo is not set to trusted, want sig to be nil
+	var wantSig []byte = nil
 
 	// setup types
 	u := new(library.User)
@@ -112,7 +127,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	gotCfg, gotSig, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -122,8 +137,12 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 		t.Errorf("Config returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Config is %v, want %v", got, want)
+	if !reflect.DeepEqual(gotCfg, wantCfg) {
+		t.Errorf("Config is %v, want %v", gotCfg, wantCfg)
+	}
+
+	if !reflect.DeepEqual(gotSig, wantSig) {
+		t.Errorf("Signature is %v, want %v", gotSig, wantSig)
 	}
 }
 
@@ -154,7 +173,7 @@ func TestGithub_Config_YML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, _, err := client.Config(u, r, "")
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
 	}
@@ -207,7 +226,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, _, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -262,7 +281,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, _, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -317,7 +336,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, _, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -364,7 +383,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, _, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -406,7 +425,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, _, err := client.Config(u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)

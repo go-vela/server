@@ -6,6 +6,7 @@ package api
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,6 +24,7 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/square/go-jose.v2"
 )
 
 const (
@@ -416,6 +418,103 @@ func CompilePipeline(ctx *gin.Context) {
 	writeOutput(ctx, pipeline)
 }
 
+// swagger:operation GET /api/v1/pipelines/{org}/{repo} pipelines SignPipeline
+//
+// Sign a pipeline configuration from the source provider
+//
+// ---
+// produces:
+// - application/x-yaml
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: body
+//   name: body
+//   description: Payload containing the file contents
+//   required: true
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully signed the pipeline
+//     schema:
+//     type: string
+//   '400':
+//     description: Unable to read file contents
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to sign the pipeline
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// SignPipeline represents the API handler to sign a
+// pipeline configuration for a repo from the the source provider.
+func SignPipeline(ctx *gin.Context) {
+	// capture middleware values
+	r := repo.Retrieve(ctx)
+	u := user.Retrieve(ctx)
+
+	perm, err := scm.FromContext(ctx).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+
+	if err != nil || perm != "admin" {
+		ctx.JSON(http.StatusOK, "Signature Failed. Only admins of the repository may sign the pipeline.")
+		return
+	}
+
+	// capture the file contents from the payload
+	f, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
+		util.HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	// initialize a new signer with repo hash as the key
+	key := jose.SigningKey{
+		Algorithm: jose.HS256,
+		Key:       []byte(r.GetHash()),
+	}
+	signer, err := jose.NewSigner(key, nil)
+	if err != nil {
+		util.HandleError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// sign the pipeline
+	sig, err := signer.Sign(f)
+	if err != nil {
+		util.HandleError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// check if repo is set to trusted - if not, update to true in database
+	if !r.GetTrusted() {
+		r.SetTrusted(true)
+		err = database.FromContext(ctx).UpdateRepo(r)
+		if err != nil {
+			util.HandleError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	out, err := sig.CompactSerialize()
+	if err != nil {
+		util.HandleError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, out)
+}
+
 // getUnprocessedPipeline retrieves the unprocessed pipeline from a given context.
 func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, error) {
 	// capture middleware values
@@ -432,7 +531,7 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 	}
 
 	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(ctx).ConfigBackoff(user, repo, ref)
+	config, _, err := scm.FromContext(ctx).ConfigBackoff(user, repo, ref)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to get pipeline configuration for %s: %w", repoName(ctx), err)
 	}
