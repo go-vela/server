@@ -7,13 +7,11 @@ package postgres
 import (
 	"fmt"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Ping sends a "ping" request with backoff to the database.
 func (c *client) Ping() error {
-	logrus.Trace("sending ping requests to the database")
+	c.Logger.Trace("sending ping requests to the database")
 
 	// create a loop to attempt ping requests 5 times
 	for i := 0; i < 5; i++ {
@@ -30,7 +28,7 @@ func (c *client) Ping() error {
 		// https://pkg.go.dev/database/sql#DB.Ping
 		err = _sql.Ping()
 		if err != nil {
-			logrus.Debugf("unable to ping database - retrying in %v", (time.Duration(i) * time.Second))
+			c.Logger.Debugf("unable to ping database - retrying in %v", time.Duration(i)*time.Second)
 
 			// sleep for loop iteration in seconds
 			time.Sleep(time.Duration(i) * time.Second)

@@ -28,7 +28,6 @@ services:
       DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
-      QUEUE_ROUTES: 'docker,local,docker:local'
       SCM_DRIVER: github
       SCM_CONTEXT: 'continuous-integration/vela'
       SECRET_VAULT: 'true'
@@ -66,7 +65,6 @@ services:
     environment:
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
-      QUEUE_ROUTES: 'docker,local,docker:local'
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace

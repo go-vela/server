@@ -37,6 +37,8 @@ type (
 	client struct {
 		config *config
 		Sqlite *gorm.DB
+		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
+		Logger *logrus.Entry
 	}
 )
 
@@ -50,6 +52,16 @@ func New(opts ...ClientOpt) (*client, error) {
 	// create new fields
 	c.config = new(config)
 	c.Sqlite = new(gorm.DB)
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#StandardLogger
+	logger := logrus.StandardLogger()
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
+	c.Logger = logrus.NewEntry(logger).WithField("database", c.Driver())
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -98,6 +110,16 @@ func NewTest() (*client, error) {
 		SkipCreation:     false,
 	}
 	c.Sqlite = new(gorm.DB)
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#StandardLogger
+	logger := logrus.StandardLogger()
+
+	// create new logger for the client
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
+	c.Logger = logrus.NewEntry(logger)
 
 	// create the new Sqlite database client
 	//
@@ -155,7 +177,7 @@ func setupDatabase(c *client) error {
 
 	// check if we should skip creating database objects
 	if c.config.SkipCreation {
-		logrus.Warning("skipping creation of data tables and indexes in the sqlite database")
+		c.Logger.Warning("skipping creation of data tables and indexes in the sqlite database")
 
 		return nil
 	}
@@ -178,7 +200,7 @@ func setupDatabase(c *client) error {
 // createTables is a helper function to setup
 // the database with the necessary tables.
 func createTables(c *client) error {
-	logrus.Trace("creating data tables in the sqlite database")
+	c.Logger.Trace("creating data tables in the sqlite database")
 
 	// create the builds table
 	err := c.Sqlite.Exec(ddl.CreateBuildTable).Error
@@ -242,7 +264,7 @@ func createTables(c *client) error {
 //
 // nolint: lll // ignore long line length due to error messages
 func createIndexes(c *client) error {
-	logrus.Trace("creating data indexes in the sqlite database")
+	c.Logger.Trace("creating data indexes in the sqlite database")
 
 	// create the builds_repo_id index for the builds table
 	err := c.Sqlite.Exec(ddl.CreateBuildRepoIDIndex).Error
@@ -254,6 +276,12 @@ func createIndexes(c *client) error {
 	err = c.Sqlite.Exec(ddl.CreateBuildStatusIndex).Error
 	if err != nil {
 		return fmt.Errorf("unable to create builds_status index for the %s table: %v", constants.TableBuild, err)
+	}
+
+	// create the builds_created index for the builds table
+	err = c.Sqlite.Exec(ddl.CreateBuildCreatedIndex).Error
+	if err != nil {
+		return fmt.Errorf("unable to create builds_created index for the %s table: %v", constants.TableBuild, err)
 	}
 
 	// create the hooks_repo_id index for the hooks table

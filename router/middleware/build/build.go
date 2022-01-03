@@ -9,6 +9,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/user"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
@@ -26,7 +29,10 @@ func Retrieve(c *gin.Context) *library.Build {
 // Establish sets the build in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
+		u := user.Retrieve(c)
+
 		if r == nil {
 			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -47,7 +53,16 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		logrus.Debugf("Reading build %s/%d", r.GetFullName(), number)
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"build": number,
+			"org":   o,
+			"repo":  r.GetName(),
+			"user":  u.GetName(),
+		}).Debugf("reading build %s/%d", r.GetFullName(), number)
+
 		b, err := database.FromContext(c).GetBuild(number, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read build %s/%d: %v", r.GetFullName(), number, err)

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/server/scm/native"
 	"github.com/go-vela/types/constants"
 
@@ -68,28 +69,28 @@ func (s *Setup) Github() (Service, error) {
 	// create new Github scm service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/scm/github?tab=doc#New
-	// return github.New(
-	// 	github.WithAddress(s.Address),
-	// 	github.WithClientID(s.ClientID),
-	// 	github.WithClientSecret(s.ClientSecret),
-	// 	github.WithServerAddress(s.ServerAddress),
-	// 	github.WithServerWebhookAddress(s.ServerWebhookAddress),
-	// 	github.WithStatusContext(s.StatusContext),
-	// 	github.WithWebUIAddress(s.WebUIAddress),
-	// 	github.WithScopes(s.Scopes),
-	// )
+	return github.New(
+		github.WithAddress(s.Address),
+		github.WithClientID(s.ClientID),
+		github.WithClientSecret(s.ClientSecret),
+		github.WithServerAddress(s.ServerAddress),
+		github.WithServerWebhookAddress(s.ServerWebhookAddress),
+		github.WithStatusContext(s.StatusContext),
+		github.WithWebUIAddress(s.WebUIAddress),
+		github.WithScopes(s.Scopes),
+	)
 	// TODO: uncomment this to swap to the native implementation for GitHub
 	// Consider using this in future versions consolidate on Native package.
-	return native.New(
-		native.WithAddress(s.Address),
-		native.WithClientID(s.ClientID),
-		native.WithClientSecret(s.ClientSecret),
-		native.WithServerAddress(s.ServerAddress),
-		native.WithServerWebhookAddress(s.ServerWebhookAddress),
-		native.WithStatusContext(s.StatusContext),
-		native.WithWebUIAddress(s.WebUIAddress),
-		native.WithScopes(s.Scopes),
-	)
+	// return native.New(
+	// 	native.WithAddress(s.Address),
+	// 	native.WithClientID(s.ClientID),
+	// 	native.WithClientSecret(s.ClientSecret),
+	// 	native.WithServerAddress(s.ServerAddress),
+	// 	native.WithServerWebhookAddress(s.ServerWebhookAddress),
+	// 	native.WithStatusContext(s.StatusContext),
+	// 	native.WithWebUIAddress(s.WebUIAddress),
+	// 	native.WithScopes(s.Scopes),
+	// )
 }
 
 // Gitlab creates and returns a Vela service capable of

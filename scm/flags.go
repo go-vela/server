@@ -17,25 +17,7 @@ import (
 // TODO: in a future release remove the "source" vars in favor of the "scm" ones.
 // nolint:lll // these errors will go away when the TODO is completed
 var Flags = []cli.Flag{
-
-	// Logger Flags
-
-	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_LOG_FORMAT", "SCM_LOG_FORMAT", "VELA_LOG_FORMAT", "VELA_SOURCE_LOG_FORMAT", "SOURCE_LOG_FORMAT"},
-		FilePath: "/vela/scm/log_format",
-		Name:     "scm.log.format",
-		Usage:    "format of logs to output",
-		Value:    "json",
-	},
-	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SCM_LOG_LEVEL", "SCM_LOG_LEVEL", "VELA_LOG_LEVEL", "VELA_SOURCE_LOG_LEVEL", "SOURCE_LOG_LEVEL"},
-		FilePath: "/vela/scm/log_level",
-		Name:     "scm.log.level",
-		Usage:    "level of logs to output",
-		Value:    "info",
-	},
-
-	// scm Flags
+	// SCM Flags
 
 	&cli.StringFlag{
 		EnvVars:  []string{"VELA_SCM_DRIVER", "SCM_DRIVER", "VELA_SOURCE_DRIVER", "SOURCE_DRIVER"},

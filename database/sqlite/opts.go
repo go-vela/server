@@ -7,18 +7,16 @@ package sqlite
 import (
 	"fmt"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
-// ClientOpt represents a configuration option to initialize the database client.
+// ClientOpt represents a configuration option to initialize the database client for Sqlite.
 type ClientOpt func(*client) error
 
-// WithAddress sets the Sqlite address in the database client.
+// WithAddress sets the Sqlite address in the database client for Sqlite.
 func WithAddress(address string) ClientOpt {
-	logrus.Trace("configuring address in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring address in sqlite database client")
+
 		// check if the Sqlite address provided is empty
 		if len(address) == 0 {
 			return fmt.Errorf("no Sqlite address provided")
@@ -31,11 +29,11 @@ func WithAddress(address string) ClientOpt {
 	}
 }
 
-// WithCompressionLevel sets the Sqlite compression level in the database client.
+// WithCompressionLevel sets the compression level in the database client for Sqlite.
 func WithCompressionLevel(level int) ClientOpt {
-	logrus.Trace("configuring compression level in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring compression level in sqlite database client")
+
 		// set the compression level in the sqlite client
 		c.config.CompressionLevel = level
 
@@ -43,11 +41,11 @@ func WithCompressionLevel(level int) ClientOpt {
 	}
 }
 
-// WithConnectionLife sets the Sqlite connection duration in the database client.
+// WithConnectionLife sets the connection duration in the database client for Sqlite.
 func WithConnectionLife(duration time.Duration) ClientOpt {
-	logrus.Trace("configuring connection duration in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring connection duration in sqlite database client")
+
 		// set the connection duration in the sqlite client
 		c.config.ConnectionLife = duration
 
@@ -55,11 +53,11 @@ func WithConnectionLife(duration time.Duration) ClientOpt {
 	}
 }
 
-// WithConnectionIdle sets the Sqlite maximum idle connections in the database client.
+// WithConnectionIdle sets the maximum idle connections in the database client for Sqlite.
 func WithConnectionIdle(idle int) ClientOpt {
-	logrus.Trace("configuring maximum idle connections in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring maximum idle connections in sqlite database client")
+
 		// set the maximum idle connections in the sqlite client
 		c.config.ConnectionIdle = idle
 
@@ -67,11 +65,11 @@ func WithConnectionIdle(idle int) ClientOpt {
 	}
 }
 
-// WithConnectionOpen sets the Sqlite maximum open connections in the database client.
+// WithConnectionOpen sets the maximum open connections in the database client for Sqlite.
 func WithConnectionOpen(open int) ClientOpt {
-	logrus.Trace("configuring maximum open connections in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring maximum open connections in sqlite database client")
+
 		// set the maximum open connections in the sqlite client
 		c.config.ConnectionOpen = open
 
@@ -79,11 +77,11 @@ func WithConnectionOpen(open int) ClientOpt {
 	}
 }
 
-// WithEncryptionKey sets the Sqlite encryption key in the database client.
+// WithEncryptionKey sets the encryption key in the database client for Sqlite.
 func WithEncryptionKey(key string) ClientOpt {
-	logrus.Trace("configuring encryption key in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring encryption key in sqlite database client")
+
 		// check if the Sqlite encryption key provided is empty
 		if len(key) == 0 {
 			return fmt.Errorf("no Sqlite encryption key provided")
@@ -96,11 +94,11 @@ func WithEncryptionKey(key string) ClientOpt {
 	}
 }
 
-// WithSkipCreation sets the Sqlite skip creation logic in the database client.
+// WithSkipCreation sets the skip creation logic in the database client for Sqlite.
 func WithSkipCreation(skipCreation bool) ClientOpt {
-	logrus.Trace("configuring skip creating objects in sqlite database client")
-
 	return func(c *client) error {
+		c.Logger.Trace("configuring skip creating objects in sqlite database client")
+
 		// set to skip creating tables and indexes in the sqlite client
 		c.config.SkipCreation = skipCreation
 

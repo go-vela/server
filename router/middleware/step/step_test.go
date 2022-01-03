@@ -10,6 +10,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/server/router/middleware/org"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
@@ -97,6 +99,7 @@ func TestStep_Establish(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(build.Establish())
 	engine.Use(Establish())
@@ -176,6 +179,7 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(Establish())
 	engine.GET("/:org/:repo/builds/:build/steps/:step", func(c *gin.Context) {
@@ -228,6 +232,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(build.Establish())
 	engine.Use(Establish())
@@ -281,6 +286,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(build.Establish())
 	engine.Use(Establish())
@@ -334,6 +340,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(build.Establish())
 	engine.Use(Establish())

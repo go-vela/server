@@ -8,18 +8,22 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm"
 
-	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // GetRepo gets a repo by org and name from the database.
 func (c *client) GetRepo(org, name string) (*library.Repo, error) {
-	logrus.Tracef("getting repo %s/%s from the database", org, name)
+	c.Logger.WithFields(logrus.Fields{
+		"org":  org,
+		"repo": name,
+	}).Tracef("getting repo %s/%s from the database", org, name)
 
 	// variable to store query results
 	r := new(database.Repo)
@@ -43,7 +47,7 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted repos
-		logrus.Errorf("unable to decrypt repo %s/%s: %v", org, name, err)
+		c.Logger.Errorf("unable to decrypt repo %s/%s: %v", org, name, err)
 
 		// return the unencrypted repo
 		return r.ToLibrary(), result.Error
@@ -54,8 +58,13 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 }
 
 // CreateRepo creates a new repo in the database.
+//
+// nolint: dupl // ignore similar code with update
 func (c *client) CreateRepo(r *library.Repo) error {
-	logrus.Tracef("creating repo %s in the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("creating repo %s in the database", r.GetFullName())
 
 	// cast to database type
 	repo := database.RepoFromLibrary(r)
@@ -81,8 +90,13 @@ func (c *client) CreateRepo(r *library.Repo) error {
 }
 
 // UpdateRepo updates a repo in the database.
+//
+// nolint: dupl // ignore similar code with create
 func (c *client) UpdateRepo(r *library.Repo) error {
-	logrus.Tracef("updating repo %s in the database", r.GetFullName())
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("updating repo %s in the database", r.GetFullName())
 
 	// cast to database type
 	repo := database.RepoFromLibrary(r)
@@ -109,7 +123,7 @@ func (c *client) UpdateRepo(r *library.Repo) error {
 
 // DeleteRepo deletes a repo by unique ID from the database.
 func (c *client) DeleteRepo(id int64) error {
-	logrus.Tracef("deleting repo %d in the database", id)
+	c.Logger.Tracef("deleting repo %d in the database", id)
 
 	// send query to the database
 	return c.Postgres.
