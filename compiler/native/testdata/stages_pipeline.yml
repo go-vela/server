@@ -10,18 +10,21 @@ environment:
 stages:
 
   install:
+    environment:
+      GRADLE_USER_HOME: .gradle
     steps:
       - name: install
         commands:
           - ./gradlew downloadDependencies
         environment:
           GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false
-          GRADLE_USER_HOME: .gradle
         image: openjdk:latest
         pull: true
 
   test:
     needs: [ install ]
+    environment:
+      GRADLE_USER_HOME: willBeOverwrittenInStep
     steps:
       - name: test
         commands:
