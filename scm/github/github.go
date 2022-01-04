@@ -24,6 +24,7 @@ const (
 	eventPullRequest  = "pull_request"
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
+	eventRepository   = "repository"
 )
 
 var ctx = context.Background()

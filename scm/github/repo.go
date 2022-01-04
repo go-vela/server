@@ -162,6 +162,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 			eventPullRequest,
 			eventDeployment,
 			eventIssueComment,
+			eventRepository,
 		},
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
