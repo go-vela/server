@@ -27,7 +27,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/afero v1.7.1
+	github.com/spf13/afero v1.8.0
 	github.com/urfave/cli/v2 v2.3.0
 	go.starlark.net v0.0.0-20211203141949-70c0e40ae128
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
