@@ -236,7 +236,6 @@ func PostWebhook(c *gin.Context) {
 	// verify the build has a valid event and the repo allows that event type
 	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
 		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
-		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
 		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		// nolint: lll // ignore long line length due to error message
@@ -270,6 +269,37 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		return
+	}
+
+	if b.GetEvent() == constants.EventComment {
+		if webhook.Comment != ":white_check_mark:" && webhook.Comment != "✅" && !r.GetAllowComment() {
+			retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+		perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+		if err != nil {
+			err = fmt.Errorf("unable to get user repo access level for %s: %v", u.GetName(), err)
+			util.HandleError(c, http.StatusInternalServerError, err)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(err.Error())
+
+			return
+		}
+		if perm != "admin" && (webhook.Comment == ":white_check_mark:" || webhook.Comment == "✅") {
+			err = fmt.Errorf("only admins of the repository can run build with this comment for %s: %v", r.GetName(), webhook.Comment)
+			util.HandleError(c, http.StatusInternalServerError, err)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(err.Error())
+
+			return
+		}
 	}
 
 	// update fields in build object
@@ -416,6 +446,28 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			return
+		}
+
+		if len(p.Secrets) > 0 && strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
+			perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+			if err != nil {
+				err = fmt.Errorf("unable to get user repo access level for %s: %v", u.GetName(), err)
+				util.HandleError(c, http.StatusInternalServerError, err)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(err.Error())
+
+				return
+			}
+			if perm != "admin" && perm != "write" {
+				b.SetStatus(constants.StatusCanceled)
+				err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+				if err != nil {
+					logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+				}
+				c.JSON(http.StatusOK, "build canceled. Write access required to run build for PR.")
+				return
+			}
 		}
 
 		// skip the build if only the init or clone steps are found
