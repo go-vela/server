@@ -139,7 +139,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// check if build was parsed from webhook
-	if b == nil && h.GetEvent() != "repositoryRename" {
+	if b == nil && h.GetEvent() != constants.EventRepositoryRename {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -158,7 +158,7 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	if h.GetEvent() == "repositoryRename" {
+	if h.GetEvent() == constants.EventRepositoryRename {
 		err = renameRepository(h, r, c)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, err)
@@ -563,6 +563,10 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 	}
 }
 
+// renameRepository is a helper function that takes the old name of the repo,
+// queries the database for the repo that matches that name and org, and updates
+// that repo to its new name in order to preserve it. It also updates the secrets
+// associated with that repo..
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// get the old name of the repo
 	previousName := r.GetPreviousName()
@@ -593,37 +597,8 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		return retErr
 	}
 
-	// get the repo user from the database
-	user, err := database.FromContext(c).GetUser(dbR.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to retrieve user in database", baseErr)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-		return retErr
-	}
-
-	// update the user favorites slice
-	favorites := []string{}
-	lastFullName := r.GetOrg() + "/" + previousName
-	for _, fav := range user.GetFavorites() {
-		if fav != lastFullName {
-			favorites = append(favorites, fav)
-		} else {
-			favorites = append(favorites, r.GetFullName())
-		}
-	}
-	user.SetFavorites(favorites)
-
-	// update the user in the database
-	err = database.FromContext(c).UpdateUser(user)
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %v", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return retErr
-	}
-
+	// get total number of secrets associated with repository
+	// nolint: lll // ignore long line due to extensive function arguments
 	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secrets for repo %s: %w", previousName, err)
@@ -631,10 +606,12 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		return retErr
 	}
 	secrets := []*library.Secret{}
+
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	// nolint: gomnd // ignore magic number
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
+		// nolint: lll // ignore long line due to extensive function arguments
 		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
 		if err != nil {
 			retErr := fmt.Errorf("unable to get secret list for repo %s: %w", previousName, err)
@@ -644,6 +621,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		page++
 	}
 
+	// update secrets to point to the new repository name
 	for _, secret := range secrets {
 		secret.SetRepo(r.GetName())
 		err = database.FromContext(c).UpdateSecret(secret)
