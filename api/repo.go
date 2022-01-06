@@ -124,15 +124,9 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set the build limit field based off the input provided
-	if input.GetBuildLimit() == 0 && defaultBuildLimit == 0 {
-		// default build limit to 10
-		r.SetBuildLimit(constants.BuildLimitDefault)
-	} else if input.GetBuildLimit() == 0 {
+	if input.GetBuildLimit() == 0 {
 		// default build limit to value configured by server
 		r.SetBuildLimit(defaultBuildLimit)
-	} else if input.GetBuildLimit() > constants.BuildLimitMax && maxBuildLimit == 0 {
-		// set build limit to 30 to prevent limit from exceeding max
-		r.SetBuildLimit(constants.BuildLimitMax)
 	} else if input.GetBuildLimit() > maxBuildLimit {
 		// set build limit to value configured by server to prevent limit from exceeding max
 		r.SetBuildLimit(maxBuildLimit)
@@ -671,20 +665,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// update build limit if set
-	if input.GetBuildLimit() > 0 && maxBuildLimit == 0 {
-		// allow build limit between 1 - 30
-		r.SetBuildLimit(
-			int64(
-				util.MaxInt(
-					constants.BuildLimitMin,
-					util.MinInt(
-						int(input.GetBuildLimit()),
-						constants.BuildLimitMax,
-					), // clamp max
-				), // clamp min
-			),
-		)
-	} else if input.GetBuildLimit() > 0 {
+	if input.GetBuildLimit() > 0 {
 		// allow build limit between 1 - value configured by server
 		r.SetBuildLimit(
 			int64(

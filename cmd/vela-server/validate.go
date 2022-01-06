@@ -72,6 +72,14 @@ func validateCore(c *cli.Context) error {
 		return fmt.Errorf("refresh-token-duration (VELA_REFRESH_TOKEN_DURATION) must be larger than the access-token-duration (VELA_ACCESS_TOKEN_DURATION)")
 	}
 
+	if c.Int64("default-build-limit") == 0 {
+		return fmt.Errorf("default-build-limit (VELA_DEFAULT_BUILD_LIMIT) flag must be greater than 0")
+	}
+
+	if c.Int64("max-build-limit") == 0 {
+		return fmt.Errorf("max-build-limit (VELA_MAX_BUILD_LIMIT) flag must be greater than 0")
+	}
+
 	return nil
 }
 
