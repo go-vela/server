@@ -19,7 +19,6 @@ func TestNative_ClientOpt_WithAddress(t *testing.T) {
 			address: "https://git.example.com",
 			want: config{
 				Address: "https://git.example.com",
-				API:     "https://git.example.com/api/v3/",
 			},
 		},
 	}

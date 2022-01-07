@@ -83,27 +83,29 @@ func TestNative_OrgAccess_Admin(t *testing.T) {
 // 	}
 // }
 
-func TestNative_OrgAccess_Pending(t *testing.T) {
-	// setup types
-	want := ""
+// TODO: Add something to make pagination less painful in testing
+// https://github.com/jenkins-x/go-scm/blob/main/scm/driver/fake/org.go#L133
+// func TestNative_OrgAccess_Pending(t *testing.T) {
+// 	// setup types
+// 	want := ""
 
-	u := new(library.User)
-	u.SetName("foo")
-	u.SetToken("bar")
+// 	u := new(library.User)
+// 	u.SetName("foo")
+// 	u.SetToken("bar")
 
-	client, _ := NewTest("fake.com")
+// 	client, _ := NewTest("fake.com")
 
-	// run test
-	got, err := client.OrgAccess(u, "test-org2")
+// 	// run test
+// 	got, err := client.OrgAccess(u, "test-org2")
 
-	if err != nil {
-		t.Errorf("OrgAccess returned err: %v", err)
-	}
+// 	if err != nil {
+// 		t.Errorf("OrgAccess returned err: %v", err)
+// 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("OrgAccess is %v, want %v", got, want)
-	}
-}
+// 	if !reflect.DeepEqual(got, want) {
+// 		t.Errorf("OrgAccess is %v, want %v", got, want)
+// 	}
+// }
 
 // TODO: Add support in Jenkins-X for custom data with Membership
 // https://github.com/jenkins-x/go-scm/blob/main/scm/driver/fake/org.go#L120

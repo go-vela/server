@@ -29,7 +29,7 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 	for {
 		// send API call to capture org access level for user
 		memberships, resp, err := client.Organizations.ListMemberships(ctx, opts)
-		if err != nil || resp == nil {
+		if err != nil {
 			return "", err
 		}
 

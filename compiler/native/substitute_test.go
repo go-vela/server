@@ -104,6 +104,7 @@ func TestNative_SubstituteStages(t *testing.T) {
 	}
 
 	got, err := compiler.SubstituteStages(s)
+
 	if err != nil {
 		t.Errorf("SubstituteStages returned err: %v", err)
 	}

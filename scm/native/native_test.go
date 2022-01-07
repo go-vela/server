@@ -5,13 +5,7 @@
 package native
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"reflect"
 	"testing"
-
-	"github.com/jenkins-x/go-scm/scm/factory"
 )
 
 func TestNative_New(t *testing.T) {
@@ -54,30 +48,5 @@ func TestNative_New(t *testing.T) {
 		if err != nil {
 			t.Errorf("New returned err: %v", err)
 		}
-	}
-}
-
-func TestNative_newClientToken(t *testing.T) {
-	// setup router
-	s := httptest.NewServer(http.NotFoundHandler())
-	defer s.Close()
-
-	want, _ := factory.NewClient("github", "https://github.com", "sometoken")
-	want.BaseURL, _ = url.Parse(s.URL + "/api/v3/")
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
-	got, _ := client.newClientToken("foobar")
-
-	// nolint: staticcheck // ignore false positive
-	if got == nil {
-		t.Errorf("newClientToken is nil, want %v", want)
-	}
-
-	// nolint: staticcheck // ignore false positive
-	if !reflect.DeepEqual(got.BaseURL, want.BaseURL) {
-		t.Errorf("newClientToken BaseURL is %v, want %v", got.BaseURL, want.BaseURL)
 	}
 }

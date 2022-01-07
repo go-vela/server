@@ -39,7 +39,7 @@ func TestNative_Authenticate(t *testing.T) {
 
 	// setup types
 	want := new(library.User)
-	want.SetName("octocat")
+	want.SetName("fakeuser")
 	want.SetToken("foo")
 
 	client, _ := NewTest(s.URL)
@@ -165,46 +165,6 @@ func TestNative_Authenticate_BadToken(t *testing.T) {
 	}
 }
 
-func TestNative_Authenticate_NotFound(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/login/oauth/authorize?code=foo&state=bar", nil)
-
-	// setup mock server
-	engine.POST("/login/oauth/access_token", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/token.json")
-	})
-	engine.GET("/api/v3/user", func(c *gin.Context) {
-		c.Status(http.StatusNotFound)
-	})
-
-	s := httptest.NewServer(engine)
-	defer s.Close()
-
-	// setup types
-	client, _ := NewTest(s.URL)
-
-	// run test
-	got, err := client.Authenticate(context.Writer, context.Request, "bar")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
-	}
-
-	if err == nil {
-		t.Errorf("Authenticate should have returned err")
-	}
-
-	if got != nil {
-		t.Errorf("Authenticate is %v, want nil", got)
-	}
-}
-
 func TestNative_Authorize(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -226,7 +186,7 @@ func TestNative_Authorize(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	want := "octocat"
+	want := "fakeuser"
 	got, err := client.Authorize("foobar")
 
 	if resp.Code != http.StatusOK {
@@ -239,40 +199,6 @@ func TestNative_Authorize(t *testing.T) {
 
 	if got != want {
 		t.Errorf("Authorize is %v, want %v", got, want)
-	}
-}
-
-func TestNative_Authorize_NotFound(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	_, engine := gin.CreateTestContext(resp)
-
-	// setup mock server
-	engine.GET("/api/v3/user", func(c *gin.Context) {
-		c.Status(http.StatusNotFound)
-	})
-
-	s := httptest.NewServer(engine)
-	defer s.Close()
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
-	got, err := client.Authorize("foobar")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Authorize returned %v, want %v", resp.Code, http.StatusOK)
-	}
-
-	if err == nil {
-		t.Errorf("Authorize should have returned err")
-	}
-
-	if len(got) > 0 {
-		t.Errorf("Authorize is %v, want \"\"", got)
 	}
 }
 
@@ -327,7 +253,7 @@ func TestNative_AuthenticateToken(t *testing.T) {
 
 	// setup types
 	want := new(library.User)
-	want.SetName("octocat")
+	want.SetName("fakeuser")
 	want.SetToken("foo")
 
 	client, _ := NewTest(s.URL)
@@ -345,42 +271,6 @@ func TestNative_AuthenticateToken(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Authenticate is %v, want %v", got, want)
-	}
-}
-
-func TestNative_AuthenticateToken_Invalid(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodPost, "/authenticate/token", nil)
-	context.Request.Header.Set("Token", "foo")
-
-	// setup mock server
-	engine.GET("/api/v3/user", func(c *gin.Context) {
-		c.Status(http.StatusNotFound)
-	})
-
-	s := httptest.NewServer(engine)
-	defer s.Close()
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
-	got, err := client.AuthenticateToken(context.Request)
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
-	}
-
-	if err == nil {
-		t.Errorf("Authenticate did not return err")
-	}
-
-	if got != nil {
-		t.Errorf("Authenticate is %v, want nil", got)
 	}
 }
 

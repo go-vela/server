@@ -17,30 +17,68 @@ import (
 )
 
 // EnvironmentStages injects environment variables
-// for each step in every stage in a yaml configuration.
+// for each stage in a yaml configuration.
 // nolint:lll // ignore function line length
 func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceMap) (yaml.StageSlice, error) {
 	// iterate through all stages
 	for _, stage := range s {
-		// inject the environment variables into the steps for the stage
-		steps, err := c.EnvironmentSteps(stage.Steps, globalEnv)
+		_, err := c.EnvironmentStage(stage, globalEnv)
 		if err != nil {
 			return nil, err
 		}
-
-		stage.Steps = steps
 	}
 
 	return s, nil
 }
 
-// EnvironmentSteps injects environment variables
-// for each step in a yaml configuration.
+// EnvironmentStage injects environment variables
+// for each stage in a yaml configuration.
 // nolint:lll // ignore function line length
-func (c *client) EnvironmentSteps(s yaml.StepSlice, globalEnv raw.StringSliceMap) (yaml.StepSlice, error) {
+func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
+	// make empty map of environment variables
+	env := make(map[string]string)
+	// gather set of default environment variables
+	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
+
+	// inject the declared global environment
+	// WARNING: local env can override global
+	env = appendMap(env, globalEnv)
+
+	// inject the declared environment
+	// variables to the build stage
+	for k, v := range s.Environment {
+		env[k] = v
+	}
+
+	// inject the default environment
+	// variables to the build stage
+	// we do this after injecting the declared environment
+	// to ensure the default env overrides any conflicts
+	for k, v := range defaultEnv {
+		env[k] = v
+	}
+
+	// overwrite existing build stage environment
+	s.Environment = env
+
+	// inject the environment variables into the steps for the stage
+	steps, err := c.EnvironmentSteps(s.Steps, env)
+	if err != nil {
+		return nil, err
+	}
+
+	s.Steps = steps
+
+	return s, nil
+}
+
+// EnvironmentSteps injects environment variables
+// for each step in a stage for the yaml configuration.
+// nolint:lll // ignore function line length
+func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap) (yaml.StepSlice, error) {
 	// iterate through all steps
 	for _, step := range s {
-		_, err := c.EnvironmentStep(step, globalEnv)
+		_, err := c.EnvironmentStep(step, stageEnv)
 		if err != nil {
 			return nil, err
 		}
@@ -51,7 +89,7 @@ func (c *client) EnvironmentSteps(s yaml.StepSlice, globalEnv raw.StringSliceMap
 
 // EnvironmentStep injects environment variables
 // a single step in a yaml configuration.
-func (c *client) EnvironmentStep(s *yaml.Step, globalEnv raw.StringSliceMap) (*yaml.Step, error) {
+func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*yaml.Step, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
 	// gather set of default environment variables
@@ -70,9 +108,9 @@ func (c *client) EnvironmentStep(s *yaml.Step, globalEnv raw.StringSliceMap) (*y
 		}
 	}
 
-	// inject the declared global environment
-	// WARNING: local env can override global
-	env = appendMap(env, globalEnv)
+	// inject the declared stage environment
+	// WARNING: local env can override global + stage
+	env = appendMap(env, stageEnv)
 
 	// inject the declared environment
 	// variables to the build step
