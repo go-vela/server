@@ -417,6 +417,8 @@ func GetBuilds(c *gin.Context) {
 	event := c.Query("event")
 	// capture the status type parameter
 	status := c.Query("status")
+	// capture the commit hash parameter
+	commit := c.Query("commit")
 
 	// check if branch filter was provided
 	if len(branch) > 0 {
@@ -455,6 +457,12 @@ func GetBuilds(c *gin.Context) {
 
 		// add status to filters map
 		filters["status"] = status
+	}
+
+	// check if commit hash filter was provided
+	if len(commit) > 0 {
+		// add commit to filters map
+		filters["commit"] = commit
 	}
 
 	// capture page query parameter if present
