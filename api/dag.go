@@ -191,37 +191,37 @@ func GetBuildDAG(c *gin.Context) {
 	}
 
 	// create nodes from pipeline stages
-	nodes := []*Node{}
+	nodes := make(map[string]*Node)
 
 	for _, stage := range p.Stages {
 		for _, step := range stage.Steps {
 			step.Environment = nil
 		}
-		nodeID := (len(nodes))
+		nodeID := strconv.Itoa(len(nodes))
 		node := Node{
 			Label: stage.Name,
 			Stage: stage,
 			Steps: stages[stage.Name],
 
-			ID: strconv.Itoa(nodeID),
+			ID: nodeID,
 		}
-		nodes = append(nodes, &node)
+		nodes[nodeID] = &node
 	}
 
 	// create edges from nodes
 	// edges := []*Edge{}
-
+	links := [][]string{}
 	// loop over nodes
 	for _, destinationNode := range nodes {
 		// compare all nodes against all nodes
 		for _, sourceNode := range nodes {
 			// dont compare the same node
 			if destinationNode.ID != sourceNode.ID {
-
 				// check destination node needs
 				for _, need := range (*destinationNode.Stage).Needs {
 					// check if destination needs source stage
 					if sourceNode.Stage.Name == need {
+						links = append(links, []string{sourceNode.ID, destinationNode.ID})
 						// a node is represented by a destination stage that
 						//   requires source stage(s)
 						// edgeID := (len(edges))
@@ -245,11 +245,59 @@ func GetBuildDAG(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, nodes)
+	roots := []string{}
+	for _, node := range nodes {
+		if (*node).ParentIDs == nil {
+			logrus.Errorf("no parentIDs for node: %v", node.ID)
+			roots = append(roots, node.ID)
+		}
+	}
+	logrus.Infof("roots: %v", roots)
+
+	dag := DAG{
+		Nodes: nodes,
+		Links: links,
+	}
+
+	// g := graphviz.New()
+	// graph, err := g.Graph()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer func() {
+	// 	if err := graph.Close(); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	g.Close()
+	// }()
+
+	// nodeA, err := graph.CreateNode("a")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// nodeB, err := graph.CreateNode("b")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// e, err := graph.CreateEdge("e", nodeA, nodeB)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// e.SetLabel("edgeE")
+	// var buf bytes.Buffer
+	// if err := g.Render(graph, "dot", &buf); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// // print
+	// fmt.Println(buf.String())
+
+	c.JSON(http.StatusOK, dag)
 }
 
 type DAG struct {
-	Nodes []*Node `json:"nodes"`
+	Nodes map[string]*Node `json:"nodes"`
+	Links [][]string       `json:"links"`
 }
 
 type Node struct {
