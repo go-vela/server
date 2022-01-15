@@ -7,7 +7,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/go-vela/server/compiler"
@@ -28,7 +27,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/dag builds GetBuildDAG
+// graph contains nodes, and relationships between nodes, or edges.
+//   a node is a pipeline stage and its relevant steps.
+//   an edge is a relationship between nodes, defined by the 'needs' tag.
+type graph struct {
+	Nodes map[int]*node `json:"nodes"`
+	Edges []*edge       `json:"edges"`
+}
+
+// node represents is a pipeline stage and its relevant steps.
+type node struct {
+	Label string          `json:"label"`
+	Stage *pipeline.Stage `json:"stage"`
+	Steps []*library.Step `json:"steps"`
+	ID    int             `json:"id"`
+}
+
+type edge struct {
+	Source      int `json:"source"`
+	Destination int `json:"destination"`
+}
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
 //
 // Get directed a-cyclical graph for a build in the configured backend
 //
@@ -55,19 +75,19 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved dag for the build
+//     description: Successfully retrieved graph for the build
 //     schema:
 //       type: array
 //       items:
-//         "$ref": "#/definitions/DAG"
+//         "$ref": "#/definitions/Graph"
 //   '500':
-//     description: Unable to retrieve dag for the build
+//     description: Unable to retrieve graph for the build
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuildDAG represents the API handler to capture a
+// GetBuildGraph represents the API handler to capture a
 // directed a-cyclical graph for a build from the configured backend.
-func GetBuildDAG(c *gin.Context) {
+func GetBuildGraph(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
@@ -182,7 +202,6 @@ func GetBuildDAG(c *gin.Context) {
 
 	// group library steps by stage name
 	stages := map[string][]*library.Step{}
-
 	for _, _step := range steps {
 		if _, ok := stages[_step.GetStage()]; !ok {
 			stages[_step.GetStage()] = []*library.Step{}
@@ -191,26 +210,26 @@ func GetBuildDAG(c *gin.Context) {
 	}
 
 	// create nodes from pipeline stages
-	nodes := make(map[string]*Node)
-
+	nodes := make(map[int]*node)
 	for _, stage := range p.Stages {
+		// scrub the environment
 		for _, step := range stage.Steps {
 			step.Environment = nil
 		}
-		nodeID := strconv.Itoa(len(nodes))
-		node := Node{
+		nodeID := len(nodes)
+		node := node{
 			Label: stage.Name,
 			Stage: stage,
 			Steps: stages[stage.Name],
-
-			ID: nodeID,
+			ID:    nodeID,
 		}
 		nodes[nodeID] = &node
 	}
 
 	// create edges from nodes
-	// edges := []*Edge{}
-	links := [][]string{}
+	//   an edge is as a relationship between two nodes
+	//   that is defined by the 'needs' tag
+	edges := []*edge{}
 	// loop over nodes
 	for _, destinationNode := range nodes {
 		// compare all nodes against all nodes
@@ -221,23 +240,11 @@ func GetBuildDAG(c *gin.Context) {
 				for _, need := range (*destinationNode.Stage).Needs {
 					// check if destination needs source stage
 					if sourceNode.Stage.Name == need {
-						links = append(links, []string{sourceNode.ID, destinationNode.ID})
-						// a node is represented by a destination stage that
-						//   requires source stage(s)
-						// edgeID := (len(edges))
-						// edge := Edge{
-						// 	EdgeID: edgeID,
-						// 	NodeID: sourceNode.NodeID,
-						// }
-
-						// collect edge to increment edge_id
-						// edges = append(edges, &edge)
-
-						// add the edge to the node
-						if (*destinationNode).ParentIDs == nil {
-							(*destinationNode).ParentIDs = make([]string, 0)
+						edge := &edge{
+							Source:      sourceNode.ID,
+							Destination: destinationNode.ID,
 						}
-						(*destinationNode).ParentIDs = append((*destinationNode).ParentIDs, sourceNode.ID)
+						edges = append(edges, edge)
 					}
 				}
 
@@ -245,72 +252,11 @@ func GetBuildDAG(c *gin.Context) {
 		}
 	}
 
-	roots := []string{}
-	for _, node := range nodes {
-		if (*node).ParentIDs == nil {
-			logrus.Errorf("no parentIDs for node: %v", node.ID)
-			roots = append(roots, node.ID)
-		}
-	}
-	logrus.Infof("roots: %v", roots)
-
-	dag := DAG{
+	// construct the response
+	dag := graph{
 		Nodes: nodes,
-		Links: links,
+		Edges: edges,
 	}
-
-	// g := graphviz.New()
-	// graph, err := g.Graph()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer func() {
-	// 	if err := graph.Close(); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	g.Close()
-	// }()
-
-	// nodeA, err := graph.CreateNode("a")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// nodeB, err := graph.CreateNode("b")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// e, err := graph.CreateEdge("e", nodeA, nodeB)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// e.SetLabel("edgeE")
-	// var buf bytes.Buffer
-	// if err := g.Render(graph, "dot", &buf); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // print
-	// fmt.Println(buf.String())
 
 	c.JSON(http.StatusOK, dag)
-}
-
-type DAG struct {
-	Nodes map[string]*Node `json:"nodes"`
-	Links [][]string       `json:"links"`
-}
-
-type Node struct {
-	Label string          `json:"label"`
-	Stage *pipeline.Stage `json:"stage"`
-	Steps []*library.Step `json:"steps"`
-
-	// d3 stuff
-	ID        string   `json:"id"`
-	ParentIDs []string `json:"parent_ids"`
-}
-
-type Edge struct {
-	EdgeID int `json:"edge_id"`
-	NodeID int `json:"node_id"`
 }
