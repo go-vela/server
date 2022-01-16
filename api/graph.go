@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/go-vela/server/compiler"
@@ -28,24 +29,48 @@ import (
 )
 
 // graph contains nodes, and relationships between nodes, or edges.
-//   a node is a pipeline stage and its relevant steps.
-//   an edge is a relationship between nodes, defined by the 'needs' tag.
+//   a graphs is a collection of subgraphs and edges.
+//   a subgraph is a cluster of nodes.
+//   a node is a pipeline step.
+//   an edge is a connection between two nodes on the graph.
+//   a connection between two nodes is defined by the 'needs' tag.
 type graph struct {
-	Nodes map[int]*node `json:"nodes"`
-	Edges []*edge       `json:"edges"`
+	Subgraphs  map[int]*subgraph `json:"subgraphs"`
+	StageNodes []*stagenode      `json:"stage_nodes"`
+	StageEdges []*edge           `json:"stage_edges"`
 }
 
-// node represents is a pipeline stage and its relevant steps.
-type node struct {
-	Label string          `json:"label"`
-	Stage *pipeline.Stage `json:"stage"`
-	Steps []*library.Step `json:"steps"`
+// subgraph represents is a pipeline stage and its relevant steps.
+type subgraph struct {
+	ID        int             `json:"id"`
+	Name      string          `json:"name"`
+	StepNodes []*stepnode     `json:"step_nodes"`
+	StepEdges []*edge         `json:"step_edges"`
+	Stage     *pipeline.Stage `json:"stage,omitempty"`
+}
+
+// stagenode represents is a pipeline stage and its relevant steps.
+type stagenode struct {
 	ID    int             `json:"id"`
+	Name  string          `json:"name"`
+	Stage *pipeline.Stage `json:"stage,omitempty"`
+	Steps []*library.Step `json:"steps,omitempty"`
 }
 
+// stepnode represents is a pipeline step and its relevant info.
+type stepnode struct {
+	ID   int           `json:"id"`
+	Name string        `json:"name"`
+	Step *library.Step `json:"step,omitempty"`
+}
+
+// an edge points between two stagenodes.
 type edge struct {
-	Source      int `json:"source"`
-	Destination int `json:"destination"`
+	SourceID   int    `json:"source_id"`
+	SourceName string `json:"source_name"`
+
+	DestinationID   int    `json:"destination_id"`
+	DestinationName string `json:"destination_name"`
 }
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
@@ -209,54 +234,116 @@ func GetBuildGraph(c *gin.Context) {
 		stages[_step.GetStage()] = append(stages[_step.GetStage()], _step)
 	}
 
-	// create nodes from pipeline stages
-	nodes := make(map[int]*node)
+	// create subgraphs from pipeline stages
+	subgraphs := make(map[int]*subgraph)
+	stageNodes := make([]*stagenode, 0)
 	for _, stage := range p.Stages {
-		// scrub the environment
+		steps := stages[stage.Name]
+		if len(steps) == 0 {
+			// somehow we have a stage with no steps
+			break
+		}
+
+		// sort by step number
+		sort.Slice(steps, func(i int, j int) bool {
+			return steps[i].GetNumber() < steps[j].GetNumber()
+		})
+
 		for _, step := range stage.Steps {
+			// scrub the container environment
 			step.Environment = nil
 		}
-		nodeID := len(nodes)
-		node := node{
-			Label: stage.Name,
-			Stage: stage,
-			Steps: stages[stage.Name],
-			ID:    nodeID,
+
+		stepNodes := make([]*stepnode, 0)
+		for _, step := range steps {
+			// build a stepnode
+			stepNode := stepnode{
+				ID:   int(step.GetID()),
+				Name: step.GetName(),
+				Step: step,
+			}
+			stepNodes = append(stepNodes, &stepNode)
 		}
-		nodes[nodeID] = &node
+
+		stepPairs := getSequencePairs(steps, [][]*library.Step{})
+
+		stepEdges := make([]*edge, 0)
+		for _, stepPair := range stepPairs {
+			if len(stepPair) == 2 {
+				// build a stepedge
+				sourceID, sourceName := int(stepPair[0].GetID()), stepPair[0].GetName()
+				destinationID, destinationName := int(stepPair[1].GetID()), stepPair[1].GetName()
+
+				stepEdge := edge{
+					SourceID:        sourceID,
+					SourceName:      sourceName,
+					DestinationID:   destinationID,
+					DestinationName: destinationName,
+				}
+				stepEdges = append(stepEdges, &stepEdge)
+			}
+		}
+
+		// subgraph ID is the front step ID
+		subgraphID := int(steps[0].GetID())
+		subgraph := subgraph{
+			ID:        subgraphID,
+			Name:      stage.Name,
+			StepNodes: stepNodes,
+			StepEdges: stepEdges,
+			Stage:     stage,
+		}
+		subgraphs[subgraphID] = &subgraph
+
+		stageNode := stagenode{
+			ID:    subgraphID,
+			Name:  stage.Name,
+			Steps: steps,
+		}
+		stageNodes = append(stageNodes, &stageNode)
 	}
 
 	// create edges from nodes
 	//   an edge is as a relationship between two nodes
 	//   that is defined by the 'needs' tag
-	edges := []*edge{}
+	stageEdges := []*edge{}
 	// loop over nodes
-	for _, destinationNode := range nodes {
+	for _, destinationSubgraph := range subgraphs {
 		// compare all nodes against all nodes
-		for _, sourceNode := range nodes {
+		for _, sourceSubgraph := range subgraphs {
 			// dont compare the same node
-			if destinationNode.ID != sourceNode.ID {
+			if destinationSubgraph.ID != sourceSubgraph.ID {
 				// check destination node needs
-				for _, need := range (*destinationNode.Stage).Needs {
+				for _, need := range (*destinationSubgraph.Stage).Needs {
 					// check if destination needs source stage
-					if sourceNode.Stage.Name == need {
-						edge := &edge{
-							Source:      sourceNode.ID,
-							Destination: destinationNode.ID,
+					if sourceSubgraph.Stage.Name == need {
+						stageEdge := edge{
+							SourceID:        sourceSubgraph.ID,
+							SourceName:      sourceSubgraph.Name,
+							DestinationID:   destinationSubgraph.ID,
+							DestinationName: destinationSubgraph.Name,
 						}
-						edges = append(edges, edge)
+						stageEdges = append(stageEdges, &stageEdge)
 					}
 				}
-
 			}
 		}
 	}
 
 	// construct the response
-	dag := graph{
-		Nodes: nodes,
-		Edges: edges,
+	graph := graph{
+		Subgraphs:  subgraphs,
+		StageNodes: stageNodes,
+		StageEdges: stageEdges,
 	}
 
-	c.JSON(http.StatusOK, dag)
+	c.JSON(http.StatusOK, graph)
+}
+
+func getSequencePairs(slice []*library.Step, pairs [][]*library.Step) [][]*library.Step {
+	if len(slice) > 1 {
+		pair := []*library.Step{slice[0], slice[1]}
+		return getSequencePairs(slice[1:], append(pairs, pair))
+	}
+	return pairs
 }
