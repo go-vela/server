@@ -16,7 +16,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v41/github"
+	"github.com/google/go-github/v42/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
