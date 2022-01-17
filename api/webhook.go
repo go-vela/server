@@ -566,7 +566,7 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 // renameRepository is a helper function that takes the old name of the repo,
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
-// associated with that repo..
+// associated with that repo.
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// get the old name of the repo
 	previousName := r.GetPreviousName()
@@ -601,9 +601,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// nolint: lll // ignore long line due to extensive function arguments
 	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
-		retErr := fmt.Errorf("unable to get secrets for repo %s: %w", previousName, err)
-
-		return retErr
+		return fmt.Errorf("unable to get secrets for repo %s: %w", previousName, err)
 	}
 	secrets := []*library.Secret{}
 
@@ -614,8 +612,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		// nolint: lll // ignore long line due to extensive function arguments
 		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
 		if err != nil {
-			retErr := fmt.Errorf("unable to get secret list for repo %s: %w", previousName, err)
-			return retErr
+			return fmt.Errorf("unable to get secret list for repo %s: %w", previousName, err)
 		}
 		secrets = append(secrets, s...)
 		page++
@@ -626,9 +623,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		secret.SetRepo(r.GetName())
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
-			retErr := fmt.Errorf("unable to update secret for repo %s: %w", r.GetName(), err)
-
-			return retErr
+			return fmt.Errorf("unable to update secret for repo %s: %w", r.GetName(), err)
 		}
 	}
 
