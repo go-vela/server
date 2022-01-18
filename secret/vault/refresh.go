@@ -17,9 +17,13 @@ import (
 //
 // docs: https://www.vaultproject.io/docs/auth
 func (c *client) initialize() error {
-	// declare variables to be utilize within the switch
-	var token string
-	var ttl time.Duration
+	c.Logger.Trace("initializing AWS auth headers for vault")
+
+	// declare variables to be utilized within the switch
+	var (
+		token string
+		ttl   time.Duration
+	)
 
 	switch c.config.AuthMethod {
 	case "aws":
@@ -59,7 +63,7 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 		return "", 0, err
 	}
 
-	c.Logger.Trace("getting token from vault")
+	c.Logger.Trace("getting AWS token from vault")
 	secret, err := c.Vault.Logical().Write("auth/aws/login", headers)
 	if err != nil {
 		return "", 0, err
@@ -75,7 +79,7 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 // generateAwsAuthHeader will generate the necessary data
 // to send to the Vault server for generating a token.
 func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
-	c.Logger.Trace("generating auth headers for vault")
+	c.Logger.Trace("generating AWS auth headers for vault")
 
 	req, _ := c.AWS.StsClient.GetCallerIdentityRequest(&sts.GetCallerIdentityInput{})
 
@@ -115,19 +119,46 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 // refreshToken will refresh the given token if possible or generate a new one entirely.
 func (c *client) refreshToken() {
 	for {
-		time.Sleep(c.config.TokenDuration)
-		// token refresh may fail since the allowable refresh
-		// timeframe varies depending on the auth method
-		_, err := c.Vault.Auth().Token().RenewSelf(int(c.TTL / time.Second))
-		// fall back to obtaining a new token if the refresh fails
-		if err != nil {
-			err = c.initialize()
-		}
+		// create a channel to signal the need to refresh the token
+		refresh := make(chan bool)
 
-		if err != nil {
-			c.Logger.Errorf("failed to refresh vault token: %s", err)
-		} else {
-			c.Logger.Trace("successfully refreshed vault token")
+		go func() {
+			// check if the token TTL is less than the configured duration
+			if c.config.TokenTTL < c.config.TokenDuration {
+				c.Logger.Debugf("token TTL %v is less than duration %v",
+					c.config.TokenTTL,
+					c.config.TokenDuration,
+				)
+
+				// push a boolean to the channel to signal refresh of the token
+				refresh <- true
+			}
+		}()
+
+		select {
+		// refresh the token since the TTL is below the configured duration
+		case <-refresh:
+			err := c.initialize()
+			if err != nil {
+				c.Logger.Errorf("failed to refresh vault token: %s", err)
+			} else {
+				c.Logger.Trace("successfully refreshed vault token")
+			}
+		// renew the token after sleeping for the configured token duration
+		case <-time.After(c.config.TokenDuration):
+			// token renewal may fail since the refresh timeframe varies depending on the auth method
+			_, err := c.Vault.Auth().Token().RenewSelf(int(c.config.TokenTTL / time.Second))
+			if err != nil {
+				c.Logger.Errorf("failed to renew vault token: %s", err)
+
+				// fall back to refreshing the token if the renewal fails
+				err = c.initialize()
+				if err != nil {
+					c.Logger.Errorf("failed to refresh vault token: %s", err)
+				} else {
+					c.Logger.Trace("successfully refreshed vault token")
+				}
+			}
 		}
 	}
 }
