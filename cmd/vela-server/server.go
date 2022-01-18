@@ -18,7 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/urfave/cli/v2"
-	tomb "gopkg.in/tomb.v2"
+	"gopkg.in/tomb.v2"
 )
 
 // nolint: funlen // ignore function length
@@ -95,7 +95,9 @@ func server(c *cli.Context) error {
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
+		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
+		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
 		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
 		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
 		middleware.Worker(c.Duration("worker-active-interval")),

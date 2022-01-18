@@ -77,7 +77,9 @@ func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	allowlist := c.Value("allowlist").([]string)
+	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
+	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -121,11 +123,22 @@ func CreateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
+	// set the build limit field based off the input provided
+	if input.GetBuildLimit() == 0 {
+		// default build limit to value configured by server
+		r.SetBuildLimit(defaultBuildLimit)
+	} else if input.GetBuildLimit() > maxBuildLimit {
+		// set build limit to value configured by server to prevent limit from exceeding max
+		r.SetBuildLimit(maxBuildLimit)
+	} else {
+		r.SetBuildLimit(input.GetBuildLimit())
+	}
+
 	// set the timeout field based off the input provided
 	if input.GetTimeout() == 0 && defaultTimeout == 0 {
 		// default build timeout to 30m
 		r.SetTimeout(constants.BuildTimeoutDefault)
-	} else if input.GetTimeout() == 0 && defaultTimeout != 0 {
+	} else if input.GetTimeout() == 0 {
 		r.SetTimeout(defaultTimeout)
 	} else {
 		r.SetTimeout(input.GetTimeout())
@@ -627,6 +640,7 @@ func UpdateRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 
 	// update engine logger with API metadata
 	//
@@ -653,6 +667,22 @@ func UpdateRepo(c *gin.Context) {
 	if len(input.GetBranch()) > 0 {
 		// update branch if set
 		r.SetBranch(input.GetBranch())
+	}
+
+	// update build limit if set
+	if input.GetBuildLimit() > 0 {
+		// allow build limit between 1 - value configured by server
+		r.SetBuildLimit(
+			int64(
+				util.MaxInt(
+					constants.BuildLimitMin,
+					util.MinInt(
+						int(input.GetBuildLimit()),
+						int(maxBuildLimit),
+					), // clamp max
+				), // clamp min
+			),
+		)
 	}
 
 	if input.GetTimeout() > 0 {

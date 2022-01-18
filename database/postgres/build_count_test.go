@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
 
@@ -182,7 +182,7 @@ func TestPostgres_Client_GetOrgBuildCount(t *testing.T) {
 			want:    2,
 		},
 	}
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 	// run tests
 	for _, test := range tests {
 		got, err := _database.GetOrgBuildCount("foo", filters)
@@ -242,8 +242,10 @@ func TestPostgres_Client_GetOrgBuildCountByEvent(t *testing.T) {
 			want:    2,
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		got, err := _database.GetOrgBuildCount("foo", filters)
@@ -313,7 +315,7 @@ func TestPostgres_Client_GetRepoBuildCount(t *testing.T) {
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
@@ -333,80 +335,6 @@ func TestPostgres_Client_GetRepoBuildCount(t *testing.T) {
 
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("GetRepoBuildCount is %v, want %v", got, test.want)
-		}
-	}
-}
-
-func TestPostgres_Client_GetRepoBuildCountByEvent(t *testing.T) {
-	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetDeployPayload(nil)
-
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployPayload(nil)
-
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetUserID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
-
-	// setup the test database client
-	_database, _mock, err := NewTest()
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// capture the current expected SQL query
-	//
-	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
-	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectRepoBuildCountByEvent, 1, "push").Statement
-
-	// create expected return in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
-
-	// setup tests
-	tests := []struct {
-		failure bool
-		want    int64
-	}{
-		{
-			failure: false,
-			want:    2,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		got, err := _database.GetRepoBuildCountByEvent(_repo, "push")
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("GetRepoBuildCountByEvent should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("GetRepoBuildCountByEvent returned err: %v", err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("GetRepoBuildCountByEvent is %v, want %v", got, test.want)
 		}
 	}
 }

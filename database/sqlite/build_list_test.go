@@ -206,7 +206,9 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -298,7 +300,8 @@ func TestSqlite_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
 
 	repos := []*library.Repo{_repoOne, _repoTwo}
 	// run tests
@@ -387,8 +390,11 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -472,7 +478,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
