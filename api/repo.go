@@ -416,6 +416,11 @@ func GetRepos(c *gin.Context) {
 //   required: true
 //   type: string
 // - in: query
+//   name: active
+//   description: Filter active repos
+//   type: boolean
+//   default: true
+// - in: query
 //   name: page
 //   description: The page of results to retrieve
 //   type: integer
