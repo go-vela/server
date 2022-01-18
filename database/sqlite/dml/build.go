@@ -50,14 +50,6 @@ SELECT count(*) as count
 FROM builds;
 `
 
-	// SelectRepoBuildCountByEvent represents a query to select
-	// the count of builds for by repo and event type in the database.
-	SelectRepoBuildCountByEvent = `
-SELECT count(*) as count
-FROM builds
-WHERE repo_id = ?
-AND event = ?;
-`
 	// SelectBuildsCountByStatus represents a query to select
 	// the count of builds for a status in the database.
 	SelectBuildsCountByStatus = `

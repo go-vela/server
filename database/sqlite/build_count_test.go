@@ -205,7 +205,9 @@ func TestSqlite_Client_GetOrgBuildCount(t *testing.T) {
 			want:    2,
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -293,8 +295,11 @@ func TestSqlite_Client_GetOrgBuildCountByEvent(t *testing.T) {
 			want:    2,
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -381,7 +386,7 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
@@ -424,94 +429,6 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("GetRepoBuildCount is %v, want %v", got, test.want)
-		}
-	}
-}
-
-func TestSqlite_Client_GetRepoBuildCountByEvent(t *testing.T) {
-	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetEvent("push")
-	_buildOne.SetDeployPayload(nil)
-
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetEvent("push")
-	_buildTwo.SetDeployPayload(nil)
-
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetUserID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
-
-	// setup the test database client
-	_database, err := NewTest()
-	if err != nil {
-		t.Errorf("unable to create new sqlite test database: %v", err)
-	}
-	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
-
-	// setup tests
-	tests := []struct {
-		failure bool
-		want    int64
-	}{
-		{
-			failure: false,
-			want:    2,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		// defer cleanup of the repos table
-		defer _database.Sqlite.Exec("delete from repos;")
-
-		// create the repo in the database
-		err := _database.CreateRepo(_repo)
-		if err != nil {
-			t.Errorf("unable to create test repo: %v", err)
-		}
-
-		// defer cleanup of the builds table
-		defer _database.Sqlite.Exec("delete from builds;")
-
-		// create the builds in the database
-		err = _database.CreateBuild(_buildOne)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
-		}
-
-		err = _database.CreateBuild(_buildTwo)
-		if err != nil {
-			t.Errorf("unable to create test build: %v", err)
-		}
-
-		got, err := _database.GetRepoBuildCountByEvent(_repo, "push")
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("GetRepoBuildCountByEvent should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("GetRepoBuildCountByEvent returned err: %v", err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("GetRepoBuildCountByEvent is %v, want %v", got, test.want)
 		}
 	}
 }

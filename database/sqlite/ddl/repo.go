@@ -20,6 +20,7 @@ repos (
 	link          TEXT,
 	clone         TEXT,
 	branch        TEXT,
+	build_limit   INTEGER,
 	timeout       INTEGER,
 	counter       INTEGER,
 	visibility    TEXT,

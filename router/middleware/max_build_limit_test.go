@@ -13,10 +13,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestMiddleware_DefaultTimeout(t *testing.T) {
+func TestMiddleware_MaxBuildLimit(t *testing.T) {
 	// setup types
 	var got int64
-	want := int64(60)
+	want := int64(30)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -26,9 +26,9 @@ func TestMiddleware_DefaultTimeout(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(DefaultTimeout(want))
+	engine.Use(MaxBuildLimit(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("defaultTimeout").(int64)
+		got = c.Value("maxBuildLimit").(int64)
 
 		c.Status(http.StatusOK)
 	})
@@ -37,10 +37,10 @@ func TestMiddleware_DefaultTimeout(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("DefaultTimeout returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("MaxBuildLimit returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("DefaultTimeout is %v, want %v", got, want)
+		t.Errorf("MaxBuildLimit is %v, want %v", got, want)
 	}
 }

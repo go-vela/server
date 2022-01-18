@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-vela/types/constants"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
@@ -94,9 +96,22 @@ func main() {
 			Value:   true,
 		},
 		&cli.Int64Flag{
+			EnvVars: []string{"VELA_DEFAULT_BUILD_LIMIT"},
+			Name:    "default-build-limit",
+			Usage:   "override default build limit",
+			Value:   constants.BuildLimitDefault,
+		},
+		&cli.Int64Flag{
+			EnvVars: []string{"VELA_MAX_BUILD_LIMIT"},
+			Name:    "max-build-limit",
+			Usage:   "override max build limit",
+			Value:   constants.BuildLimitMax,
+		},
+		&cli.Int64Flag{
 			EnvVars: []string{"VELA_DEFAULT_BUILD_TIMEOUT"},
 			Name:    "default-build-timeout",
 			Usage:   "override default build timeout (minutes)",
+			Value:   constants.BuildTimeoutDefault,
 		},
 
 		// Security Flags
