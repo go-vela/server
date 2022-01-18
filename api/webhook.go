@@ -573,7 +573,8 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// get the repo from the database that matches the old name
 	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), previousName)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo from database", baseErr)
+		// nolint: lll // ignore long line for error formatting
+		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, r.GetOrg(), previousName)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
@@ -590,7 +591,8 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// update the repo in the database
 	err = database.FromContext(c).UpdateRepo(dbR)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo in database", baseErr)
+		// nolint: lll // ignore long line for error formatting
+		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, r.GetOrg(), previousName)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
@@ -601,7 +603,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// nolint: lll // ignore long line due to extensive function arguments
 	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
-		return fmt.Errorf("unable to get secrets for repo %s: %w", previousName, err)
+		return fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
 	}
 	secrets := []*library.Secret{}
 
@@ -612,7 +614,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		// nolint: lll // ignore long line due to extensive function arguments
 		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
 		if err != nil {
-			return fmt.Errorf("unable to get secret list for repo %s: %w", previousName, err)
+			return fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
 		}
 		secrets = append(secrets, s...)
 		page++
@@ -623,7 +625,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		secret.SetRepo(r.GetName())
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
-			return fmt.Errorf("unable to update secret for repo %s: %w", r.GetName(), err)
+			return fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
 		}
 	}
 
