@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -26,6 +26,7 @@ const (
   "link": "https://github.com/github/octocat",
   "clone": "https://github.com/github/octocat",
   "branch": "master",
+  "build_limit": 10,
   "timeout": 60,
   "visibility": "public",
   "private": false,
@@ -48,6 +49,7 @@ const (
     "link": "https://github.com/github/octocat",
     "clone": "https://github.com/github/octocat",
     "branch": "master",
+    "build_limit": 10,
     "timeout": 60,
     "visibility": "public",
     "private": false,
@@ -67,6 +69,7 @@ const (
     "link": "https://github.com/github/octokitty",
     "clone": "https://github.com/github/octokitty",
     "branch": "master",
+    "build_limit": 10,
     "timeout": 60,
     "visibility": "public",
     "private": false,

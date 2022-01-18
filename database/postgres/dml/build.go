@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -49,15 +49,6 @@ LIMIT 1;
 	SelectBuildsCount = `
 SELECT count(*) as count
 FROM builds;
-`
-
-	// SelectRepoBuildCountByEvent represents a query to select
-	// the count of builds for by repo and event type in the database.
-	SelectRepoBuildCountByEvent = `
-SELECT count(*) as count
-FROM builds
-WHERE repo_id = ?
-AND event = ?;
 `
 
 	// SelectBuildsCountByStatus represents a query to select

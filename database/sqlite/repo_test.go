@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -257,6 +257,7 @@ func testRepo() *library.Repo {
 		Link:         &str,
 		Clone:        &str,
 		Branch:       &str,
+		BuildLimit:   &i64,
 		Timeout:      &i64,
 		Counter:      &i,
 		Visibility:   &str,

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -134,6 +134,32 @@ func CreateBuild(c *gin.Context) {
 	u, err = database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// check if the number of pending and running builds exceeds the limit for the repo
+	if builds >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -392,7 +418,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]string{}
+		filters = map[string]interface{}{}
 		b       []*library.Build
 		t       int64
 	)
@@ -561,7 +587,7 @@ func GetBuilds(c *gin.Context) {
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]string{}
+		filters = map[string]interface{}{}
 		b       []*library.Build
 		t       int64
 	)
@@ -815,6 +841,32 @@ func RestartBuild(c *gin.Context) {
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// check if the number of pending and running builds exceeds the limit for the repo
+	if builds >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
