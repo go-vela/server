@@ -17,7 +17,7 @@ import (
 //
 // docs: https://www.vaultproject.io/docs/auth
 func (c *client) initialize() error {
-	c.Logger.Trace("initializing AWS auth headers for vault")
+	c.Logger.Trace("initializing token for vault")
 
 	// declare variables to be utilized within the switch
 	var (
