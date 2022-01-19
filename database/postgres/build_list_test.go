@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
@@ -195,7 +195,9 @@ func TestPostgres_Client_GetOrgBuildList(t *testing.T) {
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
+
 	// run tests
 	for _, test := range tests {
 		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
@@ -263,8 +265,11 @@ func TestPostgres_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
-	filters := map[string]string{}
-	filters["visibility"] = "public"
+
+	filters := map[string]interface{}{
+		"visibility": "public",
+	}
+
 	// run tests
 	for _, test := range tests {
 		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
@@ -333,8 +338,11 @@ func TestPostgres_Client_GetOrgBuildListByEvent(t *testing.T) {
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
@@ -413,7 +421,7 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
