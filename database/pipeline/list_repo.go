@@ -20,10 +20,10 @@ func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*li
 		"repo": r.GetName(),
 	}).Tracef("listing pipelines for repo %s from the database", r.GetFullName())
 
-	// variable to store query results
+	// variables to store query results and return values
+	count := int64(0)
 	p := new([]database.Pipeline)
 	pipelines := []*library.Pipeline{}
-	count := int64(0)
 
 	// count the results
 	count, err := e.CountPipelinesForRepo(r)
@@ -61,6 +61,8 @@ func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*li
 		}
 
 		// convert query result to library type
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.ToLibrary
 		pipelines = append(pipelines, tmp.ToLibrary())
 	}
 

@@ -9,12 +9,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/sirupsen/logrus"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/database"
+	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"

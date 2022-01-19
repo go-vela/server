@@ -17,10 +17,14 @@ func (e *engine) UpdatePipeline(p *library.Pipeline) error {
 		"pipeline": p.GetNumber(),
 	}).Tracef("updating pipeline %d in the database", p.GetNumber())
 
-	// cast to database type
+	// cast the library type to database type
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#PipelineFromLibrary
 	pipeline := database.PipelineFromLibrary(p)
 
 	// validate the necessary fields are populated
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Validate
 	err := pipeline.Validate()
 	if err != nil {
 		return err
@@ -28,7 +32,7 @@ func (e *engine) UpdatePipeline(p *library.Pipeline) error {
 
 	// compress data for the pipeline
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
+	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Compress
 	err = pipeline.Compress(e.compressionLevel)
 	if err != nil {
 		return err

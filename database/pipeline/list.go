@@ -14,8 +14,9 @@ import (
 func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
 	e.logger.Trace("listing all pipelines from the database")
 
-	// variable to store query results
+	// variables to store query results and return value
 	p := new([]database.Pipeline)
+	pipelines := []*library.Pipeline{}
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -23,8 +24,6 @@ func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
 		Find(&p).
 		Error
 
-	// variable we want to return
-	pipelines := []*library.Pipeline{}
 	// iterate through all query results
 	for _, pipeline := range *p {
 		// https://golang.org/doc/faq#closures_and_goroutines
@@ -39,6 +38,8 @@ func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
 		}
 
 		// convert query result to library type
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.ToLibrary
 		pipelines = append(pipelines, tmp.ToLibrary())
 	}
 

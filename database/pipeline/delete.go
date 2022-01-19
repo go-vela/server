@@ -17,7 +17,9 @@ func (e *engine) DeletePipeline(p *library.Pipeline) error {
 		"pipeline": p.GetNumber(),
 	}).Tracef("deleting pipeline %d from the database", p.GetNumber())
 
-	// cast to database type
+	// cast the library type to database type
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#PipelineFromLibrary
 	pipeline := database.PipelineFromLibrary(p)
 
 	// send query to the database

@@ -7,11 +7,11 @@ package pipeline
 import (
 	"errors"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
+
 	"gorm.io/gorm"
 )
 
@@ -48,5 +48,7 @@ func (e *engine) GetPipelineForRepo(number int, r *library.Repo) (*library.Pipel
 	}
 
 	// return the decompressed pipeline
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.ToLibrary
 	return p.ToLibrary(), result.Error
 }
