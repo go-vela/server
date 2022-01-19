@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-vela/server/database/pipeline"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/types/constants"
@@ -40,6 +42,7 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		pipeline.PipelineService
 	}
 )
 
@@ -83,6 +86,8 @@ func New(opts ...ClientOpt) (*client, error) {
 	// set the Postgres database client in the Postgres client
 	c.Postgres = _postgres
 
+	c.PipelineService = pipeline.New(c.Postgres, c.Logger, c.config.CompressionLevel)
+
 	// setup database with proper configuration
 	err = setupDatabase(c)
 	if err != nil {
@@ -120,7 +125,7 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// create new logger for the client
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
-	c.Logger = logrus.NewEntry(logger)
+	c.Logger = logrus.NewEntry(logger).WithField("database", c.Driver())
 
 	// create the new mock sql database
 	//
@@ -140,6 +145,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	c.PipelineService = pipeline.New(c.Postgres, c.Logger, c.config.CompressionLevel)
 
 	return c, _mock, nil
 }
@@ -221,6 +228,12 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %v", constants.TableLog, err)
 	}
 
+	// create the pipelines table
+	err = c.PipelineService.CreateTable(c.Driver())
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %v", constants.TablePipeline, err)
+	}
+
 	// create the repos table
 	err = c.Postgres.Exec(ddl.CreateRepoTable).Error
 	if err != nil {
@@ -295,6 +308,12 @@ func createIndexes(c *client) error {
 	err = c.Postgres.Exec(ddl.CreateLogBuildIDIndex).Error
 	if err != nil {
 		return fmt.Errorf("unable to create logs_build_id index for the %s table: %v", constants.TableLog, err)
+	}
+
+	// create the indexes for the pipelines table
+	err = c.PipelineService.CreateIndexes()
+	if err != nil {
+		return fmt.Errorf("unable to create indexes for %s table: %v", constants.TablePipeline, err)
 	}
 
 	// create the repos_org_name index for the repos table

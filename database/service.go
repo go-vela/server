@@ -5,6 +5,7 @@
 package database
 
 import (
+	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/types/library"
 )
 
@@ -112,6 +113,10 @@ type Service interface {
 	// DeleteLog defines a function that
 	// deletes a log by unique ID.
 	DeleteLog(int64) error
+
+	// PipelineService provides the interface for functionality
+	// related to pipelines stored in the database.
+	pipeline.PipelineService
 
 	// Repo Database Interface Functions
 

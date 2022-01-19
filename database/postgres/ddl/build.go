@@ -13,6 +13,7 @@ IF NOT EXISTS
 builds (
 	id             SERIAL PRIMARY KEY,
 	repo_id        INTEGER,
+	pipeline_id    INTEGER,
 	number         INTEGER,
 	parent         INTEGER,
 	event          VARCHAR(250),

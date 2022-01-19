@@ -52,6 +52,7 @@ func TestBuild_Establish(t *testing.T) {
 	want := new(library.Build)
 	want.SetID(1)
 	want.SetRepoID(1)
+	want.SetPipelineID(0)
 	want.SetNumber(1)
 	want.SetParent(1)
 	want.SetEvent("")
