@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -17,10 +17,14 @@ func (e *engine) CreatePipeline(p *library.Pipeline) error {
 		"pipeline": p.GetNumber(),
 	}).Tracef("creating pipeline %d in the database", p.GetNumber())
 
-	// cast to database type
+	// cast the library type to database type
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#PipelineFromLibrary
 	pipeline := database.PipelineFromLibrary(p)
 
 	// validate the necessary fields are populated
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Validate
 	err := pipeline.Validate()
 	if err != nil {
 		return err
@@ -28,7 +32,7 @@ func (e *engine) CreatePipeline(p *library.Pipeline) error {
 
 	// compress data for the pipeline
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
+	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Compress
 	err = pipeline.Compress(e.compressionLevel)
 	if err != nil {
 		return err
