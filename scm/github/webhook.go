@@ -42,6 +42,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
+
 	if err != nil {
 		return &types.Webhook{Hook: h}, nil
 	}
@@ -56,6 +57,8 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		return c.processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
 		return c.processIssueCommentEvent(h, event)
+	case *github.RepositoryEvent:
+		return c.processRepositoryEvent(h, event)
 	}
 
 	return &types.Webhook{Hook: h}, nil
@@ -395,5 +398,43 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 		Hook:     h,
 		Repo:     r,
 		Build:    b,
+	}, nil
+}
+
+// processRepositoryEvent is a helper function to process the repository event.
+// nolint: lll // ignore long line length due to error message
+func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*types.Webhook, error) {
+	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	repo := payload.GetRepo()
+
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+
+	// if action is renamed, then get the previous name from payload
+	if payload.GetAction() == "renamed" {
+		r.SetPreviousName(payload.GetChanges().GetRepo().GetName().GetFrom())
+		// update hook object event type
+		h.SetEvent(constants.EventRepositoryRename)
+	} else {
+		h.SetEvent(constants.EventRepository)
+	}
+
+	h.SetBranch(r.GetBranch())
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	return &types.Webhook{
+		Comment: "",
+		Hook:    h,
+		Repo:    r,
 	}, nil
 }

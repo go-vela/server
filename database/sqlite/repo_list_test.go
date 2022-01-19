@@ -39,6 +39,7 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetPreviousName("")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -49,6 +50,7 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetPreviousName("oldName")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -112,6 +114,7 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetPreviousName("oldName")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -122,6 +125,7 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 	_repoTwo.SetFullName("foo/baz")
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -185,6 +189,7 @@ func TestSqlite_Client_GetOrgRepoList_NonAdmin(t *testing.T) {
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetPreviousName("")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -195,6 +200,7 @@ func TestSqlite_Client_GetOrgRepoList_NonAdmin(t *testing.T) {
 	_repoTwo.SetFullName("foo/baz")
 	_repoTwo.SetVisibility("private")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -259,6 +265,7 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetPreviousName("")
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -269,6 +276,7 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetPreviousName("")
 
 	_user := new(library.User)
 	_user.SetID(1)

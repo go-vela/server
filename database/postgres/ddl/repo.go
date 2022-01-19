@@ -33,6 +33,7 @@ repos (
 	allow_tag     BOOLEAN,
 	allow_comment BOOLEAN,
 	pipeline_type TEXT,
+	previous_name VARCHAR(100),
 	UNIQUE(full_name)
 );
 `
