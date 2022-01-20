@@ -376,6 +376,26 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   - deployment
 //   - comment
 // - in: query
+//   name: commit
+//   description: Filter builds based on the commit hash
+//   type: string
+// - in: query
+//   name: branch
+//   description: Filter builds by branch
+//   type: string
+// - in: query
+//   name: status
+//   description: Filter by build status
+//   type: string
+//   enum:
+//   - canceled
+//   - error
+//   - failure
+//   - killed
+//   - pending
+//   - running
+//   - success
+// - in: query
 //   name: page
 //   description: The page of results to retrieve
 //   type: integer
@@ -443,6 +463,8 @@ func GetBuilds(c *gin.Context) {
 	event := c.Query("event")
 	// capture the status type parameter
 	status := c.Query("status")
+	// capture the commit hash parameter
+	commit := c.Query("commit")
 
 	// check if branch filter was provided
 	if len(branch) > 0 {
@@ -481,6 +503,12 @@ func GetBuilds(c *gin.Context) {
 
 		// add status to filters map
 		filters["status"] = status
+	}
+
+	// check if commit hash filter was provided
+	if len(commit) > 0 {
+		// add commit to filters map
+		filters["commit"] = commit
 	}
 
 	// capture page query parameter if present
