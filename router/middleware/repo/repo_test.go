@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -48,6 +48,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetLink("")
 	want.SetClone("")
 	want.SetBranch("")
+	want.SetBuildLimit(0)
 	want.SetTimeout(0)
 	want.SetCounter(0)
 	want.SetVisibility("public")
@@ -60,6 +61,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowTag(false)
 	want.SetAllowComment(false)
 	want.SetPipelineType("yaml")
+	want.SetPreviousName("")
 
 	got := new(library.Repo)
 

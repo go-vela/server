@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -139,7 +139,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// check if build was parsed from webhook
-	if b == nil {
+	if b == nil && h.GetEvent() != constants.EventRepositoryRename {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -158,8 +158,20 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	if h.GetEvent() == constants.EventRepositoryRename {
+		err = renameRepository(h, r, c)
+		if err != nil {
+			util.HandleError(c, http.StatusBadRequest, err)
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(err.Error())
+			return
+		}
+		return
+	}
+
 	// send API call to capture parsed repo from webhook
 	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -264,6 +276,35 @@ func PostWebhook(c *gin.Context) {
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get owner for %s: %v", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	if err != nil {
+		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// check if the number of pending and running builds exceeds the limit for the repo
+	if builds >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -549,4 +590,74 @@ func publishToQueue(queue queue.Service, p *pipeline.Build, b *library.Build, r 
 			return
 		}
 	}
+}
+
+// renameRepository is a helper function that takes the old name of the repo,
+// queries the database for the repo that matches that name and org, and updates
+// that repo to its new name in order to preserve it. It also updates the secrets
+// associated with that repo.
+func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
+	// get the old name of the repo
+	previousName := r.GetPreviousName()
+	// get the repo from the database that matches the old name
+	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), previousName)
+	if err != nil {
+		// nolint: lll // ignore long line for error formatting
+		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, r.GetOrg(), previousName)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+		return retErr
+	}
+
+	// update the repo name information
+	dbR.SetName(r.GetName())
+	dbR.SetFullName(r.GetFullName())
+	dbR.SetClone(r.GetClone())
+	dbR.SetLink(r.GetLink())
+	dbR.SetPreviousName(previousName)
+
+	// update the repo in the database
+	err = database.FromContext(c).UpdateRepo(dbR)
+	if err != nil {
+		// nolint: lll // ignore long line for error formatting
+		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, r.GetOrg(), previousName)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+		return retErr
+	}
+
+	// get total number of secrets associated with repository
+	// nolint: lll // ignore long line due to extensive function arguments
+	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
+	if err != nil {
+		return fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
+	}
+	secrets := []*library.Secret{}
+
+	page := 1
+	// capture all secrets belonging to certain repo in database
+	// nolint: gomnd // ignore magic number
+	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
+		// nolint: lll // ignore long line due to extensive function arguments
+		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
+		if err != nil {
+			return fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
+		}
+		secrets = append(secrets, s...)
+		page++
+	}
+
+	// update secrets to point to the new repository name
+	for _, secret := range secrets {
+		secret.SetRepo(r.GetName())
+		err = database.FromContext(c).UpdateSecret(secret)
+		if err != nil {
+			return fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
+		}
+	}
+
+	c.JSON(http.StatusOK, r)
+	return nil
 }

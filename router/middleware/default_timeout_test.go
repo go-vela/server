@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -37,10 +37,10 @@ func TestMiddleware_DefaultTimeout(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Secret returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("DefaultTimeout returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Secret is %v, want %v", got, want)
+		t.Errorf("DefaultTimeout is %v, want %v", got, want)
 	}
 }
