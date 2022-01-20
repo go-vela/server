@@ -350,6 +350,26 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   - deployment
 //   - comment
 // - in: query
+//   name: commit
+//   description: Filter builds based on the commit hash
+//   type: string
+// - in: query
+//   name: branch
+//   description: Filter builds by branch
+//   type: string
+// - in: query
+//   name: status
+//   description: Filter by build status
+//   type: string
+//   enum:
+//   - canceled
+//   - error
+//   - failure
+//   - killed
+//   - pending
+//   - running
+//   - success
+// - in: query
 //   name: page
 //   description: The page of results to retrieve
 //   type: integer
