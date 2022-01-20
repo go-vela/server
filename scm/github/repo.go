@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v42/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -162,6 +162,7 @@ func (c *client) Enable(u *library.User, org, name, secret string) (string, erro
 			eventPullRequest,
 			eventDeployment,
 			eventIssueComment,
+			eventRepository,
 		},
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -22,6 +22,7 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -88,6 +89,7 @@ func TestSqlite_Client_CreateRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -136,6 +138,7 @@ func TestSqlite_Client_UpdateRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -190,6 +193,7 @@ func TestSqlite_Client_DeleteRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+	_repo.SetPreviousName("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -253,6 +257,7 @@ func testRepo() *library.Repo {
 		Link:         &str,
 		Clone:        &str,
 		Branch:       &str,
+		BuildLimit:   &i64,
 		Timeout:      &i64,
 		Counter:      &i,
 		Visibility:   &str,
@@ -264,5 +269,6 @@ func testRepo() *library.Repo {
 		AllowDeploy:  &b,
 		AllowTag:     &b,
 		AllowComment: &b,
+		PreviousName: &str,
 	}
 }
