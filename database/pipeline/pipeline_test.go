@@ -117,19 +117,21 @@ func testSqlite(t *testing.T) *engine {
 // zero values.
 func testPipeline() *library.Pipeline {
 	return &library.Pipeline{
-		ID:        new(int64),
-		RepoID:    new(int64),
-		Number:    new(int),
-		Flavor:    new(string),
-		Platform:  new(string),
-		Ref:       new(string),
-		Type:      new(string),
-		Version:   new(string),
-		Services:  new(bool),
-		Stages:    new(bool),
-		Steps:     new(bool),
-		Templates: new(bool),
-		Data:      new([]byte),
+		ID:              new(int64),
+		RepoID:          new(int64),
+		Number:          new(int),
+		Flavor:          new(string),
+		Platform:        new(string),
+		Ref:             new(string),
+		Type:            new(string),
+		Version:         new(string),
+		ExternalSecrets: new(bool),
+		InternalSecrets: new(bool),
+		Services:        new(bool),
+		Stages:          new(bool),
+		Steps:           new(bool),
+		Templates:       new(bool),
+		Data:            new([]byte),
 	}
 }
 

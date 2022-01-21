@@ -12,19 +12,21 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 pipelines (
-	id        SERIAL PRIMARY KEY,
-	repo_id   INTEGER,
-	number    INTEGER,
-	flavor    VARCHAR(100),
-	platform  VARCHAR(100),
-	ref       VARCHAR(500),
-	type      VARCHAR(100),
-	version   VARCHAR(50),
-	services  BOOLEAN,
-	stages    BOOLEAN,
-	steps     BOOLEAN,
-	templates BOOLEAN,
-	data      BYTEA,
+	id               SERIAL PRIMARY KEY,
+	repo_id          INTEGER,
+	number           INTEGER,
+	flavor           VARCHAR(100),
+	platform         VARCHAR(100),
+	ref              VARCHAR(500),
+	type             VARCHAR(100),
+	version          VARCHAR(50),
+	external_secrets BOOLEAN,
+	internal_secrets BOOLEAN,
+	services         BOOLEAN,
+	stages           BOOLEAN,
+	steps            BOOLEAN,
+	templates        BOOLEAN,
+	data             BYTEA,
 	UNIQUE(repo_id, number)
 );
 `
@@ -34,19 +36,21 @@ pipelines (
 CREATE TABLE
 IF NOT EXISTS
 pipelines (
-	id        INTEGER PRIMARY KEY AUTOINCREMENT,
-	repo_id   INTEGER,
-	number    INTEGER,
-	flavor    TEXT,
-	platform  TEXT,
-	ref       TEXT,
-	type      TEXT,
-	version   TEXT,
-	services  BOOLEAN,
-	stages    BOOLEAN,
-	steps     BOOLEAN,
-	templates BOOLEAN,
-	data      BLOB,
+	id               INTEGER PRIMARY KEY AUTOINCREMENT,
+	repo_id          INTEGER,
+	number           INTEGER,
+	flavor           TEXT,
+	platform         TEXT,
+	ref              TEXT,
+	type             TEXT,
+	version          TEXT,
+	external_secrets BOOLEAN,
+	internal_secrets BOOLEAN,
+	services         BOOLEAN,
+	stages           BOOLEAN,
+	steps            BOOLEAN,
+	templates        BOOLEAN,
+	data             BLOB,
 	UNIQUE(repo_id, number)
 );
 `

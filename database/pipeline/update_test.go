@@ -25,9 +25,9 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "pipelines"
-SET "repo_id"=$1,"number"=$2,"flavor"=$3,"platform"=$4,"ref"=$5,"type"=$6,"version"=$7,"services"=$8,"stages"=$9,"steps"=$10,"templates"=$11,"data"=$12
-WHERE "id" = $13`).
-		WithArgs(1, 1, nil, nil, "48afb5bdc41ad69bf22588491333f7cf71135163", "yaml", "1", false, false, false, false, AnyArgument{}, 1).
+SET "repo_id"=$1,"number"=$2,"flavor"=$3,"platform"=$4,"ref"=$5,"type"=$6,"version"=$7,"external_secrets"=$8,"internal_secrets"=$9,"services"=$10,"stages"=$11,"steps"=$12,"templates"=$13,"data"=$14
+WHERE "id" = $15`).
+		WithArgs(1, 1, nil, nil, "48afb5bdc41ad69bf22588491333f7cf71135163", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
