@@ -62,9 +62,11 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 		sec.SetAllowCommand(s.GetAllowCommand())
 	}
 
-	if len(s.GetUpdatedBy()) > 0 {
-		sec.SetUpdatedBy(s.GetUpdatedBy())
-	}
+	// update updated_at if set
+	sec.SetUpdatedAt(s.GetUpdatedAt())
+
+	// update updated_by if set
+	sec.SetUpdatedBy(s.GetUpdatedBy())
 
 	return c.Database.UpdateSecret(sec)
 }
