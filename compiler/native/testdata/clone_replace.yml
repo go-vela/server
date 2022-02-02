@@ -5,7 +5,7 @@ metadata:
 
 steps:
   - name: clone
-    image: target/vela-git:v0.4.0
+    image: target/vela-git:v0.5.1
     parameters:
       depth: 5
     pull: always
