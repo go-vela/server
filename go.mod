@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.18.0
-	github.com/aws/aws-sdk-go v1.42.27
+	github.com/aws/aws-sdk-go v1.42.44
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.7.7
@@ -16,7 +16,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-vela/types v0.12.0-rc1
 	github.com/golang-jwt/jwt/v4 v4.2.0
-	github.com/google/go-cmp v0.5.6
+	github.com/google/go-cmp v0.5.7
 	github.com/google/go-github/v42 v42.0.0
 	github.com/google/uuid v1.3.0
 	github.com/goware/urlx v0.3.1
@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/vault/api v1.3.1
 	github.com/joho/godotenv v1.4.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.12.0
+	github.com/prometheus/client_golang v1.12.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.0
 	github.com/urfave/cli/v2 v2.3.0
@@ -35,8 +35,8 @@ require (
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.2.3
 	gorm.io/driver/sqlite v1.2.6
-	gorm.io/gorm v1.22.4
-	k8s.io/apimachinery v0.23.1
+	gorm.io/gorm v1.22.5
+	k8s.io/apimachinery v0.23.3
 )
 
 require (
@@ -93,7 +93,7 @@ require (
 	github.com/jackc/pgtype v1.9.0 // indirect
 	github.com/jackc/pgx/v4 v4.14.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.3 // indirect
+	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
