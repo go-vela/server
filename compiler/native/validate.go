@@ -14,7 +14,7 @@ import (
 func (c *client) Validate(p *yaml.Build) error {
 	// check a version is provided
 	if len(p.Version) == 0 {
-		return fmt.Errorf("no version provided. Add 'version: \"1\"' to the configuration.")
+		return fmt.Errorf("no \"version:\" YAML property provided")
 	}
 
 	// check that stages or steps are provided
