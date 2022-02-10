@@ -1,8 +1,7 @@
 # Contributing
 
-We'd love to accept your contributions to this project!
+### We'd love to accept your contributions to this project! If you are a first time contributor, please review our [Contributing Guidelines]() before proceeding.
 
-There are just a few guidelines you need to follow.
 
 ## Bugs
 
@@ -62,23 +61,7 @@ cd $HOME/go-vela/server
 ```
 
 * Write your code and tests to implement the changes you desire.
-  * Please be sure to [follow our commit rules](https://chris.beams.io/posts/git-commit/#seven-rules)
-  * Please address linter warnings appropriately. If you are intentionally violating a rule that triggers a linter, please annotate the respective code with `nolint` declarations [[docs](https://golangci-lint.run/usage/false-positives/)]. we are using the following format for `nolint` declarations:
-
-    ```go
-    // nolint:<linter(s)> // <short reason>
-    ```
-  
-    Example:
-
-    ```go
-    // nolint:gocyclo // legacy function is complex, needs simplification
-    func superComplexFunction() error {
-      // ..
-    }
-    ```
-
-    Check the [documentation for more examples](https://golangci-lint.run/usage/false-positives/).
+  * Be sure to follow our [style guide]() 
 
 * Run the repository code (ensures your changes perform as you desire):
 
@@ -108,25 +91,6 @@ make clean
 git push fork master
 ```
 
-* Open a pull request!
-  * For the title of the pull request, please use the following format for the title:
-
-    ```text
-    feat(wobble): add hat wobble
-    ^--^^------^  ^------------^
-    |   |         |
-    |   |         +---> Summary in present tense.
-    |   +---> Scope: a noun describing a section of the codebase (optional)
-    +---> Type: chore, docs, feat, fix, refactor, or test.
-    ```
-
-    * feat: adds a new feature (equivalent to a MINOR in Semantic Versioning)
-    * fix: fixes a bug (equivalent to a PATCH in Semantic Versioning)
-    * docs: changes to the documentation
-    * refactor: refactors production code, eg. renaming a variable; doesn't change public API
-    * test: adds missing tests, refactors tests; no production code change
-    * chore: updates something without impacting the user (ex: bump a dependency in package.json or go.mod); no production code change
-
-    If a code change introduces a breaking change, place ! suffix after type, ie. feat(change)!: adds breaking change. correlates with MAJOR in semantic versioning.
+* Make sure to follow our [PR process]() when opening a pull request
 
 Thank you for your contribution!
