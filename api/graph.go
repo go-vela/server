@@ -239,7 +239,7 @@ func GetBuildGraph(c *gin.Context) {
 				// check destination node needs
 				for _, need := range (*destinationNode.Stage).Needs {
 					// check if destination needs source stage
-					if sourceNode.Stage.Name == need {
+					if sourceNode.Stage.Name == need && need != "clone" {
 						edge := &edge{
 							Source:      sourceNode.ID,
 							Destination: destinationNode.ID,
@@ -247,10 +247,11 @@ func GetBuildGraph(c *gin.Context) {
 						edges = append(edges, edge)
 					}
 				}
-
 			}
 		}
 	}
+
+	// for loop over edges, and collapse same parent edge
 
 	if len(nodes) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many nodes on this graph")
