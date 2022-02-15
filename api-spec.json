@@ -1,0 +1,6911 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "API for the Vela server",
+    "title": "Vela server",
+    "version": "0.12.0"
+  },
+  "host": "localhost",
+  "paths": {
+    "/api/v1/admin/build": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a build in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateBuild",
+        "parameters": [
+          {
+            "description": "Payload containing build to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the build in the database",
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          },
+          "404": {
+            "description": "Unable to update the build in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the build in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/builds": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the builds in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllBuilds",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all builds from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all builds from the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/builds/queue": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the running and pending builds in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AllBuildsQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unix timestamp to limit builds returned",
+            "name": "after",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all running and pending builds from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BuildQueue"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all running and pending builds from the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/deployment": {
+      "put": {
+        "description": "Get All (Not Implemented)",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateDeployment",
+        "responses": {
+          "501": {
+            "description": "This endpoint is not implemented",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/deployments": {
+      "get": {
+        "description": "Get all of the deployments in the database (Not Implemented)",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllDeployments",
+        "responses": {
+          "501": {
+            "description": "This endpoint is not implemented",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/hook": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a hook in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateHook",
+        "parameters": [
+          {
+            "description": "Payload containing hook to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the hook in the database",
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          },
+          "404": {
+            "description": "Unable to update the hook in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "501": {
+            "description": "Unable to update the hook in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/hooks": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the webhooks stored in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllHooks",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all hooks from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Webhook"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all hooks",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/repo": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a repo in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateRepo",
+        "parameters": [
+          {
+            "description": "Payload containing repo to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the repo in the database",
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          },
+          "404": {
+            "description": "Unable to update the repo in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "501": {
+            "description": "Unable to update the repo in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/repos": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the repos in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllRepos",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all repos from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all repos from the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/secret": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a secret in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateSecret",
+        "parameters": [
+          {
+            "description": "Payload containing secret to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the secret in the database",
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          },
+          "404": {
+            "description": "Unable to update the secret in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "501": {
+            "description": "Unable to update the secret in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/secrets": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the secrets in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllSecrets",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all secrets from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Secret"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all secrets from the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/service": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a hook in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateService",
+        "parameters": [
+          {
+            "description": "Payload containing service to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the service in the database",
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          },
+          "404": {
+            "description": "Unable to update the service in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the service in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/services": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the services in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllServices",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all services from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Service"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all services from the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/step": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a step in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateStep",
+        "parameters": [
+          {
+            "description": "Payload containing step to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the step in the database",
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          },
+          "404": {
+            "description": "Unable to update the step in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the step in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/steps": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the steps in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllSteps",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all steps from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Step"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all steps from the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/user": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a user in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminUpdateUser",
+        "parameters": [
+          {
+            "description": "Payload containing user to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the user in the database",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "404": {
+            "description": "Unable to update the user in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the user in the database",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all of the users in the database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "admin"
+        ],
+        "operationId": "AdminAllUsers",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all users from the database",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve all users from the database",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deployments/{org}/{repo}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a list of deployments for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "deployment"
+        ],
+        "operationId": "GetDeployments",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of deployments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Deployment"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of deployments",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of deployments",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a deployment for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "deployment"
+        ],
+        "operationId": "CreateDeployment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the deployment",
+            "schema": {
+              "$ref": "#/definitions/Deployment"
+            }
+          },
+          "400": {
+            "description": "Unable to create the deployment",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the deployment",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deployments/{org}/{repo}/{deployment}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a deployment from the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "deployment"
+        ],
+        "operationId": "GetDeployment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "deployment",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the deployment",
+            "schema": {
+              "$ref": "#/definitions/Deployment"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the deployment",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the deployment",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hooks/{org}/{repo}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve the webhooks for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "operationId": "GetHooks",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved webhooks",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Webhook"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve webhooks",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve webhooks",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a webhook for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "operationId": "CreateHook",
+        "parameters": [
+          {
+            "description": "Webhook payload that we expect from the user or VCS",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The webhook has been created",
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          },
+          "400": {
+            "description": "The webhook was unable to be created",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "The webhook was unable to be created",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hooks/{org}/{repo}/{hook}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a webhook for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "operationId": "GetHook",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Number of the hook",
+            "name": "hook",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the webhook",
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the webhook",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the webhook",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a webhook for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "operationId": "UpdateHook",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Number of the hook",
+            "name": "hook",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook payload that we expect from the user or VCS",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the webhook",
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          },
+          "400": {
+            "description": "The webhook was unable to be updated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The webhook was unable to be updated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "The webhook was unable to be updated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a webhook for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "operationId": "DeleteHook",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Number of the hook",
+            "name": "hook",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the webhook",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "The webhook was unable to be deleted",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The webhook was unable to be deleted",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "The webhook was unable to be deleted",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "GetPipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the pipeline",
+            "schema": {
+              "$ref": "#/definitions/PipelineBuild"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/compile": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get, expand and compile a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "CompilePipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved and compiled the pipeline",
+            "schema": {
+              "$ref": "#/definitions/PipelineBuild"
+            }
+          },
+          "400": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/expand": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get and expand a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "ExpandPipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved and expanded the pipeline",
+            "schema": {
+              "$ref": "#/definitions/PipelineBuild"
+            }
+          },
+          "400": {
+            "description": "Unable to expand the pipeline configuration",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/templates": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a map of templates utilized by a pipeline configuration from the source provider",
+        "produces": [
+          "application/x-yaml",
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "GetTemplates",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the map of pipeline templates",
+            "schema": {
+              "$ref": "#/definitions/Template"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration templates",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipelines/{org}/{repo}/validate": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get, expand and validate a pipeline configuration from the source provider",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "ValidatePipeline",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Ref for retrieving pipeline configuration file",
+            "name": "ref",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Output string for specifying output format",
+            "name": "output",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved, expanded and validated the pipeline",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to validate the pipeline configuration",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the pipeline configuration",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all repos in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "GetRepos",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the repo",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a repo in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "CreateRepo",
+        "parameters": [
+          {
+            "description": "Payload containing the repo to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the repo",
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          },
+          "400": {
+            "description": "Unable to create the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Unable to create the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Unable to create the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "503": {
+            "description": "Unable to create the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a list of builds by org in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "GetOrgBuilds",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved build list",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of builds",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of builds",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a repo in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "GetRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the repo",
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a repo in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "UpdateRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the repo to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the repo",
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          },
+          "400": {
+            "description": "Unable to update the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "503": {
+            "description": "Unable to update the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a repo in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "DeleteRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the repo",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to  deleted the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "510": {
+            "description": "Unable to  deleted the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get builds from the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "GetBuilds",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "push",
+              "pull_request",
+              "tag",
+              "deployment",
+              "comment"
+            ],
+            "type": "string",
+            "description": "Filter by build event",
+            "name": "event",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter builds based on the commit hash",
+            "name": "commit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter builds by branch",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "canceled",
+              "error",
+              "failure",
+              "killed",
+              "pending",
+              "running",
+              "success"
+            ],
+            "type": "string",
+            "description": "Filter by build status",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "filter builds before a certain time",
+            "name": "before",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 0,
+            "description": "filter builds after a certain time",
+            "name": "after",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the builds",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Build"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of builds",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of builds",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "CreateBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the build to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request processed but build was skipped",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Successfully created the build",
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          },
+          "400": {
+            "description": "Unable to create the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to create the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "GetBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number to retrieve",
+            "name": "build",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the build",
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Updates a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "UpdateBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number to update",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the build to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the build",
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          },
+          "404": {
+            "description": "Unable to update the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Restart a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "RestartBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number to restart",
+            "name": "build",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request processed but build was skipped",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Successfully restarted the build",
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          },
+          "400": {
+            "description": "Unable to restart the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to restart the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to restart the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "DeleteBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number to delete",
+            "name": "build",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the build",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to delete the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to delete the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/cancel": {
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Cancel a running build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "CancelBuild",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number to cancel",
+            "name": "build",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully canceled the build",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to cancel build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to cancel build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to cancel build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/logs": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get logs for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "builds"
+        ],
+        "operationId": "GetBuildLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved logs for the build",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Log"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve logs for the build",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/service/{service}/stream": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Stream the logs for a service",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "stream"
+        ],
+        "operationId": "PostServiceStream",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Service number",
+            "name": "service",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing logs",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully received logs"
+          },
+          "400": {
+            "description": "Unable to stream the logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to stream the logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to stream the logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/services": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a list of all services for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "GetServices",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of services",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Service"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of services",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of services",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a service for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "CreateService",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the service to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the service",
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          },
+          "400": {
+            "description": "Unable to create the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/services/{service}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get a service for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "GetService",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Name of the service",
+            "name": "service",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the service",
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a service for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "UpdateService",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Service number",
+            "name": "service",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the service to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the service",
+            "schema": {
+              "$ref": "#/definitions/Service"
+            }
+          },
+          "400": {
+            "description": "Unable to update the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a service for a build in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "DeleteService",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Service Number",
+            "name": "service",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the service",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete the service",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve the logs for a service",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "GetServiceLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "ID of the service",
+            "name": "service",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the service logs",
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the service logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update the logs for a service",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "UpdateServiceLog",
+        "deprecated": true,
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "ID of the service",
+            "name": "service",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the log to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the service logs",
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          },
+          "400": {
+            "description": "Unable to updated the service logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to updates the service logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create the logs for a service",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "CreateServiceLogs",
+        "deprecated": true,
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "ID of the service",
+            "name": "service",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the log to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the service logs",
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          },
+          "400": {
+            "description": "Unable to create the service logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the service logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete the logs for a service",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "services"
+        ],
+        "operationId": "DeleteServiceLogs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "ID of the service",
+            "name": "service",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the service logs",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete the service logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/steps": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a list of steps for a build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "GetSteps",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of steps",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Step"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of steps",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of steps",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a step for a build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "CreateStep",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the step to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the step",
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          },
+          "400": {
+            "description": "Unable to create the step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a step for a build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "GetStep",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Build number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the step",
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a step for a build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "UpdateStep",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the step to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the step",
+            "schema": {
+              "$ref": "#/definitions/Step"
+            }
+          },
+          "400": {
+            "description": "Unable to update the step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a step for a build",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "DeleteStep",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the step",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Successfully deleted the step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve the logs for a step",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "GetStepLog",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the logs for step",
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the logs for a step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update the logs for a step",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "UpdateStepLog",
+        "deprecated": true,
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the log to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the logs for step",
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          },
+          "400": {
+            "description": "Unable to update the logs for a step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the logs for a step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create the logs for a step",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "CreateStepLog",
+        "deprecated": true,
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the log to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the logs for step",
+            "schema": {
+              "$ref": "#/definitions/Log"
+            }
+          },
+          "400": {
+            "description": "Unable to create the logs for a step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the logs for a step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete the logs for a step",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "steps"
+        ],
+        "operationId": "DeleteStepLog",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the logs for the step",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete the logs for the step",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/stream": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Stream the logs for a step",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "stream"
+        ],
+        "operationId": "PostStepStream",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Build number",
+            "name": "build",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "Step number",
+            "name": "step",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing logs",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully received logs"
+          },
+          "400": {
+            "description": "Unable to stream the logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to stream the logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to stream the logs",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/chown": {
+      "patch": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Change the owner of the webhook for a repo",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "ChownRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully changed the owner for the repo",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to change the owner for the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repos/{org}/{repo}/repair": {
+      "patch": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Remove and recreate the webhook for a repo",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "RepairRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully repaired the repo",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to repair the repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/scm/orgs/{org}/sync": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Sync up repos from scm service and database in a specified org",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "scm"
+        ],
+        "operationId": "SyncRepos",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully synchronized repos",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to synchronize org repositories",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/scm/repos/{org}/{repo}/sync": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Sync up scm service and database in the context of a specific repo",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "scm"
+        ],
+        "operationId": "SyncRepo",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully synchronized repo"
+          },
+          "500": {
+            "description": "Unable to synchronize repo",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{engine}/{type}/{org}/{name}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a list of secrets from the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "secrets"
+        ],
+        "operationId": "GetSecrets",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Secret engine to create a secret in, eg. \"native\"",
+            "name": "engine",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "org",
+              "repo",
+              "shared"
+            ],
+            "type": "string",
+            "description": "Secret type to create",
+            "name": "type",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of secrets",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Secret"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of secrets",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of secrets",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a secret",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "secrets"
+        ],
+        "operationId": "CreateSecret",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Secret engine to create a secret in, eg. \"native\"",
+            "name": "engine",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "org",
+              "repo",
+              "shared"
+            ],
+            "type": "string",
+            "description": "Secret type to create",
+            "name": "type",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the secret to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created the secret",
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          },
+          "400": {
+            "description": "Unable to create the secret",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the secret",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{engine}/{type}/{org}/{name}/{secret}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a secret from the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "secrets"
+        ],
+        "operationId": "GetSecret",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Secret engine to create a secret in, eg. \"native\"",
+            "name": "engine",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "org",
+              "repo",
+              "shared"
+            ],
+            "type": "string",
+            "description": "Secret type to create",
+            "name": "type",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the secret",
+            "name": "secret",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the secret",
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the secret",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a secret on the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "secrets"
+        ],
+        "operationId": "UpdateSecrets",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Secret engine to update the secret in, eg. \"native\"",
+            "name": "engine",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "org",
+              "repo",
+              "shared"
+            ],
+            "type": "string",
+            "description": "Secret type to update",
+            "name": "type",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the secret",
+            "name": "secret",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the secret to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the secret",
+            "schema": {
+              "$ref": "#/definitions/Secret"
+            }
+          },
+          "400": {
+            "description": "Unable to update the secret",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the secret",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a secret from the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "secrets"
+        ],
+        "operationId": "DeleteSecret",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Secret engine to delete the secret from, eg. \"native\"",
+            "name": "engine",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "org",
+              "repo",
+              "shared"
+            ],
+            "type": "string",
+            "description": "Secret type to delete",
+            "name": "type",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo if a repo secret, team name if a shared secret, or '*' if an org secret",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the secret",
+            "name": "secret",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the secret",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete the secret",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve the current authenticated user from the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetCurrentUser",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the current user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update the current authenticated user in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "UpdateCurrentUser",
+        "parameters": [
+          {
+            "description": "Payload containing the user to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the current user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Unable to update the current user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to update the current user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the current user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/source/repos": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a list of repos for the current authenticated user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetUserSourceRepos",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a list of repos for the current user",
+            "schema": {
+              "$ref": "#/definitions/Repo"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve a list of repos for the current user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/token": {
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a token for the current authenticated user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "CreateToken",
+        "responses": {
+          "200": {
+            "description": "Successfully created a token for the current user",
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          },
+          "503": {
+            "description": "Unable to create a token for the current user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a token for the current authenticated user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "DeleteToken",
+        "responses": {
+          "200": {
+            "description": "Successfully delete a token for the current user",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete a token for the current user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a list of users for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the list of users",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of users",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a user for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "CreateUser",
+        "parameters": [
+          {
+            "description": "Payload containing the user to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Unable to create the user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a user for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the user",
+            "name": "user",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a user for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the user",
+            "name": "user",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Payload containing the user to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Unable to update the user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to update the user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a user for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "operationId": "DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the user",
+            "name": "user",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted of user",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Unable to delete user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to delete user",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workers": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a list of workers for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "GetWorkers",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of workers",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Worker"
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the list of workers",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Create a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "CreateWorker",
+        "parameters": [
+          {
+            "description": "Payload containing the worker to create",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Unable to create the worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to create the worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workers/{worker}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Retrieve a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "GetWorker",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Hostname of the worker",
+            "name": "worker",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the worker",
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          "404": {
+            "description": "Unable to retrieve the worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Update a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "UpdateWorker",
+        "parameters": [
+          {
+            "description": "Payload containing the worker to update",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Name of the worker",
+            "name": "worker",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the worker",
+            "schema": {
+              "$ref": "#/definitions/Worker"
+            }
+          },
+          "400": {
+            "description": "Unable to update the worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to update the worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to update the worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Delete a worker for the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "workers"
+        ],
+        "operationId": "DeleteWorker",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the worker",
+            "name": "worker",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted of worker",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Unable to delete worker",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{org}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "description": "Get all repos for the provided org in the configured backend",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "repos"
+        ],
+        "operationId": "GetOrgRepos",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "default": true,
+            "description": "Filter active repos",
+            "name": "active",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "The page of results to retrieve",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "type": "integer",
+            "default": 10,
+            "description": "How many results per page to return",
+            "name": "per_page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the repo",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Repo"
+              }
+            },
+            "headers": {
+              "Link": {
+                "type": "string",
+                "description": "see https://tools.ietf.org/html/rfc5988"
+              },
+              "X-Total-Count": {
+                "type": "integer",
+                "description": "Total number of results"
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to retrieve the org",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve the org",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/authenticate": {
+      "get": {
+        "description": "Start OAuth flow or exchange tokens",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "GetAuthenticate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the code received after identity confirmation",
+            "name": "code",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a random string",
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "the url where the user will be sent after authorization",
+            "name": "redirect_uri",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated",
+            "schema": {
+              "$ref": "#/definitions/Login"
+            },
+            "headers": {
+              "Set-Cookie": {
+                "type": "string"
+              }
+            }
+          },
+          "307": {
+            "description": "Redirected for authentication"
+          },
+          "401": {
+            "description": "Unable to authenticate",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/authenticate/cli/{port}": {
+      "get": {
+        "description": "Authentication entrypoint that builds the right post-auth\nredirect URL for CLI authentication requests\nand redirects to /authenticate after",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "GetAuthenticateTypeCLI",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "the port number",
+            "name": "port",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "the code received after identity confirmation",
+            "name": "code",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a random string",
+            "name": "state",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Redirected for authentication"
+          }
+        }
+      }
+    },
+    "/authenticate/token": {
+      "post": {
+        "description": "Authenticate to Vela via personal access token",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "PostAuthenticateToken",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "scopes: repo, repo:status, user:email, read:user, and read:org\n",
+            "name": "Token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated",
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          },
+          "401": {
+            "description": "Unable to authenticate",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/authenticate/web": {
+      "get": {
+        "description": "Authentication entrypoint that builds the right post-auth\nredirect URL for web authentication requests\nand redirects to /authenticate after",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "GetAuthenticateTypeWeb",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the code received after identity confirmation",
+            "name": "code",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "a random string",
+            "name": "state",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Redirected for authentication"
+          }
+        }
+      }
+    },
+    "/badge/{org}/{repo}/status.svg": {
+      "get": {
+        "description": "Get a badge for the repo",
+        "produces": [
+          "image/svg+xml"
+        ],
+        "tags": [
+          "base"
+        ],
+        "operationId": "GetBadge",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the org the repo belongs to",
+            "name": "org",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Name of the repo to get the badge for",
+            "name": "repo",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a status Badge",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Check if the Vela API is available",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "base"
+        ],
+        "operationId": "Health",
+        "responses": {
+          "200": {
+            "description": "Successfully 'ping'-ed Vela API",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "description": "Log into the Vela api",
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "GetLogin",
+        "parameters": [
+          {
+            "enum": [
+              "web",
+              "cli"
+            ],
+            "type": "string",
+            "description": "the login type (\"cli\" or \"web\")",
+            "name": "type",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "the port number when type=cli",
+            "name": "port",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Redirected to /authenticate"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "get": {
+        "description": "Log out of the Vela api",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "GetLogout",
+        "responses": {
+          "200": {
+            "description": "Successfully logged out",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "503": {
+            "description": "Logout did not succeed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "description": "Retrieve metrics from the Vela api",
+        "produces": [
+          "text/plain"
+        ],
+        "tags": [
+          "base"
+        ],
+        "operationId": "BaseMetrics",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the Vela metrics",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/token-refresh": {
+      "get": {
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "description": "Refresh an access token",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authenticate"
+        ],
+        "operationId": "GetRefreshAccessToken",
+        "responses": {
+          "200": {
+            "description": "Successfully refreshed a token",
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/version": {
+      "get": {
+        "description": "Get the version of the Vela API",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "base"
+        ],
+        "operationId": "Version",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the Vela API version",
+            "schema": {
+              "$ref": "#/definitions/Version"
+            }
+          }
+        }
+      }
+    },
+    "/webhook": {
+      "post": {
+        "description": "Deliver a webhook to the vela api",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "base"
+        ],
+        "operationId": "PostWebhook",
+        "parameters": [
+          {
+            "description": "Webhook payload that we expect from the user or VCS",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Webhook"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully received the webhook",
+            "schema": {
+              "$ref": "#/definitions/Build"
+            }
+          },
+          "400": {
+            "description": "Malformed webhook payload",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Unable to receive the webhook",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Unable to receive the webhook",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Build": {
+      "type": "object",
+      "title": "Build is the library representation of a build for a pipeline.",
+      "properties": {
+        "author": {
+          "type": "string",
+          "x-go-name": "Author"
+        },
+        "base_ref": {
+          "type": "string",
+          "x-go-name": "BaseRef"
+        },
+        "branch": {
+          "type": "string",
+          "x-go-name": "Branch"
+        },
+        "clone": {
+          "type": "string",
+          "x-go-name": "Clone"
+        },
+        "commit": {
+          "type": "string",
+          "x-go-name": "Commit"
+        },
+        "created": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Created"
+        },
+        "deploy": {
+          "type": "string",
+          "x-go-name": "Deploy"
+        },
+        "deploy_payload": {
+          "$ref": "#/definitions/StringSliceMap"
+        },
+        "distribution": {
+          "type": "string",
+          "x-go-name": "Distribution"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "enqueued": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Enqueued"
+        },
+        "error": {
+          "type": "string",
+          "x-go-name": "Error"
+        },
+        "event": {
+          "type": "string",
+          "x-go-name": "Event"
+        },
+        "finished": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Finished"
+        },
+        "head_ref": {
+          "type": "string",
+          "x-go-name": "HeadRef"
+        },
+        "host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Number"
+        },
+        "parent": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Parent"
+        },
+        "ref": {
+          "type": "string",
+          "x-go-name": "Ref"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "runtime": {
+          "type": "string",
+          "x-go-name": "Runtime"
+        },
+        "sender": {
+          "type": "string",
+          "x-go-name": "Sender"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "started": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Started"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "BuildQueue": {
+      "type": "object",
+      "title": "BuildQueue is the library representation of the builds in the queue.",
+      "properties": {
+        "created": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Created"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int32",
+          "x-go-name": "Number"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Deployment": {
+      "type": "object",
+      "title": "Deployment is the library representation of a deployment.",
+      "properties": {
+        "builds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Build"
+          },
+          "x-go-name": "Builds"
+        },
+        "commit": {
+          "type": "string",
+          "x-go-name": "Commit"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "payload": {
+          "$ref": "#/definitions/StringSliceMap"
+        },
+        "ref": {
+          "type": "string",
+          "x-go-name": "Ref"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "target": {
+          "type": "string",
+          "x-go-name": "Target"
+        },
+        "task": {
+          "type": "string",
+          "x-go-name": "Task"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        },
+        "user": {
+          "type": "string",
+          "x-go-name": "User"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Error": {
+      "type": "object",
+      "title": "Error is the json error message from the server for a given http response.",
+      "properties": {
+        "error": {
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types"
+    },
+    "Executor": {
+      "type": "object",
+      "title": "Executor is the library representation of an executor for a worker.",
+      "properties": {
+        "build": {
+          "$ref": "#/definitions/Build"
+        },
+        "distribution": {
+          "type": "string",
+          "x-go-name": "Distribution"
+        },
+        "host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "pipeline": {
+          "$ref": "#/definitions/PipelineBuild"
+        },
+        "repo": {
+          "$ref": "#/definitions/Repo"
+        },
+        "runtime": {
+          "type": "string",
+          "x-go-name": "Runtime"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Log": {
+      "type": "object",
+      "title": "Log is the library representation of a log for a step in a build.",
+      "properties": {
+        "build_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildID"
+        },
+        "data": {
+          "type": "string",
+          "format": "base64",
+          "x-go-name": "Data"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "service_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ServiceID"
+        },
+        "step_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StepID"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Login": {
+      "type": "object",
+      "title": "Login is the library representation of a user login.",
+      "properties": {
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Metadata": {
+      "type": "object",
+      "title": "Metadata represents extra information surrounding the application version.",
+      "properties": {
+        "architecture": {
+          "description": "Architecture represents the architecture information for the application.",
+          "type": "string",
+          "x-go-name": "Architecture"
+        },
+        "build_date": {
+          "description": "BuildDate represents the build date information for the application.",
+          "type": "string",
+          "x-go-name": "BuildDate"
+        },
+        "compiler": {
+          "description": "Compiler represents the compiler information for the application.",
+          "type": "string",
+          "x-go-name": "Compiler"
+        },
+        "git_commit": {
+          "description": "GitCommit represents the git commit information for the application.",
+          "type": "string",
+          "x-go-name": "GitCommit"
+        },
+        "go_version": {
+          "description": "GoVersion represents the golang version information for the application.",
+          "type": "string",
+          "x-go-name": "GoVersion"
+        },
+        "operating_system": {
+          "description": "OperatingSystem represents the operating system information for the application.",
+          "type": "string",
+          "x-go-name": "OperatingSystem"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/version"
+    },
+    "PipelineBuild": {
+      "type": "object",
+      "title": "Build is the pipeline representation of a build for a pipeline.",
+      "properties": {
+        "environment": {
+          "$ref": "#/definitions/StringSliceMap"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "metadata": {
+          "$ref": "#/definitions/PipelineMetadata"
+        },
+        "secrets": {
+          "$ref": "#/definitions/PipelineSecretSlice"
+        },
+        "services": {
+          "$ref": "#/definitions/PipelineContainerSlice"
+        },
+        "stages": {
+          "$ref": "#/definitions/PipelineStageSlice"
+        },
+        "steps": {
+          "$ref": "#/definitions/PipelineContainerSlice"
+        },
+        "version": {
+          "type": "string",
+          "x-go-name": "Version"
+        },
+        "worker": {
+          "$ref": "#/definitions/PipelineWorker"
+        }
+      },
+      "x-go-name": "Build",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineContainer": {
+      "description": "Container is the pipeline representation\nof a Container in a pipeline.",
+      "type": "object",
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Commands"
+        },
+        "detach": {
+          "type": "boolean",
+          "x-go-name": "Detach"
+        },
+        "directory": {
+          "type": "string",
+          "x-go-name": "Directory"
+        },
+        "entrypoint": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Entrypoint"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "Environment"
+        },
+        "exit_code": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExitCode"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "type": "string",
+          "x-go-name": "Image"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "needs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Needs"
+        },
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Networks"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Number"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Ports"
+        },
+        "privileged": {
+          "type": "boolean",
+          "x-go-name": "Privileged"
+        },
+        "pull": {
+          "type": "string",
+          "x-go-name": "Pull"
+        },
+        "ruleset": {
+          "$ref": "#/definitions/PipelineRuleset"
+        },
+        "secrets": {
+          "$ref": "#/definitions/PipelineStepSecretSlice"
+        },
+        "ulimits": {
+          "$ref": "#/definitions/PipelineUlimitSlice"
+        },
+        "user": {
+          "type": "string",
+          "x-go-name": "User"
+        },
+        "volumes": {
+          "$ref": "#/definitions/PipelineVolumeSlice"
+        }
+      },
+      "x-go-name": "Container",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineContainerSlice": {
+      "description": "ContainerSlice is the pipeline representation\nof the Containers block for a pipeline.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PipelineContainer"
+      },
+      "x-go-name": "ContainerSlice",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineMetadata": {
+      "type": "object",
+      "title": "Metadata is the yaml representation of the metadata block for a pipeline.",
+      "properties": {
+        "clone": {
+          "type": "boolean",
+          "x-go-name": "Clone"
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Environment"
+        },
+        "template": {
+          "type": "boolean",
+          "x-go-name": "Template"
+        }
+      },
+      "x-go-name": "Metadata",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelinePort": {
+      "description": "Port is the pipeline representation\nof a port for a step in a pipeline.",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Host"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Port"
+        },
+        "protocol": {
+          "type": "string",
+          "x-go-name": "Protocol"
+        }
+      },
+      "x-go-name": "Port",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineRules": {
+      "description": "Rules is the pipeline representation of the ruletypes\nfrom a ruleset block for a step in a pipeline.",
+      "type": "object",
+      "properties": {
+        "branch": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "comment": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "event": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "path": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "repo": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "status": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "tag": {
+          "$ref": "#/definitions/PipelineRuletype"
+        },
+        "target": {
+          "$ref": "#/definitions/PipelineRuletype"
+        }
+      },
+      "x-go-name": "Rules",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineRuleset": {
+      "description": "Ruleset is the pipeline representation of\na ruleset block for a step in a pipeline.",
+      "type": "object",
+      "properties": {
+        "continue": {
+          "type": "boolean",
+          "x-go-name": "Continue"
+        },
+        "if": {
+          "$ref": "#/definitions/PipelineRules"
+        },
+        "matcher": {
+          "type": "string",
+          "x-go-name": "Matcher"
+        },
+        "operator": {
+          "type": "string",
+          "x-go-name": "Operator"
+        },
+        "unless": {
+          "$ref": "#/definitions/PipelineRules"
+        }
+      },
+      "x-go-name": "Ruleset",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineRuletype": {
+      "description": "Ruletype is the pipeline representation of an element\nfor a ruleset block for a step in a pipeline.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "x-go-name": "Ruletype",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineSecret": {
+      "description": "Secret is the pipeline representation of a\nsecret from the secrets block for a pipeline.",
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string",
+          "x-go-name": "Engine"
+        },
+        "key": {
+          "type": "string",
+          "x-go-name": "Key"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "origin": {
+          "$ref": "#/definitions/PipelineContainer"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-name": "Secret",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineSecretSlice": {
+      "description": "SecretSlice is the pipeline representation\nof the secrets block for a pipeline.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PipelineSecret"
+      },
+      "x-go-name": "SecretSlice",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineStage": {
+      "description": "Stage is the pipeline representation\nof a stage in a pipeline.",
+      "type": "object",
+      "properties": {
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "Environment"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "needs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Needs"
+        },
+        "steps": {
+          "$ref": "#/definitions/PipelineContainerSlice"
+        }
+      },
+      "x-go-name": "Stage",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineStageSlice": {
+      "description": "StageSlice is the pipeline representation\nof the stages block for a pipeline.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PipelineStage"
+      },
+      "x-go-name": "StageSlice",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineStepSecret": {
+      "description": "StepSecret is the pipeline representation of a secret\nfrom a secrets block for a step in a pipeline.",
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "target": {
+          "type": "string",
+          "x-go-name": "Target"
+        }
+      },
+      "x-go-name": "StepSecret",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineStepSecretSlice": {
+      "description": "StepSecretSlice is the pipeline representation\nof the secrets block for a step in a pipeline.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PipelineStepSecret"
+      },
+      "x-go-name": "StepSecretSlice",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineUlimit": {
+      "description": "Ulimit is the pipeline representation of a ulimit\nfrom the ulimits block for a step in a pipeline.",
+      "type": "object",
+      "properties": {
+        "hard": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Hard"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "soft": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Soft"
+        }
+      },
+      "x-go-name": "Ulimit",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineUlimitSlice": {
+      "description": "UlimitSlice is the pipeline representation of\nthe ulimits block for a step in a pipeline.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PipelineUlimit"
+      },
+      "x-go-name": "UlimitSlice",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineVolume": {
+      "description": "Volume is the pipeline representation of a volume\nfrom a volumes block for a step in a pipeline.",
+      "type": "object",
+      "properties": {
+        "access_mode": {
+          "type": "string",
+          "x-go-name": "AccessMode"
+        },
+        "destination": {
+          "type": "string",
+          "x-go-name": "Destination"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        }
+      },
+      "x-go-name": "Volume",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineVolumeSlice": {
+      "description": "VolumeSlice is the pipeline representation of\nthe volumes block for a step in a pipeline.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PipelineVolume"
+      },
+      "x-go-name": "VolumeSlice",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "PipelineWorker": {
+      "type": "object",
+      "title": "Worker is the yaml representation of the worker block for a pipeline.",
+      "properties": {
+        "flavor": {
+          "type": "string",
+          "x-go-name": "Flavor"
+        },
+        "platform": {
+          "type": "string",
+          "x-go-name": "Platform"
+        }
+      },
+      "x-go-name": "Worker",
+      "x-go-package": "github.com/go-vela/types/pipeline"
+    },
+    "Repo": {
+      "type": "object",
+      "title": "Repo is the library representation of a repo.",
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "x-go-name": "Active"
+        },
+        "allow_comment": {
+          "type": "boolean",
+          "x-go-name": "AllowComment"
+        },
+        "allow_deploy": {
+          "type": "boolean",
+          "x-go-name": "AllowDeploy"
+        },
+        "allow_pull": {
+          "type": "boolean",
+          "x-go-name": "AllowPull"
+        },
+        "allow_push": {
+          "type": "boolean",
+          "x-go-name": "AllowPush"
+        },
+        "allow_tag": {
+          "type": "boolean",
+          "x-go-name": "AllowTag"
+        },
+        "branch": {
+          "type": "string",
+          "x-go-name": "Branch"
+        },
+        "build_limit": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildLimit"
+        },
+        "clone": {
+          "type": "string",
+          "x-go-name": "Clone"
+        },
+        "counter": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Counter"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "org": {
+          "type": "string",
+          "x-go-name": "Org"
+        },
+        "pipeline_type": {
+          "type": "string",
+          "x-go-name": "PipelineType"
+        },
+        "previous_name": {
+          "type": "string",
+          "x-go-name": "PreviousName"
+        },
+        "private": {
+          "type": "boolean",
+          "x-go-name": "Private"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Timeout"
+        },
+        "trusted": {
+          "type": "boolean",
+          "x-go-name": "Trusted"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UserID"
+        },
+        "visibility": {
+          "type": "string",
+          "x-go-name": "Visibility"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Secret": {
+      "type": "object",
+      "title": "Secret is the library representation of a secret.",
+      "properties": {
+        "allow_command": {
+          "type": "boolean",
+          "x-go-name": "AllowCommand"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CreatedAt"
+        },
+        "created_by": {
+          "type": "string",
+          "x-go-name": "CreatedBy"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Events"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Images"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "org": {
+          "type": "string",
+          "x-go-name": "Org"
+        },
+        "repo": {
+          "type": "string",
+          "x-go-name": "Repo"
+        },
+        "team": {
+          "type": "string",
+          "x-go-name": "Team"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UpdatedAt"
+        },
+        "updated_by": {
+          "type": "string",
+          "x-go-name": "UpdatedBy"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Service": {
+      "type": "object",
+      "title": "Service is the library representation of a service in a build.",
+      "properties": {
+        "build_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildID"
+        },
+        "created": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Created"
+        },
+        "distribution": {
+          "type": "string",
+          "x-go-name": "Distribution"
+        },
+        "error": {
+          "type": "string",
+          "x-go-name": "Error"
+        },
+        "exit_code": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExitCode"
+        },
+        "finished": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Finished"
+        },
+        "host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "type": "string",
+          "x-go-name": "Image"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Number"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "runtime": {
+          "type": "string",
+          "x-go-name": "Runtime"
+        },
+        "started": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Started"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Step": {
+      "type": "object",
+      "title": "Step is the library representation of a step in a build.",
+      "properties": {
+        "build_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildID"
+        },
+        "created": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Created"
+        },
+        "distribution": {
+          "type": "string",
+          "x-go-name": "Distribution"
+        },
+        "error": {
+          "type": "string",
+          "x-go-name": "Error"
+        },
+        "exit_code": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExitCode"
+        },
+        "finished": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Finished"
+        },
+        "host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "type": "string",
+          "x-go-name": "Image"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Number"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "runtime": {
+          "type": "string",
+          "x-go-name": "Runtime"
+        },
+        "stage": {
+          "type": "string",
+          "x-go-name": "Stage"
+        },
+        "started": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Started"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "StringSliceMap": {
+      "type": "object",
+      "title": "StringSliceMap represents an array of strings or a map of strings.",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "x-go-package": "github.com/go-vela/types/raw"
+    },
+    "Template": {
+      "type": "object",
+      "title": "Template is the library representation of a template for a pipeline.",
+      "properties": {
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "User": {
+      "type": "object",
+      "title": "User is the library representation of a user.",
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "x-go-name": "Active"
+        },
+        "admin": {
+          "type": "boolean",
+          "x-go-name": "Admin"
+        },
+        "favorites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Favorites"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Version": {
+      "description": "Version represents application information that\nfollows semantic version guidelines from\nhttps://semver.org/.",
+      "type": "object",
+      "properties": {
+        "canonical": {
+          "description": "Canonical represents a canonical semantic version for the application.",
+          "type": "string",
+          "x-go-name": "Canonical"
+        },
+        "major": {
+          "description": "Major represents incompatible API changes.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Major"
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "minor": {
+          "description": "Minor represents added functionality in a backwards compatible manner.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Minor"
+        },
+        "patch": {
+          "description": "Patch represents backwards compatible bug fixes.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Patch"
+        },
+        "pre_release": {
+          "description": "PreRelease represents unstable changes that might not be compatible.",
+          "type": "string",
+          "x-go-name": "PreRelease"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/version"
+    },
+    "Webhook": {
+      "type": "object",
+      "title": "Hook is the library representation of a webhook for a repo.",
+      "properties": {
+        "branch": {
+          "type": "string",
+          "x-go-name": "Branch"
+        },
+        "build_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildID"
+        },
+        "created": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Created"
+        },
+        "error": {
+          "type": "string",
+          "x-go-name": "Error"
+        },
+        "event": {
+          "type": "string",
+          "x-go-name": "Event"
+        },
+        "host": {
+          "type": "string",
+          "x-go-name": "Host"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "link": {
+          "type": "string",
+          "x-go-name": "Link"
+        },
+        "number": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Number"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "source_id": {
+          "type": "string",
+          "x-go-name": "SourceID"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-name": "Hook",
+      "x-go-package": "github.com/go-vela/types/library"
+    },
+    "Worker": {
+      "type": "object",
+      "title": "Worker is the library representation of a worker.",
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "x-go-name": "Active"
+        },
+        "address": {
+          "type": "string",
+          "x-go-name": "Address"
+        },
+        "build_limit": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BuildLimit"
+        },
+        "hostname": {
+          "type": "string",
+          "x-go-name": "Hostname"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "last_checked_in": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "LastCheckedIn"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Routes"
+        }
+      },
+      "x-go-package": "github.com/go-vela/types/library"
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "description": "Bearer token",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    },
+    "CookieAuth": {
+      "description": "Refresh token sent as cookie (swagger 2.0 doesn't support cookie auth)",
+      "type": "apiKey",
+      "name": "vela_refresh_token",
+      "in": "header"
+    }
+  }
+}
