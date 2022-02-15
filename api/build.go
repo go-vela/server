@@ -407,6 +407,16 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   type: integer
 //   maximum: 100
 //   default: 10
+// - in: query
+//   name: before
+//   description: filter builds before a certain time
+//   type: string
+//   default: now
+// - in: query
+//   name: after
+//   description: filter builds after a certain time
+//   type: string
+//   default: 0
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -539,7 +549,33 @@ func GetBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, page, perPage)
+	// capture before query parameter if present, default to now
+	//
+	// nolint: gomnd, lll // ignore magic number and long line length
+	before, err := strconv.ParseInt(c.DefaultQuery("before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert before query parameter for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture after query parameter if present, default to 0
+	//
+	// nolint: gomnd // ignore magic number
+	after, err := strconv.ParseInt(c.DefaultQuery("after", "0"), 10, 64)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert after query parameter for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
