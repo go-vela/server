@@ -42,6 +42,7 @@ type Service interface {
 	GetDeploymentBuildList(string) ([]*library.Build, error)
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
+	// nolint: lll // ignore long line length
 	GetRepoBuildList(*library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
 	// GetOrgBuildList defines a function that
 	// gets a list of builds by org.
