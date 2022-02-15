@@ -410,12 +410,12 @@ func skipEmptyBuild(p *pipeline.Build) string {
 // - in: query
 //   name: before
 //   description: filter builds before a certain time
-//   type: string
+//   type: int64
 //   default: now
 // - in: query
 //   name: after
 //   description: filter builds after a certain time
-//   type: string
+//   type: int64
 //   default: 0
 // security:
 //   - ApiKeyAuth: []
