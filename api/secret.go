@@ -134,7 +134,7 @@ func CreateSecret(c *gin.Context) {
 	// reject secrets with solely whitespace characters as its value
 	trimmed := strings.TrimSpace(input.GetValue())
 	if len(trimmed) == 0 {
-		retErr := fmt.Errorf("cannot set secret value to solely whitespace characters")
+		retErr := fmt.Errorf("secret value must contain non-whitespace characters")
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -612,7 +612,7 @@ func UpdateSecret(c *gin.Context) {
 	// reject secrets with solely whitespace characters as its value
 	trimmed := strings.TrimSpace(input.GetValue())
 	if len(trimmed) == 0 {
-		retErr := fmt.Errorf("cannot set secret value to solely whitespace characters")
+		retErr := fmt.Errorf("secret value must contain non-whitespace characters")
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
