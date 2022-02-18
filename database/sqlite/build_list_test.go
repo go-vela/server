@@ -47,6 +47,7 @@ func TestSqlite_Client_GetBuildList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -116,6 +117,7 @@ func TestSqlite_Client_GetDeploymentBuildList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -194,6 +196,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -288,6 +291,7 @@ func TestSqlite_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -378,6 +382,7 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -465,6 +470,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests

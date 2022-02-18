@@ -33,12 +33,14 @@ func TestVault_Delete_Org(t *testing.T) {
 	})
 
 	fake := httptest.NewServer(engine)
+
 	defer fake.Close()
 
 	type args struct {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -47,6 +49,7 @@ func TestVault_Delete_Org(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -102,6 +105,7 @@ func TestVault_Delete_Repo(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -110,6 +114,7 @@ func TestVault_Delete_Repo(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -165,6 +170,7 @@ func TestVault_Delete_Shared(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -173,6 +179,7 @@ func TestVault_Delete_Shared(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -210,6 +217,7 @@ func TestVault_Delete_InvalidType(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -218,6 +226,7 @@ func TestVault_Delete_InvalidType(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -250,6 +259,7 @@ func TestVault_Delete_ClosedServer(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -258,6 +268,7 @@ func TestVault_Delete_ClosedServer(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(

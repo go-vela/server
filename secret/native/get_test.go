@@ -62,6 +62,7 @@ func TestNative_Get(t *testing.T) {
 func TestNative_Get_Invalid(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// run test

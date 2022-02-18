@@ -14,7 +14,6 @@ import (
 
 func TestRedis_Push(t *testing.T) {
 	// setup types
-
 	// use global variables in redis_test.go
 	_item := &types.Item{
 		Build:    _build,

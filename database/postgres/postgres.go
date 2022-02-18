@@ -262,8 +262,6 @@ func createTables(c *client) error {
 
 // createIndexes is a helper function to setup
 // the database with the necessary indexes.
-//
-// nolint: lll // ignore long line length due to error messages
 func createIndexes(c *client) error {
 	c.Logger.Trace("creating data indexes in the postgres database")
 

@@ -174,7 +174,7 @@ func CreateRepo(c *gin.Context) {
 		if input.GetPipelineType() != constants.PipelineTypeYAML &&
 			input.GetPipelineType() != constants.PipelineTypeGo &&
 			input.GetPipelineType() != constants.PipelineTypeStarlark {
-			// nolint: lll // ignore long line length due to error message
+
 			retErr := fmt.Errorf("unable to create new repo %s: invalid pipeline_type provided %s", r.GetFullName(), input.GetPipelineType())
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -355,7 +355,6 @@ func GetRepos(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -364,8 +363,6 @@ func GetRepos(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of repos for the user
@@ -482,7 +479,6 @@ func GetOrgRepos(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -491,8 +487,6 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
@@ -633,8 +627,6 @@ func GetRepo(c *gin.Context) {
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
-//
-// nolint: funlen // ignore function length due to comments and conditionals
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
@@ -772,6 +764,7 @@ func UpdateRepo(c *gin.Context) {
 
 			return
 		}
+
 		r.SetPipelineType(input.GetPipelineType())
 	}
 

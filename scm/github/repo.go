@@ -20,7 +20,6 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-// nolint: lll // ignore long line length due to input arguments
 func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
@@ -422,6 +421,7 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 	// data is not nil if the file exists
 	if data != nil {
 		URL := data.GetHTMLURL()
+
 		if err != nil {
 			return "", err
 		}

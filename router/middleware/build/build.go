@@ -36,6 +36,7 @@ func Establish() gin.HandlerFunc {
 		if r == nil {
 			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
@@ -43,6 +44,7 @@ func Establish() gin.HandlerFunc {
 		if len(bParam) == 0 {
 			retErr := fmt.Errorf("no build parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -50,6 +52,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("invalid build parameter provided: %s", bParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -67,6 +70,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("unable to read build %s/%d: %v", r.GetFullName(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

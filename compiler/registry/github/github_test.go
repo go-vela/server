@@ -125,6 +125,7 @@ func TestGithub_NewURL(t *testing.T) {
 		if got.URL != test.want.URL {
 			t.Errorf("New URL is %v, want %v", got.URL, test.want.URL)
 		}
+
 		if got.API != test.want.API {
 			t.Errorf("New API is %v, want %v", got.API, test.want.API)
 		}

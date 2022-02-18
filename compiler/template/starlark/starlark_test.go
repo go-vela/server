@@ -9,16 +9,20 @@ import (
 
 func TestStarlark_toStarlark(t *testing.T) {
 	dict := starlark.NewDict(16)
+
 	err := dict.SetKey(starlark.String("foo"), starlark.String("bar"))
 	if err != nil {
 		t.Error(err)
 	}
+
 	a := make([]starlark.Value, 0)
 	a = append(a, starlark.Value(starlark.String("foo")))
 	a = append(a, starlark.Value(starlark.String("bar")))
+
 	type args struct {
 		value interface{}
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -42,6 +46,7 @@ func TestStarlark_toStarlark(t *testing.T) {
 		{"nil", args{value: nil}, starlark.None, false},
 		{"map", args{value: map[string]string{"foo": "bar"}}, dict, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := toStarlark(tt.args.value)

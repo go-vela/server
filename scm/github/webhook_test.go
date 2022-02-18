@@ -400,6 +400,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		build             *library.Build
 		deploymentPayload raw.StringSliceMap
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -409,6 +410,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		{"unexpected json payload", args{file: "deployment_unexpected_json_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 		{"unexpected text payload", args{file: "deployment_unexpected_text_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, err := os.Open(fmt.Sprintf("testdata/hooks/%s", tt.args.file))

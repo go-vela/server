@@ -120,6 +120,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 	type args struct {
 		s yaml.StepSlice
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -234,6 +235,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 			},
 		}, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler, err := New(c)

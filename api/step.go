@@ -552,8 +552,6 @@ func DeleteStep(c *gin.Context) {
 // planSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-//
-// nolint: funlen,lll // ignore function length and long line length
 func planSteps(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}

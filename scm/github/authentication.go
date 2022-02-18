@@ -59,8 +59,6 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
 	c.Logger.Trace("authenticating user")
 

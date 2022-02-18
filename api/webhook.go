@@ -118,6 +118,7 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %v", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -164,8 +165,10 @@ func PostWebhook(c *gin.Context) {
 			util.HandleError(c, http.StatusBadRequest, err)
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(err.Error())
+
 			return
 		}
+
 		return
 	}
 
@@ -246,12 +249,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// verify the build has a valid event and the repo allows that event type
-	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
-		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
-		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
-		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
+	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) || (b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
+		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) || (b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -303,7 +303,6 @@ func PostWebhook(c *gin.Context) {
 
 	// check if the number of pending and running builds exceeds the limit for the repo
 	if builds >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -322,7 +321,6 @@ func PostWebhook(c *gin.Context) {
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
 		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %v", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -376,7 +374,6 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -472,6 +469,7 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			c.JSON(http.StatusOK, skip)
+
 			return
 		}
 
@@ -520,7 +518,6 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the triggered build
 	b, err = database.FromContext(c).GetBuild(b.GetNumber(), r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %v", baseErr, r.GetFullName(), b.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -552,8 +549,6 @@ func PostWebhook(c *gin.Context) {
 
 // publishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
-//
-// nolint: lll // ignore long line length due to variables
 func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
 	item := types.ToItem(p, b, r, u)
 
@@ -618,11 +613,12 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// get the repo from the database that matches the old name
 	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), previousName)
 	if err != nil {
-		// nolint: lll // ignore long line for error formatting
 		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, r.GetOrg(), previousName)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return retErr
 	}
 
@@ -636,38 +632,40 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	// update the repo in the database
 	err = database.FromContext(c).UpdateRepo(dbR)
 	if err != nil {
-		// nolint: lll // ignore long line for error formatting
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, r.GetOrg(), previousName)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
 		return retErr
 	}
 
 	// get total number of secrets associated with repository
-	// nolint: lll // ignore long line due to extensive function arguments
+
 	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
 		return fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
 	}
-	secrets := []*library.Secret{}
 
+	secrets := []*library.Secret{}
 	page := 1
 	// capture all secrets belonging to certain repo in database
-	// nolint: gomnd // ignore magic number
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		// nolint: lll // ignore long line due to extensive function arguments
 		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
 		if err != nil {
 			return fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
 		}
+
 		secrets = append(secrets, s...)
+
 		page++
 	}
 
 	// update secrets to point to the new repository name
 	for _, secret := range secrets {
 		secret.SetRepo(r.GetName())
+
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
 			return fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
@@ -675,5 +673,6 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 	}
 
 	c.JSON(http.StatusOK, r)
+
 	return nil
 }

@@ -64,8 +64,6 @@ import (
 // Authenticate represents the API handler to
 // process a user logging in to Vela from
 // the API or UI.
-//
-// nolint: funlen // ignore function length due to comments
 func Authenticate(c *gin.Context) {
 	var err error
 

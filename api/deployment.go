@@ -195,7 +195,6 @@ func GetDeployments(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -229,6 +228,7 @@ func GetDeployments(c *gin.Context) {
 	}
 
 	dWithBs := []*library.Deployment{}
+
 	for _, deployment := range d {
 		b, err := database.FromContext(c).GetDeploymentBuildList(*deployment.URL)
 		if err != nil {

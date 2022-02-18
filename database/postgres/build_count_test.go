@@ -34,6 +34,7 @@ func TestPostgres_Client_GetBuildCount(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -99,6 +100,7 @@ func TestPostgres_Client_GetBuildCountByStatus(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -164,6 +166,7 @@ func TestPostgres_Client_GetOrgBuildCount(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
@@ -224,6 +227,7 @@ func TestPostgres_Client_GetOrgBuildCountByEvent(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
@@ -296,6 +300,7 @@ func TestPostgres_Client_GetRepoBuildCount(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock

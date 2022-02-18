@@ -36,6 +36,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("unable to get worker: %w", err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
@@ -43,10 +44,12 @@ func Establish() gin.HandlerFunc {
 		client := http.DefaultClient
 		client.Timeout = 30 * time.Second
 		endpoint := fmt.Sprintf("%s/api/v1/executors", w.GetAddress())
+
 		req, err := http.NewRequest("GET", endpoint, nil)
 		if err != nil {
 			retErr := fmt.Errorf("unable to form request to %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -68,6 +71,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("unable to read response from %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -76,6 +80,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("unable to parse response from %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 

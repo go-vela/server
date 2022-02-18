@@ -24,6 +24,7 @@ func TestSqlite_Client_GetUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -87,6 +88,7 @@ func TestSqlite_Client_CreateUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -132,6 +134,7 @@ func TestSqlite_Client_UpdateUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -183,6 +186,7 @@ func TestSqlite_Client_DeleteUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -228,6 +232,7 @@ func testUser() *library.User {
 	i64 := int64(0)
 	str := ""
 	b := false
+
 	var arr []string
 
 	return &library.User{

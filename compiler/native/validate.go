@@ -84,7 +84,6 @@ func validateStages(s yaml.StageSlice) error {
 				return fmt.Errorf("no name provided for step for stage %s", stage.Name)
 			}
 
-			// nolint: lll // ignore simplification here
 			if len(step.Image) == 0 && len(step.Template.Name) == 0 {
 				return fmt.Errorf("no image or template provided for step %s for stage %s", step.Name, stage.Name)
 			}
@@ -93,7 +92,6 @@ func validateStages(s yaml.StageSlice) error {
 				continue
 			}
 
-			// nolint: lll // ignore simplification here
 			if len(step.Commands) == 0 && len(step.Environment) == 0 &&
 				len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
 				len(step.Template.Name) == 0 && !step.Detach {
@@ -121,7 +119,6 @@ func validateSteps(s yaml.StepSlice) error {
 			continue
 		}
 
-		// nolint: lll // ignore simplification here
 		if len(step.Commands) == 0 && len(step.Environment) == 0 &&
 			len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
 			len(step.Template.Name) == 0 && !step.Detach {

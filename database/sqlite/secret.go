@@ -40,7 +40,6 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("getting %s secret %s for %s/%s from the database", t, secretName, o, n)
 
 	var err error
@@ -87,6 +86,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 
 		err = result.Error
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,6 @@ func (c *client) CreateSecret(s *library.Secret) error {
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("creating %s secret %s in the database", s.GetType(), s.GetName())
 
 	// cast to database type
@@ -181,7 +180,6 @@ func (c *client) UpdateSecret(s *library.Secret) error {
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("updating %s secret %s in the database", s.GetType(), s.GetName())
 
 	// cast to database type

@@ -38,7 +38,7 @@ func (c *client) Template(u *library.User, s *registry.Source) ([]byte, error) {
 
 	// send API call to capture the templated pipeline configuration
 	//
-	// nolint: lll // ignore long line length due to variable names
+
 	data, _, resp, err := cli.Repositories.GetContents(context.Background(), s.Org, s.Repo, s.Name, opts)
 	if err != nil {
 		if resp != nil && resp.StatusCode != http.StatusNotFound {
@@ -47,7 +47,9 @@ func (c *client) Template(u *library.User, s *registry.Source) ([]byte, error) {
 				errString := "unexpected error fetching template %s/%s/%s: %v"
 				return nil, fmt.Errorf(errString, s.Org, s.Repo, s.Name, err)
 			}
+
 			errString := "unexpected error fetching template %s/%s/%s@%s: %v"
+
 			return nil, fmt.Errorf(errString, s.Org, s.Repo, s.Name, s.Ref, err)
 		}
 
@@ -55,6 +57,7 @@ func (c *client) Template(u *library.User, s *registry.Source) ([]byte, error) {
 		if len(s.Ref) == 0 {
 			return nil, fmt.Errorf("no Vela template found at %s/%s/%s", s.Org, s.Repo, s.Name)
 		}
+
 		return nil, fmt.Errorf("no Vela template found at %s/%s/%s@%s", s.Org, s.Repo, s.Name, s.Ref)
 	}
 
@@ -72,5 +75,6 @@ func (c *client) Template(u *library.User, s *registry.Source) ([]byte, error) {
 	if len(s.Ref) == 0 {
 		return nil, fmt.Errorf("no Vela template found at %s/%s/%s", s.Org, s.Repo, s.Name)
 	}
+
 	return nil, fmt.Errorf("no Vela template found at %s/%s/%s@%s", s.Org, s.Repo, s.Name, s.Ref)
 }

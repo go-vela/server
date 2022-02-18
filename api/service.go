@@ -272,7 +272,6 @@ func GetServices(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services GetService
 //
@@ -342,7 +341,6 @@ func GetService(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services UpdateService
 //
@@ -471,7 +469,6 @@ func UpdateService(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/services/{service} services DeleteService
 //
@@ -554,8 +551,6 @@ func DeleteService(c *gin.Context) {
 // planServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build in the configured backend.
-//
-// nolint: lll // ignore long line length due to variable names
 func planServices(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}

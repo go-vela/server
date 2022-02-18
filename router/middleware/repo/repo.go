@@ -34,6 +34,7 @@ func Establish() gin.HandlerFunc {
 		if len(rParam) == 0 {
 			retErr := fmt.Errorf("no repo parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -50,6 +51,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("unable to read repo %s/%s: %v", o, rParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

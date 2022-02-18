@@ -293,7 +293,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	// run test
 	yaml, err := ioutil.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
-		t.Errorf("Reading yaml file return err: %v", err)
+		t.Errorf("Reading yaml file return err: %w", err)
 	}
 
 	type args struct {
@@ -301,6 +301,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 		libraryBuild *library.Build
 		repo         *library.Repo
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -317,6 +318,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := client{
@@ -367,6 +369,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 		libraryBuild *library.Build
 		repo         *library.Repo
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -383,6 +386,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := client{
@@ -1357,6 +1361,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 	type args struct {
 		file string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1373,6 +1378,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			file: "testdata/clone_replace.yml",
 		}, wantReplace, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// run test
@@ -1561,6 +1567,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		file         string
 		pipelineType string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1571,17 +1578,18 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		{"golang", args{file: "testdata/pipeline_type_go.yml", pipelineType: "go"}, wantGo, false},
 		{"starlark", args{file: "testdata/pipeline_type.star", pipelineType: "starlark"}, wantStarlark, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// run test
 			yaml, err := ioutil.ReadFile(tt.args.file)
 			if err != nil {
-				t.Errorf("Reading yaml file return err: %v", err)
+				t.Errorf("Reading yaml file return err: %w", err)
 			}
 
 			compiler, err := New(c)
 			if err != nil {
-				t.Errorf("Creating compiler returned err: %v", err)
+				t.Errorf("Creating compiler returned err: %w", err)
 			}
 
 			compiler.WithMetadata(m)
@@ -1589,7 +1597,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 			got, err := compiler.Compile(yaml)
 			if err != nil {
-				t.Errorf("Compile returned err: %v", err)
+				t.Errorf("Compile returned err: %w", err)
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
@@ -1610,13 +1618,14 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	// run test
 	yaml, err := ioutil.ReadFile("testdata/metadata.yml")
 	if err != nil {
-		t.Errorf("Reading yaml file return err: %v", err)
+		t.Errorf("Reading yaml file return err: %w", err)
 	}
 
 	compiler, err := New(c)
 	if err != nil {
-		t.Errorf("Creating compiler returned err: %v", err)
+		t.Errorf("Creating compiler returned err: %w", err)
 	}
+
 	compiler.repo = &library.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
@@ -1648,6 +1657,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
+
 	compiler.repo = &library.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
@@ -1851,6 +1861,7 @@ func Test_client_modifyConfig(t *testing.T) {
 		libraryBuild *library.Build
 		repo         *library.Repo
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1894,6 +1905,7 @@ func Test_client_modifyConfig(t *testing.T) {
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/empty"),
 		}, nil, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := client{

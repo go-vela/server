@@ -37,6 +37,7 @@ func Test_convertPlatformVars(t *testing.T) {
 			want:         raw.StringSliceMap{"build_author": "octocat", "repo_full_name": "go-vela/hello-world", "template_name": "foo"},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := convertPlatformVars(tt.slice, tt.templateName); !reflect.DeepEqual(got, tt.want) {
@@ -50,9 +51,11 @@ func Test_funcHandler_returnPlatformVar(t *testing.T) {
 	type fields struct {
 		envs raw.StringSliceMap
 	}
+
 	type args struct {
 		input string
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -110,6 +113,7 @@ func Test_funcHandler_returnPlatformVar(t *testing.T) {
 			want: "",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := funcHandler{

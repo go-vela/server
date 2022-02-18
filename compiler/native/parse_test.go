@@ -859,10 +859,12 @@ func Test_client_Parse(t *testing.T) {
 			},
 		},
 	}
+
 	type args struct {
 		pipelineType string
 		file         string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -876,6 +878,7 @@ func Test_client_Parse(t *testing.T) {
 		{"nil", args{pipelineType: "nil", file: "testdata/pipeline_type_default.yml"}, want, false},
 		{"invalid", args{pipelineType: "foo", file: "testdata/pipeline_type_default.yml"}, nil, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			content, err := ioutil.ReadFile(tt.args.file)
@@ -907,11 +910,13 @@ func Test_client_Parse(t *testing.T) {
 func Test_client_ParseRaw(t *testing.T) {
 	expected, err := ioutil.ReadFile("testdata/metadata.yml")
 	if err != nil {
-		t.Errorf("Reading file returned err: %v", err)
+		t.Errorf("Reading file returned err: %w", err)
 	}
+
 	type args struct {
 		kind string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -925,6 +930,7 @@ func Test_client_ParseRaw(t *testing.T) {
 		{"path", args{kind: "path"}, string(expected), false},
 		{"unexpected", args{kind: "foo"}, "", true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var content interface{}

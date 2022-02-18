@@ -53,6 +53,7 @@ func (c *client) Parse(v interface{}) (*types.Build, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		p, err = native.RenderBuild(parsedRaw, c.EnvironmentBuild())
 		if err != nil {
 			return nil, err
@@ -63,6 +64,7 @@ func (c *client) Parse(v interface{}) (*types.Build, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		p, err = starlark.RenderBuild(parsedRaw, c.EnvironmentBuild())
 		if err != nil {
 			return nil, err

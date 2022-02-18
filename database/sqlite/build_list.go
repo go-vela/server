@@ -48,12 +48,11 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 	// variable to store query results
 	b := new([]database.Build)
 	filters := map[string]string{}
+
 	if len(deployment) > 0 {
 		filters["source"] = deployment
 	}
 	// send query to the database and store result in variable
-	//
-	// nolint: gomnd // ignore magic number
 	err := c.Sqlite.
 		Table(constants.TableBuild).
 		Select("*").
@@ -77,8 +76,6 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 }
 
 // GetOrgBuildList gets a list of all builds by org name from the database.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, page int, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org": org,
@@ -129,8 +126,6 @@ func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, pag
 }
 
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

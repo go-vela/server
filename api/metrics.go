@@ -72,8 +72,6 @@ func CustomMetrics(c *gin.Context) {
 }
 
 // helper function to get the totals of resource types.
-//
-// nolint: funlen // ignore function length due to comments
 func recordGauges(c *gin.Context) {
 	// send API call to capture the total number of users
 	u, err := database.FromContext(c).GetUserCount()
@@ -173,9 +171,12 @@ func recordGauges(c *gin.Context) {
 	totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
 
 	// Add worker metrics
-	var buildLimit int64
-	var activeWorkers int64
-	var inactiveWorkers int64
+	var (
+		buildLimit      int64
+		activeWorkers   int64
+		inactiveWorkers int64
+	)
+
 	// get the unix time from worker_active_interval ago
 	before := time.Now().UTC().Add(-c.Value("worker_active_interval").(time.Duration)).Unix()
 	for _, worker := range workers {
