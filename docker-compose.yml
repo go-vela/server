@@ -12,7 +12,7 @@ services:
   # managing resources in the database and publishing
   # builds to the FIFO queue.
   #
-  # https://go-vela.github.io/docs/concepts/infrastructure/server/
+  # https://go-vela.github.io/docs/administration/server/
   server:
     build:
       context: .
@@ -56,7 +56,7 @@ services:
   # This component is used for pulling builds from the FIFO
   # queue and executing them based off their configuration.
   #
-  # https://go-vela.github.io/docs/concepts/infrastructure/worker/
+  # https://go-vela.github.io/docs/administration/worker/
   worker:
     container_name: worker
     image: target/vela-worker:latest
@@ -86,7 +86,7 @@ services:
   # This component is used for providing a user-friendly
   # interface for triggering actions in the Vela system.
   #
-  # https://go-vela.github.io/docs/concepts/infrastructure/ui/
+  # https://go-vela.github.io/docs/administration/ui/
   ui:
     container_name: ui
     image: target/vela-ui:latest
