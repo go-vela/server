@@ -74,7 +74,7 @@ services:
       VELA_RUNTIME_PRIVILEGED_IMAGES: 'target/vela-docker'
       VELA_SERVER_ADDR: 'http://server:8080'
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      WORKER_ADDR: http://worker:8080
+      WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 5m
     restart: always
     ports:
