@@ -63,16 +63,19 @@ services:
     networks:
       - vela
     environment:
+      EXECUTOR_DRIVER: linux
+      EXECUTOR_LOG_METHOD: 'time-chunks'
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace
       VELA_RUNTIME_DRIVER: docker
+      VELA_RUNTIME_PRIVILEGED_IMAGES: 'target/vela-docker'
       VELA_SERVER_ADDR: 'http://server:8080'
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      WORKER_ADDR: 'http://worker:8080'
-      WORKER_CHECK_IN: 15m
+      WORKER_ADDR: http://worker:8080
+      WORKER_CHECK_IN: 5m
     restart: always
     ports:
       - '8081:8080'
