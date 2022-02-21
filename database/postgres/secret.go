@@ -148,7 +148,7 @@ func (c *client) CreateSecret(s *library.Secret) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Encrypt
 	err = secret.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt secret %s: %v", s.GetName(), err)
+		return fmt.Errorf("unable to encrypt secret %s: %w", s.GetName(), err)
 	}
 
 	// send query to the database
@@ -196,7 +196,7 @@ func (c *client) UpdateSecret(s *library.Secret) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Encrypt
 	err = secret.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt secret %s: %v", s.GetName(), err)
+		return fmt.Errorf("unable to encrypt secret %s: %w", s.GetName(), err)
 	}
 
 	// send query to the database

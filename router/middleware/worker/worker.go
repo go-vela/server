@@ -37,7 +37,7 @@ func Establish() gin.HandlerFunc {
 
 		w, err := database.FromContext(c).GetWorker(wParam)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read worker %s: %v", wParam, err)
+			retErr := fmt.Errorf("unable to read worker %s: %w", wParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return

@@ -44,11 +44,11 @@ func (c *client) Template(u *library.User, s *registry.Source) ([]byte, error) {
 		if resp != nil && resp.StatusCode != http.StatusNotFound {
 			// return different error message depending on if a branch was provided
 			if len(s.Ref) == 0 {
-				errString := "unexpected error fetching template %s/%s/%s: %v"
+				errString := "unexpected error fetching template %s/%s/%s: %w"
 				return nil, fmt.Errorf(errString, s.Org, s.Repo, s.Name, err)
 			}
 
-			errString := "unexpected error fetching template %s/%s/%s@%s: %v"
+			errString := "unexpected error fetching template %s/%s/%s@%s: %w"
 
 			return nil, fmt.Errorf(errString, s.Org, s.Repo, s.Name, s.Ref, err)
 		}

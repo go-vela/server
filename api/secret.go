@@ -262,7 +262,7 @@ func GetSecrets(c *gin.Context) {
 
 		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 		if err != nil {
-			retErr := fmt.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
+			retErr := fmt.Errorf("unable to get users %s teams for org %s: %w", u.GetName(), o, err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -579,7 +579,7 @@ func UpdateSecret(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %v", entry, e, err)
+		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %w", entry, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 

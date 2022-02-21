@@ -758,7 +758,7 @@ func UpdateStepLog(c *gin.Context) {
 
 	err = c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for step %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to decode JSON for step %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -774,7 +774,7 @@ func UpdateStepLog(c *gin.Context) {
 	// send API call to update the log
 	err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update logs for step %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to update logs for step %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

@@ -105,7 +105,7 @@ func ParseBytes(b []byte) (*types.Build, error) {
 	// unmarshal the bytes into the yaml configuration
 	err := yaml.Unmarshal(b, config)
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal yaml: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
 	return config, nil
@@ -126,7 +126,7 @@ func ParsePath(p string) (*types.Build, error) {
 	// open the file for reading
 	f, err := os.Open(p)
 	if err != nil {
-		return nil, fmt.Errorf("unable to open yaml file %s: %v", p, err)
+		return nil, fmt.Errorf("unable to open yaml file %s: %w", p, err)
 	}
 
 	defer f.Close()
@@ -139,7 +139,7 @@ func ParsePathRaw(p string) (string, error) {
 	// open the file for reading
 	f, err := os.Open(p)
 	if err != nil {
-		return "", fmt.Errorf("unable to open yaml file %s: %v", p, err)
+		return "", fmt.Errorf("unable to open yaml file %s: %w", p, err)
 	}
 
 	defer f.Close()
@@ -152,7 +152,7 @@ func ParseReader(r io.Reader) (*types.Build, error) {
 	// read all the bytes from the reader
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read bytes for yaml: %v", err)
+		return nil, fmt.Errorf("unable to read bytes for yaml: %w", err)
 	}
 
 	return ParseBytes(b)
@@ -163,7 +163,7 @@ func ParseReaderRaw(r io.Reader) (string, error) {
 	// read all the bytes from the reader
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
-		return "", fmt.Errorf("unable to read bytes for yaml: %v", err)
+		return "", fmt.Errorf("unable to read bytes for yaml: %w", err)
 	}
 
 	return string(b), nil

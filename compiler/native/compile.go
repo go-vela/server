@@ -244,7 +244,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 func errorHandler(resp *http.Response, err error, attempts int) (*http.Response, error) {
 	if err != nil {
 		// nolint:lll // detailed error message
-		err = fmt.Errorf("giving up connecting to modification endpoint after %d attempts due to: %v", attempts, err)
+		err = fmt.Errorf("giving up connecting to modification endpoint after %d attempts due to: %w", attempts, err)
 	}
 
 	return resp, err

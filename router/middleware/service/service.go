@@ -79,7 +79,7 @@ func Establish() gin.HandlerFunc {
 
 		s, err := database.FromContext(c).GetService(number, b)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read service %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
+			retErr := fmt.Errorf("unable to read service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return

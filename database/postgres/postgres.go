@@ -206,55 +206,55 @@ func createTables(c *client) error {
 	// create the builds table
 	err := c.Postgres.Exec(ddl.CreateBuildTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableBuild, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
 	}
 
 	// create the hooks table
 	err = c.Postgres.Exec(ddl.CreateHookTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableHook, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableHook, err)
 	}
 
 	// create the logs table
 	err = c.Postgres.Exec(ddl.CreateLogTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableLog, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableLog, err)
 	}
 
 	// create the repos table
 	err = c.Postgres.Exec(ddl.CreateRepoTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableRepo, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableRepo, err)
 	}
 
 	// create the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableSecret, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableSecret, err)
 	}
 
 	// create the services table
 	err = c.Postgres.Exec(ddl.CreateServiceTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableService, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableService, err)
 	}
 
 	// create the steps table
 	err = c.Postgres.Exec(ddl.CreateStepTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableStep, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
 	}
 
 	// create the users table
 	err = c.Postgres.Exec(ddl.CreateUserTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableUser, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableUser, err)
 	}
 
 	// create the workers table
 	err = c.Postgres.Exec(ddl.CreateWorkerTable).Error
 	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TableWorker, err)
+		return fmt.Errorf("unable to create %s table: %w", constants.TableWorker, err)
 	}
 
 	return nil
@@ -268,67 +268,67 @@ func createIndexes(c *client) error {
 	// create the builds_repo_id index for the builds table
 	err := c.Postgres.Exec(ddl.CreateBuildRepoIDIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create builds_repo_id index for the %s table: %v", constants.TableBuild, err)
+		return fmt.Errorf("unable to create builds_repo_id index for the %s table: %w", constants.TableBuild, err)
 	}
 
 	// create the builds_status index for the builds table
 	err = c.Postgres.Exec(ddl.CreateBuildStatusIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create builds_status index for the %s table: %v", constants.TableBuild, err)
+		return fmt.Errorf("unable to create builds_status index for the %s table: %w", constants.TableBuild, err)
 	}
 
 	// create the builds_created index for the builds table
 	err = c.Postgres.Exec(ddl.CreateBuildCreatedIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create builds_created index for the %s table: %v", constants.TableBuild, err)
+		return fmt.Errorf("unable to create builds_created index for the %s table: %w", constants.TableBuild, err)
 	}
 
 	// create the hooks_repo_id index for the hooks table
 	err = c.Postgres.Exec(ddl.CreateHookRepoIDIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create hooks_repo_id index for the %s table: %v", constants.TableHook, err)
+		return fmt.Errorf("unable to create hooks_repo_id index for the %s table: %w", constants.TableHook, err)
 	}
 
 	// create the logs_build_id index for the logs table
 	err = c.Postgres.Exec(ddl.CreateLogBuildIDIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create logs_build_id index for the %s table: %v", constants.TableLog, err)
+		return fmt.Errorf("unable to create logs_build_id index for the %s table: %w", constants.TableLog, err)
 	}
 
 	// create the repos_org_name index for the repos table
 	err = c.Postgres.Exec(ddl.CreateRepoOrgNameIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create repos_org_name index for the %s table: %v", constants.TableRepo, err)
+		return fmt.Errorf("unable to create repos_org_name index for the %s table: %w", constants.TableRepo, err)
 	}
 
 	// create the secrets_type_org_repo index for the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTypeOrgRepo).Error
 	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org_repo index for the %s table: %v", constants.TableSecret, err)
+		return fmt.Errorf("unable to create secrets_type_org_repo index for the %s table: %w", constants.TableSecret, err)
 	}
 
 	// create the secrets_type_org_team index for the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTypeOrgTeam).Error
 	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org_team index for the %s table: %v", constants.TableSecret, err)
+		return fmt.Errorf("unable to create secrets_type_org_team index for the %s table: %w", constants.TableSecret, err)
 	}
 
 	// create the secrets_type_org index for the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTypeOrg).Error
 	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %v", constants.TableSecret, err)
+		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
 	// create the users_refresh index for the users table
 	err = c.Postgres.Exec(ddl.CreateUserRefreshIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create users_refresh index for the %s table: %v", constants.TableUser, err)
+		return fmt.Errorf("unable to create users_refresh index for the %s table: %w", constants.TableUser, err)
 	}
 
 	// create the workers_hostname_address index for the workers table
 	err = c.Postgres.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
 	if err != nil {
-		return fmt.Errorf("unable to create workers_hostname_address index for the %s table: %v", constants.TableWorker, err)
+		return fmt.Errorf("unable to create workers_hostname_address index for the %s table: %w", constants.TableWorker, err)
 	}
 
 	return nil

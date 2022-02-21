@@ -68,7 +68,7 @@ func Establish() gin.HandlerFunc {
 
 		b, err := database.FromContext(c).GetBuild(number, r)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read build %s/%d: %v", r.GetFullName(), number, err)
+			retErr := fmt.Errorf("unable to read build %s/%d: %w", r.GetFullName(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return

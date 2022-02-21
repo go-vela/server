@@ -331,7 +331,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 		// send API call to capture the user's repos
 		repos, resp, err := client.Repositories.List(ctx, "", opts)
 		if err != nil {
-			return nil, fmt.Errorf("unable to list user repos: %v", err)
+			return nil, fmt.Errorf("unable to list user repos: %w", err)
 		}
 
 		r = append(r, repos...)

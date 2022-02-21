@@ -405,7 +405,7 @@ func UpdateStep(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for step %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to decode JSON for step %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 

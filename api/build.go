@@ -999,7 +999,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to update repo for ensuring counter is incremented
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %v", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
@@ -1254,7 +1254,7 @@ func DeleteBuild(c *gin.Context) {
 	// send API call to remove the build
 	err := database.FromContext(c).DeleteBuild(b.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete build %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to delete build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -1297,7 +1297,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, nil, nil)
 
-		return fmt.Errorf("unable to create new build for %s: %v", r.GetFullName(), err)
+		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to capture the created build

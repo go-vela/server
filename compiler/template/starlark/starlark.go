@@ -138,7 +138,7 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("%s: %v", ErrUnableToConvertStarlark, value)
+	return nil, fmt.Errorf("%w: %v", ErrUnableToConvertStarlark, value)
 }
 
 // writeJSON takes an starlark input and return the valid JSON
@@ -269,7 +269,7 @@ func writeJSON(out *bytes.Buffer, v starlark.Value) error {
 			logrus.Error(err)
 		}
 	default:
-		return fmt.Errorf("%s: %v", ErrUnableToConvertJSON, v)
+		return fmt.Errorf("%w: %v", ErrUnableToConvertJSON, v)
 	}
 
 	return nil

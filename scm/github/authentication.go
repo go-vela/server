@@ -132,7 +132,8 @@ func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 	// check if the provided token was created by Vela
 	_, resp, err := client.Authorizations.Check(context.Background(), c.config.ClientID, token)
 	// check if the error is of type ErrorResponse
-	if gerr, ok := err.(*github.ErrorResponse); ok {
+	var gerr *github.ErrorResponse
+	if errors.As(err, &gerr) {
 		// check the status code
 		switch gerr.Response.StatusCode {
 		// 404 is expected when non vela token is used

@@ -885,7 +885,7 @@ func DeleteRepo(c *gin.Context) {
 	// Comment out actual delete until delete mechanism is fleshed out
 	// err = database.FromContext(c).DeleteRepo(r.ID)
 	// if err != nil {
-	// 	retErr := fmt.Errorf("Error while deleting repo %s: %v", r.FullName, err)
+	// 	retErr := fmt.Errorf("Error while deleting repo %s: %w", r.FullName, err)
 	// 	util.HandleError(c, http.StatusInternalServerError, retErr)
 	// 	return
 	// }
