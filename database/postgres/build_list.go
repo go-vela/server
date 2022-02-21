@@ -53,8 +53,6 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 		filters["source"] = deployment
 	}
 	// send query to the database and store result in variable
-	//
-	// nolint: gomnd // ignore magic number
 	err := c.Postgres.
 		Table(constants.TableBuild).
 		Select("*").

@@ -281,8 +281,6 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	//
 	// sending an API request to GitHub with no
 	// payload provided yields a default of `{}`.
-	//
-	// nolint: gomnd // ignore magic number
 	if len(payload.GetDeployment().Payload) > 2 {
 		deployPayload := make(map[string]string)
 		// unmarshal the payload into the expected map[string]string format

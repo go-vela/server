@@ -83,8 +83,8 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateBuild represents the API handler to
-// create a build in the configured backend.
+// CreateBuild represents the API handler to create a build in the configured backend.
+// nolint: funlen // ignore statement count
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -303,7 +303,6 @@ func CreateBuild(c *gin.Context) {
 
 // skipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
-//
 // nolint: goconst // ignore init and clone constants
 func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
@@ -312,7 +311,6 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
-	// nolint: gomnd // ignore magic number
 	if len(p.Stages) == 2 {
 		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
 			return "skipping build since only init and clone stages found"
@@ -816,8 +814,8 @@ func GetBuild(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// RestartBuild represents the API handler to
-// restart an existing build in the configured backend.
+// RestartBuild represents the API handler to restart an existing build in the configured backend.
+// nolint: funlen // ignore statement count
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -1410,8 +1408,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CancelBuild represents the API handler to
-// cancel a running build.
+// CancelBuild represents the API handler to cancel a running build.
+// nolint: funlen // ignore statement count
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

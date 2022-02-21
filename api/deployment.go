@@ -203,8 +203,6 @@ func GetDeployments(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo

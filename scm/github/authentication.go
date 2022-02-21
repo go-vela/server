@@ -38,8 +38,6 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	c.Logger.Trace("processing login request")
 
 	// generate a random string for creating the OAuth state
-	//
-	// nolint: gomnd // ignore magic number
 	oAuthState, err := random.GenerateRandomString(32)
 	if err != nil {
 		return "", err
