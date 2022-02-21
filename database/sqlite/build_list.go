@@ -160,8 +160,8 @@ func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{
 	err = c.Sqlite.
 		Table(constants.TableBuild).
 		Where("repo_id = ?", r.GetID()).
-		Where("started < ?", before).
-		Where("started > ?", after).
+		Where("created < ?", before).
+		Where("created > ?", after).
 		Where(filters).
 		Order("number DESC").
 		Limit(perPage).

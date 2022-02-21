@@ -445,14 +445,14 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
-	_buildOne.SetStarted(1)
+	_buildOne.SetCreated(1)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
-	_buildTwo.SetStarted(2)
+	_buildTwo.SetCreated(2)
 
 	_repo := testRepo()
 	_repo.SetID(1)

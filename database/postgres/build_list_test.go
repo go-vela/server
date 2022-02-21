@@ -373,14 +373,14 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
-	_buildOne.SetStarted(1)
+	_buildOne.SetCreated(1)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
-	_buildTwo.SetStarted(2)
+	_buildTwo.SetCreated(2)
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -407,11 +407,11 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	// create expected return in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
-	).AddRow(1, 1, 1, 0, "", "", "", 0, 0, 1, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(2, 1, 2, 0, "", "", "", 0, 0, 2, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+	).AddRow(1, 1, 1, 0, "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
+		AddRow(2, 1, 2, 0, "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND started < $2 AND started > $3 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
