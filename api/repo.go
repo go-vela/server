@@ -174,7 +174,6 @@ func CreateRepo(c *gin.Context) {
 		if input.GetPipelineType() != constants.PipelineTypeYAML &&
 			input.GetPipelineType() != constants.PipelineTypeGo &&
 			input.GetPipelineType() != constants.PipelineTypeStarlark {
-
 			retErr := fmt.Errorf("unable to create new repo %s: invalid pipeline_type provided %s", r.GetFullName(), input.GetPipelineType())
 
 			util.HandleError(c, http.StatusBadRequest, retErr)

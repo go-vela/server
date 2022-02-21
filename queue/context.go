@@ -56,7 +56,7 @@ func WithContext(c context.Context, s Service) context.Context {
 	//
 	// https://pkg.go.dev/context?tab=doc#WithValue
 	//
-	// nolint: golint,staticcheck // ignore using string with context value
+	// nolint: golint,staticcheck,revive // ignore using string with context value
 	return context.WithValue(c, key, s)
 }
 

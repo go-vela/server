@@ -144,7 +144,6 @@ func MustSecretAdmin() gin.HandlerFunc {
 				}
 
 				if !strings.EqualFold(perm, "admin") {
-
 					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
 
 					util.HandleError(c, http.StatusUnauthorized, retErr)
