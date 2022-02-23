@@ -533,7 +533,7 @@ func expandPipeline(ctx *gin.Context, pipeline *yaml.Build, comp compiler.Engine
 
 	if len(pipeline.Stages) > 0 {
 		// inject the templates into the stages
-		pipeline.Stages, pipeline.Secrets, pipeline.Services, pipeline.Environment, err = comp.ExpandStages(pipeline, templates)
+		pipeline, err = comp.ExpandStages(pipeline, templates)
 		if err != nil {
 			return fmt.Errorf("unable to expand stages in pipeline configuration for %s: %w", repoName(ctx), err)
 		}
@@ -548,7 +548,7 @@ func expandPipeline(ctx *gin.Context, pipeline *yaml.Build, comp compiler.Engine
 		}
 	} else {
 		// inject the templates into the steps
-		pipeline.Steps, pipeline.Secrets, pipeline.Services, pipeline.Environment, err = comp.ExpandSteps(pipeline, templates)
+		pipeline, err = comp.ExpandStages(pipeline, templates)
 		if err != nil {
 			return fmt.Errorf("unable to expand steps in pipeline configuration for %s: %w", repoName(ctx), err)
 		}
