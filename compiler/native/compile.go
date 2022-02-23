@@ -67,6 +67,9 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
+	// TODO: do we need to make changes to account for the modification service?
+	// TODO: do we need to make changes to account for global environment functionality?
+	// TODO: do we need to make changes to account for platform template variables? (i.e. Render() functions)
 	if p.Metadata.RenderInline {
 		switch {
 		case len(p.Stages) > 0:
