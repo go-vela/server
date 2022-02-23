@@ -14,13 +14,13 @@ import (
 	"github.com/buildkite/yaml"
 )
 
-// RenderStep combines the template with the step in the yaml pipeline.
+// Render combines the template with the step in the yaml pipeline.
 // nolint: lll // ignore long line length due to return args
-func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice, types.ServiceSlice, raw.StringSliceMap, error) {
+func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (types.StepSlice, types.SecretSlice, types.ServiceSlice, raw.StringSliceMap, error) {
 	buffer := new(bytes.Buffer)
 	config := new(types.Build)
 
-	velaFuncs := funcHandler{envs: convertPlatformVars(s.Environment, s.Name)}
+	velaFuncs := funcHandler{envs: convertPlatformVars(environment, name)}
 	templateFuncMap := map[string]interface{}{
 		"vela":   velaFuncs.returnPlatformVar,
 		"toYaml": toYAML,
@@ -36,17 +36,17 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 	// parse the template with Masterminds/sprig functions
 	//
 	// https://pkg.go.dev/github.com/Masterminds/sprig?tab=doc#TxtFuncMap
-	t, err := template.New(s.Name).Funcs(sf).Funcs(templateFuncMap).Parse(tmpl)
+	t, err := template.New(name).Funcs(sf).Funcs(templateFuncMap).Parse(tmpl)
 	if err != nil {
 		// nolint: lll // ignore long line length due to return arguments
-		return types.StepSlice{}, types.SecretSlice{}, types.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("unable to parse template %s: %v", s.Template.Name, err)
+		return types.StepSlice{}, types.SecretSlice{}, types.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("unable to parse template %s: %v", tName, err)
 	}
 
 	// apply the variables to the parsed template
-	err = t.Execute(buffer, s.Template.Variables)
+	err = t.Execute(buffer, variables)
 	if err != nil {
 		// nolint: lll // ignore long line length due to return arguments
-		return types.StepSlice{}, types.SecretSlice{}, types.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("unable to execute template %s: %v", s.Template.Name, err)
+		return types.StepSlice{}, types.SecretSlice{}, types.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("unable to execute template %s: %v", tName, err)
 	}
 
 	// unmarshal the template to the pipeline
@@ -58,7 +58,7 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 
 	// ensure all templated steps have template prefix
 	for index, newStep := range config.Steps {
-		config.Steps[index].Name = fmt.Sprintf("%s_%s", s.Name, newStep.Name)
+		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
 	return config.Steps, config.Secrets, config.Services, config.Environment, nil
