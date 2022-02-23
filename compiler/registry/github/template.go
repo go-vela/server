@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-vela/types/library"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v42/github"
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.

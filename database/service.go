@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -42,19 +42,17 @@ type Service interface {
 	GetDeploymentBuildList(string) ([]*library.Build, error)
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
-	GetRepoBuildList(*library.Repo, map[string]string, int, int) ([]*library.Build, int64, error)
+	// nolint: lll // ignore long line length
+	GetRepoBuildList(*library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
 	// GetOrgBuildList defines a function that
 	// gets a list of builds by org.
-	GetOrgBuildList(string, map[string]string, int, int) ([]*library.Build, int64, error)
+	GetOrgBuildList(string, map[string]interface{}, int, int) ([]*library.Build, int64, error)
 	// GetRepoBuildCount defines a function that
 	// gets the count of builds by repo ID.
-	GetRepoBuildCount(*library.Repo, map[string]string) (int64, error)
+	GetRepoBuildCount(*library.Repo, map[string]interface{}) (int64, error)
 	// GetOrgBuildCount defines a function that
 	// gets the count of builds by org.
-	GetOrgBuildCount(string, map[string]string) (int64, error)
-	// GetRepoBuildCountByEvent defines a function that
-	// gets the count of builds by repo ID and event type.
-	GetRepoBuildCountByEvent(*library.Repo, string) (int64, error)
+	GetOrgBuildCount(string, map[string]interface{}) (int64, error)
 	// GetPendingAndRunningBuilds defines a function that
 	// gets the list of pending and running builds.
 	GetPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)

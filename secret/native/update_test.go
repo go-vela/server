@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -15,6 +15,22 @@ import (
 
 func TestNative_Update(t *testing.T) {
 	// setup types
+	original := new(library.Secret)
+	original.SetID(1)
+	original.SetOrg("foo")
+	original.SetRepo("bar")
+	original.SetTeam("")
+	original.SetName("baz")
+	original.SetValue("secretValue")
+	original.SetType("repo")
+	original.SetImages([]string{"foo", "baz"})
+	original.SetEvents([]string{"foob", "bar"})
+	original.SetAllowCommand(true)
+	original.SetCreatedAt(1)
+	original.SetCreatedBy("user")
+	original.SetUpdatedAt(1)
+	original.SetUpdatedBy("user")
+
 	want := new(library.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
@@ -40,7 +56,7 @@ func TestNative_Update(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateSecret(want)
+	_ = db.CreateSecret(original)
 
 	// run test
 	s, err := New(

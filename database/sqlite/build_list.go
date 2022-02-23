@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -77,8 +77,9 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 }
 
 // GetOrgBuildList gets a list of all builds by org name from the database.
+//
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetOrgBuildList(org string, filters map[string]string, page int, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, page int, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing builds for org %s from the database", org)
@@ -130,7 +131,7 @@ func (c *client) GetOrgBuildList(org string, filters map[string]string, page int
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]string, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -159,6 +160,8 @@ func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]string, pa
 	err = c.Sqlite.
 		Table(constants.TableBuild).
 		Where("repo_id = ?", r.GetID()).
+		Where("created < ?", before).
+		Where("created > ?", after).
 		Where(filters).
 		Order("number DESC").
 		Limit(perPage).

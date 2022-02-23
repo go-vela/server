@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -121,7 +121,7 @@ var (
 				ID:          "step_github_octocat_1_clone",
 				Directory:   "/home/github/octocat",
 				Environment: map[string]string{"FOO": "bar"},
-				Image:       "target/vela-git:v0.3.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",

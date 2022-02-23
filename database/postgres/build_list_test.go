@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -7,8 +7,9 @@ package postgres
 import (
 	"reflect"
 	"testing"
+	"time"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
@@ -195,7 +196,9 @@ func TestPostgres_Client_GetOrgBuildList(t *testing.T) {
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
+
 	// run tests
 	for _, test := range tests {
 		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
@@ -263,8 +266,11 @@ func TestPostgres_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
-	filters := map[string]string{}
-	filters["visibility"] = "public"
+
+	filters := map[string]interface{}{
+		"visibility": "public",
+	}
+
 	// run tests
 	for _, test := range tests {
 		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
@@ -333,8 +339,11 @@ func TestPostgres_Client_GetOrgBuildListByEvent(t *testing.T) {
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		got, _, err := _database.GetOrgBuildList("foo", filters, 1, 10)
@@ -364,12 +373,14 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetCreated(1)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetCreated(2)
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -388,7 +399,7 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(3)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1`).WillReturnRows(_rows)
@@ -396,28 +407,32 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	// create expected return in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
-	).AddRow(1, 1, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(2, 1, 2, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+	).AddRow(1, 1, 1, 0, "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
+		AddRow(2, 1, 2, 0, "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
 		failure bool
+		before  int64
+		after   int64
 		want    []*library.Build
 	}{
 		{
 			failure: false,
+			before:  time.Now().UTC().Unix(),
+			after:   0,
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
-		got, _, err := _database.GetRepoBuildList(_repo, filters, 1, 10)
+		got, _, err := _database.GetRepoBuildList(_repo, filters, test.before, test.after, 1, 10)
 
 		if test.failure {
 			if err == nil {

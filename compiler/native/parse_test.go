@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -237,12 +237,14 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 			&yaml.Stage{
 				Name:  "install",
 				Needs: raw.StringSlice{"clone"},
+				Environment: map[string]string{
+					"GRADLE_USER_HOME": ".gradle",
+				},
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Commands: []string{"./gradlew downloadDependencies"},
 						Environment: map[string]string{
-							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
-							"GRADLE_USER_HOME": ".gradle",
+							"GRADLE_OPTS": "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 						},
 						Image: "openjdk:latest",
 						Name:  "install",
@@ -253,6 +255,9 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 			&yaml.Stage{
 				Name:  "test",
 				Needs: raw.StringSlice{"install", "clone"},
+				Environment: map[string]string{
+					"GRADLE_USER_HOME": "willBeOverwrittenInStep",
+				},
 				Steps: yaml.StepSlice{
 					&yaml.Step{
 						Commands: []string{"./gradlew check"},

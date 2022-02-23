@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -53,7 +53,7 @@ func TestNative_CloneStage(t *testing.T) {
 						Name: "clone",
 						Steps: yaml.StepSlice{
 							&yaml.Step{
-								Image: "target/vela-git:v0.4.0",
+								Image: "target/vela-git:v0.5.1",
 								Name:  "clone",
 								Pull:  "not_present",
 							},
@@ -142,7 +142,7 @@ func TestNative_CloneStep(t *testing.T) {
 				Version: "v1",
 				Steps: yaml.StepSlice{
 					&yaml.Step{
-						Image: "target/vela-git:v0.4.0",
+						Image: "target/vela-git:v0.5.1",
 						Name:  "clone",
 						Pull:  "not_present",
 					},

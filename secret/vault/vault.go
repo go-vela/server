@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,7 +51,6 @@ type (
 		config *config
 		AWS    *awsCfg
 		Vault  *api.Client
-		TTL    time.Duration
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
 	}
@@ -120,7 +120,7 @@ func New(opts ...ClientOpt) (*client, error) {
 		// initialize the Vault client
 		err = c.initialize()
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to initialize vault token")
 		}
 
 		// start the routine to refresh the token
@@ -130,7 +130,9 @@ func New(opts ...ClientOpt) (*client, error) {
 	return c, nil
 }
 
-// nolint: funlen // ignore function length due to comments and conditionals
+// secretFromVault is a helper function to convert a HashiCorp Vault secret to a Vela secret.
+//
+// nolint: gocyclo,funlen // ignore cyclomatic complexity and function length due to conditionals
 func secretFromVault(vault *api.Secret) *library.Secret {
 	s := new(library.Secret)
 
@@ -233,57 +235,114 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		}
 	}
 
+	// set created_at if found in Vault secret
+	v, ok = data["created_at"]
+	if ok {
+		createdAt, ok := v.(int64)
+		if ok {
+			s.SetCreatedAt(createdAt)
+		}
+	}
+
+	// set created_by if found in Vault secret
+	v, ok = data["created_by"]
+	if ok {
+		createdBy, ok := v.(string)
+		if ok {
+			s.SetCreatedBy(createdBy)
+		}
+	}
+
+	// set updated_at if found in Vault secret
+	v, ok = data["updated_at"]
+	if ok {
+		updatedAt, ok := v.(int64)
+		if ok {
+			s.SetUpdatedAt(updatedAt)
+		}
+	}
+
+	// set updated_by if found in Vault secret
+	v, ok = data["updated_by"]
+	if ok {
+		updatedBy, ok := v.(string)
+		if ok {
+			s.SetUpdatedBy(updatedBy)
+		}
+	}
+
 	return s
 }
 
+// vaultFromSecret is a helper function to convert a Vela secret to a HashiCorp Vault secret.
 func vaultFromSecret(s *library.Secret) *api.Secret {
 	data := make(map[string]interface{})
 	vault := new(api.Secret)
 	vault.Data = data
 
-	// set events if found in Database secret
+	// set events if found in Vela secret
 	if len(s.GetEvents()) > 0 {
 		vault.Data["events"] = s.GetEvents()
 	}
 
-	// set images if found in Database secret
+	// set images if found in Vela secret
 	if len(s.GetImages()) > 0 {
 		vault.Data["images"] = s.GetImages()
 	}
 
-	// set name if found in Database secret
+	// set name if found in Vela secret
 	if len(s.GetName()) > 0 {
 		vault.Data["name"] = s.GetName()
 	}
 
-	// set org if found in Database secret
+	// set org if found in Vela secret
 	if len(s.GetOrg()) > 0 {
 		vault.Data["org"] = s.GetOrg()
 	}
 
-	// set repo if found in Database secret
+	// set repo if found in Vela secret
 	if len(s.GetRepo()) > 0 {
 		vault.Data["repo"] = s.GetRepo()
 	}
 
-	// set team if found in Database secret
+	// set team if found in Vela secret
 	if len(s.GetTeam()) > 0 {
 		vault.Data["team"] = s.GetTeam()
 	}
 
-	// set type if found in Database secret
+	// set type if found in Vela secret
 	if len(s.GetType()) > 0 {
 		vault.Data["type"] = s.GetType()
 	}
 
-	// set value if found in Database secret
+	// set value if found in Vela secret
 	if len(s.GetValue()) > 0 {
 		vault.Data["value"] = s.GetValue()
 	}
 
-	// set allow_command if found in Database secret
+	// set allow_command if found in Vela secret
 	if s.AllowCommand != nil {
 		vault.Data["allow_command"] = s.GetAllowCommand()
+	}
+
+	// set created_at if found in Vela secret
+	if s.GetCreatedAt() > 0 {
+		vault.Data["created_at"] = s.GetCreatedAt()
+	}
+
+	// set created_by if found in Vela secret
+	if len(s.GetCreatedBy()) > 0 {
+		vault.Data["created_by"] = s.GetCreatedBy()
+	}
+
+	// set updated_at if found in Vela secret
+	if s.GetUpdatedAt() > 0 {
+		vault.Data["updated_at"] = s.GetUpdatedAt()
+	}
+
+	// set updated_by if found in Vela secret
+	if len(s.GetUpdatedBy()) > 0 {
+		vault.Data["updated_by"] = s.GetUpdatedBy()
 	}
 
 	return vault

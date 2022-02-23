@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v42/github"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2"
@@ -24,6 +24,7 @@ const (
 	eventPullRequest  = "pull_request"
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
+	eventRepository   = "repository"
 )
 
 var ctx = context.Background()

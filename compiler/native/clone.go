@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -11,7 +11,7 @@ import (
 
 const (
 	// default image for clone process.
-	cloneImage = "target/vela-git:v0.4.0"
+	cloneImage = "target/vela-git:v0.5.1"
 	// default name for clone stage.
 	cloneStageName = "clone"
 	// default name for clone step.

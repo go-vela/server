@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -56,6 +56,14 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	initEnv := environment(nil, m, nil, nil)
 	initEnv["HELLO"] = "Hello, Global Environment"
 
+	stageEnvInstall := environment(nil, m, nil, nil)
+	stageEnvInstall["HELLO"] = "Hello, Global Environment"
+	stageEnvInstall["GRADLE_USER_HOME"] = ".gradle"
+
+	stageEnvTest := environment(nil, m, nil, nil)
+	stageEnvTest["HELLO"] = "Hello, Global Environment"
+	stageEnvTest["GRADLE_USER_HOME"] = "willBeOverwrittenInStep"
+
 	cloneEnv := environment(nil, m, nil, nil)
 	cloneEnv["HELLO"] = "Hello, Global Environment"
 
@@ -99,7 +107,8 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 		},
 		Stages: pipeline.StageSlice{
 			&pipeline.Stage{
-				Name: "init",
+				Name:        "init",
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_init_init",
@@ -113,13 +122,14 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name: "clone",
+				Name:        "clone",
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_clone_clone",
 						Directory:   "/vela/src/foo//",
 						Environment: cloneEnv,
-						Image:       "target/vela-git:v0.4.0",
+						Image:       "target/vela-git:v0.5.1",
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
@@ -127,8 +137,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "install",
-				Needs: []string{"clone"},
+				Name:        "install",
+				Needs:       []string{"clone"},
+				Environment: stageEnvInstall,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_install_install",
@@ -144,8 +155,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "test",
-				Needs: []string{"install", "clone"},
+				Name:        "test",
+				Needs:       []string{"install", "clone"},
+				Environment: stageEnvTest,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_test_test",
@@ -161,8 +173,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "build",
-				Needs: []string{"install", "clone"},
+				Name:        "build",
+				Needs:       []string{"install", "clone"},
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_build_build",
@@ -178,8 +191,9 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "publish",
-				Needs: []string{"build", "clone"},
+				Name:        "publish",
+				Needs:       []string{"build", "clone"},
+				Environment: initEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_publish_publish",
@@ -471,7 +485,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: cloneEnv,
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -666,7 +680,8 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 		},
 		Stages: pipeline.StageSlice{
 			&pipeline.Stage{
-				Name: "init",
+				Name:        "init",
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_init_init",
@@ -680,13 +695,14 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name: "clone",
+				Name:        "clone",
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_clone_clone",
 						Directory:   "/vela/src/foo//",
 						Environment: setupEnv,
-						Image:       "target/vela-git:v0.4.0",
+						Image:       "target/vela-git:v0.5.1",
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
@@ -694,8 +710,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "gradle",
-				Needs: []string{"clone"},
+				Name:        "gradle",
+				Needs:       []string{"clone"},
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_gradle_sample_install",
@@ -733,8 +750,9 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				},
 			},
 			&pipeline.Stage{
-				Name:  "publish",
-				Needs: []string{"gradle", "clone"},
+				Name:        "publish",
+				Needs:       []string{"gradle", "clone"},
+				Environment: setupEnv,
 				Steps: pipeline.ContainerSlice{
 					&pipeline.Container{
 						ID:          "__0_publish_publish",
@@ -937,7 +955,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: setupEnv,
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1129,7 +1147,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1280,7 +1298,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1319,7 +1337,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: cloneEnv,
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",
@@ -1434,7 +1452,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: defaultEnv,
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1478,7 +1496,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: defaultGoEnv,
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1522,7 +1540,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: defaultStarlarkEnv,
-				Image:       "target/vela-git:v0.4.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1706,7 +1724,7 @@ func Test_client_modifyConfig(t *testing.T) {
 			},
 			&yaml.Step{
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.3.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Pull:        "not_present",
 			},
@@ -1739,7 +1757,7 @@ func Test_client_modifyConfig(t *testing.T) {
 			},
 			&yaml.Step{
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.3.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Pull:        "not_present",
 			},

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -8,6 +8,7 @@ import (
 	"log"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/go-vela/server/database/sqlite/ddl"
 	"github.com/go-vela/types/constants"
@@ -206,7 +207,9 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -298,7 +301,8 @@ func TestSqlite_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
-	filters := map[string]string{}
+
+	filters := map[string]interface{}{}
 
 	repos := []*library.Repo{_repoOne, _repoTwo}
 	// run tests
@@ -387,8 +391,11 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 			want:    []*library.Build{_buildOne},
 		},
 	}
-	filters := map[string]string{}
-	filters["event"] = "push"
+
+	filters := map[string]interface{}{
+		"event": "push",
+	}
+
 	// run tests
 	for _, test := range tests {
 		// defer cleanup of the repos table
@@ -438,12 +445,14 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetCreated(1)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetCreated(2)
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -472,7 +481,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 		},
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
@@ -496,7 +505,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 			}
 		}
 
-		got, _, err := _database.GetRepoBuildList(_repo, filters, 1, 10)
+		got, _, err := _database.GetRepoBuildList(_repo, filters, time.Now().UTC().Unix(), 0, 1, 10)
 
 		if test.failure {
 			if err == nil {

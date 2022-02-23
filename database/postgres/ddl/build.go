@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -17,7 +17,7 @@ builds (
 	parent         INTEGER,
 	event          VARCHAR(250),
 	status         VARCHAR(250),
-	error          VARCHAR(500),
+	error          VARCHAR(1000),
 	enqueued       INTEGER,
 	created        INTEGER,
 	started        INTEGER,

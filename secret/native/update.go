@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -61,6 +61,12 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 	if s.AllowCommand != nil {
 		sec.SetAllowCommand(s.GetAllowCommand())
 	}
+
+	// update updated_at if set
+	sec.SetUpdatedAt(s.GetUpdatedAt())
+
+	// update updated_by if set
+	sec.SetUpdatedBy(s.GetUpdatedBy())
 
 	return c.Database.UpdateSecret(sec)
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -134,6 +134,32 @@ func CreateBuild(c *gin.Context) {
 	u, err = database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// check if the number of pending and running builds exceeds the limit for the repo
+	if builds >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -280,6 +306,7 @@ func CreateBuild(c *gin.Context) {
 	// publish the build to the queue
 	go publishToQueue(
 		queue.FromGinContext(c),
+		database.FromContext(c),
 		p,
 		input,
 		r,
@@ -350,6 +377,26 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   - deployment
 //   - comment
 // - in: query
+//   name: commit
+//   description: Filter builds based on the commit hash
+//   type: string
+// - in: query
+//   name: branch
+//   description: Filter builds by branch
+//   type: string
+// - in: query
+//   name: status
+//   description: Filter by build status
+//   type: string
+//   enum:
+//   - canceled
+//   - error
+//   - failure
+//   - killed
+//   - pending
+//   - running
+//   - success
+// - in: query
 //   name: page
 //   description: The page of results to retrieve
 //   type: integer
@@ -360,6 +407,16 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   type: integer
 //   maximum: 100
 //   default: 10
+// - in: query
+//   name: before
+//   description: filter builds created before a certain time
+//   type: integer
+//   default: 1
+// - in: query
+//   name: after
+//   description: filter builds created after a certain time
+//   type: integer
+//   default: 0
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -392,7 +449,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]string{}
+		filters = map[string]interface{}{}
 		b       []*library.Build
 		t       int64
 	)
@@ -417,6 +474,8 @@ func GetBuilds(c *gin.Context) {
 	event := c.Query("event")
 	// capture the status type parameter
 	status := c.Query("status")
+	// capture the commit hash parameter
+	commit := c.Query("commit")
 
 	// check if branch filter was provided
 	if len(branch) > 0 {
@@ -457,6 +516,12 @@ func GetBuilds(c *gin.Context) {
 		filters["status"] = status
 	}
 
+	// check if commit hash filter was provided
+	if len(commit) > 0 {
+		// add commit to filters map
+		filters["commit"] = commit
+	}
+
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
@@ -484,7 +549,33 @@ func GetBuilds(c *gin.Context) {
 	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, page, perPage)
+	// capture before query parameter if present, default to now
+	//
+	// nolint: gomnd, lll // ignore magic number and long line length
+	before, err := strconv.ParseInt(c.DefaultQuery("before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert before query parameter for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture after query parameter if present, default to 0
+	//
+	// nolint: gomnd // ignore magic number
+	after, err := strconv.ParseInt(c.DefaultQuery("after", "0"), 10, 64)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert after query parameter for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
@@ -561,7 +652,7 @@ func GetBuilds(c *gin.Context) {
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
-		filters = map[string]string{}
+		filters = map[string]interface{}{}
 		b       []*library.Build
 		t       int64
 	)
@@ -821,6 +912,32 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
+	// create SQL filters for querying pending and running builds for repo
+	filters := map[string]interface{}{
+		"status": []string{constants.StatusPending, constants.StatusRunning},
+	}
+
+	// send API call to capture the number of pending or running builds for the repo
+	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// check if the number of pending and running builds exceeds the limit for the repo
+	if builds >= r.GetBuildLimit() {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// send API call to capture the last build for the repo
 	lastBuild, err := database.FromContext(c).GetLastBuild(r)
 	if err != nil {
@@ -971,6 +1088,7 @@ func RestartBuild(c *gin.Context) {
 	// publish the build to the queue
 	go publishToQueue(
 		queue.FromGinContext(c),
+		database.FromContext(c),
 		p,
 		b,
 		r,
