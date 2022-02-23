@@ -67,92 +67,27 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
-	if len(p.Stages) > 0 {
-		// check if the pipeline disabled the clone
-		if p.Metadata.Clone == nil || *p.Metadata.Clone {
-			// inject the clone stage
-			p, err = c.CloneStage(p)
-			if err != nil {
-				return nil, err
-			}
+	if p.Metadata.RenderInline {
+		switch {
+		case len(p.Stages) > 0:
+			return c.compileStages(p, tmpls, r)
+		case len(p.Steps) > 0:
+			return c.compileSteps(p, tmpls, r)
+		default:
+			// do stuff ? wat do?
+
 		}
-
-		// inject the init stage
-		p, err = c.InitStage(p)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the templates into the stages
-		p.Stages, p.Secrets, p.Services, p.Environment, err = c.ExpandStages(p, tmpls)
-		if err != nil {
-			return nil, err
-		}
-
-		if c.ModificationService.Endpoint != "" {
-			// send config to external endpoint for modification
-			p, err = c.modifyConfig(p, c.build, c.repo)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		// validate the yaml configuration
-		err = c.Validate(p)
-		if err != nil {
-			return nil, err
-		}
-
-		// Create some default global environment inject vars
-		// these are used below to overwrite to an empty
-		// map if they should not be injected into a container
-		envGlobalServices, envGlobalSecrets, envGlobalSteps := p.Environment, p.Environment, p.Environment
-
-		if !p.Metadata.HasEnvironment("services") {
-			envGlobalServices = make(raw.StringSliceMap)
-		}
-
-		if !p.Metadata.HasEnvironment("secrets") {
-			envGlobalSecrets = make(raw.StringSliceMap)
-		}
-
-		if !p.Metadata.HasEnvironment("steps") {
-			envGlobalSteps = make(raw.StringSliceMap)
-		}
-
-		// inject the environment variables into the services
-		p.Services, err = c.EnvironmentServices(p.Services, envGlobalServices)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the environment variables into the secrets
-		p.Secrets, err = c.EnvironmentSecrets(p.Secrets, envGlobalSecrets)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the environment variables into the stages
-		p.Stages, err = c.EnvironmentStages(p.Stages, envGlobalSteps)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the substituted environment variables into the stages
-		p.Stages, err = c.SubstituteStages(p.Stages)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the scripts into the stages
-		p.Stages, err = c.ScriptStages(p.Stages)
-		if err != nil {
-			return nil, err
-		}
-
-		// return executable representation
-		return c.TransformStages(r, p)
 	}
+
+	if len(p.Stages) > 0 {
+		return c.compileStages(p, tmpls, r)
+	}
+
+	return c.compileSteps(p, tmpls, r)
+}
+
+func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
+	var err error
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
@@ -170,7 +105,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	}
 
 	// inject the templates into the steps
-	p.Steps, p.Secrets, p.Services, p.Environment, err = c.ExpandSteps(p, tmpls)
+	p, err = c.ExpandSteps(p, tmpls)
 	if err != nil {
 		return nil, err
 	}
@@ -238,6 +173,95 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 
 	// return executable representation
 	return c.TransformSteps(r, p)
+}
+
+func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
+	var err error
+
+	// check if the pipeline disabled the clone
+	if p.Metadata.Clone == nil || *p.Metadata.Clone {
+		// inject the clone stage
+		p, err = c.CloneStage(p)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// inject the init stage
+	p, err = c.InitStage(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the templates into the stages
+	p, err = c.ExpandStages(p, tmpls)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.ModificationService.Endpoint != "" {
+		// send config to external endpoint for modification
+		p, err = c.modifyConfig(p, c.build, c.repo)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// validate the yaml configuration
+	err = c.Validate(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create some default global environment inject vars
+	// these are used below to overwrite to an empty
+	// map if they should not be injected into a container
+	envGlobalServices, envGlobalSecrets, envGlobalSteps := p.Environment, p.Environment, p.Environment
+
+	if !p.Metadata.HasEnvironment("services") {
+		envGlobalServices = make(raw.StringSliceMap)
+	}
+
+	if !p.Metadata.HasEnvironment("secrets") {
+		envGlobalSecrets = make(raw.StringSliceMap)
+	}
+
+	if !p.Metadata.HasEnvironment("steps") {
+		envGlobalSteps = make(raw.StringSliceMap)
+	}
+
+	// inject the environment variables into the services
+	p.Services, err = c.EnvironmentServices(p.Services, envGlobalServices)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the environment variables into the secrets
+	p.Secrets, err = c.EnvironmentSecrets(p.Secrets, envGlobalSecrets)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the environment variables into the stages
+	p.Stages, err = c.EnvironmentStages(p.Stages, envGlobalSteps)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the substituted environment variables into the stages
+	p.Stages, err = c.SubstituteStages(p.Stages)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the scripts into the stages
+	p.Stages, err = c.ScriptStages(p.Stages)
+	if err != nil {
+		return nil, err
+	}
+
+	// return executable representation
+	return c.TransformStages(r, p)
 }
 
 // errorHandler ensures the error contains the number of request attempts.

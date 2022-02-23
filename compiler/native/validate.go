@@ -18,8 +18,8 @@ func (c *client) Validate(p *yaml.Build) error {
 	}
 
 	// check that stages or steps are provided
-	if len(p.Stages) == 0 && len(p.Steps) == 0 {
-		return fmt.Errorf("no stages or steps provided")
+	if len(p.Stages) == 0 && len(p.Steps) == 0 && (!p.Metadata.RenderInline && len(p.Templates) == 0) {
+		return fmt.Errorf("no stages, steps or templates provided")
 	}
 
 	// check that stages and steps aren't provided
