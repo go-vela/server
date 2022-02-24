@@ -910,7 +910,7 @@ func Test_client_Parse(t *testing.T) {
 func Test_client_ParseRaw(t *testing.T) {
 	expected, err := ioutil.ReadFile("testdata/metadata.yml")
 	if err != nil {
-		t.Errorf("Reading file returned err: %w", err)
+		t.Errorf("Reading file returned err: %v", err)
 	}
 
 	type args struct {

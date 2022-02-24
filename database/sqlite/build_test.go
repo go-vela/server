@@ -57,7 +57,7 @@ func TestSqlite_Client_GetBuild(t *testing.T) {
 			// create the build in the database
 			err := _database.CreateBuild(test.want)
 			if err != nil {
-				t.Errorf("unable to create test build: %w", err)
+				t.Errorf("unable to create test build: %v", err)
 			}
 		}
 

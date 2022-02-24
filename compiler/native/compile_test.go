@@ -293,7 +293,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	// run test
 	yaml, err := ioutil.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
-		t.Errorf("Reading yaml file return err: %w", err)
+		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
 	type args struct {
@@ -1584,12 +1584,12 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			// run test
 			yaml, err := ioutil.ReadFile(tt.args.file)
 			if err != nil {
-				t.Errorf("Reading yaml file return err: %w", err)
+				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
 			compiler, err := New(c)
 			if err != nil {
-				t.Errorf("Creating compiler returned err: %w", err)
+				t.Errorf("Creating compiler returned err: %v", err)
 			}
 
 			compiler.WithMetadata(m)
@@ -1597,7 +1597,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 			got, err := compiler.Compile(yaml)
 			if err != nil {
-				t.Errorf("Compile returned err: %w", err)
+				t.Errorf("Compile returned err: %v", err)
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
@@ -1618,12 +1618,12 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	// run test
 	yaml, err := ioutil.ReadFile("testdata/metadata.yml")
 	if err != nil {
-		t.Errorf("Reading yaml file return err: %w", err)
+		t.Errorf("Reading yaml file return err: %v", err)
 	}
 
 	compiler, err := New(c)
 	if err != nil {
-		t.Errorf("Creating compiler returned err: %w", err)
+		t.Errorf("Creating compiler returned err: %v", err)
 	}
 
 	compiler.repo = &library.Repo{Name: &author}
