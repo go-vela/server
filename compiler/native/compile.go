@@ -67,9 +67,6 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
-	// TODO: do we need to make changes to account for the modification service?
-	// TODO: do we need to make changes to account for global environment functionality?
-	// TODO: do we need to make changes to account for platform template variables? (i.e. Render() functions)
 	if p.Metadata.RenderInline {
 		switch {
 		case len(p.Stages) > 0:
@@ -79,6 +76,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		default:
 			// TODO: improve error handling
 			newPipeline := new(yaml.Build)
+			newPipeline.Environment = p.Environment
 
 			for _, template := range p.Templates {
 				bytes, err := c.getTemplate(template, template.Name)
@@ -86,12 +84,18 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 					return nil, err
 				}
 
+				c.repo.SetPipelineType(template.Format)
 				parsed, err := c.Parse(bytes)
 				if err != nil {
 					return nil, err
 				}
 
 				switch {
+				case len(parsed.Environment) > 0:
+					for key, value := range parsed.Environment {
+						newPipeline.Environment[key] = value
+					}
+					fallthrough
 				case len(parsed.Stages) > 0:
 					// ensure all templated steps inside stages have template prefix
 					for stgIndex, newStage := range parsed.Stages {
