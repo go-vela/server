@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 	"time"
 
@@ -1125,73 +1124,8 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 	dockerEnv["PARAMETER_REPO"] = "github/octocat"
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
 
-	want := &pipeline.Build{
-		Version: "1",
-		ID:      "__0",
-		Metadata: pipeline.Metadata{
-			Clone:       true,
-			Template:    false,
-			Environment: []string{"steps", "services", "secrets"},
-		},
-		Steps: pipeline.ContainerSlice{
-			&pipeline.Container{
-				ID:          "step___0_init",
-				Directory:   "/vela/src/foo//",
-				Environment: environment(nil, m, nil, nil),
-				Image:       "#init",
-				Name:        "init",
-				Number:      1,
-				Pull:        "not_present",
-			},
-			&pipeline.Container{
-				ID:          "step___0_clone",
-				Directory:   "/vela/src/foo//",
-				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.5.1",
-				Name:        "clone",
-				Number:      2,
-				Pull:        "not_present",
-			},
-			&pipeline.Container{
-				ID:          "step___0_docker",
-				Directory:   "/vela/src/foo//",
-				Image:       "plugins/docker:18.09",
-				Environment: dockerEnv,
-				Name:        "docker",
-				Number:      3,
-				Pull:        "always",
-				Secrets: pipeline.StepSecretSlice{
-					&pipeline.StepSecret{
-						Source: "docker_username",
-						Target: "registry_username",
-					},
-					&pipeline.StepSecret{
-						Source: "docker_password",
-						Target: "registry_password",
-					},
-				},
-			},
-		},
-		Secrets: pipeline.SecretSlice{
-			&pipeline.Secret{
-				Name:   "docker_username",
-				Key:    "org/repo/docker/username",
-				Engine: "native",
-				Type:   "repo",
-				Origin: &pipeline.Container{},
-			},
-			&pipeline.Secret{
-				Name:   "docker_password",
-				Key:    "org/repo/docker/password",
-				Engine: "vault",
-				Type:   "repo",
-				Origin: &pipeline.Container{},
-			},
-		},
-	}
-
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/invalid_type.yml")
+	invalidYaml, err := ioutil.ReadFile("testdata/invalid_type.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1203,13 +1137,9 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, err := compiler.Compile(yaml)
-	if err != nil {
-		t.Errorf("Compile returned err: %v", err)
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Compile is %v, want %v", got, want)
+	_, err = compiler.Compile(invalidYaml)
+	if err == nil {
+		t.Error("Compile should have returned an err")
 	}
 }
 

@@ -59,7 +59,7 @@ func TestNative_RenderStep(t *testing.T) {
 				t.Error(err)
 			}
 
-			steps, secrets, services, environment, err := RenderStep(string(tmpl), b.Steps[0])
+			steps, secrets, services, environment, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderStep() error = %v, wantErr %v", err, tt.wantErr)
 				return
