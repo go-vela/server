@@ -22,6 +22,10 @@ import (
 //
 // nolint: lll // ignore long line length due to variable names
 func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+	if len(tmpls) == 0 {
+		return s, nil
+	}
+
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
@@ -44,6 +48,10 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 //
 // nolint: lll,funlen,gocyclo // ignore long line length due to variable names
 func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+	if len(tmpls) == 0 {
+		return s, nil
+	}
+
 	steps := yaml.StepSlice{}
 	secrets := s.Secrets
 	services := s.Services

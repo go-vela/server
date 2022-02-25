@@ -76,6 +76,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		default:
 			// TODO: improve error handling
 			newPipeline := new(yaml.Build)
+			newPipeline.Version = p.Version
 			newPipeline.Environment = p.Environment
 
 			for _, template := range p.Templates {
@@ -99,6 +100,8 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 				case len(parsed.Stages) > 0:
 					// ensure all templated steps inside stages have template prefix
 					for stgIndex, newStage := range parsed.Stages {
+						parsed.Stages[stgIndex].Name = fmt.Sprintf("%s_%s", template.Name, newStage.Name)
+
 						for index, newStep := range newStage.Steps {
 							parsed.Stages[stgIndex].Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
 						}
@@ -134,7 +137,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 				return nil, err
 			}
 
-			if len(p.Stages) > 0 {
+			if len(newPipeline.Stages) > 0 {
 				return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
 			}
 

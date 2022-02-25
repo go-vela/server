@@ -47,7 +47,7 @@ func (c *client) Parse(v interface{}) (*types.Build, error) {
 	var p *types.Build
 
 	switch c.repo.GetPipelineType() {
-	case constants.PipelineTypeGo:
+	case constants.PipelineTypeGo, "golang":
 		// expand the base configuration
 		parsedRaw, err := c.ParseRaw(v)
 		if err != nil {
