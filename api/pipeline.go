@@ -443,7 +443,7 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 		WithRepo(repo).
 		WithUser(user)
 
-	pipeline, err := comp.Parse(config)
+	pipeline, err := comp.Parse(config, repo.GetPipelineType())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		return nil, nil, fmt.Errorf("unable to parse pipeline configuration for %s: %w", repoName(ctx), err)

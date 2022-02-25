@@ -43,10 +43,10 @@ func (c *client) ParseRaw(v interface{}) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
-func (c *client) Parse(v interface{}) (*types.Build, error) {
+func (c *client) Parse(v interface{}, pipelineType string) (*types.Build, error) {
 	var p *types.Build
 
-	switch c.repo.GetPipelineType() {
+	switch pipelineType {
 	case constants.PipelineTypeGo, "golang":
 		// expand the base configuration
 		parsedRaw, err := c.ParseRaw(v)

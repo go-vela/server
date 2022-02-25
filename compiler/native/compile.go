@@ -42,7 +42,7 @@ type ModifyResponse struct {
 //
 // nolint: gocyclo,funlen // ignore function length due to comments
 func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
-	p, err := c.Parse(v)
+	p, err := c.Parse(v, c.repo.GetPipelineType())
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +85,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 					return nil, err
 				}
 
-				c.repo.SetPipelineType(template.Format)
-				parsed, err := c.Parse(bytes)
+				parsed, err := c.Parse(bytes, template.Format)
 				if err != nil {
 					return nil, err
 				}
