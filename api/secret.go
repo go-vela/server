@@ -609,16 +609,6 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
-	// reject secrets with solely whitespace characters as its value
-	trimmed := strings.TrimSpace(input.GetValue())
-	if len(trimmed) == 0 {
-		retErr := fmt.Errorf("secret value must contain non-whitespace characters")
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
 	// update secret fields if provided
 	input.SetName(s)
 	input.SetOrg(o)
