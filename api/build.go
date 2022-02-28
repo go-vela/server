@@ -5,6 +5,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -1460,7 +1461,7 @@ func CancelBuild(c *gin.Context) {
 			// set the API endpoint path we send the request to
 			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
 
-			req, err := http.NewRequest("DELETE", u, nil)
+			req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
 			if err != nil {
 				retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
 				util.HandleError(c, http.StatusBadRequest, retErr)

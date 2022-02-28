@@ -5,6 +5,7 @@
 package executors
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"time"
@@ -45,7 +46,7 @@ func Establish() gin.HandlerFunc {
 		client.Timeout = 30 * time.Second
 		endpoint := fmt.Sprintf("%s/api/v1/executors", w.GetAddress())
 
-		req, err := http.NewRequest("GET", endpoint, nil)
+		req, err := http.NewRequestWithContext(context.Background(), "GET", endpoint, nil)
 		if err != nil {
 			retErr := fmt.Errorf("unable to form request to %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
