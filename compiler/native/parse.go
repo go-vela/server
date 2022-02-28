@@ -91,7 +91,6 @@ func (c *client) Parse(v interface{}) (*types.Build, error) {
 			return nil, fmt.Errorf("unable to parse yaml: unrecognized type %T", v)
 		}
 	default:
-		// nolint:lll // detailed error message
 		return nil, fmt.Errorf("unable to parse config: unrecognized pipeline_type of %s", c.repo.GetPipelineType())
 	}
 

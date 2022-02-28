@@ -372,7 +372,6 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-// nolint:lll // function signature is lengthy
 func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

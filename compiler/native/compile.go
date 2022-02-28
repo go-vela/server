@@ -243,7 +243,6 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 // errorHandler ensures the error contains the number of request attempts.
 func errorHandler(resp *http.Response, err error, attempts int) (*http.Response, error) {
 	if err != nil {
-		// nolint:lll // detailed error message
 		err = fmt.Errorf("giving up connecting to modification endpoint after %d attempts due to: %w", attempts, err)
 	}
 
@@ -251,7 +250,6 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-// nolint:lll // parameter struct references push line limit
 func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *library.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
