@@ -90,13 +90,13 @@ func GetPipeline(ctx *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("reading pipeline for repo %s", r.GetFullName())
 
-	pipeline, _, err := getUnprocessedPipeline(ctx)
+	config, _, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	writeOutput(ctx, pipeline)
+	writeOutput(ctx, config)
 }
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/templates pipelines GetTemplates
@@ -159,9 +159,16 @@ func GetTemplates(ctx *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("reading templates from pipeline for repo %s", r.GetFullName())
 
-	pipeline, _, err := getUnprocessedPipeline(ctx)
+	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	pipeline, err := comp.Parse(config, r.GetPipelineType())
+	if err != nil {
+		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
+		util.HandleError(ctx, http.StatusBadRequest, retErr)
 		return
 	}
 
@@ -237,14 +244,18 @@ func ExpandPipeline(ctx *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("expanding templates from pipeline for repo %s", r.GetFullName())
 
-	pipeline, comp, err := getUnprocessedPipeline(ctx)
+	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	if err := expandPipeline(ctx, pipeline, comp, false); err != nil {
-		util.HandleError(ctx, http.StatusBadRequest, err)
+	template, substitute := true, false
+
+	pipeline, err := comp.CompileLite(config, "validate", template, substitute)
+	if err != nil {
+		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
+		util.HandleError(ctx, http.StatusBadRequest, retErr)
 		return
 	}
 
@@ -310,22 +321,21 @@ func ValidatePipeline(ctx *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("validating pipeline for repo %s", r.GetFullName())
 
-	pipeline, comp, err := getUnprocessedPipeline(ctx)
+	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
+	template, substitute := false, false
+
 	// check optional template query parameter
 	if ok, _ := strconv.ParseBool(ctx.DefaultQuery("template", "true")); ok {
-		if err := expandPipeline(ctx, pipeline, comp, false); err != nil {
-			util.HandleError(ctx, http.StatusBadRequest, err)
-			return
-		}
+		template = true
 	}
 
-	// validate the yaml configuration
-	if err = comp.Validate(pipeline); err != nil {
+	pipeline, err := comp.CompileLite(config, "validate", template, substitute)
+	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
 		return
@@ -395,19 +405,16 @@ func CompilePipeline(ctx *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("compiling pipeline for repo %s", r.GetFullName())
 
-	pipeline, comp, err := getUnprocessedPipeline(ctx)
+	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	if err := expandPipeline(ctx, pipeline, comp, true); err != nil {
-		util.HandleError(ctx, http.StatusBadRequest, err)
-		return
-	}
+	template, substitute := true, true
 
-	// validate the yaml configuration
-	if err = comp.Validate(pipeline); err != nil {
+	pipeline, err := comp.CompileLite(config, "validate", template, substitute)
+	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
 		return
@@ -416,8 +423,9 @@ func CompilePipeline(ctx *gin.Context) {
 	writeOutput(ctx, pipeline)
 }
 
-// getUnprocessedPipeline retrieves the unprocessed pipeline from a given context.
-func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, error) {
+// getUnprocessedPipeline retrieves the unprocessed pipeline from a given context
+// and creates an instance of the compiler with metadata.
+func getUnprocessedPipeline(ctx *gin.Context) ([]byte, compiler.Engine, error) {
 	// capture middleware values
 	meta := ctx.MustGet("metadata").(*types.Metadata)
 	repo := repo.Retrieve(ctx)
@@ -443,13 +451,7 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 		WithRepo(repo).
 		WithUser(user)
 
-	pipeline, err := comp.Parse(config, repo.GetPipelineType())
-	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		return nil, nil, fmt.Errorf("unable to parse pipeline configuration for %s: %w", repoName(ctx), err)
-	}
-
-	return pipeline, comp, nil
+	return config, comp, nil
 }
 
 // getTemplateLinks helper function that retrieves source provider links
@@ -519,49 +521,4 @@ func writeOutput(ctx *gin.Context, pipeline interface{}) {
 	default:
 		ctx.YAML(http.StatusOK, pipeline)
 	}
-}
-
-// expandPipeline uses a given pipeline and compiler to expand stages and steps
-// in the pipeline along with optionally substituting the environmental variables.
-//
-// nolint: lll // ignore long line length due to variable names
-func expandPipeline(ctx *gin.Context, pipeline *yaml.Build, comp compiler.Engine, substituteEnv bool) error {
-	// create map of templates for easy lookup
-	templates := pipeline.Templates.Map()
-
-	var err error
-
-	if len(pipeline.Stages) > 0 {
-		// inject the templates into the stages
-		pipeline, err = comp.ExpandStages(pipeline, templates)
-		if err != nil {
-			return fmt.Errorf("unable to expand stages in pipeline configuration for %s: %w", repoName(ctx), err)
-		}
-
-		if substituteEnv {
-			// inject the substituted environment variables into the stages
-			pipeline.Stages, err = comp.SubstituteStages(pipeline.Stages)
-			if err != nil {
-				// nolint: lll // ignore long line length due to error message
-				return fmt.Errorf("unable to substitute stages in pipeline configuration for %s: %w", repoName(ctx), err)
-			}
-		}
-	} else {
-		// inject the templates into the steps
-		pipeline, err = comp.ExpandStages(pipeline, templates)
-		if err != nil {
-			return fmt.Errorf("unable to expand steps in pipeline configuration for %s: %w", repoName(ctx), err)
-		}
-
-		if substituteEnv {
-			// inject the substituted environment variables into the steps
-			pipeline.Steps, err = comp.SubstituteSteps(pipeline.Steps)
-			if err != nil {
-				// nolint: lll // ignore long line length due to error message
-				return fmt.Errorf("unable to substitute steps in pipeline configuration for %s: %w", repoName(ctx), err)
-			}
-		}
-	}
-
-	return nil
 }

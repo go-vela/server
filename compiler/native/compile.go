@@ -41,6 +41,60 @@ type ModifyResponse struct {
 // Compile produces an executable pipeline from a yaml configuration.
 //
 // nolint: gocyclo,funlen // ignore function length due to comments
+func (c *client) CompileLite(v interface{}, mode string, template, substitute bool) (*yaml.Build, error) {
+	p, err := c.Parse(v, c.repo.GetPipelineType())
+	if err != nil {
+		return nil, err
+	}
+
+	if template {
+		// create map of templates for easy lookup
+		tmpls := mapFromTemplates(p.Templates)
+
+		switch {
+		case len(p.Stages) > 0:
+			// inject the templates into the steps
+			p, err = c.ExpandStages(p, tmpls)
+			if err != nil {
+				return nil, err
+			}
+
+			if substitute {
+				// inject the substituted environment variables into the steps
+				p.Stages, err = c.SubstituteStages(p.Stages)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case len(p.Steps) > 0:
+			// inject the templates into the steps
+			p, err = c.ExpandSteps(p, tmpls)
+			if err != nil {
+				return nil, err
+			}
+
+			if substitute {
+				// inject the substituted environment variables into the steps
+				p.Steps, err = c.SubstituteSteps(p.Steps)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	// validate the yaml configuration
+	err = c.Validate(p)
+	if err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
+
+// Compile produces an executable pipeline from a yaml configuration.
+//
+// nolint: gocyclo,funlen // ignore function length due to comments
 func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	p, err := c.Parse(v, c.repo.GetPipelineType())
 	if err != nil {
@@ -67,6 +121,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
+	// TODO: Update the pipeline api endpoints
 	// TODO: test global environment
 	// TODO: fix ui expansion
 	// TODO: consider solving https://github.com/go-vela/community/issues/510 during ui expansion fix
@@ -130,7 +185,6 @@ func (c *client) compileInline(p *yaml.Build, r *pipeline.RuleData) (*pipeline.B
 			fallthrough
 		case len(parsed.Secrets) > 0:
 			newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
-			break
 		default:
 			return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
 		}
