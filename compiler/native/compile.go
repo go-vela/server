@@ -39,15 +39,71 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-//
-// nolint: gocyclo,funlen,lll // ignore function length due to comments
-func (c *client) CompileLite(v interface{}, mode string, template, substitute bool) (*yaml.Build, error) {
-	//TODO: think about how to handle Repo and User metadata in the environment
+func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	p, err := c.Parse(v, c.repo.GetPipelineType())
 	if err != nil {
 		return nil, err
 	}
 
+	// validate the yaml configuration
+	err = c.Validate(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// create map of templates for easy lookup
+	templates := mapFromTemplates(p.Templates)
+
+	// create the ruledata to purge steps
+	r := &pipeline.RuleData{
+		Branch:  c.build.GetBranch(),
+		Comment: c.comment,
+		Event:   c.build.GetEvent(),
+		Path:    c.files,
+		Repo:    c.repo.GetFullName(),
+		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
+		Target:  c.build.GetDeploy(),
+	}
+
+	// TODO: test global environment
+	switch {
+	case p.Metadata.RenderInline:
+		newPipeline, err := c.compileInline(p)
+		if err != nil {
+			return nil, err
+		}
+		// validate the yaml configuration
+		err = c.Validate(newPipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(newPipeline.Stages) > 0 {
+			return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
+		}
+
+		return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
+	case len(p.Stages) > 0:
+		return c.compileStages(p, templates, r)
+	default:
+		return c.compileSteps(p, templates, r)
+	}
+}
+
+// CompileLite produces a partial of an executable pipeline from a yaml configuration.
+//
+// nolint:lll // ignore comment length
+func (c *client) CompileLite(v interface{}, mode string, template, substitute bool) (*yaml.Build, error) {
+	// TODO: think about how to handle Repo and User metadata in the environment
+	// the user and repo metadata is being set on the endpoints but we don't have any build data.
+	// we could environment expand and substitute with some data.
+	p, err := c.Parse(v, c.repo.GetPipelineType())
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: test inline steps
+	// TODO: look at a custom unmarshaller for reducing the key/value affect occurring during the "yaml.Unmarshal"
 	if p.Metadata.RenderInline {
 		newPipeline, err := c.compileInline(p)
 		if err != nil {
@@ -64,12 +120,12 @@ func (c *client) CompileLite(v interface{}, mode string, template, substitute bo
 
 	if template {
 		// create map of templates for easy lookup
-		tmpls := mapFromTemplates(p.Templates)
+		templates := mapFromTemplates(p.Templates)
 
 		switch {
 		case len(p.Stages) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandStages(p, tmpls)
+			p, err = c.ExpandStages(p, templates)
 			if err != nil {
 				return nil, err
 			}
@@ -83,7 +139,7 @@ func (c *client) CompileLite(v interface{}, mode string, template, substitute bo
 			}
 		case len(p.Steps) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandSteps(p, tmpls)
+			p, err = c.ExpandSteps(p, templates)
 			if err != nil {
 				return nil, err
 			}
@@ -107,64 +163,7 @@ func (c *client) CompileLite(v interface{}, mode string, template, substitute bo
 	return p, nil
 }
 
-// Compile produces an executable pipeline from a yaml configuration.
-//
-// nolint: gocyclo,funlen,lll // ignore function length due to comments
-func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
-	p, err := c.Parse(v, c.repo.GetPipelineType())
-	if err != nil {
-		return nil, err
-	}
-
-	// validate the yaml configuration
-	err = c.Validate(p)
-	if err != nil {
-		return nil, err
-	}
-
-	// create map of templates for easy lookup
-	tmpls := mapFromTemplates(p.Templates)
-
-	// create the ruledata to purge steps
-	r := &pipeline.RuleData{
-		Branch:  c.build.GetBranch(),
-		Comment: c.comment,
-		Event:   c.build.GetEvent(),
-		Path:    c.files,
-		Repo:    c.repo.GetFullName(),
-		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
-		Target:  c.build.GetDeploy(),
-	}
-
-	// TODO: Update the pipeline api endpoints
-	// TODO: test global environment
-	// TODO: fix ui expansion
-	// TODO: consider solving https://github.com/go-vela/community/issues/510 during ui expansion fix
-	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p)
-		if err != nil {
-			return nil, err
-		}
-		// validate the yaml configuration
-		err = c.Validate(newPipeline)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(newPipeline.Stages) > 0 {
-			return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
-		}
-
-		return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
-	}
-
-	if len(p.Stages) > 0 {
-		return c.compileStages(p, tmpls, r)
-	}
-
-	return c.compileSteps(p, tmpls, r)
-}
-
+// compileInline parses and expands out inline pipelines.
 func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 	// TODO: improve error handling
 	newPipeline := new(yaml.Build)
@@ -234,6 +233,9 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 	return newPipeline, nil
 }
 
+// compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
+//
+// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
 	var err error
 
@@ -323,6 +325,9 @@ func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r 
 	return c.TransformSteps(r, p)
 }
 
+// compileStages executes the workflow for converting a YAML pipeline into an executable struct.
+//
+// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
 	var err error
 

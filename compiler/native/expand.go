@@ -6,8 +6,9 @@ package native
 
 import (
 	"fmt"
-	"github.com/go-vela/types/constants"
 	"strings"
+
+	"github.com/go-vela/types/constants"
 
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
