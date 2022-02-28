@@ -67,81 +67,11 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
+	// TODO: test global environment
+	// TODO: fix ui expansion
+	// TODO: consider solving https://github.com/go-vela/community/issues/510 during ui expansion fix
 	if p.Metadata.RenderInline {
-		switch {
-		case len(p.Stages) > 0:
-			return c.compileStages(p, tmpls, r)
-		case len(p.Steps) > 0:
-			return c.compileSteps(p, tmpls, r)
-		default:
-			// TODO: improve error handling
-			newPipeline := new(yaml.Build)
-			newPipeline.Version = p.Version
-			newPipeline.Environment = p.Environment
-
-			for _, template := range p.Templates {
-				bytes, err := c.getTemplate(template, template.Name)
-				if err != nil {
-					return nil, err
-				}
-
-				parsed, err := c.Parse(bytes, template.Format)
-				if err != nil {
-					return nil, err
-				}
-
-				switch {
-				case len(parsed.Environment) > 0:
-					for key, value := range parsed.Environment {
-						newPipeline.Environment[key] = value
-					}
-					fallthrough
-				case len(parsed.Stages) > 0:
-					// ensure all templated steps inside stages have template prefix
-					for stgIndex, newStage := range parsed.Stages {
-						parsed.Stages[stgIndex].Name = fmt.Sprintf("%s_%s", template.Name, newStage.Name)
-
-						for index, newStep := range newStage.Steps {
-							parsed.Stages[stgIndex].Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
-						}
-					}
-
-					newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
-					fallthrough
-				case len(parsed.Steps) > 0:
-					// ensure all templated steps have template prefix
-					for index, newStep := range parsed.Steps {
-						parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
-					}
-					newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
-					fallthrough
-				case len(parsed.Services) > 0:
-					newPipeline.Services = append(newPipeline.Services, parsed.Services...)
-					fallthrough
-				case len(parsed.Secrets) > 0:
-					newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
-					break
-				default:
-					return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
-				}
-
-				if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
-					return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
-				}
-			}
-
-			// validate the yaml configuration
-			err = c.Validate(newPipeline)
-			if err != nil {
-				return nil, err
-			}
-
-			if len(newPipeline.Stages) > 0 {
-				return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
-			}
-
-			return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
-		}
+		return c.compileInline(p, r)
 	}
 
 	if len(p.Stages) > 0 {
@@ -149,6 +79,78 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	}
 
 	return c.compileSteps(p, tmpls, r)
+}
+
+func (c *client) compileInline(p *yaml.Build, r *pipeline.RuleData) (*pipeline.Build, error) {
+	// TODO: improve error handling
+	newPipeline := new(yaml.Build)
+	newPipeline.Stages = p.Stages
+	newPipeline.Steps = p.Steps
+	newPipeline.Version = p.Version
+	newPipeline.Environment = p.Environment
+
+	for _, template := range p.Templates {
+		bytes, err := c.getTemplate(template, template.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		parsed, err := c.Parse(bytes, template.Format)
+		if err != nil {
+			return nil, err
+		}
+
+		switch {
+		case len(parsed.Environment) > 0:
+			for key, value := range parsed.Environment {
+				newPipeline.Environment[key] = value
+			}
+			fallthrough
+		case len(parsed.Stages) > 0:
+			// ensure all templated steps inside stages have template prefix
+			for stgIndex, newStage := range parsed.Stages {
+				parsed.Stages[stgIndex].Name = fmt.Sprintf("%s_%s", template.Name, newStage.Name)
+
+				for index, newStep := range newStage.Steps {
+					parsed.Stages[stgIndex].Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
+				}
+			}
+
+			newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
+			fallthrough
+		case len(parsed.Steps) > 0:
+			// ensure all templated steps have template prefix
+			for index, newStep := range parsed.Steps {
+				parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
+			}
+			newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
+			fallthrough
+		case len(parsed.Services) > 0:
+			newPipeline.Services = append(newPipeline.Services, parsed.Services...)
+			fallthrough
+		case len(parsed.Secrets) > 0:
+			newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
+			break
+		default:
+			return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
+		}
+
+		if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
+			return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
+		}
+	}
+
+	// validate the yaml configuration
+	err := c.Validate(newPipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(newPipeline.Stages) > 0 {
+		return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
+	}
+
+	return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
 }
 
 func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {

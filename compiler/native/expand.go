@@ -6,6 +6,7 @@ package native
 
 import (
 	"fmt"
+	"github.com/go-vela/types/constants"
 	"strings"
 
 	"github.com/go-vela/server/compiler/template/native"
@@ -227,13 +228,13 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 
 	// TODO: provide friendlier error messages with file type mismatches
 	switch tmpl.Format {
-	case "go", "golang", "":
+	case constants.PipelineTypeGo, "golang", "":
 		// render template for steps
 		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 		if err != nil {
 			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
 		}
-	case "starlark":
+	case constants.PipelineTypeStarlark:
 		// render template for steps
 		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 		if err != nil {
