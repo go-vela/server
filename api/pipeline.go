@@ -90,13 +90,20 @@ func GetPipeline(ctx *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("reading pipeline for repo %s", r.GetFullName())
 
-	config, _, err := getUnprocessedPipeline(ctx)
+	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	writeOutput(ctx, config)
+	pipeline, err := comp.Parse(config, r.GetPipelineType())
+	if err != nil {
+		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
+		util.HandleError(ctx, http.StatusBadRequest, retErr)
+		return
+	}
+
+	writeOutput(ctx, pipeline)
 }
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/templates pipelines GetTemplates

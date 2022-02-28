@@ -40,11 +40,26 @@ type ModifyResponse struct {
 
 // Compile produces an executable pipeline from a yaml configuration.
 //
-// nolint: gocyclo,funlen // ignore function length due to comments
+// nolint: gocyclo,funlen,lll // ignore function length due to comments
 func (c *client) CompileLite(v interface{}, mode string, template, substitute bool) (*yaml.Build, error) {
+	//TODO: think about how to handle Repo and User metadata in the environment
 	p, err := c.Parse(v, c.repo.GetPipelineType())
 	if err != nil {
 		return nil, err
+	}
+
+	if p.Metadata.RenderInline {
+		newPipeline, err := c.compileInline(p)
+		if err != nil {
+			return nil, err
+		}
+		// validate the yaml configuration
+		err = c.Validate(newPipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		p = newPipeline
 	}
 
 	if template {
@@ -94,7 +109,7 @@ func (c *client) CompileLite(v interface{}, mode string, template, substitute bo
 
 // Compile produces an executable pipeline from a yaml configuration.
 //
-// nolint: gocyclo,funlen // ignore function length due to comments
+// nolint: gocyclo,funlen,lll // ignore function length due to comments
 func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	p, err := c.Parse(v, c.repo.GetPipelineType())
 	if err != nil {
@@ -126,7 +141,21 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	// TODO: fix ui expansion
 	// TODO: consider solving https://github.com/go-vela/community/issues/510 during ui expansion fix
 	if p.Metadata.RenderInline {
-		return c.compileInline(p, r)
+		newPipeline, err := c.compileInline(p)
+		if err != nil {
+			return nil, err
+		}
+		// validate the yaml configuration
+		err = c.Validate(newPipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(newPipeline.Stages) > 0 {
+			return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
+		}
+
+		return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
 	}
 
 	if len(p.Stages) > 0 {
@@ -136,7 +165,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	return c.compileSteps(p, tmpls, r)
 }
 
-func (c *client) compileInline(p *yaml.Build, r *pipeline.RuleData) (*pipeline.Build, error) {
+func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 	// TODO: improve error handling
 	newPipeline := new(yaml.Build)
 	newPipeline.Stages = p.Stages
@@ -186,10 +215,12 @@ func (c *client) compileInline(p *yaml.Build, r *pipeline.RuleData) (*pipeline.B
 		case len(parsed.Secrets) > 0:
 			newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
 		default:
+			// nolint: lll // ignore long line length due to error message
 			return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
 		}
 
 		if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
+			// nolint: lll // ignore long line length due to error message
 			return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
 		}
 	}
@@ -200,11 +231,7 @@ func (c *client) compileInline(p *yaml.Build, r *pipeline.RuleData) (*pipeline.B
 		return nil, err
 	}
 
-	if len(newPipeline.Stages) > 0 {
-		return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
-	}
-
-	return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
+	return newPipeline, nil
 }
 
 func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
