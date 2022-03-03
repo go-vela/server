@@ -39,10 +39,6 @@ linters-settings:
       
       Use of this source code is governed by the LICENSE file in this repository.
 
-  # https://github.com/golang/lint
-  golint:
-    min-confidence: 0
-
   # https://github.com/client9/misspell
   misspell:
     locale: US

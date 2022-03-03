@@ -529,11 +529,8 @@ func GetBuilds(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// capture before query parameter if present, default to now
-	//
-	// nolint: gomnd, lll // ignore magic number and long line length
 	before, err := strconv.ParseInt(c.DefaultQuery("before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert before query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -542,11 +539,8 @@ func GetBuilds(c *gin.Context) {
 	}
 
 	// capture after query parameter if present, default to 0
-	//
-	// nolint: gomnd // ignore magic number
 	after, err := strconv.ParseInt(c.DefaultQuery("after", "0"), 10, 64)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert after query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
