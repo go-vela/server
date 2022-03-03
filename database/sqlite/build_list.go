@@ -126,7 +126,7 @@ func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, pag
 }
 
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
-func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -155,6 +155,8 @@ func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{
 	err = c.Sqlite.
 		Table(constants.TableBuild).
 		Where("repo_id = ?", r.GetID()).
+		Where("created < ?", before).
+		Where("created > ?", after).
 		Where(filters).
 		Order("number DESC").
 		Limit(perPage).
