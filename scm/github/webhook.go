@@ -19,6 +19,7 @@ import (
 	"github.com/google/go-github/v42/github"
 )
 
+// nolint: nilerr // ignore webhook returning nil
 // ProcessWebhook parses the webhook from a repo.
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
