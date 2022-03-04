@@ -22,7 +22,7 @@ require (
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.7.0
-	github.com/hashicorp/vault/api v1.3.1
+	github.com/hashicorp/vault/api v1.4.1
 	github.com/joho/godotenv v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
@@ -80,7 +80,7 @@ require (
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/vault/sdk v0.3.0 // indirect
+	github.com/hashicorp/vault/sdk v0.4.1 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
