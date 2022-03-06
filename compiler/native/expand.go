@@ -218,6 +218,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 	return bytes, nil
 }
 
+// nolint: lll // ignore long line length due to input arguments
 func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
 	var (
 		err             error
@@ -227,21 +228,21 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		tmplEnvironment raw.StringSliceMap
 	)
 
-	// TODO: provide friendlier error messages with file type mismatches
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, "golang", "":
-		// render template for steps
+		// nolint: lll // ignore long line length due to return
 		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 		if err != nil {
 			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
 		}
 	case constants.PipelineTypeStarlark:
-		// render template for steps
+		// nolint: lll // ignore long line length due to return
 		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 		if err != nil {
 			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
 		}
 	default:
+		// nolint: lll // ignore long line length due to return
 		return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
 

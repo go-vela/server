@@ -236,6 +236,8 @@ func GetTemplates(ctx *gin.Context) {
 
 // ExpandPipeline represents the API handler to capture and
 // expand a pipeline configuration.
+//
+// nolint: dupl // ignore false positive of duplicate code
 func ExpandPipeline(ctx *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(ctx)
@@ -395,6 +397,7 @@ func ValidatePipeline(ctx *gin.Context) {
 // CompilePipeline represents the API handler to capture,
 // expand and compile a pipeline configuration.
 //
+// nolint: dupl // ignore false positive of duplicate code
 func CompilePipeline(ctx *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(ctx)
