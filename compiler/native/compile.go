@@ -93,7 +93,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
 //
 // nolint:lll // ignore comment length
-func (c *client) CompileLite(v interface{}, mode string, template, substitute bool) (*yaml.Build, error) {
+func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, error) {
 	// TODO: think about how to handle Repo and User metadata in the environment
 	// the user and repo metadata is being set on the endpoints but we don't have any build data.
 	// we could environment expand and substitute with some data.
