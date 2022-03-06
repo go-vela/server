@@ -257,9 +257,7 @@ func ExpandPipeline(ctx *gin.Context) {
 		return
 	}
 
-	template, substitute := true, false
-
-	pipeline, err := comp.CompileLite(config, "validate", template, substitute)
+	pipeline, err := comp.CompileLite(config, true, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -334,14 +332,14 @@ func ValidatePipeline(ctx *gin.Context) {
 		return
 	}
 
-	template, substitute := false, false
+	template := false
 
 	// check optional template query parameter
 	if ok, _ := strconv.ParseBool(ctx.DefaultQuery("template", "true")); ok {
 		template = true
 	}
 
-	pipeline, err := comp.CompileLite(config, "validate", template, substitute)
+	pipeline, err := comp.CompileLite(config, template, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -418,9 +416,7 @@ func CompilePipeline(ctx *gin.Context) {
 		return
 	}
 
-	template, substitute := true, true
-
-	pipeline, err := comp.CompileLite(config, "validate", template, substitute)
+	pipeline, err := comp.CompileLite(config, true, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)

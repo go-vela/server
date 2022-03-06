@@ -48,7 +48,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
 //
-// nolint: lll,funlen,gocyclo // ignore long line length due to variable names
+// nolint: lll,funlen // ignore long line length due to variable names
 func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
