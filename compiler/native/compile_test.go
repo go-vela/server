@@ -7,11 +7,12 @@ package native
 import (
 	"flag"
 	"fmt"
-	"github.com/go-vela/types/constants"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+
+	"github.com/go-vela/types/constants"
 
 	"github.com/google/go-github/v42/github"
 
