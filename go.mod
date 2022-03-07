@@ -8,14 +8,14 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.18.0
-	github.com/aws/aws-sdk-go v1.42.44
+	github.com/aws/aws-sdk-go v1.43.10
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-vela/types v0.12.0
-	github.com/golang-jwt/jwt/v4 v4.2.0
+	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/google/go-cmp v0.5.7
 	github.com/google/go-github/v42 v42.0.0
 	github.com/google/uuid v1.3.0
@@ -27,16 +27,16 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/afero v1.8.0
+	github.com/spf13/afero v1.8.1
 	github.com/urfave/cli/v2 v2.3.0
-	go.starlark.net v0.0.0-20220203230714-bb14e151c28f
-	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
+	go.starlark.net v0.0.0-20220302181546-5411bad688d1
+	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
-	gorm.io/driver/postgres v1.2.3
-	gorm.io/driver/sqlite v1.2.6
-	gorm.io/gorm v1.22.5
-	k8s.io/apimachinery v0.23.3
+	gorm.io/driver/postgres v1.3.1
+	gorm.io/driver/sqlite v1.3.1
+	gorm.io/gorm v1.23.1
+	k8s.io/apimachinery v0.23.4
 )
 
 require (
@@ -90,8 +90,8 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgproto3/v2 v2.2.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.9.0 // indirect
-	github.com/jackc/pgx/v4 v4.14.0 // indirect
+	github.com/jackc/pgtype v1.9.1 // indirect
+	github.com/jackc/pgx/v4 v4.14.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -125,7 +125,7 @@ require (
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
-	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
+	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
