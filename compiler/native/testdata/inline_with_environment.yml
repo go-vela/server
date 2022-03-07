@@ -1,0 +1,19 @@
+version: "1"
+
+environment:
+  HELLO: "Hello, Vela!"
+
+metadata:
+  render_inline: true
+
+templates:
+  - name: golang
+    source: github.example.com/github/octocat/environment.yml
+    format: golang
+    type: github
+
+steps:
+  - name: test
+    image: alpine
+    parameters:
+      first: "foo"

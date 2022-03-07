@@ -65,7 +65,6 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
-	// TODO: test global environment
 	switch {
 	case p.Metadata.RenderInline:
 		newPipeline, err := c.compileInline(p)
@@ -94,15 +93,11 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 //
 // nolint:lll // ignore comment length
 func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, error) {
-	// TODO: think about how to handle Repo and User metadata in the environment
-	// the user and repo metadata is being set on the endpoints but we don't have any build data.
-	// we could environment expand and substitute with some data.
 	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: look at a custom unmarshaller for reducing the key/value affect occurring during the "yaml.Unmarshal"
 	if p.Metadata.RenderInline {
 		newPipeline, err := c.compileInline(p)
 		if err != nil {
@@ -164,11 +159,8 @@ func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Bu
 
 // compileInline parses and expands out inline pipelines.
 func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
-	newPipeline := new(yaml.Build)
-	newPipeline.Stages = p.Stages
-	newPipeline.Steps = p.Steps
-	newPipeline.Version = p.Version
-	newPipeline.Environment = p.Environment
+	newPipeline := *p
+	newPipeline.Templates = yaml.TemplateSlice{}
 
 	for _, template := range p.Templates {
 		bytes, err := c.getTemplate(template, template.Name)
@@ -223,12 +215,12 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 	}
 
 	// validate the yaml configuration
-	err := c.Validate(newPipeline)
+	err := c.Validate(&newPipeline)
 	if err != nil {
 		return nil, err
 	}
 
-	return newPipeline, nil
+	return &newPipeline, nil
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.

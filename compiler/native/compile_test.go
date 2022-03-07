@@ -1920,6 +1920,13 @@ func Test_Compile_Inline(t *testing.T) {
 	}
 
 	initEnv := environment(nil, m, nil, nil)
+	testEnv := environment(nil, m, nil, nil)
+	testEnv["FOO"] = "Hello, foo!"
+	testEnv["HELLO"] = "Hello, Vela!"
+	stepEnv := environment(nil, m, nil, nil)
+	stepEnv["FOO"] = "Hello, foo!"
+	stepEnv["HELLO"] = "Hello, Vela!"
+	stepEnv["PARAMETER_FIRST"] = "foo"
 
 	type args struct {
 		file string
@@ -1939,7 +1946,8 @@ func Test_Compile_Inline(t *testing.T) {
 				Version: "1",
 				ID:      "__0",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
 				},
 				Stages: []*pipeline.Stage{
 					{
@@ -2093,7 +2101,8 @@ func Test_Compile_Inline(t *testing.T) {
 				Version: "1",
 				ID:      "__0",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
 				},
 				Steps: []*pipeline.Container{
 					{
@@ -2191,9 +2200,221 @@ func Test_Compile_Inline(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
-		// TODO: test with template that only returns secrets
-		// TODO: test with template that only returns services
-		// TODO: test global environment
+		{
+			name: "secrets",
+			args: args{
+				file: "testdata/inline_with_secrets.yml",
+			},
+			want: &pipeline.Build{
+				Version: "1",
+				ID:      "__0",
+				Metadata: pipeline.Metadata{
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Steps: []*pipeline.Container{
+					{
+						ID:          "step___0_init",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Name:        "init",
+						Image:       "#init",
+						Number:      1,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "step___0_clone",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Name:        "clone",
+						Image:       "target/vela-git:v0.5.1",
+						Number:      2,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "step___0_test",
+						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Entrypoint:  []string{"/bin/sh", "-c"},
+						Directory:   "/vela/src/foo//",
+						Environment: generateTestEnv("echo from inline", m),
+						Name:        "test",
+						Image:       "alpine",
+						Number:      3,
+						Pull:        "not_present",
+					},
+				},
+				Secrets: pipeline.SecretSlice{
+					&pipeline.Secret{
+						Name:   "foo_username",
+						Key:    "org/repo/foo/username",
+						Engine: "native",
+						Type:   "repo",
+						Origin: &pipeline.Container{},
+					},
+					&pipeline.Secret{
+						Name:   "docker_username",
+						Key:    "org/repo/docker/username",
+						Engine: "native",
+						Type:   "repo",
+						Origin: &pipeline.Container{},
+					},
+					&pipeline.Secret{
+						Name:   "docker_password",
+						Key:    "org/repo/docker/password",
+						Engine: "vault",
+						Type:   "repo",
+						Origin: &pipeline.Container{},
+					},
+					&pipeline.Secret{
+						Name:   "docker_username",
+						Key:    "org/docker/username",
+						Engine: "native",
+						Type:   "org",
+						Origin: &pipeline.Container{},
+					},
+					&pipeline.Secret{
+						Name:   "docker_password",
+						Key:    "org/docker/password",
+						Engine: "vault",
+						Type:   "org",
+						Origin: &pipeline.Container{},
+					},
+					&pipeline.Secret{
+						Name:   "docker_username",
+						Key:    "org/team/docker/username",
+						Engine: "native",
+						Type:   "shared",
+						Origin: &pipeline.Container{},
+					},
+					&pipeline.Secret{
+						Name:   "docker_password",
+						Key:    "org/team/docker/password",
+						Engine: "vault",
+						Type:   "shared",
+						Origin: &pipeline.Container{},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "services",
+			args: args{
+				file: "testdata/inline_with_services.yml",
+			},
+			want: &pipeline.Build{
+				Version: "1",
+				ID:      "__0",
+				Metadata: pipeline.Metadata{
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Steps: []*pipeline.Container{
+					{
+						ID:          "step___0_init",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Name:        "init",
+						Image:       "#init",
+						Number:      1,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "step___0_clone",
+						Directory:   "/vela/src/foo//",
+						Environment: initEnv,
+						Name:        "clone",
+						Image:       "target/vela-git:v0.5.1",
+						Number:      2,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "step___0_test",
+						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+						Entrypoint:  []string{"/bin/sh", "-c"},
+						Directory:   "/vela/src/foo//",
+						Environment: generateTestEnv("echo from inline", m),
+						Name:        "test",
+						Image:       "alpine",
+						Number:      3,
+						Pull:        "not_present",
+					},
+				},
+				Services: []*pipeline.Container{
+					{
+						ID:          "service___0_postgres",
+						Detach:      true,
+						Environment: initEnv,
+						Image:       "postgres:latest",
+						Name:        "postgres",
+						Number:      1,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "service___0_cache",
+						Detach:      true,
+						Environment: initEnv,
+						Image:       "redis",
+						Name:        "cache",
+						Number:      2,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "service___0_database",
+						Detach:      true,
+						Environment: initEnv,
+						Image:       "mongo",
+						Name:        "database",
+						Number:      3,
+						Pull:        "not_present",
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "environment",
+			args: args{
+				file: "testdata/inline_with_environment.yml",
+			},
+			want: &pipeline.Build{
+				Version: "1",
+				ID:      "__0",
+				Metadata: pipeline.Metadata{
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Steps: []*pipeline.Container{
+					{
+						ID:          "step___0_init",
+						Directory:   "/vela/src/foo//",
+						Environment: testEnv,
+						Name:        "init",
+						Image:       "#init",
+						Number:      1,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "step___0_clone",
+						Directory:   "/vela/src/foo//",
+						Environment: testEnv,
+						Name:        "clone",
+						Image:       "target/vela-git:v0.5.1",
+						Number:      2,
+						Pull:        "not_present",
+					},
+					{
+						ID:          "step___0_test",
+						Directory:   "/vela/src/foo//",
+						Environment: stepEnv,
+						Name:        "test",
+						Image:       "alpine",
+						Number:      3,
+						Pull:        "not_present",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
