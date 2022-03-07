@@ -7,6 +7,7 @@ package native
 import (
 	"flag"
 	"fmt"
+	"github.com/go-vela/types/constants"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -1864,11 +1865,12 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 	return content, nil
 }
 
-func generateTestEnv(command string, m *types.Metadata) map[string]string {
+func generateTestEnv(command string, m *types.Metadata, pipelineType string) map[string]string {
 	output := environment(nil, m, nil, nil)
 	output["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{command})
 	output["HOME"] = "/root"
 	output["SHELL"] = "/bin/sh"
+	output["VELA_REPO_PIPELINE_TYPE"] = pipelineType
 
 	return output
 }
@@ -1927,9 +1929,12 @@ func Test_Compile_Inline(t *testing.T) {
 	stepEnv["FOO"] = "Hello, foo!"
 	stepEnv["HELLO"] = "Hello, Vela!"
 	stepEnv["PARAMETER_FIRST"] = "foo"
+	golangEnv := environment(nil, m, nil, nil)
+	golangEnv["VELA_REPO_PIPELINE_TYPE"] = "go"
 
 	type args struct {
-		file string
+		file         string
+		pipelineType string
 	}
 	tests := []struct {
 		name    string
@@ -1990,7 +1995,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo from inline", m),
+								Environment: generateTestEnv("echo from inline", m, ""),
 								Image:       "alpine",
 								Name:        "test",
 								Pull:        "not_present",
@@ -2008,7 +2013,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from foo", m),
+								Environment: generateTestEnv("echo hello from foo", m, ""),
 								Image:       "golang:1.17",
 								Name:        "golang_foo",
 								Pull:        "not_present",
@@ -2026,7 +2031,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from bar", m),
+								Environment: generateTestEnv("echo hello from bar", m, ""),
 								Image:       "golang:1.17",
 								Name:        "golang_bar",
 								Pull:        "not_present",
@@ -2044,7 +2049,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from star", m),
+								Environment: generateTestEnv("echo hello from star", m, ""),
 								Image:       "golang:1.17",
 								Name:        "golang_star",
 								Pull:        "not_present",
@@ -2062,7 +2067,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from foo", m),
+								Environment: generateTestEnv("echo hello from foo", m, ""),
 								Image:       "alpine",
 								Name:        "starlark_build_foo",
 								Pull:        "not_present",
@@ -2080,7 +2085,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from bar", m),
+								Environment: generateTestEnv("echo hello from bar", m, ""),
 								Image:       "alpine",
 								Name:        "starlark_build_bar",
 								Pull:        "not_present",
@@ -2128,7 +2133,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo from inline", m),
+						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
 						Image:       "alpine",
 						Number:      3,
@@ -2139,7 +2144,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo hello from foo", m),
+						Environment: generateTestEnv("echo hello from foo", m, ""),
 						Name:        "golang_foo",
 						Image:       "alpine",
 						Number:      4,
@@ -2150,7 +2155,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo hello from bar", m),
+						Environment: generateTestEnv("echo hello from bar", m, ""),
 						Name:        "golang_bar",
 						Image:       "alpine",
 						Number:      5,
@@ -2161,7 +2166,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo hello from star", m),
+						Environment: generateTestEnv("echo hello from star", m, ""),
 						Name:        "golang_star",
 						Image:       "alpine",
 						Number:      6,
@@ -2172,7 +2177,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo hello from foo", m),
+						Environment: generateTestEnv("echo hello from foo", m, ""),
 						Name:        "starlark_build_foo",
 						Image:       "alpine",
 						Number:      7,
@@ -2183,7 +2188,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo hello from bar", m),
+						Environment: generateTestEnv("echo hello from bar", m, ""),
 						Name:        "starlark_build_bar",
 						Image:       "alpine",
 						Number:      8,
@@ -2236,7 +2241,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo from inline", m),
+						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
 						Image:       "alpine",
 						Number:      3,
@@ -2333,7 +2338,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
 						Entrypoint:  []string{"/bin/sh", "-c"},
 						Directory:   "/vela/src/foo//",
-						Environment: generateTestEnv("echo from inline", m),
+						Environment: generateTestEnv("echo from inline", m, ""),
 						Name:        "test",
 						Image:       "alpine",
 						Number:      3,
@@ -2415,6 +2420,197 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "golang base",
+			args: args{
+				file:         "testdata/inline_with_golang.yml",
+				pipelineType: constants.PipelineTypeGo,
+			},
+			want: &pipeline.Build{
+				Version: "1",
+				ID:      "__0",
+				Metadata: pipeline.Metadata{
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Stages: []*pipeline.Stage{
+					{
+						Name:        "init",
+						Environment: golangEnv,
+						Steps: pipeline.ContainerSlice{
+							&pipeline.Container{
+								ID:          "__0_init_init",
+								Directory:   "/vela/src/foo//",
+								Environment: golangEnv,
+								Image:       "#init",
+								Name:        "init",
+								Number:      1,
+								Pull:        "not_present",
+							},
+						},
+					},
+					{
+						Name:        "clone",
+						Environment: golangEnv,
+						Steps: pipeline.ContainerSlice{
+							&pipeline.Container{
+								ID:          "__0_clone_clone",
+								Directory:   "/vela/src/foo//",
+								Environment: golangEnv,
+								Image:       "target/vela-git:v0.5.1",
+								Name:        "clone",
+								Number:      2,
+								Pull:        "not_present",
+							},
+						},
+					},
+					{
+						Name:        "foo",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_foo_foo",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo from inline foo", m, constants.PipelineTypeGo),
+								Image:       "alpine",
+								Name:        "foo",
+								Pull:        "not_present",
+								Number:      3,
+							},
+						},
+					},
+					{
+						Name:        "bar",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_bar_bar",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo from inline bar", m, constants.PipelineTypeGo),
+								Image:       "alpine",
+								Name:        "bar",
+								Pull:        "not_present",
+								Number:      4,
+							},
+						},
+					},
+					{
+						Name:        "star",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_star_star",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo from inline star", m, constants.PipelineTypeGo),
+								Image:       "alpine",
+								Name:        "star",
+								Pull:        "not_present",
+								Number:      5,
+							},
+						},
+					},
+					{
+						Name:        "golang_foo",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_golang_foo_golang_foo",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from foo", m, constants.PipelineTypeGo),
+								Image:       "golang:1.17",
+								Name:        "golang_foo",
+								Pull:        "not_present",
+								Number:      6,
+							},
+						},
+					},
+					{
+						Name:        "golang_bar",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_golang_bar_golang_bar",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from bar", m, constants.PipelineTypeGo),
+								Image:       "golang:1.17",
+								Name:        "golang_bar",
+								Pull:        "not_present",
+								Number:      7,
+							},
+						},
+					},
+					{
+						Name:        "golang_star",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_golang_star_golang_star",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from star", m, constants.PipelineTypeGo),
+								Image:       "golang:1.17",
+								Name:        "golang_star",
+								Pull:        "not_present",
+								Number:      8,
+							},
+						},
+					},
+					{
+						Name:        "starlark_foo",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_starlark_foo_starlark_build_foo",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from foo", m, constants.PipelineTypeGo),
+								Image:       "alpine",
+								Name:        "starlark_build_foo",
+								Pull:        "not_present",
+								Number:      9,
+							},
+						},
+					},
+					{
+						Name:        "starlark_bar",
+						Needs:       []string{"clone"},
+						Environment: golangEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_starlark_bar_starlark_build_bar",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from bar", m, constants.PipelineTypeGo),
+								Image:       "alpine",
+								Name:        "starlark_build_bar",
+								Pull:        "not_present",
+								Number:      10,
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -2428,6 +2624,10 @@ func Test_Compile_Inline(t *testing.T) {
 			}
 
 			compiler.WithMetadata(m)
+
+			if tt.args.pipelineType != "" {
+				compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
+			}
 
 			got, err := compiler.Compile(yaml)
 			if (err != nil) != tt.wantErr {
