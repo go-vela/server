@@ -43,6 +43,8 @@ func (c *client) ParseRaw(v interface{}) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
+//
+// nolint: lll // ignore function length due to input args
 func (c *client) Parse(v interface{}, pipelineType string, variables map[string]interface{}) (*types.Build, error) {
 	var p *types.Build
 
