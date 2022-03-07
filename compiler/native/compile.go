@@ -39,10 +39,8 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-//
-// nolint: gocyclo,funlen // ignore function length due to comments
 func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
-	p, err := c.Parse(v)
+	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +52,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	}
 
 	// create map of templates for easy lookup
-	tmpls := mapFromTemplates(p.Templates)
+	templates := mapFromTemplates(p.Templates)
 
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
@@ -67,91 +65,165 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
+	switch {
+	case p.Metadata.RenderInline:
+		newPipeline, err := c.compileInline(p)
+		if err != nil {
+			return nil, err
+		}
+		// validate the yaml configuration
+		err = c.Validate(newPipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(newPipeline.Stages) > 0 {
+			return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
+		}
+
+		return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
+	case len(p.Stages) > 0:
+		return c.compileStages(p, templates, r)
+	default:
+		return c.compileSteps(p, templates, r)
+	}
+}
+
+// CompileLite produces a partial of an executable pipeline from a yaml configuration.
+func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, error) {
+	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
+	if err != nil {
+		return nil, err
+	}
+
 	if p.Metadata.RenderInline {
+		newPipeline, err := c.compileInline(p)
+		if err != nil {
+			return nil, err
+		}
+		// validate the yaml configuration
+		err = c.Validate(newPipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		p = newPipeline
+	}
+
+	if template {
+		// create map of templates for easy lookup
+		templates := mapFromTemplates(p.Templates)
+
 		switch {
 		case len(p.Stages) > 0:
-			return c.compileStages(p, tmpls, r)
-		case len(p.Steps) > 0:
-			return c.compileSteps(p, tmpls, r)
-		default:
-			// TODO: improve error handling
-			newPipeline := new(yaml.Build)
-			newPipeline.Version = p.Version
-			newPipeline.Environment = p.Environment
-
-			for _, template := range p.Templates {
-				bytes, err := c.getTemplate(template, template.Name)
-				if err != nil {
-					return nil, err
-				}
-
-				c.repo.SetPipelineType(template.Format)
-				parsed, err := c.Parse(bytes)
-				if err != nil {
-					return nil, err
-				}
-
-				switch {
-				case len(parsed.Environment) > 0:
-					for key, value := range parsed.Environment {
-						newPipeline.Environment[key] = value
-					}
-					fallthrough
-				case len(parsed.Stages) > 0:
-					// ensure all templated steps inside stages have template prefix
-					for stgIndex, newStage := range parsed.Stages {
-						parsed.Stages[stgIndex].Name = fmt.Sprintf("%s_%s", template.Name, newStage.Name)
-
-						for index, newStep := range newStage.Steps {
-							parsed.Stages[stgIndex].Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
-						}
-					}
-
-					newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
-					fallthrough
-				case len(parsed.Steps) > 0:
-					// ensure all templated steps have template prefix
-					for index, newStep := range parsed.Steps {
-						parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
-					}
-					newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
-					fallthrough
-				case len(parsed.Services) > 0:
-					newPipeline.Services = append(newPipeline.Services, parsed.Services...)
-					fallthrough
-				case len(parsed.Secrets) > 0:
-					newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
-					break
-				default:
-					return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
-				}
-
-				if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
-					return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
-				}
-			}
-
-			// validate the yaml configuration
-			err = c.Validate(newPipeline)
+			// inject the templates into the steps
+			p, err = c.ExpandStages(p, templates)
 			if err != nil {
 				return nil, err
 			}
 
-			if len(newPipeline.Stages) > 0 {
-				return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
+			if substitute {
+				// inject the substituted environment variables into the steps
+				p.Stages, err = c.SubstituteStages(p.Stages)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case len(p.Steps) > 0:
+			// inject the templates into the steps
+			p, err = c.ExpandSteps(p, templates)
+			if err != nil {
+				return nil, err
 			}
 
-			return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
+			if substitute {
+				// inject the substituted environment variables into the steps
+				p.Steps, err = c.SubstituteSteps(p.Steps)
+				if err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
 
-	if len(p.Stages) > 0 {
-		return c.compileStages(p, tmpls, r)
+	// validate the yaml configuration
+	err = c.Validate(p)
+	if err != nil {
+		return nil, err
 	}
 
-	return c.compileSteps(p, tmpls, r)
+	return p, nil
 }
 
+// compileInline parses and expands out inline pipelines.
+func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
+	newPipeline := *p
+	newPipeline.Templates = yaml.TemplateSlice{}
+
+	for _, template := range p.Templates {
+		bytes, err := c.getTemplate(template, template.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		parsed, err := c.Parse(bytes, template.Format, template.Variables)
+		if err != nil {
+			return nil, err
+		}
+
+		switch {
+		case len(parsed.Environment) > 0:
+			for key, value := range parsed.Environment {
+				newPipeline.Environment[key] = value
+			}
+			fallthrough
+		case len(parsed.Stages) > 0:
+			// ensure all templated steps inside stages have template prefix
+			for stgIndex, newStage := range parsed.Stages {
+				parsed.Stages[stgIndex].Name = fmt.Sprintf("%s_%s", template.Name, newStage.Name)
+
+				for index, newStep := range newStage.Steps {
+					parsed.Stages[stgIndex].Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
+				}
+			}
+
+			newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
+			fallthrough
+		case len(parsed.Steps) > 0:
+			// ensure all templated steps have template prefix
+			for index, newStep := range parsed.Steps {
+				parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
+			}
+			newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
+			fallthrough
+		case len(parsed.Services) > 0:
+			newPipeline.Services = append(newPipeline.Services, parsed.Services...)
+			fallthrough
+		case len(parsed.Secrets) > 0:
+			newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
+		default:
+			// nolint: lll // ignore long line length due to error message
+			return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
+		}
+
+		if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
+			// nolint: lll // ignore long line length due to error message
+			return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
+		}
+	}
+
+	// validate the yaml configuration
+	err := c.Validate(&newPipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	return &newPipeline, nil
+}
+
+// compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
+//
+// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
 	var err error
 
@@ -241,6 +313,9 @@ func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r 
 	return c.TransformSteps(r, p)
 }
 
+// compileStages executes the workflow for converting a YAML pipeline into an executable struct.
+//
+// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
 	var err error
 

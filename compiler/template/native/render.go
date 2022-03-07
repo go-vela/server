@@ -65,7 +65,9 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 }
 
 // RenderBuild renders the templated build.
-func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
+//
+// nolint: lll // ignore function length due to input args
+func RenderBuild(b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
 	config := new(types.Build)
 
@@ -91,7 +93,7 @@ func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
 	}
 
 	// execute the template
-	err = t.Execute(buffer, "")
+	err = t.Execute(buffer, variables)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute template: %w", err)
 	}

@@ -132,7 +132,9 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 }
 
 // RenderBuild renders the templated build.
-func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
+//
+// nolint: lll // ignore function length due to input args
+func RenderBuild(b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	config := new(types.Build)
 
 	thread := &starlark.Thread{Name: "templated-base"}
@@ -159,6 +161,12 @@ func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
 		return nil, fmt.Errorf("%s: %s", ErrInvalidMainFunc, "templated-base")
 	}
 
+	// load the user provided vars into a starlark type
+	userVars, err := convertTemplateVars(variables)
+	if err != nil {
+		return nil, err
+	}
+
 	// load the platform provided vars into a starlark type
 	velaVars, err := convertPlatformVars(envs, "")
 	if err != nil {
@@ -169,6 +177,10 @@ func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
 	// within the template caller i.e. ctx["vela"] or ctx["vars"]
 	context := starlark.NewDict(0)
 	err = context.SetKey(starlark.String("vela"), velaVars)
+	if err != nil {
+		return nil, err
+	}
+	err = context.SetKey(starlark.String("vars"), userVars)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,6 @@
+---
+services:
+  - name: cache
+    image: redis
+  - name: database
+    image: mongo

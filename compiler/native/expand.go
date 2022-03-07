@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/types/constants"
+
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/spf13/afero"
@@ -46,7 +48,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
 //
-// nolint: lll,funlen,gocyclo // ignore long line length due to variable names
+// nolint: lll,funlen // ignore long line length due to variable names
 func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
@@ -216,6 +218,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 	return bytes, nil
 }
 
+// nolint: lll // ignore long line length due to input arguments
 func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
 	var (
 		err             error
@@ -225,21 +228,21 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		tmplEnvironment raw.StringSliceMap
 	)
 
-	// TODO: provide friendlier error messages with file type mismatches
 	switch tmpl.Format {
-	case "go", "golang", "":
-		// render template for steps
+	case constants.PipelineTypeGo, "golang", "":
+		// nolint: lll // ignore long line length due to return
 		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 		if err != nil {
 			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
 		}
-	case "starlark":
-		// render template for steps
+	case constants.PipelineTypeStarlark:
+		// nolint: lll // ignore long line length due to return
 		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 		if err != nil {
 			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
 		}
 	default:
+		// nolint: lll // ignore long line length due to return
 		return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
 
