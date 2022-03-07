@@ -2191,6 +2191,8 @@ func Test_Compile_Inline(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		// TODO: test with template that only returns secrets
+		// TODO: test with template that only returns services
 		// TODO: test global environment
 	}
 	for _, tt := range tests {

@@ -872,10 +872,9 @@ func Test_client_Parse(t *testing.T) {
 		{"yaml", args{pipelineType: constants.PipelineTypeYAML, file: "testdata/pipeline_type_default.yml"}, want, false},
 		{"starlark", args{pipelineType: constants.PipelineTypeStarlark, file: "testdata/pipeline_type.star"}, want, false},
 		{"go", args{pipelineType: constants.PipelineTypeGo, file: "testdata/pipeline_type_go.yml"}, want, false},
-		// TODO: fix these
-		// {"empty", args{pipelineType: "", file: "testdata/pipeline_type_default.yml"}, want, false},
-		// {"nil", args{pipelineType: "nil", file: "testdata/pipeline_type_default.yml"}, want, false},
-		// {"invalid", args{pipelineType: "foo", file: "testdata/pipeline_type_default.yml"}, nil, true},
+		{"empty", args{pipelineType: "", file: "testdata/pipeline_type_default.yml"}, want, false},
+		{"nil", args{pipelineType: "nil", file: "testdata/pipeline_type_default.yml"}, nil, true},
+		{"invalid", args{pipelineType: "foo", file: "testdata/pipeline_type_default.yml"}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

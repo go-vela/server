@@ -164,7 +164,6 @@ func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Bu
 
 // compileInline parses and expands out inline pipelines.
 func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
-	// TODO: improve error handling
 	newPipeline := new(yaml.Build)
 	newPipeline.Stages = p.Stages
 	newPipeline.Steps = p.Steps
