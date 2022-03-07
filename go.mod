@@ -14,7 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/go-vela/types v0.12.1-0.20220225143239-e445e33004b5
+	github.com/go-vela/types v0.12.1-0.20220307155536-7d7cbbec3443
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v42 v42.0.0

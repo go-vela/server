@@ -16,7 +16,8 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetNumber(1)
-	_pipeline.SetRef("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_pipeline.SetRef("refs/heads/master")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 
@@ -25,9 +26,9 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "pipelines"
-SET "repo_id"=$1,"number"=$2,"flavor"=$3,"platform"=$4,"ref"=$5,"type"=$6,"version"=$7,"external_secrets"=$8,"internal_secrets"=$9,"services"=$10,"stages"=$11,"steps"=$12,"templates"=$13,"data"=$14
-WHERE "id" = $15`).
-		WithArgs(1, 1, nil, nil, "48afb5bdc41ad69bf22588491333f7cf71135163", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
+SET "repo_id"=$1,"number"=$2,"commit"=$3,"flavor"=$4,"platform"=$5,"ref"=$6,"type"=$7,"version"=$8,"external_secrets"=$9,"internal_secrets"=$10,"services"=$11,"stages"=$12,"steps"=$13,"templates"=$14,"data"=$15
+WHERE "id" = $16`).
+		WithArgs(1, 1, "48afb5bdc41ad69bf22588491333f7cf71135163", nil, nil, "refs/heads/master", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
