@@ -34,6 +34,7 @@ repos (
 	allow_comment BOOLEAN,
 	pipeline_type TEXT,
 	previous_name VARCHAR(100),
+	last_update   INTEGER,
 	UNIQUE(full_name)
 );
 `

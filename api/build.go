@@ -1365,6 +1365,9 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
+	// update fields in repo object
+	r.SetLastUpdate(time.Now().UTC().Unix())
+
 	// send API call to create the build
 	err := database.CreateBuild(b)
 	if err != nil {
@@ -1372,6 +1375,12 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 		cleanBuild(database, b, nil, nil)
 
 		return fmt.Errorf("unable to create new build for %s: %v", r.GetFullName(), err)
+	}
+
+	// send API call to update the repo
+	err = database.UpdateRepo(r)
+	if err != nil {
+		return fmt.Errorf("unable to update repo %s: %v", r.GetFullName(), err)
 	}
 
 	// send API call to capture the created build

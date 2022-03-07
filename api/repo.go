@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-vela/server/router/middleware/org"
 
@@ -114,6 +115,7 @@ func CreateRepo(c *gin.Context) {
 
 	// update fields in repo object
 	r.SetUserID(u.GetID())
+	r.SetLastUpdate(time.Now().UTC().Unix())
 
 	// set the active field based off the input provided
 	if input.Active == nil {

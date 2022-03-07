@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/go-vela/server/router/middleware/org"
 
@@ -62,6 +63,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowComment(false)
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")
+	want.SetLastUpdate(time.Now().UTC().Unix())
 
 	got := new(library.Repo)
 

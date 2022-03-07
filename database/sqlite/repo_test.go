@@ -23,6 +23,7 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("")
+	_repo.SetLastUpdate(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -90,6 +91,7 @@ func TestSqlite_Client_CreateRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPreviousName("")
+	_repo.SetLastUpdate(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -139,6 +141,7 @@ func TestSqlite_Client_UpdateRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPreviousName("")
+	_repo.SetLastUpdate(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -194,6 +197,7 @@ func TestSqlite_Client_DeleteRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPreviousName("")
+	_repo.SetLastUpdate(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -270,5 +274,6 @@ func testRepo() *library.Repo {
 		AllowTag:     &b,
 		AllowComment: &b,
 		PreviousName: &str,
+		LastUpdate:   &i64,
 	}
 }
