@@ -1930,7 +1930,6 @@ func Test_Compile_Inline(t *testing.T) {
 		want    *pipeline.Build
 		wantErr bool
 	}{
-		// TODO: figure out why vars is not working
 		{
 			name: "root stages",
 			args: args{
@@ -2002,7 +2001,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
 								Environment: generateTestEnv("echo hello from foo", m),
-								Image:       "alpine",
+								Image:       "golang:1.17",
 								Name:        "golang_foo",
 								Pull:        "not_present",
 								Number:      4,
@@ -2020,7 +2019,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
 								Environment: generateTestEnv("echo hello from bar", m),
-								Image:       "alpine",
+								Image:       "golang:1.17",
 								Name:        "golang_bar",
 								Pull:        "not_present",
 								Number:      5,
@@ -2038,7 +2037,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Directory:   "/vela/src/foo//",
 								Entrypoint:  []string{"/bin/sh", "-c"},
 								Environment: generateTestEnv("echo hello from star", m),
-								Image:       "alpine",
+								Image:       "golang:1.17",
 								Name:        "golang_star",
 								Pull:        "not_present",
 								Number:      6,
@@ -2184,7 +2183,14 @@ func Test_Compile_Inline(t *testing.T) {
 				},
 			},
 		},
-		// TODO: add mix of stages and steps to see error
+		{
+			name: "stages and steps",
+			args: args{
+				file: "testdata/inline_with_stages_and_steps.yml",
+			},
+			want:    nil,
+			wantErr: true,
+		},
 		// TODO: test global environment
 	}
 	for _, tt := range tests {
@@ -2201,8 +2207,9 @@ func Test_Compile_Inline(t *testing.T) {
 			compiler.WithMetadata(m)
 
 			got, err := compiler.Compile(yaml)
-			if err != nil {
-				t.Errorf("Compile returned err: %v", err)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 
 			// WARNING: hack to compare stages
@@ -2211,10 +2218,12 @@ func Test_Compile_Inline(t *testing.T) {
 			// Two channel values are considered equal if they
 			// originated from the same make call meaning they
 			// refer to the same channel value in memory.
-			for i, stage := range got.Stages {
-				tmp := tt.want.Stages
+			if got != nil {
+				for i, stage := range got.Stages {
+					tmp := tt.want.Stages
 
-				tmp[i].Done = stage.Done
+					tmp[i].Done = stage.Done
+				}
 			}
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {

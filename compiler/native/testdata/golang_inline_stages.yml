@@ -7,7 +7,7 @@ stages:
   {{ $stage }}:
       steps:
         - name: {{ $stage }}
-          image: {{ default "alpine" .image }}
+          image: {{ default "alpine" $.image }}
           commands:
             - echo hello from {{ $stage }}
   {{ end }}

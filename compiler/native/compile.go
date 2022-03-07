@@ -40,7 +40,7 @@ type ModifyResponse struct {
 
 // Compile produces an executable pipeline from a yaml configuration.
 func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
-	p, err := c.Parse(v, c.repo.GetPipelineType())
+	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
@@ -97,12 +97,11 @@ func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Bu
 	// TODO: think about how to handle Repo and User metadata in the environment
 	// the user and repo metadata is being set on the endpoints but we don't have any build data.
 	// we could environment expand and substitute with some data.
-	p, err := c.Parse(v, c.repo.GetPipelineType())
+	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: test inline steps
 	// TODO: look at a custom unmarshaller for reducing the key/value affect occurring during the "yaml.Unmarshal"
 	if p.Metadata.RenderInline {
 		newPipeline, err := c.compileInline(p)
@@ -178,7 +177,7 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 			return nil, err
 		}
 
-		parsed, err := c.Parse(bytes, template.Format)
+		parsed, err := c.Parse(bytes, template.Format, template.Variables)
 		if err != nil {
 			return nil, err
 		}

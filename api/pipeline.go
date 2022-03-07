@@ -96,7 +96,7 @@ func GetPipeline(ctx *gin.Context) {
 		return
 	}
 
-	pipeline, err := comp.Parse(config, r.GetPipelineType())
+	pipeline, err := comp.Parse(config, r.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -172,7 +172,7 @@ func GetTemplates(ctx *gin.Context) {
 		return
 	}
 
-	pipeline, err := comp.Parse(config, r.GetPipelineType())
+	pipeline, err := comp.Parse(config, r.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)

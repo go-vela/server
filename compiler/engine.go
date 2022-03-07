@@ -33,7 +33,7 @@ type Engine interface {
 
 	// Parse defines a function that converts
 	// an object to a yaml configuration.
-	Parse(interface{}, string) (*yaml.Build, error)
+	Parse(interface{}, string, map[string]interface{}) (*yaml.Build, error)
 
 	// ParseRaw defines a function that converts
 	// an object to a string.

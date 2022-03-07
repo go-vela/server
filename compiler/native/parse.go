@@ -43,7 +43,7 @@ func (c *client) ParseRaw(v interface{}) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
-func (c *client) Parse(v interface{}, pipelineType string) (*types.Build, error) {
+func (c *client) Parse(v interface{}, pipelineType string, variables map[string]interface{}) (*types.Build, error) {
 	var p *types.Build
 
 	switch pipelineType {
@@ -53,7 +53,7 @@ func (c *client) Parse(v interface{}, pipelineType string) (*types.Build, error)
 		if err != nil {
 			return nil, err
 		}
-		p, err = native.RenderBuild(parsedRaw, c.EnvironmentBuild())
+		p, err = native.RenderBuild(parsedRaw, c.EnvironmentBuild(), variables)
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +63,7 @@ func (c *client) Parse(v interface{}, pipelineType string) (*types.Build, error)
 		if err != nil {
 			return nil, err
 		}
-		p, err = starlark.RenderBuild(parsedRaw, c.EnvironmentBuild())
+		p, err = starlark.RenderBuild(parsedRaw, c.EnvironmentBuild(), variables)
 		if err != nil {
 			return nil, err
 		}
