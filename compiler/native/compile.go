@@ -90,8 +90,6 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-//
-// nolint:lll // ignore comment length
 func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, error) {
 	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
