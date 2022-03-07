@@ -7,6 +7,7 @@ package postgres
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 
@@ -372,12 +373,14 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetCreated(1)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetCreated(2)
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -396,7 +399,7 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(3)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE repo_id = $1`).WillReturnRows(_rows)
@@ -408,15 +411,19 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 		AddRow(2, 1, nil, 2, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {
 		failure bool
+		before  int64
+		after   int64
 		want    []*library.Build
 	}{
 		{
 			failure: false,
+			before:  time.Now().UTC().Unix(),
+			after:   0,
 			want:    []*library.Build{_buildOne, _buildTwo},
 		},
 	}
@@ -425,7 +432,7 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, _, err := _database.GetRepoBuildList(_repo, filters, 1, 10)
+		got, _, err := _database.GetRepoBuildList(_repo, filters, test.before, test.after, 1, 10)
 
 		if test.failure {
 			if err == nil {

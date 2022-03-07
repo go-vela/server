@@ -81,6 +81,8 @@ import (
 
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
+//
+// nolint: funlen // ignore funlen linter
 func CreateSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -123,6 +125,16 @@ func CreateSecret(c *gin.Context) {
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %w", entry, e, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// reject secrets with solely whitespace characters as its value
+	trimmed := strings.TrimSpace(input.GetValue())
+	if len(trimmed) == 0 {
+		retErr := fmt.Errorf("secret value must contain non-whitespace characters")
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -544,6 +556,8 @@ func GetSecret(c *gin.Context) {
 //       "$ref": "#/definitions/Error"
 
 // UpdateSecret updates a secret for the provided secrets service.
+//
+// nolint: funlen // ignore funlen linter
 func UpdateSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
