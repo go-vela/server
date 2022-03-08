@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/raw"
 
 	"github.com/google/go-github/v42/github"
 
@@ -2652,6 +2653,292 @@ func Test_Compile_Inline(t *testing.T) {
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func Test_CompileLite(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	m := &types.Metadata{
+		Database: &types.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &types.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &types.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &types.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+	type args struct {
+		file         string
+		pipelineType string
+		template     bool
+		substitute   bool
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *yaml.Build
+		wantErr bool
+	}{
+		{
+			name: "render_inline with stages",
+			args: args{
+				file:         "testdata/inline_with_stages.yml",
+				pipelineType: "",
+				template:     true,
+				substitute:   true,
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					RenderInline: true,
+					Environment:  []string{"steps", "services", "secrets"},
+				},
+				Templates: []*yaml.Template{},
+				Stages: []*yaml.Stage{
+					{
+						Name:  "test",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo from inline"},
+								Image:    "alpine",
+								Name:     "test",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "golang_foo",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from foo"},
+								Image:    "golang:1.17",
+								Name:     "golang_foo",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "golang_bar",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from bar"},
+								Image:    "golang:1.17",
+								Name:     "golang_bar",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "golang_star",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from star"},
+								Image:    "golang:1.17",
+								Name:     "golang_star",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "starlark_foo",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from foo"},
+								Image:    "alpine",
+								Name:     "starlark_build_foo",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "starlark_bar",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from bar"},
+								Image:    "alpine",
+								Name:     "starlark_build_bar",
+								Pull:     "not_present",
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "render_inline with steps",
+			args: args{
+				file:         "testdata/inline_with_steps.yml",
+				pipelineType: "",
+				template:     true,
+				substitute:   true,
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					RenderInline: true,
+					Environment:  []string{"steps", "services", "secrets"},
+				},
+				Steps: yaml.StepSlice{
+					{
+						Commands: raw.StringSlice{"echo from inline"},
+						Image:    "alpine",
+						Name:     "test",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from foo"},
+						Image:    "alpine",
+						Name:     "golang_foo",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from bar"},
+						Image:    "alpine",
+						Name:     "golang_bar",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from star"},
+						Image:    "alpine",
+						Name:     "golang_star",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from foo"},
+						Image:    "alpine",
+						Name:     "starlark_build_foo",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from bar"},
+						Image:    "alpine",
+						Name:     "starlark_build_bar",
+						Pull:     "not_present",
+					},
+				},
+				Templates: yaml.TemplateSlice{},
+			},
+			wantErr: false,
+		},
+		{
+			name: "golang",
+			args: args{
+				file:         "testdata/golang_inline_stages.yml",
+				pipelineType: "golang",
+				template:     false,
+				substitute:   false,
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Stages: []*yaml.Stage{
+					{
+						Name:  "foo",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from foo"},
+								Image:    "alpine",
+								Name:     "foo",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "bar",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from bar"},
+								Image:    "alpine",
+								Name:     "bar",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "star",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from star"},
+								Image:    "alpine",
+								Name:     "star",
+								Pull:     "not_present",
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			compiler, err := New(c)
+			if err != nil {
+				t.Errorf("Creating compiler returned err: %v", err)
+			}
+
+			compiler.WithMetadata(m)
+			if tt.args.pipelineType != "" {
+				compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
+			}
+
+			yaml, err := ioutil.ReadFile(tt.args.file)
+			if err != nil {
+				t.Errorf("Reading yaml file return err: %v", err)
+			}
+
+			got, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("CompileLite() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
