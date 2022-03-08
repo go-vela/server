@@ -8,7 +8,7 @@ We'd love to accept your contributions to this project! If you are a first time 
 
 * [Review the local development docs](../DOCS.md) - ensures you have the Vela application stack running locally
 * [Review the commit guide we follow](https://chris.beams.io/posts/git-commit/#seven-rules) - ensure your commits follow our standards
-* Review our [style guide](https://go-vela.github.io/docs/community/contributing_guidelines/#style-guide) to ensure your code is clean and consistent.
+* [Review our style guide](https://go-vela.github.io/docs/community/contributing_guidelines/#style-guide) to ensure your code is clean and consistent.
 
 ### Setup
 
