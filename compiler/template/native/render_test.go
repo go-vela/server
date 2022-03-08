@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/yaml"
 )
 
-func TestNative_RenderStep(t *testing.T) {
+func TestNative_Render(t *testing.T) {
 	type args struct {
 		velaFile     string
 		templateFile string
@@ -59,9 +59,9 @@ func TestNative_RenderStep(t *testing.T) {
 				t.Error(err)
 			}
 
-			steps, secrets, services, environment, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
+			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("RenderStep() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -80,17 +80,17 @@ func TestNative_RenderStep(t *testing.T) {
 				wantServices := w.Services
 				wantEnvironment := w.Environment
 
-				if diff := cmp.Diff(wantSteps, steps); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantSteps, tmplBuild.Steps); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
-				if diff := cmp.Diff(wantSecrets, secrets); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantSecrets, tmplBuild.Secrets); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
-				if diff := cmp.Diff(wantServices, services); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantServices, tmplBuild.Services); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
-				if diff := cmp.Diff(wantEnvironment, environment); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantEnvironment, tmplBuild.Environment); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
 			}
 		})
