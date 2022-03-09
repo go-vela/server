@@ -52,6 +52,7 @@ func TestMiddleware_Secret(t *testing.T) {
 func TestMiddleware_Secrets(t *testing.T) {
 	// setup types
 	d, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
 
 	var got secret.Service

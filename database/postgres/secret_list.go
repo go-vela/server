@@ -60,8 +60,6 @@ func (c *client) GetSecretList() ([]*library.Secret, error) {
 
 // GetTypeSecretList gets a list of secrets by type,
 // owner, and name (repo or team) from the database.
-//
-// nolint: lll // ignore long line length
 func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []string) ([]*library.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
@@ -80,7 +78,6 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []st
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("listing %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
@@ -108,6 +105,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []st
 			for _, t := range teams {
 				lowerTeams = append(lowerTeams, strings.ToLower(t))
 			}
+
 			err = c.Postgres.
 				Table(constants.TableSecret).
 				Where("type = 'shared' AND org = ?", o).
@@ -123,6 +121,7 @@ func (c *client) GetTypeSecretList(t, o, n string, page, perPage int, teams []st
 				Scan(s).Error
 		}
 	}
+
 	if err != nil {
 		return nil, err
 	}

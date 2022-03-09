@@ -18,6 +18,7 @@ func TestWebhook_WebhookValidation(t *testing.T) {
 	type args struct {
 		validate bool
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -38,6 +39,7 @@ func TestWebhook_WebhookValidation(t *testing.T) {
 			want: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// setup context

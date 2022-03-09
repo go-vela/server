@@ -14,6 +14,7 @@ import (
 func TestDatabase_FromContext(t *testing.T) {
 	// setup types
 	want, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
@@ -73,6 +74,7 @@ func TestDatabase_FromContext_Empty(t *testing.T) {
 func TestDatabase_ToContext(t *testing.T) {
 	// setup types
 	want, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

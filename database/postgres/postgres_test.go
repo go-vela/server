@@ -60,12 +60,12 @@ func TestPostgres_New(t *testing.T) {
 
 func TestPostgres_setupDatabase(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the ping
@@ -100,6 +100,7 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new skip postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _skipDatabase.Postgres.DB(); _sql.Close() }()
 
 	err = WithSkipCreation(true)(_skipDatabase)
@@ -144,12 +145,12 @@ func TestPostgres_setupDatabase(t *testing.T) {
 
 func TestPostgres_createTables(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the table queries
@@ -191,12 +192,12 @@ func TestPostgres_createTables(t *testing.T) {
 
 func TestPostgres_createIndexes(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the index queries

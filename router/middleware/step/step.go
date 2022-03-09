@@ -39,12 +39,14 @@ func Establish() gin.HandlerFunc {
 		if r == nil {
 			retErr := fmt.Errorf("repo %s/%s not found", o, c.Param("repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
 		if b == nil {
 			retErr := fmt.Errorf("build %s not found for repo %s", c.Param("build"), r.GetFullName())
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
@@ -52,6 +54,7 @@ func Establish() gin.HandlerFunc {
 		if len(sParam) == 0 {
 			retErr := fmt.Errorf("no step parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -59,6 +62,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("malformed step parameter provided: %s", sParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -75,9 +79,9 @@ func Establish() gin.HandlerFunc {
 
 		s, err := database.FromContext(c).GetStep(number, b)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to read step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
+			retErr := fmt.Errorf("unable to read step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

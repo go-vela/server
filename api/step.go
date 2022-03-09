@@ -233,8 +233,6 @@ func GetSteps(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of steps for the build
@@ -407,7 +405,7 @@ func UpdateStep(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for step %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to decode JSON for step %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -552,8 +550,6 @@ func DeleteStep(c *gin.Context) {
 // planSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-//
-// nolint: funlen,lll // ignore function length and long line length
 func planSteps(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}

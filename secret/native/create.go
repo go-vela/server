@@ -35,7 +35,6 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// create the secret for the native service

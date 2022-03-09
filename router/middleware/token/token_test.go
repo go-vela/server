@@ -2,9 +2,11 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
+// nolint: staticcheck // ignore deprecated
 package token
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -472,7 +474,7 @@ func TestToken_Retrieve_Refresh(t *testing.T) {
 	// setup types
 	want := "fresh"
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", nil)
 	request.AddCookie(&http.Cookie{
 		Name:  constants.RefreshTokenName,
 		Value: want,
@@ -494,7 +496,7 @@ func TestToken_Retrieve_Access(t *testing.T) {
 	want := "foobar"
 
 	header := fmt.Sprintf("Bearer %s", want)
-	request, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", nil)
 	request.Header.Set("Authorization", header)
 
 	// run test
@@ -510,7 +512,7 @@ func TestToken_Retrieve_Access(t *testing.T) {
 
 func TestToken_Retrieve_Access_Error(t *testing.T) {
 	// setup types
-	request, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", nil)
 
 	// run test
 	got, err := RetrieveAccessToken(request)
@@ -525,7 +527,7 @@ func TestToken_Retrieve_Access_Error(t *testing.T) {
 
 func TestToken_Retrieve_Refresh_Error(t *testing.T) {
 	// setup types
-	request, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", nil)
 
 	// run test
 	got, err := RetrieveRefreshToken(request)

@@ -70,7 +70,6 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 		l = append(l, ls)
 	}
 
-	// nolint: gomnd // ignore magic number
 	c.Header("X-Total-Count", strconv.FormatInt(p.Total, 10))
 	c.Header("Link", strings.Join(l, ", "))
 }

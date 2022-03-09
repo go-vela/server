@@ -19,8 +19,6 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (yaml.StageSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
 	// iterate through all stages
 	for _, stage := range s.Stages {
@@ -42,12 +40,13 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (y
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
 //
-// nolint: lll,funlen,gocyclo // ignore long line length due to variable names
+// nolint: funlen,gocyclo // ignore long line length due to variable names
 func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
 	steps := yaml.StepSlice{}
 	secrets := s.Secrets
 	services := s.Services
 	environment := s.Environment
+
 	if len(environment) == 0 {
 		environment = make(raw.StringSliceMap)
 	}
@@ -100,7 +99,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 			// parse source from template
 			src, err := c.Github.Parse(tmpl.Source)
 			if err != nil {
-				return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("invalid template source provided for %s: %v", step.Template.Name, err)
+				return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("invalid template source provided for %s: %w", step.Template.Name, err)
 			}
 
 			// pull from github without auth when the host isn't provided or is set to github.com
@@ -111,6 +110,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 					"path": src.Name,
 					"host": src.Host,
 				}).Tracef("Using GitHub client to pull template")
+
 				bytes, err = c.Github.Template(nil, src)
 				if err != nil {
 					return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
@@ -134,10 +134,12 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 			continue
 		}
 
-		var tmplSteps yaml.StepSlice
-		var tmplSecrets yaml.SecretSlice
-		var tmplServices yaml.ServiceSlice
-		var tmplEnvironment raw.StringSliceMap
+		var (
+			tmplSteps       yaml.StepSlice
+			tmplSecrets     yaml.SecretSlice
+			tmplServices    yaml.ServiceSlice
+			tmplEnvironment raw.StringSliceMap
+		)
 
 		// TODO: provide friendlier error messages with file type mismatches
 		switch tmpl.Format {
@@ -177,6 +179,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		// loop over services within template
 		for _, service := range tmplServices {
 			found := false
+
 			for _, serv := range services {
 				if serv.Name == service.Name {
 					found = true
@@ -192,6 +195,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		// loop over environment within template
 		for key, value := range tmplEnvironment {
 			found := false
+
 			for env := range environment {
 				if key == env {
 					found = true

@@ -118,7 +118,7 @@ func (c *client) CreateUser(u *library.User) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
 	err = user.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt user %s: %v", u.GetName(), err)
+		return fmt.Errorf("unable to encrypt user %s: %w", u.GetName(), err)
 	}
 
 	// send query to the database
@@ -153,7 +153,7 @@ func (c *client) UpdateUser(u *library.User) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
 	err = user.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt user %s: %v", u.GetName(), err)
+		return fmt.Errorf("unable to encrypt user %s: %w", u.GetName(), err)
 	}
 
 	// send query to the database
