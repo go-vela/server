@@ -23,6 +23,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+// nolint: funlen // ignore line length
 func main() {
 	// capture application version information
 	v := version.New()
@@ -172,10 +173,16 @@ func main() {
 			Value:   5 * time.Minute,
 		},
 	}
-	// Add Database, Queue, Secret, and Source Flags
+	// Add Database Flags
 	app.Flags = append(app.Flags, database.Flags...)
+
+	// Add Queue Flags
 	app.Flags = append(app.Flags, queue.Flags...)
+
+	// Add Secret Flags
 	app.Flags = append(app.Flags, secret.Flags...)
+
+	// Add Source Flags
 	app.Flags = append(app.Flags, scm.Flags...)
 
 	// set logrus to log in JSON format
