@@ -31,6 +31,7 @@ func TestSqlite_Client_GetService(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -96,6 +97,7 @@ func TestSqlite_Client_CreateService(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -143,6 +145,7 @@ func TestSqlite_Client_UpdateService(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -196,6 +199,7 @@ func TestSqlite_Client_DeleteService(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests

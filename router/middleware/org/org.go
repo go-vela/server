@@ -25,6 +25,7 @@ func Establish() gin.HandlerFunc {
 		if len(oParam) == 0 {
 			retErr := fmt.Errorf("no org parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 

@@ -18,6 +18,7 @@ func TestNative_Driver(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create database service: %v", err)
 	}
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	want := constants.DriverNative

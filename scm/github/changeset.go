@@ -31,7 +31,7 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 	// send API call to capture the commit
 	commit, _, err := client.Repositories.GetCommit(ctx, r.GetOrg(), r.GetName(), sha, &opts)
 	if err != nil {
-		return nil, fmt.Errorf("Repositories.GetCommit returned error: %v", err)
+		return nil, fmt.Errorf("Repositories.GetCommit returned error: %w", err)
 	}
 
 	// iterate through each file in the commit
@@ -62,7 +62,7 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 		// send API call to capture the files from the pull request
 		files, resp, err := client.PullRequests.ListFiles(ctx, r.GetOrg(), r.GetName(), number, &opts)
 		if err != nil {
-			return nil, fmt.Errorf("PullRequests.ListFiles returned error: %v", err)
+			return nil, fmt.Errorf("PullRequests.ListFiles returned error: %w", err)
 		}
 
 		f = append(f, files...)

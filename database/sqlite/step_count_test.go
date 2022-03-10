@@ -55,6 +55,7 @@ func TestSqlite_Client_GetBuildStepCount(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -106,12 +107,12 @@ func TestSqlite_Client_GetBuildStepCount(t *testing.T) {
 
 func TestSqlite_Client_GetStepImageCount(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -149,12 +150,12 @@ func TestSqlite_Client_GetStepImageCount(t *testing.T) {
 
 func TestSqlite_Client_GetStepStatusCount(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests

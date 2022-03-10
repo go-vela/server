@@ -92,7 +92,6 @@ func AllBuildsQueue(c *gin.Context) {
 	logrus.Info("Admin: reading running and pending builds")
 
 	// default timestamp to 24 hours ago if user did not provide it as query parameter
-	// nolint: gomnd // ignore magic number
 	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
 
 	// send API call to capture pending and running builds

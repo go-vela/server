@@ -37,6 +37,7 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -114,6 +115,7 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
