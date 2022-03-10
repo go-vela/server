@@ -176,6 +176,7 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 			for key, value := range parsed.Environment {
 				newPipeline.Environment[key] = value
 			}
+
 			fallthrough
 		case len(parsed.Stages) > 0:
 			// ensure all templated steps inside stages have template prefix
@@ -188,13 +189,16 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 			}
 
 			newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
+
 			fallthrough
 		case len(parsed.Steps) > 0:
 			// ensure all templated steps have template prefix
 			for index, newStep := range parsed.Steps {
 				parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
 			}
+
 			newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
+
 			fallthrough
 		case len(parsed.Services) > 0:
 			newPipeline.Services = append(newPipeline.Services, parsed.Services...)
