@@ -49,13 +49,13 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	// check the provided template has a main function
 	mainVal, ok := globals["main"]
 	if !ok {
-		return nil, fmt.Errorf("%s: %s", ErrMissingMainFunc, tName)
+		return nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, tName)
 	}
 
 	// check the provided main is a function
 	main, ok := mainVal.(starlark.Callable)
 	if !ok {
-		return nil, fmt.Errorf("%s: %s", ErrInvalidMainFunc, tName)
+		return nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, tName)
 	}
 
 	// load the user provided vars into a starlark type
@@ -117,7 +117,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("%s: %s", ErrInvalidPipelineReturn, mainVal.Type())
+		return nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
 	}
 
 	// unmarshal the template to the pipeline
