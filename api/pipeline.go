@@ -93,6 +93,7 @@ func GetPipeline(ctx *gin.Context) {
 	pipeline, _, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -162,6 +163,7 @@ func GetTemplates(ctx *gin.Context) {
 	pipeline, _, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -170,6 +172,7 @@ func GetTemplates(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to set template links for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -240,11 +243,13 @@ func ExpandPipeline(ctx *gin.Context) {
 	pipeline, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
 	if err := expandPipeline(ctx, pipeline, comp, false); err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -313,6 +318,7 @@ func ValidatePipeline(ctx *gin.Context) {
 	pipeline, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -320,6 +326,7 @@ func ValidatePipeline(ctx *gin.Context) {
 	if ok, _ := strconv.ParseBool(ctx.DefaultQuery("template", "true")); ok {
 		if err := expandPipeline(ctx, pipeline, comp, false); err != nil {
 			util.HandleError(ctx, http.StatusBadRequest, err)
+
 			return
 		}
 	}
@@ -328,6 +335,7 @@ func ValidatePipeline(ctx *gin.Context) {
 	if err = comp.Validate(pipeline); err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -379,7 +387,6 @@ func ValidatePipeline(ctx *gin.Context) {
 
 // CompilePipeline represents the API handler to capture,
 // expand and compile a pipeline configuration.
-//
 func CompilePipeline(ctx *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(ctx)
@@ -398,11 +405,13 @@ func CompilePipeline(ctx *gin.Context) {
 	pipeline, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
 	if err := expandPipeline(ctx, pipeline, comp, true); err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -410,6 +419,7 @@ func CompilePipeline(ctx *gin.Context) {
 	if err = comp.Validate(pipeline); err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -445,7 +455,6 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 
 	pipeline, err := comp.Parse(config)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		return nil, nil, fmt.Errorf("unable to parse pipeline configuration for %s: %w", repoName(ctx), err)
 	}
 
@@ -454,16 +463,16 @@ func getUnprocessedPipeline(ctx *gin.Context) (*yaml.Build, compiler.Engine, err
 
 // getTemplateLinks helper function that retrieves source provider links
 // for a list of templates and returns a map of library templates.
-//
-// nolint: lll // ignore long line length due to variable names
 func getTemplateLinks(ctx *gin.Context, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
 	r := repo.Retrieve(ctx)
+
 	u, err := database.FromContext(ctx).GetUser(r.GetUserID())
 	if err != nil {
 		return nil, err
 	}
 
 	m := make(map[string]*library.Template)
+
 	for _, t := range templates {
 		// convert to library type
 		tmpl := t.ToLibrary()
@@ -523,8 +532,6 @@ func writeOutput(ctx *gin.Context, pipeline interface{}) {
 
 // expandPipeline uses a given pipeline and compiler to expand stages and steps
 // in the pipeline along with optionally substituting the environmental variables.
-//
-// nolint: lll // ignore long line length due to variable names
 func expandPipeline(ctx *gin.Context, pipeline *yaml.Build, comp compiler.Engine, substituteEnv bool) error {
 	// create map of templates for easy lookup
 	templates := pipeline.Templates.Map()
@@ -542,7 +549,6 @@ func expandPipeline(ctx *gin.Context, pipeline *yaml.Build, comp compiler.Engine
 			// inject the substituted environment variables into the stages
 			pipeline.Stages, err = comp.SubstituteStages(pipeline.Stages)
 			if err != nil {
-				// nolint: lll // ignore long line length due to error message
 				return fmt.Errorf("unable to substitute stages in pipeline configuration for %s: %w", repoName(ctx), err)
 			}
 		}
@@ -557,7 +563,6 @@ func expandPipeline(ctx *gin.Context, pipeline *yaml.Build, comp compiler.Engine
 			// inject the substituted environment variables into the steps
 			pipeline.Steps, err = comp.SubstituteSteps(pipeline.Steps)
 			if err != nil {
-				// nolint: lll // ignore long line length due to error message
 				return fmt.Errorf("unable to substitute steps in pipeline configuration for %s: %w", repoName(ctx), err)
 			}
 		}

@@ -155,6 +155,7 @@ func TestGithub_Config_YML_BadRequest(t *testing.T) {
 
 	// run test
 	got, err := client.Config(u, r, "")
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
 	}

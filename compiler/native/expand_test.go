@@ -160,6 +160,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	if diff := cmp.Diff(services, wantServices); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
+
 	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}

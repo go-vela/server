@@ -19,6 +19,7 @@ func TestStarlark_RenderStep(t *testing.T) {
 		velaFile     string
 		starlarkFile string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -31,6 +32,7 @@ func TestStarlark_RenderStep(t *testing.T) {
 		{"platform vars", args{velaFile: "testdata/step/with_vars_plat/step.yml", starlarkFile: "testdata/step/with_vars_plat/template.star"}, "testdata/step/with_vars_plat/want.yml", false},
 		{"cancel due to complexity", args{velaFile: "testdata/step/cancel/step.yml", starlarkFile: "testdata/step/cancel/template.star"}, "", true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sFile, err := ioutil.ReadFile(tt.args.velaFile)
@@ -93,6 +95,7 @@ func TestNative_RenderBuild(t *testing.T) {
 	type args struct {
 		velaFile string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -103,6 +106,7 @@ func TestNative_RenderBuild(t *testing.T) {
 		{"stages", args{velaFile: "testdata/build/basic_stages/build.star"}, "testdata/build/basic_stages/want.yml", false},
 		{"conditional match", args{velaFile: "testdata/build/conditional/build.star"}, "testdata/build/conditional/want.yml", false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sFile, err := ioutil.ReadFile(tt.args.velaFile)

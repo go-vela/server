@@ -36,6 +36,7 @@ func TestPostgres_Client_GetStep(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -105,6 +106,7 @@ func TestPostgres_Client_CreateStep(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock
@@ -157,6 +159,7 @@ func TestPostgres_Client_UpdateStep(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -193,12 +196,12 @@ func TestPostgres_Client_UpdateStep(t *testing.T) {
 
 func TestPostgres_Client_DeleteStep(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query

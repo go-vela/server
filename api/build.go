@@ -5,6 +5,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -83,10 +84,8 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateBuild represents the API handler to
-// create a build in the configured backend.
-//
-// nolint: funlen // ignore function length due to comments
+// CreateBuild represents the API handler to create a build in the configured backend.
+// nolint: funlen // ignore statement count
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -122,7 +121,6 @@ func CreateBuild(c *gin.Context) {
 		(input.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
 		(input.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
 		(input.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create new build: %s does not have %s events enabled", r.GetFullName(), input.GetEvent())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -148,7 +146,6 @@ func CreateBuild(c *gin.Context) {
 	// send API call to capture the number of pending or running builds for the repo
 	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -158,7 +155,6 @@ func CreateBuild(c *gin.Context) {
 
 	// check if the number of pending and running builds exceeds the limit for the repo
 	if builds >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to create new build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -204,7 +200,6 @@ func CreateBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the commit
 		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -218,7 +213,6 @@ func CreateBuild(c *gin.Context) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(input)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to create new build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -229,7 +223,6 @@ func CreateBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the pull request
 		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -241,7 +234,6 @@ func CreateBuild(c *gin.Context) {
 	// send API call to capture the pipeline configuration file
 	config, err := scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -258,7 +250,6 @@ func CreateBuild(c *gin.Context) {
 		WithUser(u).
 		Compile(config)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -275,11 +266,11 @@ func CreateBuild(c *gin.Context) {
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 		}
 
 		c.JSON(http.StatusOK, skip)
+
 		return
 	}
 
@@ -299,7 +290,6 @@ func CreateBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
 
@@ -316,7 +306,6 @@ func CreateBuild(c *gin.Context) {
 
 // skipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
-//
 // nolint: goconst // ignore init and clone constants
 func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
@@ -325,7 +314,6 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
-	// nolint: gomnd // ignore magic number
 	if len(p.Stages) == 2 {
 		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
 			return "skipping build since only init and clone stages found"
@@ -338,7 +326,6 @@ func skipEmptyBuild(p *pipeline.Build) string {
 		}
 	}
 
-	// nolint: gomnd // ignore magic number
 	if len(p.Steps) == 2 {
 		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
 			return "skipping build since only init and clone steps found"
@@ -444,8 +431,6 @@ func skipEmptyBuild(p *pipeline.Build) string {
 
 // GetBuilds represents the API handler to capture a
 // list of builds for a repo from the configured backend.
-//
-// nolint: funlen // ignore function length due to comments
 func GetBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
@@ -525,7 +510,6 @@ func GetBuilds(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -536,7 +520,6 @@ func GetBuilds(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -545,16 +528,11 @@ func GetBuilds(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// capture before query parameter if present, default to now
-	//
-	// nolint: gomnd, lll // ignore magic number and long line length
 	before, err := strconv.ParseInt(c.DefaultQuery("before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert before query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -563,11 +541,8 @@ func GetBuilds(c *gin.Context) {
 	}
 
 	// capture after query parameter if present, default to 0
-	//
-	// nolint: gomnd // ignore magic number
 	after, err := strconv.ParseInt(c.DefaultQuery("after", "0"), 10, 64)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert after query parameter for repo %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -647,8 +622,6 @@ func GetBuilds(c *gin.Context) {
 
 // GetOrgBuilds represents the API handler to capture a
 // list of builds associated with an org from the configured backend.
-//
-// nolint: funlen // ignore function length due to comments
 func GetOrgBuilds(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
@@ -736,8 +709,6 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
@@ -876,10 +847,8 @@ func GetBuild(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// RestartBuild represents the API handler to
-// restart an existing build in the configured backend.
-//
-// nolint: funlen // ignore function length due to comments
+// RestartBuild represents the API handler to restart an existing build in the configured backend.
+// nolint: funlen // ignore statement count
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -920,7 +889,6 @@ func RestartBuild(c *gin.Context) {
 	// send API call to capture the number of pending or running builds for the repo
 	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -930,7 +898,6 @@ func RestartBuild(c *gin.Context) {
 
 	// check if the number of pending and running builds exceeds the limit for the repo
 	if builds >= r.GetBuildLimit() {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to restart build: repo %s has exceeded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -980,7 +947,6 @@ func RestartBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the commit
 		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -994,7 +960,6 @@ func RestartBuild(c *gin.Context) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(b)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to restart build: failed to get pull_request number for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -1005,7 +970,6 @@ func RestartBuild(c *gin.Context) {
 		// send API call to capture list of files changed for the pull request
 		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to restart build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -1053,6 +1017,7 @@ func RestartBuild(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, skip)
+
 		return
 	}
 
@@ -1067,8 +1032,7 @@ func RestartBuild(c *gin.Context) {
 	// send API call to update repo for ensuring counter is incremented
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %v", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
@@ -1143,7 +1107,6 @@ func RestartBuild(c *gin.Context) {
 
 // UpdateBuild represents the API handler to update
 // a build for a repo in the configured backend.
-// nolint: funlen // ignore long function line length
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -1324,7 +1287,7 @@ func DeleteBuild(c *gin.Context) {
 	// send API call to remove the build
 	err := database.FromContext(c).DeleteBuild(b.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to delete build %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to delete build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -1346,8 +1309,6 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 	}
 
 	// just being safe to avoid out of range index errors
-	//
-	// nolint:gomnd // magic number of 3 used once
 	if len(parts) < 3 {
 		return 0, fmt.Errorf("invalid ref: %s", b.GetRef())
 	}
@@ -1359,8 +1320,6 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // planBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
-//
-// nolint: lll // ignore long line length due to variable names
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
@@ -1374,7 +1333,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, nil, nil)
 
-		return fmt.Errorf("unable to create new build for %s: %v", r.GetFullName(), err)
+		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to update the repo
@@ -1411,8 +1370,6 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
-//
-// nolint: lll // ignore long line length due to variable names
 func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step) {
 	// update fields in build object
 	b.SetError("unable to publish build to queue")
@@ -1493,10 +1450,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CancelBuild represents the API handler to
-// cancel a running build.
-//
-// nolint: funlen // ignore function length due to comments
+// CancelBuild represents the API handler to cancel a running build.
+// nolint: funlen // ignore statement count
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -1533,27 +1488,25 @@ func CancelBuild(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
 	for _, executor := range e {
-		// check each executor on the worker running the build
-		// to see if it's running the build we want to cancel
-		//
-		// nolint:whitespace // ignore leading newline to improve readability
-		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) &&
-			*executor.GetBuild().Number == b.GetNumber() {
-
+		// check each executor on the worker running the build to see if it's running the build we want to cancel
+		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
 			// prepare the request to the worker
 			client := http.DefaultClient
 			client.Timeout = 30 * time.Second
 
 			// set the API endpoint path we send the request to
 			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
-			req, err := http.NewRequest("DELETE", u, nil)
+
+			req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
 			if err != nil {
 				retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
 				util.HandleError(c, http.StatusBadRequest, retErr)
+
 				return
 			}
 
@@ -1565,6 +1518,7 @@ func CancelBuild(c *gin.Context) {
 			if err != nil {
 				retErr := fmt.Errorf("unable to connect to %s: %w", u, err)
 				util.HandleError(c, http.StatusBadRequest, retErr)
+
 				return
 			}
 			defer resp.Body.Close()
@@ -1574,6 +1528,7 @@ func CancelBuild(c *gin.Context) {
 			if err != nil {
 				retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
 				util.HandleError(c, http.StatusBadRequest, retErr)
+
 				return
 			}
 
@@ -1581,10 +1536,12 @@ func CancelBuild(c *gin.Context) {
 			if err != nil {
 				retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
 				util.HandleError(c, http.StatusBadRequest, retErr)
+
 				return
 			}
 
 			c.JSON(resp.StatusCode, b)
+
 			return
 		}
 	}
@@ -1592,10 +1549,12 @@ func CancelBuild(c *gin.Context) {
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
+
 	err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -1603,12 +1562,14 @@ func CancelBuild(c *gin.Context) {
 	steps := []*library.Step{}
 	page := 1
 	perPage := 100
+
 	for page > 0 {
 		// retrieve build steps (per page) from the database
 		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
@@ -1616,8 +1577,6 @@ func CancelBuild(c *gin.Context) {
 		steps = append(steps, stepsPart...)
 
 		// assume no more pages exist if under 100 results are returned
-		//
-		// nolint: gomnd // ignore magic number
 		if len(stepsPart) < 100 {
 			page = 0
 		} else {
@@ -1628,13 +1587,14 @@ func CancelBuild(c *gin.Context) {
 	// iterate over each step for the build
 	// setting anything running or pending to canceled
 	for _, step := range steps {
-		if step.GetStatus() == constants.StatusRunning ||
-			step.GetStatus() == constants.StatusPending {
+		if step.GetStatus() == constants.StatusRunning || step.GetStatus() == constants.StatusPending {
 			step.SetStatus(constants.StatusCanceled)
+
 			err = database.FromContext(c).UpdateStep(step)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
 				util.HandleError(c, http.StatusNotFound, retErr)
+
 				return
 			}
 		}
@@ -1643,12 +1603,14 @@ func CancelBuild(c *gin.Context) {
 	// retrieve the services for the build from the service table
 	services := []*library.Service{}
 	page = 1
+
 	for page > 0 {
 		// retrieve build services (per page) from the database
 		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
@@ -1656,8 +1618,6 @@ func CancelBuild(c *gin.Context) {
 		services = append(services, servicesPart...)
 
 		// assume no more pages exist if under 100 results are returned
-		//
-		// nolint: gomnd // ignore magic number
 		if len(servicesPart) < 100 {
 			page = 0
 		} else {
@@ -1668,9 +1628,9 @@ func CancelBuild(c *gin.Context) {
 	// iterate over each service for the build
 	// setting anything running or pending to canceled
 	for _, service := range services {
-		if service.GetStatus() == constants.StatusRunning ||
-			service.GetStatus() == constants.StatusPending {
+		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
 			service.SetStatus(constants.StatusCanceled)
+
 			err = database.FromContext(c).UpdateService(service)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
@@ -1679,6 +1639,7 @@ func CancelBuild(c *gin.Context) {
 					err,
 				)
 				util.HandleError(c, http.StatusNotFound, retErr)
+
 				return
 			}
 		}

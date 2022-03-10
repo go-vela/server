@@ -56,8 +56,6 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 }
 
 // GetOrgRepoList gets a list of all repos by org from the database.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgRepoList(org string, filters map[string]string, page, perPage int) ([]*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org": org,

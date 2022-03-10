@@ -614,6 +614,7 @@ func Test_mergeMap(t *testing.T) {
 		combinedMap map[string]string
 		loopMap     map[string]string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -635,6 +636,7 @@ func Test_mergeMap(t *testing.T) {
 			"VELA_TEST": "foo",
 		}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := appendMap(tt.args.combinedMap, tt.args.loopMap); !reflect.DeepEqual(got, tt.want) {
@@ -662,12 +664,14 @@ func Test_client_EnvironmentBuild(t *testing.T) {
 	// deployment
 	deploy := "deployment"
 	target := "production"
+
 	type fields struct {
 		build    *library.Build
 		metadata *types.Metadata
 		repo     *library.Repo
 		user     *library.User
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
