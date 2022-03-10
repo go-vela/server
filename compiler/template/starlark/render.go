@@ -123,7 +123,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	// unmarshal the template to the pipeline
 	err = yaml.Unmarshal(buf.Bytes(), config)
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal yaml: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
 	// ensure all templated steps have template prefix
