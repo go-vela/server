@@ -56,12 +56,12 @@ func TestSqlite_New(t *testing.T) {
 
 func TestSqlite_setupDatabase(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup the skip test database client
@@ -69,6 +69,7 @@ func TestSqlite_setupDatabase(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new skip sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _skipDatabase.Sqlite.DB(); _sql.Close() }()
 
 	err = WithSkipCreation(true)(_skipDatabase)
@@ -110,12 +111,12 @@ func TestSqlite_setupDatabase(t *testing.T) {
 
 func TestSqlite_createTables(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	tests := []struct {
@@ -146,12 +147,12 @@ func TestSqlite_createTables(t *testing.T) {
 
 func TestPostgres_createIndexes(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	tests := []struct {

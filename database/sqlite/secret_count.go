@@ -33,7 +33,6 @@ func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, erro
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("getting count of %s secrets for %s/%s from the database", t, o, n)
 
 	var err error
@@ -60,6 +59,7 @@ func (c *client) GetTypeSecretCount(t, o, n string, teams []string) (int64, erro
 			for _, t := range teams {
 				lowerTeams = append(lowerTeams, strings.ToLower(t))
 			}
+
 			err = c.Sqlite.
 				Table(constants.TableSecret).
 				Select("count(*)").

@@ -38,6 +38,7 @@ func TestPostgres_Client_GetTypeSecretCount_Org(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -107,6 +108,7 @@ func TestPostgres_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -176,6 +178,7 @@ func TestPostgres_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -245,6 +248,7 @@ func TestPostgres_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query

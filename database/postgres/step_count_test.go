@@ -27,6 +27,7 @@ func TestPostgres_Client_GetBuildStepCount(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -75,12 +76,12 @@ func TestPostgres_Client_GetBuildStepCount(t *testing.T) {
 
 func TestPostgres_Client_GetStepImageCount(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -129,12 +130,12 @@ func TestPostgres_Client_GetStepImageCount(t *testing.T) {
 
 func TestPostgres_Client_GetStepStatusCount(t *testing.T) {
 	// setup types
-
 	// setup the test database client
 	_database, _mock, err := NewTest()
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query

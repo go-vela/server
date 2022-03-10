@@ -17,6 +17,7 @@ import (
 func TestMiddleware_Worker(t *testing.T) {
 	// setup types
 	var got time.Duration
+
 	want := 5 * time.Minute
 
 	// setup context

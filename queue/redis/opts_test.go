@@ -15,7 +15,6 @@ import (
 
 func TestRedis_ClientOpt_WithAddress(t *testing.T) {
 	// setup tests
-
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
@@ -68,7 +67,6 @@ func TestRedis_ClientOpt_WithAddress(t *testing.T) {
 
 func TestRedis_ClientOpt_WithChannels(t *testing.T) {
 	// setup tests
-
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
@@ -122,7 +120,6 @@ func TestRedis_ClientOpt_WithChannels(t *testing.T) {
 
 func TestRedis_ClientOpt_WithCluster(t *testing.T) {
 	// setup tests
-
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run

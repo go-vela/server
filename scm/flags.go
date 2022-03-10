@@ -15,7 +15,6 @@ import (
 // https://pkg.go.dev/github.com/urfave/cli?tab=doc#Flag
 //
 // TODO: in a future release remove the "source" vars in favor of the "scm" ones.
-// nolint:lll // these errors will go away when the TODO is completed
 var Flags = []cli.Flag{
 	// SCM Flags
 

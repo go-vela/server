@@ -86,6 +86,7 @@ func TestNative_Update_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// run test

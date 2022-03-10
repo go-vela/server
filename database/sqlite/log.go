@@ -158,7 +158,7 @@ func (c *client) CreateLog(l *library.Log) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
 	err = log.Compress(c.config.CompressionLevel)
 	if err != nil {
-		return fmt.Errorf("unable to compress logs for step %d: %v", l.GetStepID(), err)
+		return fmt.Errorf("unable to compress logs for step %d: %w", l.GetStepID(), err)
 	}
 
 	// send query to the database
@@ -192,7 +192,7 @@ func (c *client) UpdateLog(l *library.Log) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
 	err = log.Compress(c.config.CompressionLevel)
 	if err != nil {
-		return fmt.Errorf("unable to compress logs for step %d: %v", l.GetStepID(), err)
+		return fmt.Errorf("unable to compress logs for step %d: %w", l.GetStepID(), err)
 	}
 
 	// send query to the database

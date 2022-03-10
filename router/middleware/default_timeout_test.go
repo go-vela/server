@@ -16,6 +16,7 @@ import (
 func TestMiddleware_DefaultTimeout(t *testing.T) {
 	// setup types
 	var got int64
+
 	want := int64(60)
 
 	// setup context
