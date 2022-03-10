@@ -40,8 +40,6 @@ func (c *client) GetServiceList() ([]*library.Service, error) {
 }
 
 // GetBuildServiceList gets a list of services by build ID from the database.
-//
-// nolint: lll // ignore long line length due to parameters
 func (c *client) GetBuildServiceList(b *library.Build, page, perPage int) ([]*library.Service, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),

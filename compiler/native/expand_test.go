@@ -162,8 +162,6 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
-		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
-	}
 }
 
 func TestNative_ExpandSteps(t *testing.T) {

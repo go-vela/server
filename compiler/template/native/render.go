@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package native
 
 import (
@@ -15,7 +19,6 @@ import (
 )
 
 // Render combines the template with the step in the yaml pipeline.
-// nolint: lll // ignore long line length due to return args
 func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
 	config := new(types.Build)
@@ -62,8 +65,6 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 }
 
 // RenderBuild renders the templated build.
-//
-// nolint: lll // ignore function length due to input args
 func RenderBuild(b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
 	config := new(types.Build)

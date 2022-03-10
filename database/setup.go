@@ -127,15 +127,11 @@ func (s *Setup) Validate() error {
 	case constants.CompressionNine:
 		break
 	default:
-		// nolint:lll // ignoring line length due to error message
 		return fmt.Errorf("database compression level must be between %d and %d - provided level: %d", constants.CompressionNegOne, constants.CompressionNine, s.CompressionLevel)
 	}
 
 	// enforce AES-256 for the encryption key - explicitly check for 32 characters in the key
-	//
-	// nolint: gomnd // ignore magic number
 	if len(s.EncryptionKey) != 32 {
-		// nolint: lll // ignore long line length due to long error message
 		return fmt.Errorf("database encryption key must have 32 characters - provided length: %d", len(s.EncryptionKey))
 	}
 

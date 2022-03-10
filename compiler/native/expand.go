@@ -21,8 +21,6 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
@@ -47,17 +45,16 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-//
-// nolint: lll,funlen // ignore long line length due to variable names
 func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
-
+  
 	steps := yaml.StepSlice{}
 	secrets := s.Secrets
 	services := s.Services
 	environment := s.Environment
+
 	if len(environment) == 0 {
 		environment = make(raw.StringSliceMap)
 	}
@@ -122,6 +119,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		// loop over services within template
 		for _, service := range tmplBuild.Services {
 			found := false
+
 			for _, serv := range services {
 				if serv.Name == service.Name {
 					found = true
@@ -137,6 +135,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		// loop over environment within template
 		for key, value := range tmplBuild.Environment {
 			found := false
+
 			for env := range environment {
 				if key == env {
 					found = true

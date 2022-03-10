@@ -26,6 +26,7 @@ func Secrets(secrets map[string]secret.Service) gin.HandlerFunc {
 		for k, v := range secrets {
 			secret.ToContext(c, k, v)
 		}
+
 		c.Next()
 	}
 }

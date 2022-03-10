@@ -21,7 +21,6 @@ import (
 	"gopkg.in/tomb.v2"
 )
 
-// nolint: funlen // ignore function length
 func server(c *cli.Context) error {
 	// validate all input
 	err := validate(c)

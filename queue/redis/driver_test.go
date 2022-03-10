@@ -16,7 +16,6 @@ import (
 
 func TestRedis_Driver(t *testing.T) {
 	// setup types
-
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
