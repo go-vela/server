@@ -49,7 +49,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 	if len(tmpls) == 0 {
 		return s, nil
 	}
-  
+
 	steps := yaml.StepSlice{}
 	secrets := s.Secrets
 	services := s.Services
