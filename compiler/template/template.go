@@ -12,7 +12,7 @@ type Engine interface {
 	// RenderBuild defines a function that combines
 	// the template with the build.
 	RenderBuild(template string, step *yaml.Step) (yaml.StepSlice, error)
-	// RenderStep defines a function that combines
+	// Render defines a function that combines
 	// the template with the step.
-	RenderStep(template string, step *yaml.Step) (yaml.StepSlice, error)
+	Render(template string, step *yaml.Step) (yaml.StepSlice, error)
 }

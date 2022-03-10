@@ -144,25 +144,24 @@ func TestNative_ExpandStages(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	stages, secrets, services, environment, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(stages, wantStages); diff != "" {
+	if diff := cmp.Diff(build.Stages, wantStages); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
-		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 	}
 }
 
@@ -287,24 +286,24 @@ func TestNative_ExpandSteps(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	steps, secrets, services, environment, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, tmpls)
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, tmpls)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(steps, wantSteps); diff != "" {
+	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 }
@@ -521,24 +520,24 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	steps, secrets, services, environment, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(steps, wantSteps); diff != "" {
+	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 }
@@ -608,24 +607,24 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	steps, secrets, services, environment, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(steps, wantSteps); diff != "" {
+	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 }
