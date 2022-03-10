@@ -38,19 +38,19 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	// https://pkg.go.dev/github.com/Masterminds/sprig?tab=doc#TxtFuncMap
 	t, err := template.New(name).Funcs(sf).Funcs(templateFuncMap).Parse(tmpl)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse template %s: %v", tName, err)
+		return nil, fmt.Errorf("unable to parse template %s: %w", tName, err)
 	}
 
 	// apply the variables to the parsed template
 	err = t.Execute(buffer, variables)
 	if err != nil {
-		return nil, fmt.Errorf("unable to execute template %s: %v", tName, err)
+		return nil, fmt.Errorf("unable to execute template %s: %w", tName, err)
 	}
 
 	// unmarshal the template to the pipeline
 	err = yaml.Unmarshal(buffer.Bytes(), config)
 	if err != nil {
-		return nil, fmt.Errorf("unable to unmarshal yaml: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
 	// ensure all templated steps have template prefix

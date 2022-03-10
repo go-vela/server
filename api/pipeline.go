@@ -100,6 +100,7 @@ func GetPipeline(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -263,6 +264,7 @@ func ExpandPipeline(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 

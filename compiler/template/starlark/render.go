@@ -179,6 +179,7 @@ func RenderBuild(b string, envs map[string]string, variables map[string]interfac
 	if err != nil {
 		return nil, err
 	}
+
 	err = context.SetKey(starlark.String("vars"), userVars)
 	if err != nil {
 		return nil, err
