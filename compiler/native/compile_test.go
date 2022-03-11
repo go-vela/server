@@ -1441,8 +1441,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		Version: "1",
 		ID:      "__0",
 		Metadata: pipeline.Metadata{
-			Clone:    true,
-			Template: false,
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1485,8 +1486,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		Version: "1",
 		ID:      "__0",
 		Metadata: pipeline.Metadata{
-			Clone:    true,
-			Template: false,
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1529,8 +1531,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		Version: "1",
 		ID:      "__0",
 		Metadata: pipeline.Metadata{
-			Clone:    true,
-			Template: false,
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
