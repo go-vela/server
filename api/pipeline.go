@@ -93,6 +93,7 @@ func GetPipeline(ctx *gin.Context) {
 	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -100,6 +101,7 @@ func GetPipeline(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -169,6 +171,7 @@ func GetTemplates(ctx *gin.Context) {
 	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -176,6 +179,7 @@ func GetTemplates(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -184,6 +188,7 @@ func GetTemplates(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to set template links for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -256,6 +261,7 @@ func ExpandPipeline(ctx *gin.Context) {
 	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -263,6 +269,7 @@ func ExpandPipeline(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -331,6 +338,7 @@ func ValidatePipeline(ctx *gin.Context) {
 	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -345,6 +353,7 @@ func ValidatePipeline(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -396,7 +405,6 @@ func ValidatePipeline(ctx *gin.Context) {
 
 // CompilePipeline represents the API handler to capture,
 // expand and compile a pipeline configuration.
-//
 // nolint: dupl // ignore false positive of duplicate code
 func CompilePipeline(ctx *gin.Context) {
 	// capture middleware values
@@ -416,6 +424,7 @@ func CompilePipeline(ctx *gin.Context) {
 	config, comp, err := getUnprocessedPipeline(ctx)
 	if err != nil {
 		util.HandleError(ctx, http.StatusBadRequest, err)
+
 		return
 	}
 
@@ -423,6 +432,7 @@ func CompilePipeline(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -462,16 +472,16 @@ func getUnprocessedPipeline(ctx *gin.Context) ([]byte, compiler.Engine, error) {
 
 // getTemplateLinks helper function that retrieves source provider links
 // for a list of templates and returns a map of library templates.
-//
-// nolint: lll // ignore long line length due to variable names
 func getTemplateLinks(ctx *gin.Context, templates yaml.TemplateSlice) (map[string]*library.Template, error) {
 	r := repo.Retrieve(ctx)
+
 	u, err := database.FromContext(ctx).GetUser(r.GetUserID())
 	if err != nil {
 		return nil, err
 	}
 
 	m := make(map[string]*library.Template)
+
 	for _, t := range templates {
 		// convert to library type
 		tmpl := t.ToLibrary()

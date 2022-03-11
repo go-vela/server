@@ -75,7 +75,6 @@ func (c *client) getRepo(org, repo, path string) (*api.Secret, error) {
 // getShared is a helper function to capture
 // the shared secret for the provided path.
 func (c *client) getShared(org, team, path string) (*api.Secret, error) {
-	// nolint: lll // ignore long line length due to parameters
 	return c.get(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path))
 }
 

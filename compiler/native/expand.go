@@ -21,8 +21,6 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
@@ -47,8 +45,6 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-//
-// nolint: lll,funlen // ignore long line length due to variable names
 func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
@@ -58,6 +54,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 	secrets := s.Secrets
 	services := s.Services
 	environment := s.Environment
+
 	if len(environment) == 0 {
 		environment = make(raw.StringSliceMap)
 	}
@@ -97,13 +94,13 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 			return s, err
 		}
 
-		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err := c.mergeTemplate(bytes, tmpl, step)
+		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err
 		}
 
 		// loop over secrets within template
-		for _, secret := range tmplSecrets {
+		for _, secret := range tmplBuild.Secrets {
 			found := false
 			// loop over secrets within base configuration
 			for _, sec := range secrets {
@@ -120,8 +117,9 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		}
 
 		// loop over services within template
-		for _, service := range tmplServices {
+		for _, service := range tmplBuild.Services {
 			found := false
+
 			for _, serv := range services {
 				if serv.Name == service.Name {
 					found = true
@@ -135,8 +133,9 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		}
 
 		// loop over environment within template
-		for key, value := range tmplEnvironment {
+		for key, value := range tmplBuild.Environment {
 			found := false
+
 			for env := range environment {
 				if key == env {
 					found = true
@@ -150,7 +149,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		}
 
 		// add templated steps
-		steps = append(steps, tmplSteps...)
+		steps = append(steps, tmplBuild.Steps...)
 	}
 
 	s.Steps = steps
@@ -182,7 +181,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 		// parse source from template
 		src, err := c.Github.Parse(tmpl.Source)
 		if err != nil {
-			return bytes, fmt.Errorf("invalid template source provided for %s: %v", name, err)
+			return bytes, fmt.Errorf("invalid template source provided for %s: %w", name, err)
 		}
 
 		// pull from github without auth when the host isn't provided or is set to github.com
@@ -193,6 +192,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 				"host": src.Host,
 			}).Tracef("Using GitHub client to pull template")
+
 			bytes, err = c.Github.Template(nil, src)
 			if err != nil {
 				return bytes, err
@@ -204,6 +204,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 				"host": src.Host,
 			}).Tracef("Using authenticated GitHub client to pull template")
+
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
 			if err != nil {
@@ -219,34 +220,18 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 }
 
 // nolint: lll // ignore long line length due to input arguments
-func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
-	var (
-		err             error
-		tmplSteps       yaml.StepSlice
-		tmplSecrets     yaml.SecretSlice
-		tmplServices    yaml.ServiceSlice
-		tmplEnvironment raw.StringSliceMap
-	)
-
+func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, error) {
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, "golang", "":
 		// nolint: lll // ignore long line length due to return
-		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
-		if err != nil {
-			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
-		}
+		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
 		// nolint: lll // ignore long line length due to return
-		tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
-		if err != nil {
-			return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err
-		}
+		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	default:
 		// nolint: lll // ignore long line length due to return
-		return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
-
-	return tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, nil
 }
 
 // helper function that creates a map of templates from a yaml configuration.

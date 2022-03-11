@@ -16,6 +16,7 @@ import (
 func TestMiddleware_DefaultBuildLimit(t *testing.T) {
 	// setup types
 	var got int64
+
 	want := int64(10)
 
 	// setup context

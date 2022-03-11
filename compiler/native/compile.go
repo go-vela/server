@@ -176,6 +176,7 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 			for key, value := range parsed.Environment {
 				newPipeline.Environment[key] = value
 			}
+
 			fallthrough
 		case len(parsed.Stages) > 0:
 			// ensure all templated steps inside stages have template prefix
@@ -188,13 +189,16 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 			}
 
 			newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
+
 			fallthrough
 		case len(parsed.Steps) > 0:
 			// ensure all templated steps have template prefix
 			for index, newStep := range parsed.Steps {
 				parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
 			}
+
 			newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
+
 			fallthrough
 		case len(parsed.Services) > 0:
 			newPipeline.Services = append(newPipeline.Services, parsed.Services...)
@@ -408,15 +412,13 @@ func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r
 // errorHandler ensures the error contains the number of request attempts.
 func errorHandler(resp *http.Response, err error, attempts int) (*http.Response, error) {
 	if err != nil {
-		// nolint:lll // detailed error message
-		err = fmt.Errorf("giving up connecting to modification endpoint after %d attempts due to: %v", attempts, err)
+		err = fmt.Errorf("giving up connecting to modification endpoint after %d attempts due to: %w", attempts, err)
 	}
 
 	return resp, err
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-// nolint:lll // parameter struct references push line limit
 func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *library.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
