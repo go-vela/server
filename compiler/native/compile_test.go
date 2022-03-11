@@ -2892,7 +2892,7 @@ func Test_CompileLite(t *testing.T) {
 			},
 			want: &yaml.Build{
 				Version: "1",
-				Metadata: *&yaml.Metadata{
+				Metadata: yaml.Metadata{
 					Environment: []string{"steps", "services", "secrets"},
 				},
 				Stages: []*yaml.Stage{
