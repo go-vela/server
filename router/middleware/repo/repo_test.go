@@ -62,7 +62,6 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowComment(false)
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")
-	want.SetLastUpdate(0)
 
 	got := new(library.Repo)
 

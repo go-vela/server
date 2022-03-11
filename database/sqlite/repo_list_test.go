@@ -40,7 +40,6 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetPreviousName("")
-	_repoOne.SetLastUpdate(0)
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -52,7 +51,6 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetPreviousName("oldName")
-	_repoTwo.SetLastUpdate(0)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -118,7 +116,6 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetPreviousName("oldName")
-	_repoOne.SetLastUpdate(0)
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -130,7 +127,6 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetPreviousName("")
-	_repoTwo.SetLastUpdate(0)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -196,7 +192,6 @@ func TestSqlite_Client_GetOrgRepoList_NonAdmin(t *testing.T) {
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetPreviousName("")
-	_repoOne.SetLastUpdate(0)
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -208,7 +203,6 @@ func TestSqlite_Client_GetOrgRepoList_NonAdmin(t *testing.T) {
 	_repoTwo.SetVisibility("private")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetPreviousName("")
-	_repoTwo.SetLastUpdate(0)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -275,7 +269,6 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetPreviousName("")
-	_repoOne.SetLastUpdate(0)
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -287,7 +280,6 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetPreviousName("")
-	_repoTwo.SetLastUpdate(0)
 
 	_user := new(library.User)
 	_user.SetID(1)

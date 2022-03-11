@@ -23,7 +23,6 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("")
-	_repo.SetLastUpdate(0)
 
 	// setup the test database client
 	_database, err := NewTest()
