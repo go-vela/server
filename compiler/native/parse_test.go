@@ -180,6 +180,9 @@ func TestNative_Parse_Parameters(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
@@ -447,6 +450,9 @@ func TestNative_Parse_Secrets(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Secrets: yaml.SecretSlice{
 			&yaml.Secret{
 				Name:   "docker_username",
@@ -508,6 +514,9 @@ func TestNative_Parse_Stages(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Stages: yaml.StageSlice{
 			&yaml.Stage{
 				Name:  "install",
@@ -581,6 +590,9 @@ func TestNative_Parse_Steps(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Commands: []string{"./gradlew downloadDependencies"},
@@ -846,7 +858,7 @@ func Test_client_Parse(t *testing.T) {
 		Metadata: yaml.Metadata{
 			Template:    false,
 			Clone:       nil,
-			Environment: nil,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: yaml.StepSlice{
 			{
