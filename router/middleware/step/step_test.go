@@ -205,6 +205,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
+	r.SetLastUpdate(0)
 
 	b := new(library.Build)
 	b.SetID(1)
@@ -259,6 +260,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
+	r.SetLastUpdate(0)
 
 	b := new(library.Build)
 	b.SetID(1)
