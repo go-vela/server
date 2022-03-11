@@ -1950,6 +1950,7 @@ func Test_Compile_Inline(t *testing.T) {
 		file         string
 		pipelineType string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -2626,6 +2627,7 @@ func Test_Compile_Inline(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			yaml, err := ioutil.ReadFile(tt.args.file)
@@ -2715,12 +2717,14 @@ func Test_CompileLite(t *testing.T) {
 			WebAddress: "foo",
 		},
 	}
+
 	type args struct {
 		file         string
 		pipelineType string
 		template     bool
 		substitute   bool
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -2926,7 +2930,30 @@ func Test_CompileLite(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "step with template",
+			args: args{
+				file:         "testdata/step_inline_template.yml",
+				pipelineType: "",
+				template:     false,
+				substitute:   false,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "stage with template",
+			args: args{
+				file:         "testdata/stage_inline_template.yml",
+				pipelineType: "",
+				template:     false,
+				substitute:   false,
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler, err := New(c)

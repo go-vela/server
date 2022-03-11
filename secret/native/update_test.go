@@ -28,7 +28,7 @@ func TestNative_Update(t *testing.T) {
 	original.SetAllowCommand(true)
 	original.SetCreatedAt(1)
 	original.SetCreatedBy("user")
-	original.SetUpdatedAt(1)
+	original.SetUpdatedAt(time.Now().UTC().Unix())
 	original.SetUpdatedBy("user")
 
 	want := new(library.Secret)

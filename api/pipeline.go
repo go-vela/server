@@ -179,6 +179,7 @@ func GetTemplates(ctx *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
+
 		return
 	}
 
@@ -404,6 +405,7 @@ func ValidatePipeline(ctx *gin.Context) {
 
 // CompilePipeline represents the API handler to capture,
 // expand and compile a pipeline configuration.
+// nolint: dupl // ignore false positive of duplicate code
 func CompilePipeline(ctx *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(ctx)

@@ -181,7 +181,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 		// parse source from template
 		src, err := c.Github.Parse(tmpl.Source)
 		if err != nil {
-			return bytes, fmt.Errorf("invalid template source provided for %s: %v", name, err)
+			return bytes, fmt.Errorf("invalid template source provided for %s: %w", name, err)
 		}
 
 		// pull from github without auth when the host isn't provided or is set to github.com
@@ -192,6 +192,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 				"host": src.Host,
 			}).Tracef("Using GitHub client to pull template")
+
 			bytes, err = c.Github.Template(nil, src)
 			if err != nil {
 				return bytes, err
@@ -203,6 +204,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"path": src.Name,
 				"host": src.Host,
 			}).Tracef("Using authenticated GitHub client to pull template")
+
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
 			if err != nil {
