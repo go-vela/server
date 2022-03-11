@@ -20,7 +20,6 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-// nolint: lll // ignore long line length due to input arguments
 func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
@@ -332,7 +331,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 		// send API call to capture the user's repos
 		repos, resp, err := client.Repositories.List(ctx, "", opts)
 		if err != nil {
-			return nil, fmt.Errorf("unable to list user repos: %v", err)
+			return nil, fmt.Errorf("unable to list user repos: %w", err)
 		}
 
 		r = append(r, repos...)
@@ -373,7 +372,6 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-// nolint:lll // function signature is lengthy
 func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
@@ -422,6 +420,7 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 	// data is not nil if the file exists
 	if data != nil {
 		URL := data.GetHTMLURL()
+
 		if err != nil {
 			return "", err
 		}

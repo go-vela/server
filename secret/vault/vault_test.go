@@ -23,6 +23,7 @@ func TestVault_New(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -31,6 +32,7 @@ func TestVault_New(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -58,6 +60,7 @@ func TestVault_New_Error(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -66,6 +69,7 @@ func TestVault_New_Error(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -146,6 +150,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	type args struct {
 		secret *api.Secret
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -153,6 +158,7 @@ func TestVault_secretFromVault(t *testing.T) {
 		{"v1", args{secret: inputV1}},
 		{"v2", args{secret: inputV2}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := secretFromVault(tt.args.secret)

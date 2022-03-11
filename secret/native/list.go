@@ -13,8 +13,6 @@ import (
 )
 
 // List captures a list of secrets.
-//
-// nolint: lll // ignore long line length
 func (c *client) List(sType, org, name string, page, perPage int, teams []string) ([]*library.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{

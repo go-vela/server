@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package vault
 
 import (
@@ -64,6 +68,7 @@ func (c *client) getAwsToken() (string, time.Duration, error) {
 	}
 
 	c.Logger.Trace("getting AWS token from vault")
+
 	secret, err := c.Vault.Logical().Write("auth/aws/login", headers)
 	if err != nil {
 		return "", 0, err
@@ -104,7 +109,7 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 
 	// construct the vault STS auth header
 	//
-	// nolint: lll // ignore long line length due to variable names
+
 	loginData := map[string]interface{}{
 		"role":                    c.AWS.Role,
 		"iam_http_request_method": req.HTTPRequest.Method,

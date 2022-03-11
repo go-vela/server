@@ -29,14 +29,17 @@ func Establish() gin.HandlerFunc {
 		if len(wParam) == 0 {
 			retErr := fmt.Errorf("no worker parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
 		logrus.Debugf("Reading worker %s", wParam)
+
 		w, err := database.FromContext(c).GetWorker(wParam)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read worker %s: %v", wParam, err)
+			retErr := fmt.Errorf("unable to read worker %s: %w", wParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

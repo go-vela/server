@@ -33,7 +33,6 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// capture the secret from the native service

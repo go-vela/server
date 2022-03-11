@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package api
 
 import (
@@ -10,6 +14,7 @@ func Test_skipEmptyBuild(t *testing.T) {
 	type args struct {
 		p *pipeline.Build
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -64,6 +69,7 @@ func Test_skipEmptyBuild(t *testing.T) {
 			},
 		}}}, ""},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := skipEmptyBuild(tt.args.p); got != tt.want {
