@@ -67,7 +67,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p)
+		newPipeline, err := c.compileInline(p, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -90,14 +90,14 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, error) {
+func (c *client) CompileLite(v interface{}, template, substitute bool, localTemplates []string) (*yaml.Build, error) {
 	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p)
+		newPipeline, err := c.compileInline(p, localTemplates)
 		if err != nil {
 			return nil, err
 		}
@@ -113,6 +113,24 @@ func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Bu
 	if template {
 		// create map of templates for easy lookup
 		templates := mapFromTemplates(p.Templates)
+
+		if c.local {
+			for _, file := range localTemplates {
+				// local templates override format is <name>:<source>
+				//
+				// example: example:/path/to/template.yml
+				parts := strings.Split(file, ":")
+
+				// make sure the template was configured
+				_, ok := templates[parts[0]]
+				if !ok {
+					return nil, fmt.Errorf("template with name %s is not configured", parts[0])
+				}
+
+				// override the source for the given template
+				templates[parts[0]].Source = parts[1]
+			}
+		}
 
 		switch {
 		case len(p.Stages) > 0:
@@ -156,11 +174,26 @@ func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Bu
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
+func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Build, error) {
 	newPipeline := *p
 	newPipeline.Templates = yaml.TemplateSlice{}
 
 	for _, template := range p.Templates {
+		if c.local {
+			for _, file := range localTemplates {
+				// local templates override format is <name>:<source>
+				//
+				// example: example:/path/to/template.yml
+				parts := strings.Split(file, ":")
+
+				// make sure we're referencing the proper template
+				if parts[0] == template.Name {
+					// override the source for the given template
+					template.Source = parts[1]
+				}
+			}
+		}
+
 		bytes, err := c.getTemplate(template, template.Name)
 		if err != nil {
 			return nil, err
