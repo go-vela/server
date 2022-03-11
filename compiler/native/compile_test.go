@@ -2930,6 +2930,28 @@ func Test_CompileLite(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "step with template",
+			args: args{
+				file:         "testdata/step_inline_template.yml",
+				pipelineType: "",
+				template:     false,
+				substitute:   false,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "stage with template",
+			args: args{
+				file:         "testdata/stage_inline_template.yml",
+				pipelineType: "",
+				template:     false,
+				substitute:   false,
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
