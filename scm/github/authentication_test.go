@@ -411,6 +411,7 @@ func TestGithub_AuthenticateToken_Vela_OAuth(t *testing.T) {
 
 	// run test
 	_, err := client.AuthenticateToken(context.Request)
+
 	if resp.Code != http.StatusOK {
 		t.Errorf("AuthenticateToken returned %v, want %v", resp.Code, http.StatusOK)
 	}

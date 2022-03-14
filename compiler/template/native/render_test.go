@@ -20,6 +20,7 @@ func TestNative_RenderStep(t *testing.T) {
 		velaFile     string
 		templateFile string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -39,6 +40,7 @@ func TestNative_RenderStep(t *testing.T) {
 		{"disallowed env func", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/disallowed/tmpl_env.yml"}, "", true},
 		{"disallowed expandenv func", args{velaFile: "testdata/step/basic/step.yml", templateFile: "testdata/step/disallowed/tmpl_expandenv.yml"}, "", true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sFile, err := ioutil.ReadFile(tt.args.velaFile)
@@ -101,6 +103,7 @@ func TestNative_RenderBuild(t *testing.T) {
 	type args struct {
 		velaFile string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -111,6 +114,7 @@ func TestNative_RenderBuild(t *testing.T) {
 		{"stages", args{velaFile: "testdata/build/basic_stages/build.yml"}, "testdata/build/basic_stages/want.yml", false},
 		{"conditional match", args{velaFile: "testdata/build/conditional/build.yml"}, "testdata/build/conditional/want.yml", false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sFile, err := ioutil.ReadFile(tt.args.velaFile)

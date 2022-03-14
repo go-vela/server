@@ -301,6 +301,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 		libraryBuild *library.Build
 		repo         *library.Repo
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -317,6 +318,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := client{
@@ -367,6 +369,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 		libraryBuild *library.Build
 		repo         *library.Repo
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -383,6 +386,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := client{
@@ -1357,6 +1361,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 	type args struct {
 		file string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1373,6 +1378,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			file: "testdata/clone_replace.yml",
 		}, wantReplace, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// run test
@@ -1435,8 +1441,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		Version: "1",
 		ID:      "__0",
 		Metadata: pipeline.Metadata{
-			Clone:    true,
-			Template: false,
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1479,8 +1486,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		Version: "1",
 		ID:      "__0",
 		Metadata: pipeline.Metadata{
-			Clone:    true,
-			Template: false,
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1523,8 +1531,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		Version: "1",
 		ID:      "__0",
 		Metadata: pipeline.Metadata{
-			Clone:    true,
-			Template: false,
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1561,6 +1570,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		file         string
 		pipelineType string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1571,6 +1581,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 		{"golang", args{file: "testdata/pipeline_type_go.yml", pipelineType: "go"}, wantGo, false},
 		{"starlark", args{file: "testdata/pipeline_type.star", pipelineType: "starlark"}, wantStarlark, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// run test
@@ -1617,6 +1628,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
+
 	compiler.repo = &library.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
@@ -1648,6 +1660,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
+
 	compiler.repo = &library.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
@@ -1851,6 +1864,7 @@ func Test_client_modifyConfig(t *testing.T) {
 		libraryBuild *library.Build
 		repo         *library.Repo
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -1894,6 +1908,7 @@ func Test_client_modifyConfig(t *testing.T) {
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/empty"),
 		}, nil, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			compiler := client{

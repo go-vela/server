@@ -36,7 +36,6 @@ func (c *client) Update(sType, org, name string, s *library.Secret) error {
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("updating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// capture the secret from the Vault service
@@ -91,14 +90,12 @@ func (c *client) updateOrg(org, path string, data map[string]interface{}) error 
 // updateRepo is a helper function to update
 // the repo secret for the provided path.
 func (c *client) updateRepo(org, repo, path string, data map[string]interface{}) error {
-	// nolint: lll // ignore long line length due to variable names
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretRepo, org, repo, path), data)
 }
 
 // updateShared is a helper function to update
 // the shared secret for the provided path.
 func (c *client) updateShared(org, team, path string, data map[string]interface{}) error {
-	// nolint: lll // ignore long line length due to variable names
 	return c.update(fmt.Sprintf("%s/%s/%s/%s/%s", c.config.Prefix, constants.SecretShared, org, team, path), data)
 }
 

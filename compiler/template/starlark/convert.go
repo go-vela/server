@@ -56,14 +56,17 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) (*starlark.Dict,
 	if err != nil {
 		return nil, err
 	}
+
 	err = dict.SetKey(starlark.String("repo"), repo)
 	if err != nil {
 		return nil, err
 	}
+
 	err = dict.SetKey(starlark.String("user"), user)
 	if err != nil {
 		return nil, err
 	}
+
 	err = dict.SetKey(starlark.String("system"), system)
 	if err != nil {
 		return nil, err

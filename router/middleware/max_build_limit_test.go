@@ -16,6 +16,7 @@ import (
 func TestMiddleware_MaxBuildLimit(t *testing.T) {
 	// setup types
 	var got int64
+
 	want := int64(30)
 
 	// setup context

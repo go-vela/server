@@ -47,6 +47,7 @@ func TestPostgres_Client_GetSecretList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -127,6 +128,7 @@ func TestPostgres_Client_GetTypeSecretList_Org(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -207,6 +209,7 @@ func TestPostgres_Client_GetTypeSecretList_Repo(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -287,6 +290,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// capture the current expected SQL query
@@ -367,6 +371,7 @@ func TestPostgres_Client_GetTypeSecretList_Shared_Wildcard(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new postgres test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// create expected return in mock

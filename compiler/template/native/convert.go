@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package native
 
 import (
@@ -13,6 +17,7 @@ import (
 // within the template.
 func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceMap {
 	envs := make(map[string]string)
+
 	for key, value := range slice {
 		key = strings.ToLower(key)
 		if strings.HasPrefix(key, "vela_") {
@@ -29,7 +34,7 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 // always return a string, even on marshal error (empty string).
 //
 // This code is under copyright (full attribution in NOTICE) and is from:
-// nolint: lll // ignore long line length due to url
+
 // https://github.com/helm/helm/blob/a499b4b179307c267bdf3ec49b880e3dbd2a5591/pkg/engine/funcs.go#L83
 //
 // This is designed to be called from a template.
@@ -39,6 +44,7 @@ func toYAML(v interface{}) string {
 		// Swallow errors inside of a template.
 		return ""
 	}
+
 	return strings.TrimSuffix(string(data), "\n")
 }
 

@@ -95,7 +95,6 @@ func GetBuildLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services CreateServiceLogs
 //
@@ -206,7 +205,6 @@ func CreateServiceLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services GetServiceLogs
 //
@@ -284,7 +282,6 @@ func GetServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services UpdateServiceLog
 //
@@ -404,7 +401,6 @@ func UpdateServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/services/{service}/logs services DeleteServiceLogs
 //
@@ -484,7 +480,6 @@ func DeleteServiceLog(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("logs deleted for service %s", entry))
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps CreateStepLog
 //
@@ -595,7 +590,6 @@ func CreateStepLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps GetStepLog
 //
@@ -674,7 +668,6 @@ func GetStepLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps UpdateStepLog
 //
@@ -765,7 +758,7 @@ func UpdateStepLog(c *gin.Context) {
 
 	err = c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for step %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to decode JSON for step %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -781,7 +774,7 @@ func UpdateStepLog(c *gin.Context) {
 	// send API call to update the log
 	err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update logs for step %s: %v", entry, err)
+		retErr := fmt.Errorf("unable to update logs for step %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -794,7 +787,6 @@ func UpdateStepLog(c *gin.Context) {
 	c.JSON(http.StatusOK, l)
 }
 
-// nolint: lll // ignore long line length due to API path
 //
 // swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step}/logs steps DeleteStepLog
 //

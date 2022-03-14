@@ -180,6 +180,9 @@ func TestNative_Parse_Parameters(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Image: "plugins/docker:18.09",
@@ -447,6 +450,9 @@ func TestNative_Parse_Secrets(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Secrets: yaml.SecretSlice{
 			&yaml.Secret{
 				Name:   "docker_username",
@@ -508,6 +514,9 @@ func TestNative_Parse_Stages(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Stages: yaml.StageSlice{
 			&yaml.Stage{
 				Name:  "install",
@@ -581,6 +590,9 @@ func TestNative_Parse_Steps(t *testing.T) {
 	// setup types
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
+		Metadata: yaml.Metadata{
+			Environment: []string{"steps", "services", "secrets"},
+		},
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Commands: []string{"./gradlew downloadDependencies"},
@@ -846,7 +858,7 @@ func Test_client_Parse(t *testing.T) {
 		Metadata: yaml.Metadata{
 			Template:    false,
 			Clone:       nil,
-			Environment: nil,
+			Environment: []string{"steps", "services", "secrets"},
 		},
 		Steps: yaml.StepSlice{
 			{
@@ -859,10 +871,12 @@ func Test_client_Parse(t *testing.T) {
 			},
 		},
 	}
+
 	type args struct {
 		pipelineType string
 		file         string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -876,6 +890,7 @@ func Test_client_Parse(t *testing.T) {
 		{"nil", args{pipelineType: "nil", file: "testdata/pipeline_type_default.yml"}, want, false},
 		{"invalid", args{pipelineType: "foo", file: "testdata/pipeline_type_default.yml"}, nil, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			content, err := ioutil.ReadFile(tt.args.file)
@@ -909,9 +924,11 @@ func Test_client_ParseRaw(t *testing.T) {
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
+
 	type args struct {
 		kind string
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -925,6 +942,7 @@ func Test_client_ParseRaw(t *testing.T) {
 		{"path", args{kind: "path"}, string(expected), false},
 		{"unexpected", args{kind: "foo"}, "", true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var content interface{}

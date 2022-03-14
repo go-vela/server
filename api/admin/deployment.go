@@ -27,7 +27,6 @@ import (
 // AllDeployments represents the API handler to
 // captures all deployments stored in the database.
 func AllDeployments(c *gin.Context) {
-	// nolint: lll // ignore long line length due to return message
 	c.JSON(http.StatusNotImplemented, "The server does not support the functionality required to fulfill the request.")
 }
 
@@ -48,6 +47,5 @@ func AllDeployments(c *gin.Context) {
 // UpdateDeployment represents the API handler to
 // update any deployment stored in the database.
 func UpdateDeployment(c *gin.Context) {
-	// nolint: lll // ignore long line length due to return message
 	c.JSON(http.StatusNotImplemented, "The server does not support the functionality required to fulfill the request.")
 }
