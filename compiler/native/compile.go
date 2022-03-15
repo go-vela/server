@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/types/constants"
+
 	yml "github.com/buildkite/yaml"
 
 	"github.com/go-vela/types/library"

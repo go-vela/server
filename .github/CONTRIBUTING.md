@@ -1,29 +1,14 @@
 # Contributing
 
-We'd love to accept your contributions to this project!
-
-There are just a few guidelines you need to follow.
-
-## Bugs
-
-Bug reports should be opened up as [issues](https://help.github.com/en/github/managing-your-work-on-github/about-issues) on the [go-vela/community](https://github.com/go-vela/community) repository!
-
-## Feature Requests
-
-Feature Requests should be opened up as [issues](https://help.github.com/en/github/managing-your-work-on-github/about-issues) on the [go-vela/community](https://github.com/go-vela/community) repository!
-
-## Pull Requests
-
-**NOTE: We recommend you start by opening a new issue describing the bug or feature you're intending to fix. Even if you think it's relatively minor, it's helpful to know what people are working on.**
-
-We are always open to new PRs! You can follow the below guide for learning how you can contribute to the project!
-
 ## Getting Started
+
+We'd love to accept your contributions to this project! If you are a first time contributor, please review our [Contributing Guidelines](https://go-vela.github.io/docs/community/contributing_guidelines/) before proceeding.
 
 ### Prerequisites
 
-* [Review the commit guide we follow](https://chris.beams.io/posts/git-commit/#seven-rules) - ensure your commits follow our standards
 * [Review the local development docs](../DOCS.md) - ensures you have the Vela application stack running locally
+* [Review the commit guide we follow](https://chris.beams.io/posts/git-commit/#seven-rules) - ensure your commits follow our standards
+* [Review our style guide](https://go-vela.github.io/docs/community/contributing_guidelines/#style-guide) to ensure your code is clean and consistent.
 
 ### Setup
 
@@ -62,23 +47,6 @@ cd $HOME/go-vela/server
 ```
 
 * Write your code and tests to implement the changes you desire.
-  * Please be sure to [follow our commit rules](https://chris.beams.io/posts/git-commit/#seven-rules)
-  * Please address linter warnings appropriately. If you are intentionally violating a rule that triggers a linter, please annotate the respective code with `nolint` declarations [[docs](https://golangci-lint.run/usage/false-positives/)]. we are using the following format for `nolint` declarations:
-
-    ```go
-    // nolint:<linter(s)> // <short reason>
-    ```
-  
-    Example:
-
-    ```go
-    // nolint:gocyclo // legacy function is complex, needs simplification
-    func superComplexFunction() error {
-      // ..
-    }
-    ```
-
-    Check the [documentation for more examples](https://golangci-lint.run/usage/false-positives/).
 
 * Run the repository code (ensures your changes perform as you desire):
 
@@ -108,25 +76,6 @@ make clean
 git push fork master
 ```
 
-* Open a pull request!
-  * For the title of the pull request, please use the following format for the title:
-
-    ```text
-    feat(wobble): add hat wobble
-    ^--^^------^  ^------------^
-    |   |         |
-    |   |         +---> Summary in present tense.
-    |   +---> Scope: a noun describing a section of the codebase (optional)
-    +---> Type: chore, docs, feat, fix, refactor, or test.
-    ```
-
-    * feat: adds a new feature (equivalent to a MINOR in Semantic Versioning)
-    * fix: fixes a bug (equivalent to a PATCH in Semantic Versioning)
-    * docs: changes to the documentation
-    * refactor: refactors production code, eg. renaming a variable; doesn't change public API
-    * test: adds missing tests, refactors tests; no production code change
-    * chore: updates something without impacting the user (ex: bump a dependency in package.json or go.mod); no production code change
-
-    If a code change introduces a breaking change, place ! suffix after type, ie. feat(change)!: adds breaking change. correlates with MAJOR in semantic versioning.
+* Make sure to follow our [PR process](https://go-vela.github.io/docs/community/contributing_guidelines/#development-workflow) when opening a pull request
 
 Thank you for your contribution!
