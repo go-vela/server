@@ -201,7 +201,14 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 			return nil, err
 		}
 
-		parsed, err := c.Parse(bytes, template.Format, template.Variables)
+		format := template.Format
+
+		// set the default format to golang if the user did not define anything
+		if template.Format == "" {
+			format = constants.PipelineTypeGo
+		}
+
+		parsed, err := c.Parse(bytes, format, template.Variables)
 		if err != nil {
 			return nil, err
 		}
