@@ -9,11 +9,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-vela/types/constants"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/go-vela/types/constants"
 
 	yml "github.com/buildkite/yaml"
 
@@ -172,6 +173,7 @@ func (c *client) compileInline(p *yaml.Build) (*yaml.Build, error) {
 		if template.Format == "" {
 			format = constants.PipelineTypeGo
 		}
+
 		parsed, err := c.Parse(bytes, format, template.Variables)
 		if err != nil {
 			return nil, err
