@@ -55,4 +55,22 @@ DELETE
 FROM repos
 WHERE id = ?;
 `
+
+	// ListReposByLastUpdate represents a query to list
+	// all repos in an org, ordered by latest activity.
+	// In this case, latest activity is synonymous with
+	// the created timestamp of the last build for the repo.
+	ListReposByLastUpdate = `
+SELECT r.*
+FROM repos r LEFT JOIN (
+	SELECT repos.id, MAX(builds.created) as latest_build
+	FROM builds INNER JOIN repos
+	ON builds.repo_id = repos.id
+	WHERE repos.org = ?
+	GROUP BY repos.id) t
+ON r.id = t.id
+ORDER BY latest_build DESC NULLS LAST
+LIMIT ?
+OFFSET ?;
+`
 )

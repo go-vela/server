@@ -427,6 +427,11 @@ func GetRepos(c *gin.Context) {
 //   type: integer
 //   maximum: 100
 //   default: 10
+// - in: query
+//   name: sort_by
+//   description: How to sort the results
+//   type: string
+//   default: name
 // responses:
 //   '200':
 //     description: Successfully retrieved the repo
@@ -488,6 +493,9 @@ func GetOrgRepos(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
+	// capture the sort_by query parameter if present
+	sortBy := c.DefaultQuery("sort_by", "name")
+
 	// See if the user is an org admin to bypass individual permission checks
 	perm, err := scm.FromContext(c).OrgAccess(u, org)
 	if err != nil {
@@ -513,7 +521,7 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, perPage)
+	r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, perPage, sortBy)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 
