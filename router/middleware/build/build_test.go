@@ -129,6 +129,7 @@ func TestBuild_Establish(t *testing.T) {
 func TestBuild_Establish_NoRepo(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

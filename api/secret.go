@@ -23,7 +23,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// nolint: lll // ignore long line length due to description
 //
 // swagger:operation POST /api/v1/secrets/{engine}/{type}/{org}/{name} secrets CreateSecret
 //
@@ -129,6 +128,16 @@ func CreateSecret(c *gin.Context) {
 		return
 	}
 
+	// reject secrets with solely whitespace characters as its value
+	trimmed := strings.TrimSpace(input.GetValue())
+	if len(trimmed) == 0 {
+		retErr := fmt.Errorf("secret value must contain non-whitespace characters")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// update fields in secret object
 	input.SetOrg(o)
 	input.SetRepo(n)
@@ -177,7 +186,6 @@ func CreateSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, s.Sanitize())
 }
 
-// nolint: lll // ignore long line length due to description
 //
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name} secrets GetSecrets
 //
@@ -249,8 +257,6 @@ func CreateSecret(c *gin.Context) {
 
 // GetSecrets represents the API handler to capture
 // a list of secrets from the configured backend.
-//
-// nolint: funlen // ignore function length due to comments
 func GetSecrets(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -263,9 +269,10 @@ func GetSecrets(c *gin.Context) {
 	// get list of user's teams if type is shared secret and team is '*'
 	if t == constants.SecretShared && n == "*" {
 		var err error
+
 		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 		if err != nil {
-			retErr := fmt.Errorf("unable to get users %s teams for org %s: %v", u.GetName(), o, err)
+			retErr := fmt.Errorf("unable to get users %s teams for org %s: %w", u.GetName(), o, err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -304,7 +311,6 @@ func GetSecrets(c *gin.Context) {
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert page query parameter for %s from %s service: %w", entry, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -315,7 +321,6 @@ func GetSecrets(c *gin.Context) {
 	// capture per_page query parameter if present
 	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
-		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("unable to convert per_page query parameter for %s from %s service: %w", entry, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -334,8 +339,6 @@ func GetSecrets(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of secrets
@@ -371,7 +374,6 @@ func GetSecrets(c *gin.Context) {
 	c.JSON(http.StatusOK, secrets)
 }
 
-// nolint: lll // ignore long line length due to description
 //
 // swagger:operation GET /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets GetSecret
 //
@@ -482,7 +484,6 @@ func GetSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
 
-// nolint: lll // ignore long line length due to description
 //
 // swagger:operation PUT /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets UpdateSecrets
 //
@@ -588,7 +589,7 @@ func UpdateSecret(c *gin.Context) {
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %v", entry, e, err)
+		retErr := fmt.Errorf("unable to decode JSON for secret %s for %s service: %w", entry, e, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -640,7 +641,6 @@ func UpdateSecret(c *gin.Context) {
 	c.JSON(http.StatusOK, secret.Sanitize())
 }
 
-// nolint: lll // ignore long line length due to description
 //
 // swagger:operation DELETE /api/v1/secrets/{engine}/{type}/{org}/{name}/{secret} secrets DeleteSecret
 //

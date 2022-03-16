@@ -34,7 +34,7 @@ var (
 func New() *version.Version {
 	// check if a semantic tag was provided
 	if len(Tag) == 0 {
-		logrus.Warningf("no semantic tag provided - defaulting to v0.0.0")
+		logrus.Warning("no semantic tag provided - defaulting to v0.0.0")
 
 		// set a fallback default for the tag
 		Tag = "v0.0.0"
@@ -42,7 +42,7 @@ func New() *version.Version {
 
 	v, err := semver.NewVersion(Tag)
 	if err != nil {
-		fmt.Println(fmt.Errorf("unable to parse semantic version for %s: %v", Tag, err))
+		fmt.Println(fmt.Errorf("unable to parse semantic version for %s: %w", Tag, err))
 	}
 
 	return &version.Version{

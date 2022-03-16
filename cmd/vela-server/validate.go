@@ -31,8 +31,6 @@ func validate(c *cli.Context) error {
 }
 
 // helper function to validate the core CLI configuration.
-//
-// nolint:lll // ignoring line length check to avoid breaking up error messages
 func validateCore(c *cli.Context) error {
 	logrus.Trace("Validating core CLI configuration")
 
@@ -84,8 +82,6 @@ func validateCore(c *cli.Context) error {
 }
 
 // helper function to validate the compiler CLI configuration.
-//
-// nolint:lll // ignoring line length check to avoid breaking up error messages
 func validateCompiler(c *cli.Context) error {
 	logrus.Trace("Validating compiler CLI configuration")
 

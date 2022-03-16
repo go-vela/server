@@ -108,6 +108,7 @@ func TestRepo_Establish(t *testing.T) {
 func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
@@ -135,6 +136,7 @@ func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
@@ -162,6 +164,7 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 func TestRepo_Establish_NoRepo(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

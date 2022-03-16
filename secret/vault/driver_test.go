@@ -25,6 +25,7 @@ func TestVault_Driver(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args

@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/go-vela/types/library"
-
 	"github.com/hashicorp/vault/api"
 )
 
@@ -24,6 +23,7 @@ func TestVault_New(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -32,6 +32,7 @@ func TestVault_New(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -59,6 +60,7 @@ func TestVault_New_Error(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -67,6 +69,7 @@ func TestVault_New_Error(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -102,6 +105,10 @@ func TestVault_secretFromVault(t *testing.T) {
 			"type":          "org",
 			"value":         "baz",
 			"allow_command": true,
+			"created_at":    int64(1563474077),
+			"created_by":    "octocat",
+			"updated_at":    int64(1563474079),
+			"updated_by":    "octocat2",
 		},
 	}
 
@@ -117,33 +124,33 @@ func TestVault_secretFromVault(t *testing.T) {
 				"type":          "org",
 				"value":         "baz",
 				"allow_command": true,
+				"created_at":    int64(1563474077),
+				"created_by":    "octocat",
+				"updated_at":    int64(1563474079),
+				"updated_by":    "octocat2",
 			},
 		},
 	}
 
-	org := "foo"
-	repo := "*"
-	team := "foob"
-	name := "bar"
-	value := "baz"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	commands := true
-	want := &library.Secret{
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &commands,
-	}
+	want := new(library.Secret)
+	want.SetOrg("foo")
+	want.SetRepo("*")
+	want.SetTeam("foob")
+	want.SetName("bar")
+	want.SetValue("baz")
+	want.SetType("org")
+	want.SetEvents([]string{"foo", "bar"})
+	want.SetImages([]string{"foo", "bar"})
+	want.SetAllowCommand(true)
+	want.SetCreatedAt(1563474077)
+	want.SetCreatedBy("octocat")
+	want.SetUpdatedAt(1563474079)
+	want.SetUpdatedBy("octocat2")
 
 	type args struct {
 		secret *api.Secret
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -151,6 +158,7 @@ func TestVault_secretFromVault(t *testing.T) {
 		{"v1", args{secret: inputV1}},
 		{"v2", args{secret: inputV2}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := secretFromVault(tt.args.secret)
@@ -164,25 +172,20 @@ func TestVault_secretFromVault(t *testing.T) {
 
 func TestVault_vaultFromSecret(t *testing.T) {
 	// setup types
-	org := "foo"
-	repo := "*"
-	team := "foob"
-	name := "bar"
-	value := "baz"
-	typee := "org"
-	arr := []string{"foo", "bar"}
-	commands := true
-	s := &library.Secret{
-		Org:          &org,
-		Repo:         &repo,
-		Team:         &team,
-		Name:         &name,
-		Value:        &value,
-		Type:         &typee,
-		Images:       &arr,
-		Events:       &arr,
-		AllowCommand: &commands,
-	}
+	s := new(library.Secret)
+	s.SetOrg("foo")
+	s.SetRepo("*")
+	s.SetTeam("foob")
+	s.SetName("bar")
+	s.SetValue("baz")
+	s.SetType("org")
+	s.SetEvents([]string{"foo", "bar"})
+	s.SetImages([]string{"foo", "bar"})
+	s.SetAllowCommand(true)
+	s.SetCreatedAt(1563474077)
+	s.SetCreatedBy("octocat")
+	s.SetUpdatedAt(1563474079)
+	s.SetUpdatedBy("octocat2")
 
 	want := &api.Secret{
 		Data: map[string]interface{}{
@@ -195,6 +198,10 @@ func TestVault_vaultFromSecret(t *testing.T) {
 			"type":          "org",
 			"value":         "baz",
 			"allow_command": true,
+			"created_at":    int64(1563474077),
+			"created_by":    "octocat",
+			"updated_at":    int64(1563474079),
+			"updated_by":    "octocat2",
 		},
 	}
 

@@ -20,6 +20,7 @@ func TestMiddleware_Database(t *testing.T) {
 	var got database.Service
 
 	want, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

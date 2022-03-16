@@ -32,7 +32,6 @@ func (c *client) Delete(sType, org, name, path string) error {
 		}
 	}
 
-	// nolint: lll // ignore long line length due to parameters
 	c.Logger.WithFields(fields).Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
 
 	// capture the secret from the native service

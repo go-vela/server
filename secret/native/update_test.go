@@ -15,6 +15,22 @@ import (
 
 func TestNative_Update(t *testing.T) {
 	// setup types
+	original := new(library.Secret)
+	original.SetID(1)
+	original.SetOrg("foo")
+	original.SetRepo("bar")
+	original.SetTeam("")
+	original.SetName("baz")
+	original.SetValue("secretValue")
+	original.SetType("repo")
+	original.SetImages([]string{"foo", "baz"})
+	original.SetEvents([]string{"foob", "bar"})
+	original.SetAllowCommand(true)
+	original.SetCreatedAt(1)
+	original.SetCreatedBy("user")
+	original.SetUpdatedAt(time.Now().UTC().Unix())
+	original.SetUpdatedBy("user")
+
 	want := new(library.Secret)
 	want.SetID(1)
 	want.SetOrg("foo")
@@ -40,7 +56,7 @@ func TestNative_Update(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateSecret(want)
+	_ = db.CreateSecret(original)
 
 	// run test
 	s, err := New(
@@ -70,6 +86,7 @@ func TestNative_Update_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// run test

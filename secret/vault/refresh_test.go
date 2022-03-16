@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package vault
 
 import (
@@ -17,15 +21,85 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 )
 
+func Test_client_initialize(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		name            string
+		responseFile    string
+		responseCode    int
+		vaultAuthMethod string
+		vaultRole       string
+		wantErr         bool
+	}{
+		{
+			name:            "initialize success",
+			responseFile:    "auth-response-success.json",
+			responseCode:    200,
+			vaultAuthMethod: "",
+			vaultRole:       "local-testing",
+			wantErr:         false,
+		},
+	}
+
+	// run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				data, err := ioutil.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
+				if err != nil {
+					t.Error(err)
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.responseCode)
+				_, _ = w.Write(data)
+			}))
+			defer ts.Close()
+
+			c, err := New(
+				WithAddress(ts.URL),
+				WithAuthMethod(""),
+				WithAWSRole(tt.vaultRole),
+				WithPrefix(""),
+				WithToken(""),
+				WithTokenDuration(5*time.Minute),
+				WithVersion("2"),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+
+			c.config.AuthMethod = tt.vaultAuthMethod
+			c.AWS.StsClient = &mockSTSClient{
+				mockGetCallerIdentityRequest: func(in *sts.GetCallerIdentityInput) (*request.Request, *sts.GetCallerIdentityOutput) {
+					return &request.Request{
+						HTTPRequest: &http.Request{
+							Host: "sts.amazonaws.com",
+							URL:  &url.URL{Host: "sts.amazonaws.com"},
+						},
+						Body: aws.ReadSeekCloser(strings.NewReader("the body")),
+					}, nil
+				},
+			}
+
+			err = c.initialize()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("initialize() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
 func Test_client_getAwsToken(t *testing.T) {
+	// setup tests
 	tests := []struct {
 		name         string
 		responseFile string
 		responseCode int
 		stsClient    stsiface.STSAPI
 		vaultRole    string
-		want         string
-		want1        time.Duration
+		wantToken    string
+		wantTTL      time.Duration
 		wantErr      bool
 	}{
 		{
@@ -44,8 +118,8 @@ func Test_client_getAwsToken(t *testing.T) {
 				},
 			},
 			vaultRole: "local-testing",
-			want:      "s.5RGnjF5aUbhz2XWWM9nHxO57",
-			want1:     1 * time.Minute,
+			wantToken: "s.5RGnjF5aUbhz2XWWM9nHxO57",
+			wantTTL:   1 * time.Minute,
 			wantErr:   false,
 		},
 		{
@@ -123,6 +197,7 @@ func Test_client_getAwsToken(t *testing.T) {
 		},
 	}
 
+	// run tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(*testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -149,18 +224,18 @@ func Test_client_getAwsToken(t *testing.T) {
 			}
 			c.AWS.StsClient = tt.stsClient
 
-			got, got1, err := c.getAwsToken()
+			gotToken, gotTTL, err := c.getAwsToken()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getAwsToken() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
-			if got != tt.want {
-				t.Errorf("getAwsToken() got = %v, want %v", got, tt.want)
+			if gotToken != tt.wantToken {
+				t.Errorf("getAwsToken() gotToken = %v, wantToken %v", gotToken, tt.wantToken)
 			}
 
-			if got1 != tt.want1 {
-				t.Errorf("getAwsToken() got1 = %v, want %v", got1, tt.want1)
+			if gotTTL != tt.wantTTL {
+				t.Errorf("getAwsToken() gotTTL = %v, wantTTL %v", gotTTL, tt.wantTTL)
 			}
 		})
 	}

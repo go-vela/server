@@ -14,11 +14,12 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestStarlark_RenderStep(t *testing.T) {
+func TestStarlark_Render(t *testing.T) {
 	type args struct {
 		velaFile     string
 		starlarkFile string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -31,6 +32,7 @@ func TestStarlark_RenderStep(t *testing.T) {
 		{"platform vars", args{velaFile: "testdata/step/with_vars_plat/step.yml", starlarkFile: "testdata/step/with_vars_plat/template.star"}, "testdata/step/with_vars_plat/want.yml", false},
 		{"cancel due to complexity", args{velaFile: "testdata/step/cancel/step.yml", starlarkFile: "testdata/step/cancel/template.star"}, "", true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sFile, err := ioutil.ReadFile(tt.args.velaFile)
@@ -51,9 +53,9 @@ func TestStarlark_RenderStep(t *testing.T) {
 				t.Error(err)
 			}
 
-			steps, secrets, services, environment, err := RenderStep(string(tmpl), b.Steps[0])
+			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("RenderStep() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -72,17 +74,17 @@ func TestStarlark_RenderStep(t *testing.T) {
 				wantServices := w.Services
 				wantEnvironment := w.Environment
 
-				if diff := cmp.Diff(wantSteps, steps); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantSteps, tmplBuild.Steps); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
-				if diff := cmp.Diff(wantSecrets, secrets); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantSecrets, tmplBuild.Secrets); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
-				if diff := cmp.Diff(wantServices, services); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantServices, tmplBuild.Services); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
-				if diff := cmp.Diff(wantEnvironment, environment); diff != "" {
-					t.Errorf("RenderStep() mismatch (-want +got):\n%s", diff)
+				if diff := cmp.Diff(wantEnvironment, tmplBuild.Environment); diff != "" {
+					t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 				}
 			}
 		})
@@ -93,6 +95,7 @@ func TestNative_RenderBuild(t *testing.T) {
 	type args struct {
 		velaFile string
 	}
+
 	tests := []struct {
 		name     string
 		args     args
@@ -103,6 +106,7 @@ func TestNative_RenderBuild(t *testing.T) {
 		{"stages", args{velaFile: "testdata/build/basic_stages/build.star"}, "testdata/build/basic_stages/want.yml", false},
 		{"conditional match", args{velaFile: "testdata/build/conditional/build.star"}, "testdata/build/conditional/want.yml", false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sFile, err := ioutil.ReadFile(tt.args.velaFile)
@@ -113,7 +117,7 @@ func TestNative_RenderBuild(t *testing.T) {
 			got, err := RenderBuild(string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "master",
-			})
+			}, map[string]interface{}{})
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return

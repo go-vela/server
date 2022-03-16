@@ -121,7 +121,7 @@ var (
 				ID:          "step_github_octocat_1_clone",
 				Directory:   "/home/github/octocat",
 				Environment: map[string]string{"FOO": "bar"},
-				Image:       "target/vela-git:v0.3.0",
+				Image:       "target/vela-git:v0.5.1",
 				Name:        "clone",
 				Number:      2,
 				Pull:        "always",
@@ -151,7 +151,6 @@ var (
 
 func TestRedis_New(t *testing.T) {
 	// setup types
-
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
