@@ -311,3 +311,13 @@ spec-version-update:
 # Usage: `make spec`
 .PHONY: spec
 spec: spec-gen spec-version-update spec-validate
+
+# The `lint` target is intended to lint the
+# Go source code with golangci-lint.
+#
+# Usage: `make lint`
+.PHONY: lint
+lint:
+	@echo
+	@echo "### Linting Go Code"
+	@golangci-lint run ./...

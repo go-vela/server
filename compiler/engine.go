@@ -22,13 +22,18 @@ type Engine interface {
 	// Parse internally to convert the object to a yaml configuration.
 	Compile(interface{}) (*pipeline.Build, error)
 
+	// CompileLite defines a function that produces an light executable
+	// representation of a pipeline from an object. This calls
+	// Parse internally to convert the object to a yaml configuration.
+	CompileLite(interface{}, bool, bool, []string) (*yaml.Build, error)
+
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
 	Duplicate() Engine
 
 	// Parse defines a function that converts
 	// an object to a yaml configuration.
-	Parse(interface{}) (*yaml.Build, error)
+	Parse(interface{}, string, map[string]interface{}) (*yaml.Build, error)
 
 	// ParseRaw defines a function that converts
 	// an object to a string.
@@ -66,12 +71,10 @@ type Engine interface {
 
 	// ExpandStages defines a function that injects the template
 	// for each templated step in every stage in a yaml configuration.
-
-	ExpandStages(*yaml.Build, map[string]*yaml.Template) (yaml.StageSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error)
+	ExpandStages(*yaml.Build, map[string]*yaml.Template) (*yaml.Build, error)
 	// ExpandSteps defines a function that injects the template
 	// for each templated step in a yaml configuration.
-
-	ExpandSteps(*yaml.Build, map[string]*yaml.Template) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error)
+	ExpandSteps(*yaml.Build, map[string]*yaml.Template) (*yaml.Build, error)
 
 	// Init Compiler Interface Functions
 

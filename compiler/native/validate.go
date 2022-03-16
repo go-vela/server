@@ -7,45 +7,64 @@ package native
 import (
 	"fmt"
 
+	"github.com/hashicorp/go-multierror"
+
 	"github.com/go-vela/types/yaml"
 )
 
-// Validate verifies the the yaml configuration is valid.
+// Validate verifies the yaml configuration is valid.
 func (c *client) Validate(p *yaml.Build) error {
+	var result error
 	// check a version is provided
 	if len(p.Version) == 0 {
-		return fmt.Errorf("no \"version:\" YAML property provided")
+		result = multierror.Append(result, fmt.Errorf("no \"version:\" YAML property provided"))
 	}
 
 	// check that stages or steps are provided
-	if len(p.Stages) == 0 && len(p.Steps) == 0 {
-		return fmt.Errorf("no stages or steps provided")
+	if len(p.Stages) == 0 && len(p.Steps) == 0 && (!p.Metadata.RenderInline && len(p.Templates) == 0) {
+		result = multierror.Append(result, fmt.Errorf("no stages, steps or templates provided"))
 	}
 
 	// check that stages and steps aren't provided
 	if len(p.Stages) > 0 && len(p.Steps) > 0 {
-		return fmt.Errorf("stages and steps provided")
+		result = multierror.Append(result, fmt.Errorf("stages and steps provided"))
+	}
+
+	if p.Metadata.RenderInline {
+		for _, step := range p.Steps {
+			if step.Template.Name != "" {
+				result = multierror.Append(result, fmt.Errorf("step %s: cannot combine render_inline and a step that references a template", step.Name))
+			}
+		}
+
+		for _, stage := range p.Stages {
+			for _, step := range stage.Steps {
+				if step.Template.Name != "" {
+					result = multierror.Append(result, fmt.Errorf("step %s.%s: cannot combine render_inline and a step that references a template", stage.Name, step.Name))
+				}
+			}
+		}
 	}
 
 	// validate the services block provided
 	err := validateServices(p.Services)
 	if err != nil {
-		return err
+		result = multierror.Append(result, err)
 	}
 
 	// validate the stages block provided
 	err = validateStages(p.Stages)
 	if err != nil {
-		return err
+		result = multierror.Append(result, err)
 	}
 
 	// validate the steps block provided
 	err = validateSteps(p.Steps)
 	if err != nil {
-		return err
+		result = multierror.Append(result, err)
 	}
 
-	return nil
+	return result
 }
 
 // validateServices is a helper function that verifies the

@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/types/constants"
+
 	yml "github.com/buildkite/yaml"
 
 	"github.com/go-vela/types/library"
@@ -39,10 +41,8 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-//
-// nolint: gocyclo,funlen // ignore function length due to comments
 func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
-	p, err := c.Parse(v)
+	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	}
 
 	// create map of templates for easy lookup
-	tmpls := mapFromTemplates(p.Templates)
+	templates := mapFromTemplates(p.Templates)
 
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
@@ -67,92 +67,211 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 		Target:  c.build.GetDeploy(),
 	}
 
-	if len(p.Stages) > 0 {
-		// check if the pipeline disabled the clone
-		if p.Metadata.Clone == nil || *p.Metadata.Clone {
-			// inject the clone stage
-			p, err = c.CloneStage(p)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		// inject the init stage
-		p, err = c.InitStage(p)
+	switch {
+	case p.Metadata.RenderInline:
+		newPipeline, err := c.compileInline(p, nil)
 		if err != nil {
 			return nil, err
 		}
-
-		// inject the templates into the stages
-		p.Stages, p.Secrets, p.Services, p.Environment, err = c.ExpandStages(p, tmpls)
-		if err != nil {
-			return nil, err
-		}
-
-		if c.ModificationService.Endpoint != "" {
-			// send config to external endpoint for modification
-			p, err = c.modifyConfig(p, c.build, c.repo)
-			if err != nil {
-				return nil, err
-			}
-		}
-
 		// validate the yaml configuration
-		err = c.Validate(p)
+		err = c.Validate(newPipeline)
 		if err != nil {
 			return nil, err
 		}
 
-		// Create some default global environment inject vars
-		// these are used below to overwrite to an empty
-		// map if they should not be injected into a container
-		envGlobalServices, envGlobalSecrets, envGlobalSteps := p.Environment, p.Environment, p.Environment
-
-		if !p.Metadata.HasEnvironment("services") {
-			envGlobalServices = make(raw.StringSliceMap)
+		if len(newPipeline.Stages) > 0 {
+			return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
 		}
 
-		if !p.Metadata.HasEnvironment("secrets") {
-			envGlobalSecrets = make(raw.StringSliceMap)
-		}
-
-		if !p.Metadata.HasEnvironment("steps") {
-			envGlobalSteps = make(raw.StringSliceMap)
-		}
-
-		// inject the environment variables into the services
-		p.Services, err = c.EnvironmentServices(p.Services, envGlobalServices)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the environment variables into the secrets
-		p.Secrets, err = c.EnvironmentSecrets(p.Secrets, envGlobalSecrets)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the environment variables into the stages
-		p.Stages, err = c.EnvironmentStages(p.Stages, envGlobalSteps)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the substituted environment variables into the stages
-		p.Stages, err = c.SubstituteStages(p.Stages)
-		if err != nil {
-			return nil, err
-		}
-
-		// inject the scripts into the stages
-		p.Stages, err = c.ScriptStages(p.Stages)
-		if err != nil {
-			return nil, err
-		}
-
-		// return executable representation
-		return c.TransformStages(r, p)
+		return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
+	case len(p.Stages) > 0:
+		return c.compileStages(p, templates, r)
+	default:
+		return c.compileSteps(p, templates, r)
 	}
+}
+
+// CompileLite produces a partial of an executable pipeline from a yaml configuration.
+func (c *client) CompileLite(v interface{}, template, substitute bool, localTemplates []string) (*yaml.Build, error) {
+	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
+	if err != nil {
+		return nil, err
+	}
+
+	if p.Metadata.RenderInline {
+		newPipeline, err := c.compileInline(p, localTemplates)
+		if err != nil {
+			return nil, err
+		}
+		// validate the yaml configuration
+		err = c.Validate(newPipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		p = newPipeline
+	}
+
+	if template {
+		// create map of templates for easy lookup
+		templates := mapFromTemplates(p.Templates)
+
+		if c.local {
+			for _, file := range localTemplates {
+				// local templates override format is <name>:<source>
+				//
+				// example: example:/path/to/template.yml
+				parts := strings.Split(file, ":")
+
+				// make sure the template was configured
+				_, ok := templates[parts[0]]
+				if !ok {
+					return nil, fmt.Errorf("template with name %s is not configured", parts[0])
+				}
+
+				// override the source for the given template
+				templates[parts[0]].Source = parts[1]
+			}
+		}
+
+		switch {
+		case len(p.Stages) > 0:
+			// inject the templates into the steps
+			p, err = c.ExpandStages(p, templates)
+			if err != nil {
+				return nil, err
+			}
+
+			if substitute {
+				// inject the substituted environment variables into the steps
+				p.Stages, err = c.SubstituteStages(p.Stages)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case len(p.Steps) > 0:
+			// inject the templates into the steps
+			p, err = c.ExpandSteps(p, templates)
+			if err != nil {
+				return nil, err
+			}
+
+			if substitute {
+				// inject the substituted environment variables into the steps
+				p.Steps, err = c.SubstituteSteps(p.Steps)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	// validate the yaml configuration
+	err = c.Validate(p)
+	if err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
+
+// compileInline parses and expands out inline pipelines.
+func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Build, error) {
+	newPipeline := *p
+	newPipeline.Templates = yaml.TemplateSlice{}
+
+	for _, template := range p.Templates {
+		if c.local {
+			for _, file := range localTemplates {
+				// local templates override format is <name>:<source>
+				//
+				// example: example:/path/to/template.yml
+				parts := strings.Split(file, ":")
+
+				// make sure we're referencing the proper template
+				if parts[0] == template.Name {
+					// override the source for the given template
+					template.Source = parts[1]
+				}
+			}
+		}
+
+		bytes, err := c.getTemplate(template, template.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		format := template.Format
+
+		// set the default format to golang if the user did not define anything
+		if template.Format == "" {
+			format = constants.PipelineTypeGo
+		}
+
+		parsed, err := c.Parse(bytes, format, template.Variables)
+		if err != nil {
+			return nil, err
+		}
+
+		switch {
+		case len(parsed.Environment) > 0:
+			for key, value := range parsed.Environment {
+				newPipeline.Environment[key] = value
+			}
+
+			fallthrough
+		case len(parsed.Stages) > 0:
+			// ensure all templated steps inside stages have template prefix
+			for stgIndex, newStage := range parsed.Stages {
+				parsed.Stages[stgIndex].Name = fmt.Sprintf("%s_%s", template.Name, newStage.Name)
+
+				for index, newStep := range newStage.Steps {
+					parsed.Stages[stgIndex].Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
+				}
+			}
+
+			newPipeline.Stages = append(newPipeline.Stages, parsed.Stages...)
+
+			fallthrough
+		case len(parsed.Steps) > 0:
+			// ensure all templated steps have template prefix
+			for index, newStep := range parsed.Steps {
+				parsed.Steps[index].Name = fmt.Sprintf("%s_%s", template.Name, newStep.Name)
+			}
+
+			newPipeline.Steps = append(newPipeline.Steps, parsed.Steps...)
+
+			fallthrough
+		case len(parsed.Services) > 0:
+			newPipeline.Services = append(newPipeline.Services, parsed.Services...)
+			fallthrough
+		case len(parsed.Secrets) > 0:
+			newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
+		default:
+			// nolint: lll // ignore long line length due to error message
+			return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
+		}
+
+		if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
+			// nolint: lll // ignore long line length due to error message
+			return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
+		}
+	}
+
+	// validate the yaml configuration
+	err := c.Validate(&newPipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	return &newPipeline, nil
+}
+
+// compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
+//
+// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
+func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
+	var err error
 
 	// check if the pipeline disabled the clone
 	if p.Metadata.Clone == nil || *p.Metadata.Clone {
@@ -170,7 +289,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	}
 
 	// inject the templates into the steps
-	p.Steps, p.Secrets, p.Services, p.Environment, err = c.ExpandSteps(p, tmpls)
+	p, err = c.ExpandSteps(p, tmpls)
 	if err != nil {
 		return nil, err
 	}
@@ -238,6 +357,98 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 
 	// return executable representation
 	return c.TransformSteps(r, p)
+}
+
+// compileStages executes the workflow for converting a YAML pipeline into an executable struct.
+//
+// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
+func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
+	var err error
+
+	// check if the pipeline disabled the clone
+	if p.Metadata.Clone == nil || *p.Metadata.Clone {
+		// inject the clone stage
+		p, err = c.CloneStage(p)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// inject the init stage
+	p, err = c.InitStage(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the templates into the stages
+	p, err = c.ExpandStages(p, tmpls)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.ModificationService.Endpoint != "" {
+		// send config to external endpoint for modification
+		p, err = c.modifyConfig(p, c.build, c.repo)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// validate the yaml configuration
+	err = c.Validate(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create some default global environment inject vars
+	// these are used below to overwrite to an empty
+	// map if they should not be injected into a container
+	envGlobalServices, envGlobalSecrets, envGlobalSteps := p.Environment, p.Environment, p.Environment
+
+	if !p.Metadata.HasEnvironment("services") {
+		envGlobalServices = make(raw.StringSliceMap)
+	}
+
+	if !p.Metadata.HasEnvironment("secrets") {
+		envGlobalSecrets = make(raw.StringSliceMap)
+	}
+
+	if !p.Metadata.HasEnvironment("steps") {
+		envGlobalSteps = make(raw.StringSliceMap)
+	}
+
+	// inject the environment variables into the services
+	p.Services, err = c.EnvironmentServices(p.Services, envGlobalServices)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the environment variables into the secrets
+	p.Secrets, err = c.EnvironmentSecrets(p.Secrets, envGlobalSecrets)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the environment variables into the stages
+	p.Stages, err = c.EnvironmentStages(p.Stages, envGlobalSteps)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the substituted environment variables into the stages
+	p.Stages, err = c.SubstituteStages(p.Stages)
+	if err != nil {
+		return nil, err
+	}
+
+	// inject the scripts into the stages
+	p.Stages, err = c.ScriptStages(p.Stages)
+	if err != nil {
+		return nil, err
+	}
+
+	// return executable representation
+	return c.TransformStages(r, p)
 }
 
 // errorHandler ensures the error contains the number of request attempts.

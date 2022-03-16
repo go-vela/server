@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-vela/types/constants"
+
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/spf13/afero"
@@ -19,29 +21,35 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (yaml.StageSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
+func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+	if len(tmpls) == 0 {
+		return s, nil
+	}
+
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		steps, secrets, services, environment, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls)
 		if err != nil {
-			return nil, nil, nil, nil, err
+			return nil, err
 		}
 
-		stage.Steps = steps
-		s.Secrets = secrets
-		s.Services = services
-		s.Environment = environment
+		stage.Steps = p.Steps
+		s.Secrets = p.Secrets
+		s.Services = p.Services
+		s.Environment = p.Environment
 	}
 
-	return s.Stages, s.Secrets, s.Services, s.Environment, nil
+	return s, nil
 }
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-//
-// nolint: funlen,gocyclo // ignore long line length due to variable names
-func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error) {
+func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+	if len(tmpls) == 0 {
+		return s, nil
+	}
+
 	steps := yaml.StepSlice{}
 	secrets := s.Secrets
 	services := s.Services
@@ -53,9 +61,6 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 
 	// iterate through each step
 	for _, step := range s.Steps {
-		// nolint: ineffassign,staticcheck // ignore ineffectual assignment
-		bytes := []byte{}
-
 		// skip if no template is provided for the step
 		if len(step.Template.Name) == 0 {
 			// add existing step if no template
@@ -66,7 +71,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		// lookup step template name
 		tmpl, ok := tmpls[step.Template.Name]
 		if !ok {
-			return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
+			return s, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
 		}
 
 		// Create some default global environment inject vars
@@ -81,86 +86,21 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		// inject environment information for template
 		step, err := c.EnvironmentStep(step, envGlobalSteps)
 		if err != nil {
-			return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
+			return s, err
 		}
 
-		switch {
-		case c.local:
-			a := &afero.Afero{
-				Fs: afero.NewOsFs(),
-			}
-
-			bytes, err = a.ReadFile(tmpl.Source)
-			if err != nil {
-				return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
-			}
-
-		case strings.EqualFold(tmpl.Type, "github"):
-			// parse source from template
-			src, err := c.Github.Parse(tmpl.Source)
-			if err != nil {
-				return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("invalid template source provided for %s: %w", step.Template.Name, err)
-			}
-
-			// pull from github without auth when the host isn't provided or is set to github.com
-			if !c.UsePrivateGithub && (len(src.Host) == 0 || strings.Contains(src.Host, "github.com")) {
-				logrus.WithFields(logrus.Fields{
-					"org":  src.Org,
-					"repo": src.Repo,
-					"path": src.Name,
-					"host": src.Host,
-				}).Tracef("Using GitHub client to pull template")
-
-				bytes, err = c.Github.Template(nil, src)
-				if err != nil {
-					return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
-				}
-			} else {
-				logrus.WithFields(logrus.Fields{
-					"org":  src.Org,
-					"repo": src.Repo,
-					"path": src.Name,
-					"host": src.Host,
-				}).Tracef("Using authenticated GitHub client to pull template")
-				// use private (authenticated) github instance to pull from
-				bytes, err = c.PrivateGithub.Template(c.user, src)
-				if err != nil {
-					return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
-				}
-			}
-
-		default:
-			logrus.Errorf("Unsupported template type: %v", tmpl.Type)
-			continue
+		bytes, err := c.getTemplate(tmpl, step.Template.Name)
+		if err != nil {
+			return s, err
 		}
 
-		var (
-			tmplSteps       yaml.StepSlice
-			tmplSecrets     yaml.SecretSlice
-			tmplServices    yaml.ServiceSlice
-			tmplEnvironment raw.StringSliceMap
-		)
-
-		// TODO: provide friendlier error messages with file type mismatches
-		switch tmpl.Format {
-		case "go", "golang", "":
-			// render template for steps
-			tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = native.RenderStep(string(bytes), step)
-			if err != nil {
-				return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
-			}
-		case "starlark":
-			// render template for steps
-			tmplSteps, tmplSecrets, tmplServices, tmplEnvironment, err = starlark.RenderStep(string(bytes), step)
-			if err != nil {
-				return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, err
-			}
-		default:
-			return yaml.StepSlice{}, yaml.SecretSlice{}, yaml.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
+		if err != nil {
+			return s, err
 		}
 
 		// loop over secrets within template
-		for _, secret := range tmplSecrets {
+		for _, secret := range tmplBuild.Secrets {
 			found := false
 			// loop over secrets within base configuration
 			for _, sec := range secrets {
@@ -177,7 +117,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		}
 
 		// loop over services within template
-		for _, service := range tmplServices {
+		for _, service := range tmplBuild.Services {
 			found := false
 
 			for _, serv := range services {
@@ -193,7 +133,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		}
 
 		// loop over environment within template
-		for key, value := range tmplEnvironment {
+		for key, value := range tmplBuild.Environment {
 			found := false
 
 			for env := range environment {
@@ -209,10 +149,89 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (ya
 		}
 
 		// add templated steps
-		steps = append(steps, tmplSteps...)
+		steps = append(steps, tmplBuild.Steps...)
 	}
 
-	return steps, secrets, services, environment, nil
+	s.Steps = steps
+	s.Secrets = secrets
+	s.Services = services
+	s.Environment = environment
+
+	return s, nil
+}
+
+func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
+	var (
+		bytes []byte
+		err   error
+	)
+
+	switch {
+	case c.local:
+		a := &afero.Afero{
+			Fs: afero.NewOsFs(),
+		}
+
+		bytes, err = a.ReadFile(tmpl.Source)
+		if err != nil {
+			return bytes, err
+		}
+
+	case strings.EqualFold(tmpl.Type, "github"):
+		// parse source from template
+		src, err := c.Github.Parse(tmpl.Source)
+		if err != nil {
+			return bytes, fmt.Errorf("invalid template source provided for %s: %w", name, err)
+		}
+
+		// pull from github without auth when the host isn't provided or is set to github.com
+		if !c.UsePrivateGithub && (len(src.Host) == 0 || strings.Contains(src.Host, "github.com")) {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+				"host": src.Host,
+			}).Tracef("Using GitHub client to pull template")
+
+			bytes, err = c.Github.Template(nil, src)
+			if err != nil {
+				return bytes, err
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+				"host": src.Host,
+			}).Tracef("Using authenticated GitHub client to pull template")
+
+			// use private (authenticated) github instance to pull from
+			bytes, err = c.PrivateGithub.Template(c.user, src)
+			if err != nil {
+				return bytes, err
+			}
+		}
+
+	default:
+		return bytes, fmt.Errorf("unsupported template type: %v", tmpl.Type)
+	}
+
+	return bytes, nil
+}
+
+// nolint: lll // ignore long line length due to input arguments
+func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, error) {
+	switch tmpl.Format {
+	case constants.PipelineTypeGo, "golang", "":
+		// nolint: lll // ignore long line length due to return
+		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
+	case constants.PipelineTypeStarlark:
+		// nolint: lll // ignore long line length due to return
+		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
+	default:
+		// nolint: lll // ignore long line length due to return
+		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
+	}
 }
 
 // helper function that creates a map of templates from a yaml configuration.
