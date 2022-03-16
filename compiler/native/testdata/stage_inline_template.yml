@@ -1,0 +1,21 @@
+version: "1"
+
+metadata:
+  render_inline: true
+
+templates:
+  - name: golang
+    source: github.example.com/github/octocat/golang_inline_stages.yml
+    format: golang
+    type: github
+    vars:
+      image: golang:1.17
+
+stages:
+  test:
+    steps:
+      - name: golang
+        template:
+          name: golang
+          vars:
+            image: golang:latest

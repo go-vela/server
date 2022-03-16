@@ -7,6 +7,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/go-vela/types"
@@ -26,12 +27,12 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#StringSliceCmd.Result
 	result, err := popCmd.Result()
 	if err != nil {
-		switch err {
-		case redis.Nil: // BLPOP timeout
+		// BLPOP timeout
+		if errors.Is(err, redis.Nil) {
 			return nil, nil
-		default:
-			return nil, err
 		}
+
+		return nil, err
 	}
 
 	item := new(types.Item)

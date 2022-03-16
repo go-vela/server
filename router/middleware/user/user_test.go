@@ -127,6 +127,7 @@ func TestUser_Establish(t *testing.T) {
 func TestUser_Establish_NoToken(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
@@ -197,6 +198,7 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context
@@ -230,6 +232,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

@@ -46,6 +46,7 @@ type client struct {
 // nolint: revive // ignore returning unexported client
 func New(ctx *cli.Context) (*client, error) {
 	logrus.Debug("Creating registry clients from CLI configuration")
+
 	c := new(client)
 
 	if ctx.String("modification-addr") != "" {

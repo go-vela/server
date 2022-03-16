@@ -1,0 +1,22 @@
+version: "1"
+
+metadata:
+  render_inline: true
+
+templates:
+  - name: golang
+    source: github.example.com/github/octocat/golang_inline_stages.yml
+    format: golang
+    type: github
+  - name: starlark
+    source: github.example.com/github/octocat/starlark_inline_steps.star
+    format: starlark
+    type: github
+
+stages:
+  test:
+    steps:
+      - name: test
+        image: alpine
+        commands:
+          - echo from inline

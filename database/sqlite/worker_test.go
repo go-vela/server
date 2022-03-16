@@ -24,6 +24,7 @@ func TestSqlite_Client_GetWorker(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -87,6 +88,7 @@ func TestSqlite_Client_GetWorkerByAddress(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -150,6 +152,7 @@ func TestSqlite_Client_CreateWorker(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -195,6 +198,7 @@ func TestSqlite_Client_UpdateWorker(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -246,6 +250,7 @@ func TestSqlite_Client_DeleteWorker(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -291,6 +296,7 @@ func testWorker() *library.Worker {
 	i64 := int64(0)
 	str := ""
 	b := false
+
 	var arr []string
 
 	return &library.Worker{

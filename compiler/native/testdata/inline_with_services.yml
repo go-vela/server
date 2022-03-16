@@ -1,0 +1,20 @@
+version: "1"
+
+services:
+  - name: postgres
+    image: postgres:latest
+
+metadata:
+  render_inline: true
+
+templates:
+  - name: golang
+    source: github.example.com/github/octocat/services.yml
+    format: golang
+    type: github
+
+steps:
+  - name: test
+    image: alpine
+    commands:
+      - echo from inline

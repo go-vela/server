@@ -28,7 +28,7 @@ func TestNative_Update(t *testing.T) {
 	original.SetAllowCommand(true)
 	original.SetCreatedAt(1)
 	original.SetCreatedBy("user")
-	original.SetUpdatedAt(1)
+	original.SetUpdatedAt(time.Now().UTC().Unix())
 	original.SetUpdatedBy("user")
 
 	want := new(library.Secret)
@@ -86,6 +86,7 @@ func TestNative_Update_Invalid(t *testing.T) {
 
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// run test

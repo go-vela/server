@@ -84,5 +84,6 @@ func (c *client) newClientToken(token string) *github.Client {
 
 	// ensure the proper URL is set
 	github.BaseURL, _ = url.Parse(c.API)
+
 	return github
 }

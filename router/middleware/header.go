@@ -52,12 +52,11 @@ func Secure(c *gin.Context) {
 	c.Header("X-Content-Type-Options", "nosniff")
 	c.Header("X-XSS-Protection", "1; mode=block")
 
+	// Also consider adding Content-Security-Policy headers
+	// c.Header("Content-Security-Policy", "script-src 'self' https://cdnjs.cloudflare.com")
 	if c.Request.TLS != nil {
 		c.Header("Strict-Transport-Security", "max-age=31536000")
 	}
-
-	// Also consider adding Content-Security-Policy headers
-	// c.Header("Content-Security-Policy", "script-src 'self' https://cdnjs.cloudflare.com")
 }
 
 // Cors is a middleware function that appends headers for
@@ -67,10 +66,12 @@ func Cors(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
 
 	c.Header("Access-Control-Allow-Origin", "*")
+
 	if len(m.Vela.WebAddress) > 0 {
 		c.Header("Access-Control-Allow-Origin", m.Vela.WebAddress)
 		c.Header("Access-Control-Allow-Credentials", "true")
 	}
+
 	c.Header("Access-Control-Expose-Headers", "link, x-total-count")
 }
 
