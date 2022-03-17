@@ -47,6 +47,7 @@ func TestPipeline_New(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
+		failure      bool
 		name         string
 		client       *gorm.DB
 		level        int
@@ -55,6 +56,7 @@ func TestPipeline_New(t *testing.T) {
 		want         *engine
 	}{
 		{
+			failure:      false,
 			name:         "postgres",
 			client:       _postgres,
 			level:        1,
@@ -67,6 +69,7 @@ func TestPipeline_New(t *testing.T) {
 			},
 		},
 		{
+			failure:      false,
 			name:         "sqlite3",
 			client:       _sqlite,
 			level:        1,
@@ -90,8 +93,16 @@ func TestPipeline_New(t *testing.T) {
 				WithSkipCreation(test.skipCreation),
 			)
 
+			if test.failure {
+				if err == nil {
+					t.Errorf("New for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
 			if err != nil {
-				t.Errorf("New returned err: %v", err)
+				t.Errorf("New for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
@@ -161,9 +172,8 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testPipeline is a test helper function to create a
-// library Pipeline type with all fields set to their
-// zero values.
+// testPipeline is a test helper function to create a library
+// Pipeline type with all fields set to their zero values.
 func testPipeline() *library.Pipeline {
 	return &library.Pipeline{
 		ID:              new(int64),

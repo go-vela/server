@@ -18,7 +18,7 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetNumber(1)
-	_pipeline.SetRef("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_pipeline.SetRef("refs/heads/master")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 	_pipeline.SetData([]byte("foo"))
@@ -28,12 +28,11 @@ func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "number", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
-		AddRow(1, 1, 1, "", "", "48afb5bdc41ad69bf22588491333f7cf71135163", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+		[]string{"id", "repo_id", "number", "commit", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
+		AddRow(1, 1, 1, "", "", "", "refs/heads/master", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 AND number = $2 LIMIT 1`).
-		WithArgs(1, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 AND number = $2 LIMIT 1`).WithArgs(1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

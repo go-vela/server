@@ -5,14 +5,10 @@
 package pipeline
 
 import (
-	"errors"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
-	"gorm.io/gorm"
 )
 
 // LastPipelineForRepo gets the last pipeline by repo ID from the database.
@@ -26,23 +22,21 @@ func (e *engine) LastPipelineForRepo(r *library.Repo) (*library.Pipeline, error)
 	p := new(database.Pipeline)
 
 	// send query to the database and store result in variable
-	result := e.client.
+	err := e.client.
 		Table(constants.TablePipeline).
 		Where("repo_id = ?", r.GetID()).
 		Order("number DESC").
 		Limit(1).
-		Scan(p)
-
-	// check if the query returned a record not found error or no rows were returned
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
-		// the record will not exist if it's a new repo
-		return nil, nil
+		Scan(p).
+		Error
+	if err != nil {
+		return nil, err
 	}
 
 	// decompress data for the pipeline
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Decompress
-	err := p.Decompress()
+	err = p.Decompress()
 	if err != nil {
 		return nil, err
 	}
@@ -50,5 +44,5 @@ func (e *engine) LastPipelineForRepo(r *library.Repo) (*library.Pipeline, error)
 	// return the decompressed pipeline
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.ToLibrary
-	return p.ToLibrary(), result.Error
+	return p.ToLibrary(), nil
 }

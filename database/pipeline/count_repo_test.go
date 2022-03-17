@@ -37,9 +37,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "pipelines" WHERE repo_id = $1`).
-		WithArgs(1).
-		WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "pipelines" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

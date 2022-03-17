@@ -18,7 +18,7 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
 	_pipelineOne.SetNumber(1)
-	_pipelineOne.SetRef("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_pipelineOne.SetRef("refs/heads/master")
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 	_pipelineOne.SetData([]byte("foo"))
@@ -27,7 +27,7 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 	_pipelineTwo.SetID(2)
 	_pipelineTwo.SetRepoID(1)
 	_pipelineTwo.SetNumber(2)
-	_pipelineTwo.SetRef("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_pipelineTwo.SetRef("refs/heads/main")
 	_pipelineTwo.SetType("yaml")
 	_pipelineTwo.SetVersion("1")
 	_pipelineTwo.SetData([]byte("foo"))
@@ -36,14 +36,19 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "number", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
-		AddRow(1, 1, 1, "", "", "48afb5bdc41ad69bf22588491333f7cf71135163", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69}).
-		AddRow(2, 1, 2, "", "", "48afb5bdc41ad69bf22588491333f7cf71135163", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "pipelines"`).
-		WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "pipelines"`).WillReturnRows(_rows)
+
+	// create expected result in mock
+	_rows = sqlmock.NewRows(
+		[]string{"id", "repo_id", "number", "commit", "flavor", "platform", "ref", "type", "version", "services", "stages", "steps", "templates", "data"}).
+		AddRow(1, 1, 1, "", "", "", "refs/heads/master", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69}).
+		AddRow(2, 1, 2, "", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery(`SELECT * FROM "pipelines"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
