@@ -9,9 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/server/database/pipeline"
-
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
 )
 

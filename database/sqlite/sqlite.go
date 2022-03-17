@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/pipeline"
-
 	"github.com/go-vela/server/database/sqlite/ddl"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
