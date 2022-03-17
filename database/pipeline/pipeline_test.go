@@ -23,11 +23,14 @@ func TestPipeline_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
-	_sql, _, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	_sql, _mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
 		t.Errorf("unable to create new SQL mock: %v", err)
 	}
 	defer _sql.Close()
+
+	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
@@ -40,33 +43,62 @@ func TestPipeline_New(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite database: %v", err)
 	}
+
 	defer func() { _sql, _ := _sqlite.DB(); _sql.Close() }()
 
 	// setup tests
 	tests := []struct {
-		name     string
-		database *gorm.DB
-		want     *engine
+		name         string
+		client       *gorm.DB
+		level        int
+		logger       *logrus.Entry
+		skipCreation bool
+		want         *engine
 	}{
 		{
-			name:     "postgres",
-			database: _postgres,
-			want:     &engine{client: _postgres, logger: logger},
+			name:         "postgres",
+			client:       _postgres,
+			level:        1,
+			logger:       logger,
+			skipCreation: false,
+			want: &engine{
+				client: _postgres,
+				config: &config{CompressionLevel: 1, SkipCreation: false},
+				logger: logger,
+			},
 		},
 		{
-			name:     "sqlite",
-			database: _sqlite,
-			want:     &engine{client: _sqlite, logger: logger},
+			name:         "sqlite3",
+			client:       _sqlite,
+			level:        1,
+			logger:       logger,
+			skipCreation: false,
+			want: &engine{
+				client: _sqlite,
+				config: &config{CompressionLevel: 1, SkipCreation: false},
+				logger: logger,
+			},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		got := New(test.database, logger, 0)
+		t.Run(test.name, func(t *testing.T) {
+			got, err := New(
+				WithClient(test.client),
+				WithCompressionLevel(test.level),
+				WithLogger(test.logger),
+				WithSkipCreation(test.skipCreation),
+			)
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("New for %s is %v, want %v", test.name, got, test.want)
-		}
+			if err != nil {
+				t.Errorf("New returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("New for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }
 
@@ -80,6 +112,9 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new SQL mock: %v", err)
 	}
 
+	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+
 	// create the new mock Postgres database client
 	//
 	// https://pkg.go.dev/gorm.io/gorm#Open
@@ -91,7 +126,17 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new postgres database: %v", err)
 	}
 
-	return &engine{client: _postgres, logger: logrus.NewEntry(logrus.StandardLogger()), compressionLevel: 3}, _mock
+	_engine, err := New(
+		WithClient(_postgres),
+		WithCompressionLevel(0),
+		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
+		WithSkipCreation(false),
+	)
+	if err != nil {
+		t.Errorf("unable to create new postgres pipeline engine: %v", err)
+	}
+
+	return _engine, _mock
 }
 
 // testSqlite is a helper function to create a Sqlite engine for testing.
@@ -109,7 +154,17 @@ func testSqlite(t *testing.T) *engine {
 		t.Errorf("unable to create pipeline schema for sqlite: %v", err)
 	}
 
-	return &engine{client: _sqlite, logger: logrus.NewEntry(logrus.StandardLogger()), compressionLevel: 3}
+	_engine, err := New(
+		WithClient(_sqlite),
+		WithCompressionLevel(0),
+		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
+		WithSkipCreation(false),
+	)
+	if err != nil {
+		t.Errorf("unable to create new sqlite pipeline engine: %v", err)
+	}
+
+	return _engine
 }
 
 // testPipeline is a test helper function to create a
@@ -136,10 +191,9 @@ func testPipeline() *library.Pipeline {
 	}
 }
 
-// This will be used with the github.com/DATA-DOG/go-sqlmock
-// library to compare values that are otherwise not easily
-// compared. These typically would be values generated before
-// adding or updating them in the database.
+// This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values
+// that are otherwise not easily compared. These typically would be values generated
+// before adding or updating them in the database.
 //
 // https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
 type AnyArgument struct{}

@@ -33,25 +33,27 @@ func TestPipeline_Engine_CreateTable(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err := test.database.CreateTable(test.name)
+		t.Run(test.name, func(t *testing.T) {
+			err := test.database.CreateTable(test.name)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("CreateTable for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("CreateTable for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("CreateTable for %s returned err: %v", test.name, err)
-		}
+			if err != nil {
+				t.Errorf("CreateTable for %s returned err: %v", test.name, err)
+			}
+		})
 	}
 }

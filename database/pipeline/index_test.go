@@ -40,18 +40,20 @@ func TestPipeline_Engine_CreateIndexes(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := test.database.CreateIndexes()
+		t.Run(test.name, func(t *testing.T) {
+			err := test.database.CreateIndexes()
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("CreateIndexes for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("CreateIndexes for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("CreateIndexes for %s returned err: %v", test.name, err)
-		}
+			if err != nil {
+				t.Errorf("CreateIndexes for %s returned err: %v", test.name, err)
+			}
+		})
 	}
 }

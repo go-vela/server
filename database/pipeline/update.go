@@ -33,7 +33,7 @@ func (e *engine) UpdatePipeline(p *library.Pipeline) error {
 	// compress data for the pipeline
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Compress
-	err = pipeline.Compress(e.compressionLevel)
+	err = pipeline.Compress(e.config.CompressionLevel)
 	if err != nil {
 		return err
 	}
