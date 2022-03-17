@@ -413,8 +413,8 @@ func TestPostgres_Client_GetRepoBuildList(t *testing.T) {
 	// create expected return in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
-	).AddRow(1, 1, nil, 1, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(2, 1, nil, 2, 0, "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+	).AddRow(1, 1, nil, 1, 0, "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
+		AddRow(2, 1, nil, 2, 0, "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND created < $2 AND created > $3 ORDER BY number DESC LIMIT 10`).WillReturnRows(_rows)
