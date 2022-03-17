@@ -81,7 +81,7 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 			want:     []*library.Pipeline{_pipelineOne},
 		},
@@ -89,22 +89,24 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, _, err := test.database.ListPipelinesForRepo(&library.Repo{ID: _pipelineOne.RepoID}, 1, 1)
+		t.Run(test.name, func(t *testing.T) {
+			got, _, err := test.database.ListPipelinesForRepo(&library.Repo{ID: _pipelineOne.RepoID}, 1, 1)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("ListPipelinesForRepo for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("ListPipelinesForRepo for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
+			if err != nil {
+				t.Errorf("ListPipelinesForRepo for %s returned err: %v", test.name, err)
+			}
 
-		if err != nil {
-			t.Errorf("ListPipelinesForRepo for %s returned err: %v", test.name, err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("ListPipelinesForRepo for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("ListPipelinesForRepo for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }

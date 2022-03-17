@@ -52,25 +52,27 @@ WHERE "id" = $16`).
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err = test.database.UpdatePipeline(_pipeline)
+		t.Run(test.name, func(t *testing.T) {
+			err = test.database.UpdatePipeline(_pipeline)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("UpdatePipeline for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("UpdatePipeline for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("UpdatePipeline for %s returned err: %v", test.name, err)
-		}
+			if err != nil {
+				t.Errorf("UpdatePipeline for %s returned err: %v", test.name, err)
+			}
+		})
 	}
 }

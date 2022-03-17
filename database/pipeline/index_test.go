@@ -33,7 +33,7 @@ func TestPipeline_Engine_CreateIndexes(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 		},
 	}

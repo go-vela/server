@@ -58,7 +58,7 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 			want:     _pipeline,
 		},
@@ -66,22 +66,24 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.database.GetPipeline(1)
+		t.Run(test.name, func(t *testing.T) {
+			got, err := test.database.GetPipeline(1)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("GetPipeline for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("GetPipeline for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
+			if err != nil {
+				t.Errorf("GetPipeline for %s returned err: %v", test.name, err)
+			}
 
-		if err != nil {
-			t.Errorf("GetPipeline for %s returned err: %v", test.name, err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("GetPipeline for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("GetPipeline for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }

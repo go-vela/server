@@ -50,25 +50,27 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING "id"`)
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err := test.database.CreatePipeline(_pipeline)
+		t.Run(test.name, func(t *testing.T) {
+			err := test.database.CreatePipeline(_pipeline)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("CreatePipeline for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("CreatePipeline for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("CreatePipeline for %s returned err: %v", test.name, err)
-		}
+			if err != nil {
+				t.Errorf("CreatePipeline for %s returned err: %v", test.name, err)
+			}
+		})
 	}
 }

@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 
@@ -147,11 +146,6 @@ func testSqlite(t *testing.T) *engine {
 	)
 	if err != nil {
 		t.Errorf("unable to create new sqlite database: %v", err)
-	}
-
-	err = _sqlite.AutoMigrate(&database.Pipeline{})
-	if err != nil {
-		t.Errorf("unable to create pipeline schema for sqlite: %v", err)
 	}
 
 	_engine, err := New(

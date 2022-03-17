@@ -85,10 +85,14 @@ func New(opts ...ClientOpt) (*client, error) {
 	// set the Sqlite database client in the Sqlite client
 	c.Sqlite = _sqlite
 
-	c.PipelineService = pipeline.New(c.Sqlite, c.Logger, c.config.CompressionLevel)
-
 	// setup database with proper configuration
 	err = setupDatabase(c)
+	if err != nil {
+		return nil, err
+	}
+
+	// create the services for the database
+	err = createServices(c)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +143,11 @@ func NewTest() (*client, error) {
 
 	c.Sqlite = _sqlite
 
-	c.PipelineService = pipeline.New(c.Sqlite, c.Logger, c.config.CompressionLevel)
+	// setup database with proper configuration
+	err = createServices(c)
+	if err != nil {
+		return nil, err
+	}
 
 	// create the tables in the database
 	err = createTables(c)
@@ -227,12 +235,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableLog, err)
 	}
 
-	// create the pipelines table
-	err = c.PipelineService.CreateTable(c.Driver())
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %v", constants.TablePipeline, err)
-	}
-
 	// create the repos table
 	err = c.Sqlite.Exec(ddl.CreateRepoTable).Error
 	if err != nil {
@@ -307,12 +309,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create logs_build_id index for the %s table: %w", constants.TableLog, err)
 	}
 
-	// create the indexes for the pipelines table
-	err = c.PipelineService.CreateIndexes()
-	if err != nil {
-		return fmt.Errorf("unable to create indexes for %s table: %v", constants.TablePipeline, err)
-	}
-
 	// create the repos_org_name index for the repos table
 	err = c.Sqlite.Exec(ddl.CreateRepoOrgNameIndex).Error
 	if err != nil {
@@ -347,6 +343,26 @@ func createIndexes(c *client) error {
 	err = c.Sqlite.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
 	if err != nil {
 		return fmt.Errorf("unable to create workers_hostname_address index for the %s table: %w", constants.TableWorker, err)
+	}
+
+	return nil
+}
+
+// createServices is a helper function to create the database services.
+func createServices(c *client) error {
+	var err error
+
+	// create the database agnostic pipeline service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
+	c.PipelineService, err = pipeline.New(
+		pipeline.WithClient(c.Sqlite),
+		pipeline.WithCompressionLevel(c.config.CompressionLevel),
+		pipeline.WithLogger(c.Logger),
+		pipeline.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil

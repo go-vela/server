@@ -72,7 +72,7 @@ func TestPipeline_Engine_LastPipelineForRepo(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 			want:     _pipelineTwo,
 		},
@@ -80,22 +80,24 @@ func TestPipeline_Engine_LastPipelineForRepo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.database.LastPipelineForRepo(&library.Repo{ID: _pipelineOne.RepoID})
+		t.Run(test.name, func(t *testing.T) {
+			got, err := test.database.LastPipelineForRepo(&library.Repo{ID: _pipelineOne.RepoID})
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("LastPipelineForRepo for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("LastPipelineForRepo for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
+			if err != nil {
+				t.Errorf("LastPipelineForRepo for %s returned err: %v", test.name, err)
+			}
 
-		if err != nil {
-			t.Errorf("LastPipelineForRepo for %s returned err: %v", test.name, err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("LastPipelineForRepo for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("LastPipelineForRepo for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }

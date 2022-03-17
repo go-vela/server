@@ -73,7 +73,7 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 			want:     []*library.Pipeline{_pipelineOne, _pipelineTwo},
 		},
@@ -81,22 +81,24 @@ func TestPipeline_Engine_ListPipelines(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.database.ListPipelines()
+		t.Run(test.name, func(t *testing.T) {
+			got, err := test.database.ListPipelines()
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("ListPipelines for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("ListPipelines for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
+			if err != nil {
+				t.Errorf("ListPipelines for %s returned err: %v", test.name, err)
+			}
 
-		if err != nil {
-			t.Errorf("ListPipelines for %s returned err: %v", test.name, err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("ListPipelines for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("ListPipelines for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }

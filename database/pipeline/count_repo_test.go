@@ -69,7 +69,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 		},
 		{
 			failure:  false,
-			name:     "sqlite",
+			name:     "sqlite3",
 			database: _sqlite,
 			want:     1,
 		},
@@ -77,22 +77,24 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.database.CountPipelinesForRepo(&library.Repo{ID: _pipelineOne.RepoID})
+		t.Run(test.name, func(t *testing.T) {
+			got, err := test.database.CountPipelinesForRepo(&library.Repo{ID: _pipelineOne.RepoID})
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("CountPipelinesForRepo for %s should have returned err", test.name)
+			if test.failure {
+				if err == nil {
+					t.Errorf("CountPipelinesForRepo for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
+			if err != nil {
+				t.Errorf("CountPipelinesForRepo for %s returned err: %v", test.name, err)
+			}
 
-		if err != nil {
-			t.Errorf("CountPipelinesForRepo for %s returned err: %v", test.name, err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("CountPipelinesForRepo for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("CountPipelinesForRepo for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }
