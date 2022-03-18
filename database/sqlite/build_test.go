@@ -515,6 +515,7 @@ func testBuild() *library.Build {
 	return &library.Build{
 		ID:           &i64,
 		RepoID:       &i64,
+		PipelineID:   &i64,
 		Number:       &i,
 		Parent:       &i,
 		Event:        &str,
