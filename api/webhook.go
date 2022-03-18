@@ -385,10 +385,15 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	// variable to store pipeline
-	var p *pipeline.Build
-	// number of times to retry
-	retryLimit := 3
+	// variables to store pipeline configuration
+	var (
+		// variable to store executable pipeline
+		p *pipeline.Build
+		// variable to store pipeline configuration
+		pipeline *library.Pipeline
+		// number of times to retry compiling pipeline
+		retryLimit = 3
+	)
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
@@ -433,7 +438,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// parse and compile the pipeline configuration file
-		p, err = compiler.FromContext(c).
+		p, pipeline, err = compiler.FromContext(c).
 			Duplicate().
 			WithBuild(b).
 			WithComment(webhook.Comment).
@@ -474,6 +479,52 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+
+		// send API call to capture the last pipeline for the repo
+		lastPipeline, err := database.FromContext(c).LastPipelineForRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get last pipeline for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		pipeline.SetRepoID(r.GetID())
+		pipeline.SetNumber(1)
+		pipeline.SetCommit(b.GetCommit())
+		pipeline.SetRef(b.GetRef())
+
+		if lastPipeline != nil {
+			pipeline.SetNumber(lastPipeline.GetNumber() + 1)
+		}
+
+		// send API call to create the pipeline
+		err = database.FromContext(c).CreatePipeline(pipeline)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to create pipeline for %s: %v", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		// send API call to capture the created pipeline
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetNumber(), r)
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %v", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		b.SetPipelineID(pipeline.GetID())
 
 		// create the objects from the pipeline in the database
 		err = planBuild(database.FromContext(c), p, b, r)

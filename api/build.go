@@ -242,7 +242,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// parse and compile the pipeline configuration file
-	p, err := compiler.FromContext(c).
+	p, pipeline, err := compiler.FromContext(c).
 		WithBuild(input).
 		WithFiles(files).
 		WithMetadata(m).
@@ -273,6 +273,48 @@ func CreateBuild(c *gin.Context) {
 
 		return
 	}
+
+	// send API call to capture the last pipeline for the repo
+	lastPipeline, err := database.FromContext(c).LastPipelineForRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get last pipeline for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	pipeline.SetRepoID(r.GetID())
+	pipeline.SetNumber(1)
+	pipeline.SetCommit(input.GetCommit())
+	pipeline.SetRef(input.GetRef())
+
+	if lastPipeline != nil {
+		pipeline.SetNumber(lastPipeline.GetNumber() + 1)
+	}
+
+	// send API call to create the pipeline
+	err = database.FromContext(c).CreatePipeline(pipeline)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to create pipeline for %s: %v", baseErr, r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// send API call to capture the created pipeline
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetNumber(), r)
+	if err != nil {
+		// nolint: lll // ignore long line length due to error message
+		retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %v", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	input.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
 	err = planBuild(database.FromContext(c), p, input, r)
@@ -978,47 +1020,134 @@ func RestartBuild(c *gin.Context) {
 		}
 	}
 
-	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
+	// variables to store pipeline configuration
+	var (
+		// variable to store executable pipeline
+		p *pipeline.Build
+		// variable to store pipeline configuration
+		pipeline *library.Pipeline
+	)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	// parse and compile the pipeline configuration file
-	p, err := compiler.FromContext(c).
-		WithBuild(b).
-		WithFiles(files).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u).
-		Compile(config)
-	if err != nil {
-		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
-	if skip != "" {
-		// set build to successful status
-		b.SetStatus(constants.StatusSkipped)
-
-		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+	// check if the build was created after pipeline support was added
+	if b.GetPipelineID() > 0 {
+		// send API call to capture the pipeline
+		pipeline, err = database.FromContext(c).GetPipeline(b.GetPipelineID())
 		if err != nil {
-			logger.Errorf("unable to set commit status for %s: %v", entry, err)
+			retErr := fmt.Errorf("unable to get pipeline for %s: %w", entry, err)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
 		}
 
-		c.JSON(http.StatusOK, skip)
+		// capture the original pipeline type for the repo
+		originalType := r.GetPipelineType()
+		// ensure we use the expected pipeline type when compiling
+		r.SetPipelineType(pipeline.GetType())
 
-		return
+		// parse and compile the pipeline
+		p, _, err = compiler.FromContext(c).
+			WithBuild(b).
+			WithFiles(files).
+			WithMetadata(m).
+			WithRepo(r).
+			WithUser(u).
+			Compile(pipeline.GetData())
+		if err != nil {
+			retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// reset the pipeline type for the repo
+		r.SetPipelineType(originalType)
+	} else { // keep original behavior for builds ran before pipeline support was added
+		// send API call to capture the pipeline configuration file
+		config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// parse and compile the pipeline configuration file
+		p, pipeline, err = compiler.FromContext(c).
+			WithBuild(b).
+			WithFiles(files).
+			WithMetadata(m).
+			WithRepo(r).
+			WithUser(u).
+			Compile(config)
+		if err != nil {
+			retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// skip the build if only the init or clone steps are found
+		skip := skipEmptyBuild(p)
+		if skip != "" {
+			// set build to successful status
+			b.SetStatus(constants.StatusSkipped)
+
+			// send API call to set the status on the commit
+			err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+			if err != nil {
+				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+			}
+
+			c.JSON(http.StatusOK, skip)
+
+			return
+		}
+
+		// send API call to capture the last pipeline for the repo
+		lastPipeline, err := database.FromContext(c).LastPipelineForRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get last pipeline for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		pipeline.SetRepoID(r.GetID())
+		pipeline.SetNumber(1)
+		pipeline.SetCommit(b.GetCommit())
+		pipeline.SetRef(b.GetRef())
+
+		if lastPipeline != nil {
+			pipeline.SetNumber(lastPipeline.GetNumber() + 1)
+		}
+
+		// send API call to create the pipeline
+		err = database.FromContext(c).CreatePipeline(pipeline)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to create pipeline for %s: %v", baseErr, r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// send API call to capture the created pipeline
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetNumber(), r)
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %v", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		b.SetPipelineID(pipeline.GetID())
 	}
 
 	// create the objects from the pipeline in the database

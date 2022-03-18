@@ -97,7 +97,7 @@ func GetPipeline(ctx *gin.Context) {
 		return
 	}
 
-	pipeline, err := comp.Parse(config, r.GetPipelineType(), map[string]interface{}{})
+	pipeline, _, err := comp.Parse(config, r.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -175,7 +175,7 @@ func GetTemplates(ctx *gin.Context) {
 		return
 	}
 
-	pipeline, err := comp.Parse(config, r.GetPipelineType(), map[string]interface{}{})
+	pipeline, _, err := comp.Parse(config, r.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -265,7 +265,7 @@ func ExpandPipeline(ctx *gin.Context) {
 		return
 	}
 
-	pipeline, err := comp.CompileLite(config, true, false, nil)
+	pipeline, _, err := comp.CompileLite(config, true, false, nil)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -349,7 +349,7 @@ func ValidatePipeline(ctx *gin.Context) {
 		template = true
 	}
 
-	pipeline, err := comp.CompileLite(config, template, false, nil)
+	pipeline, _, err := comp.CompileLite(config, template, false, nil)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
@@ -428,7 +428,7 @@ func CompilePipeline(ctx *gin.Context) {
 		return
 	}
 
-	pipeline, err := comp.CompileLite(config, true, true, nil)
+	pipeline, _, err := comp.CompileLite(config, true, true, nil)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline configuration for %s: %w", repoName(ctx), err)
 		util.HandleError(ctx, http.StatusBadRequest, retErr)
