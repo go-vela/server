@@ -85,7 +85,7 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // CreateBuild represents the API handler to create a build in the configured backend.
-// nolint: funlen // ignore statement count
+// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -296,7 +296,7 @@ func CreateBuild(c *gin.Context) {
 	// send API call to create the pipeline
 	err = database.FromContext(c).CreatePipeline(pipeline)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to create pipeline for %s: %v", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -307,7 +307,7 @@ func CreateBuild(c *gin.Context) {
 	pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetNumber(), r)
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %v", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
+		retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %w", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -1129,7 +1129,7 @@ func RestartBuild(c *gin.Context) {
 		// send API call to create the pipeline
 		err = database.FromContext(c).CreatePipeline(pipeline)
 		if err != nil {
-			retErr := fmt.Errorf("%s: failed to create pipeline for %s: %v", baseErr, r.GetFullName(), err)
+			retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -1140,7 +1140,7 @@ func RestartBuild(c *gin.Context) {
 		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetNumber(), r)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %v", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
+			retErr := fmt.Errorf("%s: failed to get new pipeline %s/%d: %w", baseErr, r.GetFullName(), pipeline.GetNumber(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
