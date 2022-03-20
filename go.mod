@@ -7,7 +7,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
-	github.com/alicebob/miniredis/v2 v2.18.0
+	github.com/alicebob/miniredis/v2 v2.19.0
 	github.com/aws/aws-sdk-go v1.43.10
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
@@ -15,7 +15,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-vela/types v0.13.0-rc2.0.20220316210142-30e22e29dabe
-	github.com/golang-jwt/jwt/v4 v4.3.0
+	github.com/golang-jwt/jwt/v4 v4.4.0
 	github.com/google/go-cmp v0.5.7
 	github.com/google/go-github/v42 v42.0.0
 	github.com/google/uuid v1.3.0
