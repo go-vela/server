@@ -219,8 +219,8 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 		t.Errorf("EnvironmentSteps returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("EnvironmentSteps is %v, want %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("EnvironmentSteps mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -366,8 +366,8 @@ func TestNative_EnvironmentServices(t *testing.T) {
 		t.Errorf("EnvironmentServices returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("EnvironmentServices is %v, want %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("EnvironmentServices mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -526,8 +526,8 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 		t.Errorf("EnvironmentSecrets returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("EnvironmentSecrets is %v, want %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("EnvironmentSecrets mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -600,8 +600,8 @@ func TestNative_environment(t *testing.T) {
 	for _, test := range tests {
 		got := environment(test.b, test.m, test.r, test.u)
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("environment is %v, want %v", got, test.want)
+		if diff := cmp.Diff(got, test.want); diff != "" {
+			t.Errorf("environment mismatch (-want +got):\n%s", diff)
 		}
 	}
 }
@@ -710,8 +710,9 @@ func Test_client_EnvironmentBuild(t *testing.T) {
 				repo:     tt.fields.repo,
 				user:     tt.fields.user,
 			}
-			if got := c.EnvironmentBuild(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("EnvironmentBuild() = %v, want %v", got, tt.want)
+			got := c.EnvironmentBuild()
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("EnvironmentBuild mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

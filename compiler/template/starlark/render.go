@@ -30,43 +30,44 @@ var (
 	ErrInvalidPipelineReturn = errors.New("invalid pipeline return in template")
 )
 
-// RenderStep combines the template with the step in the yaml pipeline.
-func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice, types.ServiceSlice, raw.StringSliceMap, error) {
+// Render combines the template with the step in the yaml pipeline.
+func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, error) {
 	config := new(types.Build)
 
-	thread := &starlark.Thread{Name: s.Name}
+	thread := &starlark.Thread{Name: name}
 	// arbitrarily limiting the steps of the thread to 5000 to help prevent infinite loops
 	// may need to further investigate spawning a separate POSIX process if user input is problematic
 	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
 	thread.SetMaxExecutionSteps(5000)
 
-	globals, err := starlark.ExecFile(thread, s.Template.Name, tmpl, nil)
+	globals, err := starlark.ExecFile(thread, tName, tmpl, nil)
+
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
 	// check the provided template has a main function
 	mainVal, ok := globals["main"]
 	if !ok {
-		return nil, nil, nil, nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, s.Template.Name)
+		return nil, fmt.Errorf("%w: %s", ErrMissingMainFunc, tName)
 	}
 
 	// check the provided main is a function
 	main, ok := mainVal.(starlark.Callable)
 	if !ok {
-		return nil, nil, nil, nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, s.Template.Name)
+		return nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, tName)
 	}
 
 	// load the user provided vars into a starlark type
-	userVars, err := convertTemplateVars(s.Template.Variables)
+	userVars, err := convertTemplateVars(variables)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
 	// load the platform provided vars into a starlark type
-	velaVars, err := convertPlatformVars(s.Environment, s.Name)
+	velaVars, err := convertPlatformVars(environment, name)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
 	// add the user and platform vars to a context to be used
@@ -75,12 +76,12 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 
 	err = context.SetKey(starlark.String("vela"), velaVars)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
 	err = context.SetKey(starlark.String("vars"), userVars)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
 	args := starlark.Tuple([]starlark.Value{context})
@@ -88,7 +89,7 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 	// execute Starlark program from Go.
 	mainVal, err = starlark.Call(thread, main, args, nil)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, err
 	}
 
 	buf := new(bytes.Buffer)
@@ -103,7 +104,7 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 
 			err = writeJSON(buf, item)
 			if err != nil {
-				return nil, nil, nil, nil, err
+				return nil, err
 			}
 
 			buf.WriteString("\n")
@@ -113,28 +114,30 @@ func RenderStep(tmpl string, s *types.Step) (types.StepSlice, types.SecretSlice,
 
 		err = writeJSON(buf, v)
 		if err != nil {
-			return nil, nil, nil, nil, err
+			return nil, err
 		}
 	default:
-		return nil, nil, nil, nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
+		return nil, fmt.Errorf("%w: %s", ErrInvalidPipelineReturn, mainVal.Type())
 	}
 
 	// unmarshal the template to the pipeline
 	err = yaml.Unmarshal(buf.Bytes(), config)
 	if err != nil {
-		return types.StepSlice{}, types.SecretSlice{}, types.ServiceSlice{}, raw.StringSliceMap{}, fmt.Errorf("unable to unmarshal yaml: %w", err)
+		return nil, fmt.Errorf("unable to unmarshal yaml: %w", err)
 	}
 
 	// ensure all templated steps have template prefix
 	for index, newStep := range config.Steps {
-		config.Steps[index].Name = fmt.Sprintf("%s_%s", s.Name, newStep.Name)
+		config.Steps[index].Name = fmt.Sprintf("%s_%s", name, newStep.Name)
 	}
 
-	return config.Steps, config.Secrets, config.Services, config.Environment, nil
+	return &types.Build{Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment}, nil
 }
 
 // RenderBuild renders the templated build.
-func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
+//
+// nolint: lll // ignore function length due to input args
+func RenderBuild(b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	config := new(types.Build)
 
 	thread := &starlark.Thread{Name: "templated-base"}
@@ -160,6 +163,12 @@ func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
 		return nil, fmt.Errorf("%w: %s", ErrInvalidMainFunc, "templated-base")
 	}
 
+	// load the user provided vars into a starlark type
+	userVars, err := convertTemplateVars(variables)
+	if err != nil {
+		return nil, err
+	}
+
 	// load the platform provided vars into a starlark type
 	velaVars, err := convertPlatformVars(envs, "")
 	if err != nil {
@@ -171,6 +180,11 @@ func RenderBuild(b string, envs map[string]string) (*types.Build, error) {
 	context := starlark.NewDict(0)
 
 	err = context.SetKey(starlark.String("vela"), velaVars)
+	if err != nil {
+		return nil, err
+	}
+
+	err = context.SetKey(starlark.String("vars"), userVars)
 	if err != nil {
 		return nil, err
 	}
