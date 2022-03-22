@@ -318,9 +318,20 @@ func TestSqlite_Client_GetOrgRepoList_LastUpdate(t *testing.T) {
 
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
-	_database.CreateBuild(_buildOne)
-	_database.CreateBuild(_buildTwo)
-	_database.CreateBuild(_buildThree)
+	err = _database.CreateBuild(_buildOne)
+	if err != nil {
+		t.Errorf("unable to create build: %v", err)
+	}
+
+	err = _database.CreateBuild(_buildTwo)
+	if err != nil {
+		t.Errorf("unable to create build: %v", err)
+	}
+
+	err = _database.CreateBuild(_buildThree)
+	if err != nil {
+		t.Errorf("unable to create build: %v", err)
+	}
 
 	// setup tests
 	tests := []struct {
