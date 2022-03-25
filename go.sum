@@ -180,8 +180,8 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0/go.mod h1:fyg7847qk6SyHyPtNmDHnmrv/HOrqktSC+C9fM+CJOE=
 github.com/go-test/deep v1.0.2 h1:onZX1rnHT3Wv6cqNgYyFOOlgVKJrksuCMCRvJStbMYw=
 github.com/go-test/deep v1.0.2/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
-github.com/go-vela/types v0.13.0-rc2.0.20220316210142-30e22e29dabe h1:MvxfCEYWTQlpBELY70MKs9xL0BGlqq1Ytp7vR0su06Q=
-github.com/go-vela/types v0.13.0-rc2.0.20220316210142-30e22e29dabe/go.mod h1:n2aGQj5hzLFUvl1LnxyzItaPKSgC7jSiuSq+6XkRly8=
+github.com/go-vela/types v0.13.0 h1:PX/0wtKMXbtqHbrWgwlCDzuBzeh+4V042k56siDSm1o=
+github.com/go-vela/types v0.13.0/go.mod h1:n2aGQj5hzLFUvl1LnxyzItaPKSgC7jSiuSq+6XkRly8=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
