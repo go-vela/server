@@ -7,7 +7,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
-	github.com/alicebob/miniredis/v2 v2.19.0
+	github.com/alicebob/miniredis/v2 v2.20.0
 	github.com/aws/aws-sdk-go v1.43.10
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
@@ -121,7 +121,7 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/ugorji/go/codec v1.1.11 // indirect
-	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da // indirect
+	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
