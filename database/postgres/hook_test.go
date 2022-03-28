@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
@@ -31,6 +31,7 @@ func TestPostgres_Client_GetHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -47,8 +48,8 @@ func TestPostgres_Client_GetHook(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link", "webhook_id"},
+	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -107,6 +108,7 @@ func TestPostgres_Client_GetLastHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -123,8 +125,8 @@ func TestPostgres_Client_GetLastHook(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link", "webhook_id"},
+	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query for test case 1
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -176,6 +178,7 @@ func TestPostgres_Client_CreateHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -189,8 +192,8 @@ func TestPostgres_Client_CreateHook(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "hooks" ("repo_id","build_id","number","source_id","created","host","event","branch","error","status","link","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, 1).
+	_mock.ExpectQuery(`INSERT INTO "hooks" ("repo_id","build_id","number","source_id","created","host","event","branch","error","status","link","webhook_id","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id"`).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, 1, 1).
 		WillReturnRows(_rows)
 
 	// setup tests
@@ -228,6 +231,7 @@ func TestPostgres_Client_UpdateHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -238,8 +242,8 @@ func TestPostgres_Client_UpdateHook(t *testing.T) {
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "hooks" SET "repo_id"=$1,"build_id"=$2,"number"=$3,"source_id"=$4,"created"=$5,"host"=$6,"event"=$7,"branch"=$8,"error"=$9,"status"=$10,"link"=$11 WHERE "id" = $12`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, 1).
+	_mock.ExpectExec(`UPDATE "hooks" SET "repo_id"=$1,"build_id"=$2,"number"=$3,"source_id"=$4,"created"=$5,"host"=$6,"event"=$7,"branch"=$8,"error"=$9,"status"=$10,"link"=$11,"webhook_id"=$12 WHERE "id" = $13`).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, 1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup tests

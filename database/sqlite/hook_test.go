@@ -26,6 +26,7 @@ func TestSqlite_Client_GetHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -98,6 +99,7 @@ func TestSqlite_Client_GetLastHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -163,6 +165,7 @@ func TestSqlite_Client_CreateHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -210,6 +213,7 @@ func TestSqlite_Client_UpdateHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -263,6 +267,7 @@ func TestSqlite_Client_DeleteHook(t *testing.T) {
 	_hook.SetBuildID(1)
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hook.SetWebhookID(1)
 
 	// setup the test database client
 	_database, err := NewTest()
