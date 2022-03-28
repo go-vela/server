@@ -2,6 +2,8 @@ module github.com/go-vela/server
 
 go 1.17
 
+replace github.com/go-vela/types => ../types
+
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -17,7 +19,7 @@ require (
 	github.com/go-vela/types v0.13.0
 	github.com/golang-jwt/jwt/v4 v4.4.0
 	github.com/google/go-cmp v0.5.7
-	github.com/google/go-github/v42 v42.0.0
+	github.com/google/go-github/v43 v43.0.1-0.20220303181952-5a4019ec44de
 	github.com/google/uuid v1.3.0
 	github.com/goware/urlx v0.3.1
 	github.com/hashicorp/go-cleanhttp v0.5.2

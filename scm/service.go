@@ -5,6 +5,7 @@
 package scm
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-vela/types"
@@ -122,6 +123,9 @@ type Service interface {
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
 	VerifyWebhook(*http.Request, *library.Repo) error
+	// RedeliverWebhook defines a function that
+	// redelivers the webhook from the SCM.
+	RedeliverWebhook(context.Context, *library.User, *library.Repo, *library.Hook) error
 
 	// TODO: Add convert functions to interface?
 }

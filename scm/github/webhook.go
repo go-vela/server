@@ -5,9 +5,11 @@
 package github
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,7 +18,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v43/github"
 )
 
 // nolint: nilerr // ignore webhook returning nil
@@ -27,6 +29,14 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
+	fmt.Println("------DEBUG-----")
+	fmt.Println(request.Header.Get("X-GitHub-Hook-ID"))
+	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert hook id to int64: %v", err)
+		return nil, retErr
+	}
+	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
@@ -77,6 +87,21 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 		return err
 	}
 
+	return nil
+}
+
+// RedeliverWebhook redelivers webhooks from GitHub.
+func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+	deliveryID, err := c.getDeliveryID(ctx, client, r, h)
+	if err != nil {
+		return err
+	}
+	_, _, err = client.Repositories.RedeliverHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -428,4 +453,30 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 		Hook:    h,
 		Repo:    r,
 	}, nil
+}
+
+// getDeliveryID gets the last 100 webhook deliveries for a repo and
+// finds the matching delivery id with the source id in the hook.
+func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *library.Repo, h *library.Hook) (int64, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("searching for delivery id for hook: %s", h.GetSourceID())
+
+	// create GitHub OAuth client with user's token
+
+	opt := &github.ListCursorOptions{PerPage: 100}
+	deliveries, _, err := ghClient.Repositories.ListHookDeliveries(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), opt)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, delivery := range deliveries {
+		if delivery.GetGUID() == h.GetSourceID() {
+			return delivery.GetID(), nil
+		}
+	}
+
+	err = fmt.Errorf("webhook not one of the 100 most recent deliveries")
+	return 0, err
 }
