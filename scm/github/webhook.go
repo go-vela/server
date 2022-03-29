@@ -29,13 +29,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
-	fmt.Println("------DEBUG-----")
-	fmt.Println(request.Header.Get("X-GitHub-Hook-ID"))
+
 	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert hook id to int64: %v", err)
+		retErr := fmt.Errorf("unable to convert hook id to int64: %w", err)
 		return nil, retErr
 	}
+
 	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
@@ -93,15 +93,22 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 // RedeliverWebhook redelivers webhooks from GitHub.
 func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token
+	// nolint: contextcheck // do not need to pass context in this instance
 	client := c.newClientToken(*u.Token)
+
+	// capture the delivery ID of the hook using GitHub API
 	deliveryID, err := c.getDeliveryID(ctx, client, r, h)
 	if err != nil {
 		return err
 	}
+
+	// redeliver the webhook
 	_, _, err = client.Repositories.RedeliverHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
+
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -463,20 +470,31 @@ func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *
 		"repo": r.GetName(),
 	}).Tracef("searching for delivery id for hook: %s", h.GetSourceID())
 
-	// create GitHub OAuth client with user's token
-
+	// set per page to 100 to retrieve last 100 hook summaries
 	opt := &github.ListCursorOptions{PerPage: 100}
-	deliveries, _, err := ghClient.Repositories.ListHookDeliveries(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), opt)
+
+	// send API call to capture delivery summaries that contain Delivery ID value
+	deliveries, resp, err := ghClient.Repositories.ListHookDeliveries(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), opt)
+
+	// version check: if GitHub API is older than version 3.2, this call will not work
+	if resp.StatusCode == 415 {
+		err = fmt.Errorf("requires GitHub version 3.2 or later")
+		return 0, err
+	}
+
 	if err != nil {
 		return 0, err
 	}
 
+	// cycle through delivery summaries and match Source ID/GUID. Capture Delivery ID
 	for _, delivery := range deliveries {
 		if delivery.GetGUID() == h.GetSourceID() {
 			return delivery.GetID(), nil
 		}
 	}
 
+	// if not found, webhook was not recent enough for GitHub
 	err = fmt.Errorf("webhook not one of the 100 most recent deliveries")
+
 	return 0, err
 }
