@@ -13,6 +13,7 @@ IF NOT EXISTS
 builds (
 	id             INTEGER PRIMARY KEY AUTOINCREMENT,
 	repo_id        INTEGER,
+	pipeline_id    INTEGER,
 	number         INTEGER,
 	parent         INTEGER,
 	event          TEXT,

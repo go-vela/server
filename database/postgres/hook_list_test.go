@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
@@ -24,6 +24,7 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 	_hookOne.SetBuildID(1)
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hookOne.SetWebhookID(1)
 
 	_hookTwo := testHook()
 	_hookTwo.SetID(2)
@@ -31,6 +32,7 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 	_hookTwo.SetBuildID(2)
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hookTwo.SetWebhookID(1)
 
 	// setup the test database client
 	_database, _mock, err := NewTest()
@@ -47,9 +49,9 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "").
-		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link", "webhook_id"},
+	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1).
+		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -95,6 +97,7 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 	_hookOne.SetBuildID(1)
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hookOne.SetWebhookID(1)
 
 	_hookTwo := testHook()
 	_hookTwo.SetID(2)
@@ -102,6 +105,7 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 	_hookTwo.SetBuildID(2)
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	_hookTwo.SetWebhookID(1)
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -125,9 +129,9 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "").
-		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link", "webhook_id"},
+	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1).
+		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
