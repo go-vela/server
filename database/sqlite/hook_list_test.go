@@ -36,7 +36,11 @@ func TestSqlite_Client_GetHookList(t *testing.T) {
 	_hookOne.SetBuildID(1)
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+<<<<<<< HEAD
 	_hookOne.SetWebhookID(123456)
+=======
+	_hookOne.SetWebhookID(1)
+>>>>>>> master
 
 	_hookTwo := testHook()
 	_hookTwo.SetID(2)
@@ -44,7 +48,11 @@ func TestSqlite_Client_GetHookList(t *testing.T) {
 	_hookTwo.SetBuildID(2)
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+<<<<<<< HEAD
 	_hookTwo.SetWebhookID(123456)
+=======
+	_hookTwo.SetWebhookID(1)
+>>>>>>> master
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -106,7 +114,11 @@ func TestSqlite_Client_GetRepoHookList(t *testing.T) {
 	_hookOne.SetBuildID(1)
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+<<<<<<< HEAD
 	_hookOne.SetWebhookID(123456)
+=======
+	_hookOne.SetWebhookID(1)
+>>>>>>> master
 
 	_hookTwo := testHook()
 	_hookTwo.SetID(2)
@@ -114,7 +126,11 @@ func TestSqlite_Client_GetRepoHookList(t *testing.T) {
 	_hookTwo.SetBuildID(2)
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+<<<<<<< HEAD
 	_hookTwo.SetWebhookID(123456)
+=======
+	_hookTwo.SetWebhookID(1)
+>>>>>>> master
 
 	_repo := testRepo()
 	_repo.SetID(1)

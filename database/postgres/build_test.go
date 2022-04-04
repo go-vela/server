@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/library"
