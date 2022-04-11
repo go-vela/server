@@ -9,7 +9,8 @@ import (
 	"testing"
 	"time"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
 )
 
@@ -94,6 +95,8 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateSecretTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup the skip test database client
 	_skipDatabase, _skipMock, err := NewTest()
@@ -235,6 +238,46 @@ func TestPostgres_createIndexes(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("createIndexes returned err: %v", err)
+		}
+	}
+}
+
+func TestPostgres_createServices(t *testing.T) {
+	// setup types
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// ensure the mock expects the index queries
+	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	tests := []struct {
+		failure bool
+	}{
+		{
+			failure: false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := createServices(_database)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("createServices should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("createServices returned err: %v", err)
 		}
 	}
 }
