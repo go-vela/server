@@ -46,6 +46,9 @@ func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*li
 		Offset(offset).
 		Find(&p).
 		Error
+	if err != nil {
+		return nil, count, err
+	}
 
 	// iterate through all query results
 	for _, pipeline := range *p {
@@ -57,7 +60,7 @@ func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*li
 		// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Decompress
 		err = tmp.Decompress()
 		if err != nil {
-			return nil, 0, err
+			return nil, count, err
 		}
 
 		// convert query result to library type
@@ -66,5 +69,5 @@ func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*li
 		pipelines = append(pipelines, tmp.ToLibrary())
 	}
 
-	return pipelines, count, err
+	return pipelines, count, nil
 }

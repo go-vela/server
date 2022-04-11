@@ -35,6 +35,9 @@ func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
 		Table(constants.TablePipeline).
 		Find(&p).
 		Error
+	if err != nil {
+		return nil, err
+	}
 
 	// iterate through all query results
 	for _, pipeline := range *p {
@@ -55,5 +58,5 @@ func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
 		pipelines = append(pipelines, tmp.ToLibrary())
 	}
 
-	return pipelines, err
+	return pipelines, nil
 }
