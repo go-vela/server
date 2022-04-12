@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
@@ -40,6 +41,7 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		pipeline.PipelineService
 	}
 )
 
@@ -89,6 +91,12 @@ func New(opts ...ClientOpt) (*client, error) {
 		return nil, err
 	}
 
+	// create the services for the database
+	err = createServices(c)
+	if err != nil {
+		return nil, err
+	}
+
 	return c, nil
 }
 
@@ -120,7 +128,7 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// create new logger for the client
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#NewEntry
-	c.Logger = logrus.NewEntry(logger)
+	c.Logger = logrus.NewEntry(logger).WithField("database", c.Driver())
 
 	// create the new mock sql database
 	//
@@ -130,6 +138,9 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
+	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+
 	// create the new mock Postgres database client
 	//
 	// https://pkg.go.dev/gorm.io/gorm#Open
@@ -137,6 +148,12 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		postgres.New(postgres.Config{Conn: _sql}),
 		&gorm.Config{SkipDefaultTransaction: true},
 	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// setup database with proper configuration
+	err = createServices(c)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -329,6 +346,26 @@ func createIndexes(c *client) error {
 	err = c.Postgres.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
 	if err != nil {
 		return fmt.Errorf("unable to create workers_hostname_address index for the %s table: %w", constants.TableWorker, err)
+	}
+
+	return nil
+}
+
+// createServices is a helper function to create the database services.
+func createServices(c *client) error {
+	var err error
+
+	// create the database agnostic pipeline service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
+	c.PipelineService, err = pipeline.New(
+		pipeline.WithClient(c.Postgres),
+		pipeline.WithCompressionLevel(c.config.CompressionLevel),
+		pipeline.WithLogger(c.Logger),
+		pipeline.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil

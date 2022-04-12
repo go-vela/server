@@ -11,18 +11,19 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 hooks (
-	id        INTEGER PRIMARY KEY AUTOINCREMENT,
-	repo_id   INTEGER,
-	build_id  INTEGER,
-	number    INTEGER,
-	source_id TEXT,
-	created   INTEGER,
-	host      TEXT,
-	event     TEXT,
-	branch    TEXT,
-	error     TEXT,
-	status    TEXT,
-	link      TEXT,
+	id         INTEGER PRIMARY KEY AUTOINCREMENT,
+	repo_id    INTEGER,
+	build_id   INTEGER,
+	number     INTEGER,
+	source_id  TEXT,
+	created    INTEGER,
+	host       TEXT,
+	event      TEXT,
+	branch     TEXT,
+	error      TEXT,
+	status     TEXT,
+	link       TEXT,
+	webhook_id INTEGER,
 	UNIQUE(repo_id, build_id)
 );
 `
