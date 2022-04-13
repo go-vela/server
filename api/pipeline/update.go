@@ -21,7 +21,7 @@ import (
 
 // swagger:operation PUT /api/v1/pipelines/{org}/{repo}/{pipeline} pipelines UpdatePipeline
 //
-// update thes a pipeline in the configured backend
+// Update a pipeline in the configured backend
 //
 // ---
 // produces:
@@ -39,9 +39,9 @@ import (
 //   type: string
 // - in: path
 //   name: pipeline
-//   description: Pipeline number to update
+//   description: Commit SHA for pipeline to update
 //   required: true
-//   type: integer
+//   type: string
 // - in: body
 //   name: body
 //   description: Payload containing the pipeline to update
@@ -73,14 +73,14 @@ func UpdatePipeline(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
-	entry := fmt.Sprintf("%s/%d", r.GetFullName(), p.GetNumber())
+	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"org":      o,
-		"pipeline": p.GetNumber(),
+		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
 	}).Infof("updating pipeline %s", entry)
@@ -95,12 +95,6 @@ func UpdatePipeline(c *gin.Context) {
 		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
-	}
-
-	// check if the Commit field in the pipeline was provided
-	if len(input.GetCommit()) > 0 {
-		// update the Commit field
-		p.SetCommit(input.GetCommit())
 	}
 
 	// check if the Flavor field in the pipeline was provided
@@ -186,7 +180,7 @@ func UpdatePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the updated pipeline
-	p, err = database.FromContext(c).GetPipelineForRepo(p.GetNumber(), r)
+	p, err = database.FromContext(c).GetPipelineForRepo(p.GetCommit(), r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture pipeline %s: %w", entry, err)
 

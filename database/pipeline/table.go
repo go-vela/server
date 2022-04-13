@@ -28,7 +28,7 @@ pipelines (
 	steps            BOOLEAN,
 	templates        BOOLEAN,
 	data             BYTEA,
-	UNIQUE(repo_id, number)
+	UNIQUE(repo_id, commit)
 );
 `
 
@@ -53,7 +53,7 @@ pipelines (
 	steps            BOOLEAN,
 	templates        BOOLEAN,
 	data             BLOB,
-	UNIQUE(repo_id, number)
+	UNIQUE(repo_id, 'commit')
 );
 `
 )

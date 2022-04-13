@@ -21,7 +21,7 @@ import (
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo} pipelines ListPipelines
 //
-// Get pipelines from the configured backend
+// List pipelines from the configured backend
 //
 // ---
 // produces:

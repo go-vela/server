@@ -94,22 +94,8 @@ func CreatePipeline(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the last pipeline for the repo
-	lastPipeline, err := database.FromContext(c).LastPipelineForRepo(r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last pipeline for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// update fields in pipeline object
 	input.SetRepoID(r.GetID())
-
-	if lastPipeline != nil {
-		input.SetNumber(lastPipeline.GetNumber() + 1)
-	}
 
 	// send API call to create the pipeline
 	err = database.FromContext(c).CreatePipeline(input)
@@ -122,7 +108,7 @@ func CreatePipeline(c *gin.Context) {
 	}
 
 	// send API call to capture the created pipeline
-	p, err := database.FromContext(c).GetPipelineForRepo(input.GetNumber(), r)
+	p, err := database.FromContext(c).GetPipelineForRepo(input.GetCommit(), r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture pipeline %s/%s: %w", r.GetFullName(), input.GetRef(), err)
 

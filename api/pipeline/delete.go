@@ -38,9 +38,9 @@ import (
 //   type: string
 // - in: path
 //   name: pipeline
-//   description: Pipeline number to delete
+//   description: Commit SHA for pipeline to delete
 //   required: true
-//   type: integer
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:

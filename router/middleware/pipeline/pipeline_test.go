@@ -99,7 +99,7 @@ func TestPipeline_Establish(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/1", nil)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/48afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -134,7 +134,7 @@ func TestPipeline_Establish_NoRepo(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/1", nil)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/48afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
@@ -194,52 +194,6 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	}
 }
 
-func TestPipeline_Establish_InvalidPipelineParameter(t *testing.T) {
-	// setup types
-	r := new(library.Repo)
-	r.SetID(1)
-	r.SetUserID(1)
-	r.SetHash("baz")
-	r.SetOrg("foo")
-	r.SetName("bar")
-	r.SetFullName("foo/bar")
-	r.SetVisibility("public")
-
-	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
-	}()
-
-	_ = db.CreateRepo(r)
-
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/foo", nil)
-
-	// setup mock server
-	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-	engine.Use(org.Establish())
-	engine.Use(repo.Establish())
-	engine.Use(Establish())
-	engine.GET("/pipelines/:org/:repo/:pipeline", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
-
-	// run test
-	engine.ServeHTTP(context.Writer, context.Request)
-
-	if resp.Code != http.StatusBadRequest {
-		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusBadRequest)
-	}
-}
-
 func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	// setup types
 	r := new(library.Repo)
@@ -267,7 +221,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
-	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/1", nil)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/148afb5bdc41ad69bf22588491333f7cf71135163", nil)
 
 	// setup mock server
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })

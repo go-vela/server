@@ -5,8 +5,6 @@
 package pipeline
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
@@ -35,9 +33,13 @@ import (
 //   type: string
 // - in: path
 //   name: pipeline
-//   description: Pipeline number to retrieve
+//   description: Commit SHA for pipeline to retrieve
 //   required: true
-//   type: integer
+//   type: string
+// - in: query
+//   name: output
+//   description: Output string for specifying output format
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -66,5 +68,5 @@ func GetPipeline(c *gin.Context) {
 		"user":     u.GetName(),
 	}).Infof("reading pipeline %s/%d", r.GetFullName(), p.GetNumber())
 
-	c.JSON(http.StatusOK, p)
+	writeOutput(c, p)
 }

@@ -25,7 +25,7 @@ import (
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline}/templates pipelines GetTemplates
 //
-// Get a map of templates utilized by a pipeline configuration from the database
+// Get a map of templates utilized by a pipeline from the configured backend
 //
 // ---
 // produces:
@@ -42,9 +42,10 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
+// - in: path
+//   name: pipeline
+//   description: Commit SHA for pipeline to retrieve
+//   required: true
 //   type: string
 // - in: query
 //   name: output

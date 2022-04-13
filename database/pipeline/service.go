@@ -36,8 +36,8 @@ type PipelineService interface {
 	DeletePipeline(*library.Pipeline) error
 	// GetPipeline defines a function that gets a pipeline by ID.
 	GetPipeline(int64) (*library.Pipeline, error)
-	// GetPipelineForRepo defines a function that gets a pipeline by number and repo ID.
-	GetPipelineForRepo(int, *library.Repo) (*library.Pipeline, error)
+	// GetPipelineForRepo defines a function that gets a pipeline by commit SHA and repo ID.
+	GetPipelineForRepo(string, *library.Repo) (*library.Pipeline, error)
 	// LastPipelineForRepo defines a function that gets the last pipeline by repo ID.
 	LastPipelineForRepo(*library.Repo) (*library.Pipeline, error)
 	// ListPipelines defines a function that gets a list of all pipelines.

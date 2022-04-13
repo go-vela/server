@@ -22,7 +22,7 @@ import (
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/validate pipelines ValidatePipeline
 //
-// Get, expand and validate a pipeline configuration from the database
+// Get, expand and validate a pipeline from the configured backend
 //
 // ---
 // produces:
@@ -38,9 +38,10 @@ import (
 //   description: Name of the org
 //   required: true
 //   type: string
-// - in: query
-//   name: ref
-//   description: Ref for retrieving pipeline configuration file
+// - in: path
+//   name: pipeline
+//   description: Commit SHA for pipeline to retrieve
+//   required: true
 //   type: string
 // - in: query
 //   name: output
