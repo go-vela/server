@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,6 +28,14 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
+
+	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert hook id to int64: %w", err)
+		return nil, retErr
+	}
+
+	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
