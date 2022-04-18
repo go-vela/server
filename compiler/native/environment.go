@@ -306,7 +306,7 @@ func environment(b *library.Build, m *types.Metadata, r *library.Repo, u *librar
 	env["VELA_RUNTIME"] = notImplemented
 	env["VELA_SOURCE"] = notImplemented
 	env["VELA_VERSION"] = notImplemented
-	env["CI"] = "vela"
+	env["CI"] = "true"
 
 	// populate environment variables from metadata
 	if m != nil {
