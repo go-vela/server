@@ -14,8 +14,8 @@ import (
 // DeletePipeline deletes an existing pipeline from the database.
 func (e *engine) DeletePipeline(p *library.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
-		"pipeline": p.GetNumber(),
-	}).Tracef("deleting pipeline %d from the database", p.GetNumber())
+		"pipeline": p.GetCommit(),
+	}).Tracef("deleting pipeline %s from the database", p.GetCommit())
 
 	// cast the library type to database type
 	//
