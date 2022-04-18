@@ -299,7 +299,6 @@ func CreateBuild(c *gin.Context) {
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
-		pipeline.SetNumber(1)
 		pipeline.SetCommit(input.GetCommit())
 		pipeline.SetRef(input.GetRef())
 
@@ -317,7 +316,7 @@ func CreateBuild(c *gin.Context) {
 		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
 		if err != nil {
 			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to create new build: failed to get new pipeline %s/%d: %w", r.GetFullName(), pipeline.GetNumber(), err)
+			retErr := fmt.Errorf("unable to create new build: failed to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -1115,7 +1114,6 @@ func RestartBuild(c *gin.Context) {
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
-		pipeline.SetNumber(1)
 		pipeline.SetCommit(b.GetCommit())
 		pipeline.SetRef(b.GetRef())
 

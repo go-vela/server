@@ -14,8 +14,8 @@ import (
 // UpdatePipeline updates an existing pipeline in the database.
 func (e *engine) UpdatePipeline(p *library.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
-		"pipeline": p.GetNumber(),
-	}).Tracef("updating pipeline %d in the database", p.GetNumber())
+		"pipeline": p.GetCommit(),
+	}).Tracef("updating pipeline %s in the database", p.GetCommit())
 
 	// cast the library type to database type
 	//

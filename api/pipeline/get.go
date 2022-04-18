@@ -63,10 +63,10 @@ func GetPipeline(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"org":      o,
-		"pipeline": p.GetNumber(),
+		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("reading pipeline %s/%d", r.GetFullName(), p.GetNumber())
+	}).Infof("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
 
 	writeOutput(c, p)
 }

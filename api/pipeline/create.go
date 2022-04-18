@@ -100,7 +100,7 @@ func CreatePipeline(c *gin.Context) {
 	// send API call to create the pipeline
 	err = database.FromContext(c).CreatePipeline(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create pipeline %s/%s: %w", r.GetFullName(), input.GetRef(), err)
+		retErr := fmt.Errorf("unable to create pipeline %s/%s: %w", r.GetFullName(), input.GetCommit(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -110,7 +110,7 @@ func CreatePipeline(c *gin.Context) {
 	// send API call to capture the created pipeline
 	p, err := database.FromContext(c).GetPipelineForRepo(input.GetCommit(), r)
 	if err != nil {
-		retErr := fmt.Errorf("unable to capture pipeline %s/%s: %w", r.GetFullName(), input.GetRef(), err)
+		retErr := fmt.Errorf("unable to capture pipeline %s/%s: %w", r.GetFullName(), input.GetCommit(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

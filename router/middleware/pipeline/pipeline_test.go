@@ -64,7 +64,6 @@ func TestPipeline_Establish(t *testing.T) {
 	want := new(library.Pipeline)
 	want.SetID(1)
 	want.SetRepoID(1)
-	want.SetNumber(1)
 	want.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	want.SetFlavor("")
 	want.SetPlatform("")
