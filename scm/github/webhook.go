@@ -34,6 +34,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
+
+	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
+	if err != nil {
+		return nil, fmt.Errorf("unable to convert hook id to int64: %w", err)
+	}
+
+	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
