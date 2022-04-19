@@ -10,7 +10,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
-	"github.com/kr/pretty"
 )
 
 func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
@@ -103,7 +102,6 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				pretty.Ldiff(t, got, test.want)
 				t.Errorf("ListPipelinesForRepo for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
