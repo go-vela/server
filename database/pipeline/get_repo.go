@@ -12,12 +12,12 @@ import (
 )
 
 // GetPipelineForRepo gets a pipeline by number and repo ID from the database.
-func (e *engine) GetPipelineForRepo(number int, r *library.Repo) (*library.Pipeline, error) {
+func (e *engine) GetPipelineForRepo(commit string, r *library.Repo) (*library.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
-		"pipeline": number,
+		"pipeline": commit,
 		"repo":     r.GetName(),
-	}).Tracef("getting pipeline %s/%d from the database", r.GetFullName(), number)
+	}).Tracef("getting pipeline %s/%s from the database", r.GetFullName(), commit)
 
 	// variable to store query results
 	p := new(database.Pipeline)
@@ -26,7 +26,7 @@ func (e *engine) GetPipelineForRepo(number int, r *library.Repo) (*library.Pipel
 	err := e.client.
 		Table(constants.TablePipeline).
 		Where("repo_id = ?", r.GetID()).
-		Where("number = ?", number).
+		Where("\"commit\" = ?", commit).
 		Limit(1).
 		Scan(p).
 		Error
