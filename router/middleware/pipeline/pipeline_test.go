@@ -40,13 +40,15 @@ func TestPipeline_Retrieve(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		ToContext(test.context, test.want)
+		t.Run(test.name, func(t *testing.T) {
+			ToContext(test.context, test.want)
 
-		got := Retrieve(test.context)
+			got := Retrieve(test.context)
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("Retrieve for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("Retrieve for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }
 
