@@ -14,7 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/go-vela/types v0.13.1-0.20220328145826-c7a2083f3e67
+	github.com/go-vela/types v0.13.1-0.20220419120049-00bb10826281
 	github.com/golang-jwt/jwt/v4 v4.4.0
 	github.com/google/go-cmp v0.5.7
 	github.com/google/go-github/v42 v42.0.0
@@ -98,7 +98,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
-	github.com/lib/pq v1.10.4 // indirect
+	github.com/lib/pq v1.10.5 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
