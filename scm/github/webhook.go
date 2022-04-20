@@ -25,12 +25,6 @@ import (
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
-	// convert the GitHub webhook ID header to an int64
-	id, err := strconv.ParseInt(request.Header.Get("X-GitHub-Hook-ID"), 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
@@ -45,7 +39,6 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
 	h.SetStatus(constants.StatusSuccess)
-	h.SetWebhookID(id)
 
 	if len(request.Header.Get("X-GitHub-Enterprise-Host")) > 0 {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))

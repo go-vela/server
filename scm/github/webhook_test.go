@@ -41,7 +41,6 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Event", "push")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -57,7 +56,6 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -121,7 +119,6 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "push")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -137,7 +134,6 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -201,7 +197,6 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -217,7 +212,6 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -283,7 +277,6 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -299,7 +292,6 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	want := &types.Webhook{
 		Comment: "",
@@ -340,7 +332,6 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -356,7 +347,6 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	want := &types.Webhook{
 		Comment: "",
@@ -391,7 +381,6 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("deployment")
 	wantHook.SetStatus(constants.StatusSuccess)
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -451,7 +440,6 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			request.Header.Set("X-GitHub-Host", "github.com")
 			request.Header.Set("X-GitHub-Version", "2.16.0")
 			request.Header.Set("X-GitHub-Event", "deployment")
-			request.Header.Set("X-GitHub-Hook-ID", "1")
 
 			client, _ := NewTest(s.URL)
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
@@ -497,7 +485,6 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "deployment")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -513,7 +500,6 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("deployment")
 	wantHook.SetStatus(constants.StatusSuccess)
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -577,7 +563,6 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "foobar")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -591,7 +576,6 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("foobar")
 	wantHook.SetStatus(constants.StatusSuccess)
-	wantHook.SetWebhookID(1)
 
 	want := &types.Webhook{
 		Comment: "",
@@ -632,7 +616,6 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -646,7 +629,6 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
 	wantHook.SetStatus(constants.StatusSuccess)
-	wantHook.SetWebhookID(1)
 
 	want := &types.Webhook{
 		Comment: "",
@@ -687,7 +669,6 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "deployment")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -729,7 +710,6 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "push")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -762,7 +742,6 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "issue_comment")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -777,7 +756,6 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantHook.SetEvent("comment")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -839,7 +817,6 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "issue_comment")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -854,7 +831,6 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantHook.SetEvent("comment")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -916,7 +892,6 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "issue_comment")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -931,7 +906,6 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	wantHook.SetEvent("comment")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	want := &types.Webhook{
 		Comment:  "ok to test",
@@ -971,7 +945,6 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Event", "repository")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -987,7 +960,6 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
@@ -1035,7 +1007,6 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Event", "repository")
-	request.Header.Set("X-GitHub-Hook-ID", "1")
 
 	// setup client
 	client, _ := NewTest(s.URL)
@@ -1051,7 +1022,6 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-	wantHook.SetWebhookID(1)
 
 	wantRepo := new(library.Repo)
 	wantRepo.SetOrg("Codertocat")
