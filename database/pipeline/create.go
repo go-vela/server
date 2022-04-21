@@ -14,8 +14,8 @@ import (
 // CreatePipeline creates a new pipeline in the database.
 func (e *engine) CreatePipeline(p *library.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
-		"pipeline": p.GetNumber(),
-	}).Tracef("creating pipeline %d in the database", p.GetNumber())
+		"pipeline": p.GetCommit(),
+	}).Tracef("creating pipeline %s in the database", p.GetCommit())
 
 	// cast the library type to database type
 	//

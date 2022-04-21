@@ -14,7 +14,6 @@ IF NOT EXISTS
 pipelines (
 	id               SERIAL PRIMARY KEY,
 	repo_id          INTEGER,
-	number           INTEGER,
 	commit           VARCHAR(500),
 	flavor           VARCHAR(100),
 	platform         VARCHAR(100),
@@ -28,7 +27,7 @@ pipelines (
 	steps            BOOLEAN,
 	templates        BOOLEAN,
 	data             BYTEA,
-	UNIQUE(repo_id, number)
+	UNIQUE(repo_id, commit)
 );
 `
 
@@ -39,7 +38,6 @@ IF NOT EXISTS
 pipelines (
 	id               INTEGER PRIMARY KEY AUTOINCREMENT,
 	repo_id          INTEGER,
-	number           INTEGER,
 	'commit'         TEXT,
 	flavor           TEXT,
 	platform         TEXT,
@@ -53,7 +51,7 @@ pipelines (
 	steps            BOOLEAN,
 	templates        BOOLEAN,
 	data             BLOB,
-	UNIQUE(repo_id, number)
+	UNIQUE(repo_id, 'commit')
 );
 `
 )

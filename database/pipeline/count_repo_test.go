@@ -17,15 +17,15 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_pipelineOne := testPipeline()
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
-	_pipelineOne.SetNumber(1)
+	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_pipelineOne.SetRef("refs/heads/master")
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 
 	_pipelineTwo := testPipeline()
 	_pipelineTwo.SetID(2)
-	_pipelineTwo.SetRepoID(2)
-	_pipelineTwo.SetNumber(1)
+	_pipelineTwo.SetRepoID(1)
+	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")
 	_pipelineTwo.SetRef("refs/heads/main")
 	_pipelineTwo.SetType("yaml")
 	_pipelineTwo.SetVersion("1")
@@ -34,7 +34,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "pipelines" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
@@ -63,13 +63,13 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     1,
+			want:     2,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     1,
+			want:     2,
 		},
 	}
 

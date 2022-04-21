@@ -32,8 +32,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 
 	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to convert hook id to int64: %w", err)
-		return nil, retErr
+		return nil, fmt.Errorf("unable to convert hook id to int64: %w", err)
 	}
 
 	h.SetWebhookID(int64(hookID))
