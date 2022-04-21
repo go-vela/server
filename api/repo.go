@@ -431,6 +431,9 @@ func GetRepos(c *gin.Context) {
 //   name: sort_by
 //   description: How to sort the results
 //   type: string
+//   enum:
+//	 - name
+//   - latest
 //   default: name
 // responses:
 //   '200':
