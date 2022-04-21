@@ -70,11 +70,15 @@ func FakeHandler() http.Handler {
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/steps/:step/logs", removeStepLog)
 
 	// mock endpoints for pipeline calls
-	e.GET("/api/v1/pipelines/:org/:repo", getPipeline)
-	e.POST("/api/v1/pipelines/:org/:repo/compile", compilePipeline)
-	e.POST("/api/v1/pipelines/:org/:repo/expand", expandPipeline)
-	e.GET("/api/v1/pipelines/:org/:repo/templates", getTemplates)
-	e.POST("/api/v1/pipelines/:org/:repo/validate", validatePipeline)
+	e.POST("/api/v1/pipelines/:org/:repo", addPipeline)
+	e.GET("/api/v1/pipelines/:org/:repo", getPipelines)
+	e.GET("/api/v1/pipelines/:org/:repo/:pipeline", getPipeline)
+	e.PUT("/api/v1/pipelines/:org/:repo/:pipeline", updatePipeline)
+	e.DELETE("/api/v1/pipelines/:org/:repo/:pipeline", removePipeline)
+	e.POST("/api/v1/pipelines/:org/:repo/:pipeline/compile", compilePipeline)
+	e.POST("/api/v1/pipelines/:org/:repo/:pipeline/expand", expandPipeline)
+	e.GET("/api/v1/pipelines/:org/:repo/:pipeline/templates", getTemplates)
+	e.POST("/api/v1/pipelines/:org/:repo/:pipeline/validate", validatePipeline)
 
 	// mock endpoints for repo calls
 	e.GET("/api/v1/repos/:org/:repo", getRepo)
