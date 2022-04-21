@@ -52,6 +52,7 @@ func TestBuild_Establish(t *testing.T) {
 	want := new(library.Build)
 	want.SetID(1)
 	want.SetRepoID(1)
+	want.SetPipelineID(0)
 	want.SetNumber(1)
 	want.SetParent(1)
 	want.SetEvent("")
@@ -128,6 +129,7 @@ func TestBuild_Establish(t *testing.T) {
 func TestBuild_Establish_NoRepo(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

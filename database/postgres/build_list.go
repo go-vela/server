@@ -53,8 +53,6 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 		filters["source"] = deployment
 	}
 	// send query to the database and store result in variable
-	//
-	// nolint: gomnd // ignore magic number
 	err := c.Postgres.
 		Table(constants.TableBuild).
 		Select("*").
@@ -78,8 +76,6 @@ func (c *client) GetDeploymentBuildList(deployment string) ([]*library.Build, er
 }
 
 // GetOrgBuildList gets a list of all builds by org name and allows filters from the database.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org": org,
@@ -129,9 +125,7 @@ func (c *client) GetOrgBuildList(org string, filters map[string]interface{}, pag
 }
 
 // GetRepoBuildList gets a list of all builds by repo ID from the database.
-//
-// nolint: lll // ignore long line length due to variable names
-func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
+func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -159,6 +153,8 @@ func (c *client) GetRepoBuildList(r *library.Repo, filters map[string]interface{
 	err = c.Postgres.
 		Table(constants.TableBuild).
 		Where("repo_id = ?", r.GetID()).
+		Where("created < ?", before).
+		Where("created > ?", after).
 		Where(filters).
 		Order("number DESC").
 		Limit(perPage).

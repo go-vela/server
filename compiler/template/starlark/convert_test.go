@@ -20,24 +20,28 @@ func TestStarlark_Render_convertTemplateVars(t *testing.T) {
 	tags = append(tags, starlark.String("1.15"))
 
 	commands := starlark.NewDict(16)
+
 	err := commands.SetKey(starlark.String("test"), starlark.String("go test ./..."))
 	if err != nil {
 		t.Error(err)
 	}
 
 	strWant := starlark.NewDict(0)
+
 	err = strWant.SetKey(starlark.String("pull"), starlark.String("always"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	arrayWant := starlark.NewDict(0)
+
 	err = arrayWant.SetKey(starlark.String("tags"), tags)
 	if err != nil {
 		t.Error(err)
 	}
 
 	mapWant := starlark.NewDict(0)
+
 	err = mapWant.SetKey(starlark.String("commands"), commands)
 	if err != nil {
 		t.Error(err)
@@ -81,46 +85,55 @@ func TestStarlark_Render_convertTemplateVars(t *testing.T) {
 func TestStarlark_Render_velaEnvironmentData(t *testing.T) {
 	// setup types
 	build := starlark.NewDict(1)
+
 	err := build.SetKey(starlark.String("author"), starlark.String("octocat"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	repo := starlark.NewDict(1)
+
 	err = repo.SetKey(starlark.String("full_name"), starlark.String("go-vela/hello-world"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	user := starlark.NewDict(1)
+
 	err = user.SetKey(starlark.String("admin"), starlark.String("true"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	system := starlark.NewDict(2)
+
 	err = system.SetKey(starlark.String("template_name"), starlark.String("foo"))
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = system.SetKey(starlark.String("workspace"), starlark.String("/vela/src/github.com/go-vela/hello-world"))
 	if err != nil {
 		t.Error(err)
 	}
 
 	withAllPre := starlark.NewDict(0)
+
 	err = withAllPre.SetKey(starlark.String("build"), build)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllPre.SetKey(starlark.String("repo"), repo)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllPre.SetKey(starlark.String("user"), user)
 	if err != nil {
 		t.Error(err)
 	}
+
 	err = withAllPre.SetKey(starlark.String("system"), system)
 	if err != nil {
 		t.Error(err)
@@ -145,6 +158,7 @@ func TestStarlark_Render_velaEnvironmentData(t *testing.T) {
 			want:         withAllPre,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := convertPlatformVars(tt.slice, tt.templateName)

@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -34,10 +35,11 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Event", "push")
 
 	// setup client
@@ -47,6 +49,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("push")
@@ -108,10 +111,11 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "push")
@@ -123,6 +127,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("push")
@@ -184,10 +189,11 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
@@ -199,6 +205,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
@@ -262,10 +269,11 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
@@ -277,6 +285,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
@@ -315,10 +324,11 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
@@ -330,6 +340,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
@@ -363,6 +374,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetBranch("master")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
@@ -400,6 +412,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		build             *library.Build
 		deploymentPayload raw.StringSliceMap
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -409,6 +422,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		{"unexpected json payload", args{file: "deployment_unexpected_json_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 		{"unexpected text payload", args{file: "deployment_unexpected_text_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, err := os.Open(fmt.Sprintf("testdata/hooks/%s", tt.args.file))
@@ -418,10 +432,11 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 
 			defer body.Close()
 
-			request, _ := http.NewRequest(http.MethodGet, "/test", body)
+			request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 			request.Header.Set("Content-Type", "application/json")
 			request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 			request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+			request.Header.Set("X-GitHub-Hook-ID", "123456")
 			request.Header.Set("X-GitHub-Host", "github.com")
 			request.Header.Set("X-GitHub-Version", "2.16.0")
 			request.Header.Set("X-GitHub-Event", "deployment")
@@ -462,10 +477,11 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "deployment")
@@ -477,6 +493,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetBranch("master")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
@@ -538,10 +555,11 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "foobar")
@@ -553,6 +571,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("foobar")
@@ -589,10 +608,11 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "foobar")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "pull_request")
@@ -604,6 +624,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
@@ -640,10 +661,11 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "deployment")
@@ -680,10 +702,11 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "push")
@@ -711,10 +734,11 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "issue_comment")
@@ -726,6 +750,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("comment")
@@ -784,10 +809,11 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "issue_comment")
@@ -799,6 +825,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("comment")
@@ -857,10 +884,11 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Host", "github.com")
 	request.Header.Set("X-GitHub-Version", "2.16.0")
 	request.Header.Set("X-GitHub-Event", "issue_comment")
@@ -872,6 +900,7 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("comment")
@@ -910,10 +939,11 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Event", "repository")
 
 	// setup client
@@ -923,6 +953,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("repositoryRename")
@@ -970,10 +1001,11 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 
 	defer body.Close()
 
-	request, _ := http.NewRequest(http.MethodGet, "/test", body)
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
 	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
 	request.Header.Set("X-GitHub-Event", "repository")
 
 	// setup client
@@ -983,6 +1015,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("repository")

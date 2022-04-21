@@ -88,9 +88,8 @@ func SyncRepos(c *gin.Context) {
 	repos := []*library.Repo{}
 	page := 0
 	// capture all repos belonging to a certain org in database
-	// nolint: gomnd // ignore magic number
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, 100)
+		r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, 100, "name")
 		if err != nil {
 			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -98,7 +97,9 @@ func SyncRepos(c *gin.Context) {
 
 			return
 		}
+
 		repos = append(repos, r...)
+
 		page++
 	}
 

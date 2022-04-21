@@ -11,18 +11,19 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 hooks (
-	id        SERIAL PRIMARY KEY,
-	repo_id   INTEGER,
-	build_id  INTEGER,
-	number    INTEGER,
-	source_id VARCHAR(250),
-	created   INTEGER,
-	host      VARCHAR(250),
-	event     VARCHAR(250),
-	branch    VARCHAR(500),
-	error     VARCHAR(500),
-	status    VARCHAR(250),
-	link      VARCHAR(1000),
+	id         SERIAL PRIMARY KEY,
+	repo_id    INTEGER,
+	build_id   INTEGER,
+	number     INTEGER,
+	source_id  VARCHAR(250),
+	created    INTEGER,
+	host       VARCHAR(250),
+	event      VARCHAR(250),
+	branch     VARCHAR(500),
+	error      VARCHAR(500),
+	status     VARCHAR(250),
+	link       VARCHAR(1000),
+	webhook_id INTEGER,
 	UNIQUE(repo_id, number)
 );
 `

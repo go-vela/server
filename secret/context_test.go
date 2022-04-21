@@ -16,6 +16,7 @@ import (
 func TestSecret_FromContext(t *testing.T) {
 	// setup types
 	d, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
 
 	want, err := native.New(
@@ -82,6 +83,7 @@ func TestSecret_FromContext_Empty(t *testing.T) {
 func TestSecret_ToContext(t *testing.T) {
 	// setup types
 	d, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
 
 	want, err := native.New(

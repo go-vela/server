@@ -5,6 +5,7 @@
 package database
 
 import (
+	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/types/library"
 )
 
@@ -42,7 +43,7 @@ type Service interface {
 	GetDeploymentBuildList(string) ([]*library.Build, error)
 	// GetRepoBuildList defines a function that
 	// gets a list of builds by repo ID.
-	GetRepoBuildList(*library.Repo, map[string]interface{}, int, int) ([]*library.Build, int64, error)
+	GetRepoBuildList(*library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
 	// GetOrgBuildList defines a function that
 	// gets a list of builds by org.
 	GetOrgBuildList(string, map[string]interface{}, int, int) ([]*library.Build, int64, error)
@@ -113,6 +114,10 @@ type Service interface {
 	// deletes a log by unique ID.
 	DeleteLog(int64) error
 
+	// PipelineService provides the interface for functionality
+	// related to pipelines stored in the database.
+	pipeline.PipelineService
+
 	// Repo Database Interface Functions
 
 	// GetRepo defines a function that
@@ -123,7 +128,7 @@ type Service interface {
 	GetRepoList() ([]*library.Repo, error)
 	// GetOrgRepoList defines a function that
 	// gets a list of all repos by org excluding repos specified.
-	GetOrgRepoList(string, map[string]string, int, int) ([]*library.Repo, error)
+	GetOrgRepoList(string, map[string]string, int, int, string) ([]*library.Repo, error)
 	// GetOrgRepoCount defines a function that
 	// gets the count of repos for an org.
 	GetOrgRepoCount(string, map[string]string) (int64, error)

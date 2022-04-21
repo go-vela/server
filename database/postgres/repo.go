@@ -80,7 +80,7 @@ func (c *client) CreateRepo(r *library.Repo) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt repo %s: %v", r.GetFullName(), err)
+		return fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send query to the database
@@ -112,7 +112,7 @@ func (c *client) UpdateRepo(r *library.Repo) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt repo %s: %v", r.GetFullName(), err)
+		return fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send query to the database

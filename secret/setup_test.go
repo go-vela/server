@@ -17,6 +17,7 @@ func TestSecret_Setup_Native(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create database service: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	_setup := &Setup{
@@ -129,6 +130,7 @@ func TestSecret_Setup_Validate(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create database service: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests

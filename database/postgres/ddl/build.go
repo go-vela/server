@@ -13,11 +13,12 @@ IF NOT EXISTS
 builds (
 	id             SERIAL PRIMARY KEY,
 	repo_id        INTEGER,
+	pipeline_id    INTEGER,
 	number         INTEGER,
 	parent         INTEGER,
 	event          VARCHAR(250),
 	status         VARCHAR(250),
-	error          VARCHAR(500),
+	error          VARCHAR(1000),
 	enqueued       INTEGER,
 	created        INTEGER,
 	started        INTEGER,

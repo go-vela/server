@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/google/go-github/v42/github"
 )
 
+// nolint: nilerr // ignore webhook returning nil
 // ProcessWebhook parses the webhook from a repo.
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
@@ -26,6 +28,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
+
+	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
+	if err != nil {
+		return nil, fmt.Errorf("unable to convert hook id to int64: %w", err)
+	}
+
+	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
@@ -80,8 +89,6 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 }
 
 // processPushEvent is a helper function to process the push event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -159,8 +166,6 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 }
 
 // processPREvent is a helper function to process the pull_request event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -254,8 +259,6 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -297,8 +300,6 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	//
 	// sending an API request to GitHub with no
 	// payload provided yields a default of `{}`.
-	//
-	// nolint: gomnd // ignore magic number
 	if len(payload.GetDeployment().Payload) > 2 {
 		deployPayload := make(map[string]string)
 		// unmarshal the payload into the expected map[string]string format
@@ -344,8 +345,6 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -412,7 +411,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 }
 
 // processRepositoryEvent is a helper function to process the repository event.
-// nolint: lll // ignore long line length due to error message
+
 func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*types.Webhook, error) {
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 

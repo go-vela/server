@@ -22,6 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//lint:ignore SA1019 ignore deprecated
 type Claims struct {
 	IsAdmin  bool `json:"is_admin"`
 	IsActive bool `json:"is_active"`
@@ -34,7 +35,6 @@ type Claims struct {
 // The hash signs the token to guarantee the signature is unique
 // per token. The refresh token is returned to store with the user
 // in the database.
-// nolint:lll // reference links cause long lines
 func Compose(c *gin.Context, u *library.User) (string, string, error) {
 	// grab the metadata from the context to pull in provided
 	// cookie duration information
@@ -146,6 +146,7 @@ func RetrieveRefreshToken(r *http.Request) (string, error) {
 }
 
 // CreateAccessToken creates a new access token for the given user and duration.
+// nolint:staticcheck // ignore deprecated
 func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 	now := time.Now()
 	exp := now.Add(d)
@@ -171,6 +172,7 @@ func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 }
 
 // CreateCreateRefreshToken creates a new refresh token for the given user and duration.
+// nolint:staticcheck // ignore deprecated
 func CreateRefreshToken(u *library.User, d time.Duration) (string, int, error) {
 	exp := time.Now().Add(d)
 

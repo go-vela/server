@@ -56,9 +56,7 @@ func (c *client) GetRepoList() ([]*library.Repo, error) {
 }
 
 // GetOrgRepoList gets a list of all repos by org from the database.
-//
-// nolint: lll // ignore long line length due to variable names
-func (c *client) GetOrgRepoList(org string, filters map[string]string, page, perPage int) ([]*library.Repo, error) {
+func (c *client) GetOrgRepoList(org string, filters map[string]string, page, perPage int, sortBy string) ([]*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing repos for org %s from the database", org)
@@ -70,15 +68,27 @@ func (c *client) GetOrgRepoList(org string, filters map[string]string, page, per
 	offset := perPage * (page - 1)
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
-		Table(constants.TableRepo).
-		Where("org = ?", org).
-		Where(filters).
-		Limit(perPage).
-		Offset(offset).
-		Scan(r).Error
-	if err != nil {
-		return nil, err
+	switch sortBy {
+	case "latest":
+		err := c.Sqlite.
+			Table(constants.TableRepo).
+			Raw(dml.ListReposByLastUpdate, org, perPage, offset).
+			Scan(r).Error
+		if err != nil {
+			return nil, err
+		}
+	default:
+		err := c.Sqlite.
+			Table(constants.TableRepo).
+			Where("org = ?", org).
+			Where(filters).
+			Order("name").
+			Limit(perPage).
+			Offset(offset).
+			Scan(r).Error
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// variable we want to return
@@ -91,7 +101,7 @@ func (c *client) GetOrgRepoList(org string, filters map[string]string, page, per
 		// decrypt the fields for the repo
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
-		err = tmp.Decrypt(c.config.EncryptionKey)
+		err := tmp.Decrypt(c.config.EncryptionKey)
 		if err != nil {
 			// ensures that the change is backwards compatible
 			// by logging the error instead of returning it

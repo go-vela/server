@@ -58,6 +58,7 @@ func TestSqlite_Client_GetTypeSecretCount_Org(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -138,6 +139,7 @@ func TestSqlite_Client_GetTypeSecretCount_Repo(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -218,6 +220,7 @@ func TestSqlite_Client_GetTypeSecretCount_Shared(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests
@@ -298,6 +301,7 @@ func TestSqlite_Client_GetTypeSecretCount_Shared_Wildcard(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create new sqlite test database: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests

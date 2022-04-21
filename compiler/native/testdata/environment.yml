@@ -1,0 +1,3 @@
+---
+environment:
+  FOO: "Hello, foo!"

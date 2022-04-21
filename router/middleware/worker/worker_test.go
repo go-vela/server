@@ -89,6 +89,7 @@ func TestWorker_Establish(t *testing.T) {
 func TestWorker_Establish_NoWorkerParameter(t *testing.T) {
 	// setup database
 	db, _ := sqlite.NewTest()
+
 	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
 
 	// setup context

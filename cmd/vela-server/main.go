@@ -23,7 +23,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-// nolint: funlen // ignore function length due to flags
+// nolint: funlen // ignore line length
 func main() {
 	// capture application version information
 	v := version.New()
@@ -41,7 +41,6 @@ func main() {
 	app.Name = "vela-server"
 	app.Action = server
 	app.Version = v.Semantic()
-
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_LOG_LEVEL", "LOG_LEVEL"},
@@ -85,7 +84,7 @@ func main() {
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_DISABLE_WEBHOOK_VALIDATION"},
 			Name:    "vela-disable-webhook-validation",
-			// nolint: lll // ignore long line length due to description
+
 			Usage: "determines whether or not webhook validation is disabled.  useful for local development.",
 			Value: false,
 		},
@@ -113,9 +112,7 @@ func main() {
 			Usage:   "override default build timeout (minutes)",
 			Value:   constants.BuildTimeoutDefault,
 		},
-
 		// Security Flags
-
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
 			Name:    "access-token-duration",
@@ -128,9 +125,7 @@ func main() {
 			Usage:   "sets the duration of the refresh token",
 			Value:   8 * time.Hour,
 		},
-
 		// Compiler Flags
-
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_COMPILER_GITHUB", "COMPILER_GITHUB"},
 			Name:    "github-driver",
@@ -146,7 +141,6 @@ func main() {
 			Name:    "github-token",
 			Usage:   "github token, used by compiler, for pulling registry templates",
 		},
-
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",
@@ -155,24 +149,23 @@ func main() {
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
 			Name:    "modification-secret",
-			// nolint: lll // ignore long line length due to description
+
 			Usage: "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
 			Name:    "modification-timeout",
-			// nolint: lll // ignore long line length due to description
+
 			Usage: "modification timeout, used by compiler, duration that the modification http request will timeout after",
 			Value: 8 * time.Second,
 		},
 		&cli.IntFlag{
 			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
 			Name:    "modification-retries",
-			// nolint: lll // ignore long line length due to description
+
 			Usage: "modification retries, used by compiler, number of http requires that the modification http request will fail after",
 			Value: 5,
 		},
-
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
 			Name:    "worker-active-interval",
@@ -180,28 +173,22 @@ func main() {
 			Value:   5 * time.Minute,
 		},
 	}
-
-	// Database Flags
-
+	// Add Database Flags
 	app.Flags = append(app.Flags, database.Flags...)
 
-	// Queue Flags
-
+	// Add Queue Flags
 	app.Flags = append(app.Flags, queue.Flags...)
 
-	// Secret Flags
-
+	// Add Secret Flags
 	app.Flags = append(app.Flags, secret.Flags...)
 
-	// Source Flags
-
+	// Add Source Flags
 	app.Flags = append(app.Flags, scm.Flags...)
 
 	// set logrus to log in JSON format
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
-	err = app.Run(os.Args)
-	if err != nil {
+	if err = app.Run(os.Args); err != nil {
 		logrus.Fatal(err)
 	}
 }

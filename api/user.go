@@ -172,8 +172,6 @@ func GetUsers(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	//
-	// nolint: gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of users
@@ -447,10 +445,10 @@ func GetUserSourceRepos(c *gin.Context) {
 		// capture source repos from the database backend, grouped by org
 		page := 1
 		filters := map[string]string{}
+
 		for page > 0 {
 			// send API call to capture the list of repos for the org
-			// nolint: gomnd // ignore magic number
-			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100)
+			dbReposPart, err := database.FromContext(c).GetOrgRepoList(org, filters, page, 100, "name")
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 
@@ -463,8 +461,6 @@ func GetUserSourceRepos(c *gin.Context) {
 			dbRepos = append(dbRepos, dbReposPart...)
 
 			// assume no more pages exist if under 100 results are returned
-			//
-			// nolint: gomnd // ignore magic number
 			if len(dbReposPart) < 100 {
 				page = 0
 			} else {

@@ -16,6 +16,7 @@ func TestSecret_New(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create database service: %v", err)
 	}
+
 	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
 
 	// setup tests

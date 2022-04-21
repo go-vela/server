@@ -49,8 +49,6 @@ func MustPlatformAdmin() gin.HandlerFunc {
 }
 
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
-//
-// nolint: funlen // ignore function length due to comments
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
@@ -115,7 +113,6 @@ func MustSecretAdmin() gin.HandlerFunc {
 			}
 
 			if !strings.EqualFold(perm, "admin") {
-				// nolint: lll // ignore long line length due to error message
 				retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s/%s", u.GetName(), o, n)
 
 				util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -147,7 +144,6 @@ func MustSecretAdmin() gin.HandlerFunc {
 				}
 
 				if !strings.EqualFold(perm, "admin") {
-					// nolint: lll // ignore long line length due to error message
 					retErr := fmt.Errorf("user %s does not have 'admin' permissions for the team %s/%s", u.GetName(), o, n)
 
 					util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -182,7 +178,6 @@ func MustAdmin() gin.HandlerFunc {
 			"user": u.GetName(),
 		})
 
-		// nolint: lll // ignore long line length due to parameters
 		logger.Debugf("verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
@@ -216,7 +211,6 @@ func MustAdmin() gin.HandlerFunc {
 		case "admin":
 			return
 		default:
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
 
 			util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -242,7 +236,6 @@ func MustWrite() gin.HandlerFunc {
 			"user": u.GetName(),
 		})
 
-		// nolint: lll // ignore long line length due to log message
 		logger.Debugf("verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
@@ -277,7 +270,6 @@ func MustWrite() gin.HandlerFunc {
 		case "write":
 			return
 		default:
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'write' permissions for the repo %s", u.GetName(), r.GetFullName())
 
 			util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -305,13 +297,11 @@ func MustRead() gin.HandlerFunc {
 
 		// check if the repo visibility field is set to public
 		if strings.EqualFold(r.GetVisibility(), constants.VisibilityPublic) {
-			// nolint: lll // ignore long line length due to log message
 			logger.Debugf("skipping 'read' check for repo %s with %s visibility for user %s", r.GetFullName(), r.GetVisibility(), u.GetName())
 
 			return
 		}
 
-		// nolint: lll // ignore long line length due to log message
 		logger.Debugf("verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
 		if globalPerms(u) {
@@ -348,7 +338,6 @@ func MustRead() gin.HandlerFunc {
 		case "read":
 			return
 		default:
-			// nolint: lll // ignore long line length due to error message
 			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
 			util.HandleError(c, http.StatusUnauthorized, retErr)

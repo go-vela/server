@@ -75,6 +75,7 @@ func TestVault_List_Org(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -83,6 +84,7 @@ func TestVault_List_Org(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -204,6 +206,7 @@ func TestVault_List_Repo(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -212,6 +215,7 @@ func TestVault_List_Repo(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -318,6 +322,7 @@ func TestVault_List_Shared(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -326,6 +331,7 @@ func TestVault_List_Shared(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -366,6 +372,7 @@ func TestVault_List_InvalidType(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -374,6 +381,7 @@ func TestVault_List_InvalidType(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -463,6 +471,7 @@ func TestVault_List_EmptyList(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -471,6 +480,7 @@ func TestVault_List_EmptyList(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -536,6 +546,7 @@ func TestVault_List_InvalidList(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -544,6 +555,7 @@ func TestVault_List_InvalidList(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
@@ -618,6 +630,7 @@ func TestVault_List_NoRead(t *testing.T) {
 		version string
 		prefix  string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -626,6 +639,7 @@ func TestVault_List_NoRead(t *testing.T) {
 		{"v2", args{version: "2", prefix: ""}},
 		{"v2 with prefix", args{version: "2", prefix: "prefix"}},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s, err := New(
