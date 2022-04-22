@@ -296,6 +296,8 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// check if the pipeline did not already exist in the database
+	//
+	// nolint: dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
@@ -1111,6 +1113,8 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the pipeline did not already exist in the database
+	//
+	// nolint: dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
