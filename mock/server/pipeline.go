@@ -175,7 +175,7 @@ sample:
 func getPipelines(c *gin.Context) {
 	data := []byte(PipelinesResp)
 
-	var body []library.Hook
+	var body []library.Pipeline
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -197,10 +197,10 @@ func getPipeline(c *gin.Context) {
 
 	data := []byte(PipelineResp)
 
-	var body yaml.Build
-	_ = yml.Unmarshal(data, &body)
+	var body library.Pipeline
+	_ = json.Unmarshal(data, &body)
 
-	c.YAML(http.StatusOK, body)
+	c.JSON(http.StatusOK, body)
 }
 
 // addPipeline returns mock JSON for a http POST.
