@@ -58,11 +58,13 @@ func TestPipeline_FromContext(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got := FromContext(test.context)
+		t.Run(test.name, func(t *testing.T) {
+			got := FromContext(test.context)
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("FromContext for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("FromContext for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }
 
@@ -88,12 +90,14 @@ func TestPipeline_ToContext(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		ToContext(test.context, test.want)
+		t.Run(test.name, func(t *testing.T) {
+			ToContext(test.context, test.want)
 
-		got := test.context.Value(key)
+			got := test.context.Value(key)
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("ToContext for %s is %v, want %v", test.name, got, test.want)
-		}
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("ToContext for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }
