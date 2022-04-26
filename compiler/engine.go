@@ -20,12 +20,12 @@ type Engine interface {
 	// Compile defines a function that produces an executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	Compile(interface{}) (*pipeline.Build, error)
+	Compile(interface{}) (*pipeline.Build, *library.Pipeline, error)
 
 	// CompileLite defines a function that produces an light executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	CompileLite(interface{}, bool, bool, []string) (*yaml.Build, error)
+	CompileLite(interface{}, bool, bool, []string) (*yaml.Build, *library.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
@@ -33,7 +33,7 @@ type Engine interface {
 
 	// Parse defines a function that converts
 	// an object to a yaml configuration.
-	Parse(interface{}, string, map[string]interface{}) (*yaml.Build, error)
+	Parse(interface{}, string, map[string]interface{}) (*yaml.Build, []byte, error)
 
 	// ParseRaw defines a function that converts
 	// an object to a string.
