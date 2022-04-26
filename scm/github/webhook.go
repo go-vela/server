@@ -150,6 +150,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		h.SetEvent(constants.EventTag)
 		// set the proper event for the build
 		b.SetEvent(constants.EventTag)
+		b.SetEventAction(constants.EventTag)
 
 		// set the proper branch from the base ref
 		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
@@ -188,6 +189,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	if strings.EqualFold(payload.GetAction(), "edited") {
 		title := payload.GetChanges().GetTitle()
 		base := payload.GetChanges().GetBase()
+
 		if title == nil && base == nil {
 			return &types.Webhook{Hook: h}, nil
 		}
@@ -216,6 +218,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventPull)
+	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.GetPullRequest().GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPull, repo.GetHTMLURL()))
@@ -382,6 +385,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventComment)
+	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.Issue.GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventComment, repo.GetHTMLURL()))
