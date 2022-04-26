@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/pipeline"
 	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/perm"
 	pmiddleware "github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 )
@@ -28,18 +29,18 @@ func PipelineHandlers(base *gin.RouterGroup) {
 	// Pipelines endpoints
 	_pipelines := base.Group("pipelines/:org/:repo", org.Establish(), repo.Establish())
 	{
-		_pipelines.POST("", pipeline.CreatePipeline)
-		_pipelines.GET("", pipeline.ListPipelines)
+		_pipelines.POST("", perm.MustAdmin(), pipeline.CreatePipeline)
+		_pipelines.GET("", perm.MustRead(), pipeline.ListPipelines)
 
 		_pipeline := _pipelines.Group("/:pipeline", pmiddleware.Establish())
 		{
-			_pipeline.GET("", pipeline.GetPipeline)
-			_pipeline.PUT("", pipeline.UpdatePipeline)
-			_pipeline.DELETE("", pipeline.DeletePipeline)
-			_pipeline.GET("/templates", pipeline.GetTemplates)
-			_pipeline.POST("/compile", pipeline.CompilePipeline)
-			_pipeline.POST("/expand", pipeline.ExpandPipeline)
-			_pipeline.POST("/validate", pipeline.ValidatePipeline)
+			_pipeline.GET("", perm.MustRead(), pipeline.GetPipeline)
+			_pipeline.PUT("", perm.MustWrite(), pipeline.UpdatePipeline)
+			_pipeline.DELETE("", perm.MustPlatformAdmin(), pipeline.DeletePipeline)
+			_pipeline.GET("/templates", perm.MustRead(), pipeline.GetTemplates)
+			_pipeline.POST("/compile", perm.MustWrite(), pipeline.CompilePipeline)
+			_pipeline.POST("/expand", perm.MustWrite(), pipeline.ExpandPipeline)
+			_pipeline.POST("/validate", perm.MustWrite(), pipeline.ValidatePipeline)
 		} // end of pipeline endpoints
 	} // end of pipelines endpoints
 }
