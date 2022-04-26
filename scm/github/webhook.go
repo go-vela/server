@@ -150,7 +150,6 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		h.SetEvent(constants.EventTag)
 		// set the proper event for the build
 		b.SetEvent(constants.EventTag)
-		b.SetEventAction(constants.EventTag)
 
 		// set the proper branch from the base ref
 		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
