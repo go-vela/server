@@ -51,6 +51,10 @@ import (
 //   name: output
 //   description: Output string for specifying output format
 //   type: string
+//   default: yaml
+//   enum:
+//   - json
+//   - yaml
 // security:
 //   - ApiKeyAuth: []
 // responses:

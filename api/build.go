@@ -254,6 +254,11 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// ensure we use the expected pipeline type when compiling
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
 	if len(pipeline.GetType()) > 0 {
 		r.SetPipelineType(pipeline.GetType())
 	}
@@ -276,6 +281,11 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 	// reset the pipeline type for the repo
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
@@ -980,8 +990,8 @@ func RestartBuild(c *gin.Context) {
 	b.SetRuntime("")
 	b.SetDistribution("")
 
-	// set the parent equal to the current repo counter
-	b.SetParent(r.GetCounter())
+	// set the parent equal to the restarted build number
+	b.SetParent(b.GetNumber())
 	// update the build numbers based off repo counter
 	inc := r.GetCounter() + 1
 	r.SetCounter(inc)
@@ -1071,6 +1081,11 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// ensure we use the expected pipeline type when compiling
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
 	if len(pipeline.GetType()) > 0 {
 		r.SetPipelineType(pipeline.GetType())
 	}
@@ -1093,6 +1108,11 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 	// reset the pipeline type for the repo
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
