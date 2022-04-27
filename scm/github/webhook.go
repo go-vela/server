@@ -184,16 +184,6 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// if the edits to the PR are not related to the title or base branch, ignore them
-	if strings.EqualFold(payload.GetAction(), "edited") {
-		title := payload.GetChanges().GetTitle()
-		base := payload.GetChanges().GetBase()
-
-		if title == nil && base == nil {
-			return &types.Webhook{Hook: h}, nil
-		}
-	}
-
 	// skip if the pull request action is not opened, synchronize, or edited
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") &&
