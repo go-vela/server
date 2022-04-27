@@ -174,7 +174,6 @@ func PostWebhook(c *gin.Context) {
 
 	// send API call to capture parsed repo from webhook
 	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
-
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -340,21 +339,19 @@ func PostWebhook(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is not issue_comment
-	if !strings.EqualFold(b.GetEvent(), constants.EventComment) {
-		// check if the build event is not pull_request
-		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
-			// send API call to capture list of files changed for the commit
-			files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
-			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+	// check if the build event is not issue_comment or pull_request
+	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
+		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		// send API call to capture list of files changed for the commit
+		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
 
-				return
-			}
+			return
 		}
 	}
 
@@ -373,22 +370,36 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusNotFound, retErr)
+	var (
+		// variable to store the raw pipeline configuration
+		config []byte
+		// variable to store executable pipeline
+		p *pipeline.Build
+		// variable to store pipeline configuration
+		pipeline *library.Pipeline
+		// variable to control number of times to retry compiling pipeline
+		retryLimit = 3
+		// variable to store the pipeline type for the repository
+		pipelineType = r.GetPipelineType()
+	)
 
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
+	// send API call to attempt to capture the pipeline
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), r)
+	if err != nil { // assume the pipeline doesn't exist in the database yet
+		// send API call to capture the pipeline configuration file
+		config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusNotFound, retErr)
 
-		return
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+	} else {
+		config = pipeline.GetData()
 	}
-
-	// variable to store pipeline
-	var p *pipeline.Build
-	// number of times to retry
-	retryLimit := 3
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
@@ -421,7 +432,6 @@ func PostWebhook(c *gin.Context) {
 
 		// update the build numbers based off repo counter
 		inc := r.GetCounter() + 1
-
 		r.SetCounter(inc)
 		b.SetNumber(inc)
 
@@ -432,8 +442,19 @@ func PostWebhook(c *gin.Context) {
 			)
 		}
 
+		// ensure we use the expected pipeline type when compiling
+		//
+		// The pipeline type for a repo can change at any time which can break compiling
+		// existing pipelines in the system for that repo. To account for this, we update
+		// the repo pipeline type to match what was defined for the existing pipeline
+		// before compiling. After we're done compiling, we reset the pipeline type.
+		if len(pipeline.GetType()) > 0 {
+			r.SetPipelineType(pipeline.GetType())
+		}
+
+		var compiled *library.Pipeline
 		// parse and compile the pipeline configuration file
-		p, err = compiler.FromContext(c).
+		p, compiled, err = compiler.FromContext(c).
 			Duplicate().
 			WithBuild(b).
 			WithComment(webhook.Comment).
@@ -457,6 +478,13 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+		// reset the pipeline type for the repo
+		//
+		// The pipeline type for a repo can change at any time which can break compiling
+		// existing pipelines in the system for that repo. To account for this, we update
+		// the repo pipeline type to match what was defined for the existing pipeline
+		// before compiling. After we're done compiling, we reset the pipeline type.
+		r.SetPipelineType(pipelineType)
 
 		// skip the build if only the init or clone steps are found
 		skip := skipEmptyBuild(p)
@@ -474,6 +502,41 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+
+		// check if the pipeline did not already exist in the database
+		if pipeline == nil {
+			pipeline = compiled
+			pipeline.SetRepoID(r.GetID())
+			pipeline.SetCommit(b.GetCommit())
+			pipeline.SetRef(b.GetRef())
+
+			// send API call to create the pipeline
+			err = database.FromContext(c).CreatePipeline(pipeline)
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+
+			// send API call to capture the created pipeline
+			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
+			if err != nil {
+				// nolint: lll // ignore long line length due to error message
+				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, r.GetFullName(), pipeline.GetCommit(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+		}
+
+		b.SetPipelineID(pipeline.GetID())
 
 		// create the objects from the pipeline in the database
 		err = planBuild(database.FromContext(c), p, b, r)

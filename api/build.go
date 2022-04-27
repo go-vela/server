@@ -85,7 +85,7 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // CreateBuild represents the API handler to create a build in the configured backend.
-// nolint: funlen // ignore statement count
+// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -162,29 +162,23 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the last build for the repo
-	lastBuild, err := database.FromContext(c).GetLastBuild(r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last build for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// update fields in build object
 	input.SetRepoID(r.GetID())
 	input.SetStatus(constants.StatusPending)
 	input.SetCreated(time.Now().UTC().Unix())
-	input.SetNumber(1)
-	input.SetParent(input.GetNumber())
 
-	if lastBuild != nil {
-		input.SetNumber(
-			lastBuild.GetNumber() + 1,
-		)
-		input.SetParent(lastBuild.GetNumber())
+	// set the parent equal to the current repo counter
+	input.SetParent(r.GetCounter())
+	// check if the parent is set to 0
+	if input.GetParent() == 0 {
+		// parent should be "1" if it's the first build ran
+		input.SetParent(1)
 	}
+
+	// update the build numbers based off repo counter
+	inc := r.GetCounter() + 1
+	r.SetCounter(inc)
+	input.SetNumber(inc)
 
 	// populate the build link if a web address is provided
 	if len(m.Vela.WebAddress) > 0 {
@@ -195,8 +189,9 @@ func CreateBuild(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is not pull_request
-	if !strings.EqualFold(input.GetEvent(), constants.EventPull) {
+	// check if the build event is not issue_comment or pull_request
+	if !strings.EqualFold(input.GetEvent(), constants.EventComment) &&
+		!strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
 		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
 		if err != nil {
@@ -208,7 +203,7 @@ func CreateBuild(c *gin.Context) {
 		}
 	}
 
-	// handle getting changeset from a pull_request
+	// check if the build event is a pull_request
 	if strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(input)
@@ -231,18 +226,47 @@ func CreateBuild(c *gin.Context) {
 		}
 	}
 
-	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+	var (
+		// variable to store the raw pipeline configuration
+		config []byte
+		// variable to store executable pipeline
+		p *pipeline.Build
+		// variable to store pipeline configuration
+		pipeline *library.Pipeline
+		// variable to store the pipeline type for the repository
+		pipelineType = r.GetPipelineType()
+	)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+	// send API call to attempt to capture the pipeline
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(input.GetCommit(), r)
+	if err != nil { // assume the pipeline doesn't exist in the database yet
+		// send API call to capture the pipeline configuration file
+		config, err = scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("unable to create new build: failed to get pipeline configuration for %s: %w", r.GetFullName(), err)
 
-		return
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+	} else {
+		config = pipeline.GetData()
 	}
 
+	// ensure we use the expected pipeline type when compiling
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
+	if len(pipeline.GetType()) > 0 {
+		r.SetPipelineType(pipeline.GetType())
+	}
+
+	var compiled *library.Pipeline
 	// parse and compile the pipeline configuration file
-	p, err := compiler.FromContext(c).
+	p, compiled, err = compiler.FromContext(c).
+		Duplicate().
 		WithBuild(input).
 		WithFiles(files).
 		WithMetadata(m).
@@ -256,6 +280,13 @@ func CreateBuild(c *gin.Context) {
 
 		return
 	}
+	// reset the pipeline type for the repo
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
+	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
 	skip := skipEmptyBuild(p)
@@ -274,10 +305,53 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
+	// check if the pipeline did not already exist in the database
+	//
+	// nolint: dupl // ignore duplicate code
+	if pipeline == nil {
+		pipeline = compiled
+		pipeline.SetRepoID(r.GetID())
+		pipeline.SetCommit(input.GetCommit())
+		pipeline.SetRef(input.GetRef())
+
+		// send API call to create the pipeline
+		err = database.FromContext(c).CreatePipeline(pipeline)
+		if err != nil {
+			retErr := fmt.Errorf("unable to create new build: failed to create pipeline for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// send API call to capture the created pipeline
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("unable to create new build: failed to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
+	input.SetPipelineID(pipeline.GetID())
+
 	// create the objects from the pipeline in the database
 	err = planBuild(database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	// send API call to update repo for ensuring counter is incremented
+	err = database.FromContext(c).UpdateRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create new build: failed to update repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
@@ -905,25 +979,8 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the last build for the repo
-	lastBuild, err := database.FromContext(c).GetLastBuild(r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last build for %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	// update the build numbers based off repo counter
-	inc := r.GetCounter() + 1
-
-	r.SetCounter(inc)
-	b.SetNumber(inc)
-
 	// update fields in build object
 	b.SetID(0)
-	b.SetParent(lastBuild.GetNumber())
 	b.SetCreated(time.Now().UTC().Unix())
 	b.SetEnqueued(0)
 	b.SetStarted(0)
@@ -932,6 +989,13 @@ func RestartBuild(c *gin.Context) {
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
+
+	// set the parent equal to the restarted build number
+	b.SetParent(b.GetNumber())
+	// update the build numbers based off repo counter
+	inc := r.GetCounter() + 1
+	r.SetCounter(inc)
+	b.SetNumber(inc)
 
 	// populate the build link if a web address is provided
 	if len(m.Vela.WebAddress) > 0 {
@@ -942,12 +1006,13 @@ func RestartBuild(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
-	// check if the build event is not pull_request
-	if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
+	// check if the build event is not issue_comment or pull_request
+	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
+		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
 		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
-			retErr := fmt.Errorf("unable to process webhook: failed to get changeset for %s: %w", r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to restart build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -955,7 +1020,7 @@ func RestartBuild(c *gin.Context) {
 		}
 	}
 
-	// handle getting changeset from a pull_request
+	// check if the build event is a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(b)
@@ -978,18 +1043,57 @@ func RestartBuild(c *gin.Context) {
 		}
 	}
 
-	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
+	// variables to store pipeline configuration
+	var (
+		// variable to store the raw pipeline configuration
+		config []byte
+		// variable to store executable pipeline
+		p *pipeline.Build
+		// variable to store pipeline configuration
+		pipeline *library.Pipeline
+		// variable to store the pipeline type for the repository
+		pipelineType = r.GetPipelineType()
+	)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+	// check if the build was created after pipeline support was added
+	if b.GetPipelineID() > 0 {
+		// send API call to capture the pipeline
+		pipeline, err = database.FromContext(c).GetPipeline(b.GetPipelineID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get pipeline for %s: %w", entry, err)
 
-		return
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		config = pipeline.GetData()
+	} else { // keep original behavior for builds ran before pipeline support was added
+		// send API call to capture the pipeline configuration file
+		config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
 	}
 
+	// ensure we use the expected pipeline type when compiling
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
+	if len(pipeline.GetType()) > 0 {
+		r.SetPipelineType(pipeline.GetType())
+	}
+
+	var compiled *library.Pipeline
 	// parse and compile the pipeline configuration file
-	p, err := compiler.FromContext(c).
+	p, compiled, err = compiler.FromContext(c).
+		Duplicate().
 		WithBuild(b).
 		WithFiles(files).
 		WithMetadata(m).
@@ -1003,6 +1107,13 @@ func RestartBuild(c *gin.Context) {
 
 		return
 	}
+	// reset the pipeline type for the repo
+	//
+	// The pipeline type for a repo can change at any time which can break compiling
+	// existing pipelines in the system for that repo. To account for this, we update
+	// the repo pipeline type to match what was defined for the existing pipeline
+	// before compiling. After we're done compiling, we reset the pipeline type.
+	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
 	skip := skipEmptyBuild(p)
@@ -1013,13 +1124,46 @@ func RestartBuild(c *gin.Context) {
 		// send API call to set the status on the commit
 		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 		if err != nil {
-			logger.Errorf("unable to set commit status for %s: %v", entry, err)
+			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
 
 		c.JSON(http.StatusOK, skip)
 
 		return
 	}
+
+	// check if the pipeline did not already exist in the database
+	//
+	// nolint: dupl // ignore duplicate code
+	if pipeline == nil {
+		pipeline = compiled
+		pipeline.SetRepoID(r.GetID())
+		pipeline.SetCommit(b.GetCommit())
+		pipeline.SetRef(b.GetRef())
+
+		// send API call to create the pipeline
+		err = database.FromContext(c).CreatePipeline(pipeline)
+		if err != nil {
+			retErr := fmt.Errorf("unable to create pipeline for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// send API call to capture the created pipeline
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
+		if err != nil {
+			// nolint: lll // ignore long line length due to error message
+			retErr := fmt.Errorf("unable to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
+	b.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
 	err = planBuild(database.FromContext(c), p, b, r)

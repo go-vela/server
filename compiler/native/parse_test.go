@@ -41,7 +41,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -71,7 +71,7 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 
 	defer f.Close()
 
-	got, err := client.Parse(f, "", map[string]interface{}{})
+	got, _, err := client.Parse(f, "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -86,7 +86,7 @@ func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 
 	// run test
-	got, err := client.Parse(nil, "", map[string]interface{}{})
+	got, _, err := client.Parse(nil, "", map[string]interface{}{})
 
 	if err == nil {
 		t.Error("Parse should have returned err")
@@ -110,7 +110,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 	}
 
 	// run test
-	got, err := client.Parse("testdata/metadata.yml", "", map[string]interface{}{})
+	got, _, err := client.Parse("testdata/metadata.yml", "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -138,7 +138,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(bytes.NewReader(b), "", map[string]interface{}{})
+	got, _, err := client.Parse(bytes.NewReader(b), "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -166,7 +166,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(string(b), "", map[string]interface{}{})
+	got, _, err := client.Parse(string(b), "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -213,7 +213,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -339,7 +339,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -436,7 +436,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -499,7 +499,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -575,7 +575,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -633,7 +633,7 @@ func TestNative_Parse_Steps(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", map[string]interface{}{})
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -661,7 +661,7 @@ func TestNative_ParseBytes_Metadata(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := ParseBytes(b)
+	got, _, err := ParseBytes(b)
 
 	if err != nil {
 		t.Errorf("ParseBytes returned err: %v", err)
@@ -679,7 +679,7 @@ func TestNative_ParseBytes_Invalid(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := ParseBytes(b)
+	got, _, err := ParseBytes(b)
 
 	if err == nil {
 		t.Error("ParseBytes should have returned err")
@@ -709,7 +709,7 @@ func TestNative_ParseFile_Metadata(t *testing.T) {
 
 	defer f.Close()
 
-	got, err := ParseFile(f)
+	got, _, err := ParseFile(f)
 
 	if err != nil {
 		t.Errorf("ParseFile returned err: %v", err)
@@ -729,7 +729,7 @@ func TestNative_ParseFile_Invalid(t *testing.T) {
 
 	f.Close()
 
-	got, err := ParseFile(f)
+	got, _, err := ParseFile(f)
 
 	if err == nil {
 		t.Error("ParseFile should have returned err")
@@ -752,7 +752,7 @@ func TestNative_ParsePath_Metadata(t *testing.T) {
 	}
 
 	// run test
-	got, err := ParsePath("testdata/metadata.yml")
+	got, _, err := ParsePath("testdata/metadata.yml")
 
 	if err != nil {
 		t.Errorf("ParsePath returned err: %v", err)
@@ -765,7 +765,7 @@ func TestNative_ParsePath_Metadata(t *testing.T) {
 
 func TestNative_ParsePath_Invalid(t *testing.T) {
 	// run test
-	got, err := ParsePath("testdata/foobar.yml")
+	got, _, err := ParsePath("testdata/foobar.yml")
 
 	if err == nil {
 		t.Error("ParsePath should have returned err")
@@ -793,7 +793,7 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := ParseReader(bytes.NewReader(b))
+	got, _, err := ParseReader(bytes.NewReader(b))
 
 	if err != nil {
 		t.Errorf("ParseReader returned err: %v", err)
@@ -806,7 +806,7 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 
 func TestNative_ParseReader_Invalid(t *testing.T) {
 	// run test
-	got, err := ParseReader(FailReader{})
+	got, _, err := ParseReader(FailReader{})
 
 	if err == nil {
 		t.Error("ParseFile should have returned err")
@@ -834,7 +834,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, err := ParseString(string(b))
+	got, _, err := ParseString(string(b))
 
 	if err != nil {
 		t.Errorf("ParseString returned err: %v", err)
@@ -907,7 +907,7 @@ func Test_client_Parse(t *testing.T) {
 				}
 			}
 
-			got, err := c.Parse(content, tt.args.pipelineType, map[string]interface{}{})
+			got, _, err := c.Parse(content, tt.args.pipelineType, map[string]interface{}{})
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
