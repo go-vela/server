@@ -41,16 +41,21 @@ type ModifyResponse struct {
 }
 
 // Compile produces an executable pipeline from a yaml configuration.
-func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
-	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
+func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, error) {
+	p, data, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+
+	// create the library pipeline object from the yaml configuration
+	_pipeline := p.ToPipelineLibrary()
+	_pipeline.SetData(data)
+	_pipeline.SetType(c.repo.GetPipelineType())
 
 	// validate the yaml configuration
 	err = c.Validate(p)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// create map of templates for easy lookup
@@ -71,42 +76,47 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, error) {
 	case p.Metadata.RenderInline:
 		newPipeline, err := c.compileInline(p, nil)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 		// validate the yaml configuration
 		err = c.Validate(newPipeline)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 
 		if len(newPipeline.Stages) > 0 {
-			return c.compileStages(newPipeline, map[string]*yaml.Template{}, r)
+			return c.compileStages(newPipeline, _pipeline, map[string]*yaml.Template{}, r)
 		}
 
-		return c.compileSteps(newPipeline, map[string]*yaml.Template{}, r)
+		return c.compileSteps(newPipeline, _pipeline, map[string]*yaml.Template{}, r)
 	case len(p.Stages) > 0:
-		return c.compileStages(p, templates, r)
+		return c.compileStages(p, _pipeline, templates, r)
 	default:
-		return c.compileSteps(p, templates, r)
+		return c.compileSteps(p, _pipeline, templates, r)
 	}
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, template, substitute bool, localTemplates []string) (*yaml.Build, error) {
-	p, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
+func (c *client) CompileLite(v interface{}, template, substitute bool, localTemplates []string) (*yaml.Build, *library.Pipeline, error) {
+	p, data, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+
+	// create the library pipeline object from the yaml configuration
+	_pipeline := p.ToPipelineLibrary()
+	_pipeline.SetData(data)
+	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
 		newPipeline, err := c.compileInline(p, localTemplates)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 		// validate the yaml configuration
 		err = c.Validate(newPipeline)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 
 		p = newPipeline
@@ -126,7 +136,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 				// make sure the template was configured
 				_, ok := templates[parts[0]]
 				if !ok {
-					return nil, fmt.Errorf("template with name %s is not configured", parts[0])
+					return nil, _pipeline, fmt.Errorf("template with name %s is not configured", parts[0])
 				}
 
 				// override the source for the given template
@@ -139,28 +149,28 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 			// inject the templates into the steps
 			p, err = c.ExpandStages(p, templates)
 			if err != nil {
-				return nil, err
+				return nil, _pipeline, err
 			}
 
 			if substitute {
 				// inject the substituted environment variables into the steps
 				p.Stages, err = c.SubstituteStages(p.Stages)
 				if err != nil {
-					return nil, err
+					return nil, _pipeline, err
 				}
 			}
 		case len(p.Steps) > 0:
 			// inject the templates into the steps
 			p, err = c.ExpandSteps(p, templates)
 			if err != nil {
-				return nil, err
+				return nil, _pipeline, err
 			}
 
 			if substitute {
 				// inject the substituted environment variables into the steps
 				p.Steps, err = c.SubstituteSteps(p.Steps)
 				if err != nil {
-					return nil, err
+					return nil, _pipeline, err
 				}
 			}
 		}
@@ -169,10 +179,10 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 	// validate the yaml configuration
 	err = c.Validate(p)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
-	return p, nil
+	return p, _pipeline, nil
 }
 
 // compileInline parses and expands out inline pipelines.
@@ -208,7 +218,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 			format = constants.PipelineTypeGo
 		}
 
-		parsed, err := c.Parse(bytes, format, template.Variables)
+		parsed, _, err := c.Parse(bytes, format, template.Variables)
 		if err != nil {
 			return nil, err
 		}
@@ -270,7 +280,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
 //
 // nolint:dupl,lll // linter thinks the steps and stages workflows are identical
-func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
+func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -278,34 +288,34 @@ func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r 
 		// inject the clone step
 		p, err = c.CloneStep(p)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 	}
 
 	// inject the init step
 	p, err = c.InitStep(p)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the templates into the steps
 	p, err = c.ExpandSteps(p, tmpls)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
 		p, err = c.modifyConfig(p, c.build, c.repo)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 	}
 
 	// validate the yaml configuration
 	err = c.Validate(p)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// Create some default global environment inject vars
@@ -328,41 +338,46 @@ func (c *client) compileSteps(p *yaml.Build, tmpls map[string]*yaml.Template, r 
 	// inject the environment variables into the services
 	p.Services, err = c.EnvironmentServices(p.Services, envGlobalServices)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the environment variables into the secrets
 	p.Secrets, err = c.EnvironmentSecrets(p.Secrets, envGlobalSecrets)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the environment variables into the steps
 	p.Steps, err = c.EnvironmentSteps(p.Steps, envGlobalSteps)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the substituted environment variables into the steps
 	p.Steps, err = c.SubstituteSteps(p.Steps)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the scripts into the steps
 	p.Steps, err = c.ScriptSteps(p.Steps)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
-	// return executable representation
-	return c.TransformSteps(r, p)
+	// create executable representation
+	build, err := c.TransformSteps(r, p)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	return build, _pipeline, nil
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
 //
 // nolint:dupl,lll // linter thinks the steps and stages workflows are identical
-func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, error) {
+func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -370,34 +385,34 @@ func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r
 		// inject the clone stage
 		p, err = c.CloneStage(p)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 	}
 
 	// inject the init stage
 	p, err = c.InitStage(p)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the templates into the stages
 	p, err = c.ExpandStages(p, tmpls)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	if c.ModificationService.Endpoint != "" {
 		// send config to external endpoint for modification
 		p, err = c.modifyConfig(p, c.build, c.repo)
 		if err != nil {
-			return nil, err
+			return nil, _pipeline, err
 		}
 	}
 
 	// validate the yaml configuration
 	err = c.Validate(p)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// Create some default global environment inject vars
@@ -420,35 +435,40 @@ func (c *client) compileStages(p *yaml.Build, tmpls map[string]*yaml.Template, r
 	// inject the environment variables into the services
 	p.Services, err = c.EnvironmentServices(p.Services, envGlobalServices)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the environment variables into the secrets
 	p.Secrets, err = c.EnvironmentSecrets(p.Secrets, envGlobalSecrets)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the environment variables into the stages
 	p.Stages, err = c.EnvironmentStages(p.Stages, envGlobalSteps)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the substituted environment variables into the stages
 	p.Stages, err = c.SubstituteStages(p.Stages)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
 	// inject the scripts into the stages
 	p.Stages, err = c.ScriptStages(p.Stages)
 	if err != nil {
-		return nil, err
+		return nil, _pipeline, err
 	}
 
-	// return executable representation
-	return c.TransformStages(r, p)
+	// create executable representation
+	build, err := c.TransformStages(r, p)
+	if err != nil {
+		return nil, _pipeline, err
+	}
+
+	return build, _pipeline, nil
 }
 
 // errorHandler ensures the error contains the number of request attempts.
