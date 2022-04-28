@@ -286,7 +286,7 @@ func TestPostgres_Client_GetOrgRepoList_NonAdmin(t *testing.T) {
 	).AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT * FROM \"repos\" WHERE (org = $1) AND \"visibility\" = $2 ORDER BY name LIMIT 10").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT * FROM \"repos\" WHERE org = $1 AND \"visibility\" = $2 ORDER BY name LIMIT 10").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

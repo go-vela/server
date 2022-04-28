@@ -513,16 +513,15 @@ func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, re
 		Backoff:      retryablehttp.DefaultBackoff,
 	}
 
+	// ensure the overall request(s) do not take over the defined timeout
+	ctx, cancel := context.WithTimeout(context.Background(), c.ModificationService.Timeout)
+	defer cancel()
+
 	// create POST request
-	req, err := retryablehttp.NewRequest("POST", c.ModificationService.Endpoint, bytes.NewBuffer(b))
+	req, err := retryablehttp.NewRequestWithContext(ctx, "POST", c.ModificationService.Endpoint, bytes.NewBuffer(b))
 	if err != nil {
 		return nil, err
 	}
-
-	// ensure the overall request(s) do not take over the defined timeout
-	ctx, cancel := context.WithTimeout(req.Request.Context(), c.ModificationService.Timeout)
-	defer cancel()
-	req.WithContext(ctx)
 
 	// add content-type and auth headers
 	req.Header.Add("Content-Type", "application/json")
