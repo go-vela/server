@@ -24,6 +24,8 @@ func TestNative_Delete(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
+	sec.SetCreatedAt(1)
+	sec.SetUpdatedAt(1)
 
 	// setup database
 	db, _ := sqlite.NewTest()
