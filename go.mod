@@ -29,7 +29,7 @@ require (
 	github.com/prometheus/client_golang v1.12.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
-	github.com/urfave/cli/v2 v2.4.0
+	github.com/urfave/cli/v2 v2.5.1
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	gopkg.in/square/go-jose.v2 v2.6.0
