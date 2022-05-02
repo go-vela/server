@@ -56,6 +56,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetNumber(1)
 	want.SetParent(1)
 	want.SetEvent("")
+	want.SetEventAction("")
 	want.SetStatus("")
 	want.SetError("")
 	want.SetEnqueued(0)
