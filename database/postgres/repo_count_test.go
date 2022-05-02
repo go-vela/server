@@ -264,7 +264,7 @@ func TestPostgres_Client_GetOrgRepoCount_NonAdmin(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery("SELECT count(*) FROM \"repos\" WHERE (org = $1) AND \"visibility\" = $2").WillReturnRows(_rows)
+	_mock.ExpectQuery("SELECT count(*) FROM \"repos\" WHERE org = $1 AND \"visibility\" = $2").WillReturnRows(_rows)
 
 	// setup tests
 	tests := []struct {

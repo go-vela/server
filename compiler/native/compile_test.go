@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
-	"github.com/google/go-github/v43/github"
+	"github.com/google/go-github/v44/github"
 
 	"testing"
 	"time"
@@ -254,7 +254,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -335,7 +335,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 				repo:  &library.Repo{Name: &author},
 				build: &library.Build{Author: &name, Number: &number},
 			}
-			_, err := compiler.Compile(yaml)
+			_, _, err := compiler.Compile(yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -403,7 +403,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 				repo:  tt.args.repo,
 				build: tt.args.libraryBuild,
 			}
-			_, err := compiler.Compile(yaml)
+			_, _, err := compiler.Compile(yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -584,7 +584,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -835,7 +835,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1072,7 +1072,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	got, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(yaml)
 	if err != nil {
 		t.Errorf("Compile returned err: %v", err)
 	}
@@ -1148,7 +1148,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 
 	compiler.WithMetadata(m)
 
-	_, err = compiler.Compile(invalidYaml)
+	_, _, err = compiler.Compile(invalidYaml)
 	if err == nil {
 		t.Error("Compile should have returned an err")
 	}
@@ -1331,7 +1331,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 
 			compiler.WithMetadata(m)
 
-			got, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(yaml)
 			if err != nil {
 				t.Errorf("Compile returned err: %v", err)
 			}
@@ -1535,7 +1535,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			compiler.WithMetadata(m)
 			compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
 
-			got, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(yaml)
 			if err != nil {
 				t.Errorf("Compile returned err: %v", err)
 			}
@@ -1569,7 +1569,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	compiler.repo = &library.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
-	got, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(yaml)
 	if err == nil {
 		t.Errorf("Compile should have returned err")
 	}
@@ -1601,7 +1601,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	compiler.repo = &library.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
-	got, err := compiler.Compile(yaml)
+	got, _, err := compiler.Compile(yaml)
 	if err == nil {
 		t.Errorf("Compile should have returned err")
 	}
@@ -2648,7 +2648,7 @@ func Test_Compile_Inline(t *testing.T) {
 				compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
 			}
 
-			got, err := compiler.Compile(yaml)
+			got, _, err := compiler.Compile(yaml)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Compile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -2977,7 +2977,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute, nil)
+			got, _, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute, nil)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return

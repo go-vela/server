@@ -22,6 +22,8 @@ func TestNative_Count(t *testing.T) {
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetCreatedAt(1)
+	sec.SetUpdatedAt(1)
 
 	want := 1
 
