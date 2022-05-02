@@ -207,9 +207,10 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened or synchronize
+	// skip if the pull request action is not opened, synchronize, or edited
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
-		!strings.EqualFold(payload.GetAction(), "synchronize") {
+		!strings.EqualFold(payload.GetAction(), "synchronize") &&
+		!strings.EqualFold(payload.GetAction(), "edited") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -229,6 +230,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventPull)
+	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.GetPullRequest().GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPull, repo.GetHTMLURL()))
@@ -395,6 +397,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventComment)
+	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.Issue.GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventComment, repo.GetHTMLURL()))

@@ -519,6 +519,7 @@ func testBuild() *library.Build {
 		Number:       &i,
 		Parent:       &i,
 		Event:        &str,
+		EventAction:  &str,
 		Status:       &str,
 		Error:        &str,
 		Enqueued:     &i64,

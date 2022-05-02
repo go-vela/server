@@ -61,11 +61,19 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
+	event := c.build.GetEvent()
+	action := c.build.GetEventAction()
+
+	// if the build has an event action, concatenate event and event action for matching
+	if !strings.EqualFold(action, "") {
+		event = event + ":" + action
+	}
+
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
 		Branch:  c.build.GetBranch(),
 		Comment: c.comment,
-		Event:   c.build.GetEvent(),
+		Event:   event,
 		Path:    c.files,
 		Repo:    c.repo.GetFullName(),
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),

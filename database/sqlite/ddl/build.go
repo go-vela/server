@@ -17,6 +17,7 @@ builds (
 	number         INTEGER,
 	parent         INTEGER,
 	event          TEXT,
+	event_action   TEXT,
 	status         TEXT,
 	error          TEXT,
 	enqueued       INTEGER,

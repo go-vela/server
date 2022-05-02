@@ -225,6 +225,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("pull_request")
+	wantBuild.SetEventAction("opened")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
 	wantBuild.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
@@ -769,6 +770,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("comment")
+	wantBuild.SetEventAction("created")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
 	wantBuild.SetTitle("comment received from https://github.com/Codertocat/Hello-World")
@@ -844,6 +846,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("comment")
+	wantBuild.SetEventAction("created")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/issues/1")
 	wantBuild.SetTitle("comment received from https://github.com/Codertocat/Hello-World")
