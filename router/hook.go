@@ -19,7 +19,8 @@ import (
 // GET    /api/v1/hooks/:org/:repo
 // GET    /api/v1/hooks/:org/:repo/:hook
 // PUT    /api/v1/hooks/:org/:repo/:hook
-// DELETE /api/v1/hooks/:org/:repo/:hook .
+// DELETE /api/v1/hooks/:org/:repo/:hook
+// POST   /api/v1/hooks/:org/:repo/:hook/redeliver .
 func HookHandlers(base *gin.RouterGroup) {
 	// Hooks endpoints
 	hooks := base.Group("/hooks/:org/:repo", org.Establish(), repo.Establish())
@@ -29,5 +30,6 @@ func HookHandlers(base *gin.RouterGroup) {
 		hooks.GET("/:hook", perm.MustRead(), api.GetHook)
 		hooks.PUT("/:hook", perm.MustPlatformAdmin(), api.UpdateHook)
 		hooks.DELETE("/:hook", perm.MustPlatformAdmin(), api.DeleteHook)
+		hooks.POST("/:hook/redeliver", perm.MustWrite(), api.RedeliverHook)
 	} // end of hooks endpoints
 }

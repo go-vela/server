@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types/raw"
 	"github.com/google/go-cmp/cmp"
 
@@ -1049,5 +1050,107 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_Redeliver_Webhook(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.POST("/api/v3/repos/:org/:repo/hooks/:repo_id/deliveries/:delivery_id/attempts", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/hooks/push.json")
+	})
+	engine.GET("/api/v3/repos/:org/:repo/hooks/:hook_id/deliveries", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/delivery_summaries.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("octocat")
+	u.SetToken("foo")
+
+	_hook := new(library.Hook)
+	_hook.SetSourceID("b595f0e0-aee1-11ec-86cf-9418381395c4")
+	_hook.SetID(1)
+	_hook.SetRepoID(1)
+	_hook.SetBuildID(1)
+	_hook.SetNumber(1)
+	_hook.SetWebhookID(1234)
+
+	_repo := new(library.Repo)
+	_repo.SetID(1)
+	_repo.SetName("bar")
+	_repo.SetOrg("foo")
+
+	client, _ := NewTest(s.URL, "https://foo.bar.com")
+
+	// run test
+	err := client.RedeliverWebhook(ctx, u, _repo, _hook)
+
+	if err != nil {
+		t.Errorf("RedeliverWebhook returned err: %v", err)
+	}
+}
+
+func TestGithub_GetDeliveryID(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	engine.GET("/api/v3/repos/:org/:repo/hooks/:hook_id/deliveries", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/delivery_summaries.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("octocat")
+	u.SetToken("foo")
+
+	_hook := new(library.Hook)
+	_hook.SetSourceID("b595f0e0-aee1-11ec-86cf-9418381395c4")
+	_hook.SetID(1)
+	_hook.SetRepoID(1)
+	_hook.SetBuildID(1)
+	_hook.SetNumber(1)
+	_hook.SetWebhookID(1234)
+
+	_repo := new(library.Repo)
+	_repo.SetID(1)
+	_repo.SetName("bar")
+	_repo.SetOrg("foo")
+
+	want := int64(22948188373)
+
+	client, _ := NewTest(s.URL, "https://foo.bar.com")
+
+	ghClient := client.newClientToken(*u.Token)
+
+	// run test
+	got, err := client.getDeliveryID(ctx, ghClient, _repo, _hook)
+
+	if err != nil {
+		t.Errorf("RedeliverWebhook returned err: %v", err)
+	}
+
+	if got != want {
+		t.Errorf("getDeliveryID returned: %v; want: %v", got, want)
 	}
 }
