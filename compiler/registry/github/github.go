@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v44/github"
 	"golang.org/x/oauth2"
 )
 

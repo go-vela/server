@@ -17,6 +17,7 @@ builds (
 	number         INTEGER,
 	parent         INTEGER,
 	event          VARCHAR(250),
+	event_action   VARCHAR(250),
 	status         VARCHAR(250),
 	error          VARCHAR(1000),
 	enqueued       INTEGER,

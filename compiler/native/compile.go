@@ -61,11 +61,19 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
+	event := c.build.GetEvent()
+	action := c.build.GetEventAction()
+
+	// if the build has an event action, concatenate event and event action for matching
+	if !strings.EqualFold(action, "") {
+		event = event + ":" + action
+	}
+
 	// create the ruledata to purge steps
 	r := &pipeline.RuleData{
 		Branch:  c.build.GetBranch(),
 		Comment: c.comment,
-		Event:   c.build.GetEvent(),
+		Event:   event,
 		Path:    c.files,
 		Repo:    c.repo.GetFullName(),
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
@@ -513,16 +521,15 @@ func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, re
 		Backoff:      retryablehttp.DefaultBackoff,
 	}
 
+	// ensure the overall request(s) do not take over the defined timeout
+	ctx, cancel := context.WithTimeout(context.Background(), c.ModificationService.Timeout)
+	defer cancel()
+
 	// create POST request
-	req, err := retryablehttp.NewRequest("POST", c.ModificationService.Endpoint, bytes.NewBuffer(b))
+	req, err := retryablehttp.NewRequestWithContext(ctx, "POST", c.ModificationService.Endpoint, bytes.NewBuffer(b))
 	if err != nil {
 		return nil, err
 	}
-
-	// ensure the overall request(s) do not take over the defined timeout
-	ctx, cancel := context.WithTimeout(req.Request.Context(), c.ModificationService.Timeout)
-	defer cancel()
-	req.WithContext(ctx)
 
 	// add content-type and auth headers
 	req.Header.Add("Content-Type", "application/json")
