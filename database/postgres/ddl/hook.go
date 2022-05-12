@@ -19,6 +19,7 @@ hooks (
 	created    INTEGER,
 	host       VARCHAR(250),
 	event      VARCHAR(250),
+	event_action VARCHAR(250),
 	branch     VARCHAR(500),
 	error      VARCHAR(500),
 	status     VARCHAR(250),
