@@ -1055,20 +1055,9 @@ func RestartBuild(c *gin.Context) {
 		pipelineType = r.GetPipelineType()
 	)
 
-	// check if the build was created after pipeline support was added
-	if b.GetPipelineID() > 0 {
-		// send API call to capture the pipeline
-		pipeline, err = database.FromContext(c).GetPipeline(b.GetPipelineID())
-		if err != nil {
-			retErr := fmt.Errorf("unable to get pipeline for %s: %w", entry, err)
-
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		config = pipeline.GetData()
-	} else { // keep original behavior for builds ran before pipeline support was added
+	// send API call to attempt to capture the pipeline
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), r)
+	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 		// send API call to capture the pipeline configuration file
 		config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
 		if err != nil {
@@ -1078,6 +1067,8 @@ func RestartBuild(c *gin.Context) {
 
 			return
 		}
+	} else {
+		config = pipeline.GetData()
 	}
 
 	// ensure we use the expected pipeline type when compiling
