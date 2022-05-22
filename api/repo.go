@@ -500,9 +500,9 @@ func GetOrgRepos(c *gin.Context) {
 	sortBy := c.DefaultQuery("sort_by", "name")
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(u, org)
+	perm, err := scm.FromContext(c).OrgAccess(u, o)
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
 	filters := map[string]string{}
@@ -514,9 +514,9 @@ func GetOrgRepos(c *gin.Context) {
 	filters["active"] = c.DefaultQuery("active", "true")
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
+	t, err := database.FromContext(c).GetOrgRepoCount(o, filters)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -524,9 +524,9 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, perPage, sortBy)
+	r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, perPage, sortBy)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
+		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
