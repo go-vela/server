@@ -6,18 +6,17 @@ package build
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 	"strconv"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,13 +33,13 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", html.EscapeString(c.Param("org")), html.EscapeString(c.Param("repo")))
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		bParam := c.Param("build")
+		bParam := html.EscapeString(c.Param("build"))
 		if len(bParam) == 0 {
 			retErr := fmt.Errorf("no build parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

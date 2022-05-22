@@ -5,15 +5,14 @@
 package worker
 
 import (
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
-
-	"github.com/go-vela/server/util"
-
 	"fmt"
+	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,7 +24,7 @@ func Retrieve(c *gin.Context) *library.Worker {
 // Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		wParam := c.Param("worker")
+		wParam := html.EscapeString(c.Param("worker"))
 		if len(wParam) == 0 {
 			retErr := fmt.Errorf("no worker parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

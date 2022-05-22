@@ -6,20 +6,19 @@ package perm
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -52,10 +51,10 @@ func MustPlatformAdmin() gin.HandlerFunc {
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
-		e := c.Param("engine")
-		t := c.Param("type")
-		o := c.Param("org")
-		n := c.Param("name")
+		e := html.EscapeString(c.Param("engine"))
+		t := html.EscapeString(c.Param("type"))
+		o := html.EscapeString(c.Param("org"))
+		n := html.EscapeString(c.Param("name"))
 		m := c.Request.Method
 
 		// create log fields from API metadata

@@ -5,12 +5,12 @@
 package org
 
 import (
-	"github.com/go-vela/server/util"
-
 	"fmt"
+	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/util"
 )
 
 // Retrieve gets the org in the given context.
@@ -21,7 +21,7 @@ func Retrieve(c *gin.Context) string {
 // Establish used to check if org param is used only.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		oParam := c.Param("org")
+		oParam := html.EscapeString(c.Param("org"))
 		if len(oParam) == 0 {
 			retErr := fmt.Errorf("no org parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -30,6 +30,7 @@ func Establish() gin.HandlerFunc {
 		}
 
 		ToContext(c, oParam)
+
 		c.Next()
 	}
 }

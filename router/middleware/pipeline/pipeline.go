@@ -6,6 +6,7 @@ package pipeline
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,14 +32,14 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", html.EscapeString(c.Param("org")), html.EscapeString(c.Param("repo")))
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		p := c.Param("pipeline")
+		p := html.EscapeString(c.Param("pipeline"))
 		if len(p) == 0 {
 			retErr := fmt.Errorf("no pipeline parameter provided")
 
@@ -52,10 +53,10 @@ func Establish() gin.HandlerFunc {
 		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 		logrus.WithFields(logrus.Fields{
 			"org":      o,
-			"pipeline": p,
+			"pipeline": html.EscapeString(p),
 			"repo":     r.GetName(),
 			"user":     u.GetName(),
-		}).Debugf("reading pipeline %s/%s", r.GetFullName(), p)
+		}).Debugf("reading pipeline %s/%s", r.GetFullName(), html.EscapeString(p))
 
 		pipeline, err := database.FromContext(c).GetPipelineForRepo(p, r)
 		if err != nil {

@@ -6,19 +6,18 @@ package step
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 	"strconv"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,20 +36,20 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", o, c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", o, html.EscapeString(c.Param("repo")))
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
 		if b == nil {
-			retErr := fmt.Errorf("build %s not found for repo %s", c.Param("build"), r.GetFullName())
+			retErr := fmt.Errorf("build %s not found for repo %s", html.EscapeString(c.Param("build")), r.GetFullName())
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		sParam := c.Param("step")
+		sParam := html.EscapeString(c.Param("step"))
 		if len(sParam) == 0 {
 			retErr := fmt.Errorf("no step parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

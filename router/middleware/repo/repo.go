@@ -5,18 +5,17 @@
 package repo
 
 import (
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/util"
-
 	"fmt"
+	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the repo in the given context.
@@ -30,7 +29,7 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		u := user.Retrieve(c)
 
-		rParam := c.Param("repo")
+		rParam := html.EscapeString(c.Param("repo"))
 		if len(rParam) == 0 {
 			retErr := fmt.Errorf("no repo parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
