@@ -462,16 +462,16 @@ func GetRepos(c *gin.Context) {
 // of repos for an org from the configured backend.
 func GetOrgRepos(c *gin.Context) {
 	// capture middleware values
+	o := org.Retrieve(c)
 	u := user.Retrieve(c)
-	org := c.Param("org")
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
-		"org":  org,
+		"org":  o,
 		"user": u.GetName(),
-	}).Infof("reading repos for org %s", org)
+	}).Infof("reading repos for org %s", o)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

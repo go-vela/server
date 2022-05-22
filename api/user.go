@@ -7,18 +7,17 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
+	"html"
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -355,7 +354,7 @@ func UpdateCurrentUser(c *gin.Context) {
 func GetUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := c.Param("user")
+	user := html.EscapeString(c.Param("user"))
 
 	// update engine logger with API metadata
 	//
@@ -528,7 +527,7 @@ func GetUserSourceRepos(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := c.Param("user")
+	user := html.EscapeString(c.Param("user"))
 
 	// update engine logger with API metadata
 	//
@@ -625,7 +624,7 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := c.Param("user")
+	user := html.EscapeString(c.Param("user"))
 
 	// update engine logger with API metadata
 	//
