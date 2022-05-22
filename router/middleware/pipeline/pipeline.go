@@ -53,10 +53,10 @@ func Establish() gin.HandlerFunc {
 		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 		logrus.WithFields(logrus.Fields{
 			"org":      o,
-			"pipeline": html.EscapeString(p),
+			"pipeline": p,
 			"repo":     r.GetName(),
 			"user":     u.GetName(),
-		}).Debugf("reading pipeline %s/%s", r.GetFullName(), html.EscapeString(p))
+		}).Debugf("reading pipeline %s/%s", r.GetFullName(), p)
 
 		pipeline, err := database.FromContext(c).GetPipelineForRepo(p, r)
 		if err != nil {
