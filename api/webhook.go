@@ -167,6 +167,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(err.Error())
 		}
+
 		return
 	}
 
