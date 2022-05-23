@@ -5,8 +5,6 @@
 package middleware
 
 import (
-	"html"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +15,7 @@ import (
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
+	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,9 +31,7 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 	return func(c *gin.Context) {
 		start := time.Now()
 		// some evil middlewares modify this values
-		path := html.EscapeString(
-			strings.Replace(strings.Replace(c.Request.URL.Path, "\n", "", -1), "\r", "", -1),
-		)
+		path := util.EscapeValue(c.Request.URL.Path)
 
 		c.Next()
 
@@ -48,13 +45,13 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {
 			fields := logrus.Fields{
-				"ip":         c.ClientIP(),
+				"ip":         util.EscapeValue(c.ClientIP()),
 				"latency":    latency,
 				"method":     c.Request.Method,
 				"path":       path,
 				"status":     c.Writer.Status(),
-				"user-agent": c.Request.UserAgent(),
-				"version":    c.GetHeader("X-Vela-Version"),
+				"user-agent": util.EscapeValue(c.Request.UserAgent()),
+				"version":    util.EscapeValue(c.GetHeader("X-Vela-Version")),
 			}
 
 			body := c.Value("payload")
