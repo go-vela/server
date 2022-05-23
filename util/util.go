@@ -5,8 +5,10 @@
 package util
 
 import (
-	"github.com/gin-gonic/gin"
+	"html"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 )
 
@@ -16,6 +18,19 @@ func HandleError(c *gin.Context, status int, err error) {
 	// nolint: errcheck // ignore checking error
 	c.Error(err)
 	c.AbortWithStatusJSON(status, types.Error{Message: &msg})
+}
+
+// GetParameter safely captures a parameter from the context by
+// removing any new lines and HTML escaping the value.
+func GetParameter(c *gin.Context, parameter string) string {
+	// capture the raw value for the parameter
+	raw := c.Param(parameter)
+
+	// replace all new lines in the value for the parameter
+	escaped := strings.Replace(strings.Replace(raw, "\n", "", -1), "\r", "", -1)
+
+	// HTML escape the new line escaped value for the parameter
+	return html.EscapeString(escaped)
 }
 
 // MaxInt is a helper function to clamp the integer which
