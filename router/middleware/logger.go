@@ -5,6 +5,8 @@
 package middleware
 
 import (
+	"html"
+	"strings"
 	"time"
 
 	"github.com/go-vela/server/router/middleware/org"
@@ -31,7 +33,9 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 	return func(c *gin.Context) {
 		start := time.Now()
 		// some evil middlewares modify this values
-		path := c.Request.URL.Path
+		path := html.EscapeString(
+			strings.Replace(strings.Replace(c.Request.URL.Path, "\n", "", -1), "\r", "", -1),
+		)
 
 		c.Next()
 
