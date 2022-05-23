@@ -44,6 +44,19 @@ func MinInt(a, b int) int {
 	return b
 }
 
+// FormParameter safely captures a form parameter from the context
+// by removing any new lines and HTML escaping the value.
+func FormParameter(c *gin.Context, parameter string) string {
+	// capture the raw value for the path parameter
+	raw := c.Request.FormValue(parameter)
+
+	// replace all new lines in the value for the parameter
+	escaped := strings.Replace(strings.Replace(raw, "\n", "", -1), "\r", "", -1)
+
+	// HTML escape the new line escaped value for the parameter
+	return html.EscapeString(escaped)
+}
+
 // QueryParameter safely captures a query parameter from the context
 // by removing any new lines and HTML escaping the value.
 func QueryParameter(c *gin.Context, parameter, value string) string {
