@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/go-vela/types"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,8 +43,8 @@ func Login(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
 
 	// capture query params
-	t := c.Request.FormValue("type")
-	p := c.Request.FormValue("port")
+	t := util.FormParameter(c, "type")
+	p := util.FormParameter(c, "port")
 
 	// temp variable to hold redirect destination
 	r := ""
