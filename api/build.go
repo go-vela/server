@@ -409,7 +409,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 	return ""
 }
 
-// swagger:operation GET /api/v1/search/build/:id builds GetBuildByID
+// swagger:operation GET /api/v1/search/build/{id} builds GetBuildByID
 //
 // Get a single build by its id in the configured backend
 //
@@ -421,7 +421,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   name: id
 //   description: build id
 //   required: true
-//   type: int64
+//   type: number
 // security:
 //   - ApiKeyAuth: []
 // responses:
