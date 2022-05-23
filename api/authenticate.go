@@ -7,7 +7,6 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
-	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -246,8 +245,8 @@ func AuthenticateType(c *gin.Context) {
 	logrus.Info("redirecting for final auth flow destination")
 
 	// capture the path elements
-	t := html.EscapeString(c.Param("type"))
-	p := html.EscapeString(c.Param("port"))
+	t := util.GetParameter(c, "type")
+	p := util.GetParameter(c, "port")
 
 	// capture the current query parameters -
 	// they should contain the "code" and "state" values

@@ -7,7 +7,6 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
-	"html"
 	"net/http"
 	"strconv"
 
@@ -354,7 +353,7 @@ func UpdateCurrentUser(c *gin.Context) {
 func GetUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := html.EscapeString(c.Param("user"))
+	user := util.GetParameter(c, "user")
 
 	// update engine logger with API metadata
 	//
@@ -527,7 +526,7 @@ func GetUserSourceRepos(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := html.EscapeString(c.Param("user"))
+	user := util.GetParameter(c, "user")
 
 	// update engine logger with API metadata
 	//
@@ -624,7 +623,7 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := html.EscapeString(c.Param("user"))
+	user := util.GetParameter(c, "user")
 
 	// update engine logger with API metadata
 	//

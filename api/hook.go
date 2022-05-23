@@ -6,7 +6,6 @@ package api
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 	"strconv"
 	"time"
@@ -303,7 +302,7 @@ func GetHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := html.EscapeString(c.Param("hook"))
+	hook := util.GetParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -395,7 +394,7 @@ func UpdateHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := html.EscapeString(c.Param("hook"))
+	hook := util.GetParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -542,7 +541,7 @@ func DeleteHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := html.EscapeString(c.Param("hook"))
+	hook := util.GetParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -639,7 +638,7 @@ func RedeliverHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := html.EscapeString(c.Param("hook"))
+	hook := util.GetParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 

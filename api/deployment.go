@@ -6,7 +6,6 @@ package api
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 	"strconv"
 
@@ -303,7 +302,7 @@ func GetDeployment(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	deployment := html.EscapeString(c.Param("deployment"))
+	deployment := util.GetParameter(c, "deployment")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 
