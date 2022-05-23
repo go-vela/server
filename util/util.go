@@ -20,19 +20,6 @@ func HandleError(c *gin.Context, status int, err error) {
 	c.AbortWithStatusJSON(status, types.Error{Message: &msg})
 }
 
-// GetParameter safely captures a parameter from the context by
-// removing any new lines and HTML escaping the value.
-func GetParameter(c *gin.Context, parameter string) string {
-	// capture the raw value for the parameter
-	raw := c.Param(parameter)
-
-	// replace all new lines in the value for the parameter
-	escaped := strings.Replace(strings.Replace(raw, "\n", "", -1), "\r", "", -1)
-
-	// HTML escape the new line escaped value for the parameter
-	return html.EscapeString(escaped)
-}
-
 // MaxInt is a helper function to clamp the integer which
 // prevents it from being higher then the provided value.
 //
@@ -55,4 +42,30 @@ func MinInt(a, b int) int {
 	}
 
 	return b
+}
+
+// QueryParameter safely captures a query parameter from the context
+// by removing any new lines and HTML escaping the value.
+func QueryParameter(c *gin.Context, parameter, value string) string {
+	// capture the raw value for the query parameter
+	raw := c.DefaultQuery(parameter, value)
+
+	// replace all new lines in the value for the parameter
+	escaped := strings.Replace(strings.Replace(raw, "\n", "", -1), "\r", "", -1)
+
+	// HTML escape the new line escaped value for the parameter
+	return html.EscapeString(escaped)
+}
+
+// PathParameter safely captures a path parameter from the context
+// by removing any new lines and HTML escaping the value.
+func PathParameter(c *gin.Context, parameter string) string {
+	// capture the raw value for the path parameter
+	raw := c.Param(parameter)
+
+	// replace all new lines in the value for the parameter
+	escaped := strings.Replace(strings.Replace(raw, "\n", "", -1), "\r", "", -1)
+
+	// HTML escape the new line escaped value for the parameter
+	return html.EscapeString(escaped)
 }
