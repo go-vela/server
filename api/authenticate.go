@@ -245,8 +245,8 @@ func AuthenticateType(c *gin.Context) {
 	logrus.Info("redirecting for final auth flow destination")
 
 	// capture the path elements
-	t := util.GetParameter(c, "type")
-	p := util.GetParameter(c, "port")
+	t := util.PathParameter(c, "type")
+	p := util.PathParameter(c, "port")
 
 	// capture the current query parameters -
 	// they should contain the "code" and "state" values

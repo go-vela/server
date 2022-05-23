@@ -302,7 +302,7 @@ func GetDeployment(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	deployment := util.GetParameter(c, "deployment")
+	deployment := util.PathParameter(c, "deployment")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 

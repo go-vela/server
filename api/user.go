@@ -353,7 +353,7 @@ func UpdateCurrentUser(c *gin.Context) {
 func GetUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := util.GetParameter(c, "user")
+	user := util.PathParameter(c, "user")
 
 	// update engine logger with API metadata
 	//
@@ -526,7 +526,7 @@ func GetUserSourceRepos(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := util.GetParameter(c, "user")
+	user := util.PathParameter(c, "user")
 
 	// update engine logger with API metadata
 	//
@@ -623,7 +623,7 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	user := util.GetParameter(c, "user")
+	user := util.PathParameter(c, "user")
 
 	// update engine logger with API metadata
 	//

@@ -11,18 +11,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-vela/server/router/middleware/org"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -497,7 +494,7 @@ func GetOrgRepos(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// capture the sort_by query parameter if present
-	sortBy := c.DefaultQuery("sort_by", "name")
+	sortBy := util.QueryParameter(c, "sort_by", "name")
 
 	// See if the user is an org admin to bypass individual permission checks
 	perm, err := scm.FromContext(c).OrgAccess(u, o)
@@ -511,7 +508,7 @@ func GetOrgRepos(c *gin.Context) {
 		filters["visibility"] = "public"
 	}
 
-	filters["active"] = c.DefaultQuery("active", "true")
+	filters["active"] = util.QueryParameter(c, "active", "true")
 
 	// send API call to capture the total number of repos for the org
 	t, err := database.FromContext(c).GetOrgRepoCount(o, filters)
