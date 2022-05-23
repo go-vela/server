@@ -28,7 +28,7 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		u := user.Retrieve(c)
 
-		rParam := util.GetParameter(c, "repo")
+		rParam := util.PathParameter(c, "repo")
 		if len(rParam) == 0 {
 			retErr := fmt.Errorf("no repo parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

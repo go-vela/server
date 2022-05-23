@@ -50,10 +50,10 @@ func MustPlatformAdmin() gin.HandlerFunc {
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
-		e := util.GetParameter(c, "engine")
-		t := util.GetParameter(c, "type")
-		o := util.GetParameter(c, "org")
-		n := util.GetParameter(c, "name")
+		e := util.PathParameter(c, "engine")
+		t := util.PathParameter(c, "type")
+		o := util.PathParameter(c, "org")
+		n := util.PathParameter(c, "name")
 		m := c.Request.Method
 
 		// create log fields from API metadata
