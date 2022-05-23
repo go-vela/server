@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -39,7 +40,7 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		p := html.EscapeString(c.Param("pipeline"))
+		p := html.EscapeString(strings.Replace(strings.Replace(c.Param("pipeline"), "\n", "", -1), "\r", "", -1))
 		if len(p) == 0 {
 			retErr := fmt.Errorf("no pipeline parameter provided")
 
