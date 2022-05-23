@@ -33,6 +33,15 @@ AND name = ?
 LIMIT 1;
 `
 
+	// SelectRepoByID represents a query to select a
+	// repo for an id in the database.
+	SelectRepoByID = `
+SELECT *
+FROM repos
+WHERE id = ?
+LIMIT 1;
+`
+
 	// SelectUserReposCount represents a query to select
 	// the count of repos for a user_id in the database.
 	SelectUserReposCount = `

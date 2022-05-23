@@ -23,6 +23,9 @@ type Service interface {
 	// GetBuild defines a function that
 	// gets a build by number and repo ID.
 	GetBuild(int, *library.Repo) (*library.Build, error)
+	// GetBuildByID defines a function that
+	// gets a build by its id.
+	GetBuildByID(int64) (*library.Build, error)
 	// GetLastBuild defines a function that
 	// gets the last build ran by repo ID.
 	GetLastBuild(*library.Repo) (*library.Build, error)
@@ -123,6 +126,9 @@ type Service interface {
 	// GetRepo defines a function that
 	// gets a repo by org and name.
 	GetRepo(string, string) (*library.Repo, error)
+	// GetRepoByID defines a function that
+	// gets a repo by its id.
+	GetRepoByID(int64) (*library.Repo, error)
 	// GetRepoList defines a function that
 	// gets a list of all repos.
 	GetRepoList() ([]*library.Repo, error)

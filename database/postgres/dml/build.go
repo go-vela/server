@@ -12,6 +12,15 @@ SELECT *
 FROM builds;
 `
 
+	// SelectBuildByID represents a query to select
+	// a build for its id in the database
+	SelectBuildByID = `
+SELECT *
+FROM builds
+WHERE id = ?
+LIMIT 1;
+`
+
 	// SelectRepoBuild represents a query to select
 	// a build for a repo_id in the database.
 	SelectRepoBuild = `

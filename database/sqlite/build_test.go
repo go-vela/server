@@ -84,6 +84,70 @@ func TestSqlite_Client_GetBuild(t *testing.T) {
 	}
 }
 
+func TestSqlite_Client_GetBuildByID(t *testing.T) {
+	// setup types
+	_build := testBuild()
+	_build.SetID(1)
+	_build.SetRepoID(1)
+	_build.SetNumber(1)
+	_build.SetDeployPayload(nil)
+
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new sqlite test database: %v", err)
+	}
+
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    *library.Build
+	}{
+		{
+			failure: false,
+			want:    _build,
+		},
+		{
+			failure: true,
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		if test.want != nil {
+			// create the build in the database
+			err := _database.CreateBuild(test.want)
+			if err != nil {
+				t.Errorf("unable to create test build: %v", err)
+			}
+		}
+
+		got, err := _database.GetBuildByID(1)
+
+		// cleanup the builds table
+		_ = _database.Sqlite.Exec("DELETE FROM builds;")
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetBuildByID should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetBuildByID returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetBuildByID is %v, want %v", got, test.want)
+		}
+	}
+}
+
 func TestSqlite_Client_GetLastBuild(t *testing.T) {
 	// setup types
 	_build := testBuild()

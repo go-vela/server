@@ -409,6 +409,93 @@ func skipEmptyBuild(p *pipeline.Build) string {
 	return ""
 }
 
+// swagger:operation GET /api/v1/search/build/:id builds GetBuildByID
+//
+// Get a single build by its id in the configured backend
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: id
+//   description: build id
+//   required: true
+//   type: int64
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved build
+//     schema:
+//       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Unable to retrieve the build
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to retrieve the build
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetBuildByID represents the API handler to capture a
+// build by its id from the configured backend.
+func GetBuildByID(c *gin.Context) {
+	// variables that will hold the build list, build list filters and total count
+	var (
+		b *library.Build
+		r *library.Repo
+	)
+
+	// capture user from middleware
+	u := user.Retrieve(c)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse build id: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	b, err = database.FromContext(c).GetBuildByID(id)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get build: %w", err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	r, err = database.FromContext(c).GetRepoByID(b.GetRepoID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repo: %w", err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// See if the user is an org admin to bypass individual permission checks
+	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+	}
+	// Ensure that user has at least write access to repo to get build
+	//
+	// nolint: goconst // ignore admin constant
+	if perm != "admin" && perm != "write" {
+		retErr := fmt.Errorf("unable to retrieve build %d: user does not have write access to repo %s", id, r.GetFullName())
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, b)
+}
+
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds GetBuilds
 //
 // Get builds from the configured backend

@@ -57,6 +57,44 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 	return r.ToLibrary(), result.Error
 }
 
+// GetRepoByID gets a repo by id from the database.
+func (c *client) GetRepoByID(id int64) (*library.Repo, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"id": id,
+	}).Tracef("getting repo %d from the database", id)
+
+	// variable to store query results
+	r := new(database.Repo)
+
+	// send query to the database and store result in variable
+	result := c.Postgres.
+		Table(constants.TableRepo).
+		Raw(dml.SelectRepoByID, id).
+		Scan(r)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	// decrypt the fields for the repo
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
+	err := r.Decrypt(c.config.EncryptionKey)
+	if err != nil {
+		// ensures that the change is backwards compatible
+		// by logging the error instead of returning it
+		// which allows us to fetch unencrypted repos
+		c.Logger.Errorf("unable to decrypt repo %d: %v", id, err)
+
+		// return the unencrypted repo
+		return r.ToLibrary(), result.Error
+	}
+
+	// return the decrypted repo
+	return r.ToLibrary(), result.Error
+}
+
 // CreateRepo creates a new repo in the database.
 //
 // nolint: dupl // ignore similar code with update
