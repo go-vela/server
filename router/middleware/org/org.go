@@ -6,7 +6,6 @@ package org
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +20,7 @@ func Retrieve(c *gin.Context) string {
 // Establish used to check if org param is used only.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		oParam := html.EscapeString(c.Param("org"))
+		oParam := util.GetParameter(c, "org")
 		if len(oParam) == 0 {
 			retErr := fmt.Errorf("no org parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

@@ -6,7 +6,6 @@ package worker
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ func Retrieve(c *gin.Context) *library.Worker {
 // Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		wParam := html.EscapeString(c.Param("worker"))
+		wParam := util.GetParameter(c, "worker")
 		if len(wParam) == 0 {
 			retErr := fmt.Errorf("no worker parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

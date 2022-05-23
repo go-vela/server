@@ -6,7 +6,6 @@ package perm
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 	"strings"
 
@@ -51,10 +50,10 @@ func MustPlatformAdmin() gin.HandlerFunc {
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u := user.Retrieve(c)
-		e := html.EscapeString(c.Param("engine"))
-		t := html.EscapeString(c.Param("type"))
-		o := html.EscapeString(c.Param("org"))
-		n := html.EscapeString(c.Param("name"))
+		e := util.GetParameter(c, "engine")
+		t := util.GetParameter(c, "type")
+		o := util.GetParameter(c, "org")
+		n := util.GetParameter(c, "name")
 		m := c.Request.Method
 
 		// create log fields from API metadata

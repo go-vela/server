@@ -6,7 +6,6 @@ package service
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 	"strconv"
 
@@ -36,20 +35,20 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", o, html.EscapeString(c.Param("repo")))
+			retErr := fmt.Errorf("repo %s/%s not found", o, util.GetParameter(c, "repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
 		if b == nil {
-			retErr := fmt.Errorf("build %s not found for repo %s", html.EscapeString(c.Param("build")), r.GetFullName())
+			retErr := fmt.Errorf("build %s not found for repo %s", util.GetParameter(c, "build"), r.GetFullName())
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		sParam := html.EscapeString(c.Param("service"))
+		sParam := util.GetParameter(c, "service")
 		if len(sParam) == 0 {
 			retErr := fmt.Errorf("no service parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

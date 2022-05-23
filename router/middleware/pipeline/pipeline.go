@@ -6,9 +6,7 @@ package pipeline
 
 import (
 	"fmt"
-	"html"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -33,14 +31,14 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", html.EscapeString(c.Param("org")), html.EscapeString(c.Param("repo")))
+			retErr := fmt.Errorf("repo %s/%s not found", util.GetParameter(c, "org"), util.GetParameter(c, "repo"))
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		p := html.EscapeString(strings.Replace(strings.Replace(c.Param("pipeline"), "\n", "", -1), "\r", "", -1))
+		p := util.GetParameter(c, "pipeline")
 		if len(p) == 0 {
 			retErr := fmt.Errorf("no pipeline parameter provided")
 

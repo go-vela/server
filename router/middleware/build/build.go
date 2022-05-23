@@ -6,7 +6,6 @@ package build
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 	"strconv"
 
@@ -33,13 +32,13 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", html.EscapeString(c.Param("org")), html.EscapeString(c.Param("repo")))
+			retErr := fmt.Errorf("repo %s/%s not found", util.GetParameter(c, "org"), util.GetParameter(c, "repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		bParam := html.EscapeString(c.Param("build"))
+		bParam := util.GetParameter(c, "build")
 		if len(bParam) == 0 {
 			retErr := fmt.Errorf("no build parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)

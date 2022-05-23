@@ -6,7 +6,6 @@ package repo
 
 import (
 	"fmt"
-	"html"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +28,7 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		u := user.Retrieve(c)
 
-		rParam := html.EscapeString(c.Param("repo"))
+		rParam := util.GetParameter(c, "repo")
 		if len(rParam) == 0 {
 			retErr := fmt.Errorf("no repo parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
