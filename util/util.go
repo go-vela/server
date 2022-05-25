@@ -5,8 +5,10 @@
 package util
 
 import (
-	"github.com/gin-gonic/gin"
+	"html"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 )
 
@@ -40,4 +42,31 @@ func MinInt(a, b int) int {
 	}
 
 	return b
+}
+
+// FormParameter safely captures a form parameter from the context
+// by removing any new lines and HTML escaping the value.
+func FormParameter(c *gin.Context, parameter string) string {
+	return EscapeValue(c.Request.FormValue(parameter))
+}
+
+// QueryParameter safely captures a query parameter from the context
+// by removing any new lines and HTML escaping the value.
+func QueryParameter(c *gin.Context, parameter, value string) string {
+	return EscapeValue(c.DefaultQuery(parameter, value))
+}
+
+// PathParameter safely captures a path parameter from the context
+// by removing any new lines and HTML escaping the value.
+func PathParameter(c *gin.Context, parameter string) string {
+	return EscapeValue(c.Param(parameter))
+}
+
+// EscapeValue safely escapes any string by removing any new lines and HTML escaping it.
+func EscapeValue(value string) string {
+	// replace all new lines in the value
+	escaped := strings.Replace(strings.Replace(value, "\n", "", -1), "\r", "", -1)
+
+	// HTML escape the new line escaped value
+	return html.EscapeString(escaped)
 }

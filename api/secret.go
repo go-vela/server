@@ -11,15 +11,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -83,10 +81,10 @@ import (
 func CreateSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	e := c.Param("engine")
-	t := c.Param("type")
-	o := c.Param("org")
-	n := c.Param("name")
+	e := util.PathParameter(c, "engine")
+	t := util.PathParameter(c, "type")
+	o := util.PathParameter(c, "org")
+	n := util.PathParameter(c, "name")
 
 	entry := fmt.Sprintf("%s/%s/%s", t, o, n)
 
@@ -260,10 +258,10 @@ func CreateSecret(c *gin.Context) {
 func GetSecrets(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	e := c.Param("engine")
-	t := c.Param("type")
-	o := c.Param("org")
-	n := c.Param("name")
+	e := util.PathParameter(c, "engine")
+	t := util.PathParameter(c, "type")
+	o := util.PathParameter(c, "org")
+	n := util.PathParameter(c, "name")
 
 	var teams []string
 	// get list of user's teams if type is shared secret and team is '*'
@@ -428,11 +426,11 @@ func GetSecrets(c *gin.Context) {
 func GetSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	e := c.Param("engine")
-	t := c.Param("type")
-	o := c.Param("org")
-	n := c.Param("name")
-	s := strings.TrimPrefix(c.Param("secret"), "/")
+	e := util.PathParameter(c, "engine")
+	t := util.PathParameter(c, "type")
+	o := util.PathParameter(c, "org")
+	n := util.PathParameter(c, "name")
+	s := strings.TrimPrefix(util.PathParameter(c, "secret"), "/")
 
 	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
 
@@ -548,11 +546,11 @@ func GetSecret(c *gin.Context) {
 func UpdateSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	e := c.Param("engine")
-	t := c.Param("type")
-	o := c.Param("org")
-	n := c.Param("name")
-	s := strings.TrimPrefix(c.Param("secret"), "/")
+	e := util.PathParameter(c, "engine")
+	t := util.PathParameter(c, "type")
+	o := util.PathParameter(c, "org")
+	n := util.PathParameter(c, "name")
+	s := strings.TrimPrefix(util.PathParameter(c, "secret"), "/")
 
 	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
 
@@ -695,11 +693,11 @@ func UpdateSecret(c *gin.Context) {
 func DeleteSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	e := c.Param("engine")
-	t := c.Param("type")
-	o := c.Param("org")
-	n := c.Param("name")
-	s := strings.TrimPrefix(c.Param("secret"), "/")
+	e := util.PathParameter(c, "engine")
+	t := util.PathParameter(c, "type")
+	o := util.PathParameter(c, "org")
+	n := util.PathParameter(c, "name")
+	s := strings.TrimPrefix(util.PathParameter(c, "secret"), "/")
 
 	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
 
