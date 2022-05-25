@@ -9,15 +9,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -247,8 +245,8 @@ func AuthenticateType(c *gin.Context) {
 	logrus.Info("redirecting for final auth flow destination")
 
 	// capture the path elements
-	t := c.Param("type")
-	p := c.Param("port")
+	t := util.PathParameter(c, "type")
+	p := util.PathParameter(c, "port")
 
 	// capture the current query parameters -
 	// they should contain the "code" and "state" values

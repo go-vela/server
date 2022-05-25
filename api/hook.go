@@ -10,17 +10,14 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
-
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -305,7 +302,7 @@ func GetHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := c.Param("hook")
+	hook := util.PathParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -397,7 +394,7 @@ func UpdateHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := c.Param("hook")
+	hook := util.PathParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -544,7 +541,7 @@ func DeleteHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := c.Param("hook")
+	hook := util.PathParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -641,7 +638,7 @@ func RedeliverHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	hook := c.Param("hook")
+	hook := util.PathParameter(c, "hook")
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 

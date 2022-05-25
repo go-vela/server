@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/util"
 )
 
 const (
@@ -20,7 +21,7 @@ const (
 // request based off the output query parameter provided. If no output
 // query parameter is provided, then YAML is used by default.
 func writeOutput(c *gin.Context, value interface{}) {
-	output := c.DefaultQuery("output", outputYAML)
+	output := util.QueryParameter(c, "output", outputYAML)
 
 	// format response body based off output query parameter
 	switch strings.ToLower(output) {
