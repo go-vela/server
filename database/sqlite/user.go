@@ -55,6 +55,8 @@ func (c *client) GetUser(id int64) (*library.User, error) {
 }
 
 // GetUserName gets a user by name from the database.
+//
+// nolint: dupl // ignore similar code with repo
 func (c *client) GetUserName(name string) (*library.User, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": name,

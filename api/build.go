@@ -486,9 +486,8 @@ func GetBuildByID(c *gin.Context) {
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 	}
+
 	// Ensure that user has at least write access to repo to return the build
-	//
-	// nolint: goconst // ignore admin constant
 	if perm != "admin" && perm != "write" {
 		retErr := fmt.Errorf("unable to retrieve build %d: user does not have write access to repo %s", id, r.GetFullName())
 

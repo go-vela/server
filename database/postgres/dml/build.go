@@ -13,7 +13,7 @@ FROM builds;
 `
 
 	// SelectBuildByID represents a query to select
-	// a build for its id in the database
+	// a build for its id in the database.
 	SelectBuildByID = `
 SELECT *
 FROM builds

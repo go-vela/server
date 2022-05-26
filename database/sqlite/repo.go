@@ -58,6 +58,8 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 }
 
 // GetRepoByID gets a repo by id from the database.
+//
+// nolint: dupl // ignore similar code with user
 func (c *client) GetRepoByID(id int64) (*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"id": id,

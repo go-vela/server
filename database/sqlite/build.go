@@ -44,6 +44,9 @@ func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 	return b.ToLibrary(), result.Error
 }
 
+// GetBuildByID gets a build by its ID from the database.
+//
+// nolint: dupl // ignore similar code with hook
 func (c *client) GetBuildByID(id int64) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": id,
@@ -67,6 +70,8 @@ func (c *client) GetBuildByID(id int64) (*library.Build, error) {
 }
 
 // GetLastBuild gets the last build by repo ID from the database.
+//
+// nolint: dupl // ignore similar code with hook
 func (c *client) GetLastBuild(r *library.Repo) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
