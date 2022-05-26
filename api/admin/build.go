@@ -81,8 +81,10 @@ func AllBuilds(c *gin.Context) {
 // SingleBuild represents the API handler to
 // capture a single build stored in the database by id.
 func SingleBuild(c *gin.Context) {
+	// Logger
 	logrus.Info("Admin: reading build")
 
+	// Parse build ID from path
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 
 	if err != nil {
@@ -93,7 +95,7 @@ func SingleBuild(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture all builds
+	// send API call to capture the build
 	b, err := database.FromContext(c).GetBuildByID(id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture build: %w", err)
