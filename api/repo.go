@@ -11,18 +11,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-vela/server/router/middleware/org"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -462,16 +459,16 @@ func GetRepos(c *gin.Context) {
 // of repos for an org from the configured backend.
 func GetOrgRepos(c *gin.Context) {
 	// capture middleware values
+	o := org.Retrieve(c)
 	u := user.Retrieve(c)
-	org := c.Param("org")
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
-		"org":  org,
+		"org":  o,
 		"user": u.GetName(),
-	}).Infof("reading repos for org %s", org)
+	}).Infof("reading repos for org %s", o)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -497,12 +494,12 @@ func GetOrgRepos(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// capture the sort_by query parameter if present
-	sortBy := c.DefaultQuery("sort_by", "name")
+	sortBy := util.QueryParameter(c, "sort_by", "name")
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(u, org)
+	perm, err := scm.FromContext(c).OrgAccess(u, o)
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), org)
+		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
 	filters := map[string]string{}
@@ -511,12 +508,12 @@ func GetOrgRepos(c *gin.Context) {
 		filters["visibility"] = "public"
 	}
 
-	filters["active"] = c.DefaultQuery("active", "true")
+	filters["active"] = util.QueryParameter(c, "active", "true")
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(org, filters)
+	t, err := database.FromContext(c).GetOrgRepoCount(o, filters)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get repo count for org %s: %w", org, err)
+		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -524,9 +521,9 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).GetOrgRepoList(org, filters, page, perPage, sortBy)
+	r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, perPage, sortBy)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
+		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
