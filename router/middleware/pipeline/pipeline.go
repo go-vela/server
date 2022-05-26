@@ -31,14 +31,14 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", util.PathParameter(c, "org"), util.PathParameter(c, "repo"))
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return
 		}
 
-		p := c.Param("pipeline")
+		p := util.PathParameter(c, "pipeline")
 		if len(p) == 0 {
 			retErr := fmt.Errorf("no pipeline parameter provided")
 

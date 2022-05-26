@@ -51,12 +51,9 @@ func Secure(c *gin.Context) {
 	c.Header("X-Frame-Options", "DENY")
 	c.Header("X-Content-Type-Options", "nosniff")
 	c.Header("X-XSS-Protection", "1; mode=block")
-
-	// Also consider adding Content-Security-Policy headers
+	// TODO: consider adding Content-Security-Policy headers
 	// c.Header("Content-Security-Policy", "script-src 'self' https://cdnjs.cloudflare.com")
-	if c.Request.TLS != nil {
-		c.Header("Strict-Transport-Security", "max-age=31536000")
-	}
+	c.Header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
 }
 
 // Cors is a middleware function that appends headers for
