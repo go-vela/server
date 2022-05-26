@@ -488,6 +488,8 @@ func GetBuildByID(c *gin.Context) {
 	}
 
 	// Ensure that user has at least write access to repo to return the build
+	//
+	// nolint: goconst // ignore admin constant suggestion
 	if perm != "admin" && perm != "write" {
 		retErr := fmt.Errorf("unable to retrieve build %d: user does not have write access to repo %s", id, r.GetFullName())
 

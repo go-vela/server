@@ -39,6 +39,7 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 		latency := end.Sub(start)
 
 		if utc {
+			// nolint: staticcheck // ignore unused var lint check
 			end = end.UTC()
 		}
 
