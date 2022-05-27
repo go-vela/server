@@ -131,16 +131,12 @@ func PostWebhook(c *gin.Context) {
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
-	defer func() {
-		// send API call to update the webhook
-		err = database.FromContext(c).UpdateHook(h)
-		if err != nil {
-			logrus.Errorf("unable to update webhook %s/%s: %v", r.GetFullName(), h.GetSourceID(), err)
-		}
-	}()
-
-	// check if build was parsed from webhook
-	if b == nil && h.GetEvent() != constants.EventRepositoryRename {
+	// check if build was parsed from webhook.
+	// build will be nil on repository events, but
+	// for renaming, we want to continue.
+	if b == nil &&
+		h.GetEvent() != constants.EventRepository &&
+		h.GetEventAction() != constants.ActionRenamed {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -153,20 +149,23 @@ func PostWebhook(c *gin.Context) {
 		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
 		return
 	}
 
-	if h.GetEvent() == constants.EventRepositoryRename {
-		err = renameRepository(h, r, c)
+	defer func() {
+		// send API call to update the webhook
+		err = database.FromContext(c).UpdateHook(h)
+		if err != nil {
+			logrus.Errorf("unable to update webhook %s/%s: %v", r.GetFullName(), h.GetSourceID(), err)
+		}
+	}()
+
+	if h.GetEvent() == constants.EventRepository {
+		err = renameRepository(h, r, c, m)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, err)
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(err.Error())
-
-			return
 		}
 
 		return
@@ -672,7 +671,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo.
-func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
+func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) error {
 	// get the old name of the repo
 	previousName := r.GetPreviousName()
 	// get the repo from the database that matches the old name
@@ -706,8 +705,29 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		return retErr
 	}
 
-	// get total number of secrets associated with repository
+	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
+	h.SetRepoID(r.GetID())
 
+	// send API call to capture the last hook for the repo
+	lastHook, err := database.FromContext(c).GetLastHook(dbR)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return retErr
+	}
+
+	// set the Number field
+	if lastHook != nil {
+		h.SetNumber(
+			lastHook.GetNumber() + 1,
+		)
+	}
+
+	// get total number of secrets associated with repository
 	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
 		return fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
@@ -734,6 +754,38 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context) error {
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
 			return fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
+		}
+	}
+
+	// get total number of builds associated with repository
+	t, err = database.FromContext(c).GetRepoBuildCount(dbR, nil)
+	if err != nil {
+		return fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
+	}
+
+	builds := []*library.Build{}
+	page = 1
+	// capture all builds belonging to repo in database
+	for build := int64(0); build < t; build += 100 {
+		b, _, err := database.FromContext(c).GetRepoBuildList(dbR, nil, time.Now().Unix(), 0, page, 100)
+		if err != nil {
+			return fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
+		}
+
+		builds = append(builds, b...)
+
+		page++
+	}
+
+	// update build link to route to proper repo name
+	for _, build := range builds {
+		build.SetLink(
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, dbR.GetFullName(), build.GetNumber()),
+		)
+
+		err = database.FromContext(c).UpdateBuild(build)
+		if err != nil {
+			return fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
 	}
 

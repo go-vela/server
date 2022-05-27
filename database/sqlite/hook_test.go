@@ -322,18 +322,19 @@ func testHook() *library.Hook {
 	str := ""
 
 	return &library.Hook{
-		ID:        &i64,
-		RepoID:    &i64,
-		BuildID:   &i64,
-		Number:    &i,
-		SourceID:  &str,
-		Created:   &i64,
-		Host:      &str,
-		Event:     &str,
-		Branch:    &str,
-		Error:     &str,
-		Status:    &str,
-		Link:      &str,
-		WebhookID: &i64,
+		ID:          &i64,
+		RepoID:      &i64,
+		BuildID:     &i64,
+		Number:      &i,
+		SourceID:    &str,
+		Created:     &i64,
+		Host:        &str,
+		Event:       &str,
+		EventAction: &str,
+		Branch:      &str,
+		Error:       &str,
+		Status:      &str,
+		Link:        &str,
+		WebhookID:   &i64,
 	}
 }
