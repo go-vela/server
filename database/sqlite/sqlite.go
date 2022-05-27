@@ -296,6 +296,12 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create builds_created index for the %s table: %w", constants.TableBuild, err)
 	}
 
+	// create the builds_source index for the builds table
+	err = c.Sqlite.Exec(ddl.CreateBuildSourceIndex).Error
+	if err != nil {
+		return fmt.Errorf("unable to create builds_source index for the %s table: %w", constants.TableBuild, err)
+	}
+
 	// create the hooks_repo_id index for the hooks table
 	err = c.Sqlite.Exec(ddl.CreateHookRepoIDIndex).Error
 	if err != nil {
