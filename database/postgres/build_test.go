@@ -170,6 +170,81 @@ func TestPostgres_Client_GetLastBuild(t *testing.T) {
 	}
 }
 
+func TestPostgres_Client_GetLastCommitBuild(t *testing.T) {
+	// setup types
+	_build := testBuild()
+	_build.SetID(1)
+	_build.SetRepoID(1)
+	_build.SetNumber(1)
+	_build.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_build.SetDeployPayload(nil)
+
+	_repo := testRepo()
+	_repo.SetID(1)
+	_repo.SetUserID(1)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows(
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
+	).AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "48afb5bdc41ad69bf22588491333f7cf71135163", "", "", "", "", "", "", "", "", "", "", "", 0)
+
+	// ensure the mock expects the query for test case 1
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND "commit" = $2 LIMIT 1`).
+		WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163").WillReturnRows(_rows)
+	// ensure the mock expects the query for test case 2
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND "commit" = $2 LIMIT 1`).
+		WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163").WillReturnError(gorm.ErrRecordNotFound)
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    *library.Build
+	}{
+		{
+			failure: false,
+			want:    _build,
+		},
+		{
+			failure: true,
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := _database.GetLastCommitBuild("48afb5bdc41ad69bf22588491333f7cf71135163", _repo)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetLastCommitBuild should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetLastCommitBuild returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetLastCommitBuild is %v, want %v", got, test.want)
+		}
+	}
+}
+
 func TestPostgres_Client_GetLastBuildByBranch(t *testing.T) {
 	// setup types
 	_build := testBuild()
