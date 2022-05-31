@@ -73,4 +73,13 @@ IF NOT EXISTS
 builds_created
 ON builds (created);
 `
+
+	// CreateBuildSourceIndex represents a query to create an
+	// index on the builds table for the source column.
+	CreateBuildSourceIndex = `
+CREATE INDEX CONCURRENTLY
+IF NOT EXISTS
+builds_source
+ON builds (source);
+`
 )

@@ -446,12 +446,10 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {
 		r.SetPreviousName(payload.GetChanges().GetRepo().GetName().GetFrom())
-		// update hook object event type
-		h.SetEvent(constants.EventRepositoryRename)
-	} else {
-		h.SetEvent(constants.EventRepository)
 	}
 
+	h.SetEvent(constants.EventRepository)
+	h.SetEventAction(payload.GetAction())
 	h.SetBranch(r.GetBranch())
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),

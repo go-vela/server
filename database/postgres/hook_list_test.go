@@ -49,9 +49,9 @@ func TestPostgres_Client_GetHookList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link", "webhook_id"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1).
-		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1)
+		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "event_action", "branch", "error", "status", "link", "webhook_id"},
+	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1).
+		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
@@ -129,9 +129,9 @@ func TestPostgres_Client_GetRepoHookList(t *testing.T) {
 
 	// create expected return in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "branch", "error", "status", "link", "webhook_id"},
-	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1).
-		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", 1)
+		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "event_action", "branch", "error", "status", "link", "webhook_id"},
+	).AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1).
+		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
