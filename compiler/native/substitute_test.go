@@ -6,6 +6,7 @@ package native
 
 import (
 	"flag"
+	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
 
@@ -114,71 +115,126 @@ func TestNative_SubstituteStages(t *testing.T) {
 	}
 }
 
-func TestNative_SubstituteSteps(t *testing.T) {
+func Test_client_SubstituteSteps(t *testing.T) {
+	type args struct {
+		steps yaml.StepSlice
+	}
+
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	c := cli.NewContext(nil, set, nil)
 
-	p := yaml.StepSlice{
+	tests := []struct {
+		name    string
+		args    args
+		want    yaml.StepSlice
+		wantErr bool
+	}{
 		{
-			Commands:    []string{"echo ${FOO}", "echo $${BAR}"},
-			Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
-			Image:       "alpine:latest",
-			Name:        "simple",
-			Pull:        "always",
+			name: "steps",
+			args: args{
+				steps: yaml.StepSlice{
+					{
+						Commands:    []string{"echo ${FOO}", "echo $${BAR}"},
+						Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
+						Image:       "alpine:latest",
+						Name:        "simple",
+						Pull:        "always",
+					},
+					{
+						Commands:    []string{"echo ${COMPLEX}"},
+						Environment: map[string]string{"COMPLEX": "{\"hello\":\n  \"world\"}"},
+						Image:       "alpine:latest",
+						Name:        "advanced",
+						Pull:        "always",
+					},
+					{
+						Commands:    []string{"echo $NOT_FOUND", "echo ${NOT_FOUND}", "echo $${NOT_FOUND}"},
+						Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
+						Image:       "alpine:latest",
+						Name:        "not_found",
+						Pull:        "always",
+					},
+				},
+			},
+			want: yaml.StepSlice{
+				{
+					Commands:    []string{"echo baz", "echo ${BAR}"},
+					Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
+					Image:       "alpine:latest",
+					Name:        "simple",
+					Pull:        "always",
+				},
+				{
+					Commands:    []string{"echo \"{\\\"hello\\\":\\n  \\\"world\\\"}\""},
+					Environment: map[string]string{"COMPLEX": "{\"hello\":\n  \"world\"}"},
+					Image:       "alpine:latest",
+					Name:        "advanced",
+					Pull:        "always",
+				},
+				{
+					Commands:    []string{"echo $NOT_FOUND", "echo ${NOT_FOUND}", "echo ${NOT_FOUND}"},
+					Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
+					Image:       "alpine:latest",
+					Name:        "not_found",
+					Pull:        "always",
+				},
+			},
+			wantErr: false,
 		},
 		{
-			Commands:    []string{"echo ${COMPLEX}"},
-			Environment: map[string]string{"COMPLEX": "{\"hello\":\n  \"world\"}"},
-			Image:       "alpine:latest",
-			Name:        "advanced",
-			Pull:        "always",
-		},
-		{
-			Commands:    []string{"echo $NOT_FOUND", "echo ${NOT_FOUND}", "echo $${NOT_FOUND}"},
-			Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
-			Image:       "alpine:latest",
-			Name:        "not_found",
-			Pull:        "always",
+			name: "template",
+			args: args{
+				steps: yaml.StepSlice{
+					{
+						Name: "sample",
+						Template: yaml.StepTemplate{
+							Name: "go",
+							Variables: map[string]interface{}{
+								"build_author": "${BUILD_AUTHOR}",
+								"unknown":      "${UNKNOWN}",
+							},
+						},
+						Environment: map[string]string{
+							"BUILD_AUTHOR": "testauthor",
+						},
+					},
+				},
+			},
+			want: yaml.StepSlice{
+				{
+					Name: "sample",
+					Template: yaml.StepTemplate{
+						Name: "go",
+						Variables: map[string]interface{}{
+							"build_author": "testauthor",
+							"unknown":      "${UNKNOWN}",
+						},
+					},
+					Environment: map[string]string{
+						"BUILD_AUTHOR": "testauthor",
+					},
+				},
+			},
 		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// run test
+			compiler, err := New(c)
+			if err != nil {
+				t.Errorf("Creating compiler returned err: %v", err)
+			}
 
-	want := yaml.StepSlice{
-		{
-			Commands:    []string{"echo baz", "echo ${BAR}"},
-			Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
-			Image:       "alpine:latest",
-			Name:        "simple",
-			Pull:        "always",
-		},
-		{
-			Commands:    []string{"echo \"{\\\"hello\\\":\\n  \\\"world\\\"}\""},
-			Environment: map[string]string{"COMPLEX": "{\"hello\":\n  \"world\"}"},
-			Image:       "alpine:latest",
-			Name:        "advanced",
-			Pull:        "always",
-		},
-		{
-			Commands:    []string{"echo $NOT_FOUND", "echo ${NOT_FOUND}", "echo ${NOT_FOUND}"},
-			Environment: map[string]string{"FOO": "baz", "BAR": "baz"},
-			Image:       "alpine:latest",
-			Name:        "not_found",
-			Pull:        "always",
-		},
-	}
+			got, err := compiler.SubstituteSteps(tt.args.steps)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SubstituteSteps() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 
-	// run test
-	compiler, err := New(c)
-	if err != nil {
-		t.Errorf("Creating compiler returned err: %v", err)
-	}
-
-	got, err := compiler.SubstituteSteps(p)
-	if err != nil {
-		t.Errorf("SubstituteSteps returned err: %v", err)
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("SubstituteSteps is %v, want %v", got, want)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("SubstituteSteps() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
