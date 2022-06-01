@@ -69,32 +69,6 @@ func (c *client) GetLastBuild(r *library.Repo) (*library.Build, error) {
 	return b.ToLibrary(), result.Error
 }
 
-// GetLastCommitBuild gets the last build by commit SHA and repo ID from the database.
-func (c *client) GetLastCommitBuild(commit string, r *library.Repo) (*library.Build, error) {
-	c.Logger.WithFields(logrus.Fields{
-		"commit": commit,
-		"org":    r.GetOrg(),
-		"repo":   r.GetName(),
-	}).Tracef("getting last build for repo %s with commit %s from the database", r.GetFullName(), commit)
-
-	// variable to store query results
-	b := new(database.Build)
-
-	// send query to the database and store result in variable
-	err := c.Sqlite.
-		Table(constants.TableBuild).
-		Where("repo_id = ?", r.GetID()).
-		Where("\"commit\" = ?", commit).
-		Limit(1).
-		Scan(b).
-		Error
-	if err != nil {
-		return nil, err
-	}
-
-	return b.ToLibrary(), nil
-}
-
 // GetLastBuildByBranch gets the last build by repo ID and branch from the database.
 func (c *client) GetLastBuildByBranch(r *library.Repo, branch string) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{

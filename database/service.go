@@ -26,9 +26,6 @@ type Service interface {
 	// GetLastBuild defines a function that
 	// gets the last build ran by repo ID.
 	GetLastBuild(*library.Repo) (*library.Build, error)
-	// GetLastCommitBuild defines a function that
-	// gets the last build ran by commit SHA and repo ID.
-	GetLastCommitBuild(string, *library.Repo) (*library.Build, error)
 	// GetLastBuildByBranch defines a function that
 	// gets the last build ran by repo ID and branch.
 	GetLastBuildByBranch(*library.Repo, string) (*library.Build, error)

@@ -64,15 +64,6 @@ func Establish() gin.HandlerFunc {
 
 		pipeline, err := database.FromContext(c).GetPipelineForRepo(p, r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
-			b, err := database.FromContext(c).GetLastCommitBuild(p, r)
-			if err != nil {
-				retErr := fmt.Errorf("unable to get build for pipeline configuration %s: %w", entry, err)
-
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
-			}
-
 			// send API call to capture the pipeline configuration file
 			config, err := scm.FromContext(c).ConfigBackoff(u, r, p)
 			if err != nil {
@@ -86,7 +77,6 @@ func Establish() gin.HandlerFunc {
 			// parse and compile the pipeline configuration file
 			_, pipeline, err = compiler.FromContext(c).
 				Duplicate().
-				WithBuild(b).
 				WithMetadata(c.MustGet("metadata").(*types.Metadata)).
 				WithRepo(r).
 				WithUser(u).

@@ -219,13 +219,6 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
-	b.SetID(1)
-	b.SetRepoID(1)
-	b.SetNumber(1)
-	b.SetParent(1)
-	b.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-
 	u := new(library.User)
 	u.SetID(1)
 	u.SetName("foo")
@@ -268,14 +261,12 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 
 	defer func() {
 		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from builds;")
 		db.Sqlite.Exec("delete from users;")
 		_sql, _ := db.Sqlite.DB()
 		_sql.Close()
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
 	_ = db.CreateUser(u)
 
 	// setup context
