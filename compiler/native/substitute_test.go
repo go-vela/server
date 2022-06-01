@@ -192,7 +192,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 							Name: "go",
 							Variables: map[string]interface{}{
 								"build_author": "${BUILD_AUTHOR}",
-								"unknown":      "${UNKNOWN}",
+								"unknown":      "${UNKNOWN:-test}",
 							},
 						},
 						Environment: map[string]string{
@@ -208,7 +208,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 						Name: "go",
 						Variables: map[string]interface{}{
 							"build_author": "testauthor",
-							"unknown":      "${UNKNOWN}",
+							"unknown":      "test",
 						},
 					},
 					Environment: map[string]string{
