@@ -111,7 +111,6 @@ func Test_client_SubstituteStages(t *testing.T) {
 			},
 			wantErr: false,
 		},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
