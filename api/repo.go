@@ -393,7 +393,7 @@ func GetRepos(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
-// swagger:operation GET /api/v1/{org} repos GetOrgRepos
+// swagger:operation GET /api/v1/repos/{org} repos GetOrgRepos
 //
 // Get all repos for the provided org in the configured backend
 //
