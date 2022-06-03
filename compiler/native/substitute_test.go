@@ -6,8 +6,9 @@ package native
 
 import (
 	"flag"
-	"github.com/urfave/cli/v2"
 	"testing"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/types/yaml"
 	"github.com/google/go-cmp/cmp"
