@@ -6,6 +6,7 @@ package native
 
 import (
 	"flag"
+	"github.com/urfave/cli/v2"
 	"testing"
 
 	"github.com/go-vela/types/yaml"
