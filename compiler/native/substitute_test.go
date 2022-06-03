@@ -8,10 +8,8 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/urfave/cli/v2"
-
 	"github.com/go-vela/types/yaml"
+	"github.com/google/go-cmp/cmp"
 )
 
 func Test_client_SubstituteStages(t *testing.T) {
@@ -233,6 +231,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 					},
 				},
 			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
