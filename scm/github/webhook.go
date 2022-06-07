@@ -7,6 +7,7 @@ package github
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -105,6 +106,13 @@ func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *libra
 	_, _, err = client.Repositories.RedeliverHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
 
 	if err != nil {
+		var acceptedError *github.AcceptedError
+		// Persist if the status received is a 202 Accepted. This
+		// means the job was added to the queue for GitHub.
+		if errors.As(err, &acceptedError) {
+			return nil
+		}
+
 		return err
 	}
 
