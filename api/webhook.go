@@ -485,16 +485,13 @@ func PostWebhook(c *gin.Context) {
 			WithUser(u).
 			Compile(config)
 		if err != nil {
-			retErr := fmt.Errorf("%s: unable to compile pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
+			// format the error message with extra information
+			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
-			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				logrus.WithError(retErr).Warning("retrying")
+			// log the error for traceability
+			logrus.Error(err.Error())
 
-				// continue to the next iteration of the loop
-				continue
-			}
-
+			retErr := fmt.Errorf("%s: %w", baseErr, err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
