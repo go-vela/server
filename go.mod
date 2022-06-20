@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.21.0
-	github.com/aws/aws-sdk-go v1.44.30
+	github.com/aws/aws-sdk-go v1.44.38
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.8.1
@@ -36,8 +36,8 @@ require (
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.3.7
 	gorm.io/driver/sqlite v1.3.4
-	gorm.io/gorm v1.23.5
-	k8s.io/apimachinery v0.24.1
+	gorm.io/gorm v1.23.6
+	k8s.io/apimachinery v0.24.2
 )
 
 require (
