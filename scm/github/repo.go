@@ -347,7 +347,7 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	// iterate through each repo for the user
 	for _, repo := range r {
 		// skip if the repo is void
-		//   fixes an issue with GitHub replication being out of sync
+		// fixes an issue with GitHub replication being out of sync
 		if repo == nil {
 			continue
 		}
