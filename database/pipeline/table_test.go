@@ -10,7 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestPipeline_Engine_CreateTable(t *testing.T) {
+func TestPipeline_Engine_CreatePipelineTable(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -41,18 +41,18 @@ func TestPipeline_Engine_CreateTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateTable(test.name)
+			err := test.database.CreatePipelineTable(test.name)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateTable for %s should have returned err", test.name)
+					t.Errorf("CreatePipelineTable for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateTable for %s returned err: %v", test.name, err)
+				t.Errorf("CreatePipelineTable for %s returned err: %v", test.name, err)
 			}
 		})
 	}

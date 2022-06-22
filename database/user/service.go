@@ -17,10 +17,10 @@ type UserService interface {
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
-	// CreateIndexes defines a function that creates the indexes for the users table.
-	CreateIndexes() error
-	// CreateTable defines a function that creates the users table.
-	CreateTable(string) error
+	// CreateUserIndexes defines a function that creates the indexes for the users table.
+	CreateUserIndexes() error
+	// CreateUserTable defines a function that creates the users table.
+	CreateUserTable(string) error
 
 	// User Data Manipulation Language Functions
 	//

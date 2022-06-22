@@ -10,7 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestPipeline_Engine_CreateIndexes(t *testing.T) {
+func TestPipeline_Engine_CreatePipelineIndexes(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -41,18 +41,18 @@ func TestPipeline_Engine_CreateIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateIndexes()
+			err := test.database.CreatePipelineIndexes()
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateIndexes for %s should have returned err", test.name)
+					t.Errorf("CreatePipelineIndexes for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateIndexes for %s returned err: %v", test.name, err)
+				t.Errorf("CreatePipelineIndexes for %s returned err: %v", test.name, err)
 			}
 		})
 	}

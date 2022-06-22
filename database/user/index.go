@@ -15,8 +15,8 @@ ON users (refresh_token);
 `
 )
 
-// CreateIndexes creates the indexes for the users table in the database.
-func (e *engine) CreateIndexes() error {
+// CreateUserIndexes creates the indexes for the users table in the database.
+func (e *engine) CreateUserIndexes() error {
 	e.logger.Tracef("creating indexes for users table in the database")
 
 	// create the refresh_token column index for the users table

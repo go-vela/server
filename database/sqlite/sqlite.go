@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/sqlite/ddl"
+	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
@@ -37,10 +38,14 @@ type (
 
 	client struct {
 		config *config
+		// https://pkg.go.dev/gorm.io/gorm#DB
 		Sqlite *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
 		pipeline.PipelineService
+		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
+		user.UserService
 	}
 )
 
@@ -258,12 +263,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
 	}
 
-	// create the users table
-	err = c.Sqlite.Exec(ddl.CreateUserTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableUser, err)
-	}
-
 	// create the workers table
 	err = c.Sqlite.Exec(ddl.CreateWorkerTable).Error
 	if err != nil {
@@ -338,12 +337,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
-	// create the users_refresh index for the users table
-	err = c.Sqlite.Exec(ddl.CreateUserRefreshIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create users_refresh index for the %s table: %w", constants.TableUser, err)
-	}
-
 	// create the workers_hostname_address index for the workers table
 	err = c.Sqlite.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
 	if err != nil {
@@ -365,6 +358,19 @@ func createServices(c *client) error {
 		pipeline.WithCompressionLevel(c.config.CompressionLevel),
 		pipeline.WithLogger(c.Logger),
 		pipeline.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic user service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/user#New
+	c.UserService, err = user.New(
+		user.WithClient(c.Sqlite),
+		user.WithEncryptionKey(c.config.EncryptionKey),
+		user.WithLogger(c.Logger),
+		user.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

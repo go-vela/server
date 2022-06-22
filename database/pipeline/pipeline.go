@@ -67,13 +67,13 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the pipelines table
-	err := e.CreateTable(e.client.Config.Dialector.Name())
+	err := e.CreatePipelineTable(e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TablePipeline, err)
 	}
 
 	// create the indexes for the pipelines table
-	err = e.CreateIndexes()
+	err = e.CreatePipelineIndexes()
 	if err != nil {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TablePipeline, err)
 	}

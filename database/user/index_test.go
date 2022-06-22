@@ -10,7 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestUser_Engine_CreateIndexes(t *testing.T) {
+func TestUser_Engine_CreateUserIndexes(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -41,18 +41,18 @@ func TestUser_Engine_CreateIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateIndexes()
+			err := test.database.CreateUserIndexes()
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateIndexes for %s should have returned err", test.name)
+					t.Errorf("CreateUserIndexes for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateIndexes for %s returned err: %v", test.name, err)
+				t.Errorf("CreateUserIndexes for %s returned err: %v", test.name, err)
 			}
 		})
 	}
