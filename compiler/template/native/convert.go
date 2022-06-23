@@ -23,7 +23,7 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 		// lowercase the key
 		key = strings.ToLower(key)
 
-		// iterate through the list of possible prefixes to look for
+		// iterate through the list of possible prefixes from the key/value pairs
 		for _, prefix := range []string{"deployment_parameter_", "vela_"} {
 			// check if the key has the prefix
 			if strings.HasPrefix(key, prefix) {
@@ -62,14 +62,14 @@ type funcHandler struct {
 
 // returnPlatformVar returns the value of the platform
 // variable if it exists within the environment map.
-func (h funcHandler) returnPlatformVar(input string) string {
-	// lowercase the input keyx
-	input = strings.ToLower(input)
+func (h funcHandler) returnPlatformVar(key string) string {
+	// lowercase the key
+	key = strings.ToLower(key)
 
 	// iterate through the list of possible prefixes to look for
 	for _, prefix := range []string{"deployment_parameter_", "vela_"} {
 		// trim the prefix from the input key
-		trimmed := strings.TrimPrefix(input, prefix)
+		trimmed := strings.TrimPrefix(key, prefix)
 		// check if the key exists within map
 		if _, ok := h.envs[trimmed]; ok {
 			// return the non-prefixed value if exists
