@@ -91,6 +91,8 @@ func TestStarlark_Render_velaEnvironmentData(t *testing.T) {
 		t.Error(err)
 	}
 
+	deployment := starlark.NewDict(0)
+
 	repo := starlark.NewDict(1)
 
 	err = repo.SetKey(starlark.String("full_name"), starlark.String("go-vela/hello-world"))
@@ -117,24 +119,75 @@ func TestStarlark_Render_velaEnvironmentData(t *testing.T) {
 		t.Error(err)
 	}
 
-	withAllPre := starlark.NewDict(0)
+	WithAllVela := starlark.NewDict(0)
 
-	err = withAllPre.SetKey(starlark.String("build"), build)
+	err = WithAllVela.SetKey(starlark.String("build"), build)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = withAllPre.SetKey(starlark.String("repo"), repo)
+	err = WithAllVela.SetKey(starlark.String("deployment"), deployment)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = withAllPre.SetKey(starlark.String("user"), user)
+	err = WithAllVela.SetKey(starlark.String("repo"), repo)
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = withAllPre.SetKey(starlark.String("system"), system)
+	err = WithAllVela.SetKey(starlark.String("user"), user)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = WithAllVela.SetKey(starlark.String("system"), system)
+	if err != nil {
+		t.Error(err)
+	}
+
+	withAllDeployment := starlark.NewDict(0)
+
+	err = withAllDeployment.SetKey(starlark.String("build"), starlark.NewDict(0))
+	if err != nil {
+		t.Error(err)
+	}
+
+	deployment = starlark.NewDict(2)
+
+	err = deployment.SetKey(starlark.String("image"), starlark.String("alpine"))
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = deployment.SetKey(starlark.String("version"), starlark.String("3.14"))
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = withAllDeployment.SetKey(starlark.String("deployment"), deployment)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = withAllDeployment.SetKey(starlark.String("repo"), starlark.NewDict(0))
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = withAllDeployment.SetKey(starlark.String("user"), starlark.NewDict(0))
+	if err != nil {
+		t.Error(err)
+	}
+
+	system = starlark.NewDict(1)
+
+	err = system.SetKey(starlark.String("template_name"), starlark.String("foo"))
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = withAllDeployment.SetKey(starlark.String("system"), system)
 	if err != nil {
 		t.Error(err)
 	}
@@ -147,6 +200,15 @@ func TestStarlark_Render_velaEnvironmentData(t *testing.T) {
 		wantErr      bool
 	}{
 		{
+			name: "with all deployment parameter prefixed vars",
+			slice: raw.StringSliceMap{
+				"DEPLOYMENT_PARAMETER_IMAGE":   "alpine",
+				"DEPLOYMENT_PARAMETER_VERSION": "3.14",
+			},
+			templateName: "foo",
+			want:         withAllDeployment,
+		},
+		{
 			name: "with all vela prefixed var",
 			slice: raw.StringSliceMap{
 				"VELA_BUILD_AUTHOR":   "octocat",
@@ -155,7 +217,7 @@ func TestStarlark_Render_velaEnvironmentData(t *testing.T) {
 				"VELA_WORKSPACE":      "/vela/src/github.com/go-vela/hello-world",
 			},
 			templateName: "foo",
-			want:         withAllPre,
+			want:         WithAllVela,
 		},
 	}
 

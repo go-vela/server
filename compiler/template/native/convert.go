@@ -18,10 +18,18 @@ import (
 func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceMap {
 	envs := make(map[string]string)
 
+	// iterate through the list of key/value pairs provided
 	for key, value := range slice {
+		// lowercase the key
 		key = strings.ToLower(key)
-		if strings.HasPrefix(key, "vela_") {
-			envs[strings.TrimPrefix(key, "vela_")] = value
+
+		// iterate through the list of possible prefixes to look for
+		for _, prefix := range []string{"deployment_parameter_", "vela_"} {
+			// check if the key has the prefix
+			if strings.HasPrefix(key, prefix) {
+				// add the non-prefixed key/value pair
+				envs[strings.TrimPrefix(key, prefix)] = value
+			}
 		}
 	}
 
@@ -55,13 +63,20 @@ type funcHandler struct {
 // returnPlatformVar returns the value of the platform
 // variable if it exists within the environment map.
 func (h funcHandler) returnPlatformVar(input string) string {
+	// lowercase the input keyx
 	input = strings.ToLower(input)
-	input = strings.TrimPrefix(input, "vela_")
-	// check if key exists within map
-	if _, ok := h.envs[input]; ok {
-		// return value if exists
-		return h.envs[input]
+
+	// iterate through the list of possible prefixes to look for
+	for _, prefix := range []string{"deployment_parameter_", "vela_"} {
+		// trim the prefix from the input key
+		trimmed := strings.TrimPrefix(input, prefix)
+		// check if the key exists within map
+		if _, ok := h.envs[trimmed]; ok {
+			// return the non-prefixed value if exists
+			return h.envs[trimmed]
+		}
 	}
+
 	// return empty string if not exists
 	return ""
 }

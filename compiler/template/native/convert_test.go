@@ -19,6 +19,15 @@ func Test_convertPlatformVars(t *testing.T) {
 		want         raw.StringSliceMap
 	}{
 		{
+			name: "with all deployment parameter prefixed vars",
+			slice: raw.StringSliceMap{
+				"DEPLOYMENT_PARAMETER_IMAGE":   "alpine",
+				"DEPLOYMENT_PARAMETER_VERSION": "3.14",
+			},
+			templateName: "foo",
+			want:         raw.StringSliceMap{"image": "alpine", "version": "3.14", "template_name": "foo"},
+		},
+		{
 			name: "with all vela prefixed vars",
 			slice: raw.StringSliceMap{
 				"VELA_BUILD_AUTHOR":   "octocat",
@@ -30,15 +39,17 @@ func Test_convertPlatformVars(t *testing.T) {
 			want:         raw.StringSliceMap{"build_author": "octocat", "repo_full_name": "go-vela/hello-world", "user_admin": "true", "workspace": "/vela/src/github.com/go-vela/hello-world", "template_name": "foo"},
 		},
 		{
-			name: "with combination of vela and user vars",
+			name: "with combination of deployment parameter, vela, and user vars",
 			slice: raw.StringSliceMap{
-				"VELA_BUILD_AUTHOR":   "octocat",
-				"VELA_REPO_FULL_NAME": "go-vela/hello-world",
-				"FOO_VAR1":            "test1",
-				"BAR_VAR1":            "test2",
+				"DEPLOYMENT_PARAMETER_IMAGE":   "alpine",
+				"DEPLOYMENT_PARAMETER_VERSION": "3.14",
+				"VELA_BUILD_AUTHOR":            "octocat",
+				"VELA_REPO_FULL_NAME":          "go-vela/hello-world",
+				"FOO_VAR1":                     "test1",
+				"BAR_VAR1":                     "test2",
 			},
 			templateName: "foo",
-			want:         raw.StringSliceMap{"build_author": "octocat", "repo_full_name": "go-vela/hello-world", "template_name": "foo"},
+			want:         raw.StringSliceMap{"image": "alpine", "version": "3.14", "build_author": "octocat", "repo_full_name": "go-vela/hello-world", "template_name": "foo"},
 		},
 	}
 
@@ -66,6 +77,46 @@ func Test_funcHandler_returnPlatformVar(t *testing.T) {
 		args   args
 		want   string
 	}{
+		{
+			name: "existing deployment parameter without prefix (lowercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "image"},
+			want: "alpine",
+		},
+		{
+			name: "existing deployment parameter without prefix (uppercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "IMAGE"},
+			want: "alpine",
+		},
+		{
+			name: "existing deployment parameter with prefix (lowercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "deployment_parameter_image"},
+			want: "alpine",
+		},
+		{
+			name: "existing deployment parameter with prefix (uppercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "DEPLOYMENT_PARAMETER_IMAGE"},
+			want: "alpine",
+		},
 		{
 			name: "existing platform var without prefix (lowercase)",
 			fields: fields{
