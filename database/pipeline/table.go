@@ -56,8 +56,8 @@ pipelines (
 `
 )
 
-// CreateTable creates the pipelines table in the database.
-func (e *engine) CreateTable(driver string) error {
+// CreatePipelineTable creates the pipelines table in the database.
+func (e *engine) CreatePipelineTable(driver string) error {
 	e.logger.Tracef("creating pipelines table in the database")
 
 	// handle the driver provided to create the table

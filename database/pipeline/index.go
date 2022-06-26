@@ -15,8 +15,8 @@ ON pipelines (repo_id);
 `
 )
 
-// CreateIndexes creates the indexes for the pipelines table in the database.
-func (e *engine) CreateIndexes() error {
+// CreatePipelineIndexes creates the indexes for the pipelines table in the database.
+func (e *engine) CreatePipelineIndexes() error {
 	e.logger.Tracef("creating indexes for pipelines table in the database")
 
 	// create the repo_id column index for the pipelines table
