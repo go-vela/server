@@ -23,13 +23,22 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 		// lowercase the key
 		key = strings.ToLower(key)
 
-		// iterate through the list of possible prefixes from the key/value pairs
-		for _, prefix := range []string{"deployment_parameter_", "vela_"} {
-			// check if the key has the prefix
-			if strings.HasPrefix(key, prefix) {
-				// add the non-prefixed key/value pair
-				envs[strings.TrimPrefix(key, prefix)] = value
-			}
+		// check if the key has a 'deployment_parameter_*' prefix
+		if strings.HasPrefix(key, "deployment_parameter_") {
+			// add the key/value pair without the 'deployment_parameter_` prefix
+			envs[strings.TrimPrefix(key, "deployment_parameter_")] = value
+		}
+	}
+
+	// iterate through the list of key/value pairs provided
+	for key, value := range slice {
+		// lowercase the key
+		key = strings.ToLower(key)
+
+		// check if the key has a 'vela_*' prefix
+		if strings.HasPrefix(key, "vela_") {
+			// add the key/value pair without the 'vela_` prefix
+			envs[strings.TrimPrefix(key, "vela_")] = value
 		}
 	}
 
