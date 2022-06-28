@@ -25,8 +25,10 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 
 		// check if the key has a 'deployment_parameter_*' prefix
 		if strings.HasPrefix(key, "deployment_parameter_") {
-			// add the key/value pair without the 'deployment_parameter_` prefix
-			envs[strings.TrimPrefix(key, "deployment_parameter_")] = value
+			// add the key/value pair with the 'deployment_parameter_` prefix
+			//
+			// this is used to ensure we prevent conflicts with `vela_*` prefixed variables
+			envs[key] = value
 		}
 	}
 

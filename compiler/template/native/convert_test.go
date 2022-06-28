@@ -24,7 +24,7 @@ func Test_convertPlatformVars(t *testing.T) {
 				"DEPLOYMENT_PARAMETER_IMAGE": "alpine:3.14",
 			},
 			templateName: "foo",
-			want:         raw.StringSliceMap{"image": "alpine:3.14", "template_name": "foo"},
+			want:         raw.StringSliceMap{"deployment_parameter_image": "alpine:3.14", "template_name": "foo"},
 		},
 		{
 			name: "with all vela prefixed vars",
@@ -40,17 +40,16 @@ func Test_convertPlatformVars(t *testing.T) {
 		{
 			name: "with combination of deployment parameter, vela, and user vars",
 			slice: raw.StringSliceMap{
-				"DEPLOYMENT_PARAMETER_BUILD_AUTHOR": "octodog",
-				"DEPLOYMENT_PARAMETER_IMAGE":        "alpine:3.14",
-				"VELA_BUILD_AUTHOR":                 "octocat",
-				"VELA_REPO_FULL_NAME":               "go-vela/hello-world",
-				"VELA_USER_ADMIN":                   "true",
-				"VELA_WORKSPACE":                    "/vela/src/github.com/go-vela/hello-world",
-				"FOO_VAR1":                          "test1",
-				"BAR_VAR1":                          "test2",
+				"DEPLOYMENT_PARAMETER_IMAGE": "alpine:3.14",
+				"VELA_BUILD_AUTHOR":          "octocat",
+				"VELA_REPO_FULL_NAME":        "go-vela/hello-world",
+				"VELA_USER_ADMIN":            "true",
+				"VELA_WORKSPACE":             "/vela/src/github.com/go-vela/hello-world",
+				"FOO_VAR1":                   "test1",
+				"BAR_VAR1":                   "test2",
 			},
 			templateName: "foo",
-			want:         raw.StringSliceMap{"image": "alpine:3.14", "build_author": "octocat", "repo_full_name": "go-vela/hello-world", "user_admin": "true", "workspace": "/vela/src/github.com/go-vela/hello-world", "template_name": "foo"},
+			want:         raw.StringSliceMap{"deployment_parameter_image": "alpine:3.14", "build_author": "octocat", "repo_full_name": "go-vela/hello-world", "user_admin": "true", "workspace": "/vela/src/github.com/go-vela/hello-world", "template_name": "foo"},
 		},
 	}
 
