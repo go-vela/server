@@ -30,12 +30,6 @@ func convertPlatformVars(slice raw.StringSliceMap, name string) raw.StringSliceM
 			// this is used to ensure we prevent conflicts with `vela_*` prefixed variables
 			envs[key] = value
 		}
-	}
-
-	// iterate through the list of key/value pairs provided
-	for key, value := range slice {
-		// lowercase the key
-		key = strings.ToLower(key)
 
 		// check if the key has a 'vela_*' prefix
 		if strings.HasPrefix(key, "vela_") {
