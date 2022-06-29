@@ -151,3 +151,46 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 		t.Errorf("Logger Message is %v, want %v", gotMessage, wantMessage)
 	}
 }
+
+func TestMiddleware_Logger_Sanitize(t *testing.T) {
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEmail("octocat@github.com")
+
+	sanitizeBuild := b
+	sanitizeBuild.SetEmail("[secure]")
+
+	tests := []struct {
+		body interface{}
+		want interface{}
+	}{
+		{
+			body: r,
+			want: r,
+		},
+		{
+			body: b,
+			want: sanitizeBuild,
+		},
+		{
+			body: "successfully updated step",
+			want: "successfully updated step",
+		},
+	}
+
+	for _, test := range tests {
+		got := sanitize(test.body)
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("Logger returned %v, want %v", got, test.want)
+		}
+	}
+}
