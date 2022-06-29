@@ -10,7 +10,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// ListLiteUsers gets a lite list of users from the database.
+// ListLiteUsers gets a lite (only: id, name) list of users from the database.
 //
 // nolint: lll // ignore long line length due to variable names
 func (e *engine) ListLiteUsers(page, perPage int) ([]*library.User, int64, error) {
