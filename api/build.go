@@ -7,6 +7,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -1461,6 +1462,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 
 	// send API call to create the build
 	err := database.CreateBuild(b)
+	err = errors.New("error creating build")
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		cleanBuild(database, b, nil, nil)

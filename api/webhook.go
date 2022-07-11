@@ -402,13 +402,13 @@ func PostWebhook(c *gin.Context) {
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
-				// check if the retry limit has been exceeded
-				if i < retryLimit {
-					logrus.WithError(retErr).Warning("retrying")
+				// // // check if the retry limit has been exceeded
+				// if i < retryLimit-1 {
+				// 	logrus.WithError(retErr).Warning("retrying")
 
-					// continue to the next iteration of the loop
-					continue
-				}
+				// 	// continue to the next iteration of the loop
+				// 	continue
+				// }
 
 				util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -423,12 +423,13 @@ func PostWebhook(c *gin.Context) {
 
 		// send API call to capture repo for the counter
 		r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+		// err = errors.New("an error")
 		if err != nil {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
 			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				logrus.WithError(retErr).Warning("retrying")
+			if i < retryLimit-1 {
+				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// continue to the next iteration of the loop
 				continue
@@ -537,8 +538,8 @@ func PostWebhook(c *gin.Context) {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
 				// check if the retry limit has been exceeded
-				if i < retryLimit {
-					logrus.WithError(retErr).Warning("retrying")
+				if i < retryLimit-1 {
+					logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 					// continue to the next iteration of the loop
 					continue
@@ -570,12 +571,13 @@ func PostWebhook(c *gin.Context) {
 
 		// create the objects from the pipeline in the database
 		err = planBuild(database.FromContext(c), p, b, r)
+		// err = errors.New("an error")
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
 			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				logrus.WithError(retErr).Warning("retrying")
+			if i < retryLimit-1 {
+				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// reset fields set by cleanBuild for retry
 				b.SetError("")
@@ -618,6 +620,8 @@ func PostWebhook(c *gin.Context) {
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
+		return
 	}
 
 	// set the BuildID field
