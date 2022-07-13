@@ -7,7 +7,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -1456,22 +1455,36 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // planBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
+// TODO:
+// - return build and error
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
+	// TODO: return created build and error instead of just error
 	err := database.CreateBuild(b)
-	err = errors.New("error creating build")
 	if err != nil {
 		// clean up the objects from the pipeline in the database
+		// TODO:
+		// - return build in CreateBuild
+		// - even if it was created, we need to get the new build id
+		//   otherwise it will be 0, which attempts to INSERT instead
+		//   of UPDATE-ing the existing build - which results in
+		//   a constraint error (repo_id, number)
+		// - do we want to update the build or just delete it?
 		cleanBuild(database, b, nil, nil)
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to capture the created build
-	b, _ = database.GetBuild(b.GetNumber(), r)
+	// TODO: this can be dropped once we return
+	// the created build above
+	b, err = database.GetBuild(b.GetNumber(), r)
+	if err != nil {
+		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
+	}
 
 	// plan all services for the build
 	services, err := planServices(database, p, b)
