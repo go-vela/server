@@ -609,7 +609,7 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	// return eror if pipeline didn't get populated
+	// return error if pipeline didn't get populated
 	if p == nil {
 		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
