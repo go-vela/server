@@ -39,7 +39,7 @@ func PipelineHandlers(base *gin.RouterGroup) {
 			_pipeline.DELETE("", perm.MustPlatformAdmin(), pipeline.DeletePipeline)
 			_pipeline.GET("/templates", perm.MustRead(), pipeline.GetTemplates)
 			_pipeline.POST("/compile", perm.MustWrite(), pipeline.CompilePipeline)
-			_pipeline.POST("/expand", perm.MustWrite(), pipeline.ExpandPipeline)
+			_pipeline.POST("/expand", perm.MustRead(), pipeline.ExpandPipeline)
 			_pipeline.POST("/validate", perm.MustWrite(), pipeline.ValidatePipeline)
 		} // end of pipeline endpoints
 	} // end of pipelines endpoints
