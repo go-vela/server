@@ -990,7 +990,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetRuntime("")
 	b.SetDistribution("")
 
-	// update the PR event if action was never set
+	// update the PR event action if action was never set
 	if b.GetEvent() == constants.EventPull && b.GetEventAction() == "" {
 		// technically, the action could have been opened or synchronize.
 		// will not affect behavior of the pipeline since we did not
