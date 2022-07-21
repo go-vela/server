@@ -990,6 +990,14 @@ func RestartBuild(c *gin.Context) {
 	b.SetRuntime("")
 	b.SetDistribution("")
 
+	// update the PR event if action was never set
+	if b.GetEvent() == constants.EventPull && b.GetEventAction() == "" {
+		// technically, the action could have been opened or synchronize.
+		// will not affect behavior of the pipeline since we did not
+		// support actions for builds where this would be the case.
+		b.SetEventAction(constants.ActionOpened)
+	}
+
 	// set the parent equal to the restarted build number
 	b.SetParent(b.GetNumber())
 	// update the build numbers based off repo counter
