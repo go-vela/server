@@ -115,6 +115,12 @@ type Service interface {
 	// a repository file's html_url.
 	GetHTMLURL(*library.User, string, string, string, string) (string, error)
 
+	// Issue SCM Interface Functions
+
+	// CreateIssue defines a function that
+	// creates an issue in a feedback repo.
+	CreateIssue(*library.User, string, string, string, string, string) error
+
 	// Webhook SCM Interface Functions
 
 	// ProcessWebhook defines a function that

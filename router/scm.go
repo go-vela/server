@@ -36,4 +36,10 @@ func ScmHandlers(base *gin.RouterGroup) {
 			repo.GET("/sync", api.SyncRepo)
 		} // end of SCM repo endpoints
 	} // end of SCM repos endpoints
+
+	// SCM issue endpoints
+	issue := base.Group("/scm/issue")
+	{
+		issue.POST("/create", api.CreateIssue)
+	}
 }

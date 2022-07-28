@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -195,4 +196,93 @@ func SyncRepo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+}
+
+// swagger:operation POST /api/v1/scm/issue/create CreateIssue
+//
+// Create an issue in the configured SCM in a specified repo
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully posted the issue
+//     schema:
+//     type: string
+//   '500':
+//     description: Unable to post the issue
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// CreateIssue represents the API handler to
+// create an issue for a specific repo. This
+// will be used for gathering feedback from the
+// community that can be used in a specified repo.
+func CreateIssue(c *gin.Context) {
+	// capture middleware values
+	repo := strings.Split(c.GetString("feedbackRepo"), "/")
+	if len(repo) != 2 {
+		retErr := fmt.Errorf("feedback repo must be in the format {org}/{repo}. Feedback repo is: %s", c.GetString("feedbackRepo"))
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	o := repo[0]
+	r := repo[1]
+	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logger := logrus.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r,
+		"user": u.GetName(),
+	})
+
+	type Issue struct {
+		Title       *string `json:"title,omitempty"`
+		Description *string `json:"description,omitempty"`
+		Page        *string `json:"page,omitempty"`
+	}
+
+	input := new(Issue)
+
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse http body: %w", err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	logger.Infof("creating issue in repo: %s", o+"/"+r)
+
+	err = scm.FromContext(c).CreateIssue(u, o, r, *input.Title, *input.Description, *input.Page)
+
+	// if there is an error retrieving repo, we know it is deleted: sync time
+	if err != nil {
+		retErr := fmt.Errorf("unable to create issue for repo %s: %w", o+"/"+r, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, fmt.Sprintf("issue posted to %s", o+"/"+r))
 }

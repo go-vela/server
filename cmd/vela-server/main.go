@@ -172,6 +172,11 @@ func main() {
 			Usage:   "interval at which workers will show as active within the /metrics endpoint",
 			Value:   5 * time.Minute,
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_FEEDBACK_REPO"},
+			Name:    "feedback-repo",
+			Usage:   "target repo for feedback",
+		},
 	}
 	// Add Database Flags
 	app.Flags = append(app.Flags, database.Flags...)
