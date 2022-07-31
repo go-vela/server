@@ -990,6 +990,15 @@ func RestartBuild(c *gin.Context) {
 	b.SetRuntime("")
 	b.SetDistribution("")
 
+	// update the PR event action if action was never set
+	// for backwards compatibility with pre-0.14 releases.
+	if b.GetEvent() == constants.EventPull && b.GetEventAction() == "" {
+		// technically, the action could have been opened or synchronize.
+		// will not affect behavior of the pipeline since we did not
+		// support actions for builds where this would be the case.
+		b.SetEventAction(constants.ActionOpened)
+	}
+
 	// set the parent equal to the restarted build number
 	b.SetParent(b.GetNumber())
 	// update the build numbers based off repo counter
@@ -1455,21 +1464,36 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // planBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
+// TODO:
+// - return build and error
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
+	// TODO: return created build and error instead of just error
 	err := database.CreateBuild(b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
+		// TODO:
+		// - return build in CreateBuild
+		// - even if it was created, we need to get the new build id
+		//   otherwise it will be 0, which attempts to INSERT instead
+		//   of UPDATE-ing the existing build - which results in
+		//   a constraint error (repo_id, number)
+		// - do we want to update the build or just delete it?
 		cleanBuild(database, b, nil, nil)
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to capture the created build
-	b, _ = database.GetBuild(b.GetNumber(), r)
+	// TODO: this can be dropped once we return
+	// the created build above
+	b, err = database.GetBuild(b.GetNumber(), r)
+	if err != nil {
+		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
+	}
 
 	// plan all services for the build
 	services, err := planServices(database, p, b)
