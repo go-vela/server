@@ -223,7 +223,7 @@ func CreateRepo(c *gin.Context) {
 
 	// send API call to create the webhook
 	if c.Value("webhookvalidation").(bool) {
-		_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+		hook, _, err := scm.FromContext(c).Enable(u, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -235,6 +235,19 @@ func CreateRepo(c *gin.Context) {
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// update initialization hook
+		hook.SetRepoID(r.GetID())
+
+		// create first hook for repo in the database
+		err = database.FromContext(c).CreateHook(hook)
+		if err != nil {
+			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -795,6 +808,29 @@ func UpdateRepo(c *gin.Context) {
 		)
 	}
 
+	// grab last hook from repo to fetch the webhook ID
+	lastHook, err := database.FromContext(c).GetLastHook(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// if repo has no hook deliveries, skip webhook update
+	if lastHook.GetWebhookID() != 0 {
+		// update webhook with new events
+		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
 	// send API call to update the repo
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
@@ -959,9 +995,20 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+	hook, _, err := scm.FromContext(c).Enable(u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	hook.SetRepoID(r.GetID())
+
+	err = database.FromContext(c).CreateHook(hook)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
