@@ -156,7 +156,7 @@ func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string
 
 	// always listen to repository events in case of repo name change
 	// until we distinguish between tag and push more clearly, we must always listen to push events
-	events := []string{eventRepository, eventPush}
+	events := []string{eventRepository}
 
 	if r.GetAllowComment() {
 		events = append(events, eventIssueComment)
@@ -168,6 +168,10 @@ func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string
 
 	if r.GetAllowPull() {
 		events = append(events, eventPullRequest)
+	}
+
+	if r.GetAllowPush() || r.GetAllowTag() {
+		events = append(events, eventPush)
 	}
 
 	// create the hook object to make the API call
@@ -217,7 +221,7 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 
 	// always listen to repository events in case of repo name change
 	// until we distinguish between tag and push more clearly, we must always listen to push events
-	events := []string{eventRepository, eventPush}
+	events := []string{eventRepository}
 
 	if r.GetAllowComment() {
 		events = append(events, eventIssueComment)
@@ -229,6 +233,10 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 
 	if r.GetAllowPull() {
 		events = append(events, eventPullRequest)
+	}
+
+	if r.GetAllowPush() || r.GetAllowTag() {
+		events = append(events, eventPush)
 	}
 
 	// create the hook object to make the API call
