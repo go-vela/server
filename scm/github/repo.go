@@ -155,7 +155,6 @@ func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string
 	client := c.newClientToken(*u.Token)
 
 	// always listen to repository events in case of repo name change
-	// until we distinguish between tag and push more clearly, we must always listen to push events
 	events := []string{eventRepository}
 
 	if r.GetAllowComment() {
@@ -220,7 +219,6 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 	client := c.newClientToken(*u.Token)
 
 	// always listen to repository events in case of repo name change
-	// until we distinguish between tag and push more clearly, we must always listen to push events
 	events := []string{eventRepository}
 
 	if r.GetAllowComment() {
