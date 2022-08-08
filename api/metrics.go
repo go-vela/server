@@ -17,8 +17,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// MetricsQuery holds query parameter information pertaining to requested metrics.
-type MetricsQuery struct {
+// MetricsQueryParameters holds query parameter information pertaining to requested metrics.
+type MetricsQueryParameters struct {
 	// UserCount represents total platform users
 	UserCount bool `form:"user_count"`
 	// RepoCount represents total platform repos
@@ -192,15 +192,17 @@ func CustomMetrics(c *gin.Context) {
 
 // helper function to get the totals of resource types.
 func recordGauges(c *gin.Context) {
-	// bind query parameters
-	q := MetricsQuery{}
+	// variable to store query parameters
+	q := MetricsQueryParameters{}
+
+	// take incoming request and bind query parameters
 	err := c.ShouldBindQuery(&q)
 	if err != nil {
 		logrus.Error("could not bind query parameters")
 		return
 	}
 
-	// get metric based on request query parameters
+	// get each metric separately based on request query parameters
 
 	// user_count
 	if q.UserCount {
