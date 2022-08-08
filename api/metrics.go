@@ -17,6 +17,45 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// MetricsQuery holds query parameter information pertaining to requested metrics.
+type MetricsQuery struct {
+	// UserCount represents total platform users
+	UserCount bool `form:"user_count"`
+	// RepoCount represents total platform repos
+	RepoCount bool `form:"repo_count"`
+
+	// BuildCount represents total number of builds
+	BuildCount bool `form:"build_count"`
+	// RunningBuildCount represents total number of builds with status==running
+	RunningBuildCount bool `form:"running_build_count"`
+	// PendingBuildCount represents total number of builds with status==pending
+	PendingBuildCount bool `form:"pending_build_count"`
+	// FailureBuildCount represents total number of builds with status==failure
+	FailureBuildCount bool `form:"failure_build_count"`
+	// KilledBuildCount represents total number of builds with status==killed
+	KilledBuildCount bool `form:"killed_build_count"`
+	// SuccessBuildCount represents total number of builds with status==success
+	SuccessBuildCount bool `form:"success_build_count"`
+	// ErrorBuildCount represents total number of builds with status==error
+	ErrorBuildCount bool `form:"error_build_count"`
+
+	// StepImageCount represents total number of step images
+	StepImageCount bool `form:"step_image_count"`
+	// StepStatusCount represents total number of step statuses
+	StepStatusCount bool `form:"step_status_count"`
+	// ServiceImageCount represents total number of service images
+	ServiceImageCount bool `form:"service_image_count"`
+	// ServiceStatusCount represents total number of service statuses
+	ServiceStatusCount bool `form:"service_status_count"`
+
+	// WorkerBuildLimit represents total worker build limit
+	WorkerBuildLimit bool `form:"worker_build_limit"`
+	// ActiveWorkerCount represents total number of active workers
+	ActiveWorkerCount bool `form:"active_worker_count"`
+	// InactiveWorkerCount represents total number of inactive workers
+	InactiveWorkerCount bool `form:"inactive_worker_count"`
+}
+
 // predefine Prometheus metrics else they will be regenerated
 // each function call which will throw error:
 // "duplicate metrics collector registration attempted".
@@ -60,73 +99,78 @@ var (
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: repo_count
+//   description: Indicates a request for repo count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: build_count
+//   description: Indicates a request for build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: running_build_count
+//   description: Indicates a request for running build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: pending_build_count
+//   description: Indicates a request for pending build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: failure_build_count
+//   description: Indicates a request for failure build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: killed_build_count
+//   description: Indicates a request for killed build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: success_build_count
+//   description: Indicates a request for success build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: error_build_count
+//   description: Indicates a request for error build count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: step_image_count
+//   description: Indicates a request for step image count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: step_status_count
+//   description: Indicates a request for step status count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: service_image_count
+//   description: Indicates a request for service image count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: service_status_count
+//   description: Indicates a request for service status count
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: worker_build_limit
+//   description: Indicates a request for total worker build limit
 //   type: boolean
 //   default: false
 // - in: query
-//   name: user_count
-//   description: Indicates a request for user count
+//   name: active_worker_count
+//   description: Indicates a request for active worker count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: inactive_worker_count
+//   description: Indicates a request for inactive worker count
 //   type: boolean
 //   default: false
 // responses:
@@ -144,29 +188,6 @@ func BaseMetrics() http.Handler {
 func CustomMetrics(c *gin.Context) {
 	// call helper function to return total users
 	recordGauges(c)
-}
-
-// TODO: vader move this to Types?
-type MetricsQuery struct {
-	UserCount  bool `form:"user_count"`
-	RepoCount  bool `form:"repo_count"`
-	BuildCount bool `form:"build_count"`
-
-	RunningBuildCount bool `form:"running_build_count"`
-	PendingBuildCount bool `form:"pending_build_count"`
-	FailureBuildCount bool `form:"failure_build_count"`
-	KilledBuildCount  bool `form:"killed_build_count"`
-	SuccessBuildCount bool `form:"success_build_count"`
-	ErrorBuildCount   bool `form:"error_build_count"`
-
-	StepImageCount     bool `form:"step_image_count"`
-	StepStatusCount    bool `form:"step_status_count"`
-	ServiceImageCount  bool `form:"service_image_count"`
-	ServiceStatusCount bool `form:"service_status_count"`
-
-	WorkerBuildLimit    bool `form:"worker_build_limit"`
-	ActiveWorkerCount   bool `form:"active_worker_count"`
-	InactiveWorkerCount bool `form:"inactive_worker_count"`
 }
 
 // helper function to get the totals of resource types.
