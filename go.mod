@@ -8,18 +8,18 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.22.0
-	github.com/aws/aws-sdk-go v1.44.38
+	github.com/aws/aws-sdk-go v1.44.70
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-vela/types v0.14.0
-	github.com/golang-jwt/jwt/v4 v4.4.1
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/google/go-cmp v0.5.8
 	github.com/google/go-github/v44 v44.1.0
 	github.com/google/uuid v1.3.0
-	github.com/goware/urlx v0.3.1
+	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
@@ -30,14 +30,14 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.2
 	github.com/urfave/cli/v2 v2.11.1
-	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
+	go.starlark.net v0.0.0-20220714194419-4cadf0a12139
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
-	gorm.io/driver/postgres v1.3.7
-	gorm.io/driver/sqlite v1.3.4
-	gorm.io/gorm v1.23.6
-	k8s.io/apimachinery v0.24.2
+	gorm.io/driver/postgres v1.3.8
+	gorm.io/driver/sqlite v1.3.6
+	gorm.io/gorm v1.23.8
+	k8s.io/apimachinery v0.24.3
 )
 
 require (
