@@ -54,6 +54,81 @@ var (
 // produces:
 // - text/plain
 // parameters:
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: user_count
+//   description: Indicates a request for user count
+//   type: boolean
+//   default: false
 // responses:
 //   '200':
 //     description: Successfully retrieved the Vela metrics
@@ -71,145 +146,248 @@ func CustomMetrics(c *gin.Context) {
 	recordGauges(c)
 }
 
+// TODO: vader move this to Types?
+type MetricsQuery struct {
+	UserCount  bool `form:"user_count"`
+	RepoCount  bool `form:"repo_count"`
+	BuildCount bool `form:"build_count"`
+
+	RunningBuildCount bool `form:"running_build_count"`
+	PendingBuildCount bool `form:"pending_build_count"`
+	FailureBuildCount bool `form:"failure_build_count"`
+	KilledBuildCount  bool `form:"killed_build_count"`
+	SuccessBuildCount bool `form:"success_build_count"`
+	ErrorBuildCount   bool `form:"error_build_count"`
+
+	StepImageCount     bool `form:"step_image_count"`
+	StepStatusCount    bool `form:"step_status_count"`
+	ServiceImageCount  bool `form:"service_image_count"`
+	ServiceStatusCount bool `form:"service_status_count"`
+
+	WorkerBuildLimit    bool `form:"worker_build_limit"`
+	ActiveWorkerCount   bool `form:"active_worker_count"`
+	InactiveWorkerCount bool `form:"inactive_worker_count"`
+}
+
 // helper function to get the totals of resource types.
 func recordGauges(c *gin.Context) {
-	// send API call to capture the total number of users
-	u, err := database.FromContext(c).GetUserCount()
+	// bind query parameters
+	q := MetricsQuery{}
+	err := c.ShouldBindQuery(&q)
 	if err != nil {
-		logrus.Errorf("unable to get count of all users: %v", err)
+		logrus.Error("could not bind query parameters")
+		return
 	}
 
-	// send API call to capture the total number of repos
-	r, err := database.FromContext(c).GetRepoCount()
-	if err != nil {
-		logrus.Errorf("unable to get count of all repos: %v", err)
+	// get metric based on request query parameters
+
+	// user_count
+	if q.UserCount {
+		// send API call to capture the total number of users
+		u, err := database.FromContext(c).GetUserCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all users: %v", err)
+		}
+
+		// add platform metrics
+		totals.WithLabelValues("platform", "count", "users").Set(float64(u))
 	}
 
-	// send API call to capture the total number of builds
-	b, err := database.FromContext(c).GetBuildCount()
-	if err != nil {
-		logrus.Errorf("unable to get count of all builds: %v", err)
+	// repo_count
+	if q.RepoCount {
+		// send API call to capture the total number of repos
+		r, err := database.FromContext(c).GetRepoCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all repos: %v", err)
+		}
+
+		// add platform metrics
+		totals.WithLabelValues("platform", "count", "repos").Set(float64(r))
 	}
 
-	// send API call to capture the total number of running builds
-	bRun, err := database.FromContext(c).GetBuildCountByStatus("running")
-	if err != nil {
-		logrus.Errorf("unable to get count of all running builds: %v", err)
+	// build_count
+	if q.BuildCount {
+		// send API call to capture the total number of builds
+		b, err := database.FromContext(c).GetBuildCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all builds: %v", err)
+		}
+
+		// add platform metrics
+		totals.WithLabelValues("platform", "count", "builds").Set(float64(b))
 	}
 
-	// send API call to capture the total number of pending builds
-	bPen, err := database.FromContext(c).GetBuildCountByStatus("pending")
-	if err != nil {
-		logrus.Errorf("unable to get count of all pending builds: %v", err)
+	// running_build_count
+	if q.RunningBuildCount {
+		// send API call to capture the total number of running builds
+		bRun, err := database.FromContext(c).GetBuildCountByStatus("running")
+		if err != nil {
+			logrus.Errorf("unable to get count of all running builds: %v", err)
+		}
+
+		// add build metrics
+		totals.WithLabelValues("build", "status", "running").Set(float64(bRun))
 	}
 
-	// send API call to capture the total number of failure builds
-	bFail, err := database.FromContext(c).GetBuildCountByStatus("failure")
-	if err != nil {
-		logrus.Errorf("unable to get count of all failure builds: %v", err)
+	// pending_build_count
+	if q.PendingBuildCount {
+		// send API call to capture the total number of pending builds
+		bPen, err := database.FromContext(c).GetBuildCountByStatus("pending")
+		if err != nil {
+			logrus.Errorf("unable to get count of all pending builds: %v", err)
+		}
+
+		// add build metrics
+		totals.WithLabelValues("build", "status", "pending").Set(float64(bPen))
 	}
 
-	// send API call to capture the total number of killed builds
-	bKill, err := database.FromContext(c).GetBuildCountByStatus("killed")
-	if err != nil {
-		logrus.Errorf("unable to get count of all killed builds: %v", err)
+	// failure_build_count
+	if q.FailureBuildCount {
+		// send API call to capture the total number of failure builds
+		bFail, err := database.FromContext(c).GetBuildCountByStatus("failure")
+		if err != nil {
+			logrus.Errorf("unable to get count of all failure builds: %v", err)
+		}
+
+		// add build metrics
+		totals.WithLabelValues("build", "status", "failed").Set(float64(bFail))
 	}
 
-	// send API call to capture the total number of success builds
-	bSucc, err := database.FromContext(c).GetBuildCountByStatus("success")
-	if err != nil {
-		logrus.Errorf("unable to get count of all success builds: %v", err)
+	// killed_build_count
+	if q.KilledBuildCount {
+		// send API call to capture the total number of killed builds
+		bKill, err := database.FromContext(c).GetBuildCountByStatus("killed")
+		if err != nil {
+			logrus.Errorf("unable to get count of all killed builds: %v", err)
+		}
+
+		// add build metrics
+		totals.WithLabelValues("build", "status", "killed").Set(float64(bKill))
 	}
 
-	// send API call to capture the total number of error builds
-	bErr, err := database.FromContext(c).GetBuildCountByStatus("error")
-	if err != nil {
-		logrus.Errorf("unable to get count of all error builds: %v", err)
+	// success_build_count
+	if q.SuccessBuildCount {
+		// send API call to capture the total number of success builds
+		bSucc, err := database.FromContext(c).GetBuildCountByStatus("success")
+		if err != nil {
+			logrus.Errorf("unable to get count of all success builds: %v", err)
+		}
+
+		// add build metrics
+		totals.WithLabelValues("build", "status", "success").Set(float64(bSucc))
 	}
 
-	// send API call to capture the total number of step images
-	stepImageMap, err := database.FromContext(c).GetStepImageCount()
-	if err != nil {
-		logrus.Errorf("unable to get count of all step images: %v", err)
+	// error_build_count
+	if q.ErrorBuildCount {
+		// send API call to capture the total number of error builds
+		bErr, err := database.FromContext(c).GetBuildCountByStatus("error")
+		if err != nil {
+			logrus.Errorf("unable to get count of all error builds: %v", err)
+		}
+
+		// add build metrics
+		totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
 	}
 
-	// send API call to capture the total number of step statuses
-	stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
-	if err != nil {
-		logrus.Errorf("unable to get count of all step statuses: %v", err)
+	// step_image_count
+	if q.StepImageCount {
+		// send API call to capture the total number of step images
+		stepImageMap, err := database.FromContext(c).GetStepImageCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all step images: %v", err)
+		}
+
+		// add step image metrics
+		for image, count := range stepImageMap {
+			stepImages.WithLabelValues(image).Set(count)
+		}
 	}
 
-	// send API call to capture the total number of service images
-	serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
-	if err != nil {
-		logrus.Errorf("unable to get count of all service images: %v", err)
+	// step_status_count
+	if q.StepStatusCount {
+		// send API call to capture the total number of step statuses
+		stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all step statuses: %v", err)
+		}
+
+		// add step status metrics
+		for status, count := range stepStatusMap {
+			totals.WithLabelValues("steps", "status", status).Set(count)
+		}
 	}
 
-	// send API call to capture the total number of service statuses
-	serviceStatusMap, err := database.FromContext(c).GetServiceStatusCount()
-	if err != nil {
-		logrus.Errorf("unable to get count of all service statuses: %v", err)
+	// service_image_count
+	if q.ServiceImageCount {
+		// send API call to capture the total number of service images
+		serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all service images: %v", err)
+		}
+
+		// add service image metrics
+		for image, count := range serviceImageMap {
+			serviceImages.WithLabelValues(image).Set(count)
+		}
 	}
 
-	// send API call to capture the workers
-	workers, err := database.FromContext(c).GetWorkerList()
-	if err != nil {
-		logrus.Errorf("unable to get workers: %v", err)
+	// service_status_count
+	if q.ServiceStatusCount {
+		// send API call to capture the total number of service statuses
+		serviceStatusMap, err := database.FromContext(c).GetServiceStatusCount()
+		if err != nil {
+			logrus.Errorf("unable to get count of all service statuses: %v", err)
+		}
+
+		// add service status metrics
+		for status, count := range serviceStatusMap {
+			totals.WithLabelValues("services", "status", status).Set(count)
+		}
 	}
 
-	// Add platform metrics
-	totals.WithLabelValues("platform", "count", "users").Set(float64(u))
-	totals.WithLabelValues("platform", "count", "repos").Set(float64(r))
-	totals.WithLabelValues("platform", "count", "builds").Set(float64(b))
-
-	// Add build metrics
-	totals.WithLabelValues("build", "status", "running").Set(float64(bRun))
-	totals.WithLabelValues("build", "status", "pending").Set(float64(bPen))
-	totals.WithLabelValues("build", "status", "failed").Set(float64(bFail))
-	totals.WithLabelValues("build", "status", "killed").Set(float64(bKill))
-	totals.WithLabelValues("build", "status", "success").Set(float64(bSucc))
-	totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
-
-	// Add worker metrics
+	// add worker metrics
 	var (
 		buildLimit      int64
 		activeWorkers   int64
 		inactiveWorkers int64
 	)
 
-	// get the unix time from worker_active_interval ago
-	before := time.Now().UTC().Add(-c.Value("worker_active_interval").(time.Duration)).Unix()
-	for _, worker := range workers {
-		// check if the worker checked in within the last worker_active_interval
-		if worker.GetLastCheckedIn() >= before {
-			buildLimit += worker.GetBuildLimit()
-			activeWorkers++
-		} else {
-			inactiveWorkers++
+	// get worker metrics based on request query parameters
+	// worker_build_limit, active_worker_count, inactive_worker_count
+	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount {
+		// send API call to capture the workers
+		workers, err := database.FromContext(c).GetWorkerList()
+		if err != nil {
+			logrus.Errorf("unable to get workers: %v", err)
 		}
-	}
 
-	totals.WithLabelValues("worker", "sum", "build_limit").Set(float64(buildLimit))
-	totals.WithLabelValues("worker", "count", "active").Set(float64(activeWorkers))
-	totals.WithLabelValues("worker", "count", "inactive").Set(float64(inactiveWorkers))
+		// get the unix time from worker_active_interval ago
+		before := time.Now().UTC().Add(-c.Value("worker_active_interval").(time.Duration)).Unix()
+		for _, worker := range workers {
+			// check if the worker checked in within the last worker_active_interval
+			if worker.GetLastCheckedIn() >= before {
+				buildLimit += worker.GetBuildLimit()
+				activeWorkers++
+			} else {
+				inactiveWorkers++
+			}
+		}
 
-	// Add step status metrics
-	for status, count := range stepStatusMap {
-		totals.WithLabelValues("steps", "status", status).Set(count)
-	}
+		// apply metrics based on request query parameters
 
-	// Add service status metrics
-	for status, count := range serviceStatusMap {
-		totals.WithLabelValues("services", "status", status).Set(count)
-	}
+		// worker_build_limit
+		if q.WorkerBuildLimit {
+			totals.WithLabelValues("worker", "sum", "build_limit").Set(float64(buildLimit))
+		}
 
-	// Add step image metrics
-	for image, count := range stepImageMap {
-		stepImages.WithLabelValues(image).Set(count)
-	}
+		// active_worker_count
+		if q.ActiveWorkerCount {
+			totals.WithLabelValues("worker", "count", "active").Set(float64(activeWorkers))
+		}
 
-	// Add service image metrics
-	for image, count := range serviceImageMap {
-		serviceImages.WithLabelValues(image).Set(count)
+		// inactive_worker_count
+		if q.InactiveWorkerCount {
+			totals.WithLabelValues("worker", "count", "inactive").Set(float64(inactiveWorkers))
+		}
 	}
 }
