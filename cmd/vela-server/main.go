@@ -11,6 +11,9 @@ import (
 	"time"
 
 	"github.com/go-vela/types/constants"
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/vault"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -23,8 +26,47 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+var k = koanf.New(".")
+
 // nolint: funlen // ignore line length
 func main() {
+
+	logrus.Info("k.Load(env.VELA_)")
+	k.Load(env.Provider("VELA_", ".", func(s string) string {
+		logrus.Infof("env provider Load: s(%v)", s)
+		// ss := strings.Replace(strings.ToLower(strings.TrimPrefix(s, "VELA_")), "_", ".", -1)
+		return s
+	}), nil)
+	logrus.Infof("k.Get(VELA_KOANF_TEST) == %v", k.Get("VELA_KOANF_TEST"))
+	logrus.Infof("k.String(VELA_KOANF_TEST) == %v", k.String("VELA_KOANF_TEST"))
+	logrus.Infof("os.Getenv(VELA_KOANF_TEST) == %v", os.Getenv("VELA_KOANF_TEST"))
+
+	vaulterino := vault.Provider(vault.Config{
+		Address: "https://prod.vault.target.com:443",
+
+		// TODO:
+		// have two nuas that auth with vault to retrieve a token
+		// use that token to retrieve
+		Token: "s.sJtHvsFXrApLA5Tj68TkSxF0",
+		Path:  "secret/vela/dev/docker",
+	})
+
+	if vaulterino == nil {
+		logrus.Info("vault is nil")
+	} else {
+		daMap, err := vaulterino.Read()
+		if err != nil {
+			logrus.Infof("error: %s", err.Error())
+			time.Sleep(time.Second * 60)
+			logrus.Info("retrying")
+		}
+		logrus.Infof("%v", daMap)
+	}
+	for {
+		logrus.Info("retrying in 1 minute")
+		time.Sleep(time.Second * 60)
+	}
+
 	// capture application version information
 	v := version.New()
 
@@ -174,6 +216,8 @@ func main() {
 		},
 	}
 	// Add Database Flags
+
+	// TODO: source from CLI flags or another provider
 	app.Flags = append(app.Flags, database.Flags...)
 
 	// Add Queue Flags

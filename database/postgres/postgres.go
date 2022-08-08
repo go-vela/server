@@ -220,6 +220,8 @@ func setupDatabase(c *client) error {
 func createTables(c *client) error {
 	c.Logger.Trace("creating data tables in the postgres database")
 
+	c.Logger.Trace("vader")
+
 	// create the builds table
 	err := c.Postgres.Exec(ddl.CreateBuildTable).Error
 	if err != nil {

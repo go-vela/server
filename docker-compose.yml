@@ -41,6 +41,7 @@ services:
       VELA_ACCESS_TOKEN_DURATION: 60m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
+      # VELA_DATABASE_SKIP_CREATION: true
     env_file:
       - .env
     restart: always
