@@ -198,8 +198,8 @@ func recordGauges(c *gin.Context) {
 	// take incoming request and bind query parameters
 	err := c.ShouldBindQuery(&q)
 	if err != nil {
-		logrus.Error("could not bind query parameters")
-		return
+		logrus.Errorf("unable to get bind query parameters: %v", err)
+		// continue execution with parameters defaulted to false
 	}
 
 	// get each metric separately based on request query parameters
