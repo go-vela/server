@@ -153,44 +153,60 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 }
 
 func TestMiddleware_Logger_Sanitize(t *testing.T) {
+	var logBody, logWant map[string]interface{}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
+	logRepo, _ := json.Marshal(r)
 
 	b := new(library.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)
 	b.SetEmail("octocat@github.com")
+	logBuild, _ := json.Marshal(b)
 
-	sanitizeBuild := b
+	sanitizeBuild := *b
 	sanitizeBuild.SetEmail("[secure]")
+	logSBuild, _ := json.Marshal(&sanitizeBuild)
 
 	tests := []struct {
-		body interface{}
-		want interface{}
+		body []byte
+		want []byte
 	}{
 		{
-			body: r,
-			want: r,
+			body: logRepo,
+			want: logRepo,
 		},
 		{
-			body: b,
-			want: sanitizeBuild,
+			body: logBuild,
+			want: logSBuild,
 		},
 		{
-			body: "successfully updated step",
-			want: "successfully updated step",
+			body: []byte("successfully updated step"),
+			want: []byte("successfully updated step"),
 		},
 	}
 
 	for _, test := range tests {
-		got := sanitize(test.body)
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("Logger returned %v, want %v", got, test.want)
+		err := json.Unmarshal(test.body, &logBody)
+		if err != nil {
+			t.Errorf("unable to unmarshal log body data")
+		}
+
+		err = json.Unmarshal(test.want, &logWant)
+		if err != nil {
+			t.Errorf("unable to unmarshal log want data")
+		}
+
+		got := sanitize(logBody)
+
+		if !reflect.DeepEqual(got, logWant) {
+			t.Errorf("Logger returned %v, want %v", got, logWant)
 		}
 	}
 }
