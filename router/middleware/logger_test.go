@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -175,32 +176,38 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 	logSBuild, _ := json.Marshal(&sanitizeBuild)
 
 	tests := []struct {
-		body []byte
-		want []byte
+		dataType string
+		body     []byte
+		want     []byte
 	}{
 		{
-			body: logRepo,
-			want: logRepo,
+			dataType: "stringMap",
+			body:     logRepo,
+			want:     logRepo,
 		},
 		{
-			body: logBuild,
-			want: logSBuild,
+			dataType: "stringMap",
+			body:     logBuild,
+			want:     logSBuild,
 		},
 		{
-			body: []byte("successfully updated step"),
-			want: []byte("successfully updated step"),
+			dataType: "string",
+			body:     []byte("successfully updated step"),
+			want:     []byte("successfully updated step"),
 		},
 	}
 
 	for _, test := range tests {
-		err := json.Unmarshal(test.body, &logBody)
-		if err != nil {
-			t.Errorf("unable to unmarshal log body data")
-		}
+		if strings.EqualFold(test.dataType, "stringMap") {
+			err := json.Unmarshal(test.body, &logBody)
+			if err != nil {
+				t.Errorf("unable to unmarshal log body data")
+			}
 
-		err = json.Unmarshal(test.want, &logWant)
-		if err != nil {
-			t.Errorf("unable to unmarshal log want data")
+			err = json.Unmarshal(test.want, &logWant)
+			if err != nil {
+				t.Errorf("unable to unmarshal log want data")
+			}
 		}
 
 		got := sanitize(logBody)
