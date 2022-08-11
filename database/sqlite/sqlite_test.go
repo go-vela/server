@@ -145,7 +145,7 @@ func TestSqlite_createTables(t *testing.T) {
 	}
 }
 
-func TestPostgres_createIndexes(t *testing.T) {
+func TestSqlite_createIndexes(t *testing.T) {
 	// setup types
 	// setup the test database client
 	_database, err := NewTest()
@@ -177,6 +177,42 @@ func TestPostgres_createIndexes(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("createIndexes returned err: %v", err)
+		}
+	}
+}
+
+func TestSqlite_createServices(t *testing.T) {
+	// setup types
+	// setup the test database client
+	_database, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new sqlite test database: %v", err)
+	}
+
+	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+
+	tests := []struct {
+		failure bool
+	}{
+		{
+			failure: false,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := createServices(_database)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("createServices should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("createServices returned err: %v", err)
 		}
 	}
 }

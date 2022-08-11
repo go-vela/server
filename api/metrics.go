@@ -74,7 +74,7 @@ func CustomMetrics(c *gin.Context) {
 // helper function to get the totals of resource types.
 func recordGauges(c *gin.Context) {
 	// send API call to capture the total number of users
-	u, err := database.FromContext(c).GetUserCount()
+	u, err := database.FromContext(c).CountUsers()
 	if err != nil {
 		logrus.Errorf("unable to get count of all users: %v", err)
 	}
