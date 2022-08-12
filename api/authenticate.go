@@ -99,7 +99,7 @@ func Authenticate(c *gin.Context) {
 	}
 
 	// send API call to capture the user logging in
-	u, err := database.FromContext(c).GetUserName(newUser.GetName())
+	u, err := database.FromContext(c).GetUserForName(newUser.GetName())
 	// create a new user account
 	if len(u.GetName()) == 0 || err != nil {
 		// create unique id for the user
@@ -314,7 +314,7 @@ func AuthenticateToken(c *gin.Context) {
 	}
 
 	// check if the user exists
-	u, err = database.FromContext(c).GetUserName(u.GetName())
+	u, err = database.FromContext(c).GetUserForName(u.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("user %s not found", u.GetName())
 

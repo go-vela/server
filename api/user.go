@@ -87,7 +87,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// send API call to capture the created user
-	user, _ := database.FromContext(c).GetUserName(input.GetName())
+	user, _ := database.FromContext(c).GetUserForName(input.GetName())
 
 	c.JSON(http.StatusCreated, user)
 }
@@ -172,18 +172,8 @@ func GetUsers(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the total number of users
-	t, err := database.FromContext(c).GetUserCount()
-	if err != nil {
-		retErr := fmt.Errorf("unable to get users count: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// send API call to capture the list of users
-	users, err := database.FromContext(c).GetUserLiteList(page, perPage)
+	users, t, err := database.FromContext(c).ListLiteUsers(page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get users: %w", err)
 
@@ -311,7 +301,7 @@ func UpdateCurrentUser(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	u, err = database.FromContext(c).GetUserName(u.GetName())
+	u, err = database.FromContext(c).GetUserForName(u.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get updated user %s: %w", u.GetName(), err)
 
@@ -363,7 +353,7 @@ func GetUser(c *gin.Context) {
 	}).Infof("reading user %s", user)
 
 	// send API call to capture the user
-	u, err := database.FromContext(c).GetUserName(user)
+	u, err := database.FromContext(c).GetUserForName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 
@@ -548,7 +538,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// send API call to capture the user
-	u, err = database.FromContext(c).GetUserName(user)
+	u, err = database.FromContext(c).GetUserForName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 
@@ -584,7 +574,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	u, _ = database.FromContext(c).GetUserName(user)
+	u, _ = database.FromContext(c).GetUserForName(user)
 
 	c.JSON(http.StatusOK, u)
 }
@@ -633,7 +623,7 @@ func DeleteUser(c *gin.Context) {
 	}).Infof("deleting user %s", user)
 
 	// send API call to capture the user
-	u, err := database.FromContext(c).GetUserName(user)
+	u, err := database.FromContext(c).GetUserForName(user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 
@@ -643,7 +633,7 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	// send API call to remove the user
-	err = database.FromContext(c).DeleteUser(u.GetID())
+	err = database.FromContext(c).DeleteUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete user %s: %w", u.GetName(), err)
 
