@@ -199,19 +199,16 @@ func recordGauges(c *gin.Context) {
 	err := c.ShouldBindQuery(&q)
 	if err != nil {
 		logrus.Errorf("unable to get bind query parameters: %v", err)
-		// continue execution with parameters defaulted to false
-	}
+	} // continue execution with parameters defaulted to false
 
 	// get each metric separately based on request query parameters
-
 	// user_count
 	if q.UserCount {
 		// send API call to capture the total number of users
-	  u, err := database.FromContext(c).CountUsers()
+		u, err := database.FromContext(c).CountUsers()
 		if err != nil {
 			logrus.Errorf("unable to get count of all users: %v", err)
 		}
-
 		// add platform metrics
 		totals.WithLabelValues("platform", "count", "users").Set(float64(u))
 	}
@@ -223,7 +220,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all repos: %v", err)
 		}
-
 		// add platform metrics
 		totals.WithLabelValues("platform", "count", "repos").Set(float64(r))
 	}
@@ -235,7 +231,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all builds: %v", err)
 		}
-
 		// add platform metrics
 		totals.WithLabelValues("platform", "count", "builds").Set(float64(b))
 	}
@@ -247,7 +242,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all running builds: %v", err)
 		}
-
 		// add build metrics
 		totals.WithLabelValues("build", "status", "running").Set(float64(bRun))
 	}
@@ -259,7 +253,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all pending builds: %v", err)
 		}
-
 		// add build metrics
 		totals.WithLabelValues("build", "status", "pending").Set(float64(bPen))
 	}
@@ -271,7 +264,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all failure builds: %v", err)
 		}
-
 		// add build metrics
 		totals.WithLabelValues("build", "status", "failed").Set(float64(bFail))
 	}
@@ -283,7 +275,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all killed builds: %v", err)
 		}
-
 		// add build metrics
 		totals.WithLabelValues("build", "status", "killed").Set(float64(bKill))
 	}
@@ -295,7 +286,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all success builds: %v", err)
 		}
-
 		// add build metrics
 		totals.WithLabelValues("build", "status", "success").Set(float64(bSucc))
 	}
@@ -307,7 +297,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all error builds: %v", err)
 		}
-
 		// add build metrics
 		totals.WithLabelValues("build", "status", "error").Set(float64(bErr))
 	}
