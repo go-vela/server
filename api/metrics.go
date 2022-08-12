@@ -191,6 +191,7 @@ func CustomMetrics(c *gin.Context) {
 }
 
 // helper function to get the totals of resource types.
+// nolint: funlen // ignore line length
 func recordGauges(c *gin.Context) {
 	// variable to store query parameters
 	q := MetricsQueryParameters{}
@@ -308,7 +309,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all step images: %v", err)
 		}
-
 		// add step image metrics
 		for image, count := range stepImageMap {
 			stepImages.WithLabelValues(image).Set(count)
@@ -322,7 +322,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all step statuses: %v", err)
 		}
-
 		// add step status metrics
 		for status, count := range stepStatusMap {
 			totals.WithLabelValues("steps", "status", status).Set(count)
@@ -336,7 +335,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all service images: %v", err)
 		}
-
 		// add service image metrics
 		for image, count := range serviceImageMap {
 			serviceImages.WithLabelValues(image).Set(count)
@@ -350,7 +348,6 @@ func recordGauges(c *gin.Context) {
 		if err != nil {
 			logrus.Errorf("unable to get count of all service statuses: %v", err)
 		}
-
 		// add service status metrics
 		for status, count := range serviceStatusMap {
 			totals.WithLabelValues("services", "status", status).Set(count)
@@ -386,7 +383,6 @@ func recordGauges(c *gin.Context) {
 		}
 
 		// apply metrics based on request query parameters
-
 		// worker_build_limit
 		if q.WorkerBuildLimit {
 			totals.WithLabelValues("worker", "sum", "build_limit").Set(float64(buildLimit))
