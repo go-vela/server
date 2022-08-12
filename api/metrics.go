@@ -207,7 +207,7 @@ func recordGauges(c *gin.Context) {
 	// user_count
 	if q.UserCount {
 		// send API call to capture the total number of users
-		u, err := database.FromContext(c).GetUserCount()
+	  u, err := database.FromContext(c).CountUsers()
 		if err != nil {
 			logrus.Errorf("unable to get count of all users: %v", err)
 		}

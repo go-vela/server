@@ -113,7 +113,7 @@ func Parse(t string, db database.Service) (*library.User, error) {
 
 		// lookup the user in the database
 		logrus.WithField("user", name).Debugf("reading user %s", name)
-		u, err = db.GetUserName(name)
+		u, err = db.GetUserForName(name)
 		return []byte(u.GetHash()), err
 	})
 
