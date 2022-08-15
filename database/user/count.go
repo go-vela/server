@@ -2,25 +2,24 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package sqlite
+package user
 
 import (
-	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 )
 
-// GetUserCount gets a count of all users from the database.
-func (c *client) GetUserCount() (int64, error) {
-	c.Logger.Trace("getting count of users from the database")
+// CountUsers gets the count of all users from the database.
+func (e *engine) CountUsers() (int64, error) {
+	e.logger.Tracef("getting count of all users from the database")
 
 	// variable to store query results
 	var u int64
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	err := e.client.
 		Table(constants.TableUser).
-		Raw(dml.SelectUsersCount).
-		Pluck("count", &u).Error
+		Count(&u).
+		Error
 
 	return u, err
 }
