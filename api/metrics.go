@@ -191,7 +191,7 @@ func CustomMetrics(c *gin.Context) {
 }
 
 // helper function to get the totals of resource types.
-// nolint: funlen // ignore line length
+// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
 func recordGauges(c *gin.Context) {
 	// variable to store query parameters
 	q := MetricsQueryParameters{}
