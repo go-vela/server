@@ -157,3 +157,4 @@ issues:
         - funlen
         - goconst
         - gocyclo
+        - wsl
