@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package pipeline
+package user
 
 import (
 	"testing"
@@ -10,12 +10,12 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestPipeline_Engine_CreatePipelineIndexes(t *testing.T) {
+func TestUser_Engine_CreateUserTable(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -41,18 +41,18 @@ func TestPipeline_Engine_CreatePipelineIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreatePipelineIndexes()
+			err := test.database.CreateUserTable(test.name)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreatePipelineIndexes for %s should have returned err", test.name)
+					t.Errorf("CreateUserTable for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreatePipelineIndexes for %s returned err: %v", test.name, err)
+				t.Errorf("CreateUserTable for %s returned err: %v", test.name, err)
 			}
 		})
 	}
