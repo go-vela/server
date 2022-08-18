@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
@@ -56,6 +57,7 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 
 			body := c.Value("payload")
 			if body != nil {
+				body = sanitize(body)
 				fields["body"] = body
 			}
 
@@ -104,4 +106,15 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 			}
 		}
 	}
+}
+
+func sanitize(body interface{}) interface{} {
+	if m, ok := body.(map[string]interface{}); ok {
+		if _, ok = m["email"]; ok {
+			m["email"] = constants.SecretMask
+			body = m
+		}
+	}
+
+	return body
 }
