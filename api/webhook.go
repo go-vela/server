@@ -402,14 +402,6 @@ func PostWebhook(c *gin.Context) {
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
-				// check if the retry limit has been exceeded
-				if i < retryLimit {
-					logrus.WithError(retErr).Warning("retrying")
-
-					// continue to the next iteration of the loop
-					continue
-				}
-
 				util.HandleError(c, http.StatusNotFound, retErr)
 
 				h.SetStatus(constants.StatusFailure)
@@ -427,8 +419,8 @@ func PostWebhook(c *gin.Context) {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
 			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				logrus.WithError(retErr).Warning("retrying")
+			if i < retryLimit-1 {
+				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// continue to the next iteration of the loop
 				continue
@@ -499,6 +491,7 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+
 		// reset the pipeline type for the repo
 		//
 		// The pipeline type for a repo can change at any time which can break compiling
@@ -537,8 +530,8 @@ func PostWebhook(c *gin.Context) {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
 				// check if the retry limit has been exceeded
-				if i < retryLimit {
-					logrus.WithError(retErr).Warning("retrying")
+				if i < retryLimit-1 {
+					logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 					// continue to the next iteration of the loop
 					continue
@@ -569,13 +562,19 @@ func PostWebhook(c *gin.Context) {
 		b.SetPipelineID(pipeline.GetID())
 
 		// create the objects from the pipeline in the database
+		// TODO:
+		// - if a build gets created and something else fails midway,
+		//   the next loop will attempt to create the same build,
+		//   using the same Number and thus create a constraint
+		//   conflict; consider deleting the partially created
+		//   build object in the database
 		err = planBuild(database.FromContext(c), p, b, r)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
 			// check if the retry limit has been exceeded
-			if i < retryLimit {
-				logrus.WithError(retErr).Warning("retrying")
+			if i < retryLimit-1 {
+				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// reset fields set by cleanBuild for retry
 				b.SetError("")
@@ -596,12 +595,34 @@ func PostWebhook(c *gin.Context) {
 
 		// break the loop because everything was successful
 		break
-	}
+	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// return error if pipeline didn't get populated
+	if p == nil {
+		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, r.GetFullName(), err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// return error if build didn't get populated
+	if b == nil {
+		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -618,6 +639,8 @@ func PostWebhook(c *gin.Context) {
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
+
+		return
 	}
 
 	// set the BuildID field
