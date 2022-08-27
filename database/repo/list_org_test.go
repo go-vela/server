@@ -10,7 +10,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
-	"github.com/kr/pretty"
 )
 
 func TestRepo_Engine_ListReposForOrg(t *testing.T) {
@@ -107,7 +106,6 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				pretty.Ldiff(t, got, test.want)
 				t.Errorf("ListReposForOrg for %s is %v, want %v", test.name, got, test.want)
 			}
 		})

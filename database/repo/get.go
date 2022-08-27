@@ -22,7 +22,7 @@ func (e *engine) GetRepo(id int64) (*library.Repo, error) {
 		Table(constants.TableRepo).
 		Where("id = ?", id).
 		Limit(1).
-		Scan(r).
+		Take(r).
 		Error
 	if err != nil {
 		return nil, err

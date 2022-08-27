@@ -27,7 +27,7 @@ func (e *engine) GetRepoForOrg(org, name string) (*library.Repo, error) {
 		Where("org = ?", org).
 		Where("name = ?", name).
 		Limit(1).
-		Scan(r).
+		Take(r).
 		Error
 	if err != nil {
 		return nil, err

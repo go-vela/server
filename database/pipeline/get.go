@@ -22,7 +22,7 @@ func (e *engine) GetPipeline(id int64) (*library.Pipeline, error) {
 		Table(constants.TablePipeline).
 		Where("id = ?", id).
 		Limit(1).
-		Scan(p).
+		Take(p).
 		Error
 	if err != nil {
 		return nil, err

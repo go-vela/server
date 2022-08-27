@@ -22,7 +22,7 @@ func (e *engine) GetUser(id int64) (*library.User, error) {
 		Table(constants.TableUser).
 		Where("id = ?", id).
 		Limit(1).
-		Scan(u).
+		Take(u).
 		Error
 	if err != nil {
 		return nil, err
