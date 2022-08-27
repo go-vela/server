@@ -45,7 +45,7 @@ func AllRepos(c *gin.Context) {
 	logrus.Info("Admin: reading all repos")
 
 	// send API call to capture all repos
-	r, err := database.FromContext(c).GetRepoList()
+	r, err := database.FromContext(c).ListRepos()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all repos: %w", err)
 

@@ -38,18 +38,42 @@ func (e *engine) ListReposForOrg(org string, filters map[string]interface{}, pag
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
-	// TODO: add support for last update
-	err = e.client.
-		Table(constants.TableRepo).
-		Where("org = ?", org).
-		Where(filters).
-		Order("name").
-		Limit(perPage).
-		Offset(offset).
-		Find(&r).
-		Error
-	if err != nil {
-		return nil, count, err
+	switch filters["sort_by"] {
+	case "latest":
+		query := e.client.
+			Table(constants.TableBuild).
+			Select("repos.id, MAX(builds.created) AS latest_build").
+			Joins("INNER JOIN repos repos ON builds.repo_id = repos.id").
+			Where("repos.org = ?", org).
+			Group("repos.id")
+
+		err = e.client.
+			Table(constants.TableRepo).
+			Select("repos.*").
+			Joins("LEFT JOIN (?) t on repos.id = t.id", query).
+			Order("latest_build DESC NULLS LAST").
+			Limit(perPage).
+			Offset(offset).
+			Find(&r).
+			Error
+		if err != nil {
+			return nil, count, err
+		}
+	case "name":
+		fallthrough
+	default:
+		err = e.client.
+			Table(constants.TableRepo).
+			Where("org = ?", org).
+			Where(filters).
+			Order("name").
+			Limit(perPage).
+			Offset(offset).
+			Find(&r).
+			Error
+		if err != nil {
+			return nil, count, err
+		}
 	}
 
 	// iterate through all query results

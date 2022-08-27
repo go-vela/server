@@ -11,8 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetRepoForName gets a repo by org and repo name from the database.
-func (e *engine) GetRepoForName(org, name string) (*library.Repo, error) {
+// GetRepoForOrg gets a repo by org and repo name from the database.
+func (e *engine) GetRepoForOrg(org, name string) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,

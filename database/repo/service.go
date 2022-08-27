@@ -38,8 +38,8 @@ type RepoService interface {
 	DeleteRepo(*library.Repo) error
 	// GetRepo defines a function that gets a repo by ID.
 	GetRepo(int64) (*library.Repo, error)
-	// GetRepoForName defines a function that gets a repo by org and repo name.
-	GetRepoForName(string, string) (*library.Repo, error)
+	// GetRepoForOrg defines a function that gets a repo by org and repo name.
+	GetRepoForOrg(string, string) (*library.Repo, error)
 	// ListRepos defines a function that gets a list of all repos.
 	ListRepos() ([]*library.Repo, error)
 	// ListReposForOrg defines a function that gets a list of repos by org name.

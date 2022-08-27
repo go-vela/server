@@ -67,22 +67,22 @@ func TestRepo_Engine_GetRepoForName(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetRepoForName("foo", "bar")
+			got, err := test.database.GetRepoForOrg("foo", "bar")
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetRepoForName for %s should have returned err", test.name)
+					t.Errorf("GetRepoForOrg for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetRepoForName for %s returned err: %v", test.name, err)
+				t.Errorf("GetRepoForOrg for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetRepoForName for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("GetRepoForOrg for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}
