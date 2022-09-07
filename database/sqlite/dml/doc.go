@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/database/sqlite/dml"
+//	import "github.com/go-vela/server/database/sqlite/dml"
 package dml

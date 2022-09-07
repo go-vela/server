@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/database/sqlite"
+//	import "github.com/go-vela/server/database/sqlite"
 package sqlite

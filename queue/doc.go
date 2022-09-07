@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/queue"
+//	import "github.com/go-vela/server/queue"
 package queue
