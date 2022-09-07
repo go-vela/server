@@ -9,7 +9,7 @@ templates:
     format: golang
     type: github
     vars:
-      image: golang:1.19
+      image: golang:latest
   - name: starlark
     source: github.example.com/github/octocat/starlark_inline_stages.star
     format: starlark
