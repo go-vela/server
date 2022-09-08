@@ -122,7 +122,7 @@ func TestNative_RenderBuild(t *testing.T) {
 				t.Error(err)
 			}
 
-			got, err := RenderBuild(string(sFile), map[string]string{
+			got, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "master",
 			}, map[string]interface{}{})

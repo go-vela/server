@@ -42,7 +42,7 @@ type ModifyResponse struct {
 
 // Compile produces an executable pipeline from a yaml configuration.
 func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, error) {
-	p, data, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
+	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -106,7 +106,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
 func (c *client) CompileLite(v interface{}, template, substitute bool, localTemplates []string) (*yaml.Build, *library.Pipeline, error) {
-	p, data, err := c.Parse(v, c.repo.GetPipelineType(), map[string]interface{}{})
+	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -226,7 +226,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 			format = constants.PipelineTypeGo
 		}
 
-		parsed, _, err := c.Parse(bytes, format, template.Variables)
+		parsed, _, err := c.Parse(bytes, format, template)
 		if err != nil {
 			return nil, err
 		}
