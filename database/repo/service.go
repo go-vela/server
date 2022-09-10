@@ -43,9 +43,9 @@ type RepoService interface {
 	// ListRepos defines a function that gets a list of all repos.
 	ListRepos() ([]*library.Repo, error)
 	// ListReposForOrg defines a function that gets a list of repos by org name.
-	ListReposForOrg(string, map[string]interface{}, int, int) ([]*library.Repo, int64, error)
+	ListReposForOrg(string, string, map[string]interface{}, int, int) ([]*library.Repo, int64, error)
 	// ListReposForUser defines a function that gets a list of repos by user ID.
-	ListReposForUser(*library.User, map[string]interface{}, int, int) ([]*library.Repo, int64, error)
+	ListReposForUser(*library.User, string, map[string]interface{}, int, int) ([]*library.Repo, int64, error)
 	// UpdateRepo defines a function that updates an existing repo.
 	UpdateRepo(*library.Repo) error
 }

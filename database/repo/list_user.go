@@ -14,7 +14,7 @@ import (
 // ListReposForUser gets a list of repos by user ID from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (e *engine) ListReposForUser(u *library.User, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
+func (e *engine) ListReposForUser(u *library.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing repos for user %s from the database", u.GetName())
@@ -38,7 +38,7 @@ func (e *engine) ListReposForUser(u *library.User, filters map[string]interface{
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
-	switch filters["sort_by"] {
+	switch sortBy {
 	case "latest":
 		query := e.client.
 			Table(constants.TableBuild).

@@ -70,12 +70,7 @@ func SyncRepos(c *gin.Context) {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
-	// capture the query parameters if present:
-	//
-	// * sort_by
-	filters := map[string]interface{}{
-		"sort_by": util.QueryParameter(c, "sort_by", "name"),
-	}
+	filters := map[string]interface{}{}
 	// Only show public repos to non-admins
 	if perm != "admin" {
 		filters["visibility"] = constants.VisibilityPublic
@@ -95,7 +90,7 @@ func SyncRepos(c *gin.Context) {
 	page := 0
 	// capture all repos belonging to a certain org in database
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, _, err := database.FromContext(c).ListReposForOrg(o, filters, page, 100)
+		r, _, err := database.FromContext(c).ListReposForOrg(o, "name", filters, page, 100)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 

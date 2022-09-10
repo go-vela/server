@@ -361,17 +361,18 @@ func GetRepos(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
+	// capture the sort_by query parameter if present
+	sortBy := util.QueryParameter(c, "sort_by", "name")
+
 	// capture the query parameters if present:
 	//
 	// * active
-	// * sort_by
 	filters := map[string]interface{}{
-		"active":  util.QueryParameter(c, "active", "true"),
-		"sort_by": util.QueryParameter(c, "sort_by", "name"),
+		"active": util.QueryParameter(c, "active", "true"),
 	}
 
 	// send API call to capture the list of repos for the user
-	r, t, err := database.FromContext(c).ListReposForUser(u, filters, page, perPage)
+	r, t, err := database.FromContext(c).ListReposForUser(u, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for user %s: %w", u.GetName(), err)
 
@@ -492,13 +493,14 @@ func GetOrgRepos(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
+	// capture the sort_by query parameter if present
+	sortBy := util.QueryParameter(c, "sort_by", "name")
+
 	// capture the query parameters if present:
 	//
 	// * active
-	// * sort_by
 	filters := map[string]interface{}{
-		"active":  util.QueryParameter(c, "active", "true"),
-		"sort_by": util.QueryParameter(c, "sort_by", "name"),
+		"active": util.QueryParameter(c, "active", "true"),
 	}
 
 	// See if the user is an org admin to bypass individual permission checks
@@ -512,7 +514,7 @@ func GetOrgRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, t, err := database.FromContext(c).ListReposForOrg(o, filters, page, perPage)
+	r, t, err := database.FromContext(c).ListReposForOrg(o, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 

@@ -14,7 +14,7 @@ import (
 // ListReposForOrg gets a list of repos by org name from the database.
 //
 // nolint: lll // ignore long line length due to variable names
-func (e *engine) ListReposForOrg(org string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
+func (e *engine) ListReposForOrg(org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing repos for org %s from the database", org)
@@ -38,7 +38,7 @@ func (e *engine) ListReposForOrg(org string, filters map[string]interface{}, pag
 	// calculate offset for pagination through results
 	offset := perPage * (page - 1)
 
-	switch filters["sort_by"] {
+	switch sortBy {
 	case "latest":
 		query := e.client.
 			Table(constants.TableBuild).
