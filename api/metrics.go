@@ -364,7 +364,7 @@ func recordGauges(c *gin.Context) {
 	// worker_build_limit, active_worker_count, inactive_worker_count
 	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount {
 		// send API call to capture the workers
-		workers, err := database.FromContext(c).GetWorkerList()
+		workers, err := database.FromContext(c).ListWorkers()
 		if err != nil {
 			logrus.Errorf("unable to get workers: %v", err)
 		}
