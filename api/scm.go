@@ -6,6 +6,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/go-vela/types/constants"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -69,14 +70,14 @@ func SyncRepos(c *gin.Context) {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
-	filters := map[string]string{}
+	filters := map[string]interface{}{}
 	// Only show public repos to non-admins
 	if perm != "admin" {
-		filters["visibility"] = "public"
+		filters["visibility"] = constants.VisibilityPublic
 	}
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(o, filters)
+	t, err := database.FromContext(c).CountReposForOrg(o, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -89,7 +90,7 @@ func SyncRepos(c *gin.Context) {
 	page := 0
 	// capture all repos belonging to a certain org in database
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, 100, "name")
+		r, _, err := database.FromContext(c).ListReposForOrg(o, "name", filters, page, 100)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
