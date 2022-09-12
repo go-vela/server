@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -71,7 +71,7 @@ var baseErr = "unable to process webhook"
 // a webhook from a source control provider and
 // publish it to the configure queue.
 //
-// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func PostWebhook(c *gin.Context) {
 	logrus.Info("webhook received")
 
@@ -105,10 +105,10 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// add the request body to the original request
-	c.Request.Body = ioutil.NopCloser(&buf)
+	c.Request.Body = io.NopCloser(&buf)
 
 	// add the request body to the duplicate request
-	dupRequest.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
+	dupRequest.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
 	//
 	// -------------------- End of TODO: --------------------
 
@@ -548,7 +548,7 @@ func PostWebhook(c *gin.Context) {
 			// send API call to capture the created pipeline
 			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
 			if err != nil {
-				// nolint: lll // ignore long line length due to error message
+				//nolint:lll // ignore long line length due to error message
 				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, r.GetFullName(), pipeline.GetCommit(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 

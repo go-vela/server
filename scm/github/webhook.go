@@ -22,8 +22,9 @@ import (
 	"github.com/google/go-github/v44/github"
 )
 
-// nolint: nilerr // ignore webhook returning nil
 // ProcessWebhook parses the webhook from a repo.
+//
+//nolint:nilerr // ignore webhook returning nil
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
@@ -93,7 +94,7 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 // RedeliverWebhook redelivers webhooks from GitHub.
 func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token
-	// nolint: contextcheck // do not need to pass context in this instance
+	//nolint:contextcheck // do not need to pass context in this instance
 	client := c.newClientToken(*u.Token)
 
 	// capture the delivery ID of the hook using GitHub API

@@ -86,7 +86,7 @@ func server(c *cli.Context) error {
 	router := router.Load(
 		middleware.Compiler(compiler),
 		middleware.Database(database),
-		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
+		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
@@ -129,7 +129,7 @@ func server(c *cli.Context) error {
 			}
 		}()
 
-		// nolint: gosimple // ignore this for now
+		//nolint:gosimple // ignore this for now
 		for {
 			select {
 			case <-tomb.Dying():

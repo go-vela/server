@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/router/middleware/token"
+//	import "github.com/go-vela/server/router/middleware/token"
 package token

@@ -72,7 +72,7 @@ import (
 // CreateStep represents the API handler to create
 // a step for a build in the configured backend.
 //
-// nolint: dupl // ignore similar code with service
+//nolint:dupl // ignore similar code with service
 func CreateStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -512,7 +512,7 @@ func UpdateStep(c *gin.Context) {
 // DeleteStep represents the API handler to remove
 // a step for a build from the configured backend.
 //
-// nolint: dupl // ignore similar code with service
+//nolint:dupl // ignore similar code with service
 func DeleteStep(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

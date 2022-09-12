@@ -13,7 +13,7 @@ import (
 
 // ListPipelinesForRepo gets a list of pipelines by repo ID from the database.
 //
-// nolint: lll // ignore long line length due to variable names
+//nolint:lll // ignore long line length due to variable names
 func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*library.Pipeline, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

@@ -87,7 +87,7 @@ func TestMiddleware_Logger(t *testing.T) {
 	engine.Use(func(c *gin.Context) { user.ToContext(c, u) })
 	engine.Use(func(c *gin.Context) { worker.ToContext(c, w) })
 	engine.Use(Payload())
-	engine.Use(Logger(logger, time.RFC3339, true))
+	engine.Use(Logger(logger, time.RFC3339))
 	engine.POST("/foobar", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
@@ -127,9 +127,9 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foobar", nil)
 
 	// setup mock server
-	engine.Use(Logger(logger, time.RFC3339, true))
+	engine.Use(Logger(logger, time.RFC3339))
 	engine.GET("/foobar", func(c *gin.Context) {
-		// nolint: errcheck // ignore checking error
+		//nolint:errcheck // ignore checking error
 		c.Error(fmt.Errorf("test error"))
 		c.Status(http.StatusOK)
 	})
