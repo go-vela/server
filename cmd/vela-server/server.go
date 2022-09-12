@@ -118,7 +118,11 @@ func server(c *cli.Context) error {
 		}
 
 		// gin expects the address to be ":<port>" ie ":8080"
-		srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: router}
+		srv := &http.Server{
+			Addr:              fmt.Sprintf(":%s", port),
+			Handler:           router,
+			ReadHeaderTimeout: 60 * time.Second,
+		}
 
 		logrus.Infof("running server on %s", addr.Host)
 		go func() {
