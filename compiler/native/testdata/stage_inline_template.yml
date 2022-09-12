@@ -9,7 +9,7 @@ templates:
     format: golang
     type: github
     vars:
-      image: golang:1.17
+      image: golang:latest
 
 stages:
   test:

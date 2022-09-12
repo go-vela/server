@@ -10,11 +10,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: golang:1.17
+
     steps:
     - name: clone
       uses: actions/checkout@v3
+
+    - name: install go
+      uses: actions/setup-go@v3
+      with:
+        # use version from go.mod file
+        go-version-file: 'go.mod'
+        cache: true
 
     - name: build
       run: |
