@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/database/postgres/ddl"
+//	import "github.com/go-vela/server/database/postgres/ddl"
 package ddl

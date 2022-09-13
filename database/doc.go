@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/database"
+//	import "github.com/go-vela/server/database"
 package database

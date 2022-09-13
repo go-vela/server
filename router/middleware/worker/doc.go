@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/router/middleware/worker"
+//	import "github.com/go-vela/server/router/middleware/worker"
 package worker
