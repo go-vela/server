@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/router/middleware/perm"
+//	import "github.com/go-vela/server/router/middleware/perm"
 package perm

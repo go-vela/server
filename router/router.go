@@ -6,27 +6,27 @@
 //
 // API for the Vela server
 //
-//     Version: 0.0.0-dev
-//     Schemes: http, https
-//     Host: localhost
+//	Version: 0.0.0-dev
+//	Schemes: http, https
+//	Host: localhost
 //
-//     Consumes:
-//     - application/json
+//	Consumes:
+//	- application/json
 //
-//     Produces:
-//     - application/json
+//	Produces:
+//	- application/json
 //
-//     SecurityDefinitions:
-//       ApiKeyAuth:
-//         description: Bearer token
-//         type: apiKey
-//         in: header
-//         name: Authorization
-//       CookieAuth:
-//         description: Refresh token sent as cookie (swagger 2.0 doesn't support cookie auth)
-//         type: apiKey
-//         in: header
-//         name: vela_refresh_token
+//	SecurityDefinitions:
+//	  ApiKeyAuth:
+//	    description: Bearer token
+//	    type: apiKey
+//	    in: header
+//	    name: Authorization
+//	  CookieAuth:
+//	    description: Refresh token sent as cookie (swagger 2.0 doesn't support cookie auth)
+//	    type: apiKey
+//	    in: header
+//	    name: vela_refresh_token
 //
 // swagger:meta
 package router
