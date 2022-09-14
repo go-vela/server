@@ -43,7 +43,7 @@ func (c *client) List(sType, org, name string, _, _ int, _ []string) ([]*library
 	var err error
 
 	s := []*library.Secret{}
-	// nolint: staticcheck // ignore false positive
+	//nolint:staticcheck // ignore false positive
 	vault := new(api.Secret)
 
 	// capture the list of secrets from the Vault service

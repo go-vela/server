@@ -19,7 +19,7 @@ import (
 
 // GetBuild gets a build by number and repo ID from the database.
 //
-// nolint: dupl // ignore similar code with hook
+//nolint:dupl // ignore similar code with hook
 func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": number,

@@ -69,7 +69,7 @@ import (
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
 //
-// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -650,7 +650,8 @@ func GetRepo(c *gin.Context) {
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
-// nolint: funlen // ignore line length
+//
+//nolint:funlen // ignore line length
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

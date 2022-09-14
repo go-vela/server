@@ -6,9 +6,9 @@ package github
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -41,7 +41,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -95,7 +95,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -191,7 +191,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -245,7 +245,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -300,7 +300,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}

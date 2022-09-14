@@ -27,7 +27,7 @@ type client struct {
 // New returns a Registry implementation that integrates
 // with GitHub or a GitHub Enterprise instance.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(address, token string) (*client, error) {
 	// create the client object
 	c := &client{
