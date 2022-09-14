@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/template"
+//	import "github.com/go-vela/server/template"
 package template

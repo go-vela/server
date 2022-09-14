@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/database/postgres"
+//	import "github.com/go-vela/server/database/postgres"
 package postgres
