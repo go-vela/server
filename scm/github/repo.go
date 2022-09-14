@@ -217,7 +217,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 		state = "success"
 		description = "the build was successful"
 	case constants.StatusFailure:
-		// nolint: goconst // ignore making constant
+		//nolint:goconst // ignore making constant
 		state = "failure"
 		description = "the build has failed"
 	case constants.StatusCanceled:

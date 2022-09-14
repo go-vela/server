@@ -27,8 +27,7 @@ import (
 //
 // It receives:
 //  1. A time package format string (e.g. time.RFC3339).
-//  2. A boolean stating whether to use UTC time zone or local.
-func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc {
+func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		// some evil middlewares modify this values
@@ -37,11 +36,8 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 		c.Next()
 
 		end := time.Now()
-		latency := end.Sub(start)
 
-		if utc {
-			end = end.UTC()
-		}
+		latency := end.Sub(start)
 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {

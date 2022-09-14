@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore duplicate with user code
+//nolint:dupl // ignore duplicate with user code
 package server
 
 import (
@@ -16,7 +16,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// nolint:gosec // these are mock responses
+//nolint:gosec // these are mock responses
 const (
 	// SecretResp represents a JSON return for a single secret.
 	SecretResp = `{
