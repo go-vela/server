@@ -221,9 +221,10 @@ func CreateRepo(c *gin.Context) {
 		r.SetHash(dbRepo.GetHash())
 	}
 
+	hook := new(library.Hook)
 	// send API call to create the webhook
 	if c.Value("webhookvalidation").(bool) {
-		hook, _, err := scm.FromContext(c).Enable(u, r)
+		hook, _, err = scm.FromContext(c).Enable(u, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -235,19 +236,6 @@ func CreateRepo(c *gin.Context) {
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		// update initialization hook
-		hook.SetRepoID(r.GetID())
-
-		// create first hook for repo in the database
-		err = database.FromContext(c).CreateHook(hook)
-		if err != nil {
-			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -289,6 +277,21 @@ func CreateRepo(c *gin.Context) {
 
 		// send API call to capture the created repo
 		r, _ = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+	}
+
+	// create init hook in the DB after repo has been added in order to capture its ID
+	if c.Value("webhookvalidation").(bool) {
+		// update initialization hook
+		hook.SetRepoID(r.GetID())
+		// create first hook for repo in the database
+		err = database.FromContext(c).CreateHook(hook)
+		if err != nil {
+			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, r)
