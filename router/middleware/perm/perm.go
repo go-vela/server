@@ -205,7 +205,7 @@ func MustAdmin() gin.HandlerFunc {
 		}
 
 		switch perm {
-		// nolint: goconst // ignore making constant
+		//nolint:goconst // ignore making constant
 		case "admin":
 			return
 		default:

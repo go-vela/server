@@ -17,7 +17,7 @@ import (
 
 // GetSecretList gets a list of all secrets from the database.
 //
-// nolint: dupl // ignore false positive of duplicate code
+//nolint:dupl // ignore false positive of duplicate code
 func (c *client) GetSecretList() ([]*library.Secret, error) {
 	c.Logger.Tracef("listing secrets from the database")
 

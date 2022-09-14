@@ -61,7 +61,7 @@ type client struct {
 // New returns a SCM implementation that integrates with
 // a GitHub or a GitHub Enterprise instance.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new GitHub client
 	c := new(client)
@@ -120,7 +120,7 @@ func New(opts ...ClientOpt) (*client, error) {
 //
 // This function is intended for running tests only.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func NewTest(urls ...string) (*client, error) {
 	address := urls[0]
 	server := address

@@ -5,9 +5,9 @@
 package github
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 
@@ -49,7 +49,7 @@ func TestGithub_Template(t *testing.T) {
 		Name: "template.yml",
 	}
 
-	want, err := ioutil.ReadFile("testdata/template.yml")
+	want, err := os.ReadFile("testdata/template.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 		Ref:  "main",
 	}
 
-	want, err := ioutil.ReadFile("testdata/template.yml")
+	want, err := os.ReadFile("testdata/template.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -176,7 +176,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 		Name: "template.yml",
 	}
 
-	want, err := ioutil.ReadFile("testdata/template.yml")
+	want, err := os.ReadFile("testdata/template.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}

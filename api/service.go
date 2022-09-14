@@ -75,7 +75,7 @@ import (
 // CreateService represents the API handler to create
 // a service for a build in the configured backend.
 //
-// nolint: dupl // ignore similar code with step
+//nolint:dupl // ignore similar code with step
 func CreateService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -511,7 +511,7 @@ func UpdateService(c *gin.Context) {
 // DeleteService represents the API handler to remove
 // a service for a build from the configured backend.
 //
-// nolint: dupl // ignore similar code with step
+//nolint:dupl // ignore similar code with step
 func DeleteService(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
