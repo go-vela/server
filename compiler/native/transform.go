@@ -33,7 +33,7 @@ const (
 	// default ID for secrets in a pipeline.
 	// format: `secret_<org name>_<repo name>_<build number>_<secret name>`
 	//
-	// nolint: gosec // ignore gosec keying off of secret as no credentials are hardcoded
+	//nolint:gosec // ignore gosec keying off of secret as no credentials are hardcoded
 	secretID = "secret_%s_%s_%d_%s"
 )
 

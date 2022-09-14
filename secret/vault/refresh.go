@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -102,7 +102,7 @@ func (c *client) generateAwsAuthHeader() (map[string]interface{}, error) {
 	}
 
 	// read the STS request body
-	requestBody, err := ioutil.ReadAll(req.Body)
+	requestBody, err := io.ReadAll(req.Body)
 	if err != nil {
 		return nil, err
 	}

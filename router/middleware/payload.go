@@ -7,7 +7,7 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,7 +24,7 @@ func Payload() gin.HandlerFunc {
 
 		c.Set("payload", payload)
 
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 		c.Next()
 	}

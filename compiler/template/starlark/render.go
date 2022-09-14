@@ -136,7 +136,7 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 
 // RenderBuild renders the templated build.
 //
-// nolint: lll // ignore function length due to input args
+//nolint:lll // ignore function length due to input args
 func RenderBuild(b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	config := new(types.Build)
 

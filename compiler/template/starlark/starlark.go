@@ -33,7 +33,7 @@ var (
 //
 // https://github.com/wonderix/shalm/blob/899b8f7787883d40619eefcc39bd12f42a09b5e7/pkg/shalm/convert.go#L14-L85
 //
-// nolint: gocyclo // ignore complexity
+//nolint:gocyclo // ignore complexity
 func toStarlark(value interface{}) (starlark.Value, error) {
 	logrus.Tracef("converting %v to starlark type", value)
 
@@ -152,7 +152,7 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 // if/when we try to return values it breaks the recursion. Panics were swapped to error
 // returns from implementation.
 //
-// nolint: gocyclo // ignore cyclomatic complexity
+//nolint:gocyclo // ignore cyclomatic complexity
 func writeJSON(out *bytes.Buffer, v starlark.Value) error {
 	logrus.Tracef("converting %v to JSON", v)
 

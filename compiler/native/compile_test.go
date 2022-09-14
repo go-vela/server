@@ -7,9 +7,9 @@ package native
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 
 	"github.com/go-vela/types/constants"
@@ -242,7 +242,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	}
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/stages_pipeline.yml")
+	yaml, err := os.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -297,7 +297,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	number := 1
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/stages_pipeline.yml")
+	yaml, err := os.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -365,7 +365,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	number := 1
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/steps_pipeline.yml")
+	yaml, err := os.ReadFile("testdata/steps_pipeline.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -572,7 +572,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	}
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/steps_pipeline.yml")
+	yaml, err := os.ReadFile("testdata/steps_pipeline.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -823,7 +823,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	}
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/stages_pipeline_template.yml")
+	yaml, err := os.ReadFile("testdata/stages_pipeline_template.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1060,7 +1060,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	}
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/steps_pipeline_template.yml")
+	yaml, err := os.ReadFile("testdata/steps_pipeline_template.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1136,7 +1136,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 	dockerEnv["PARAMETER_TAGS"] = "latest,dev"
 
 	// run test
-	invalidYaml, err := ioutil.ReadFile("testdata/invalid_type.yml")
+	invalidYaml, err := os.ReadFile("testdata/invalid_type.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1319,7 +1319,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// run test
-			yaml, err := ioutil.ReadFile(tt.args.file)
+			yaml, err := os.ReadFile(tt.args.file)
 			if err != nil {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
@@ -1522,7 +1522,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// run test
-			yaml, err := ioutil.ReadFile(tt.args.file)
+			yaml, err := os.ReadFile(tt.args.file)
 			if err != nil {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
@@ -1556,7 +1556,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 	number := 1
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/metadata.yml")
+	yaml, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1588,7 +1588,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 	number := 1
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/steps_and_stages.yml")
+	yaml, err := os.ReadFile("testdata/steps_and_stages.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1869,7 +1869,7 @@ func Test_client_modifyConfig(t *testing.T) {
 }
 
 func convertFileToGithubResponse(file string) (github.RepositoryContent, error) {
-	body, err := ioutil.ReadFile(filepath.Join("testdata", file))
+	body, err := os.ReadFile(filepath.Join("testdata", file))
 	if err != nil {
 		return github.RepositoryContent{}, err
 	}
@@ -2633,7 +2633,7 @@ func Test_Compile_Inline(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			yaml, err := ioutil.ReadFile(tt.args.file)
+			yaml, err := os.ReadFile(tt.args.file)
 			if err != nil {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
@@ -2972,7 +2972,7 @@ func Test_CompileLite(t *testing.T) {
 				compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
 			}
 
-			yaml, err := ioutil.ReadFile(tt.args.file)
+			yaml, err := os.ReadFile(tt.args.file)
 			if err != nil {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
