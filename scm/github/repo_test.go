@@ -602,6 +602,13 @@ func TestGithub_Enable(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	wantHook := new(library.Hook)
+	wantHook.SetWebhookID(1)
+	wantHook.SetSourceID("bar-initialize")
+	wantHook.SetCreated(1315329987)
+	wantHook.SetNumber(1)
+	wantHook.SetEvent("initialize")
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetName("bar")
@@ -614,7 +621,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, _, err := client.Enable(u, r)
+	got, _, err := client.Enable(u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -622,6 +629,10 @@ func TestGithub_Enable(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Enable returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(wantHook, got) {
+		t.Errorf("Enable returned hook %v, want %v", got, wantHook)
 	}
 }
 

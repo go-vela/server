@@ -190,6 +190,7 @@ func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string
 	// create the first hook for the repo and record its ID from GitHub
 	webhook := new(library.Hook)
 	webhook.SetWebhookID(hookInfo.GetID())
+	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
 	webhook.SetEvent(eventInitialize)
 	webhook.SetNumber(1)
