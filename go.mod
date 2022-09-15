@@ -31,7 +31,7 @@ require (
 	github.com/spf13/afero v1.9.2
 	github.com/urfave/cli/v2 v2.11.1
 	go.starlark.net v0.0.0-20220817180228-f738f5508c12
-	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
+	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.3.8
