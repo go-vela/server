@@ -21,7 +21,6 @@ func (e *engine) GetRepo(id int64) (*library.Repo, error) {
 	err := e.client.
 		Table(constants.TableRepo).
 		Where("id = ?", id).
-		Limit(1).
 		Take(r).
 		Error
 	if err != nil {

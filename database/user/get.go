@@ -21,7 +21,6 @@ func (e *engine) GetUser(id int64) (*library.User, error) {
 	err := e.client.
 		Table(constants.TableUser).
 		Where("id = ?", id).
-		Limit(1).
 		Take(u).
 		Error
 	if err != nil {
