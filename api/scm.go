@@ -6,7 +6,6 @@ package api
 
 import (
 	"fmt"
-	"github.com/go-vela/types/constants"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +15,7 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
