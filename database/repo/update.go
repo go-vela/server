@@ -2,10 +2,12 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
+//nolint:dupl // ignore similar code with create.go
 package repo
 
 import (
 	"fmt"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
