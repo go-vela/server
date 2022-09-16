@@ -32,11 +32,17 @@ jobs:
 
   full-review:
     runs-on: ubuntu-latest
-    container:
-      image: golang:1.19
+
     steps:
     - name: clone
       uses: actions/checkout@v3
+
+    - name: install go
+      uses: actions/setup-go@v3
+      with:
+        # use version from go.mod file
+        go-version-file: 'go.mod'
+        cache: true
 
     - name: golangci-lint
       uses: reviewdog/action-golangci-lint@v2
