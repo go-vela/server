@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -266,12 +266,12 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 		case len(parsed.Secrets) > 0:
 			newPipeline.Secrets = append(newPipeline.Secrets, parsed.Secrets...)
 		default:
-			// nolint: lll // ignore long line length due to error message
+			//nolint:lll // ignore long line length due to error message
 			return nil, fmt.Errorf("empty template %s provided: template must contain secrets, services, stages or steps", template.Name)
 		}
 
 		if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
-			// nolint: lll // ignore long line length due to error message
+			//nolint:lll // ignore long line length due to error message
 			return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
 		}
 	}
@@ -287,7 +287,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
 //
-// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
+//nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
@@ -384,7 +384,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
 //
-// nolint:dupl,lll // linter thinks the steps and stages workflows are identical
+//nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
@@ -547,7 +547,7 @@ func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, re
 		return nil, fmt.Errorf("modification endpoint returned status code %v", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read payload: %w", err)
 	}

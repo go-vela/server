@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"errors"
 	"flag"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -36,7 +35,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/metadata.yml")
+	b, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -133,7 +132,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/metadata.yml")
+	b, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -161,7 +160,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/metadata.yml")
+	b, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -208,7 +207,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/parameters.yml")
+	b, err := os.ReadFile("testdata/parameters.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -334,7 +333,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/stages_pipeline.yml")
+	b, err := os.ReadFile("testdata/stages_pipeline.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -431,7 +430,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/steps_pipeline.yml")
+	b, err := os.ReadFile("testdata/steps_pipeline.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -494,7 +493,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/secrets.yml")
+	b, err := os.ReadFile("testdata/secrets.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -570,7 +569,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/stages.yml")
+	b, err := os.ReadFile("testdata/stages.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -628,7 +627,7 @@ func TestNative_Parse_Steps(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/steps.yml")
+	b, err := os.ReadFile("testdata/steps.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -656,7 +655,7 @@ func TestNative_ParseBytes_Metadata(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/metadata.yml")
+	b, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -674,7 +673,7 @@ func TestNative_ParseBytes_Metadata(t *testing.T) {
 
 func TestNative_ParseBytes_Invalid(t *testing.T) {
 	// run test
-	b, err := ioutil.ReadFile("testdata/invalid.yml")
+	b, err := os.ReadFile("testdata/invalid.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -788,7 +787,7 @@ func TestNative_ParseReader_Metadata(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/metadata.yml")
+	b, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -829,7 +828,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 	}
 
 	// run test
-	b, err := ioutil.ReadFile("testdata/metadata.yml")
+	b, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -893,7 +892,7 @@ func Test_client_Parse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			content, err := ioutil.ReadFile(tt.args.file)
+			content, err := os.ReadFile(tt.args.file)
 			if err != nil {
 				t.Errorf("Reading file returned err: %v", err)
 			}
@@ -920,7 +919,7 @@ func Test_client_Parse(t *testing.T) {
 }
 
 func Test_client_ParseRaw(t *testing.T) {
-	expected, err := ioutil.ReadFile("testdata/metadata.yml")
+	expected, err := os.ReadFile("testdata/metadata.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -949,7 +948,7 @@ func Test_client_ParseRaw(t *testing.T) {
 			var err error
 			switch tt.args.kind {
 			case "byte":
-				content, err = ioutil.ReadFile("testdata/metadata.yml")
+				content, err = os.ReadFile("testdata/metadata.yml")
 				if err != nil {
 					t.Errorf("Reading file returned err: %v", err)
 				}
@@ -959,7 +958,7 @@ func Test_client_ParseRaw(t *testing.T) {
 					t.Errorf("Reading file returned err: %v", err)
 				}
 			case "ioreader":
-				b, err := ioutil.ReadFile("testdata/metadata.yml")
+				b, err := os.ReadFile("testdata/metadata.yml")
 				if err != nil {
 					t.Errorf("ParseReader returned err: %v", err)
 				}

@@ -219,17 +219,17 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 	return bytes, nil
 }
 
-// nolint: lll // ignore long line length due to input arguments
+//nolint:lll // ignore long line length due to input arguments
 func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, error) {
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, "golang", "":
-		// nolint: lll // ignore long line length due to return
+		//nolint:lll // ignore long line length due to return
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
-		// nolint: lll // ignore long line length due to return
+		//nolint:lll // ignore long line length due to return
 		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	default:
-		// nolint: lll // ignore long line length due to return
+		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
 }

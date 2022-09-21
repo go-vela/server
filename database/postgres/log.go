@@ -59,7 +59,7 @@ func (c *client) GetBuildLogs(id int64) ([]*library.Log, error) {
 
 // GetStepLog gets a log by unique ID from the database.
 //
-// nolint: dupl // ignore similar code with service
+//nolint:dupl // ignore similar code with service
 func (c *client) GetStepLog(id int64) (*library.Log, error) {
 	c.Logger.Tracef("getting log for step %d from the database", id)
 
@@ -97,7 +97,7 @@ func (c *client) GetStepLog(id int64) (*library.Log, error) {
 
 // GetServiceLog gets a log by unique ID from the database.
 //
-// nolint: dupl // ignore similar code with step
+//nolint:dupl // ignore similar code with step
 func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 	c.Logger.Tracef("getting log for service %d from the database", id)
 
@@ -135,7 +135,7 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 
 // CreateLog creates a new log in the database.
 //
-// nolint: dupl // ignore false positive of duplicate code
+//nolint:dupl // ignore false positive of duplicate code
 func (c *client) CreateLog(l *library.Log) error {
 	// check if the log entry is for a step
 	if l.GetStepID() > 0 {
@@ -169,7 +169,7 @@ func (c *client) CreateLog(l *library.Log) error {
 
 // UpdateLog updates a log in the database.
 //
-// nolint: dupl // ignore false positive of duplicate code
+//nolint:dupl // ignore false positive of duplicate code
 func (c *client) UpdateLog(l *library.Log) error {
 	// check if the log entry is for a step
 	if l.GetStepID() > 0 {

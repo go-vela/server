@@ -35,7 +35,7 @@ func (c *client) Count(sType, org, name string, _ []string) (i int64, err error)
 
 	c.Logger.WithFields(fields).Tracef("counting vault %s secrets for %s/%s", sType, org, name)
 
-	// nolint: staticcheck // ignore false positive
+	//nolint:staticcheck // ignore false positive
 	vault := new(api.Secret)
 	count := 0
 

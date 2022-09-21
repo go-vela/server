@@ -5,7 +5,7 @@
 package native
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	goyaml "github.com/buildkite/yaml"
@@ -43,7 +43,7 @@ func TestNative_Render(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sFile, err := ioutil.ReadFile(tt.args.velaFile)
+			sFile, err := os.ReadFile(tt.args.velaFile)
 			if err != nil {
 				t.Error(err)
 			}
@@ -56,7 +56,7 @@ func TestNative_Render(t *testing.T) {
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 			}
 
-			tmpl, err := ioutil.ReadFile(tt.args.templateFile)
+			tmpl, err := os.ReadFile(tt.args.templateFile)
 			if err != nil {
 				t.Error(err)
 			}
@@ -68,7 +68,7 @@ func TestNative_Render(t *testing.T) {
 			}
 
 			if tt.wantErr != true {
-				wFile, err := ioutil.ReadFile(tt.wantFile)
+				wFile, err := os.ReadFile(tt.wantFile)
 				if err != nil {
 					t.Error(err)
 				}
@@ -117,7 +117,7 @@ func TestNative_RenderBuild(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sFile, err := ioutil.ReadFile(tt.args.velaFile)
+			sFile, err := os.ReadFile(tt.args.velaFile)
 			if err != nil {
 				t.Error(err)
 			}
@@ -132,7 +132,7 @@ func TestNative_RenderBuild(t *testing.T) {
 			}
 
 			if tt.wantErr != true {
-				wFile, err := ioutil.ReadFile(tt.wantFile)
+				wFile, err := os.ReadFile(tt.wantFile)
 				if err != nil {
 					t.Error(err)
 				}

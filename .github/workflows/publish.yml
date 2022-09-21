@@ -1,10 +1,10 @@
 # name of the action
 name: publish
 
-# trigger on push events with branch master
+# trigger on push events with branch main
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 # pipeline to execute
 jobs:

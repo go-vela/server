@@ -15,7 +15,7 @@ import (
 // HandleError appends the error to the handler chain for logging and outputs it.
 func HandleError(c *gin.Context, status int, err error) {
 	msg := err.Error()
-	// nolint: errcheck // ignore checking error
+	//nolint:errcheck // ignore checking error
 	c.Error(err)
 	c.AbortWithStatusJSON(status, types.Error{Message: &msg})
 }
