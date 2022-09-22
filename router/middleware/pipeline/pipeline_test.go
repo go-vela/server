@@ -104,7 +104,7 @@ func TestPipeline_Establish(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreatePipeline(want)
+	_, _ = db.CreatePipeline(want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

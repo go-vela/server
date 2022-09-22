@@ -316,22 +316,11 @@ func CreateBuild(c *gin.Context) {
 		pipeline.SetRef(input.GetRef())
 
 		// send API call to create the pipeline
-		err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to create pipeline for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		// send API call to capture the created pipeline
-		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
-		if err != nil {
-			//nolint:lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to create new build: failed to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
 		}
@@ -1145,22 +1134,11 @@ func RestartBuild(c *gin.Context) {
 		pipeline.SetRef(b.GetRef())
 
 		// send API call to create the pipeline
-		err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create pipeline for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		// send API call to capture the created pipeline
-		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
-		if err != nil {
-			//nolint:lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			return
 		}

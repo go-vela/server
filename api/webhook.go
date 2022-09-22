@@ -525,7 +525,7 @@ func PostWebhook(c *gin.Context) {
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			err = database.FromContext(c).CreatePipeline(pipeline)
+			pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -538,19 +538,6 @@ func PostWebhook(c *gin.Context) {
 				}
 
 				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
-
-				return
-			}
-
-			// send API call to capture the created pipeline
-			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
-			if err != nil {
-				//nolint:lll // ignore long line length due to error message
-				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, r.GetFullName(), pipeline.GetCommit(), err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(retErr.Error())

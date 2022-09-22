@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -57,7 +58,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreatePipeline(_pipeline)
+			got, err := test.database.CreatePipeline(_pipeline)
 
 			if test.failure {
 				if err == nil {
@@ -69,6 +70,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("CreatePipeline for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _pipeline) {
+				t.Errorf("CreatePipeline for %s is %v, want %v", test.name, got, _pipeline)
 			}
 		})
 	}

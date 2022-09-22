@@ -31,7 +31,7 @@ func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(_pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}

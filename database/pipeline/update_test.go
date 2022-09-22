@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -33,7 +34,7 @@ WHERE "id" = $15`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(_pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -59,7 +60,7 @@ WHERE "id" = $15`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdatePipeline(_pipeline)
+			got, err := test.database.UpdatePipeline(_pipeline)
 
 			if test.failure {
 				if err == nil {
@@ -71,6 +72,10 @@ WHERE "id" = $15`).
 
 			if err != nil {
 				t.Errorf("UpdatePipeline for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _pipeline) {
+				t.Errorf("UpdatePipeline for %s is %v, want %v", test.name, got, _pipeline)
 			}
 		})
 	}

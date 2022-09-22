@@ -2,6 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
+//nolint:dupl // suppress duplicate code complaint.
 package pipeline
 
 import (
@@ -12,7 +13,7 @@ import (
 )
 
 // CreatePipeline creates a new pipeline in the database.
-func (e *engine) CreatePipeline(p *library.Pipeline) error {
+func (e *engine) CreatePipeline(p *library.Pipeline) (*library.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("creating pipeline %s in the database", p.GetCommit())
@@ -27,20 +28,28 @@ func (e *engine) CreatePipeline(p *library.Pipeline) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Validate
 	err := pipeline.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	decompressPipeline := *pipeline
 
 	// compress data for the pipeline
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Compress
 	err = pipeline.Compress(e.config.CompressionLevel)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
+	err = e.client.
 		Table(constants.TablePipeline).
 		Create(pipeline).
 		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return decompressPipeline.ToLibrary(), nil
 }
