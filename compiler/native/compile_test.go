@@ -1178,7 +1178,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	}
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/template_name.yml")
+	yaml, err := os.ReadFile("testdata/template_name.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
@@ -1296,7 +1296,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 	}
 
 	// run test
-	yaml, err := ioutil.ReadFile("testdata/template_name_inline.yml")
+	yaml, err := os.ReadFile("testdata/template_name_inline.yml")
 	if err != nil {
 		t.Errorf("Reading yaml file return err: %v", err)
 	}
