@@ -309,7 +309,7 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 	return toLibraryRepo(*repo), nil
 }
 
-// IsRepo checks to see if repo exists in GitHub.
+// GetRepoName returns the name of the repository in the SCM.
 func (c *client) GetRepoName(u *library.User, o string, r string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,

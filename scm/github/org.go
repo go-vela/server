@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// GetOrg gets repo information from Github.
+// GetOrgName gets org name from Github.
 func (c *client) GetOrgName(u *library.User, o string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
