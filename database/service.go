@@ -86,10 +86,10 @@ type Service interface {
 	GetRepoHookCount(*library.Repo) (int64, error)
 	// CreateHook defines a function that
 	// creates a new webhook.
-	CreateHook(*library.Hook) error
+	CreateHook(*library.Hook) (*library.Hook, error)
 	// UpdateHook defines a function that
 	// updates a webhook.
-	UpdateHook(*library.Hook) error
+	UpdateHook(*library.Hook) (*library.Hook, error)
 	// DeleteHook defines a function that
 	// deletes a webhook by unique ID.
 	DeleteHook(int64) error

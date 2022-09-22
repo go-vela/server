@@ -77,12 +77,12 @@ func TestSqlite_Client_GetRepoHookCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from hooks;")
 
 		// create the hooks in the database
-		err := _database.CreateHook(_hookOne)
+		_, err := _database.CreateHook(_hookOne)
 		if err != nil {
 			t.Errorf("unable to create test hook: %v", err)
 		}
 
-		err = _database.CreateHook(_hookTwo)
+		_, err = _database.CreateHook(_hookTwo)
 		if err != nil {
 			t.Errorf("unable to create test hook: %v", err)
 		}

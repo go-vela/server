@@ -154,7 +154,7 @@ func PostWebhook(c *gin.Context) {
 
 	defer func() {
 		// send API call to update the webhook
-		err = database.FromContext(c).UpdateHook(h)
+		_, err = database.FromContext(c).UpdateHook(h)
 		if err != nil {
 			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
@@ -207,7 +207,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	err = database.FromContext(c).CreateHook(h)
+	h, err = database.FromContext(c).CreateHook(h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -217,9 +217,6 @@ func PostWebhook(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created webhook
-	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {

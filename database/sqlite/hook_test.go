@@ -55,7 +55,7 @@ func TestSqlite_Client_GetHook(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the hook in the database
-			err := _database.CreateHook(test.want)
+			_, err := _database.CreateHook(test.want)
 			if err != nil {
 				t.Errorf("unable to create test hook: %v", err)
 			}
@@ -128,7 +128,7 @@ func TestSqlite_Client_GetLastHook(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the hook in the database
-			err := _database.CreateHook(test.want)
+			_, err := _database.CreateHook(test.want)
 			if err != nil {
 				t.Errorf("unable to create test hook: %v", err)
 			}
@@ -189,7 +189,7 @@ func TestSqlite_Client_CreateHook(t *testing.T) {
 		// defer cleanup of the hooks table
 		defer _database.Sqlite.Exec("delete from hooks;")
 
-		err := _database.CreateHook(_hook)
+		got, err := _database.CreateHook(_hook)
 
 		if test.failure {
 			if err == nil {
@@ -201,6 +201,10 @@ func TestSqlite_Client_CreateHook(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("CreateHook returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _hook) {
+			t.Errorf("CreateHook returned %v, want %v", got, _hook)
 		}
 	}
 }
@@ -238,12 +242,12 @@ func TestSqlite_Client_UpdateHook(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from hooks;")
 
 		// create the hook in the database
-		err := _database.CreateHook(_hook)
+		_, err := _database.CreateHook(_hook)
 		if err != nil {
 			t.Errorf("unable to create test hook: %v", err)
 		}
 
-		err = _database.UpdateHook(_hook)
+		got, err := _database.UpdateHook(_hook)
 
 		if test.failure {
 			if err == nil {
@@ -255,6 +259,10 @@ func TestSqlite_Client_UpdateHook(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("UpdateHook returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _hook) {
+			t.Errorf("UpdateHook returned %v, want %v", got, _hook)
 		}
 	}
 }
@@ -292,7 +300,7 @@ func TestSqlite_Client_DeleteHook(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from hooks;")
 
 		// create the hook in the database
-		err := _database.CreateHook(_hook)
+		_, err := _database.CreateHook(_hook)
 		if err != nil {
 			t.Errorf("unable to create test hook: %v", err)
 		}

@@ -70,7 +70,9 @@ func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
 }
 
 // CreateHook creates a new hook in the database.
-func (c *client) CreateHook(h *library.Hook) error {
+//
+//nolint:dupl // ignore similar code with update.
+func (c *client) CreateHook(h *library.Hook) (*library.Hook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("creating hook %d in the database", h.GetNumber())
@@ -81,17 +83,25 @@ func (c *client) CreateHook(h *library.Hook) error {
 	// validate the necessary fields are populated
 	err := hook.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return c.Sqlite.
+	err = c.Sqlite.
 		Table(constants.TableHook).
 		Create(hook).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return hook.ToLibrary(), nil
 }
 
 // UpdateHook updates a hook in the database.
-func (c *client) UpdateHook(h *library.Hook) error {
+//
+//nolint:dupl // ignore similar code with create.
+func (c *client) UpdateHook(h *library.Hook) (*library.Hook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("updating hook %d in the database", h.GetNumber())
@@ -102,13 +112,19 @@ func (c *client) UpdateHook(h *library.Hook) error {
 	// validate the necessary fields are populated
 	err := hook.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return c.Sqlite.
+	err = c.Sqlite.
 		Table(constants.TableHook).
 		Save(hook).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return hook.ToLibrary(), nil
 }
 
 // DeleteHook deletes a hook by unique ID from the database.

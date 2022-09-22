@@ -72,7 +72,7 @@ func TestSqlite_Client_GetHookList(t *testing.T) {
 
 		for _, hook := range test.want {
 			// create the hook in the database
-			err := _database.CreateHook(hook)
+			_, err := _database.CreateHook(hook)
 			if err != nil {
 				t.Errorf("unable to create test hook: %v", err)
 			}
@@ -149,7 +149,7 @@ func TestSqlite_Client_GetRepoHookList(t *testing.T) {
 
 		for _, hook := range test.want {
 			// create the hook in the database
-			err := _database.CreateHook(hook)
+			_, err := _database.CreateHook(hook)
 			if err != nil {
 				t.Errorf("unable to create test hook: %v", err)
 			}

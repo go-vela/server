@@ -2,7 +2,6 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -105,7 +104,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to update the hook
-	err = database.FromContext(c).UpdateHook(input)
+	_, err = database.FromContext(c).UpdateHook(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update hook %d: %w", input.GetID(), err)
 

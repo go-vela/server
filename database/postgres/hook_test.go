@@ -207,7 +207,7 @@ func TestPostgres_Client_CreateHook(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.CreateHook(_hook)
+		_, err := _database.CreateHook(_hook)
 
 		if test.failure {
 			if err == nil {
@@ -257,7 +257,7 @@ func TestPostgres_Client_UpdateHook(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.UpdateHook(_hook)
+		_, err := _database.UpdateHook(_hook)
 
 		if test.failure {
 			if err == nil {
