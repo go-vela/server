@@ -715,7 +715,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 	b.SetEnqueued(time.Now().UTC().Unix())
 
 	// update the build in the db to reflect the time it was enqueued
-	err = db.UpdateBuild(b)
+	_, err = db.UpdateBuild(b)
 	if err != nil {
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
@@ -837,7 +837,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, dbR.GetFullName(), build.GetNumber()),
 		)
 
-		err = database.FromContext(c).UpdateBuild(build)
+		_, err = database.FromContext(c).UpdateBuild(build)
 		if err != nil {
 			return fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}

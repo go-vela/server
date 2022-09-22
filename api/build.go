@@ -1337,7 +1337,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to update the build
-	err = database.FromContext(c).UpdateBuild(b)
+	b, err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %s: %w", entry, err)
 
@@ -1345,9 +1345,6 @@ func UpdateBuild(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
 
 	c.JSON(http.StatusOK, b)
 
@@ -1521,7 +1518,7 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 	b.SetFinished(time.Now().UTC().Unix())
 
 	// send API call to update the build
-	err := database.UpdateBuild(b)
+	_, err := database.UpdateBuild(b)
 	if err != nil {
 		logrus.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}
@@ -1695,7 +1692,7 @@ func CancelBuild(c *gin.Context) {
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
 
-	err = database.FromContext(c).UpdateBuild(b)
+	_, err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)

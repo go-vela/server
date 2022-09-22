@@ -405,6 +405,7 @@ func TestSqlite_Client_UpdateBuild(t *testing.T) {
 	_build.SetID(1)
 	_build.SetRepoID(1)
 	_build.SetNumber(1)
+	_build.SetDeployPayload(raw.StringSliceMap{})
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -443,7 +444,7 @@ func TestSqlite_Client_UpdateBuild(t *testing.T) {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		err := _database.UpdateBuild(_build)
+		got, err := _database.UpdateBuild(_build)
 
 		if test.failure {
 			if err == nil {
@@ -455,6 +456,10 @@ func TestSqlite_Client_UpdateBuild(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("UpdateBuild returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _build) {
+			t.Errorf("UpdateBuild returned %v, want %v", got, _build)
 		}
 	}
 }

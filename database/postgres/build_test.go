@@ -419,7 +419,7 @@ func TestPostgres_Client_UpdateBuild(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.UpdateBuild(_build)
+		_, err := _database.UpdateBuild(_build)
 
 		if test.failure {
 			if err == nil {

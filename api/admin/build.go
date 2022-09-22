@@ -2,7 +2,6 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -155,7 +154,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to update the build
-	err = database.FromContext(c).UpdateBuild(input)
+	_, err = database.FromContext(c).UpdateBuild(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %d: %w", input.GetID(), err)
 
