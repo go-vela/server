@@ -158,7 +158,7 @@ func PostServiceStream(c *gin.Context) {
 					_log.SetData(logs.Bytes())
 
 					// update the log in the database
-					err = database.FromContext(c).UpdateLog(_log)
+					_, err = database.FromContext(c).UpdateLog(_log)
 					if err != nil {
 						retErr := fmt.Errorf("unable to update logs for service %s/%d: %w", entry, s.GetNumber(), err)
 
@@ -313,7 +313,7 @@ func PostStepStream(c *gin.Context) {
 					_log.SetData(logs.Bytes())
 
 					// update the log in the database
-					err = database.FromContext(c).UpdateLog(_log)
+					_, err = database.FromContext(c).UpdateLog(_log)
 					if err != nil {
 						retErr := fmt.Errorf("unable to update logs for step %s/%d: %w", entry, s.GetNumber(), err)
 

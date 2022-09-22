@@ -190,7 +190,7 @@ func CreateServiceLog(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
-	err = database.FromContext(c).CreateLog(input)
+	l, err := database.FromContext(c).CreateLog(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for service %s: %w", entry, err)
 
@@ -198,9 +198,6 @@ func CreateServiceLog(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetServiceLog(s.GetID())
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -386,7 +383,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to update the log
-	err = database.FromContext(c).UpdateLog(l)
+	l, err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update logs for service %s: %w", entry, err)
 
@@ -394,9 +391,6 @@ func UpdateServiceLog(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetServiceLog(s.GetID())
 
 	c.JSON(http.StatusOK, l)
 }
@@ -575,7 +569,7 @@ func CreateStepLog(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
-	err = database.FromContext(c).CreateLog(input)
+	l, err := database.FromContext(c).CreateLog(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for step %s: %w", entry, err)
 
@@ -583,9 +577,6 @@ func CreateStepLog(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetStepLog(s.GetID())
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -772,7 +763,7 @@ func UpdateStepLog(c *gin.Context) {
 	}
 
 	// send API call to update the log
-	err = database.FromContext(c).UpdateLog(l)
+	l, err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update logs for step %s: %w", entry, err)
 
@@ -780,9 +771,6 @@ func UpdateStepLog(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetStepLog(s.GetID())
 
 	c.JSON(http.StatusOK, l)
 }

@@ -136,7 +136,7 @@ func (c *client) GetServiceLog(id int64) (*library.Log, error) {
 // CreateLog creates a new log in the database.
 //
 //nolint:dupl // ignore false positive of duplicate code
-func (c *client) CreateLog(l *library.Log) error {
+func (c *client) CreateLog(l *library.Log) (*library.Log, error) {
 	// check if the log entry is for a step
 	if l.GetStepID() > 0 {
 		c.Logger.Tracef("creating log for step %d in the database", l.GetStepID())
@@ -150,27 +150,35 @@ func (c *client) CreateLog(l *library.Log) error {
 	// validate the necessary fields are populated
 	err := log.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	decompressLog := *log
 
 	// compress log data for the resource
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
 	err = log.Compress(c.config.CompressionLevel)
 	if err != nil {
-		return fmt.Errorf("unable to compress logs for step %d: %w", l.GetStepID(), err)
+		return nil, fmt.Errorf("unable to compress logs for step %d: %w", l.GetStepID(), err)
 	}
 
 	// send query to the database
-	return c.Postgres.
+	err = c.Postgres.
 		Table(constants.TableLog).
 		Create(log).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return decompressLog.ToLibrary(), nil
 }
 
 // UpdateLog updates a log in the database.
 //
 //nolint:dupl // ignore false positive of duplicate code
-func (c *client) UpdateLog(l *library.Log) error {
+func (c *client) UpdateLog(l *library.Log) (*library.Log, error) {
 	// check if the log entry is for a step
 	if l.GetStepID() > 0 {
 		c.Logger.Tracef("updating log for step %d in the database", l.GetStepID())
@@ -184,21 +192,29 @@ func (c *client) UpdateLog(l *library.Log) error {
 	// validate the necessary fields are populated
 	err := log.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	decompressLog := *log
 
 	// compress log data for the resource
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Compress
 	err = log.Compress(c.config.CompressionLevel)
 	if err != nil {
-		return fmt.Errorf("unable to compress logs for step %d: %w", l.GetStepID(), err)
+		return nil, fmt.Errorf("unable to compress logs for step %d: %w", l.GetStepID(), err)
 	}
 
 	// send query to the database
-	return c.Postgres.
+	err = c.Postgres.
 		Table(constants.TableLog).
 		Save(log).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return decompressLog.ToLibrary(), nil
 }
 
 // DeleteLog deletes a log by unique ID from the database.

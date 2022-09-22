@@ -107,10 +107,10 @@ type Service interface {
 	GetBuildLogs(int64) ([]*library.Log, error)
 	// CreateLog defines a function that
 	// creates a new log.
-	CreateLog(*library.Log) error
+	CreateLog(*library.Log) (*library.Log, error)
 	// UpdateLog defines a function that
 	// updates a log.
-	UpdateLog(*library.Log) error
+	UpdateLog(*library.Log) (*library.Log, error)
 	// DeleteLog defines a function that
 	// deletes a log by unique ID.
 	DeleteLog(int64) error

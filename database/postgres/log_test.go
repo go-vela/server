@@ -260,7 +260,7 @@ func TestPostgres_Client_CreateLog(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.CreateLog(_log)
+		_, err := _database.CreateLog(_log)
 
 		if test.failure {
 			if err == nil {
@@ -309,7 +309,7 @@ func TestPostgres_Client_UpdateLog(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.UpdateLog(_log)
+		_, err := _database.UpdateLog(_log)
 
 		if test.failure {
 			if err == nil {

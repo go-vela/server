@@ -53,7 +53,7 @@ func TestSqlite_Client_GetBuildLogs(t *testing.T) {
 
 		for _, log := range test.want {
 			// create the log in the database
-			err := _database.CreateLog(log)
+			_, err := _database.CreateLog(log)
 			if err != nil {
 				t.Errorf("unable to create test log: %v", err)
 			}
@@ -115,7 +115,7 @@ func TestSqlite_Client_GetStepLog(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the log in the database
-			err := _database.CreateLog(test.want)
+			_, err := _database.CreateLog(test.want)
 			if err != nil {
 				t.Errorf("unable to create test log: %v", err)
 			}
@@ -180,7 +180,7 @@ func TestSqlite_Client_GetServiceLog(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the log in the database
-			err := _database.CreateLog(test.want)
+			_, err := _database.CreateLog(test.want)
 			if err != nil {
 				t.Errorf("unable to create test log: %v", err)
 			}
@@ -240,7 +240,7 @@ func TestSqlite_Client_CreateLog(t *testing.T) {
 		// defer cleanup of the logs table
 		defer _database.Sqlite.Exec("delete from logs;")
 
-		err := _database.CreateLog(_log)
+		got, err := _database.CreateLog(_log)
 
 		if test.failure {
 			if err == nil {
@@ -252,6 +252,10 @@ func TestSqlite_Client_CreateLog(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("CreateLog returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _log) {
+			t.Errorf("CreateLog returned %v, want %v", got, _log)
 		}
 	}
 }
@@ -288,12 +292,12 @@ func TestSqlite_Client_UpdateLog(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from logs;")
 
 		// create the log in the database
-		err := _database.CreateLog(_log)
+		_, err := _database.CreateLog(_log)
 		if err != nil {
 			t.Errorf("unable to create test log: %v", err)
 		}
 
-		err = _database.UpdateLog(_log)
+		got, err := _database.UpdateLog(_log)
 
 		if test.failure {
 			if err == nil {
@@ -305,6 +309,10 @@ func TestSqlite_Client_UpdateLog(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("UpdateLog returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _log) {
+			t.Errorf("UpdateLog returned %v, want %v", got, _log)
 		}
 	}
 }
@@ -341,7 +349,7 @@ func TestSqlite_Client_DeleteLog(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from logs;")
 
 		// create the log in the database
-		err := _database.CreateLog(_log)
+		_, err := _database.CreateLog(_log)
 		if err != nil {
 			t.Errorf("unable to create test log: %v", err)
 		}
