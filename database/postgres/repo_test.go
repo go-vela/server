@@ -129,7 +129,7 @@ func TestPostgres_Client_CreateRepo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 
 		if test.failure {
 			if err == nil {
@@ -182,7 +182,7 @@ func TestPostgres_Client_UpdateRepo(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.UpdateRepo(_repo)
+		_, err := _database.UpdateRepo(_repo)
 
 		if test.failure {
 			if err == nil {

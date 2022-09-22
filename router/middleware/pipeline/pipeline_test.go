@@ -103,7 +103,7 @@ func TestPipeline_Establish(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreatePipeline(want)
 
 	// setup context
@@ -180,7 +180,7 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -266,7 +266,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	// setup context

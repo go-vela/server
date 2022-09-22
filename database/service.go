@@ -144,10 +144,10 @@ type Service interface {
 	GetUserRepoCount(*library.User) (int64, error)
 	// CreateRepo defines a function that
 	// creates a new repo.
-	CreateRepo(*library.Repo) error
+	CreateRepo(*library.Repo) (*library.Repo, error)
 	// UpdateRepo defines a function that
 	// updates a repo.
-	UpdateRepo(*library.Repo) error
+	UpdateRepo(*library.Repo) (*library.Repo, error)
 	// DeleteRepo defines a function that
 	// deletes a repo by unique ID.
 	DeleteRepo(int64) error

@@ -194,7 +194,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -275,7 +275,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -356,7 +356,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -437,7 +437,7 @@ func TestPerm_MustWrite(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -518,7 +518,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -599,7 +599,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -680,7 +680,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -761,7 +761,7 @@ func TestPerm_MustRead(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -842,7 +842,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -923,7 +923,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -1004,7 +1004,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -1085,7 +1085,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
@@ -1166,7 +1166,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)

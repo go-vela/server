@@ -74,7 +74,7 @@ func TestRepo_Establish(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(want)
+	_, _ = db.CreateRepo(want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

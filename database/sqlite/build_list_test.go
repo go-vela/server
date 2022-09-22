@@ -219,7 +219,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -316,7 +316,7 @@ func TestSqlite_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 
 		for _, repo := range repos {
 			// create the repo in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}
@@ -407,7 +407,7 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -495,7 +495,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}

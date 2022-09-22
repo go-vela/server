@@ -94,7 +94,7 @@ func TestBuild_Establish(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 	_ = db.CreateBuild(want)
 
 	// setup context
@@ -172,7 +172,7 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -218,7 +218,7 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -264,7 +264,7 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

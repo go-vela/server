@@ -598,7 +598,7 @@ func PostWebhook(c *gin.Context) {
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.FromContext(c).UpdateRepo(r)
+	_, err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -748,7 +748,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	dbR.SetPreviousName(previousName)
 
 	// update the repo in the database
-	err = database.FromContext(c).UpdateRepo(dbR)
+	_, err = database.FromContext(c).UpdateRepo(dbR)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, r.GetOrg(), previousName)
 		util.HandleError(c, http.StatusBadRequest, retErr)

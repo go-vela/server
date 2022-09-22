@@ -1,8 +1,6 @@
 // Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
-
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -105,7 +103,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// send API call to update the repo
-	err = database.FromContext(c).UpdateRepo(input)
+	_, err = database.FromContext(c).UpdateRepo(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update repo %d: %w", input.GetID(), err)
 

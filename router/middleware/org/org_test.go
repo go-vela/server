@@ -68,7 +68,7 @@ func TestOrg_Establish(t *testing.T) {
 		_sql.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

@@ -51,7 +51,7 @@ func TestSqlite_Client_GetRepo(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the repo in the database
-			err := _database.CreateRepo(test.want)
+			_, err := _database.CreateRepo(test.want)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}
@@ -91,6 +91,7 @@ func TestSqlite_Client_CreateRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPreviousName("")
+	_repo.SetPipelineType("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -114,7 +115,7 @@ func TestSqlite_Client_CreateRepo(t *testing.T) {
 		// defer cleanup of the repos table
 		defer _database.Sqlite.Exec("delete from repos;")
 
-		err := _database.CreateRepo(_repo)
+		got, err := _database.CreateRepo(_repo)
 
 		if test.failure {
 			if err == nil {
@@ -126,6 +127,10 @@ func TestSqlite_Client_CreateRepo(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("CreateRepo returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _repo) {
+			t.Errorf("CreateRepo returned %v, want %v", got, _repo)
 		}
 	}
 }
@@ -141,6 +146,7 @@ func TestSqlite_Client_UpdateRepo(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 	_repo.SetPreviousName("")
+	_repo.SetPipelineType("")
 
 	// setup the test database client
 	_database, err := NewTest()
@@ -165,12 +171,12 @@ func TestSqlite_Client_UpdateRepo(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		err = _database.UpdateRepo(_repo)
+		got, err := _database.UpdateRepo(_repo)
 
 		if test.failure {
 			if err == nil {
@@ -182,6 +188,10 @@ func TestSqlite_Client_UpdateRepo(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("UpdateRepo returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _repo) {
+			t.Errorf("UpdateRepo returned %v, want %v", got, _repo)
 		}
 	}
 }
@@ -221,7 +231,7 @@ func TestSqlite_Client_DeleteRepo(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err = _database.CreateRepo(_repo)
+		_, err = _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}

@@ -217,7 +217,7 @@ func TestSqlite_Client_GetOrgBuildCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -310,7 +310,7 @@ func TestSqlite_Client_GetOrgBuildCountByEvent(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -399,7 +399,7 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}

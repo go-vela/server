@@ -78,7 +78,7 @@ func TestSqlite_Client_GetRepoList(t *testing.T) {
 
 		for _, repo := range test.want {
 			// create the repo in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}
@@ -154,7 +154,7 @@ func TestSqlite_Client_GetOrgRepoList(t *testing.T) {
 
 		for _, repo := range test.want {
 			// create the repo in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}
@@ -231,7 +231,7 @@ func TestSqlite_Client_GetOrgRepoList_NonAdmin(t *testing.T) {
 
 		for _, repo := range test.want {
 			// create the repo in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}
@@ -353,7 +353,7 @@ func TestSqlite_Client_GetOrgRepoList_LastUpdate(t *testing.T) {
 
 		for _, repo := range test.want {
 			// create the repo in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}
@@ -434,7 +434,7 @@ func TestSqlite_Client_GetUserRepoList(t *testing.T) {
 
 		for _, repo := range test.want {
 			// create the repo in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}

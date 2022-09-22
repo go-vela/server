@@ -73,12 +73,12 @@ func TestSqlite_Client_GetRepoCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repos in the database
-		err := _database.CreateRepo(_repoOne)
+		_, err := _database.CreateRepo(_repoOne)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		err = _database.CreateRepo(_repoTwo)
+		_, err = _database.CreateRepo(_repoTwo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -153,12 +153,12 @@ func TestSqlite_Client_GetUserRepoCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repos in the database
-		err := _database.CreateRepo(_repoOne)
+		_, err := _database.CreateRepo(_repoOne)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		err = _database.CreateRepo(_repoTwo)
+		_, err = _database.CreateRepo(_repoTwo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -228,12 +228,12 @@ func TestSqlite_Client_GetOrgRepoCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from repos;")
 
 		// create the repos in the database
-		err := _database.CreateRepo(_repoOne)
+		_, err := _database.CreateRepo(_repoOne)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
 
-		err = _database.CreateRepo(_repoTwo)
+		_, err = _database.CreateRepo(_repoTwo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}
@@ -314,7 +314,7 @@ func TestSqlite_Client_GetOrgRepoCount_NonAdmin(t *testing.T) {
 
 		for _, repo := range []*library.Repo{_repoOne, _repoTwo, _repoThree} {
 			// create the repos in the database
-			err := _database.CreateRepo(repo)
+			_, err := _database.CreateRepo(repo)
 			if err != nil {
 				t.Errorf("unable to create test repo: %v", err)
 			}

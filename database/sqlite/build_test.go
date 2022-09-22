@@ -296,7 +296,7 @@ func TestSqlite_Client_GetPendingAndRunningBuilds(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		// create the repo in the database
-		err := _database.CreateRepo(_repo)
+		_, err := _database.CreateRepo(_repo)
 		if err != nil {
 			t.Errorf("unable to create test repo: %v", err)
 		}

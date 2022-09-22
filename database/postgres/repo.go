@@ -60,7 +60,7 @@ func (c *client) GetRepo(org, name string) (*library.Repo, error) {
 // CreateRepo creates a new repo in the database.
 //
 //nolint:dupl // ignore similar code with update
-func (c *client) CreateRepo(r *library.Repo) error {
+func (c *client) CreateRepo(r *library.Repo) (*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -72,7 +72,7 @@ func (c *client) CreateRepo(r *library.Repo) error {
 	// validate the necessary fields are populated
 	err := repo.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// encrypt the fields for the repo
@@ -80,19 +80,25 @@ func (c *client) CreateRepo(r *library.Repo) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
+		return nil, fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send query to the database
-	return c.Postgres.
+	err = c.Postgres.
 		Table(constants.TableRepo).
 		Create(repo).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.ToLibrary(), nil
 }
 
 // UpdateRepo updates a repo in the database.
 //
 //nolint:dupl // ignore similar code with create
-func (c *client) UpdateRepo(r *library.Repo) error {
+func (c *client) UpdateRepo(r *library.Repo) (*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -104,7 +110,7 @@ func (c *client) UpdateRepo(r *library.Repo) error {
 	// validate the necessary fields are populated
 	err := repo.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// encrypt the fields for the repo
@@ -112,13 +118,19 @@ func (c *client) UpdateRepo(r *library.Repo) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(c.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
+		return nil, fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send query to the database
-	return c.Postgres.
+	err = c.Postgres.
 		Table(constants.TableRepo).
 		Save(repo).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.ToLibrary(), nil
 }
 
 // DeleteRepo deletes a repo by unique ID from the database.
