@@ -1474,7 +1474,6 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
-	// TODO: return created build and error instead of just error
 	b, err := database.CreateBuild(b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
