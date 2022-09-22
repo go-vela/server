@@ -59,7 +59,7 @@ type Service interface {
 	GetPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)
 	// CreateBuild defines a function that
 	// creates a new build.
-	CreateBuild(*library.Build) error
+	CreateBuild(*library.Build) (*library.Build, error)
 	// UpdateBuild defines a function that
 	// updates a build.
 	UpdateBuild(*library.Build) error

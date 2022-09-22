@@ -66,12 +66,12 @@ func TestSqlite_Client_GetBuildCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the builds in the database
-		err := _database.CreateBuild(_buildOne)
+		_, err := _database.CreateBuild(_buildOne)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		err = _database.CreateBuild(_buildTwo)
+		_, err = _database.CreateBuild(_buildTwo)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
@@ -137,12 +137,12 @@ func TestSqlite_Client_GetBuildCountByStatus(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the builds in the database
-		err := _database.CreateBuild(_buildOne)
+		_, err := _database.CreateBuild(_buildOne)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		err = _database.CreateBuild(_buildTwo)
+		_, err = _database.CreateBuild(_buildTwo)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
@@ -226,12 +226,12 @@ func TestSqlite_Client_GetOrgBuildCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the builds in the database
-		err = _database.CreateBuild(_buildOne)
+		_, err = _database.CreateBuild(_buildOne)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		err = _database.CreateBuild(_buildTwo)
+		_, err = _database.CreateBuild(_buildTwo)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
@@ -319,12 +319,12 @@ func TestSqlite_Client_GetOrgBuildCountByEvent(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the builds in the database
-		err = _database.CreateBuild(_buildOne)
+		_, err = _database.CreateBuild(_buildOne)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		err = _database.CreateBuild(_buildTwo)
+		_, err = _database.CreateBuild(_buildTwo)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
@@ -408,12 +408,12 @@ func TestSqlite_Client_GetRepoBuildCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the builds in the database
-		err = _database.CreateBuild(_buildOne)
+		_, err = _database.CreateBuild(_buildOne)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
 
-		err = _database.CreateBuild(_buildTwo)
+		_, err = _database.CreateBuild(_buildTwo)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}

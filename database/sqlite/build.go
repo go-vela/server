@@ -124,7 +124,7 @@ func (c *client) GetPendingAndRunningBuilds(after string) ([]*library.BuildQueue
 }
 
 // CreateBuild creates a new build in the database.
-func (c *client) CreateBuild(b *library.Build) error {
+func (c *client) CreateBuild(b *library.Build) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("creating build %d in the database", b.GetNumber())
@@ -135,13 +135,19 @@ func (c *client) CreateBuild(b *library.Build) error {
 	// validate the necessary fields are populated
 	err := build.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return c.Sqlite.
+	err = c.Sqlite.
 		Table(constants.TableBuild).
 		Create(build.Crop()).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return build.Crop().ToLibrary(), nil
 }
 
 // UpdateBuild updates a build in the database.

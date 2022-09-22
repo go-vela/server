@@ -1475,7 +1475,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 
 	// send API call to create the build
 	// TODO: return created build and error instead of just error
-	err := database.CreateBuild(b)
+	b, err := database.CreateBuild(b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		// TODO:
@@ -1488,14 +1488,6 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 		cleanBuild(database, b, nil, nil)
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
-	}
-
-	// send API call to capture the created build
-	// TODO: this can be dropped once we return
-	// the created build above
-	b, err = database.GetBuild(b.GetNumber(), r)
-	if err != nil {
-		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// plan all services for the build

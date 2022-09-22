@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 )
 
 func TestSqlite_Client_GetBuild(t *testing.T) {
@@ -55,7 +56,7 @@ func TestSqlite_Client_GetBuild(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the build in the database
-			err := _database.CreateBuild(test.want)
+			_, err := _database.CreateBuild(test.want)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -128,7 +129,7 @@ func TestSqlite_Client_GetLastBuild(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the build in the database
-			err := _database.CreateBuild(test.want)
+			_, err := _database.CreateBuild(test.want)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -202,7 +203,7 @@ func TestSqlite_Client_GetLastBuildByBranch(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the build in the database
-			err := _database.CreateBuild(test.want)
+			_, err := _database.CreateBuild(test.want)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -303,12 +304,12 @@ func TestSqlite_Client_GetPendingAndRunningBuilds(t *testing.T) {
 
 		if len(test.want) > 0 {
 			// create the builds in the database
-			err = _database.CreateBuild(_buildOne)
+			_, err = _database.CreateBuild(_buildOne)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
 
-			err = _database.CreateBuild(_buildTwo)
+			_, err = _database.CreateBuild(_buildTwo)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -345,6 +346,7 @@ func TestSqlite_Client_CreateBuild(t *testing.T) {
 	_build.SetID(1)
 	_build.SetRepoID(1)
 	_build.SetNumber(1)
+	_build.SetDeployPayload(raw.StringSliceMap{})
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -377,7 +379,7 @@ func TestSqlite_Client_CreateBuild(t *testing.T) {
 		// defer cleanup of the builds table
 		defer _database.Sqlite.Exec("delete from builds;")
 
-		err := _database.CreateBuild(_build)
+		got, err := _database.CreateBuild(_build)
 
 		if test.failure {
 			if err == nil {
@@ -389,6 +391,10 @@ func TestSqlite_Client_CreateBuild(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("CreateBuild returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _build) {
+			t.Errorf("CreateBuild returned %v, want %v", got, _build)
 		}
 	}
 }
@@ -432,7 +438,7 @@ func TestSqlite_Client_UpdateBuild(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the build in the database
-		err = _database.CreateBuild(_build)
+		_, err = _database.CreateBuild(_build)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}
@@ -483,7 +489,7 @@ func TestSqlite_Client_DeleteBuild(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from builds;")
 
 		// create the build in the database
-		err = _database.CreateBuild(_build)
+		_, err = _database.CreateBuild(_build)
 		if err != nil {
 			t.Errorf("unable to create test build: %v", err)
 		}

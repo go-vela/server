@@ -69,7 +69,7 @@ func TestSqlite_Client_GetBuildList(t *testing.T) {
 
 		for _, build := range test.want {
 			// create the build in the database
-			err := _database.CreateBuild(build)
+			_, err := _database.CreateBuild(build)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -141,7 +141,7 @@ func TestSqlite_Client_GetDeploymentBuildList(t *testing.T) {
 
 		for _, build := range test.want {
 			// create the build in the database
-			err := _database.CreateBuild(build)
+			_, err := _database.CreateBuild(build)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -229,7 +229,7 @@ func TestSqlite_Client_GetOrgBuildList(t *testing.T) {
 
 		for _, build := range test.want {
 			// create the build in the database
-			err := _database.CreateBuild(build)
+			_, err := _database.CreateBuild(build)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -327,7 +327,7 @@ func TestSqlite_Client_GetOrgBuildList_NonAdmin(t *testing.T) {
 
 		for _, build := range test.want {
 			// create the build in the database
-			err := _database.CreateBuild(build)
+			_, err := _database.CreateBuild(build)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -417,7 +417,7 @@ func TestSqlite_Client_GetOrgBuildListByEvent(t *testing.T) {
 
 		for _, build := range []*library.Build{_buildTwo, _buildOne} {
 			// create the build in the database
-			err := _database.CreateBuild(build)
+			_, err := _database.CreateBuild(build)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}
@@ -505,7 +505,7 @@ func TestSqlite_Client_GetRepoBuildList(t *testing.T) {
 
 		for _, build := range test.want {
 			// create the build in the database
-			err := _database.CreateBuild(build)
+			_, err := _database.CreateBuild(build)
 			if err != nil {
 				t.Errorf("unable to create test build: %v", err)
 			}

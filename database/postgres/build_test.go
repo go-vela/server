@@ -363,7 +363,7 @@ func TestPostgres_Client_CreateBuild(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.CreateBuild(_build)
+		_, err := _database.CreateBuild(_build)
 
 		if test.failure {
 			if err == nil {

@@ -87,7 +87,7 @@ func TestStep_Establish(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 	_ = db.CreateStep(want)
 
 	// setup context
@@ -222,7 +222,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -276,7 +276,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -330,7 +330,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
