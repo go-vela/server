@@ -1541,7 +1541,7 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 		s.SetFinished(time.Now().UTC().Unix())
 
 		// send API call to update the service
-		err := database.UpdateService(s)
+		_, err := database.UpdateService(s)
 		if err != nil {
 			logrus.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
@@ -1785,7 +1785,7 @@ func CancelBuild(c *gin.Context) {
 		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
 			service.SetStatus(constants.StatusCanceled)
 
-			err = database.FromContext(c).UpdateService(service)
+			_, err = database.FromContext(c).UpdateService(service)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
 					service.GetName(),

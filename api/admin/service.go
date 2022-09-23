@@ -106,7 +106,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to update the service
-	err = database.FromContext(c).UpdateService(input)
+	_, err = database.FromContext(c).UpdateService(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %d: %w", input.GetID(), err)
 

@@ -18,6 +18,8 @@ import (
 )
 
 // GetStep gets a step by number and build ID from the database.
+//
+//nolint:dupl // ignore similar code with get service.
 func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
@@ -42,6 +44,8 @@ func (c *client) GetStep(number int, b *library.Build) (*library.Step, error) {
 }
 
 // CreateStep creates a new step in the database.
+//
+//nolint:dupl // ignore similar code with create service.
 func (c *client) CreateStep(s *library.Step) error {
 	c.Logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
@@ -63,6 +67,8 @@ func (c *client) CreateStep(s *library.Step) error {
 }
 
 // UpdateStep updates a step in the database.
+//
+//nolint:dupl // ignore similar code with update service.
 func (c *client) UpdateStep(s *library.Step) error {
 	c.Logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),

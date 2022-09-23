@@ -232,10 +232,10 @@ type Service interface {
 	GetServiceStatusCount() (map[string]float64, error)
 	// CreateService defines a function that
 	// creates a new step.
-	CreateService(*library.Service) error
+	CreateService(*library.Service) (*library.Service, error)
 	// UpdateService defines a function that
 	// updates a step.
-	UpdateService(*library.Service) error
+	UpdateService(*library.Service) (*library.Service, error)
 	// DeleteService defines a function that
 	// deletes a step by unique ID.
 	DeleteService(int64) error

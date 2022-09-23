@@ -18,6 +18,8 @@ import (
 )
 
 // GetService gets a service by number and build ID from the database.
+//
+//nolint:dupl // ignore similar code with get step.
 func (c *client) GetService(number int, b *library.Build) (*library.Service, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build":   b.GetNumber(),
@@ -42,7 +44,9 @@ func (c *client) GetService(number int, b *library.Build) (*library.Service, err
 }
 
 // CreateService creates a new service in the database.
-func (c *client) CreateService(s *library.Service) error {
+//
+//nolint:dupl // ignore similar code with create step.
+func (c *client) CreateService(s *library.Service) (*library.Service, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("creating service %s in the database", s.GetName())
@@ -53,17 +57,25 @@ func (c *client) CreateService(s *library.Service) error {
 	// validate the necessary fields are populated
 	err := service.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return c.Postgres.
+	err = c.Postgres.
 		Table(constants.TableService).
 		Create(service).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return service.ToLibrary(), nil
 }
 
 // UpdateService updates a service in the database.
-func (c *client) UpdateService(s *library.Service) error {
+//
+//nolint:dupl // ignore similar code with update step.
+func (c *client) UpdateService(s *library.Service) (*library.Service, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("updating service %s in the database", s.GetName())
@@ -74,13 +86,19 @@ func (c *client) UpdateService(s *library.Service) error {
 	// validate the necessary fields are populated
 	err := service.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return c.Postgres.
+	err = c.Postgres.
 		Table(constants.TableService).
 		Save(service).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return service.ToLibrary(), nil
 }
 
 // DeleteService deletes a service by unique ID from the database.

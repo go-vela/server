@@ -128,7 +128,7 @@ func TestPostgres_Client_CreateService(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.CreateService(_service)
+		_, err := _database.CreateService(_service)
 
 		if test.failure {
 			if err == nil {
@@ -178,7 +178,7 @@ func TestPostgres_Client_UpdateService(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := _database.UpdateService(_service)
+		_, err := _database.UpdateService(_service)
 
 		if test.failure {
 			if err == nil {

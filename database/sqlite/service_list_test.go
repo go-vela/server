@@ -72,7 +72,7 @@ func TestSqlite_Client_GetServiceList(t *testing.T) {
 
 		for _, service := range test.want {
 			// create the service in the database
-			err := _database.CreateService(service)
+			_, err := _database.CreateService(service)
 			if err != nil {
 				t.Errorf("unable to create test service: %v", err)
 			}
@@ -147,7 +147,7 @@ func TestSqlite_Client_GetBuildServiceList(t *testing.T) {
 
 		for _, service := range test.want {
 			// create the service in the database
-			err := _database.CreateService(service)
+			_, err := _database.CreateService(service)
 			if err != nil {
 				t.Errorf("unable to create test service: %v", err)
 			}

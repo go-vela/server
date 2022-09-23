@@ -53,7 +53,7 @@ func TestSqlite_Client_GetService(t *testing.T) {
 	for _, test := range tests {
 		if test.want != nil {
 			// create the service in the database
-			err := _database.CreateService(test.want)
+			_, err := _database.CreateService(test.want)
 			if err != nil {
 				t.Errorf("unable to create test service: %v", err)
 			}
@@ -114,7 +114,7 @@ func TestSqlite_Client_CreateService(t *testing.T) {
 		// defer cleanup of the services table
 		defer _database.Sqlite.Exec("delete from services;")
 
-		err := _database.CreateService(_service)
+		got, err := _database.CreateService(_service)
 
 		if test.failure {
 			if err == nil {
@@ -126,6 +126,10 @@ func TestSqlite_Client_CreateService(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("CreateService returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _service) {
+			t.Errorf("CreateService returned %v, want %v", got, _service)
 		}
 	}
 }
@@ -163,12 +167,12 @@ func TestSqlite_Client_UpdateService(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from services;")
 
 		// create the service in the database
-		err := _database.CreateService(_service)
+		_, err := _database.CreateService(_service)
 		if err != nil {
 			t.Errorf("unable to create test service: %v", err)
 		}
 
-		err = _database.UpdateService(_service)
+		got, err := _database.UpdateService(_service)
 
 		if test.failure {
 			if err == nil {
@@ -180,6 +184,10 @@ func TestSqlite_Client_UpdateService(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("UpdateService returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, _service) {
+			t.Errorf("UpdateService returned %v, want %v", got, _service)
 		}
 	}
 }
@@ -217,7 +225,7 @@ func TestSqlite_Client_DeleteService(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from services;")
 
 		// create the service in the database
-		err := _database.CreateService(_service)
+		_, err := _database.CreateService(_service)
 		if err != nil {
 			t.Errorf("unable to create test service: %v", err)
 		}

@@ -75,12 +75,12 @@ func TestSqlite_Client_GetBuildServiceCount(t *testing.T) {
 		defer _database.Sqlite.Exec("delete from services;")
 
 		// create the services in the database
-		err := _database.CreateService(_serviceOne)
+		_, err := _database.CreateService(_serviceOne)
 		if err != nil {
 			t.Errorf("unable to create test service: %v", err)
 		}
 
-		err = _database.CreateService(_serviceTwo)
+		_, err = _database.CreateService(_serviceTwo)
 		if err != nil {
 			t.Errorf("unable to create test service: %v", err)
 		}
