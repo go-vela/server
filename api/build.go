@@ -411,7 +411,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 	return ""
 }
 
-// swagger:operation GET /api/v1/search/build/{id} builds GetBuildByID
+// swagger:operation GET /api/v1/search/builds/{id} builds GetBuildByID
 //
 // Get a single build by its id in the configured backend
 //
@@ -491,7 +491,7 @@ func GetBuildByID(c *gin.Context) {
 
 	// Ensure that user has at least write access to repo to return the build
 	//
-	// nolint: goconst // ignore admin constant suggestion
+	//nolint:goconst // ignore admin constant suggestion
 	if perm != "admin" && perm != "write" {
 		retErr := fmt.Errorf("unable to retrieve build %d: user does not have write access to repo %s", id, r.GetFullName())
 
@@ -885,8 +885,6 @@ func GetOrgBuilds(c *gin.Context) {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
-	//
-	//nolint:goconst // ignore admin constant
 	if perm != "admin" {
 		filters["visibility"] = constants.VisibilityPublic
 	}

@@ -12,13 +12,13 @@ import (
 // SearchHandlers is a function that extends the provided base router group
 // with the API handlers for source code management functionality.
 //
-// GET    /api/v1/search/build/:id .
+// GET    /api/v1/search/builds/:id .
 func SearchHandlers(base *gin.RouterGroup) {
 	// Search endpoints
 	search := base.Group("/search")
 	{
 		// Build endpoint
-		build := search.Group("/build")
+		build := search.Group("/builds")
 		{
 			build.GET("/:id", api.GetBuildByID)
 		}
