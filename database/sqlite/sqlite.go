@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/pipeline"
+	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/sqlite/ddl"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
@@ -44,6 +45,8 @@ type (
 		Logger *logrus.Entry
 		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
 		pipeline.PipelineService
+		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
+		repo.RepoService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
 	}
@@ -239,12 +242,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableLog, err)
 	}
 
-	// create the repos table
-	err = c.Sqlite.Exec(ddl.CreateRepoTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableRepo, err)
-	}
-
 	// create the secrets table
 	err = c.Sqlite.Exec(ddl.CreateSecretTable).Error
 	if err != nil {
@@ -313,12 +310,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create logs_build_id index for the %s table: %w", constants.TableLog, err)
 	}
 
-	// create the repos_org_name index for the repos table
-	err = c.Sqlite.Exec(ddl.CreateRepoOrgNameIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create repos_org_name index for the %s table: %w", constants.TableRepo, err)
-	}
-
 	// create the secrets_type_org_repo index for the secrets table
 	err = c.Sqlite.Exec(ddl.CreateSecretTypeOrgRepo).Error
 	if err != nil {
@@ -358,6 +349,19 @@ func createServices(c *client) error {
 		pipeline.WithCompressionLevel(c.config.CompressionLevel),
 		pipeline.WithLogger(c.Logger),
 		pipeline.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic repo service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/repo#New
+	c.RepoService, err = repo.New(
+		repo.WithClient(c.Sqlite),
+		repo.WithEncryptionKey(c.config.EncryptionKey),
+		repo.WithLogger(c.Logger),
+		repo.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
