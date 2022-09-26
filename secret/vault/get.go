@@ -38,7 +38,7 @@ func (c *client) Get(sType, org, name, path string) (s *library.Secret, err erro
 
 	c.Logger.WithFields(fields).Tracef("getting vault %s secret %s for %s/%s", sType, path, org, name)
 
-	// nolint: ineffassign,staticcheck // ignore false positive
+	//nolint:ineffassign,staticcheck // ignore false positive
 	vault := new(api.Secret)
 
 	// capture the secret from the Vault service

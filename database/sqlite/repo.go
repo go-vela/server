@@ -99,7 +99,7 @@ func (c *client) GetRepoByID(id int64) (*library.Repo, error) {
 
 // CreateRepo creates a new repo in the database.
 //
-// nolint: dupl // ignore similar code with update
+//nolint:dupl // ignore similar code with update
 func (c *client) CreateRepo(r *library.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
@@ -131,7 +131,7 @@ func (c *client) CreateRepo(r *library.Repo) error {
 
 // UpdateRepo updates a repo in the database.
 //
-// nolint: dupl // ignore similar code with create
+//nolint:dupl // ignore similar code with create
 func (c *client) UpdateRepo(r *library.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

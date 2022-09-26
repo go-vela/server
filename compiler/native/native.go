@@ -43,7 +43,7 @@ type client struct {
 
 // New returns a Pipeline implementation that integrates with the supported registries.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(ctx *cli.Context) (*client, error) {
 	logrus.Debug("Creating registry clients from CLI configuration")
 

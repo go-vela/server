@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/compiler/native"
+//	import "github.com/go-vela/server/compiler/native"
 package native

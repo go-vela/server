@@ -8,7 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -65,7 +65,7 @@ func Establish() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// Read Response Body
-		respBody, err := ioutil.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read response from %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)

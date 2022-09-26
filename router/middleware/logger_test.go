@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -86,7 +87,7 @@ func TestMiddleware_Logger(t *testing.T) {
 	engine.Use(func(c *gin.Context) { user.ToContext(c, u) })
 	engine.Use(func(c *gin.Context) { worker.ToContext(c, w) })
 	engine.Use(Payload())
-	engine.Use(Logger(logger, time.RFC3339, true))
+	engine.Use(Logger(logger, time.RFC3339))
 	engine.POST("/foobar", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
@@ -126,9 +127,9 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/foobar", nil)
 
 	// setup mock server
-	engine.Use(Logger(logger, time.RFC3339, true))
+	engine.Use(Logger(logger, time.RFC3339))
 	engine.GET("/foobar", func(c *gin.Context) {
-		// nolint: errcheck // ignore checking error
+		//nolint:errcheck // ignore checking error
 		c.Error(fmt.Errorf("test error"))
 		c.Status(http.StatusOK)
 	})
@@ -149,5 +150,70 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 
 	if !reflect.DeepEqual(gotMessage, wantMessage) {
 		t.Errorf("Logger Message is %v, want %v", gotMessage, wantMessage)
+	}
+}
+
+func TestMiddleware_Logger_Sanitize(t *testing.T) {
+	var logBody, logWant map[string]interface{}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	logRepo, _ := json.Marshal(r)
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+	b.SetEmail("octocat@github.com")
+	logBuild, _ := json.Marshal(b)
+
+	sanitizeBuild := *b
+	sanitizeBuild.SetEmail("[secure]")
+	logSBuild, _ := json.Marshal(&sanitizeBuild)
+
+	tests := []struct {
+		dataType string
+		body     []byte
+		want     []byte
+	}{
+		{
+			dataType: "stringMap",
+			body:     logRepo,
+			want:     logRepo,
+		},
+		{
+			dataType: "stringMap",
+			body:     logBuild,
+			want:     logSBuild,
+		},
+		{
+			dataType: "string",
+			body:     []byte("successfully updated step"),
+			want:     []byte("successfully updated step"),
+		},
+	}
+
+	for _, test := range tests {
+		if strings.EqualFold(test.dataType, "stringMap") {
+			err := json.Unmarshal(test.body, &logBody)
+			if err != nil {
+				t.Errorf("unable to unmarshal log body data")
+			}
+
+			err = json.Unmarshal(test.want, &logWant)
+			if err != nil {
+				t.Errorf("unable to unmarshal log want data")
+			}
+		}
+
+		got := sanitize(logBody)
+
+		if !reflect.DeepEqual(got, logWant) {
+			t.Errorf("Logger returned %v, want %v", got, logWant)
+		}
 	}
 }

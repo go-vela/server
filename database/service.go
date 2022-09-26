@@ -6,6 +6,7 @@ package database
 
 import (
 	"github.com/go-vela/server/database/pipeline"
+	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/library"
 )
 
@@ -245,39 +246,16 @@ type Service interface {
 	// deletes a step by unique ID.
 	DeleteService(int64) error
 
-	// User Database Interface Functions
-
-	// GetUser defines a function that
-	// gets a user by unique ID.
-	GetUser(int64) (*library.User, error)
-	// GetUserName defines a function that
-	// gets a user by name.
-	GetUserName(string) (*library.User, error)
-	// GetUserList defines a function that
-	// gets a list of all users.
-	GetUserList() ([]*library.User, error)
-	// GetUserCount defines a function that
-	// gets the count of users.
-	GetUserCount() (int64, error)
-	// GetUserLiteList defines a function
-	// that gets a lite list of users.
-	GetUserLiteList(int, int) ([]*library.User, error)
-	// CreateUser defines a function that
-	// creates a new user.
-	CreateUser(*library.User) error
-	// UpdateUser defines a function that
-	// updates a user.
-	UpdateUser(*library.User) error
-	// DeleteUser defines a function that
-	// deletes a user by unique ID.
-	DeleteUser(int64) error
+	// UserService provides the interface for functionality
+	// related to users stored in the database.
+	user.UserService
 
 	// Worker Database Interface Functions
 
 	// GetWorker defines a function that
 	// gets a worker by hostname.
 	GetWorker(string) (*library.Worker, error)
-	// GetWorkerAddress defines a function that
+	// GetWorkerByAddress defines a function that
 	// gets a worker by address.
 	GetWorkerByAddress(string) (*library.Worker, error)
 	// GetWorkerList defines a function that

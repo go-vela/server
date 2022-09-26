@@ -12,8 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// nolint: godot // top level comment ends in a list
-//
 // New creates and returns a Vela service capable of
 // integrating with the configured secret provider.
 //
@@ -21,6 +19,7 @@ import (
 //
 // * Native
 // * Vault
+// .
 func New(s *Setup) (Service, error) {
 	// validate the setup being provided
 	//

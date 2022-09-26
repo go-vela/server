@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/router"
+//	import "github.com/go-vela/server/router"
 package router

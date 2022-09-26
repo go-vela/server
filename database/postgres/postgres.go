@@ -11,6 +11,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
+	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
@@ -37,17 +38,21 @@ type (
 	}
 
 	client struct {
-		config   *config
+		config *config
+		// https://pkg.go.dev/gorm.io/gorm#DB
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
 		pipeline.PipelineService
+		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
+		user.UserService
 	}
 )
 
 // New returns a Database implementation that integrates with a Postgres instance.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Postgres client
 	c := new(client)
@@ -104,7 +109,7 @@ func New(opts ...ClientOpt) (*client, error) {
 //
 // This function is intended for running tests only.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// create new Postgres client
 	c := new(client)
@@ -140,6 +145,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 
 	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -262,12 +269,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
 	}
 
-	// create the users table
-	err = c.Postgres.Exec(ddl.CreateUserTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableUser, err)
-	}
-
 	// create the workers table
 	err = c.Postgres.Exec(ddl.CreateWorkerTable).Error
 	if err != nil {
@@ -342,12 +343,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
-	// create the users_refresh index for the users table
-	err = c.Postgres.Exec(ddl.CreateUserRefreshIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create users_refresh index for the %s table: %w", constants.TableUser, err)
-	}
-
 	// create the workers_hostname_address index for the workers table
 	err = c.Postgres.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
 	if err != nil {
@@ -369,6 +364,19 @@ func createServices(c *client) error {
 		pipeline.WithCompressionLevel(c.config.CompressionLevel),
 		pipeline.WithLogger(c.Logger),
 		pipeline.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic user service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/user#New
+	c.UserService, err = user.New(
+		user.WithClient(c.Postgres),
+		user.WithEncryptionKey(c.config.EncryptionKey),
+		user.WithLogger(c.Logger),
+		user.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

@@ -11,16 +11,16 @@ import (
 // PipelineService represents the Vela interface for pipeline
 // functions with the supported Database backends.
 //
-// nolint: revive // ignore name stutter
+//nolint:revive // ignore name stutter
 type PipelineService interface {
 	// Pipeline Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
-	// CreateIndexes creates the indexes for the pipelines table.
-	CreateIndexes() error
-	// CreateTable defines a function that creates the pipelines table.
-	CreateTable(string) error
+	// CreatePipelineIndexes defines a function that creates the indexes for the pipelines table.
+	CreatePipelineIndexes() error
+	// CreatePipelineTable defines a function that creates the pipelines table.
+	CreatePipelineTable(string) error
 
 	// Pipeline Data Manipulation Language Functions
 	//

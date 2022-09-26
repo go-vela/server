@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore similar code
+//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -45,7 +45,7 @@ func AllUsers(c *gin.Context) {
 	logrus.Info("Admin: reading all users")
 
 	// send API call to capture all users
-	u, err := database.FromContext(c).GetUserList()
+	u, err := database.FromContext(c).ListUsers()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all users: %w", err)
 

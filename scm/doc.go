@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/scm"
+//	import "github.com/go-vela/server/scm"
 package scm

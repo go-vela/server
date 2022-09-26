@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: staticcheck // ignore deprecated
+//nolint:staticcheck // ignore deprecated
 package token
 
 import (

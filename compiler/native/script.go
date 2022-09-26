@@ -39,7 +39,7 @@ func (c *client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		}
 
 		// set the default home
-		// nolint: goconst // ignore making this a constant for now
+		//nolint:goconst // ignore making this a constant for now
 		home := "/root"
 		// override the home value if user is defined
 		// TODO:
@@ -60,7 +60,7 @@ func (c *client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		// set the environment variables for the step
 		step.Environment["VELA_BUILD_SCRIPT"] = script
 		step.Environment["HOME"] = home
-		// nolint: goconst // ignore making this a constant for now
+		//nolint:goconst // ignore making this a constant for now
 		step.Environment["SHELL"] = "/bin/sh"
 	}
 
