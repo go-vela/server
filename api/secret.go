@@ -126,7 +126,7 @@ func CreateSecret(c *gin.Context) {
 		}
 
 		// check if casing is accurate
-		if strings.EqualFold(org, o) && org != o {
+		if org != o {
 			retErr := fmt.Errorf("unable to retrieve organization %s. Did you mean %s?", o, org)
 
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -149,7 +149,7 @@ func CreateSecret(c *gin.Context) {
 		}
 
 		// check if casing is accurate
-		if strings.EqualFold(scmRepo, n) && scmRepo != n {
+		if scmRepo != n {
 			retErr := fmt.Errorf("unable to retrieve repository %s. Did you mean %s?", n, scmRepo)
 
 			util.HandleError(c, http.StatusNotFound, retErr)
