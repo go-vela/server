@@ -131,9 +131,9 @@ func PostWebhook(c *gin.Context) {
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
-	logrus.Debugf("hook generated from SCM: %v", h)
-	logrus.Debugf("repo generated from SCM: %v", r)
-	logrus.Debugf("build generated from SCM: %v", b)
+	logrus.Debugf("hook generated from SCM: %v", h.String())
+	logrus.Debugf("repo generated from SCM: %v", r.String())
+	logrus.Debugf("build generated from SCM: %v", b.String())
 
 	// check if build was parsed from webhook.
 	// build will be nil on repository events, but
