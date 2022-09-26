@@ -176,7 +176,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture parsed repo from webhook
-	r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+	r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -428,7 +428,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// send API call to capture repo for the counter
-		r, err = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+		r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -744,7 +744,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	// get the old name of the repo
 	previousName := r.GetPreviousName()
 	// get the repo from the database that matches the old name
-	dbR, err := database.FromContext(c).GetRepo(r.GetOrg(), previousName)
+	dbR, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), previousName)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, r.GetOrg(), previousName)
 		util.HandleError(c, http.StatusBadRequest, retErr)
