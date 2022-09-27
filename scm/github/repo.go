@@ -309,6 +309,26 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 	return toLibraryRepo(*repo), nil
 }
 
+// GetRepoName returns the name of the repository in the SCM.
+func (c *client) GetRepoName(u *library.User, o string, r string) (string, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r,
+		"user": u.GetName(),
+	}).Tracef("retrieving repository information for %s/%s", o, r)
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	// send an API call to get the repo info
+	repo, _, err := client.Repositories.Get(ctx, o, r)
+	if err != nil {
+		return "", err
+	}
+
+	return repo.GetName(), nil
+}
+
 // ListUserRepos returns a list of all repos the user has access to.
 func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
