@@ -6,6 +6,7 @@ package database
 
 import (
 	"github.com/go-vela/server/database/pipeline"
+	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/library"
 )
@@ -119,38 +120,9 @@ type Service interface {
 	// related to pipelines stored in the database.
 	pipeline.PipelineService
 
-	// Repo Database Interface Functions
-
-	// GetRepo defines a function that
-	// gets a repo by org and name.
-	GetRepo(string, string) (*library.Repo, error)
-	// GetRepoList defines a function that
-	// gets a list of all repos.
-	GetRepoList() ([]*library.Repo, error)
-	// GetOrgRepoList defines a function that
-	// gets a list of all repos by org excluding repos specified.
-	GetOrgRepoList(string, map[string]string, int, int, string) ([]*library.Repo, error)
-	// GetOrgRepoCount defines a function that
-	// gets the count of repos for an org.
-	GetOrgRepoCount(string, map[string]string) (int64, error)
-	// GetRepoCount defines a function that
-	// gets the count of repos.
-	GetRepoCount() (int64, error)
-	// GetUserRepoList defines a function
-	// that gets a list of repos by user ID.
-	GetUserRepoList(*library.User, int, int) ([]*library.Repo, error)
-	// GetUserRepoCount defines a function that
-	// gets the count of repos for a user.
-	GetUserRepoCount(*library.User) (int64, error)
-	// CreateRepo defines a function that
-	// creates a new repo.
-	CreateRepo(*library.Repo) error
-	// UpdateRepo defines a function that
-	// updates a repo.
-	UpdateRepo(*library.Repo) error
-	// DeleteRepo defines a function that
-	// deletes a repo by unique ID.
-	DeleteRepo(int64) error
+	// RepoService provides the interface for functionality
+	// related to repos stored in the database.
+	repo.RepoService
 
 	// Secret Database Interface Functions
 
