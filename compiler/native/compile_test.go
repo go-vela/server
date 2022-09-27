@@ -1082,7 +1082,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	}
 }
 
-// Test evaluation of `vela "tempalate_name"` function
+// Test evaluation of `vela "tempalate_name"` function.
 func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -1200,7 +1200,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	}
 }
 
-// Test evaluation of `vela "tempalate_name"` function on a inline template
+// Test evaluation of `vela "tempalate_name"` function on a inline template.
 func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)

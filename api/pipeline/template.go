@@ -6,7 +6,6 @@ package pipeline
 
 import (
 	"fmt"
-	"github.com/go-vela/types/yaml"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +20,7 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/yaml"
 	"github.com/sirupsen/logrus"
 )
 
