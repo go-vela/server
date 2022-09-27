@@ -109,6 +109,55 @@ func CreateSecret(c *gin.Context) {
 		}
 	}
 
+	if strings.EqualFold(t, constants.SecretOrg) {
+		// retrieve org name from SCM
+		//
+		// SCM can be case insensitive, causing access retrieval to work
+		// but Org/Repo != org/repo in Vela. So this check ensures that
+		// what a user inputs matches the casing we expect in Vela since
+		// the SCM will have the source of truth for casing.
+		org, err := scm.FromContext(c).GetOrgName(u, o)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve organization %s", o)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// check if casing is accurate
+		if org != o {
+			retErr := fmt.Errorf("unable to retrieve organization %s. Did you mean %s?", o, org)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+	}
+
+	if strings.EqualFold(t, constants.SecretRepo) {
+		// retrieve repo name from SCM
+		//
+		// same story as org secret. SCM has accurate casing.
+		scmRepo, err := scm.FromContext(c).GetRepoName(u, o, n)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// check if casing is accurate
+		if scmRepo != n {
+			retErr := fmt.Errorf("unable to retrieve repository %s. Did you mean %s?", n, scmRepo)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+	}
+
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
