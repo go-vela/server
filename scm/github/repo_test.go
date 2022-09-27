@@ -1013,6 +1013,79 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	}
 }
 
+func TestGithub_GetRepoName(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/get_repo.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	want := "Hello-World"
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.GetRepoName(u, "octocat", "Hello-World")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("GetRepoName returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("GetRepoName returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetRepoName is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_GetRepoName_Fail(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	_, err := client.GetRepoName(u, "octocat", "Hello-World")
+
+	if err == nil {
+		t.Error("GetRepoName should return error")
+	}
+}
+
 func TestGithub_ListUserRepos(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
