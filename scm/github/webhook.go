@@ -450,6 +450,7 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetActive(!repo.GetArchived())
 
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {

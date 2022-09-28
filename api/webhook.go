@@ -145,9 +145,7 @@ func PostWebhook(c *gin.Context) {
 	// check if build was parsed from webhook.
 	// build will be nil on repository events, but
 	// for renaming, we want to continue.
-	if b == nil &&
-		h.GetEvent() != constants.EventRepository &&
-		h.GetEventAction() != constants.ActionRenamed {
+	if b == nil && h.GetEvent() != constants.EventRepository {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -172,14 +170,56 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	if h.GetEvent() == constants.EventRepository {
-		err = renameRepository(h, r, c, m)
-		if err != nil {
-			util.HandleError(c, http.StatusBadRequest, err)
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(err.Error())
-		}
+		switch h.GetEventAction() {
+		// if action is rename, go through rename routine
+		case constants.ActionRenamed:
+			err = renameRepository(h, r, c, m)
+			if err != nil {
+				util.HandleError(c, http.StatusBadRequest, err)
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(err.Error())
+			}
 
-		return
+			return
+		// if action is archived, unarchived, or edited, perform edits to relevant repo fields
+		case "archived", "unarchived", constants.ActionEdited:
+			// send call to get repository from database
+			dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+
+			// the only edits to a repo that impact Vela are to these two fields
+			dbRepo.SetBranch(r.GetBranch())
+			dbRepo.SetActive(r.GetActive())
+
+			// update repo object in the database after applying edits
+			err = database.FromContext(c).UpdateRepo(dbRepo)
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+
+			c.JSON(http.StatusOK, fmt.Sprintf("no build to process, repository %s.", h.GetEventAction()))
+
+			return
+		// all other repo event actions are skippable
+		default:
+			c.JSON(http.StatusOK, "no build to process")
+
+			return
+		}
 	}
 
 	// send API call to capture parsed repo from webhook
