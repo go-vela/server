@@ -503,7 +503,7 @@ func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *
 	}
 
 	// if not found, webhook was not recent enough for GitHub
-	err = fmt.Errorf("webhook not one of the 100 most recent deliveries")
+	err = fmt.Errorf("webhook no longer available to be redelivered")
 
 	return 0, err
 }
