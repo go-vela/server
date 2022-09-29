@@ -113,7 +113,7 @@ type Service interface {
 	GetRepo(*library.User, *library.Repo) (*library.Repo, error)
 	// GetRepoName defines a function that retrieves
 	// the name of the repo in the SCM.
-	GetRepoName(*library.User, string, string) (string, string, error)
+	GetOrgAndRepoName(*library.User, string, string) (string, string, error)
 	// GetOrg defines a function that retrieves
 	// the name for an org in the SCM.
 	GetOrgName(*library.User, string) (string, error)

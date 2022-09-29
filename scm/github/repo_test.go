@@ -1041,7 +1041,7 @@ func TestGithub_GetRepoName(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotOrg, gotRepo, err := client.GetRepoName(u, "octocat", "Hello-World")
+	gotOrg, gotRepo, err := client.GetOrgAndRepoName(u, "octocat", "Hello-World")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetRepoName returned %v, want %v", resp.Code, http.StatusOK)
@@ -1084,7 +1084,7 @@ func TestGithub_GetRepoName_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, _, err := client.GetRepoName(u, "octocat", "Hello-World")
+	_, _, err := client.GetOrgAndRepoName(u, "octocat", "Hello-World")
 
 	if err == nil {
 		t.Error("GetRepoName should return error")

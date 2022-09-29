@@ -141,7 +141,7 @@ func CreateSecret(c *gin.Context) {
 		// retrieve org and repo name from SCM
 		//
 		// same story as org secret. SCM has accurate casing.
-		scmOrg, scmRepo, err := scm.FromContext(c).GetRepoName(u, o, n)
+		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(u, o, n)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
 
