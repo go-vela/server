@@ -1013,7 +1013,7 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	}
 }
 
-func TestGithub_GetRepoName(t *testing.T) {
+func TestGithub_GetOrgAndRepoName(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -1060,7 +1060,7 @@ func TestGithub_GetRepoName(t *testing.T) {
 	}
 }
 
-func TestGithub_GetRepoName_Fail(t *testing.T) {
+func TestGithub_GetOrgAndRepoName_Fail(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 

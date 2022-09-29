@@ -310,7 +310,7 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 	return toLibraryRepo(*repo), nil
 }
 
-// GetRepoName returns the name of the repository in the SCM.
+// GetOrgAndRepoName returns the name of the org and the repository in the SCM.
 func (c *client) GetOrgAndRepoName(u *library.User, o string, r string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
