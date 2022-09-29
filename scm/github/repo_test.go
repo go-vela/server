@@ -1035,12 +1035,13 @@ func TestGithub_GetRepoName(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := "Hello-World"
+	wantOrg := "octocat"
+	wantRepo := "Hello-World"
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetRepoName(u, "octocat", "Hello-World")
+	gotOrg, gotRepo, err := client.GetRepoName(u, "octocat", "Hello-World")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetRepoName returned %v, want %v", resp.Code, http.StatusOK)
@@ -1050,8 +1051,12 @@ func TestGithub_GetRepoName(t *testing.T) {
 		t.Errorf("GetRepoName returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetRepoName is %v, want %v", got, want)
+	if !reflect.DeepEqual(gotOrg, wantOrg) {
+		t.Errorf("GetRepoName org is %v, want %v", gotOrg, wantOrg)
+	}
+
+	if !reflect.DeepEqual(gotRepo, wantRepo) {
+		t.Errorf("GetRepoName repo is %v, want %v", gotRepo, wantRepo)
 	}
 }
 
@@ -1079,7 +1084,7 @@ func TestGithub_GetRepoName_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetRepoName(u, "octocat", "Hello-World")
+	_, _, err := client.GetRepoName(u, "octocat", "Hello-World")
 
 	if err == nil {
 		t.Error("GetRepoName should return error")

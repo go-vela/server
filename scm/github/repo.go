@@ -311,7 +311,7 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 }
 
 // GetRepoName returns the name of the repository in the SCM.
-func (c *client) GetRepoName(u *library.User, o string, r string) (string, error) {
+func (c *client) GetRepoName(u *library.User, o string, r string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"repo": r,
@@ -324,10 +324,10 @@ func (c *client) GetRepoName(u *library.User, o string, r string) (string, error
 	// send an API call to get the repo info
 	repo, _, err := client.Repositories.Get(ctx, o, r)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return repo.GetName(), nil
+	return repo.GetOwner().GetLogin(), repo.GetName(), nil
 }
 
 // ListUserRepos returns a list of all repos the user has access to.

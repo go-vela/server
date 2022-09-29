@@ -78,6 +78,8 @@ import (
 
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
+//
+//nolint:funlen // suppress long function error
 func CreateSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -136,10 +138,10 @@ func CreateSecret(c *gin.Context) {
 	}
 
 	if strings.EqualFold(t, constants.SecretRepo) {
-		// retrieve repo name from SCM
+		// retrieve org and repo name from SCM
 		//
 		// same story as org secret. SCM has accurate casing.
-		scmRepo, err := scm.FromContext(c).GetRepoName(u, o, n)
+		scmOrg, scmRepo, err := scm.FromContext(c).GetRepoName(u, o, n)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
 
@@ -148,7 +150,16 @@ func CreateSecret(c *gin.Context) {
 			return
 		}
 
-		// check if casing is accurate
+		// check if casing is accurate for org entry
+		if scmOrg != o {
+			retErr := fmt.Errorf("unable to retrieve org %s. Did you mean %s?", o, scmOrg)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// check if casing is accurate for repo entry
 		if scmRepo != n {
 			retErr := fmt.Errorf("unable to retrieve repository %s. Did you mean %s?", n, scmRepo)
 
