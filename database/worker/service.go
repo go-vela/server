@@ -11,7 +11,7 @@ import (
 // WorkerService represents the Vela interface for worker
 // functions with the supported Database backends.
 //
-// nolint: revive // ignore name stutter
+//nolint:revive // ignore name stutter
 type WorkerService interface {
 	// Worker Data Definition Language Functions
 	//
