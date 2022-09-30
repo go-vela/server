@@ -2,7 +2,6 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-//nolint:dupl // ignore similar code in create.go
 package worker
 
 import (
