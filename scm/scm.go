@@ -12,14 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// nolint: godot // top level comment ends in a list
-//
 // New creates and returns a Vela service capable of
 // integrating with the configured scm provider.
 //
 // Currently the following scm providers are supported:
 //
 // * Github
+// .
 func New(s *Setup) (Service, error) {
 	// validate the setup being provided
 	//

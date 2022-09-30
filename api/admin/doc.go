@@ -6,5 +6,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/api/admin"
+//	import "github.com/go-vela/server/api/admin"
 package admin

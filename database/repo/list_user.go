@@ -13,7 +13,7 @@ import (
 
 // ListReposForUser gets a list of repos by user ID from the database.
 //
-// nolint: lll // ignore long line length due to variable names
+//nolint:lll // ignore long line length due to variable names
 func (e *engine) ListReposForUser(u *library.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),

@@ -5,11 +5,11 @@
 package repo
 
 import (
-	"github.com/go-vela/types/library"
 	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/library"
 )
 
 func TestRepo_Engine_CountReposForUser(t *testing.T) {

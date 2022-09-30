@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/queue/redis"
+//	import "github.com/go-vela/server/queue/redis"
 package redis

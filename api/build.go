@@ -8,7 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -85,7 +85,8 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // CreateBuild represents the API handler to create a build in the configured backend.
-// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
+//
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -307,7 +308,7 @@ func CreateBuild(c *gin.Context) {
 
 	// check if the pipeline did not already exist in the database
 	//
-	// nolint: dupl // ignore duplicate code
+	//nolint:dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
@@ -327,7 +328,7 @@ func CreateBuild(c *gin.Context) {
 		// send API call to capture the created pipeline
 		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
+			//nolint:lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to create new build: failed to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -380,7 +381,8 @@ func CreateBuild(c *gin.Context) {
 
 // skipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
-// nolint: goconst // ignore init and clone constants
+//
+//nolint:goconst // ignore init and clone constants
 func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
@@ -792,7 +794,7 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 	// Only show public repos to non-admins
 	//
-	// nolint: goconst // ignore admin constant
+	//nolint:goconst // ignore admin constant
 	if perm != "admin" {
 		filters["visibility"] = constants.VisibilityPublic
 	}
@@ -922,7 +924,8 @@ func GetBuild(c *gin.Context) {
 //       "$ref": "#/definitions/Error"
 
 // RestartBuild represents the API handler to restart an existing build in the configured backend.
-// nolint: funlen // ignore statement count
+//
+//nolint:funlen // ignore statement count
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
@@ -1134,7 +1137,7 @@ func RestartBuild(c *gin.Context) {
 
 	// check if the pipeline did not already exist in the database
 	//
-	// nolint: dupl // ignore duplicate code
+	//nolint:dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
@@ -1154,7 +1157,7 @@ func RestartBuild(c *gin.Context) {
 		// send API call to capture the created pipeline
 		pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
+			//nolint:lll // ignore long line length due to error message
 			retErr := fmt.Errorf("unable to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -1465,7 +1468,7 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
 // TODO:
-// - return build and error
+// - return build and error.
 func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
@@ -1601,7 +1604,8 @@ func cleanBuild(database database.Service, b *library.Build, services []*library
 //       "$ref": "#/definitions/Error"
 
 // CancelBuild represents the API handler to cancel a running build.
-// nolint: funlen // ignore statement count
+//
+//nolint:funlen // ignore statement count
 func CancelBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -1674,7 +1678,7 @@ func CancelBuild(c *gin.Context) {
 			defer resp.Body.Close()
 
 			// Read Response Body
-			respBody, err := ioutil.ReadAll(resp.Body)
+			respBody, err := io.ReadAll(resp.Body)
 			if err != nil {
 				retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
 				util.HandleError(c, http.StatusBadRequest, retErr)

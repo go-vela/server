@@ -10,11 +10,17 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    container:
-      image: golang:1.17
+
     steps:
     - name: clone
       uses: actions/checkout@v3
+
+    - name: install go
+      uses: actions/setup-go@v3
+      with:
+        # use version from go.mod file
+        go-version-file: 'go.mod'
+        cache: true
 
     - name: tags
       run: |
@@ -33,5 +39,5 @@ jobs:
 
     - name: validate spec
       run: |
-        make spec-install
+        sudo make spec-install
         make spec

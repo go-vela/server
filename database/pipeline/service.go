@@ -11,7 +11,7 @@ import (
 // PipelineService represents the Vela interface for pipeline
 // functions with the supported Database backends.
 //
-// nolint: revive // ignore name stutter
+//nolint:revive // ignore name stutter
 type PipelineService interface {
 	// Pipeline Data Definition Language Functions
 	//
