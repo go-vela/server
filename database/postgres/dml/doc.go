@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/database/postgres/dml"
+//	import "github.com/go-vela/server/database/postgres/dml"
 package dml

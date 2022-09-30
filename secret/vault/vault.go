@@ -58,7 +58,7 @@ type (
 
 // New returns a Secret implementation that integrates with a Vault secrets engine.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Vault client
 	c := new(client)
@@ -132,7 +132,7 @@ func New(opts ...ClientOpt) (*client, error) {
 
 // secretFromVault is a helper function to convert a HashiCorp Vault secret to a Vela secret.
 //
-// nolint: gocyclo,funlen // ignore cyclomatic complexity and function length due to conditionals
+//nolint:gocyclo,funlen // ignore cyclomatic complexity and function length due to conditionals
 func secretFromVault(vault *api.Secret) *library.Secret {
 	s := new(library.Secret)
 

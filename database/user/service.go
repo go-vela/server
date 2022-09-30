@@ -11,7 +11,7 @@ import (
 // UserService represents the Vela interface for user
 // functions with the supported Database backends.
 //
-// nolint: revive // ignore name stutter
+//nolint:revive // ignore name stutter
 type UserService interface {
 	// User Data Definition Language Functions
 	//

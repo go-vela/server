@@ -26,7 +26,6 @@ func (e *engine) GetRepoForOrg(org, name string) (*library.Repo, error) {
 		Table(constants.TableRepo).
 		Where("org = ?", org).
 		Where("name = ?", name).
-		Limit(1).
 		Take(r).
 		Error
 	if err != nil {

@@ -73,7 +73,7 @@ make clean
 
 ```bash
 # push your code up to your fork
-git push fork master
+git push fork main
 ```
 
 * Make sure to follow our [PR process](https://go-vela.github.io/docs/community/contributing_guidelines/#development-workflow) when opening a pull request

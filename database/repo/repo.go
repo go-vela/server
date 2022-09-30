@@ -41,7 +41,7 @@ type (
 
 // New creates and returns a Vela service for integrating with repos in the database.
 //
-// nolint: revive // ignore returning unexported engine
+//nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (*engine, error) {
 	// create new Repo engine
 	e := new(engine)

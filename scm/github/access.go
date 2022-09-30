@@ -22,7 +22,7 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 
 	// if user is accessing personal org
 	if strings.EqualFold(org, *u.Name) {
-		// nolint: goconst // ignore making constant
+		//nolint:goconst // ignore making constant
 		return "admin", nil
 	}
 

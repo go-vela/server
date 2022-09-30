@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore similar code with service
+//nolint:dupl // ignore similar code with service
 package router
 
 import (

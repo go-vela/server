@@ -111,7 +111,7 @@ func (c *client) GetSecret(t, o, n, secretName string) (*library.Secret, error) 
 
 // CreateSecret creates a new secret in the database.
 //
-// nolint: dupl // ignore similar code with update
+//nolint:dupl // ignore similar code with update
 func (c *client) CreateSecret(s *library.Secret) error {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
@@ -159,7 +159,7 @@ func (c *client) CreateSecret(s *library.Secret) error {
 
 // UpdateSecret updates a secret in the database.
 //
-// nolint: dupl // ignore similar code with create
+//nolint:dupl // ignore similar code with create
 func (c *client) UpdateSecret(s *library.Secret) error {
 	// create log fields from secret metadata
 	fields := logrus.Fields{

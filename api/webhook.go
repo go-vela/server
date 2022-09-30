@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -71,7 +71,7 @@ var baseErr = "unable to process webhook"
 // a webhook from a source control provider and
 // publish it to the configure queue.
 //
-// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func PostWebhook(c *gin.Context) {
 	logrus.Info("webhook received")
 
@@ -105,10 +105,10 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// add the request body to the original request
-	c.Request.Body = ioutil.NopCloser(&buf)
+	c.Request.Body = io.NopCloser(&buf)
 
 	// add the request body to the duplicate request
-	dupRequest.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
+	dupRequest.Body = io.NopCloser(bytes.NewReader(buf.Bytes()))
 	//
 	// -------------------- End of TODO: --------------------
 
@@ -130,6 +130,17 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
+
+	logrus.Debugf("hook generated from SCM: %v", h)
+	logrus.Debugf("repo generated from SCM: %v", r)
+
+	if b != nil {
+		logrus.Debugf(`build author: %s,
+		build branch: %s,
+		build commit: %s,
+		build ref: %s`,
+			b.GetAuthor(), b.GetBranch(), b.GetCommit(), b.GetRef())
+	}
 
 	// check if build was parsed from webhook.
 	// build will be nil on repository events, but
@@ -273,6 +284,8 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture repo owner
+	logrus.Debugf("capturing owner of repository %s", r.GetFullName())
+
 	u, err := database.FromContext(c).GetUser(r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
@@ -301,6 +314,8 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	logrus.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
+
 	// check if the number of pending and running builds exceeds the limit for the repo
 	if builds >= r.GetBuildLimit() {
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
@@ -313,8 +328,13 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// update fields in build object
+	logrus.Debugf("updating build number to %d", r.GetCounter())
 	b.SetNumber(r.GetCounter())
+
+	logrus.Debugf("updating parent number to %d", b.GetNumber())
 	b.SetParent(b.GetNumber())
+
+	logrus.Debug("updating status to pending")
 	b.SetStatus(constants.StatusPending)
 
 	// if this is a comment on a pull_request event
@@ -388,6 +408,7 @@ func PostWebhook(c *gin.Context) {
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
 	for i := 0; i < retryLimit; i++ {
+		logrus.Debugf("compilation loop - attempt %d", i+1)
 		// check if we're on the first iteration of the loop
 		if i > 0 {
 			// incrementally sleep in between retries
@@ -548,7 +569,7 @@ func PostWebhook(c *gin.Context) {
 			// send API call to capture the created pipeline
 			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
 			if err != nil {
-				// nolint: lll // ignore long line length due to error message
+				//nolint:lll // ignore long line length due to error message
 				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, r.GetFullName(), pipeline.GetCommit(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -726,6 +747,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo.
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) error {
+	logrus.Debugf("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 	// get the old name of the repo
 	previousName := r.GetPreviousName()
 	// get the repo from the database that matches the old name
