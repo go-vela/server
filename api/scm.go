@@ -6,7 +6,6 @@ package api
 
 import (
 	"fmt"
-	"github.com/go-vela/types/constants"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
