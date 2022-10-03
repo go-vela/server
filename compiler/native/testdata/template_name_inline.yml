@@ -1,0 +1,11 @@
+---
+version: "1"
+
+metadata:
+  template: false
+  render_inline: true
+
+templates:
+  - name: inline_templatename
+    source: github.example.com/github/octocat/template_name_template.yml
+    type: github
