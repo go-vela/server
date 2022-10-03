@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/alicebob/miniredis/v2 v2.23.0
-	github.com/aws/aws-sdk-go v1.44.99
+	github.com/aws/aws-sdk-go v1.44.109
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.8.1
@@ -29,15 +29,15 @@ require (
 	github.com/prometheus/client_golang v1.13.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.2
-	github.com/urfave/cli/v2 v2.16.3
+	github.com/urfave/cli/v2 v2.17.1
 	go.starlark.net v0.0.0-20220928063852-5fccb4daaf6d
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
-	gorm.io/driver/postgres v1.3.9
+	gorm.io/driver/postgres v1.3.10
 	gorm.io/driver/sqlite v1.3.6
-	gorm.io/gorm v1.23.9
-	k8s.io/apimachinery v0.25.0
+	gorm.io/gorm v1.23.10
+	k8s.io/apimachinery v0.25.2
 )
 
 require (
@@ -86,13 +86,13 @@ require (
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.12.1 // indirect
+	github.com/jackc/pgconn v1.13.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.0 // indirect
+	github.com/jackc/pgproto3/v2 v2.3.1 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.11.0 // indirect
-	github.com/jackc/pgx/v4 v4.16.1 // indirect
+	github.com/jackc/pgtype v1.12.0 // indirect
+	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -125,7 +125,7 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
+	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect

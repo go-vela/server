@@ -40,7 +40,7 @@ func TestNative_Parse_Metadata_Bytes(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestNative_Parse_Metadata_File(t *testing.T) {
 
 	defer f.Close()
 
-	got, _, err := client.Parse(f, "", map[string]interface{}{})
+	got, _, err := client.Parse(f, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -85,7 +85,7 @@ func TestNative_Parse_Metadata_Invalid(t *testing.T) {
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 
 	// run test
-	got, _, err := client.Parse(nil, "", map[string]interface{}{})
+	got, _, err := client.Parse(nil, "", new(yaml.Template))
 
 	if err == nil {
 		t.Error("Parse should have returned err")
@@ -109,7 +109,7 @@ func TestNative_Parse_Metadata_Path(t *testing.T) {
 	}
 
 	// run test
-	got, _, err := client.Parse("testdata/metadata.yml", "", map[string]interface{}{})
+	got, _, err := client.Parse("testdata/metadata.yml", "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -137,7 +137,7 @@ func TestNative_Parse_Metadata_Reader(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(bytes.NewReader(b), "", map[string]interface{}{})
+	got, _, err := client.Parse(bytes.NewReader(b), "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestNative_Parse_Metadata_String(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(string(b), "", map[string]interface{}{})
+	got, _, err := client.Parse(string(b), "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -212,7 +212,7 @@ func TestNative_Parse_Parameters(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -338,7 +338,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -435,7 +435,7 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
 	}
@@ -498,7 +498,7 @@ func TestNative_Parse_Secrets(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -574,7 +574,7 @@ func TestNative_Parse_Stages(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -632,7 +632,7 @@ func TestNative_Parse_Steps(t *testing.T) {
 		t.Errorf("Reading file returned err: %v", err)
 	}
 
-	got, _, err := client.Parse(b, "", map[string]interface{}{})
+	got, _, err := client.Parse(b, "", new(yaml.Template))
 
 	if err != nil {
 		t.Errorf("Parse returned err: %v", err)
@@ -906,7 +906,7 @@ func Test_client_Parse(t *testing.T) {
 				}
 			}
 
-			got, _, err := c.Parse(content, tt.args.pipelineType, map[string]interface{}{})
+			got, _, err := c.Parse(content, tt.args.pipelineType, new(yaml.Template))
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
