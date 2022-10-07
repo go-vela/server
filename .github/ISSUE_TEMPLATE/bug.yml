@@ -1,0 +1,42 @@
+name: Bug Report
+description: Problems and Issue with the code
+title: 'Bug Report: '
+labels: ['type: bug']
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Please provide as much info as possible.
+      placeholder: >
+        Please provide the context in which the problem occurred and explain what happened
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What you expected to happen
+      description: What do you think went wrong?
+      placeholder: >
+        Please explain why you think the behaviour is expected to output.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: How to reproduce
+      description: >
+        What should we do to reproduce the problem?
+      placeholder: >
+        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem
+        as minimally and precisely as possible.
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Are you willing to submit PR?
+      description: >
+        This is not required, but it will be a huge help.
+      multiple: true
+      options:
+        - 'Yes I am willing to submit a PR!'
