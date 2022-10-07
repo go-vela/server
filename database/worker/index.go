@@ -2,26 +2,9 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package ddl
+package worker
 
 const (
-	// CreateWorkerTable represents a query to
-	// create the workers table for Vela.
-	CreateWorkerTable = `
-CREATE TABLE
-IF NOT EXISTS
-workers (
-	id              INTEGER PRIMARY KEY AUTOINCREMENT,
-	hostname        TEXT,
-	address         TEXT,
-	routes          TEXT,
-	active          TEXT,
-	last_checked_in	INTEGER,
-	build_limit     INTEGER,
-	UNIQUE(hostname)
-);
-`
-
 	// CreateWorkerHostnameAddressIndex represents a query to create an
 	// index on the workers table for the hostname and address columns.
 	CreateWorkerHostnameAddressIndex = `
@@ -31,3 +14,11 @@ workers_hostname_address
 ON workers (hostname, address);
 `
 )
+
+// CreateWorkerIndexes creates the indexes for the workers table in the database.
+func (e *engine) CreateWorkerIndexes() error {
+	e.logger.Tracef("creating indexes for workers table in the database")
+
+	// create the hostname and address columns index for the workers table
+	return e.client.Exec(CreateWorkerHostnameAddressIndex).Error
+}
