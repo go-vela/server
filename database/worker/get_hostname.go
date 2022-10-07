@@ -24,7 +24,6 @@ func (e *engine) GetWorkerForHostname(hostname string) (*library.Worker, error) 
 	err := e.client.
 		Table(constants.TableWorker).
 		Where("hostname = ?", hostname).
-		Limit(1).
 		Take(w).
 		Error
 	if err != nil {

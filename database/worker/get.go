@@ -21,7 +21,6 @@ func (e *engine) GetWorker(id int64) (*library.Worker, error) {
 	err := e.client.
 		Table(constants.TableWorker).
 		Where("id = ?", id).
-		Limit(1).
 		Take(w).
 		Error
 	if err != nil {
