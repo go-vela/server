@@ -5,9 +5,9 @@
 package hook
 
 const (
-	// CreateHookRepoIDIndex represents a query to create an
+	// CreateRepoIDIndex represents a query to create an
 	// index on the hooks table for the repo_id column.
-	CreateHookRepoIDIndex = `
+	CreateRepoIDIndex = `
 CREATE INDEX
 IF NOT EXISTS
 hooks_repo_id
@@ -20,5 +20,5 @@ func (e *engine) CreateHookIndexes() error {
 	e.logger.Tracef("creating indexes for hooks table in the database")
 
 	// create the hostname and address columns index for the hooks table
-	return e.client.Exec(CreateHookRepoIDIndex).Error
+	return e.client.Exec(CreateRepoIDIndex).Error
 }

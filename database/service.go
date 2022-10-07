@@ -5,6 +5,7 @@
 package database
 
 import (
+	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
@@ -69,32 +70,9 @@ type Service interface {
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
 
-	// Hook Database Interface Functions
-
-	// GetHook defines a function that
-	// gets a webhook by number and repo ID.
-	GetHook(int, *library.Repo) (*library.Hook, error)
-	// GetLastHook defines a function that
-	// gets the last hook by repo ID.
-	GetLastHook(*library.Repo) (*library.Hook, error)
-	// GetHookList defines a function that gets
-	// a list of all webhooks.
-	GetHookList() ([]*library.Hook, error)
-	// GetRepoHookList defines a function that
-	// gets a list of webhooks by repo ID.
-	GetRepoHookList(*library.Repo, int, int) ([]*library.Hook, error)
-	// GetRepoHookCount defines a function that
-	// gets the count of webhooks by repo ID.
-	GetRepoHookCount(*library.Repo) (int64, error)
-	// CreateHook defines a function that
-	// creates a new webhook.
-	CreateHook(*library.Hook) error
-	// UpdateHook defines a function that
-	// updates a webhook.
-	UpdateHook(*library.Hook) error
-	// DeleteHook defines a function that
-	// deletes a webhook by unique ID.
-	DeleteHook(int64) error
+	// HookService provides the interface for functionality
+	// related to hooks stored in the database.
+	hook.HookService
 
 	// Log Database Interface Functions
 

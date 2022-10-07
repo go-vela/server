@@ -38,12 +38,12 @@ type HookService interface {
 	GetHook(int64) (*library.Hook, error)
 	// GetHookForRepo defines a function that gets a hook by repo ID and number.
 	GetHookForRepo(*library.Repo, int) (*library.Hook, error)
-	// LatestHookForRepo defines a function that gets the latest hook by repo ID.
-	LatestHookForRepo(*library.Repo, int) (*library.Hook, error)
+	// LastHookForRepo defines a function that gets the last hook by repo ID.
+	LastHookForRepo(*library.Repo) (*library.Hook, error)
 	// ListHooks defines a function that gets a list of all hooks.
 	ListHooks() ([]*library.Hook, error)
 	// ListHooksForRepo defines a function that gets a list of hooks by repo ID.
-	ListHooksForRepo(*library.Repo, int, int, int) (*library.Hook, error)
+	ListHooksForRepo(*library.Repo, int, int) ([]*library.Hook, int64, error)
 	// UpdateHook defines a function that updates an existing hook.
 	UpdateHook(*library.Hook) error
 }
