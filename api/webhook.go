@@ -646,13 +646,21 @@ func PostWebhook(c *gin.Context) {
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
 
-	c.JSON(http.StatusOK, b)
+	// c.JSON(http.StatusOK, b)
 
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
+
+	// for now, do not publish to redis
+	// vader: environment controlled mode for listening to the queue
+	// logrus.Infof("Manually executing item for build %d for %s", b.GetNumber(), r.GetFullName())
+
+	// item := types.ToItem(p, b, r, u)
+
+	// ExecItem(c, item)
 
 	// publish the build to the queue
 	go publishToQueue(
@@ -709,6 +717,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 
 			return
 		}
+
 	}
 
 	// update fields in build object
@@ -719,6 +728,63 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 	if err != nil {
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
+}
+
+func ExecItem(workerAddress, secret string, item *types.Item) error {
+
+	// query database for a worker that has an available executor "slot"
+	// workers, err := database.FromContext(c).GetWorkerList()
+	// if err != nil {
+	// 	retErr := fmt.Errorf("unable to get workers list: %w", err)
+	// 	util.HandleError(c, http.StatusNotFound, retErr)
+
+	// 	return
+	// }
+
+	// prepare the request to the worker
+	client := http.DefaultClient
+	client.Timeout = 30 * time.Second
+
+	// set the API endpoint path we send the request to
+	u := fmt.Sprintf("%s/api/v1/exec", workerAddress)
+	it, err := json.Marshal(item)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(context.Background(), "POST", u, bytes.NewBuffer(it))
+	if err != nil {
+		return err
+	}
+
+	// add the token to authenticate to the worker
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
+
+	// perform the request to the worker
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Read Response Body
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(respBody))
+
+	// err = json.Unmarshal(respBody, b)
+	// if err != nil {
+	// 	retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
+	// 	util.HandleError(c, http.StatusBadRequest, retErr)
+
+	// 	return
+	// }
+
+	// c.JSON(resp.StatusCode, string(respBody))
+	return nil
 }
 
 // renameRepository is a helper function that takes the old name of the repo,

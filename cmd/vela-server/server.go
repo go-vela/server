@@ -11,8 +11,10 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -106,6 +108,57 @@ func server(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// vader: thread for listening to the queue
+	go func() {
+		for {
+			logrus.Info("Popping item from queue...")
+
+			// capture an item from the queue
+			item, err := queue.Pop(context.Background())
+			if err != nil {
+				logrus.Infof("Error popping item from queue: %w", err)
+				continue
+			}
+
+			if item == nil {
+				logrus.Info("Popped nil item from queue")
+				continue
+			}
+			logrus.Info("Popped item from queue")
+
+			workers, err := database.GetWorkerList()
+			if err != nil {
+				logrus.Infof("unable to get worker list: %w", err)
+				continue
+			}
+
+			w := func() *library.Worker {
+				// vader: determine if worker is active and has availability
+				for _, worker := range workers {
+					if worker.GetActive() {
+						return worker
+					}
+				}
+				return nil
+			}()
+
+			if w == nil {
+				logrus.Info("unable to find active worker")
+				continue
+			}
+
+			logrus.Info("found active worker")
+
+			logrus.Infof("executing item on worker: %s", w.GetHostname())
+
+			err = api.ExecItem(w.GetAddress(), c.String("vela-secret"), item)
+			if err != nil {
+				logrus.Infof("unable to exec item on worker %s: %w", w.GetHostname(), err)
+				continue
+			}
+		}
+	}()
 
 	var tomb tomb.Tomb
 	// start http server

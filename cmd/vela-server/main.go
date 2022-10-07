@@ -25,6 +25,8 @@ import (
 
 //nolint:funlen // ignore line length
 func main() {
+	fmt.Fprintf(os.Stdout, "BOOTING UP CUSTOM SERVER v3")
+
 	// capture application version information
 	v := version.New()
 

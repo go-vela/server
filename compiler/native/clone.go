@@ -5,13 +5,19 @@
 package native
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/yaml"
 )
 
-const (
+var (
 	// default image for clone process.
 	cloneImage = "target/vela-git:v0.5.1"
+)
+
+const (
 	// default name for clone stage.
 	cloneStageName = "clone"
 	// default name for clone step.
@@ -24,6 +30,13 @@ func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 	if c.local {
 		// skip injecting the clone process
 		return p, nil
+	}
+	cloneImageFromEnv := os.Getenv("VELA_CLONE_STEP_DOCKER_IMAGE")
+
+	fmt.Fprintf(os.Stdout, ":::1::: cloneImageFromEnv: %v", cloneImageFromEnv)
+
+	if cloneImageFromEnv != "" {
+		cloneImage = cloneImageFromEnv
 	}
 
 	stages := yaml.StageSlice{}
@@ -60,6 +73,14 @@ func (c *client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 	if c.local {
 		// skip injecting the clone process
 		return p, nil
+	}
+
+	cloneImageFromEnv := os.Getenv("VELA_CLONE_STEP_DOCKER_IMAGE")
+
+	fmt.Fprintf(os.Stdout, ":::1::: cloneImageFromEnv: %v", cloneImageFromEnv)
+
+	if cloneImageFromEnv != "" {
+		cloneImage = cloneImageFromEnv
 	}
 
 	steps := yaml.StepSlice{}
