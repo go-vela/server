@@ -20,6 +20,7 @@ jobs:
         # use version from go.mod file
         go-version-file: 'go.mod'
         cache: true
+        check-latest: true
 
     - name: golangci-lint
       uses: reviewdog/action-golangci-lint@v2
@@ -43,6 +44,7 @@ jobs:
         # use version from go.mod file
         go-version-file: 'go.mod'
         cache: true
+        check-latest: true
 
     - name: golangci-lint
       uses: reviewdog/action-golangci-lint@v2
