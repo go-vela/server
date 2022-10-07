@@ -65,11 +65,11 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 }
 
 // RenderBuild renders the templated build.
-func RenderBuild(b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
+func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
 	buffer := new(bytes.Buffer)
 	config := new(types.Build)
 
-	velaFuncs := funcHandler{envs: convertPlatformVars(envs, "")}
+	velaFuncs := funcHandler{envs: convertPlatformVars(envs, tmpl)}
 	templateFuncMap := map[string]interface{}{
 		"vela":   velaFuncs.returnPlatformVar,
 		"toYaml": toYAML,
@@ -85,7 +85,7 @@ func RenderBuild(b string, envs map[string]string, variables map[string]interfac
 	// parse the template with Masterminds/sprig functions
 	//
 	// https://pkg.go.dev/github.com/Masterminds/sprig?tab=doc#TxtFuncMap
-	t, err := template.New("build").Funcs(sf).Funcs(templateFuncMap).Parse(b)
+	t, err := template.New(tmpl).Funcs(sf).Funcs(templateFuncMap).Parse(b)
 	if err != nil {
 		return nil, err
 	}
