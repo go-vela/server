@@ -15,7 +15,7 @@ func TestWorker_Engine_CreateWorkerIndexes(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	_mock.ExpectExec(CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

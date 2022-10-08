@@ -5,9 +5,9 @@
 package worker
 
 const (
-	// CreateWorkerHostnameAddressIndex represents a query to create an
+	// CreateHostnameAddressIndex represents a query to create an
 	// index on the workers table for the hostname and address columns.
-	CreateWorkerHostnameAddressIndex = `
+	CreateHostnameAddressIndex = `
 CREATE INDEX
 IF NOT EXISTS
 workers_hostname_address
@@ -20,5 +20,5 @@ func (e *engine) CreateWorkerIndexes() error {
 	e.logger.Tracef("creating indexes for workers table in the database")
 
 	// create the hostname and address columns index for the workers table
-	return e.client.Exec(CreateWorkerHostnameAddressIndex).Error
+	return e.client.Exec(CreateHostnameAddressIndex).Error
 }
