@@ -161,7 +161,7 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(worker.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
