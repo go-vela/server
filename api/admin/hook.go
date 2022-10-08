@@ -45,7 +45,7 @@ func AllHooks(c *gin.Context) {
 	logrus.Info("Admin: reading all hooks")
 
 	// send API call to capture all hooks
-	r, err := database.FromContext(c).GetHookList()
+	r, err := database.FromContext(c).ListHooks()
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all hooks: %w", err)
 
