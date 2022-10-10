@@ -83,7 +83,9 @@ func GetBuildLogs(c *gin.Context) {
 	}).Infof("reading logs for build %s", entry)
 
 	// send API call to capture the list of logs for the build
-	l, err := database.FromContext(c).GetBuildLogs(b.GetID())
+	//
+	// TODO: add page and per_page query parameters
+	l, t, err := database.FromContext(c).ListLogsForBuild(b, 1, 100)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for build %s: %w", entry, err)
 
@@ -91,6 +93,15 @@ func GetBuildLogs(c *gin.Context) {
 
 		return
 	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    1,
+		PerPage: 100,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, l)
 }
@@ -200,7 +211,7 @@ func CreateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetServiceLog(s.GetID())
+	l, _ := database.FromContext(c).GetLogForService(s)
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -270,7 +281,7 @@ func GetServiceLog(c *gin.Context) {
 	}).Infof("reading logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetServiceLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 
@@ -358,7 +369,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}).Infof("updating logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetServiceLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 
@@ -396,7 +407,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetServiceLog(s.GetID())
+	l, _ = database.FromContext(c).GetLogForService(s)
 
 	c.JSON(http.StatusOK, l)
 }
@@ -467,8 +478,18 @@ func DeleteServiceLog(c *gin.Context) {
 		"user":    u.GetName(),
 	}).Infof("deleting logs for service %s", entry)
 
+	// send API call to capture the service logs
+	l, err := database.FromContext(c).GetLogForService(s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// send API call to remove the log
-	err := database.FromContext(c).DeleteLog(s.GetID())
+	err = database.FromContext(c).DeleteLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for service %s: %w", entry, err)
 
@@ -585,7 +606,7 @@ func CreateStepLog(c *gin.Context) {
 	}
 
 	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetStepLog(s.GetID())
+	l, _ := database.FromContext(c).GetLogForStep(s)
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -656,7 +677,7 @@ func GetStepLog(c *gin.Context) {
 	}).Infof("reading logs for step %s", entry)
 
 	// send API call to capture the step logs
-	l, err := database.FromContext(c).GetStepLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
 
@@ -744,7 +765,7 @@ func UpdateStepLog(c *gin.Context) {
 	}).Infof("updating logs for step %s", entry)
 
 	// send API call to capture the step logs
-	l, err := database.FromContext(c).GetStepLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
 
@@ -782,7 +803,7 @@ func UpdateStepLog(c *gin.Context) {
 	}
 
 	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetStepLog(s.GetID())
+	l, _ = database.FromContext(c).GetLogForStep(s)
 
 	c.JSON(http.StatusOK, l)
 }
@@ -853,8 +874,18 @@ func DeleteStepLog(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("deleting logs for step %s", entry)
 
+	// send API call to capture the step logs
+	l, err := database.FromContext(c).GetLogForStep(s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// send API call to remove the log
-	err := database.FromContext(c).DeleteLog(s.GetID())
+	err = database.FromContext(c).DeleteLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for step %s: %w", entry, err)
 
