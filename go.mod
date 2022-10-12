@@ -36,7 +36,7 @@ require (
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.4.1
 	gorm.io/driver/sqlite v1.3.6
-	gorm.io/gorm v1.23.10
+	gorm.io/gorm v1.24.0
 	k8s.io/apimachinery v0.25.2
 )
 
