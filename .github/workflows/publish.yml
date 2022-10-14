@@ -24,6 +24,7 @@ jobs:
         # use version from go.mod file
         go-version-file: 'go.mod'
         cache: true
+        check-latest: true
 
     - name: build
       env:
