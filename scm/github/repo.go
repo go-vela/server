@@ -25,6 +25,7 @@ func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (da
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
+		logrus.Debugf("Fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
 		data, err = c.Config(u, r, ref)
 
@@ -379,6 +380,26 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 	}
 
 	return toLibraryRepo(*repo), nil
+}
+
+// GetOrgAndRepoName returns the name of the org and the repository in the SCM.
+func (c *client) GetOrgAndRepoName(u *library.User, o string, r string) (string, string, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r,
+		"user": u.GetName(),
+	}).Tracef("retrieving repository information for %s/%s", o, r)
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	// send an API call to get the repo info
+	repo, _, err := client.Repositories.Get(ctx, o, r)
+	if err != nil {
+		return "", "", err
+	}
+
+	return repo.GetOwner().GetLogin(), repo.GetName(), nil
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
