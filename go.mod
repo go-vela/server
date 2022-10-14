@@ -34,9 +34,9 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
-	gorm.io/driver/postgres v1.3.10
-	gorm.io/driver/sqlite v1.3.6
-	gorm.io/gorm v1.23.10
+	gorm.io/driver/postgres v1.4.1
+	gorm.io/driver/sqlite v1.4.2
+	gorm.io/gorm v1.24.0
 	k8s.io/apimachinery v0.25.2
 )
 
