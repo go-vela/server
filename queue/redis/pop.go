@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/go-vela/types"
+	"golang.org/x/crypto/nacl/sign"
 )
 
 // Pop grabs an item from the specified channel off the queue.
@@ -35,10 +36,27 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 		return nil, err
 	}
 
+	// check for this on startup
+	if c.config.SigningPublicKey == nil || len(*c.config.SigningPublicKey) != 32 {
+		return nil, errors.New("no valid signing public key provided")
+	}
+
+	_item := []byte(result[1])
+	var opened []byte
+	var out []byte
+
+	// open item
+	opened, ok := sign.Open(out, _item, c.config.SigningPublicKey)
+	if !ok {
+		return nil, errors.New("unable to open queue item")
+	}
+
+	_item = opened
+
 	item := new(types.Item)
 
 	// unmarshal result into queue item
-	err = json.Unmarshal([]byte(result[1]), item)
+	err = json.Unmarshal(_item, item)
 	if err != nil {
 		return nil, err
 	}

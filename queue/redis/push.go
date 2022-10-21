@@ -6,16 +6,30 @@ package redis
 
 import (
 	"context"
+	"errors"
+
+	"golang.org/x/crypto/nacl/sign"
 )
 
 // Push inserts an item to the specified channel in the queue.
 func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	c.Logger.Tracef("pushing item to queue %s", channel)
 
+	var signed []byte
+	var out []byte
+
+	// check for this on startup
+	if c.config.SigningPrivateKey != nil && len(*c.config.SigningPrivateKey) == 64 {
+		c.Logger.Tracef("signing item for queue %s", channel)
+		signed = sign.Sign(out, item, c.config.SigningPrivateKey)
+	} else {
+		return errors.New("no valid signing private key provided")
+	}
+
 	// build a redis queue command to push an item to queue
 	//
 	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.RPush
-	pushCmd := c.Redis.RPush(ctx, channel, item)
+	pushCmd := c.Redis.RPush(ctx, channel, signed)
 
 	// blocking call to push an item to queue and return err
 	//

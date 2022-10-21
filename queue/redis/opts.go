@@ -5,6 +5,7 @@
 package redis
 
 import (
+	"encoding/base64"
 	"fmt"
 	"time"
 )
@@ -65,6 +66,40 @@ func WithTimeout(timeout time.Duration) ClientOpt {
 
 		// set the queue timeout in the redis client
 		c.config.Timeout = timeout
+
+		return nil
+	}
+}
+
+// WithPrivateKey sets the private key in the queue client for Redis.
+func WithPrivateKey(privateKeyEncoded string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring private key in redis queue client")
+
+		privateKeyDecoded, err := base64.StdEncoding.DecodeString(privateKeyEncoded)
+		if err != nil {
+			return err
+		}
+
+		c.config.SigningPrivateKey = new([64]byte)
+		copy(c.config.SigningPrivateKey[:], privateKeyDecoded)
+
+		return nil
+	}
+}
+
+// WithPublicKey sets the public key in the queue client for Redis.
+func WithPublicKey(publicKeyEncoded string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Tracef("configuring public key in redis queue client")
+
+		publicKeyDecoded, err := base64.StdEncoding.DecodeString(publicKeyEncoded)
+		if err != nil {
+			return err
+		}
+
+		c.config.SigningPublicKey = new([32]byte)
+		copy(c.config.SigningPublicKey[:], publicKeyDecoded)
 
 		return nil
 	}

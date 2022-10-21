@@ -25,6 +25,10 @@ type config struct {
 	Cluster bool
 	// specifies the timeout to use for the Redis client
 	Timeout time.Duration
+	// key for signing items pushed to the Redis client
+	SigningPrivateKey *[64]byte
+	// key for opening items popped from the Redis client
+	SigningPublicKey *[32]byte
 }
 
 type client struct {
