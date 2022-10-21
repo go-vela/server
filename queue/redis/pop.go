@@ -41,22 +41,23 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 		return nil, errors.New("no valid signing public key provided")
 	}
 
-	_item := []byte(result[1])
+	// extract signed item from pop results
+	signed := []byte(result[1])
+
 	var opened []byte
 	var out []byte
 
-	// open item
-	opened, ok := sign.Open(out, _item, c.config.SigningPublicKey)
+	// open the item using the public key generated using sign
+	//
+	// https://pkg.go.dev/golang.org/x/crypto@v0.1.0/nacl/sign
+	opened, ok := sign.Open(out, signed, c.config.SigningPublicKey)
 	if !ok {
 		return nil, errors.New("unable to open queue item")
 	}
 
-	_item = opened
-
-	item := new(types.Item)
-
 	// unmarshal result into queue item
-	err = json.Unmarshal(_item, item)
+	item := new(types.Item)
+	err = json.Unmarshal(opened, item)
 	if err != nil {
 		return nil, err
 	}
