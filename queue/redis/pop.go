@@ -52,7 +52,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	// https://pkg.go.dev/golang.org/x/crypto@v0.1.0/nacl/sign
 	opened, ok := sign.Open(out, signed, c.config.SigningPublicKey)
 	if !ok {
-		return nil, errors.New("unable to open queue item")
+		return nil, errors.New("unable to open signed item")
 	}
 
 	// unmarshal result into queue item
