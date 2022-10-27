@@ -272,6 +272,12 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
+	// check if pull request is from a fork
+	if payload.GetPullRequest().GetHead().GetRepo().GetFork() {
+		h.SetEvent(constants.EventPullFork)
+		b.SetEvent(constants.EventPullFork)
+	}
+
 	return &types.Webhook{
 		Comment:  "",
 		PRNumber: payload.GetNumber(),

@@ -62,6 +62,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 	templates := mapFromTemplates(p.Templates)
 
 	event := c.build.GetEvent()
+
 	action := c.build.GetEventAction()
 
 	// if the build has an event action, concatenate event and event action for matching

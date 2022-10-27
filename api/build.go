@@ -1033,7 +1033,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the build event is a pull_request
-	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) || strings.EqualFold(b.GetEvent(), constants.EventPullFork) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(b)
 		if err != nil {

@@ -210,6 +210,13 @@ func CreateSecret(c *gin.Context) {
 	}
 
 	if len(input.GetEvents()) > 0 {
+		// verify secret event input is valid
+		err = validateEvents(input.GetEvents())
+		if err != nil {
+			util.HandleError(c, http.StatusBadRequest, err)
+			return
+		}
+
 		input.SetEvents(unique(input.GetEvents()))
 	}
 
@@ -668,6 +675,13 @@ func UpdateSecret(c *gin.Context) {
 	}
 
 	if len(input.GetEvents()) > 0 {
+		// verify secret event input is valid
+		err = validateEvents(input.GetEvents())
+		if err != nil {
+			util.HandleError(c, http.StatusBadRequest, err)
+			return
+		}
+
 		input.SetEvents(unique(input.GetEvents()))
 	}
 
@@ -817,4 +831,27 @@ func unique(stringSlice []string) []string {
 	}
 
 	return list
+}
+
+func validateEvents(stringSlice []string) error {
+	for _, e := range stringSlice {
+		switch e {
+		case constants.EventComment:
+			fallthrough
+		case constants.EventDeploy:
+			fallthrough
+		case constants.EventPull:
+			fallthrough
+		case constants.EventPullFork:
+			fallthrough
+		case constants.EventPush:
+			fallthrough
+		case constants.EventTag:
+			continue
+		default:
+			return fmt.Errorf("invalid secret event provided: %s", e)
+		}
+	}
+
+	return nil
 }

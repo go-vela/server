@@ -150,7 +150,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set default events if no events are passed in
-	if !input.GetAllowPull() && !input.GetAllowPush() &&
+	if !input.GetAllowPull() && !input.GetAllowPullFork() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
 		// default events to push and pull_request
@@ -160,6 +160,7 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowComment(input.GetAllowComment())
 		r.SetAllowDeploy(input.GetAllowDeploy())
 		r.SetAllowPull(input.GetAllowPull())
+		r.SetAllowPullFork(input.GetAllowPullFork())
 		r.SetAllowPush(input.GetAllowPush())
 		r.SetAllowTag(input.GetAllowTag())
 	}
@@ -727,6 +728,11 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowPull(input.GetAllowPull())
 	}
 
+	if input.AllowPullFork != nil {
+		// update allow_pull_fork if set
+		r.SetAllowPullFork(input.GetAllowPullFork())
+	}
+
 	if input.AllowPush != nil {
 		// update allow_push if set
 		r.SetAllowPush(input.GetAllowPush())
@@ -748,7 +754,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// set default events if no events are enabled
-	if !r.GetAllowPull() && !r.GetAllowPush() &&
+	if !r.GetAllowPull() && !r.GetAllowPullFork() && !r.GetAllowPush() &&
 		!r.GetAllowDeploy() && !r.GetAllowTag() &&
 		!r.GetAllowComment() {
 		r.SetAllowPull(true)

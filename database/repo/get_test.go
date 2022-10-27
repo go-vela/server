@@ -29,8 +29,8 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", "")
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_pull_fork", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, 0, "public", false, false, false, false, false, false, false, false, false, "yaml", "")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
