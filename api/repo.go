@@ -797,7 +797,7 @@ func UpdateRepo(c *gin.Context) {
 		)
 	}
 
-	// updates restricted to platform admins
+	// fields restricted to platform admins
 	if u.GetAdmin() {
 		// trusted
 		if input.GetTrusted() != r.GetTrusted() {
