@@ -25,6 +25,7 @@ const (
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
 	eventRepository   = "repository"
+	eventRelease      = "release"
 )
 
 var ctx = context.Background()

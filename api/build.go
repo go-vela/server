@@ -121,6 +121,7 @@ func CreateBuild(c *gin.Context) {
 	if (input.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
 		(input.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
 		(input.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
+		(input.GetEvent() == constants.EventRelease && !r.GetAllowRelease()) ||
 		(input.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("unable to create new build: %s does not have %s events enabled", r.GetFullName(), input.GetEvent())
 
@@ -437,6 +438,7 @@ func skipEmptyBuild(p *pipeline.Build) string {
 //   - push
 //   - pull_request
 //   - tag
+//   - release
 //   - deployment
 //   - comment
 // - in: query
@@ -548,7 +550,7 @@ func GetBuilds(c *gin.Context) {
 		// verify the event provided is a valid event type
 		if event != constants.EventComment && event != constants.EventDeploy &&
 			event != constants.EventPush && event != constants.EventPull &&
-			event != constants.EventTag {
+			event != constants.EventTag && event != constants.EventRelease {
 			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -735,7 +737,7 @@ func GetOrgBuilds(c *gin.Context) {
 		// verify the event provided is a valid event type
 		if event != constants.EventComment && event != constants.EventDeploy &&
 			event != constants.EventPush && event != constants.EventPull &&
-			event != constants.EventTag {
+			event != constants.EventTag && event != constants.EventRelease {
 			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)

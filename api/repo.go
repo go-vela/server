@@ -152,7 +152,7 @@ func CreateRepo(c *gin.Context) {
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
-		!input.GetAllowComment() {
+		!input.GetAllowRelease() && !input.GetAllowComment() {
 		// default events to push and pull_request
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
@@ -162,6 +162,7 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowPull(input.GetAllowPull())
 		r.SetAllowPush(input.GetAllowPush())
 		r.SetAllowTag(input.GetAllowTag())
+		r.SetAllowRelease(input.GetAllowRelease())
 	}
 
 	if len(input.GetPipelineType()) == 0 {
@@ -742,6 +743,11 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowTag(input.GetAllowTag())
 	}
 
+	if input.AllowRelease != nil {
+		// update allow_release if set
+		r.SetAllowRelease(input.GetAllowRelease())
+	}
+
 	if input.AllowComment != nil {
 		// update allow_comment if set
 		r.SetAllowComment(input.GetAllowComment())
@@ -750,7 +756,7 @@ func UpdateRepo(c *gin.Context) {
 	// set default events if no events are enabled
 	if !r.GetAllowPull() && !r.GetAllowPush() &&
 		!r.GetAllowDeploy() && !r.GetAllowTag() &&
-		!r.GetAllowComment() {
+		!r.GetAllowRelease() && !r.GetAllowComment() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
 	}

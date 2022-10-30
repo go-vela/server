@@ -262,6 +262,7 @@ func PostWebhook(c *gin.Context) {
 		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
 		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
 		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
+		(b.GetEvent() == constants.EventRelease && !r.GetAllowRelease()) ||
 		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
 		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -360,7 +361,8 @@ func PostWebhook(c *gin.Context) {
 	var files []string
 	// check if the build event is not issue_comment or pull_request
 	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
-		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		!strings.EqualFold(b.GetEvent(), constants.EventPull) &&
+		!strings.EqualFold(b.GetEvent(), constants.EventRelease) {
 		// send API call to capture list of files changed for the commit
 		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
 		if err != nil {
@@ -387,6 +389,24 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+	}
+
+	// check if the build event is a release
+	if strings.EqualFold(b.GetEvent(), constants.EventRelease) {
+		sha := ""
+		files, sha, err = scm.FromContext(c).ChangesetRelease(u, r, webhook.TagName)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		// set the commit associated with the release tag
+		b.SetCommit(sha)
 	}
 
 	var (

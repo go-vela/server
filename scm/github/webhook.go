@@ -71,6 +71,8 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
 		return c.processRepositoryEvent(h, event)
+	case *github.ReleaseEvent:
+		return c.processReleaseEvent(h, event)
 	}
 
 	return &types.Webhook{Hook: h}, nil
@@ -435,7 +437,6 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 }
 
 // processRepositoryEvent is a helper function to process the repository event.
-
 func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*types.Webhook, error) {
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
@@ -467,6 +468,57 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 		Comment: "",
 		Hook:    h,
 		Repo:    r,
+	}, nil
+}
+
+// processReleaseEvent is a helper function to process the release event.
+func (c *client) processReleaseEvent(h *library.Hook, payload *github.ReleaseEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing release GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	// capture the repo from the payload
+	repo := payload.GetRepo()
+
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+
+	// convert payload to library build
+	b := new(library.Build)
+	b.SetEvent(constants.EventRelease)
+	b.SetEventAction(payload.GetAction())
+	b.SetClone(repo.GetCloneURL())
+	b.SetSource(payload.GetRelease().GetHTMLURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventRelease, repo.GetHTMLURL()))
+	b.SetMessage(payload.GetRelease().GetName())
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetAuthor(payload.GetRelease().GetAuthor().GetLogin())
+	b.SetEmail(payload.GetRelease().GetAuthor().GetEmail())
+	b.SetRef(fmt.Sprintf("refs/tags/%s", payload.GetRelease().GetTagName()))
+	b.SetBranch(payload.GetRelease().GetTargetCommitish()) // resolves to either a branch or a commit SHA
+
+	// update the hook object
+	h.SetEvent(constants.EventRelease)
+	h.SetEventAction(payload.GetAction())
+	h.SetBranch(r.GetBranch())
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
+	)
+
+	return &types.Webhook{
+		Comment: "",
+		TagName: payload.GetRelease().GetTagName(),
+		Hook:    h,
+		Repo:    r,
+		Build:   b,
 	}, nil
 }
 
