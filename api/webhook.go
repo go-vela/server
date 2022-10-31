@@ -646,21 +646,13 @@ func PostWebhook(c *gin.Context) {
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
 
-	// c.JSON(http.StatusOK, b)
+	c.JSON(http.StatusOK, b)
 
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}
-
-	// for now, do not publish to redis
-	// vader: environment controlled mode for listening to the queue
-	// logrus.Infof("Manually executing item for build %d for %s", b.GetNumber(), r.GetFullName())
-
-	// item := types.ToItem(p, b, r, u)
-
-	// ExecItem(c, item)
 
 	// publish the build to the queue
 	go publishToQueue(
@@ -717,7 +709,6 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 
 			return
 		}
-
 	}
 
 	// update fields in build object
