@@ -5,16 +5,10 @@
 package api
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"time"
 
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/types"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/worker"
@@ -345,50 +339,4 @@ func DeleteWorker(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("worker %s deleted", w.GetHostname()))
-}
-
-func SendPackagedBuild(workerAddress, secret string, item *types.Item) error {
-
-	// query database for a worker that has an available executor "slot"
-	// workers, err := database.FromContext(c).GetWorkerList()
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to get workers list: %w", err)
-	// 	util.HandleError(c, http.StatusNotFound, retErr)
-
-	// 	return
-	// }
-
-	// prepare the request to the worker
-	client := http.DefaultClient
-	client.Timeout = 30 * time.Second
-
-	// set the API endpoint path we send the request to
-	u := fmt.Sprintf("%s/api/v1/exec", workerAddress)
-	it, err := json.Marshal(item)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequestWithContext(context.Background(), "POST", u, bytes.NewBuffer(it))
-	if err != nil {
-		return err
-	}
-
-	// add the token to authenticate to the worker
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
-
-	// perform the request to the worker
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// TODO: some kind of logging?
-	_, err = io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
