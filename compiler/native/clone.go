@@ -12,9 +12,6 @@ import (
 const (
 	// default image for clone process.
 	cloneImage = "target/vela-git:v0.5.1"
-)
-
-const (
 	// default name for clone stage.
 	cloneStageName = "clone"
 	// default name for clone step.
