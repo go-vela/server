@@ -112,21 +112,6 @@ func server(c *cli.Context) error {
 	// vader: thread for listening to the queue
 	go func() {
 		for {
-			logrus.Info("Popping item from queue...")
-
-			// capture an item from the queue
-			item, err := queue.Pop(context.Background())
-			if err != nil {
-				logrus.Infof("Error popping item from queue: %w", err)
-				continue
-			}
-
-			if item == nil {
-				logrus.Info("Popped nil item from queue")
-				continue
-			}
-			logrus.Info("Popped item from queue")
-
 			workers, err := database.GetWorkerList()
 			if err != nil {
 				logrus.Infof("unable to get worker list: %w", err)
@@ -148,11 +133,24 @@ func server(c *cli.Context) error {
 				continue
 			}
 
-			logrus.Info("found active worker")
+			logrus.Info("Popping item from queue...")
 
-			logrus.Infof("executing item on worker: %s", w.GetHostname())
+			// capture an item from the queue
+			item, err := queue.Pop(context.Background())
+			if err != nil {
+				logrus.Infof("Error popping item from queue: %w", err)
+				continue
+			}
 
-			err = api.ExecItem(w.GetAddress(), c.String("vela-secret"), item)
+			if item == nil {
+				logrus.Info("Popped nil item from queue")
+				continue
+			}
+			logrus.Info("Popped item from queue")
+
+			logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+
+			err = api.SendPackagedBuild(w.GetAddress(), c.String("vela-secret"), item)
 			if err != nil {
 				logrus.Infof("unable to exec item on worker %s: %w", w.GetHostname(), err)
 				continue

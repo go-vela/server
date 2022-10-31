@@ -730,63 +730,6 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 	}
 }
 
-func ExecItem(workerAddress, secret string, item *types.Item) error {
-
-	// query database for a worker that has an available executor "slot"
-	// workers, err := database.FromContext(c).GetWorkerList()
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to get workers list: %w", err)
-	// 	util.HandleError(c, http.StatusNotFound, retErr)
-
-	// 	return
-	// }
-
-	// prepare the request to the worker
-	client := http.DefaultClient
-	client.Timeout = 30 * time.Second
-
-	// set the API endpoint path we send the request to
-	u := fmt.Sprintf("%s/api/v1/exec", workerAddress)
-	it, err := json.Marshal(item)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequestWithContext(context.Background(), "POST", u, bytes.NewBuffer(it))
-	if err != nil {
-		return err
-	}
-
-	// add the token to authenticate to the worker
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
-
-	// perform the request to the worker
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Read Response Body
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(respBody))
-
-	// err = json.Unmarshal(respBody, b)
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
-	// 	util.HandleError(c, http.StatusBadRequest, retErr)
-
-	// 	return
-	// }
-
-	// c.JSON(resp.StatusCode, string(respBody))
-	return nil
-}
-
 // renameRepository is a helper function that takes the old name of the repo,
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
