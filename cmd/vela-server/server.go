@@ -28,6 +28,7 @@ import (
 	"gopkg.in/tomb.v2"
 )
 
+//nolint:funlen // ignore function length linter
 func server(c *cli.Context) error {
 	// validate all input
 	err := validate(c)
@@ -119,7 +120,7 @@ func server(c *cli.Context) error {
 		for {
 			workers, err := db.GetWorkerList()
 			if err != nil {
-				logrus.Infof("unable to get worker list: %w", err)
+				logrus.Errorf("unable to get worker list: %s", err)
 				continue
 			}
 
@@ -130,11 +131,12 @@ func server(c *cli.Context) error {
 						return worker
 					}
 				}
+
 				return nil
 			}()
 
 			if w == nil {
-				logrus.Info("unable to find active worker")
+				logrus.Error("unable to find active worker")
 				continue
 			}
 
@@ -143,7 +145,7 @@ func server(c *cli.Context) error {
 			// capture an item from the queue
 			item, err := queue.Pop(context.Background())
 			if err != nil {
-				logrus.Infof("Error popping item from queue: %w", err)
+				logrus.Errorf("Error popping item from queue: %s", err)
 				continue
 			}
 
@@ -151,13 +153,14 @@ func server(c *cli.Context) error {
 				logrus.Info("Popped nil item from queue")
 				continue
 			}
+
 			logrus.Info("Popped item from queue")
 
 			//send challenge, listen on /send for an actual build request
 
 			pkg, err := packageBuild(secrets, item)
 			if err != nil {
-				logrus.Infof("Error packaging item: %w", err)
+				logrus.Errorf("Error packaging item: %s", err)
 				continue
 			}
 
@@ -166,7 +169,7 @@ func server(c *cli.Context) error {
 			// TODO: remove hardcoded internal reference debug
 			err = sendPackagedBuild("http://host.docker.internal:8081", c.String("vela-secret"), pkg)
 			if err != nil {
-				logrus.Infof("unable to send package to worker %s: %w", w.GetHostname(), err)
+				logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
 				continue
 			}
 		}
@@ -217,8 +220,14 @@ func server(c *cli.Context) error {
 	return tomb.Err()
 }
 
+// packageBuild is a helper function that takes in a secret service and a queue item and
+// produces a BuildPackage object, which includes all build information (including sensitive content)
+// that is sent to the worker.
 func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (*types.BuildPackage, error) {
+	// grab secret information declared in pipeline
 	secrets := item.Pipeline.Secrets
+
+	// create BuildPackage object and populate with build information
 	buildPackage := new(types.BuildPackage).
 		WithBuild(item.Build).
 		WithPipeline(item.Pipeline).
@@ -226,6 +235,7 @@ func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (
 		WithUser(item.User).
 		WithToken("123abc")
 
+	// iterate through pipeline secrets
 	for _, s := range secrets {
 		switch s.Type {
 		// handle org secrets
@@ -235,14 +245,13 @@ func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (
 				return nil, err
 			}
 
-			// send API call to capture the org secret
-			//
-			// https://pkg.go.dev/github.com/go-vela/sdk-go/vela?tab=doc#SecretService.Get
+			// utilize secrets service to capture the org secret
 			_secret, err := secretsServices[s.Engine].Get(s.Type, org, "*", key)
 			if err != nil {
 				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
 			}
 
+			// add secret to BuildPackage
 			buildPackage.Secrets = append(buildPackage.Secrets, _secret)
 
 		// handle repo secrets
@@ -252,14 +261,13 @@ func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (
 				return nil, err
 			}
 
-			// send API call to capture the repo secret
-			//
-			// https://pkg.go.dev/github.com/go-vela/sdk-go/vela?tab=doc#SecretService.Get
+			// utilize secrets service to capture the repo secret
 			_secret, err := secretsServices[s.Engine].Get(s.Type, org, repo, key)
 			if err != nil {
 				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
 			}
 
+			// add secret to BuildPackage
 			buildPackage.Secrets = append(buildPackage.Secrets, _secret)
 
 		// handle shared secrets
@@ -269,14 +277,13 @@ func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (
 				return nil, err
 			}
 
-			// send API call to capture the repo secret
-			//
-			// https://pkg.go.dev/github.com/go-vela/sdk-go/vela?tab=doc#SecretService.Get
+			// utilize secrets service to capture the shared secret
 			_secret, err := secretsServices[s.Engine].Get(s.Type, org, team, key)
 			if err != nil {
 				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
 			}
 
+			// add secret to BuildPackage
 			buildPackage.Secrets = append(buildPackage.Secrets, _secret)
 
 		default:
@@ -287,6 +294,8 @@ func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (
 	return buildPackage, nil
 }
 
+// sendPackageBuild is a helper function that takes a worker address and a build package
+// and sends the build package to the worker via https.
 func sendPackagedBuild(workerAddress, secret string, data interface{}) error {
 	// prepare the request to the worker
 	client := http.DefaultClient
@@ -294,6 +303,7 @@ func sendPackagedBuild(workerAddress, secret string, data interface{}) error {
 
 	// set the API endpoint path we send the request to
 	u := fmt.Sprintf("%s/api/v1/exec", workerAddress)
+
 	it, err := json.Marshal(data)
 	if err != nil {
 		return err
