@@ -14,9 +14,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/secret"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -155,7 +155,7 @@ func server(c *cli.Context) error {
 
 			//send challenge, listen on /send for an actual build request
 
-			pkg, err := packageBuild(db, item)
+			pkg, err := packageBuild(secrets, item)
 			if err != nil {
 				logrus.Infof("Error packaging item: %w", err)
 				continue
@@ -217,7 +217,7 @@ func server(c *cli.Context) error {
 	return tomb.Err()
 }
 
-func packageBuild(db database.Service, item *types.Item) (*types.BuildPackage, error) {
+func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (*types.BuildPackage, error) {
 	secrets := item.Pipeline.Secrets
 	buildPackage := new(types.BuildPackage).
 		WithBuild(item.Build).
@@ -238,7 +238,7 @@ func packageBuild(db database.Service, item *types.Item) (*types.BuildPackage, e
 			// send API call to capture the org secret
 			//
 			// https://pkg.go.dev/github.com/go-vela/sdk-go/vela?tab=doc#SecretService.Get
-			_secret, err := db.GetSecret(s.Type, org, "*", key)
+			_secret, err := secretsServices[s.Engine].Get(s.Type, org, "*", key)
 			if err != nil {
 				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
 			}
@@ -255,7 +255,7 @@ func packageBuild(db database.Service, item *types.Item) (*types.BuildPackage, e
 			// send API call to capture the repo secret
 			//
 			// https://pkg.go.dev/github.com/go-vela/sdk-go/vela?tab=doc#SecretService.Get
-			_secret, err := db.GetSecret(s.Type, org, repo, key)
+			_secret, err := secretsServices[s.Engine].Get(s.Type, org, repo, key)
 			if err != nil {
 				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
 			}
@@ -272,7 +272,7 @@ func packageBuild(db database.Service, item *types.Item) (*types.BuildPackage, e
 			// send API call to capture the repo secret
 			//
 			// https://pkg.go.dev/github.com/go-vela/sdk-go/vela?tab=doc#SecretService.Get
-			_secret, err := db.GetSecret(s.Type, org, team, key)
+			_secret, err := secretsServices[s.Engine].Get(s.Type, org, team, key)
 			if err != nil {
 				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
 			}
