@@ -59,6 +59,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowPush(false)
 	want.SetAllowDeploy(false)
 	want.SetAllowTag(false)
+	want.SetAllowRelease(false)
 	want.SetAllowComment(false)
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")

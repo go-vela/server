@@ -35,7 +35,8 @@ const (
   "allow_pr": false,
   "allow_push": true,
   "allow_deploy": false,
-  "allow_tag": false
+  "allow_tag": false,
+  "allow_release": false
 }`
 
 	// ReposResp represents a JSON return for one to many repos.
@@ -58,7 +59,8 @@ const (
     "allow_pr": false,
     "allow_push": true,
     "allow_deploy": false,
-    "allow_tag": false
+    "allow_tag": false,
+	"allow_release": false
   },
   {
     "id": 2,
@@ -78,7 +80,8 @@ const (
     "allow_pr": false,
     "allow_push": true,
     "allow_deploy": false,
-    "allow_tag": false
+    "allow_tag": false,
+	"allow_release": false
   }
 ]`
 )

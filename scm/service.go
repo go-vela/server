@@ -68,6 +68,11 @@ type Service interface {
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
 	ChangesetPR(*library.User, *library.Repo, int) ([]string, error)
+	// ChangesetRelease defines a function that captures the list
+	// of files changed for a release.
+	//
+	// https://en.wikipedia.org/wiki/Changeset.
+	ChangesetRelease(*library.User, *library.Repo, string) ([]string, string, error)
 
 	// Deployment SCM Interface Functions
 

@@ -82,3 +82,27 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 
 	return s, nil
 }
+
+// ChangesetRelease captures the list of files changed for a release.
+func (c *client) ChangesetRelease(u *library.User, r *library.Repo, tagName string) ([]string, string, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Tracef("capturing release changeset for %s/release/%s", r.GetFullName(), tagName)
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	// get the commit associated with the release tag
+	ref, _, err := client.Git.GetRef(ctx, r.GetOrg(), r.GetName(), fmt.Sprintf("refs/tags/%s", tagName))
+	if err != nil {
+		return nil, "", fmt.Errorf("Git.GetRef returned error: %w", err)
+	}
+
+	// capture the changeset using the commit SHA
+	sha := *ref.GetObject().SHA
+	changeset, err := c.Changeset(u, r, sha)
+
+	return changeset, sha, err
+}
