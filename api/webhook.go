@@ -394,6 +394,7 @@ func PostWebhook(c *gin.Context) {
 	// check if the build event is a release
 	if strings.EqualFold(b.GetEvent(), constants.EventRelease) {
 		sha := ""
+
 		files, sha, err = scm.FromContext(c).ChangesetRelease(u, r, webhook.TagName)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
