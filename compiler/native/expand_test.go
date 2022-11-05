@@ -217,12 +217,12 @@ func TestNative_ExpandSteps(t *testing.T) {
 			},
 		},
 		{
-			name: "Commit",
+			name: "File",
 			tmpls: map[string]*yaml.Template{
 				"gradle": {
 					Name:   "gradle",
 					Source: "template.yml",
-					Type:   "commit",
+					Type:   "file",
 				},
 			},
 		},
@@ -320,26 +320,28 @@ func TestNative_ExpandSteps(t *testing.T) {
 	compiler.WithBuild(testBuild).WithRepo(testRepo)
 
 	for _, test := range tests {
-		build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls)
-		if err != nil {
-			t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls)
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
 
-		if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
-			t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
-		}
+			if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-		if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
-			t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
-		}
+			if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-		if diff := cmp.Diff(build.Services, wantServices); diff != "" {
-			t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
-		}
+			if diff := cmp.Diff(build.Services, wantServices); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-		if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
-			t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
-		}
+			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
 	}
 }
 

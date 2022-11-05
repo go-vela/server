@@ -213,7 +213,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			}
 		}
 
-	case strings.EqualFold(tmpl.Type, "commit"):
+	case strings.EqualFold(tmpl.Type, "file"):
 		src := &registry.Source{
 			Org:  c.repo.GetOrg(),
 			Repo: c.repo.GetName(),
