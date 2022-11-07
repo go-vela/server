@@ -112,3 +112,23 @@ func (c *client) DeleteWorker(id int64) error {
 		Table(constants.TableWorker).
 		Exec(dml.DeleteWorker, id).Error
 }
+
+func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Worker, error) {
+	// variable to store query results
+	w := new(database.Worker)
+
+	// send query to the database and store result in variable
+	result := c.Postgres.
+		Table(constants.TableWorker).
+		Select("*").
+		Where(filters).
+		Limit(1).
+		Scan(w)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return w.ToLibrary(), result.Error
+}

@@ -112,3 +112,7 @@ func (c *client) DeleteWorker(id int64) error {
 		Table(constants.TableWorker).
 		Exec(dml.DeleteWorker, id).Error
 }
+
+func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Worker, error) {
+	return nil, nil
+}

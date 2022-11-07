@@ -18,6 +18,7 @@ workers (
 	active           BOOLEAN,
 	last_checked_in  INTEGER,
 	build_limit      INTEGER,
+	status      VARCHAR(250),
 	UNIQUE(hostname)
 );
 `

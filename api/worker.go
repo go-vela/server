@@ -272,6 +272,10 @@ func UpdateWorker(c *gin.Context) {
 		w.SetLastCheckedIn(input.GetLastCheckedIn())
 	}
 
+	if input.GetStatus() != w.GetStatus() {
+		w.SetStatus(input.GetStatus())
+	}
+
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
 	if err != nil {
@@ -339,4 +343,60 @@ func DeleteWorker(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("worker %s deleted", w.GetHostname()))
+}
+
+// swagger:operation GET /api/v1/available-worker workers GetAvailableWorker
+//
+// Retrieve a worker for the configured backend
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: worker
+//   description: Hostname of the worker
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved the worker
+//     schema:
+//       "$ref": "#/definitions/Worker"
+//   '404':
+//     description: Unable to retrieve the worker
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetWorker represents the API handler to capture a
+// worker from the configured backend.
+func GetAvailableWorker(c *gin.Context) {
+	// capture middleware values
+	u := user.Retrieve(c)
+	w := worker.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user":   u.GetName(),
+		"worker": w.GetHostname(),
+	}).Infof("reading available worker %s", w.GetHostname())
+
+	filters := map[string]interface{}{}
+
+	filters["status"] = "ready"
+
+	w, err := database.FromContext(c).GetAvailableWorker(filters)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get workers: %w", err)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, w)
 }

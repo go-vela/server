@@ -239,4 +239,6 @@ type Service interface {
 	// DeleteWorker defines a function that
 	// deletes a worker by hostname.
 	DeleteWorker(int64) error
+	// TODO: fillme
+	GetAvailableWorker(map[string]interface{}) (*library.Worker, error)
 }
