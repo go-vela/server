@@ -118,7 +118,7 @@ func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Wo
 	w := new(database.Worker)
 
 	// send query to the database and store result in variable
-	result := c.Postgres.
+	_result := c.Postgres.
 		Table(constants.TableWorker).
 		Select("*").
 		Where(filters).
@@ -126,9 +126,15 @@ func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Wo
 		Scan(w)
 
 	// check if the query returned a record not found error or no rows were returned
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+	if errors.Is(_result.Error, gorm.ErrRecordNotFound) || _result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	return w.ToLibrary(), result.Error
+	err := c.Postgres.Transaction(func(tx *gorm.DB) error {
+
+		// return nil will commit the whole transaction
+		return nil
+	})
+
+	return w.ToLibrary(), err
 }

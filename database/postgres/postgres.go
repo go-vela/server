@@ -274,6 +274,12 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableWorker, err)
 	}
 
+	// create the build queue table
+	err = c.Postgres.Exec(ddl.CreateBuildQueueTable).Error
+	if err != nil {
+		return fmt.Errorf("unable to create %s table: %w", constants.TableBuildQueue, err)
+	}
+
 	return nil
 }
 

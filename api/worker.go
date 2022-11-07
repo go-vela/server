@@ -276,6 +276,10 @@ func UpdateWorker(c *gin.Context) {
 		w.SetStatus(input.GetStatus())
 	}
 
+	if input.GetBuilds() != w.GetBuilds() {
+		w.SetBuilds(input.GetBuilds())
+	}
+
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
 	if err != nil {
