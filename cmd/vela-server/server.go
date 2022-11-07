@@ -5,14 +5,21 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/secret"
+	"github.com/go-vela/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -21,6 +28,7 @@ import (
 	"gopkg.in/tomb.v2"
 )
 
+//nolint:funlen // ignore function length linter
 func server(c *cli.Context) error {
 	// validate all input
 	err := validate(c)
@@ -58,7 +66,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	database, err := setupDatabase(c)
+	db, err := setupDatabase(c)
 	if err != nil {
 		return err
 	}
@@ -68,7 +76,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	secrets, err := setupSecrets(c, database)
+	secrets, err := setupSecrets(c, db)
 	if err != nil {
 		return err
 	}
@@ -85,7 +93,7 @@ func server(c *cli.Context) error {
 
 	router := router.Load(
 		middleware.Compiler(compiler),
-		middleware.Database(database),
+		middleware.Database(db),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
 		middleware.Queue(queue),
@@ -106,6 +114,66 @@ func server(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// vader: thread for listening to the queue
+	go func() {
+		for {
+			workers, err := db.GetWorkerList()
+			if err != nil {
+				logrus.Errorf("unable to get worker list: %s", err)
+				continue
+			}
+
+			w := func() *library.Worker {
+				// vader: determine if worker is active and has availability
+				for _, worker := range workers {
+					if worker.GetActive() {
+						return worker
+					}
+				}
+
+				return nil
+			}()
+
+			if w == nil {
+				logrus.Error("unable to find active worker")
+				continue
+			}
+
+			logrus.Info("Popping item from queue...")
+
+			// capture an item from the queue
+			item, err := queue.Pop(context.Background())
+			if err != nil {
+				logrus.Errorf("Error popping item from queue: %s", err)
+				continue
+			}
+
+			if item == nil {
+				logrus.Info("Popped nil item from queue")
+				continue
+			}
+
+			logrus.Info("Popped item from queue")
+
+			//send challenge, listen on /send for an actual build request
+
+			pkg, err := packageBuild(secrets, item)
+			if err != nil {
+				logrus.Errorf("Error packaging item: %s", err)
+				continue
+			}
+
+			logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+
+			// TODO: remove hardcoded internal reference debug
+			err = sendPackagedBuild("http://host.docker.internal:8081", c.String("vela-secret"), pkg)
+			if err != nil {
+				logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+				continue
+			}
+		}
+	}()
 
 	var tomb tomb.Tomb
 	// start http server
@@ -150,4 +218,117 @@ func server(c *cli.Context) error {
 	}
 
 	return tomb.Err()
+}
+
+// packageBuild is a helper function that takes in a secret service and a queue item and
+// produces a BuildPackage object, which includes all build information (including sensitive content)
+// that is sent to the worker.
+func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (*types.BuildPackage, error) {
+	// grab secret information declared in pipeline
+	secrets := item.Pipeline.Secrets
+
+	// create BuildPackage object and populate with build information
+	buildPackage := new(types.BuildPackage).
+		WithBuild(item.Build).
+		WithPipeline(item.Pipeline).
+		WithRepo(item.Repo).
+		WithUser(item.User).
+		WithToken("123abc")
+
+	// iterate through pipeline secrets
+	for _, s := range secrets {
+		switch s.Type {
+		// handle org secrets
+		case constants.SecretOrg:
+			org, key, err := s.ParseOrg(item.Repo.GetOrg())
+			if err != nil {
+				return nil, err
+			}
+
+			// utilize secrets service to capture the org secret
+			_secret, err := secretsServices[s.Engine].Get(s.Type, org, "*", key)
+			if err != nil {
+				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
+			}
+
+			// add secret to BuildPackage
+			buildPackage.Secrets = append(buildPackage.Secrets, _secret)
+
+		// handle repo secrets
+		case constants.SecretRepo:
+			org, repo, key, err := s.ParseRepo(item.Repo.GetOrg(), item.Repo.GetName())
+			if err != nil {
+				return nil, err
+			}
+
+			// utilize secrets service to capture the repo secret
+			_secret, err := secretsServices[s.Engine].Get(s.Type, org, repo, key)
+			if err != nil {
+				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
+			}
+
+			// add secret to BuildPackage
+			buildPackage.Secrets = append(buildPackage.Secrets, _secret)
+
+		// handle shared secrets
+		case constants.SecretShared:
+			org, team, key, err := s.ParseShared()
+			if err != nil {
+				return nil, err
+			}
+
+			// utilize secrets service to capture the shared secret
+			_secret, err := secretsServices[s.Engine].Get(s.Type, org, team, key)
+			if err != nil {
+				return nil, fmt.Errorf("unable to retrieve secret: %w", err)
+			}
+
+			// add secret to BuildPackage
+			buildPackage.Secrets = append(buildPackage.Secrets, _secret)
+
+		default:
+			return nil, fmt.Errorf("unrecognized secret type: %s", s.Type)
+		}
+	}
+
+	return buildPackage, nil
+}
+
+// sendPackageBuild is a helper function that takes a worker address and a build package
+// and sends the build package to the worker via https.
+func sendPackagedBuild(workerAddress, secret string, data interface{}) error {
+	// prepare the request to the worker
+	client := http.DefaultClient
+	client.Timeout = 30 * time.Second
+
+	// set the API endpoint path we send the request to
+	u := fmt.Sprintf("%s/api/v1/exec", workerAddress)
+
+	it, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(context.Background(), "POST", u, bytes.NewBuffer(it))
+	if err != nil {
+		return err
+	}
+
+	// add the token to authenticate to the worker
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
+
+	// perform the request to the worker
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// TODO: some kind of logging?
+	_, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
