@@ -7,6 +7,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -688,62 +689,48 @@ func PostWebhook(c *gin.Context) {
 // publishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
 func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	// item := types.ToItem(p, b, r, u)
+	item := types.ToItem(p, b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
 
-	item := library.BuildQueue{}
-	item.SetFullName(r.GetFullName())
-	item.SetNumber(int32(b.GetNumber()))
-	item.SetCreated(b.GetCreated())
-	item.SetFlavor(p.Worker.Flavor)
-	item.SetBuildID(b.GetID())
-
-	logrus.Infof("Publishing item for build %d for %s to queue flavor %s", b.GetNumber(), r.GetFullName(), p.Worker.Flavor)
-
-	err := db.CreateQueuedBuild(&item)
+	byteItem, err := json.Marshal(item)
 	if err != nil {
-		logrus.Errorf("Failed to create queued build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		cleanBuild(db, b, nil, nil)
+
+		return
 	}
 
-	// byteItem, err := json.Marshal(item)
-	// if err != nil {
-	// 	logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
 
-	// 	// error out the build
-	// 	cleanBuild(db, b, nil, nil)
+	route, err := queue.Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
-	// 	return
-	// }
+		// error out the build
+		cleanBuild(db, b, nil, nil)
 
-	// logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
+		return
+	}
 
-	// route, err := queue.Route(&p.Worker)
-	// if err != nil {
-	// 	logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+	logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
 
-	// 	// error out the build
-	// 	cleanBuild(db, b, nil, nil)
+	err = queue.Push(context.Background(), route, byteItem)
+	if err != nil {
+		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
-	// 	return
-	// }
+		err = queue.Push(context.Background(), route, byteItem)
+		if err != nil {
+			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
-	// logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
+			// error out the build
+			cleanBuild(db, b, nil, nil)
 
-	// err = queue.Push(context.Background(), route, byteItem)
-	// if err != nil {
-	// 	logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-
-	// 	err = queue.Push(context.Background(), route, byteItem)
-	// 	if err != nil {
-	// 		logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-
-	// 		// error out the build
-	// 		cleanBuild(db, b, nil, nil)
-
-	// 		return
-	// 	}
-	// }
+			return
+		}
+	}
 
 	// update fields in build object
 	b.SetEnqueued(time.Now().UTC().Unix())
@@ -753,6 +740,21 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 	if err != nil {
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
+
+	queuedBuild := library.BuildQueue{}
+	queuedBuild.SetFullName(r.GetFullName())
+	queuedBuild.SetNumber(int32(b.GetNumber()))
+	queuedBuild.SetCreated(b.GetCreated())
+	queuedBuild.SetFlavor(p.Worker.Flavor)
+	queuedBuild.SetBuildID(b.GetID())
+
+	logrus.Infof("Publishing item for build %d for %s to queue flavor %s", b.GetNumber(), r.GetFullName(), p.Worker.Flavor)
+
+	err = db.CreateQueuedBuild(&queuedBuild)
+	if err != nil {
+		logrus.Errorf("Failed to create queued build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
+	}
+
 }
 
 // renameRepository is a helper function that takes the old name of the repo,
