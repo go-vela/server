@@ -741,12 +741,23 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
 
+	bytePipeline, err := json.Marshal(p)
+	if err != nil {
+		logrus.Errorf("Failed to convert pipeline to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		cleanBuild(db, b, nil, nil)
+
+		return
+	}
+
 	queuedBuild := library.BuildQueue{}
 	queuedBuild.SetFullName(r.GetFullName())
 	queuedBuild.SetNumber(int32(b.GetNumber()))
 	queuedBuild.SetCreated(b.GetCreated())
 	queuedBuild.SetFlavor(p.Worker.Flavor)
 	queuedBuild.SetBuildID(b.GetID())
+	queuedBuild.SetPipeline(bytePipeline)
 
 	logrus.Infof("Publishing item for build %d for %s to queue flavor %s", b.GetNumber(), r.GetFullName(), p.Worker.Flavor)
 

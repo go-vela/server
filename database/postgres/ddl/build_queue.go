@@ -11,13 +11,14 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 build_queue (
-    id      INTEGER GENERATED ALWAYS AS IDENTITY,
-    flavor  VARCHAR(500)      NOT NULL,
-	created        INTEGER,
-    status VARCHAR(500),
+    id        INTEGER GENERATED ALWAYS AS IDENTITY,
+    flavor    VARCHAR(500)      NOT NULL,
+	created   INTEGER,
+    status    VARCHAR(500),
     full_name VARCHAR(500),
-    number INTEGER,
-    build_id INTEGER,
+    number    INTEGER,
+    build_id  INTEGER,
+    pipeline  BYTEA,
     PRIMARY KEY (id)
 );
 `

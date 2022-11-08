@@ -14,12 +14,14 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -158,7 +160,15 @@ func server(c *cli.Context) error {
 
 			//send challenge, listen on /send for an actual build request
 
-			pkg, err := packageBuild(secrets, item)
+			// TODO: connect these two values with columns in DB
+			buildID := item.Build.GetID()
+
+			pipeline, err := json.Marshal(item.Pipeline)
+			if err != nil {
+				continue
+			}
+
+			pkg, err := packageBuild(db, secrets, buildID, pipeline)
 			if err != nil {
 				logrus.Errorf("Error packaging item: %s", err)
 				continue
@@ -223,24 +233,46 @@ func server(c *cli.Context) error {
 // packageBuild is a helper function that takes in a secret service and a queue item and
 // produces a BuildPackage object, which includes all build information (including sensitive content)
 // that is sent to the worker.
-func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (*types.BuildPackage, error) {
+func packageBuild(db database.Service, secretsServices map[string]secret.Service, buildID int64, data []byte) (*types.BuildPackage, error) {
+	build, err := db.GetBuildByID(buildID)
+	if err != nil {
+		return nil, err
+	}
+
+	repo, err := db.GetRepo(build.GetRepoID())
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := db.GetUser(repo.GetUserID())
+	if err != nil {
+		return nil, err
+	}
+
+	pipeline := new(pipeline.Build)
+
+	err = json.Unmarshal(data, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
 	// grab secret information declared in pipeline
-	secrets := item.Pipeline.Secrets
+	secrets := pipeline.Secrets
 
 	// create BuildPackage object and populate with build information
 	buildPackage := new(types.BuildPackage).
-		WithBuild(item.Build).
-		WithPipeline(item.Pipeline).
-		WithRepo(item.Repo).
-		WithUser(item.User).
-		WithToken("123abc")
+		WithBuild(build).
+		WithPipeline(pipeline).
+		WithRepo(repo).
+		WithUser(user).
+		WithToken("123abc") // TODO: insert worker-server API token for updating build status
 
 	// iterate through pipeline secrets
 	for _, s := range secrets {
 		switch s.Type {
 		// handle org secrets
 		case constants.SecretOrg:
-			org, key, err := s.ParseOrg(item.Repo.GetOrg())
+			org, key, err := s.ParseOrg(repo.GetOrg())
 			if err != nil {
 				return nil, err
 			}
@@ -256,7 +288,7 @@ func packageBuild(secretsServices map[string]secret.Service, item *types.Item) (
 
 		// handle repo secrets
 		case constants.SecretRepo:
-			org, repo, key, err := s.ParseRepo(item.Repo.GetOrg(), item.Repo.GetName())
+			org, repo, key, err := s.ParseRepo(repo.GetOrg(), repo.GetName())
 			if err != nil {
 				return nil, err
 			}

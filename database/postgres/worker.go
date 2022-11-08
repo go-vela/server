@@ -18,6 +18,8 @@ import (
 )
 
 // GetWorker gets a worker by hostname from the database.
+//
+//nolint:dupl // ignore similar code with build
 func (c *client) GetWorker(hostname string) (*library.Worker, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"worker": hostname,

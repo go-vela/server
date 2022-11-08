@@ -35,8 +35,12 @@ func AdminHandlers(base *gin.RouterGroup) {
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{
 		// Admin build endpoints
-		_admin.GET("/builds", admin.AllBuilds)
-		_admin.GET("/builds/queue", admin.AllBuildsQueue)
+		_builds := _admin.Group("builds")
+		{
+			_builds.GET("", admin.AllBuilds)
+			_builds.GET("/queue", admin.AllBuildsQueue)
+			_builds.GET("/:id", admin.SingleBuild)
+		}
 		_admin.PUT("/build", admin.UpdateBuild)
 
 		// Admin deployment endpoints
