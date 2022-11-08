@@ -58,3 +58,13 @@ func (c *client) CreateQueuedBuild(b *library.BuildQueue) error {
 		Table(constants.TableBuildQueue).
 		Create(build).Error
 }
+
+func (c *client) PopQueuedBuild(id int64) error {
+	c.Logger.WithFields(logrus.Fields{
+		"item": id,
+	}).Tracef("popping queued build %d in the database", id)
+
+	return c.Sqlite.
+		Table(constants.TableBuildQueue).
+		Delete(id).Error
+}

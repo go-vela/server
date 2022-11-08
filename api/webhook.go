@@ -751,7 +751,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 		return
 	}
 
-	queuedBuild := library.BuildQueue{}
+	queuedBuild := new(library.BuildQueue)
 	queuedBuild.SetFullName(r.GetFullName())
 	queuedBuild.SetNumber(int32(b.GetNumber()))
 	queuedBuild.SetCreated(b.GetCreated())
@@ -761,7 +761,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 
 	logrus.Infof("Publishing item for build %d for %s to queue flavor %s", b.GetNumber(), r.GetFullName(), p.Worker.Flavor)
 
-	err = db.CreateQueuedBuild(&queuedBuild)
+	err = db.CreateQueuedBuild(queuedBuild)
 	if err != nil {
 		logrus.Errorf("Failed to create queued build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}

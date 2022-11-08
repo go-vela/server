@@ -246,4 +246,5 @@ type Service interface {
 	GetAvailableWorker(string) (*library.Worker, error)
 	CreateQueuedBuild(*library.BuildQueue) error
 	ListQueuedBuilds() ([]*library.BuildQueue, error)
+	PopQueuedBuild(int64) error
 }

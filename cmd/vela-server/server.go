@@ -122,9 +122,13 @@ func server(c *cli.Context) error {
 			// sleep 5 seconds before querying build queue
 			time.Sleep(5 * time.Second)
 
+			fmt.Println("SERVER WILL BE LISTING THE BUILDS IN QUEUE NOW")
+
 			builds, err := db.ListQueuedBuilds()
 			if err != nil {
 				logrus.Info("no builds in queue")
+				fmt.Println("SERVER HAS FOUND NO BUILDS IN THE QUEUE")
+
 				continue
 			}
 
@@ -132,6 +136,8 @@ func server(c *cli.Context) error {
 				w, err := db.GetAvailableWorker(b.GetFlavor())
 				if err != nil {
 					logrus.Infof("no available worker for build %d", b.GetBuildID())
+
+					continue
 				}
 
 				//send challenge, listen on /send for an actual build request
@@ -145,9 +151,18 @@ func server(c *cli.Context) error {
 				logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
 
 				// TODO: remove hardcoded internal reference debug
-				err = sendPackagedBuild(w.GetAddress(), c.String("vela-secret"), pkg)
+				err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
 				if err != nil {
 					logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+					continue
+				}
+
+				fmt.Println("SERVER WILL NOW DELETE THE BUILD ITEM")
+
+				err = db.PopQueuedBuild(b.GetBuildID())
+				if err != nil {
+					logrus.Infof("unable to pop queue item for build %s", b.GetBuildID())
+
 					continue
 				}
 			}

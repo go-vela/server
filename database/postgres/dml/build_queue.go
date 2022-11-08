@@ -11,4 +11,10 @@ const (
 SELECT *
 FROM build_queue;
 `
+
+	DeleteQueuedBuild = `
+DELETE
+FROM build_queue
+WHERE build_id = ?;
+`
 )
