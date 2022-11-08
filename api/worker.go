@@ -389,11 +389,7 @@ func GetAvailableWorker(c *gin.Context) {
 		"worker": w.GetHostname(),
 	}).Infof("reading available worker %s", w.GetHostname())
 
-	filters := map[string]interface{}{}
-
-	filters["status"] = "ready"
-
-	w, err := database.FromContext(c).GetAvailableWorker(filters)
+	w, err := database.FromContext(c).GetAvailableWorker("filler")
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 

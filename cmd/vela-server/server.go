@@ -20,7 +20,6 @@ import (
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 
 	"github.com/gin-gonic/gin"
@@ -120,68 +119,75 @@ func server(c *cli.Context) error {
 	// vader: thread for listening to the queue
 	go func() {
 		for {
-			workers, err := db.GetWorkerList()
+			// sleep 5 seconds before querying build queue
+			time.Sleep(5 * time.Second)
+
+			builds, err := db.ListQueuedBuilds()
 			if err != nil {
-				logrus.Errorf("unable to get worker list: %s", err)
+				logrus.Info("no builds in queue")
 				continue
 			}
 
-			w := func() *library.Worker {
-				// vader: determine if worker is active and has availability
-				for _, worker := range workers {
-					if worker.GetActive() {
-						return worker
-					}
+			for _, b := range builds {
+				w, err := db.GetAvailableWorker(b.GetFlavor())
+				if err != nil {
+					logrus.Infof("no available worker for build %d", b.GetBuildID())
 				}
 
-				return nil
-			}()
+				//send challenge, listen on /send for an actual build request
 
-			if w == nil {
-				logrus.Error("unable to find active worker")
-				continue
+				pkg, err := packageBuild(db, secrets, b.GetBuildID(), b.GetPipeline())
+				if err != nil {
+					logrus.Errorf("Error packaging item: %s", err)
+					continue
+				}
+
+				logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+
+				// TODO: remove hardcoded internal reference debug
+				err = sendPackagedBuild(w.GetAddress(), c.String("vela-secret"), pkg)
+				if err != nil {
+					logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+					continue
+				}
 			}
+			// workers, err := db.GetWorkerList()
+			// if err != nil {
+			// 	logrus.Errorf("unable to get worker list: %s", err)
+			// 	continue
+			// }
 
-			logrus.Info("Popping item from queue...")
+			// w := func() *library.Worker {
+			// 	// vader: determine if worker is active and has availability
+			// 	for _, worker := range workers {
+			// 		if worker.GetActive() {
+			// 			return worker
+			// 		}
+			// 	}
 
-			// capture an item from the queue
-			item, err := queue.Pop(context.Background())
-			if err != nil {
-				logrus.Errorf("Error popping item from queue: %s", err)
-				continue
-			}
+			// 	return nil
+			// }()
 
-			if item == nil {
-				logrus.Info("Popped nil item from queue")
-				continue
-			}
+			// if w == nil {
+			// 	logrus.Error("unable to find active worker")
+			// 	continue
+			// }
 
-			logrus.Info("Popped item from queue")
+			// logrus.Info("Popping item from queue...")
 
-			//send challenge, listen on /send for an actual build request
+			// // capture an item from the queue
+			// item, err := queue.Pop(context.Background())
+			// if err != nil {
+			// 	logrus.Errorf("Error popping item from queue: %s", err)
+			// 	continue
+			// }
 
-			// TODO: connect these two values with columns in DB
-			buildID := item.Build.GetID()
+			// if item == nil {
+			// 	logrus.Info("Popped nil item from queue")
+			// 	continue
+			// }
 
-			pipeline, err := json.Marshal(item.Pipeline)
-			if err != nil {
-				continue
-			}
-
-			pkg, err := packageBuild(db, secrets, buildID, pipeline)
-			if err != nil {
-				logrus.Errorf("Error packaging item: %s", err)
-				continue
-			}
-
-			logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
-
-			// TODO: remove hardcoded internal reference debug
-			err = sendPackagedBuild("http://host.docker.internal:8081", c.String("vela-secret"), pkg)
-			if err != nil {
-				logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
-				continue
-			}
+			// logrus.Info("Popped item from queue")
 		}
 	}()
 

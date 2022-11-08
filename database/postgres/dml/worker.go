@@ -37,6 +37,17 @@ WHERE address = ?
 LIMIT 1;
 `
 
+	// SelectAvailableWorker represents a query to select a
+	// worker by route and status in the database.
+	SelectAvailableWorker = `
+SELECT *
+FROM workers
+WHERE active = 'true'
+AND status = 'ready'
+AND routes LIKE ?
+LIMIT 1;
+`
+
 	// DeleteWorker represents a query to
 	// remove a worker from the database.
 	DeleteWorker = `

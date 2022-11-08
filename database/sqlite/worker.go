@@ -115,6 +115,6 @@ func (c *client) DeleteWorker(id int64) error {
 		Exec(dml.DeleteWorker, id).Error
 }
 
-func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Worker, error) {
+func (c *client) GetAvailableWorker(route string) (*library.Worker, error) {
 	return nil, nil
 }

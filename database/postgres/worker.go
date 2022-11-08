@@ -115,16 +115,22 @@ func (c *client) DeleteWorker(id int64) error {
 		Exec(dml.DeleteWorker, id).Error
 }
 
-func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Worker, error) {
+func (c *client) GetAvailableWorker(route string) (*library.Worker, error) {
 	// variable to store query results
 	w := new(database.Worker)
+
+	var pattern string
+
+	if route != "" {
+		pattern = `%"` + route + `%"`
+	} else {
+		pattern = `%"vela"%`
+	}
 
 	// send query to the database and store result in variable
 	_result := c.Postgres.
 		Table(constants.TableWorker).
-		Select("*").
-		Where(filters).
-		Limit(1).
+		Raw(dml.SelectAvailableWorker, pattern).
 		Scan(w)
 
 	// check if the query returned a record not found error or no rows were returned
@@ -133,7 +139,6 @@ func (c *client) GetAvailableWorker(filters map[string]interface{}) (*library.Wo
 	}
 
 	err := c.Postgres.Transaction(func(tx *gorm.DB) error {
-
 		// return nil will commit the whole transaction
 		return nil
 	})

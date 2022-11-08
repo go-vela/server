@@ -243,7 +243,7 @@ type Service interface {
 	// deletes a worker by hostname.
 	DeleteWorker(int64) error
 	// TODO: fillme
-	GetAvailableWorker(map[string]interface{}) (*library.Worker, error)
+	GetAvailableWorker(string) (*library.Worker, error)
 	CreateQueuedBuild(*library.BuildQueue) error
 	ListQueuedBuilds() ([]*library.BuildQueue, error)
 }
