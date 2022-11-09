@@ -153,8 +153,7 @@ func CreateRepo(c *gin.Context) {
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
-		// default events to push and pull_request
-		r.SetAllowPull(true)
+		// default event to push
 		r.SetAllowPush(true)
 	} else {
 		r.SetAllowComment(input.GetAllowComment())
@@ -1044,11 +1043,12 @@ func ChownRepo(c *gin.Context) {
 }
 
 // checkAllowlist is a helper function to ensure only repos in the
-// allowlist are allowed to enable repos. If the allowlist is
-// empty then any repo can be enabled.
+// allowlist are allowed to enable repos.
+//
+// a single entry of '*' allows any repo to be enabled.
 func checkAllowlist(r *library.Repo, allowlist []string) bool {
-	// if the allowlist is not set or empty allow any repo to be enabled
-	if len(allowlist) == 0 {
+	// check if all repos are allowed to be enabled
+	if len(allowlist) == 1 && allowlist[0] == "*" {
 		return true
 	}
 
