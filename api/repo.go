@@ -149,6 +149,14 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted default is false
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
@@ -786,6 +794,14 @@ func UpdateRepo(c *gin.Context) {
 				[]byte(strings.TrimSpace(uid.String())),
 			),
 		)
+	}
+
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
 	}
 
 	// send API call to update the repo
