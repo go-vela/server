@@ -389,14 +389,14 @@ func GetAvailableWorker(c *gin.Context) {
 		"worker": w.GetHostname(),
 	}).Infof("reading available worker %s", w.GetHostname())
 
-	w, err := database.FromContext(c).GetAvailableWorker("filler")
-	if err != nil {
-		retErr := fmt.Errorf("unable to get workers: %w", err)
+	// w, err := database.FromContext(c).GetAvailableWorker("filler")
+	// if err != nil {
+	// 	retErr := fmt.Errorf("unable to get workers: %w", err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+	// 	util.HandleError(c, http.StatusNotFound, retErr)
 
-		return
-	}
+	// 	return
+	// }
 
 	c.JSON(http.StatusOK, w)
 }

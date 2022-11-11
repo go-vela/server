@@ -115,7 +115,7 @@ func (c *client) DeleteWorker(id int64) error {
 		Exec(dml.DeleteWorker, id).Error
 }
 
-func (c *client) GetAvailableWorker(route string) (*library.Worker, error) {
+func (c *client) GetAvailableWorker(tx *gorm.DB, route string) (*library.Worker, error) {
 	// variable to store query results
 	w := new(database.Worker)
 
@@ -127,8 +127,14 @@ func (c *client) GetAvailableWorker(route string) (*library.Worker, error) {
 		pattern = `%"vela"%`
 	}
 
+	// use transaction db if provided
+	db := c.Postgres
+	if tx != nil {
+		db = tx
+	}
+
 	// send query to the database and store result in variable
-	_result := c.Postgres.
+	_result := db.
 		Table(constants.TableWorker).
 		Raw(dml.SelectAvailableWorker, pattern).
 		Scan(w)
@@ -138,10 +144,5 @@ func (c *client) GetAvailableWorker(route string) (*library.Worker, error) {
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	err := c.Postgres.Transaction(func(tx *gorm.DB) error {
-		// return nil will commit the whole transaction
-		return nil
-	})
-
-	return w.ToLibrary(), err
+	return w.ToLibrary(), nil
 }

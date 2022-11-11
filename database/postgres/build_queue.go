@@ -5,11 +5,14 @@
 package postgres
 
 import (
+	"database/sql"
+
 	"github.com/go-vela/server/database/postgres/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // ListQueuedBuilds gets a list of all queued builds from the database.
@@ -59,12 +62,27 @@ func (c *client) CreateQueuedBuild(b *library.BuildQueue) error {
 		Create(build).Error
 }
 
-func (c *client) PopQueuedBuild(id int64) error {
+func (c *client) PopQueuedBuild(tx *gorm.DB, id int64) error {
 	c.Logger.WithFields(logrus.Fields{
 		"item": id,
 	}).Tracef("popping queued build %d in the database", id)
 
-	return c.Postgres.
+	var b library.BuildQueue
+
+	// use transaction db if provided
+	db := c.Postgres
+	if tx != nil {
+		db = tx
+	}
+
+	// todo: why doesnt raw query work?
+	return db.
 		Table(constants.TableBuildQueue).
+		Where("build_id = ?", id).
+		Delete(&b).
 		Raw(dml.DeleteQueuedBuild, id).Error
+}
+
+func (c *client) Transaction(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) error {
+	return c.Postgres.Transaction(fc, opts...)
 }

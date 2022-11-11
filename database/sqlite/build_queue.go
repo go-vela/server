@@ -5,11 +5,14 @@
 package sqlite
 
 import (
+	"database/sql"
+
 	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 func (c *client) ListQueuedBuilds() ([]*library.BuildQueue, error) {
@@ -59,12 +62,22 @@ func (c *client) CreateQueuedBuild(b *library.BuildQueue) error {
 		Create(build).Error
 }
 
-func (c *client) PopQueuedBuild(id int64) error {
+func (c *client) PopQueuedBuild(tx *gorm.DB, id int64) error {
 	c.Logger.WithFields(logrus.Fields{
 		"item": id,
 	}).Tracef("popping queued build %d in the database", id)
 
-	return c.Sqlite.
+	// use transaction db if provided
+	db := c.Sqlite
+	if tx != nil {
+		db = tx
+	}
+
+	return db.
 		Table(constants.TableBuildQueue).
 		Delete(id).Error
+}
+
+func (c *client) Transaction(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) error {
+	return c.Sqlite.Transaction(fc, opts...)
 }

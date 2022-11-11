@@ -21,6 +21,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/pipeline"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -133,39 +134,55 @@ func server(c *cli.Context) error {
 			}
 
 			for _, b := range builds {
-				w, err := db.GetAvailableWorker(b.GetFlavor())
-				if err != nil {
-					logrus.Infof("no available worker for build %d", b.GetBuildID())
+				// define transaction
+				logrus.Infof("defining transaction for build %d", b.GetBuildID())
+				tx := func(_db *gorm.DB) error {
+					// begin transaction
+					w, err := db.GetAvailableWorker(_db, b.GetFlavor())
+					if err != nil {
+						logrus.Infof("no available worker for build %d", b.GetBuildID())
 
-					continue
+						return err
+					}
+
+					//send challenge, listen on /send for an actual build request
+					pkg, err := packageBuild(db, secrets, b.GetBuildID(), b.GetPipeline())
+					if err != nil {
+						logrus.Errorf("unable to package item: %s", err)
+						// update build with error
+						return err
+					}
+
+					logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+
+					// TODO: remove hardcoded internal reference debug
+					err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
+					if err != nil {
+						logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+						return err
+					}
+
+					logrus.Infof("Removing build from the queue: %s", b.GetBuildID())
+
+					err = db.PopQueuedBuild(_db, b.GetBuildID())
+					if err != nil {
+						logrus.Infof("unable to pop queue item for build %s", b.GetBuildID())
+						return err
+					}
+
+					logrus.Infof("build popped, packaged, and sent to worker %s, completing transaction", w.GetHostname())
+					return nil
 				}
 
-				//send challenge, listen on /send for an actual build request
+				logrus.Infof("performing transaction for build %d", b.GetBuildID())
 
-				pkg, err := packageBuild(db, secrets, b.GetBuildID(), b.GetPipeline())
+				// attempt to execute and commit the transaction
+				err := db.Transaction(tx)
 				if err != nil {
-					logrus.Errorf("Error packaging item: %s", err)
-					continue
-				}
-
-				logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
-
-				// TODO: remove hardcoded internal reference debug
-				err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
-				if err != nil {
-					logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
-					continue
-				}
-
-				fmt.Println("SERVER WILL NOW DELETE THE BUILD ITEM")
-
-				err = db.PopQueuedBuild(b.GetBuildID())
-				if err != nil {
-					logrus.Infof("unable to pop queue item for build %s", b.GetBuildID())
-
-					continue
+					logrus.Errorf("unable to complete build queue transaction: %s", err)
 				}
 			}
+
 			// workers, err := db.GetWorkerList()
 			// if err != nil {
 			// 	logrus.Errorf("unable to get worker list: %s", err)

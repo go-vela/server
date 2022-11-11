@@ -5,10 +5,13 @@
 package database
 
 import (
+	"database/sql"
+
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/library"
+	"gorm.io/gorm"
 )
 
 // Service represents the interface for Vela integrating
@@ -242,9 +245,9 @@ type Service interface {
 	// DeleteWorker defines a function that
 	// deletes a worker by hostname.
 	DeleteWorker(int64) error
-	// TODO: fillme
-	GetAvailableWorker(string) (*library.Worker, error)
 	CreateQueuedBuild(*library.BuildQueue) error
 	ListQueuedBuilds() ([]*library.BuildQueue, error)
-	PopQueuedBuild(int64) error
+	GetAvailableWorker(*gorm.DB, string) (*library.Worker, error)
+	PopQueuedBuild(*gorm.DB, int64) error
+	Transaction(func(*gorm.DB) error, ...*sql.TxOptions) error
 }
