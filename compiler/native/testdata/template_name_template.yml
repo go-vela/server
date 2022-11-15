@@ -1,0 +1,8 @@
+metadata:
+  template: true
+
+steps:
+  - name: hello
+    image: {{ vela "template_name" }}
+    commands:
+      - echo {{ vela "template_name" }}
