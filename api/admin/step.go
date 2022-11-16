@@ -18,45 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/steps admin AdminAllSteps
-//
-// Get all of the steps in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all steps from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Step"
-//   '500':
-//     description: Unable to retrieve all steps from the database
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// AllSteps represents the API handler to
-// captures all steps stored in the database.
-func AllSteps(c *gin.Context) {
-	logrus.Info("Admin: reading all steps")
-
-	// send API call to capture all steps
-	s, err := database.FromContext(c).GetStepList()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all steps: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, s)
-}
-
 // swagger:operation PUT /api/v1/admin/step admin AdminUpdateStep
 //
 // Update a step in the database
