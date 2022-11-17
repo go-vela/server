@@ -250,4 +250,5 @@ type Service interface {
 	GetAvailableWorker(*gorm.DB, string) (*library.Worker, error)
 	PopQueuedBuild(*gorm.DB, int64) error
 	Transaction(func(*gorm.DB) error, ...*sql.TxOptions) error
+	TryTransactionLock(int, *gorm.DB) error
 }

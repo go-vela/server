@@ -81,3 +81,7 @@ func (c *client) PopQueuedBuild(tx *gorm.DB, id int64) error {
 func (c *client) Transaction(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) error {
 	return c.Sqlite.Transaction(fc, opts...)
 }
+
+func (c *client) TryTransactionLock(txID int, tx *gorm.DB) error {
+	return nil
+}

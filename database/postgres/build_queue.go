@@ -86,3 +86,18 @@ func (c *client) PopQueuedBuild(tx *gorm.DB, id int64) error {
 func (c *client) Transaction(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) error {
 	return c.Postgres.Transaction(fc, opts...)
 }
+
+func (c *client) TryTransactionLock(txID int, tx *gorm.DB) error {
+	// use transaction db if provided
+	db := c.Postgres
+	if tx != nil {
+		db = tx
+	}
+
+	err := db.Exec("SELECT PG_TRY_ADVISORY_XACT_LOCK(789);").Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

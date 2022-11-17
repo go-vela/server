@@ -137,6 +137,14 @@ func server(c *cli.Context) error {
 				// define transaction
 				logrus.Infof("defining transaction for build %d", b.GetBuildID())
 				tx := func(_db *gorm.DB) error {
+					lockID := 420
+					err := db.TryTransactionLock(lockID, _db)
+					if err != nil {
+						logrus.Infof("unable to obtain queue database lock %d", lockID)
+
+						return err
+					}
+
 					// begin transaction
 					w, err := db.GetAvailableWorker(_db, b.GetFlavor())
 					if err != nil {
@@ -146,19 +154,37 @@ func server(c *cli.Context) error {
 					}
 
 					//send challenge, listen on /send for an actual build request
-					pkg, err := packageBuild(db, secrets, b.GetBuildID(), b.GetPipeline())
-					if err != nil {
-						logrus.Errorf("unable to package item: %s", err)
-						// update build with error
-						return err
-					}
+					// pkg, err := packageBuild(db, secrets, b.GetBuildID(), b.GetPipeline())
+					// if err != nil {
+					// 	logrus.Errorf("unable to package item: %s", err)
+					// 	// update build with error
+					// 	_b, err2 := db.GetBuildByID(b.GetBuildID())
+					// 	if err2 != nil {
+					// 		logrus.Infof("could not retrieve build id(%d)", b.GetBuildID())
 
-					logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+					// 		return err2
+					// 	}
+					// 	_b.SetStatus(constants.StatusError)
+					// 	e := fmt.Sprintf("unable to package build: %s", err.Error())
+					// 	_b.SetError(e)
+					// 	db.UpdateBuild(_b)
+					// 	return err
+					// }
 
-					// TODO: remove hardcoded internal reference debug
-					err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
+					// logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+
+					// // TODO: remove hardcoded internal reference debug
+					// err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
+					// if err != nil {
+					// 	logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+					// 	return err
+					// }
+
+					w.SetBuilds(fmt.Sprint(b.GetBuildID()))
+					w.SetStatus("assigned")
+					err = db.UpdateWorker(w)
 					if err != nil {
-						logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+						logrus.Infof("unable to update worker %s", w.GetHostname())
 						return err
 					}
 
@@ -170,7 +196,7 @@ func server(c *cli.Context) error {
 						return err
 					}
 
-					logrus.Infof("build popped, packaged, and sent to worker %s, completing transaction", w.GetHostname())
+					logrus.Infof("build popped, and assigned to worker %s, completing transaction", w.GetHostname())
 					return nil
 				}
 
