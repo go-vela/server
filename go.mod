@@ -33,7 +33,7 @@ require (
 	go.starlark.net v0.0.0-20221205180719-3fd0dac74452
 	golang.org/x/oauth2 v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
-	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
+	gopkg.in/tomb.v2 v2.0.0-20141024135613-dd632973f1e7
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gorm v1.24.2
