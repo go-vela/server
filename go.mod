@@ -31,7 +31,7 @@ require (
 	github.com/spf13/afero v1.9.3
 	github.com/urfave/cli/v2 v2.23.6
 	go.starlark.net v0.0.0-20221028183056-acb66ad56dd2
-	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
+	golang.org/x/oauth2 v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.4.5
@@ -126,9 +126,9 @@ require (
 	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
-	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.3.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210226172003-ab064af71705 // indirect
