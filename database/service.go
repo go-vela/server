@@ -8,6 +8,7 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
 )
 
@@ -216,27 +217,7 @@ type Service interface {
 	// related to users stored in the database.
 	user.UserService
 
-	// Worker Database Interface Functions
-
-	// GetWorker defines a function that
-	// gets a worker by hostname.
-	GetWorker(string) (*library.Worker, error)
-	// GetWorkerByAddress defines a function that
-	// gets a worker by address.
-	GetWorkerByAddress(string) (*library.Worker, error)
-	// GetWorkerList defines a function that
-	// gets a list of all workers.
-	GetWorkerList() ([]*library.Worker, error)
-	// GetWorkerCount defines a function that
-	// gets the count of workers.
-	GetWorkerCount() (int64, error)
-	// CreateWorker defines a function that
-	// creates a new worker.
-	CreateWorker(*library.Worker) error
-	// UpdateWorker defines a function that
-	// updates a worker by unique ID.
-	UpdateWorker(*library.Worker) error
-	// DeleteWorker defines a function that
-	// deletes a worker by hostname.
-	DeleteWorker(int64) error
+	// WorkerService provides the interface for functionality
+	// related to workers stored in the database.
+	worker.WorkerService
 }
