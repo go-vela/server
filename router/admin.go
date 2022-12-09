@@ -35,36 +35,28 @@ func AdminHandlers(base *gin.RouterGroup) {
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{
 		// Admin build endpoints
-		_admin.GET("/builds", admin.AllBuilds)
 		_admin.GET("/builds/queue", admin.AllBuildsQueue)
 		_admin.PUT("/build", admin.UpdateBuild)
 
 		// Admin deployment endpoints
-		_admin.GET("/deployments", admin.AllDeployments)
 		_admin.PUT("/deployment", admin.UpdateDeployment)
 
 		// Admin hook endpoints
-		_admin.GET("/hooks", admin.AllHooks)
 		_admin.PUT("/hook", admin.UpdateHook)
 
 		// Admin repo endpoints
-		_admin.GET("/repos", admin.AllRepos)
 		_admin.PUT("/repo", admin.UpdateRepo)
 
 		// Admin secret endpoints
-		_admin.GET("/secrets", admin.AllSecrets)
 		_admin.PUT("/secret", admin.UpdateSecret)
 
 		// Admin service endpoints
-		_admin.GET("/services", admin.AllServices)
 		_admin.PUT("/service", admin.UpdateService)
 
 		// Admin step endpoints
-		_admin.GET("/steps", admin.AllSteps)
 		_admin.PUT("/step", admin.UpdateStep)
 
 		// Admin user endpoints
-		_admin.GET("/users", admin.AllUsers)
 		_admin.PUT("/user", admin.UpdateUser)
 	} // end of admin endpoints
 }
