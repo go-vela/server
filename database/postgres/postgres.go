@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
@@ -50,6 +51,8 @@ type (
 		repo.RepoService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
+		// https://pkg.go.dev/github.com/go-vela/server/database/worker#WorkerService
+		worker.WorkerService
 	}
 )
 
@@ -152,6 +155,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -268,12 +273,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
 	}
 
-	// create the workers table
-	err = c.Postgres.Exec(ddl.CreateWorkerTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableWorker, err)
-	}
-
 	return nil
 }
 
@@ -336,12 +335,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
-	// create the workers_hostname_address index for the workers table
-	err = c.Postgres.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create workers_hostname_address index for the %s table: %w", constants.TableWorker, err)
-	}
-
 	return nil
 }
 
@@ -383,6 +376,18 @@ func createServices(c *client) error {
 		user.WithEncryptionKey(c.config.EncryptionKey),
 		user.WithLogger(c.Logger),
 		user.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic worker service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/worker#New
+	c.WorkerService, err = worker.New(
+		worker.WithClient(c.Postgres),
+		worker.WithLogger(c.Logger),
+		worker.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
