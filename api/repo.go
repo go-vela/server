@@ -149,12 +149,19 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted default is false
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
-		// default events to push and pull_request
-		r.SetAllowPull(true)
+		// default event to push
 		r.SetAllowPush(true)
 	} else {
 		r.SetAllowComment(input.GetAllowComment())
@@ -644,7 +651,7 @@ func GetRepo(c *gin.Context) {
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
 //
-//nolint:funlen // ignore line length
+//nolint:funlen,gocyclo // ignore line length
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
@@ -803,6 +810,14 @@ func UpdateRepo(c *gin.Context) {
 				[]byte(strings.TrimSpace(uid.String())),
 			),
 		)
+	}
+
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
 	}
 
 	// grab last hook from repo to fetch the webhook ID
@@ -1094,11 +1109,12 @@ func ChownRepo(c *gin.Context) {
 }
 
 // checkAllowlist is a helper function to ensure only repos in the
-// allowlist are allowed to enable repos. If the allowlist is
-// empty then any repo can be enabled.
+// allowlist are allowed to enable repos.
+//
+// a single entry of '*' allows any repo to be enabled.
 func checkAllowlist(r *library.Repo, allowlist []string) bool {
-	// if the allowlist is not set or empty allow any repo to be enabled
-	if len(allowlist) == 0 {
+	// check if all repos are allowed to be enabled
+	if len(allowlist) == 1 && allowlist[0] == "*" {
 		return true
 	}
 
