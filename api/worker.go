@@ -122,7 +122,7 @@ func GetWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	w, err := database.FromContext(c).GetWorkerList()
+	w, err := database.FromContext(c).ListWorkers()
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 
@@ -174,7 +174,7 @@ func GetWorker(c *gin.Context) {
 		"worker": w.GetHostname(),
 	}).Infof("reading worker %s", w.GetHostname())
 
-	w, err := database.FromContext(c).GetWorker(w.GetHostname())
+	w, err := database.FromContext(c).GetWorkerForHostname(w.GetHostname())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 
@@ -283,7 +283,7 @@ func UpdateWorker(c *gin.Context) {
 	}
 
 	// send API call to capture the updated worker
-	w, _ = database.FromContext(c).GetWorker(w.GetHostname())
+	w, _ = database.FromContext(c).GetWorkerForHostname(w.GetHostname())
 
 	c.JSON(http.StatusOK, w)
 }
@@ -329,7 +329,7 @@ func DeleteWorker(c *gin.Context) {
 	}).Infof("deleting worker %s", w.GetHostname())
 
 	// send API call to remove the step
-	err := database.FromContext(c).DeleteWorker(w.GetID())
+	err := database.FromContext(c).DeleteWorker(w)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete worker %s: %w", w.GetHostname(), err)
 
