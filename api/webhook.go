@@ -180,6 +180,8 @@ func PostWebhook(c *gin.Context) {
 				h.SetError(err.Error())
 			}
 
+			c.JSON(http.StatusOK, fmt.Sprintf("no build to process, repository renamed from %s to %s", r.GetPreviousName(), r.GetFullName()))
+
 			return
 		// if action is archived, unarchived, or edited, perform edits to relevant repo fields
 		case "archived", "unarchived", constants.ActionEdited:
@@ -195,9 +197,17 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 
+			var retMsg string
 			// the only edits to a repo that impact Vela are to these two fields
-			dbRepo.SetBranch(r.GetBranch())
-			dbRepo.SetActive(r.GetActive())
+			if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
+				retMsg = fmt.Sprintf("no build to process, repository default branch changed from %s to %s", dbRepo.GetBranch(), r.GetBranch())
+				dbRepo.SetBranch(r.GetBranch())
+			}
+
+			if dbRepo.GetActive() != r.GetActive() {
+				retMsg = fmt.Sprintf("no build to process, repository changed active status from %t to %t", dbRepo.GetActive(), r.GetActive())
+				dbRepo.SetActive(r.GetActive())
+			}
 
 			// update repo object in the database after applying edits
 			err = database.FromContext(c).UpdateRepo(dbRepo)
@@ -211,7 +221,7 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 
-			c.JSON(http.StatusOK, fmt.Sprintf("no build to process, repository %s.", h.GetEventAction()))
+			c.JSON(http.StatusOK, retMsg)
 
 			return
 		// all other repo event actions are skippable
@@ -904,8 +914,6 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 			return fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
 	}
-
-	c.JSON(http.StatusOK, r)
 
 	return nil
 }
