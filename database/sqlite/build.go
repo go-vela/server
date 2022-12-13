@@ -45,8 +45,6 @@ func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 }
 
 // GetBuildByID gets a build by its ID from the database.
-//
-//nolint:dupl // ignore similar code with hook
 func (c *client) GetBuildByID(id int64) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": id,

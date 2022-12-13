@@ -883,6 +883,7 @@ func GetOrgBuilds(c *gin.Context) {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
+	//nolint:goconst // ignore need for constant
 	if perm != "admin" {
 		filters["visibility"] = constants.VisibilityPublic
 	}
