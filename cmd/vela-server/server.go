@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/go-vela/server/database"
@@ -153,33 +154,6 @@ func server(c *cli.Context) error {
 						return err
 					}
 
-					//send challenge, listen on /send for an actual build request
-					// pkg, err := packageBuild(db, secrets, b.GetBuildID(), b.GetPipeline())
-					// if err != nil {
-					// 	logrus.Errorf("unable to package item: %s", err)
-					// 	// update build with error
-					// 	_b, err2 := db.GetBuildByID(b.GetBuildID())
-					// 	if err2 != nil {
-					// 		logrus.Infof("could not retrieve build id(%d)", b.GetBuildID())
-
-					// 		return err2
-					// 	}
-					// 	_b.SetStatus(constants.StatusError)
-					// 	e := fmt.Sprintf("unable to package build: %s", err.Error())
-					// 	_b.SetError(e)
-					// 	db.UpdateBuild(_b)
-					// 	return err
-					// }
-
-					// logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
-
-					// // TODO: remove hardcoded internal reference debug
-					// err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
-					// if err != nil {
-					// 	logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
-					// 	return err
-					// }
-
 					w.SetBuilds(fmt.Sprint(b.GetBuildID()))
 					w.SetStatus("assigned")
 					err = db.UpdateWorker(w)
@@ -246,6 +220,69 @@ func server(c *cli.Context) error {
 			// }
 
 			// logrus.Info("Popped item from queue")
+		}
+	}()
+
+	// vader: thread for looping over assigned workers
+	go func() {
+		for {
+			// sleep 5 seconds before querying build queue
+			time.Sleep(5 * time.Second)
+
+			fmt.Println("SERVER WILL BE LISTING THE BUILDS IN QUEUE NOW")
+
+			w, err := db.GetAssignedWorker(nil)
+			if err != nil {
+				logrus.Infof("unable to find assigned worker %v", err)
+
+				return
+			}
+
+			buildID := w.GetBuilds()
+			_buildID, err := strconv.Atoi(buildID)
+			if err != nil {
+				logrus.Infof("unable to parse build id %s assigned to worker %v", buildID, w.GetHostname())
+
+				return
+			}
+
+			b, err := db.GetBuildByID(int64(_buildID))
+			if err != nil {
+				logrus.Infof("unable to get build id %s from database: %v", err)
+
+				return
+			}
+
+			var pipelineData []byte
+			// pipelineData := b.GetPipeline()
+
+			//send challenge, listen on /send for an actual build request
+			pkg, err := packageBuild(db, secrets, b.GetID(), pipelineData)
+			if err != nil {
+				logrus.Errorf("unable to package item: %s", err)
+				// update build with error
+				_b, err2 := db.GetBuildByID(b.GetBuildID())
+				if err2 != nil {
+					logrus.Infof("could not retrieve build id(%d)", b.GetBuildID())
+
+					return
+				}
+				_b.SetStatus(constants.StatusError)
+				e := fmt.Sprintf("unable to package build: %s", err.Error())
+				_b.SetError(e)
+				db.UpdateBuild(_b)
+				return
+			}
+
+			logrus.Infof("Sending packaged build to worker: %s", w.GetHostname())
+
+			// TODO: remove hardcoded internal reference debug
+			err = sendPackagedBuild("http://localhost:8081", c.String("vela-secret"), pkg)
+			if err != nil {
+				logrus.Infof("unable to send package to worker %s: %s", w.GetHostname(), err)
+				return
+			}
+
 		}
 	}()
 

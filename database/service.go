@@ -248,6 +248,7 @@ type Service interface {
 	CreateQueuedBuild(*library.BuildQueue) error
 	ListQueuedBuilds() ([]*library.BuildQueue, error)
 	GetAvailableWorker(*gorm.DB, string) (*library.Worker, error)
+	GetAssignedWorker(*gorm.DB) (*library.Worker, error)
 	PopQueuedBuild(*gorm.DB, int64) error
 	Transaction(func(*gorm.DB) error, ...*sql.TxOptions) error
 	TryTransactionLock(int, *gorm.DB) error

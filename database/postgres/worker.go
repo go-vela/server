@@ -146,3 +146,27 @@ func (c *client) GetAvailableWorker(tx *gorm.DB, route string) (*library.Worker,
 
 	return w.ToLibrary(), nil
 }
+
+func (c *client) GetAssignedWorker(tx *gorm.DB) (*library.Worker, error) {
+	// variable to store query results
+	w := new(database.Worker)
+
+	// use transaction db if provided
+	db := c.Postgres
+	if tx != nil {
+		db = tx
+	}
+
+	// send query to the database and store result in variable
+	_result := db.
+		Table(constants.TableWorker).
+		Raw(dml.SelectAssignedWorker).
+		Scan(w)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(_result.Error, gorm.ErrRecordNotFound) || _result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return w.ToLibrary(), nil
+}

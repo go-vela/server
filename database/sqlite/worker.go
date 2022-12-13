@@ -118,3 +118,7 @@ func (c *client) DeleteWorker(id int64) error {
 func (c *client) GetAvailableWorker(tx *gorm.DB, route string) (*library.Worker, error) {
 	return nil, nil
 }
+
+func (c *client) GetAssignedWorker(tx *gorm.DB) (*library.Worker, error) {
+	return nil, nil
+}

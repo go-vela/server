@@ -38,13 +38,23 @@ LIMIT 1;
 `
 
 	// SelectAvailableWorker represents a query to select a
-	// worker by route and status in the database.
+	// worker by route and status=ready in the database.
 	SelectAvailableWorker = `
 SELECT *
 FROM workers
 WHERE active = 'true'
 AND status = 'ready'
 AND routes LIKE ?
+LIMIT 1;
+`
+
+	// SelectAssignedWorker represents a query to select a
+	// worker by route and status=assigned in the database.
+	SelectAssignedWorker = `
+SELECT *
+FROM workers
+WHERE active = 'true'
+AND status = 'assigned'
 LIMIT 1;
 `
 
