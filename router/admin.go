@@ -30,12 +30,8 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin build queue endpoint
 		_admin.GET("/builds/queue", admin.AllBuildsQueue)
 
-		// Admin build endpoints
-		_build := _admin.Group("build")
-		{
-			_build.GET("/:id", admin.GetBuildByID)
-			_build.PUT("", admin.UpdateBuild)
-		}
+		// Admin build endpoint
+		_admin.PUT("/build", admin.UpdateBuild)
 
 		// Admin deployment endpoint
 		_admin.PUT("/deployment", admin.UpdateDeployment)

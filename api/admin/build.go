@@ -20,55 +20,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/build/:id admin GetBuildByID
-//
-// Get a single build in the database by ID
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved build from the database
-//     schema:
-//       "$ref": "#/definitions/Build"
-//   '500':
-//     description: Unable to retrieve build from the database
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// GetBuildByID represents the API handler to
-// capture a single build stored in the database by id.
-func GetBuildByID(c *gin.Context) {
-	// Logger
-	logrus.Info("Admin: reading build")
-
-	// Parse build ID from path
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-
-	if err != nil {
-		retErr := fmt.Errorf("unable to parse build id: %w", err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the build
-	b, err := database.FromContext(c).GetBuildByID(id)
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture build: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, b)
-}
-
 // swagger:operation GET /api/v1/admin/builds/queue admin AllBuildsQueue
 //
 // Get all of the running and pending builds in the database
