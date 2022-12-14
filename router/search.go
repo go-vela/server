@@ -10,7 +10,7 @@ import (
 )
 
 // SearchHandlers is a function that extends the provided base router group
-// with the API handlers for source code management functionality.
+// with the API handlers for resource search functionality.
 //
 // GET    /api/v1/search/builds/:id .
 func SearchHandlers(base *gin.RouterGroup) {

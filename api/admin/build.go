@@ -20,7 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/builds/:id admin AdminSingleBuild
+// swagger:operation GET /api/v1/admin/build/:id admin GetBuildByID
 //
 // Get a single build in the database by ID
 //
@@ -39,9 +39,9 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// SingleBuild represents the API handler to
+// GetBuildByID represents the API handler to
 // capture a single build stored in the database by id.
-func SingleBuild(c *gin.Context) {
+func GetBuildByID(c *gin.Context) {
 	// Logger
 	logrus.Info("Admin: reading build")
 
