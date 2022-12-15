@@ -13,50 +13,45 @@ import (
 // AdminHandlers is a function that extends the provided base router group
 // with the API handlers for admin functionality.
 //
-// GET    /api/v1/admin/builds
 // GET    /api/v1/admin/builds/queue
+// GET    /api/v1/admin/build/:id
 // PUT    /api/v1/admin/build
-// GET    /api/v1/admin/deployments
 // PUT    /api/v1/admin/deployment
-// GET    /api/v1/admin/hooks
 // PUT    /api/v1/admin/hook
-// GET    /api/v1/admin/repos
 // PUT    /api/v1/admin/repo
-// GET    /api/v1/admin/secrets
 // PUT    /api/v1/admin/secret
-// GET    /api/v1/admin/services
 // PUT    /api/v1/admin/service
-// GET    /api/v1/admin/steps
 // PUT    /api/v1/admin/step
-// GET    /api/v1/admin/users
 // PUT    /api/v1/admin/user.
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{
-		// Admin build endpoints
+		// Admin build queue endpoint
 		_admin.GET("/builds/queue", admin.AllBuildsQueue)
+
+		// Admin build endpoint
 		_admin.PUT("/build", admin.UpdateBuild)
 
-		// Admin deployment endpoints
+		// Admin deployment endpoint
 		_admin.PUT("/deployment", admin.UpdateDeployment)
 
-		// Admin hook endpoints
+		// Admin hook endpoint
 		_admin.PUT("/hook", admin.UpdateHook)
 
-		// Admin repo endpoints
+		// Admin repo endpoint
 		_admin.PUT("/repo", admin.UpdateRepo)
 
-		// Admin secret endpoints
+		// Admin secret endpoint
 		_admin.PUT("/secret", admin.UpdateSecret)
 
-		// Admin service endpoints
+		// Admin service endpoint
 		_admin.PUT("/service", admin.UpdateService)
 
-		// Admin step endpoints
+		// Admin step endpoint
 		_admin.PUT("/step", admin.UpdateStep)
 
-		// Admin user endpoints
+		// Admin user endpoint
 		_admin.PUT("/user", admin.UpdateUser)
 	} // end of admin endpoints
 }
