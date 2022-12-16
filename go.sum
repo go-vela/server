@@ -161,8 +161,6 @@ github.com/go-redis/redis/v8 v8.11.5 h1:AcZZR7igkdvfVmQTPnu9WE37LRrO/YrBH5zWyjDC
 github.com/go-redis/redis/v8 v8.11.5/go.mod h1:gREzHqY1hg6oD9ngVRbLStwAWKhA0FEgq8Jd4h5lpwo=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-test/deep v1.0.2 h1:onZX1rnHT3Wv6cqNgYyFOOlgVKJrksuCMCRvJStbMYw=
-github.com/go-vela/types v0.17.0-rc2 h1:Rrh7GzgT2QzTOLedD8T5mT0lvh/FxFhO3Zh5/b9STGQ=
-github.com/go-vela/types v0.17.0-rc2/go.mod h1:6KoRkvXMw9DkAcLdtI7PxPqMlT2Bl0DiigQamLGGjwo=
 github.com/go-vela/types v0.17.0 h1:nvKBbNO8BSiLtYPMScT0XWosGqEWX85UKSkkclb2DVA=
 github.com/go-vela/types v0.17.0/go.mod h1:6KoRkvXMw9DkAcLdtI7PxPqMlT2Bl0DiigQamLGGjwo=
 github.com/goccy/go-json v0.9.7 h1:IcB+Aqpx/iMHu5Yooh7jEzJk1JZ7Pjtmys2ukPr7EeM=
