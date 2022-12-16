@@ -774,7 +774,6 @@ func UpdateRepo(c *gin.Context) {
 	if !r.GetAllowPull() && !r.GetAllowPush() &&
 		!r.GetAllowDeploy() && !r.GetAllowTag() &&
 		!r.GetAllowComment() {
-		r.SetAllowPull(true)
 		r.SetAllowPush(true)
 	}
 
@@ -832,6 +831,17 @@ func UpdateRepo(c *gin.Context) {
 
 	// if repo has no hook deliveries, skip webhook update
 	if lastHook.GetWebhookID() != 0 {
+		// if user is platform admin, fetch the repo owner token to make changes to webhook
+		if u.GetAdmin() {
+			u, err = database.FromContext(c).GetUser(r.GetUserID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+		}
 		// update webhook with new events
 		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
 		if err != nil {
