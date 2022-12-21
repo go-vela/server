@@ -5,10 +5,14 @@
 package hook
 
 import (
+	"errors"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	"gorm.io/gorm"
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
@@ -29,6 +33,12 @@ func (e *engine) LastHookForRepo(r *library.Repo) (*library.Hook, error) {
 		Take(h).
 		Error
 	if err != nil {
+		// check if the query returned a record not found error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// the record will not exist if it is a new repo
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
