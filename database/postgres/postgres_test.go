@@ -257,7 +257,7 @@ func TestPostgres_createServices(t *testing.T) {
 
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// ensure the mock expects the pipeline queries
+	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the pipeline queries
