@@ -49,11 +49,11 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "build_id", "number", "source_id", "created", "host", "event", "event_action", "branch", "error", "status", "link", "webhook_id"}).
-		AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1).
-		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
+		AddRow(2, 1, 2, 2, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1).
+		AddRow(1, 1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", 0, "", "", "", "", "", "", "", 1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE repo_id = $1 LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "hooks" WHERE repo_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -79,13 +79,13 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Hook{_hookOne, _hookTwo},
+			want:     []*library.Hook{_hookTwo, _hookOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Hook{_hookOne, _hookTwo},
+			want:     []*library.Hook{_hookTwo, _hookOne},
 		},
 	}
 
