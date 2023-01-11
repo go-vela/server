@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v44/github"
+	"github.com/google/go-github/v49/github"
 )
 
 // Changeset captures the list of files changed for a commit.
