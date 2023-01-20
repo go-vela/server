@@ -33,7 +33,7 @@ func Establish() gin.HandlerFunc {
 
 		logrus.Debugf("Reading worker %s", wParam)
 
-		w, err := database.FromContext(c).GetWorker(wParam)
+		w, err := database.FromContext(c).GetWorkerForHostname(wParam)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read worker %s: %w", wParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
