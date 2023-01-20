@@ -75,6 +75,12 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_CLONE_IMAGE"},
+			Name:    "clone-image",
+			Usage:   "the clone image to use for the injected clone step",
+			Value:   "target/vela-git:v0.7.0@sha256:c2e8794556d6debceeaa2c82ff3cc9e8e6ed045b723419e3ff050409f25cc258",
+		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
 			Name:    "vela-repo-allowlist",
@@ -84,9 +90,8 @@ func main() {
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_DISABLE_WEBHOOK_VALIDATION"},
 			Name:    "vela-disable-webhook-validation",
-
-			Usage: "determines whether or not webhook validation is disabled.  useful for local development.",
-			Value: false,
+			Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
+			Value:   false,
 		},
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_ENABLE_SECURE_COOKIE"},
@@ -149,22 +154,19 @@ func main() {
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
 			Name:    "modification-secret",
-
-			Usage: "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
+			Usage:   "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
 			Name:    "modification-timeout",
-
-			Usage: "modification timeout, used by compiler, duration that the modification http request will timeout after",
-			Value: 8 * time.Second,
+			Usage:   "modification timeout, used by compiler, duration that the modification http request will timeout after",
+			Value:   8 * time.Second,
 		},
 		&cli.IntFlag{
 			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
 			Name:    "modification-retries",
-
-			Usage: "modification retries, used by compiler, number of http requires that the modification http request will fail after",
-			Value: 5,
+			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
+			Value:   5,
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
