@@ -176,8 +176,6 @@ func CreateRepo(c *gin.Context) {
 				r.SetAllowComment(true)
 			}
 		}
-		// default event to push
-		r.SetAllowPush(true)
 	} else {
 		r.SetAllowComment(input.GetAllowComment())
 		r.SetAllowDeploy(input.GetAllowDeploy())
