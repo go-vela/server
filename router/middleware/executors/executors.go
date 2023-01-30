@@ -8,7 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -30,7 +30,7 @@ func Establish() gin.HandlerFunc {
 		e := new([]library.Executor)
 		b := build.Retrieve(c)
 		// retrieve the worker
-		w, err := database.FromContext(c).GetWorker(b.GetHost())
+		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get worker: %w", err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -65,7 +65,7 @@ func Establish() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// Read Response Body
-		respBody, err := ioutil.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read response from %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)

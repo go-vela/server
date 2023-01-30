@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore similar code
+//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -17,45 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
-
-// swagger:operation GET /api/v1/admin/secrets admin AdminAllSecrets
-//
-// Get all of the secrets in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all secrets from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Secret"
-//   '500':
-//     description: Unable to retrieve all secrets from the database
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// AllSecrets represents the API handler to
-// captures all secrets stored in the database.
-func AllSecrets(c *gin.Context) {
-	logrus.Info("Admin: reading all secrets")
-
-	// send API call to capture all secrets
-	s, err := database.FromContext(c).GetSecretList()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all secrets: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, s)
-}
 
 // swagger:operation PUT /api/v1/admin/secret admin AdminUpdateSecret
 //

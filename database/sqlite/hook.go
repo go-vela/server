@@ -19,7 +19,7 @@ import (
 
 // GetHook gets a hook by number and repo ID from the database.
 //
-// nolint: dupl // ignore similar code with build
+//nolint:dupl // ignore similar code with build
 func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"hook": number,
@@ -45,6 +45,8 @@ func (c *client) GetHook(number int, r *library.Repo) (*library.Hook, error) {
 }
 
 // GetLastHook gets the last hook by repo ID from the database.
+//
+//nolint:dupl // ignore similar code with build
 func (c *client) GetLastHook(r *library.Repo) (*library.Hook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

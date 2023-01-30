@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 
+	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/spf13/afero"
@@ -212,6 +213,39 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			}
 		}
 
+	case strings.EqualFold(tmpl.Type, "file"):
+		src := &registry.Source{
+			Org:  c.repo.GetOrg(),
+			Repo: c.repo.GetName(),
+			Name: tmpl.Source,
+			Ref:  c.build.GetCommit(),
+		}
+
+		if !c.UsePrivateGithub {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+			}).Tracef("Using GitHub client to pull template")
+
+			bytes, err = c.Github.Template(nil, src)
+			if err != nil {
+				return bytes, err
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+			}).Tracef("Using authenticated GitHub client to pull template")
+
+			// use private (authenticated) github instance to pull from
+			bytes, err = c.PrivateGithub.Template(c.user, src)
+			if err != nil {
+				return bytes, err
+			}
+		}
+
 	default:
 		return bytes, fmt.Errorf("unsupported template type: %v", tmpl.Type)
 	}
@@ -219,17 +253,17 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 	return bytes, nil
 }
 
-// nolint: lll // ignore long line length due to input arguments
+//nolint:lll // ignore long line length due to input arguments
 func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Step) (*yaml.Build, error) {
 	switch tmpl.Format {
 	case constants.PipelineTypeGo, "golang", "":
-		// nolint: lll // ignore long line length due to return
+		//nolint:lll // ignore long line length due to return
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
-		// nolint: lll // ignore long line length due to return
+		//nolint:lll // ignore long line length due to return
 		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	default:
-		// nolint: lll // ignore long line length due to return
+		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)
 	}
 }

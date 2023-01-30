@@ -86,7 +86,7 @@ func server(c *cli.Context) error {
 	router := router.Load(
 		middleware.Compiler(compiler),
 		middleware.Database(database),
-		middleware.Logger(logrus.StandardLogger(), time.RFC3339, true),
+		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
@@ -118,7 +118,11 @@ func server(c *cli.Context) error {
 		}
 
 		// gin expects the address to be ":<port>" ie ":8080"
-		srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: router}
+		srv := &http.Server{
+			Addr:              fmt.Sprintf(":%s", port),
+			Handler:           router,
+			ReadHeaderTimeout: 60 * time.Second,
+		}
 
 		logrus.Infof("running server on %s", addr.Host)
 		go func() {
@@ -129,7 +133,7 @@ func server(c *cli.Context) error {
 			}
 		}()
 
-		// nolint: gosimple // ignore this for now
+		//nolint:gosimple // ignore this for now
 		for {
 			select {
 			case <-tomb.Dying():

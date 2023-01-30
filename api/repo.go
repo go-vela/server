@@ -69,7 +69,7 @@ import (
 // CreateRepo represents the API handler to
 // create a repo in the configured backend.
 //
-// nolint: funlen,gocyclo // ignore function length and cyclomatic complexity
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -149,12 +149,19 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted default is false
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
-		// default events to push and pull_request
-		r.SetAllowPull(true)
+		// default event to push
 		r.SetAllowPush(true)
 	} else {
 		r.SetAllowComment(input.GetAllowComment())
@@ -206,7 +213,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to capture the repo from the database
-	dbRepo, err := database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+	dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	if err == nil && dbRepo.GetActive() {
 		retErr := fmt.Errorf("unable to activate repo: %s is already active", r.GetFullName())
 
@@ -262,7 +269,7 @@ func CreateRepo(c *gin.Context) {
 		}
 
 		// send API call to capture the updated repo
-		r, _ = database.FromContext(c).GetRepo(dbRepo.GetOrg(), dbRepo.GetName())
+		r, _ = database.FromContext(c).GetRepoForOrg(dbRepo.GetOrg(), dbRepo.GetName())
 	} else {
 		// send API call to create the repo
 		err = database.FromContext(c).CreateRepo(r)
@@ -275,7 +282,7 @@ func CreateRepo(c *gin.Context) {
 		}
 
 		// send API call to capture the created repo
-		r, _ = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+		r, _ = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	}
 
 	c.JSON(http.StatusCreated, r)
@@ -361,18 +368,18 @@ func GetRepos(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the total number of repos for the user
-	t, err := database.FromContext(c).GetUserRepoCount(u)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get repo count for user %s: %w", u.GetName(), err)
+	// capture the sort_by query parameter if present
+	sortBy := util.QueryParameter(c, "sort_by", "name")
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
+	// capture the query parameters if present:
+	//
+	// * active
+	filters := map[string]interface{}{
+		"active": util.QueryParameter(c, "active", "true"),
 	}
 
 	// send API call to capture the list of repos for the user
-	r, err := database.FromContext(c).GetUserRepoList(u, page, perPage)
+	r, t, err := database.FromContext(c).ListReposForUser(u, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for user %s: %w", u.GetName(), err)
 
@@ -496,32 +503,25 @@ func GetOrgRepos(c *gin.Context) {
 	// capture the sort_by query parameter if present
 	sortBy := util.QueryParameter(c, "sort_by", "name")
 
+	// capture the query parameters if present:
+	//
+	// * active
+	filters := map[string]interface{}{
+		"active": util.QueryParameter(c, "active", "true"),
+	}
+
 	// See if the user is an org admin to bypass individual permission checks
 	perm, err := scm.FromContext(c).OrgAccess(u, o)
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
-
-	filters := map[string]string{}
 	// Only show public repos to non-admins
 	if perm != "admin" {
-		filters["visibility"] = "public"
-	}
-
-	filters["active"] = util.QueryParameter(c, "active", "true")
-
-	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).GetOrgRepoCount(o, filters)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
+		filters["visibility"] = constants.VisibilityPublic
 	}
 
 	// send API call to capture the list of repos for the org
-	r, err := database.FromContext(c).GetOrgRepoList(o, filters, page, perPage, sortBy)
+	r, t, err := database.FromContext(c).ListReposForOrg(o, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 
@@ -634,7 +634,8 @@ func GetRepo(c *gin.Context) {
 
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
-// nolint: funlen // ignore line length
+//
+//nolint:funlen // ignore line length
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
@@ -795,6 +796,14 @@ func UpdateRepo(c *gin.Context) {
 		)
 	}
 
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
 	// send API call to update the repo
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
@@ -806,7 +815,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// send API call to capture the updated repo
-	r, _ = database.FromContext(c).GetRepo(r.GetOrg(), r.GetName())
+	r, _ = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 
 	c.JSON(http.StatusOK, r)
 }
@@ -1050,11 +1059,12 @@ func ChownRepo(c *gin.Context) {
 }
 
 // checkAllowlist is a helper function to ensure only repos in the
-// allowlist are allowed to enable repos. If the allowlist is
-// empty then any repo can be enabled.
+// allowlist are allowed to enable repos.
+//
+// a single entry of '*' allows any repo to be enabled.
 func checkAllowlist(r *library.Repo, allowlist []string) bool {
-	// if the allowlist is not set or empty allow any repo to be enabled
-	if len(allowlist) == 0 {
+	// check if all repos are allowed to be enabled
+	if len(allowlist) == 1 && allowlist[0] == "*" {
 		return true
 	}
 

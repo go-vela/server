@@ -22,7 +22,7 @@ func TestCompiler_FromContext(t *testing.T) {
 		want    Engine
 	}{
 		{
-			// nolint: staticcheck, revive // ignore using string with context value
+			//nolint:staticcheck, revive // ignore using string with context value
 			context: context.WithValue(context.Background(), key, _engine),
 			want:    _engine,
 		},
@@ -31,7 +31,7 @@ func TestCompiler_FromContext(t *testing.T) {
 			want:    nil,
 		},
 		{
-			// nolint: staticcheck, revive // ignore using string with context value
+			//nolint:staticcheck, revive // ignore using string with context value
 			context: context.WithValue(context.Background(), key, "foo"),
 			want:    nil,
 		},
@@ -92,7 +92,7 @@ func TestCompiler_WithContext(t *testing.T) {
 	// setup types
 	var _engine Engine
 
-	// nolint: staticcheck, revive // ignore using string with context value
+	//nolint:staticcheck, revive // ignore using string with context value
 	want := context.WithValue(context.Background(), key, _engine)
 
 	// run test

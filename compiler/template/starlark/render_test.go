@@ -5,7 +5,7 @@
 package starlark
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	goyaml "github.com/buildkite/yaml"
@@ -35,7 +35,7 @@ func TestStarlark_Render(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sFile, err := ioutil.ReadFile(tt.args.velaFile)
+			sFile, err := os.ReadFile(tt.args.velaFile)
 			if err != nil {
 				t.Error(err)
 			}
@@ -48,7 +48,7 @@ func TestStarlark_Render(t *testing.T) {
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 			}
 
-			tmpl, err := ioutil.ReadFile(tt.args.starlarkFile)
+			tmpl, err := os.ReadFile(tt.args.starlarkFile)
 			if err != nil {
 				t.Error(err)
 			}
@@ -60,7 +60,7 @@ func TestStarlark_Render(t *testing.T) {
 			}
 
 			if tt.wantErr != true {
-				wFile, err := ioutil.ReadFile(tt.wantFile)
+				wFile, err := os.ReadFile(tt.wantFile)
 				if err != nil {
 					t.Error(err)
 				}
@@ -109,12 +109,12 @@ func TestNative_RenderBuild(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sFile, err := ioutil.ReadFile(tt.args.velaFile)
+			sFile, err := os.ReadFile(tt.args.velaFile)
 			if err != nil {
 				t.Error(err)
 			}
 
-			got, err := RenderBuild(string(sFile), map[string]string{
+			got, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "master",
 			}, map[string]interface{}{})
@@ -124,7 +124,7 @@ func TestNative_RenderBuild(t *testing.T) {
 			}
 
 			if tt.wantErr != true {
-				wFile, err := ioutil.ReadFile(tt.wantFile)
+				wFile, err := os.ReadFile(tt.wantFile)
 				if err != nil {
 					t.Error(err)
 				}

@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,9 +26,8 @@ import (
 // Requests without errors are logged using logrus.Info().
 //
 // It receives:
-//   1. A time package format string (e.g. time.RFC3339).
-//   2. A boolean stating whether to use UTC time zone or local.
-func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc {
+//  1. A time package format string (e.g. time.RFC3339).
+func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		// some evil middlewares modify this values
@@ -36,11 +36,8 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 		c.Next()
 
 		end := time.Now()
-		latency := end.Sub(start)
 
-		if utc {
-			end = end.UTC()
-		}
+		latency := end.Sub(start)
 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {
@@ -56,6 +53,7 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 
 			body := c.Value("payload")
 			if body != nil {
+				body = sanitize(body)
 				fields["body"] = body
 			}
 
@@ -104,4 +102,15 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 			}
 		}
 	}
+}
+
+func sanitize(body interface{}) interface{} {
+	if m, ok := body.(map[string]interface{}); ok {
+		if _, ok = m["email"]; ok {
+			m["email"] = constants.SecretMask
+			body = m
+		}
+	}
+
+	return body
 }

@@ -6,6 +6,9 @@ package database
 
 import (
 	"github.com/go-vela/server/database/pipeline"
+	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
 )
 
@@ -23,6 +26,9 @@ type Service interface {
 	// GetBuild defines a function that
 	// gets a build by number and repo ID.
 	GetBuild(int, *library.Repo) (*library.Build, error)
+	// GetBuildByID defines a function that
+	// gets a build by its id.
+	GetBuildByID(int64) (*library.Build, error)
 	// GetLastBuild defines a function that
 	// gets the last build ran by repo ID.
 	GetLastBuild(*library.Repo) (*library.Build, error)
@@ -118,38 +124,9 @@ type Service interface {
 	// related to pipelines stored in the database.
 	pipeline.PipelineService
 
-	// Repo Database Interface Functions
-
-	// GetRepo defines a function that
-	// gets a repo by org and name.
-	GetRepo(string, string) (*library.Repo, error)
-	// GetRepoList defines a function that
-	// gets a list of all repos.
-	GetRepoList() ([]*library.Repo, error)
-	// GetOrgRepoList defines a function that
-	// gets a list of all repos by org excluding repos specified.
-	GetOrgRepoList(string, map[string]string, int, int, string) ([]*library.Repo, error)
-	// GetOrgRepoCount defines a function that
-	// gets the count of repos for an org.
-	GetOrgRepoCount(string, map[string]string) (int64, error)
-	// GetRepoCount defines a function that
-	// gets the count of repos.
-	GetRepoCount() (int64, error)
-	// GetUserRepoList defines a function
-	// that gets a list of repos by user ID.
-	GetUserRepoList(*library.User, int, int) ([]*library.Repo, error)
-	// GetUserRepoCount defines a function that
-	// gets the count of repos for a user.
-	GetUserRepoCount(*library.User) (int64, error)
-	// CreateRepo defines a function that
-	// creates a new repo.
-	CreateRepo(*library.Repo) error
-	// UpdateRepo defines a function that
-	// updates a repo.
-	UpdateRepo(*library.Repo) error
-	// DeleteRepo defines a function that
-	// deletes a repo by unique ID.
-	DeleteRepo(int64) error
+	// RepoService provides the interface for functionality
+	// related to repos stored in the database.
+	repo.RepoService
 
 	// Secret Database Interface Functions
 
@@ -239,54 +216,11 @@ type Service interface {
 	// deletes a step by unique ID.
 	DeleteService(int64) error
 
-	// User Database Interface Functions
+	// UserService provides the interface for functionality
+	// related to users stored in the database.
+	user.UserService
 
-	// GetUser defines a function that
-	// gets a user by unique ID.
-	GetUser(int64) (*library.User, error)
-	// GetUserName defines a function that
-	// gets a user by name.
-	GetUserName(string) (*library.User, error)
-	// GetUserList defines a function that
-	// gets a list of all users.
-	GetUserList() ([]*library.User, error)
-	// GetUserCount defines a function that
-	// gets the count of users.
-	GetUserCount() (int64, error)
-	// GetUserLiteList defines a function
-	// that gets a lite list of users.
-	GetUserLiteList(int, int) ([]*library.User, error)
-	// CreateUser defines a function that
-	// creates a new user.
-	CreateUser(*library.User) error
-	// UpdateUser defines a function that
-	// updates a user.
-	UpdateUser(*library.User) error
-	// DeleteUser defines a function that
-	// deletes a user by unique ID.
-	DeleteUser(int64) error
-
-	// Worker Database Interface Functions
-
-	// GetWorker defines a function that
-	// gets a worker by hostname.
-	GetWorker(string) (*library.Worker, error)
-	// GetWorkerAddress defines a function that
-	// gets a worker by address.
-	GetWorkerByAddress(string) (*library.Worker, error)
-	// GetWorkerList defines a function that
-	// gets a list of all workers.
-	GetWorkerList() ([]*library.Worker, error)
-	// GetWorkerCount defines a function that
-	// gets the count of workers.
-	GetWorkerCount() (int64, error)
-	// CreateWorker defines a function that
-	// creates a new worker.
-	CreateWorker(*library.Worker) error
-	// UpdateWorker defines a function that
-	// updates a worker by unique ID.
-	UpdateWorker(*library.Worker) error
-	// DeleteWorker defines a function that
-	// deletes a worker by hostname.
-	DeleteWorker(int64) error
+	// WorkerService provides the interface for functionality
+	// related to workers stored in the database.
+	worker.WorkerService
 }

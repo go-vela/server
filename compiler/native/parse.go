@@ -7,7 +7,6 @@ package native
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/go-vela/server/compiler/template/native"
@@ -43,7 +42,7 @@ func (c *client) ParseRaw(v interface{}) (string, error) {
 }
 
 // Parse converts an object to a yaml configuration.
-func (c *client) Parse(v interface{}, pipelineType string, variables map[string]interface{}) (*types.Build, []byte, error) {
+func (c *client) Parse(v interface{}, pipelineType string, template *types.Template) (*types.Build, []byte, error) {
 	var (
 		p   *types.Build
 		raw []byte
@@ -60,7 +59,7 @@ func (c *client) Parse(v interface{}, pipelineType string, variables map[string]
 		// capture the raw pipeline configuration
 		raw = []byte(parsedRaw)
 
-		p, err = native.RenderBuild(parsedRaw, c.EnvironmentBuild(), variables)
+		p, err = native.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables)
 		if err != nil {
 			return nil, raw, err
 		}
@@ -74,7 +73,7 @@ func (c *client) Parse(v interface{}, pipelineType string, variables map[string]
 		// capture the raw pipeline configuration
 		raw = []byte(parsedRaw)
 
-		p, err = starlark.RenderBuild(parsedRaw, c.EnvironmentBuild(), variables)
+		p, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables)
 		if err != nil {
 			return nil, raw, err
 		}
@@ -158,7 +157,7 @@ func ParsePathRaw(p string) (string, error) {
 // ParseReader converts an io.Reader into a yaml configuration.
 func ParseReader(r io.Reader) (*types.Build, []byte, error) {
 	// read all the bytes from the reader
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to read bytes for yaml: %w", err)
 	}
@@ -169,7 +168,7 @@ func ParseReader(r io.Reader) (*types.Build, []byte, error) {
 // ParseReaderRaw converts an io.Reader into a yaml configuration.
 func ParseReaderRaw(r io.Reader) (string, error) {
 	// read all the bytes from the reader
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return "", fmt.Errorf("unable to read bytes for yaml: %w", err)
 	}

@@ -6,9 +6,9 @@ package github
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -41,7 +41,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -95,7 +95,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -191,7 +191,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -245,7 +245,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -300,7 +300,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := ioutil.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -1010,6 +1010,84 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 
 	if err == nil {
 		t.Error("GetRepo should return error")
+	}
+}
+
+func TestGithub_GetOrgAndRepoName(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/get_repo.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	wantOrg := "octocat"
+	wantRepo := "Hello-World"
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	gotOrg, gotRepo, err := client.GetOrgAndRepoName(u, "octocat", "Hello-World")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("GetRepoName returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("GetRepoName returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotOrg, wantOrg) {
+		t.Errorf("GetRepoName org is %v, want %v", gotOrg, wantOrg)
+	}
+
+	if !reflect.DeepEqual(gotRepo, wantRepo) {
+		t.Errorf("GetRepoName repo is %v, want %v", gotRepo, wantRepo)
+	}
+}
+
+func TestGithub_GetOrgAndRepoName_Fail(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	_, _, err := client.GetOrgAndRepoName(u, "octocat", "Hello-World")
+
+	if err == nil {
+		t.Error("GetRepoName should return error")
 	}
 }
 

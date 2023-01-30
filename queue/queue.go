@@ -11,13 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// nolint: godot // ignore period at end for comment ending in a list
-//
 // New creates and returns a Vela service capable of
 // integrating with the configured queue environment.
 // Currently, the following queues are supported:
 //
 // * redis
+// .
 func New(s *Setup) (Service, error) {
 	// validate the setup being provided
 	//

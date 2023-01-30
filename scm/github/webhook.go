@@ -22,8 +22,9 @@ import (
 	"github.com/google/go-github/v44/github"
 )
 
-// nolint: nilerr // ignore webhook returning nil
 // ProcessWebhook parses the webhook from a repo.
+//
+//nolint:nilerr // ignore webhook returning nil
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
@@ -93,7 +94,7 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 // RedeliverWebhook redelivers webhooks from GitHub.
 func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token
-	// nolint: contextcheck // do not need to pass context in this instance
+	//nolint:contextcheck // do not need to pass context in this instance
 	client := c.newClientToken(*u.Token)
 
 	// capture the delivery ID of the hook using GitHub API
@@ -215,10 +216,9 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, or edited
+	// skip if the pull request action is not opened, synchronize
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
-		!strings.EqualFold(payload.GetAction(), "synchronize") &&
-		!strings.EqualFold(payload.GetAction(), "edited") {
+		!strings.EqualFold(payload.GetAction(), "synchronize") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -450,6 +450,7 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetActive(!repo.GetArchived())
 
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {
@@ -502,7 +503,7 @@ func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *
 	}
 
 	// if not found, webhook was not recent enough for GitHub
-	err = fmt.Errorf("webhook not one of the 100 most recent deliveries")
+	err = fmt.Errorf("webhook no longer available to be redelivered")
 
 	return 0, err
 }

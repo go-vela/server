@@ -113,7 +113,7 @@ func Parse(t string, db database.Service) (*library.User, error) {
 
 		// lookup the user in the database
 		logrus.WithField("user", name).Debugf("reading user %s", name)
-		u, err = db.GetUserName(name)
+		u, err = db.GetUserForName(name)
 		return []byte(u.GetHash()), err
 	})
 
@@ -146,7 +146,8 @@ func RetrieveRefreshToken(r *http.Request) (string, error) {
 }
 
 // CreateAccessToken creates a new access token for the given user and duration.
-// nolint:staticcheck // ignore deprecated
+//
+//nolint:staticcheck // ignore deprecated
 func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 	now := time.Now()
 	exp := now.Add(d)
@@ -172,7 +173,8 @@ func CreateAccessToken(u *library.User, d time.Duration) (string, error) {
 }
 
 // CreateCreateRefreshToken creates a new refresh token for the given user and duration.
-// nolint:staticcheck // ignore deprecated
+//
+//nolint:staticcheck // ignore deprecated
 func CreateRefreshToken(u *library.User, d time.Duration) (string, int, error) {
 	exp := time.Now().Add(d)
 

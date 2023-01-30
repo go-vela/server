@@ -15,7 +15,7 @@ import (
 )
 
 // The following functions were taken from
-// https://github.com/go-vela/sdk-go/blob/master/vela/go
+// https://github.com/go-vela/sdk-go/blob/main/vela/go
 // which is the only reason go-vela/sdk-go is
 // a dependency for go-vela/server
 // TODO: consider moving to go-vela/types?

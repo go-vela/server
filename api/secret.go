@@ -78,6 +78,8 @@ import (
 
 // CreateSecret represents the API handler to
 // create a secret in the configured backend.
+//
+//nolint:funlen // suppress long function error
 func CreateSecret(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -106,6 +108,64 @@ func CreateSecret(c *gin.Context) {
 			"team":   n,
 			"type":   t,
 			"user":   u.GetName(),
+		}
+	}
+
+	if strings.EqualFold(t, constants.SecretOrg) {
+		// retrieve org name from SCM
+		//
+		// SCM can be case insensitive, causing access retrieval to work
+		// but Org/Repo != org/repo in Vela. So this check ensures that
+		// what a user inputs matches the casing we expect in Vela since
+		// the SCM will have the source of truth for casing.
+		org, err := scm.FromContext(c).GetOrgName(u, o)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve organization %s", o)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// check if casing is accurate
+		if org != o {
+			retErr := fmt.Errorf("unable to retrieve organization %s. Did you mean %s?", o, org)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+	}
+
+	if strings.EqualFold(t, constants.SecretRepo) {
+		// retrieve org and repo name from SCM
+		//
+		// same story as org secret. SCM has accurate casing.
+		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(u, o, n)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// check if casing is accurate for org entry
+		if scmOrg != o {
+			retErr := fmt.Errorf("unable to retrieve org %s. Did you mean %s?", o, scmOrg)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		// check if casing is accurate for repo entry
+		if scmRepo != n {
+			retErr := fmt.Errorf("unable to retrieve repository %s. Did you mean %s?", n, scmRepo)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
 		}
 	}
 

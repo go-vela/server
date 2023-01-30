@@ -12,6 +12,10 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
+	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/worker"
+	"github.com/go-vela/types/library"
 )
 
 func TestPostgres_New(t *testing.T) {
@@ -76,12 +80,9 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateHookTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateLogTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateRepoTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateServiceTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateStepTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateUserTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateWorkerTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the index queries
 	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -90,14 +91,22 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateBuildSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateHookRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateLogBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateRepoOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// ensure the mock expects the pipeline queries
 	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the repo queries
+	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the user queries
+	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the worker queries
+	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// setup the skip test database client
 	_skipDatabase, _skipMock, err := NewTest()
@@ -161,12 +170,9 @@ func TestPostgres_createTables(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateHookTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateLogTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateRepoTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateServiceTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateStepTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateUserTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateWorkerTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	tests := []struct {
 		failure bool
@@ -211,12 +217,9 @@ func TestPostgres_createIndexes(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateBuildSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateHookRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateLogBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateRepoOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateSecretTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateWorkerHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	tests := []struct {
 		failure bool
@@ -254,9 +257,18 @@ func TestPostgres_createServices(t *testing.T) {
 
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
-	// ensure the mock expects the index queries
+	// ensure the mock expects the pipeline queries
 	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the repo queries
+	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the user queries
+	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the worker queries
+	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	tests := []struct {
 		failure bool
@@ -295,4 +307,40 @@ type AnyArgument struct{}
 // Match satisfies sqlmock.Argument interface.
 func (a AnyArgument) Match(v driver.Value) bool {
 	return true
+}
+
+// testRepo is a test helper function to create a
+// library Repo type with all fields set to their
+// zero values.
+func testRepo() *library.Repo {
+	i64 := int64(0)
+	i := 0
+	str := ""
+	b := false
+
+	return &library.Repo{
+		ID:           &i64,
+		PipelineType: &str,
+		UserID:       &i64,
+		Hash:         &str,
+		Org:          &str,
+		Name:         &str,
+		FullName:     &str,
+		Link:         &str,
+		Clone:        &str,
+		Branch:       &str,
+		BuildLimit:   &i64,
+		Timeout:      &i64,
+		Counter:      &i,
+		Visibility:   &str,
+		Private:      &b,
+		Trusted:      &b,
+		Active:       &b,
+		AllowPull:    &b,
+		AllowPush:    &b,
+		AllowDeploy:  &b,
+		AllowTag:     &b,
+		AllowComment: &b,
+		PreviousName: &str,
+	}
 }
