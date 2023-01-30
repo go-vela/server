@@ -5,11 +5,12 @@
 package middleware
 
 import (
-	"github.com/go-vela/types/constants"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/go-vela/types/constants"
 
 	"github.com/gin-gonic/gin"
 )
