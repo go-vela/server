@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-vela/types/constants"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -76,6 +77,18 @@ func validateCore(c *cli.Context) error {
 
 	if c.Int64("max-build-limit") == 0 {
 		return fmt.Errorf("max-build-limit (VELA_MAX_BUILD_LIMIT) flag must be greater than 0")
+	}
+
+	for _, event := range c.StringSlice("default-repo-events") {
+		switch event {
+		case constants.EventPull:
+		case constants.EventPush:
+		case constants.EventDeploy:
+		case constants.EventTag:
+		case constants.EventComment:
+		default:
+			return fmt.Errorf("default-repo-events (VELA_DEFAULT_REPO_EVENTS) has the unsupported value of %s", event)
+		}
 	}
 
 	return nil
