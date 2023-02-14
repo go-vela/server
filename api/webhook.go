@@ -249,7 +249,7 @@ func PostWebhook(c *gin.Context) {
 	h.SetRepoID(r.GetID())
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).GetLastHook(r)
+	lastHook, err := database.FromContext(c).LastHookForRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -280,7 +280,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the created webhook
-	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
+	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
@@ -835,7 +835,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	h.SetRepoID(r.GetID())
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).GetLastHook(dbR)
+	lastHook, err := database.FromContext(c).LastHookForRepo(dbR)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)

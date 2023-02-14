@@ -2,18 +2,17 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package sqlite
+package hook
 
 import (
-	"github.com/go-vela/server/database/sqlite/dml"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
-// GetRepoHookCount gets the count of webhooks by repo ID from the database.
-func (c *client) GetRepoHookCount(r *library.Repo) (int64, error) {
-	c.Logger.WithFields(logrus.Fields{
+// CountHooksForRepo gets the count of hooks by repo ID from the database.
+func (e *engine) CountHooksForRepo(r *library.Repo) (int64, error) {
+	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("getting count of hooks for repo %s from the database", r.GetFullName())
@@ -22,10 +21,11 @@ func (c *client) GetRepoHookCount(r *library.Repo) (int64, error) {
 	var h int64
 
 	// send query to the database and store result in variable
-	err := c.Sqlite.
+	err := e.client.
 		Table(constants.TableHook).
-		Raw(dml.SelectRepoHookCount, r.GetID()).
-		Pluck("count", &h).Error
+		Where("repo_id = ?", r.GetID()).
+		Count(&h).
+		Error
 
 	return h, err
 }
