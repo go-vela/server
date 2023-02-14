@@ -455,8 +455,6 @@ func UpdateServiceLog(c *gin.Context) {
 
 // DeleteServiceLog represents the API handler to remove
 // the logs for a service from the configured backend.
-//
-//nolint:dupl // ignore similar code with step
 func DeleteServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -851,8 +849,6 @@ func UpdateStepLog(c *gin.Context) {
 
 // DeleteStepLog represents the API handler to remove
 // the logs for a step from the configured backend.
-//
-//nolint:dupl // ignore similar code with service
 func DeleteStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

@@ -5,10 +5,10 @@
 package log
 
 import (
-	"github.com/go-vela/types/library"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/library"
 )
 
 func TestLog_Engine_CreateLog(t *testing.T) {
