@@ -41,6 +41,7 @@ func (e *engine) ListHooksForRepo(r *library.Repo, page, perPage int) ([]*librar
 	err = e.client.
 		Table(constants.TableHook).
 		Where("repo_id = ?", r.GetID()).
+		Order("id DESC").
 		Limit(perPage).
 		Offset(offset).
 		Find(&h).
