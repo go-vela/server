@@ -114,7 +114,7 @@ func PostServiceStream(c *gin.Context) {
 	defer close(done)
 
 	// send API call to capture the service logs
-	_log, err := database.FromContext(c).GetServiceLog(s.GetID())
+	_log, err := database.FromContext(c).GetLogForService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s/%d: %w", entry, s.GetNumber(), err)
 
@@ -269,7 +269,7 @@ func PostStepStream(c *gin.Context) {
 	defer close(done)
 
 	// send API call to capture the step logs
-	_log, err := database.FromContext(c).GetStepLog(s.GetID())
+	_log, err := database.FromContext(c).GetLogForStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s/%d: %w", entry, s.GetNumber(), err)
 
