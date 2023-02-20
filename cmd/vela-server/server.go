@@ -100,6 +100,7 @@ func server(c *cli.Context) error {
 		middleware.WebhookValidation(!c.Bool("vela-disable-webhook-validation")),
 		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
 		middleware.Worker(c.Duration("worker-active-interval")),
+		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))
