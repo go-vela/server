@@ -2,8 +2,8 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// Package user provides the ability for inserting
-// Vela user resources into or extracting Vela user
+// Package claims provides the ability for inserting
+// token claims resources into or extracting token claims
 // resources from the middleware chain for the API.
 //
 // Usage:
