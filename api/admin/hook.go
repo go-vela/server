@@ -9,12 +9,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
