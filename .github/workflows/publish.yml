@@ -32,7 +32,7 @@ jobs:
         CGO_ENABLED: '1'
       run: |
         make build-static-ci
-        
+
     - name: publish
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
