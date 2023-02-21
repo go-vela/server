@@ -112,6 +112,12 @@ func main() {
 			Usage:   "override default build timeout (minutes)",
 			Value:   constants.BuildTimeoutDefault,
 		},
+		&cli.StringSliceFlag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS"},
+			Name:    "default-repo-events",
+			Usage:   "override default events for newly activated repositories",
+			Value:   cli.NewStringSlice(constants.EventPush),
+		},
 		// Security Flags
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
