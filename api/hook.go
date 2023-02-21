@@ -91,7 +91,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(r)
+	lastHook, err := database.FromContext(c).GetLastHook(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 
@@ -125,7 +125,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the created webhook
-	h, _ := database.FromContext(c).GetHookForRepo(r, input.GetNumber())
+	h, _ := database.FromContext(c).GetHook(input.GetNumber(), r)
 
 	c.JSON(http.StatusCreated, h)
 }
@@ -224,8 +224,18 @@ func GetHooks(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
+	// send API call to capture the total number of webhooks for the repo
+	t, err := database.FromContext(c).GetRepoHookCount(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get hooks count for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// send API call to capture the list of steps for the build
-	h, t, err := database.FromContext(c).ListHooksForRepo(r, page, perPage)
+	h, err := database.FromContext(c).GetRepoHookList(r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hooks for repo %s: %w", r.GetFullName(), err)
 
@@ -316,7 +326,7 @@ func GetHook(c *gin.Context) {
 	}
 
 	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(r, number)
+	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
 
@@ -420,7 +430,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(r, number)
+	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
 
@@ -476,7 +486,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
+	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
 
 	c.JSON(http.StatusOK, h)
 }
@@ -555,7 +565,7 @@ func DeleteHook(c *gin.Context) {
 	}
 
 	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(r, number)
+	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hook %s: %w", hook, err)
 
@@ -565,7 +575,7 @@ func DeleteHook(c *gin.Context) {
 	}
 
 	// send API call to remove the webhook
-	err = database.FromContext(c).DeleteHook(h)
+	err = database.FromContext(c).DeleteHook(h.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete hook %s: %w", hook, err)
 
@@ -652,7 +662,7 @@ func RedeliverHook(c *gin.Context) {
 	}
 
 	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(r, number)
+	h, err := database.FromContext(c).GetHook(number, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
 

@@ -5,19 +5,17 @@
 package api
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/token"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -677,8 +675,10 @@ func CreateToken(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("composing token for user %s", u.GetName())
 
+	tm := c.MustGet("token-manager").(*token.Manager)
+
 	// compose JWT token for user
-	rt, at, err := token.Compose(c, u)
+	rt, at, err := tm.Compose(c, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
@@ -699,7 +699,7 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, library.Login{Token: &at})
+	c.JSON(http.StatusOK, library.Token{Token: &at})
 }
 
 // swagger:operation DELETE /api/v1/user/token users DeleteToken
@@ -734,24 +734,10 @@ func DeleteToken(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("revoking token for user %s", u.GetName())
 
-	// create unique id for the user
-	uid, err := uuid.NewRandom()
-	if err != nil {
-		retErr := fmt.Errorf("unable to create UID for user %s: %w", u.GetName(), err)
-
-		util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-		return
-	}
-
-	u.SetHash(
-		base64.StdEncoding.EncodeToString(
-			[]byte(uid.String()),
-		),
-	)
+	tm := c.MustGet("token-manager").(*token.Manager)
 
 	// compose JWT token for user
-	rt, at, err := token.Compose(c, u)
+	rt, at, err := tm.Compose(c, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
@@ -772,5 +758,5 @@ func DeleteToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, library.Login{Token: &at})
+	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

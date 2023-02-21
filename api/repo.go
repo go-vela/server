@@ -77,7 +77,6 @@ func CreateRepo(c *gin.Context) {
 	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
-	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -162,20 +161,8 @@ func CreateRepo(c *gin.Context) {
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
-		for _, event := range defaultRepoEvents {
-			switch event {
-			case constants.EventPull:
-				r.SetAllowPull(true)
-			case constants.EventPush:
-				r.SetAllowPush(true)
-			case constants.EventDeploy:
-				r.SetAllowDeploy(true)
-			case constants.EventTag:
-				r.SetAllowTag(true)
-			case constants.EventComment:
-				r.SetAllowComment(true)
-			}
-		}
+		// default event to push
+		r.SetAllowPush(true)
 	} else {
 		r.SetAllowComment(input.GetAllowComment())
 		r.SetAllowDeploy(input.GetAllowDeploy())
