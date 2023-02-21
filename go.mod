@@ -2,6 +2,8 @@ module github.com/go-vela/server
 
 go 1.19
 
+replace github.com/go-vela/types => ../types-private // use branch 'token/complete'
+
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
 	github.com/DATA-DOG/go-sqlmock v1.5.0

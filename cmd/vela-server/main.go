@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -75,6 +75,11 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
+			Name:    "vela-server-private-key",
+			Usage:   "private key used for signing tokens",
+		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
 			Name:    "vela-repo-allowlist",
@@ -118,18 +123,25 @@ func main() {
 			Usage:   "override default events for newly activated repositories",
 			Value:   cli.NewStringSlice(constants.EventPush),
 		},
-		// Security Flags
+    
+		// Token Manager Flags
 		&cli.DurationFlag{
-			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
-			Name:    "access-token-duration",
-			Usage:   "sets the duration of the access token",
+			EnvVars: []string{"VELA_USER_ACCESS_TOKEN_DURATION", "USER_ACCESS_TOKEN_DURATION"},
+			Name:    "user-access-token-duration",
+			Usage:   "sets the duration of the user access token",
 			Value:   15 * time.Minute,
 		},
 		&cli.DurationFlag{
-			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
-			Name:    "refresh-token-duration",
-			Usage:   "sets the duration of the refresh token",
+			EnvVars: []string{"VELA_USER_REFRESH_TOKEN_DURATION", "USER_REFRESH_TOKEN_DURATION"},
+			Name:    "user-refresh-token-duration",
+			Usage:   "sets the duration of the user refresh token",
 			Value:   8 * time.Hour,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_BUILD_TOKEN_BUFFER_DURATION", "BUILD_TOKEN_BUFFER_DURATION"},
+			Name:    "build-token-buffer-duration",
+			Usage:   "sets the duration of the buffer for build token expiration based on repo build timeout",
+			Value:   5 * time.Minute,
 		},
 		// Compiler Flags
 		&cli.BoolFlag{

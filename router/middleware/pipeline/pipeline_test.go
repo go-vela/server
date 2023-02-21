@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -18,14 +18,17 @@ import (
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/urfave/cli/v2"
 )
 
@@ -210,6 +213,13 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -246,9 +256,15 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		},
 	}
 
-	tok, err := token.CreateAccessToken(u, time.Minute*15)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	at, err := tm.MintToken(mto)
 	if err != nil {
-		t.Errorf("unable to create access token: %v", err)
+		t.Errorf("unable to mint user access token: %v", err)
 	}
 
 	comp, err := native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
@@ -275,7 +291,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/pipelines/foo/bar/148afb5bdc41ad69bf22588491333f7cf71135163", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", at))
 
 	// setup github mock server
 	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
@@ -292,10 +308,12 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("metadata", m) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { compiler.WithGinContext(c, comp) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
 	engine.Use(user.Establish())

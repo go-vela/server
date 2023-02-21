@@ -5,18 +5,17 @@
 package api
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/token"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -65,6 +64,8 @@ import (
 func Authenticate(c *gin.Context) {
 	var err error
 
+	tm := c.MustGet("token-manager").(*token.Manager)
+
 	// capture the OAuth state if present
 	oAuthState := c.Request.FormValue("state")
 
@@ -102,30 +103,15 @@ func Authenticate(c *gin.Context) {
 	u, err := database.FromContext(c).GetUserForName(newUser.GetName())
 	// create a new user account
 	if len(u.GetName()) == 0 || err != nil {
-		// create unique id for the user
-		uid, err := uuid.NewRandom()
-		if err != nil {
-			retErr := fmt.Errorf("unable to create UID for user %s: %w", u.GetName(), err)
-
-			util.HandleError(c, http.StatusServiceUnavailable, retErr)
-
-			return
-		}
-
 		// create the user account
 		u := new(library.User)
 		u.SetName(newUser.GetName())
 		u.SetToken(newUser.GetToken())
-		u.SetHash(
-			base64.StdEncoding.EncodeToString(
-				[]byte(uid.String()),
-			),
-		)
 		u.SetActive(true)
 		u.SetAdmin(false)
 
 		// compose jwt tokens for user
-		rt, at, err := token.Compose(c, u)
+		rt, at, err := tm.Compose(c, u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
@@ -148,7 +134,7 @@ func Authenticate(c *gin.Context) {
 		}
 
 		// return the jwt access token
-		c.JSON(http.StatusOK, library.Login{Token: &at})
+		c.JSON(http.StatusOK, library.Token{Token: &at})
 
 		return
 	}
@@ -158,7 +144,7 @@ func Authenticate(c *gin.Context) {
 	u.SetActive(true)
 
 	// compose jwt tokens for user
-	rt, at, err := token.Compose(c, u)
+	rt, at, err := tm.Compose(c, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
@@ -181,7 +167,7 @@ func Authenticate(c *gin.Context) {
 	}
 
 	// return the user with their jwt access token
-	c.JSON(http.StatusOK, library.Login{Token: &at})
+	c.JSON(http.StatusOK, library.Token{Token: &at})
 }
 
 // swagger:operation GET /authenticate/web authenticate GetAuthenticateTypeWeb
@@ -325,8 +311,15 @@ func AuthenticateToken(c *gin.Context) {
 
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
-	m := c.MustGet("metadata").(*types.Metadata)
-	at, err := token.CreateAccessToken(u, m.Vela.AccessTokenDuration)
+	tm := c.MustGet("token-manager").(*token.Manager)
+
+	// mint token options for access token
+	amto := &token.MintTokenOpts{
+		User:          u,
+		TokenType:     constants.UserAccessTokenType,
+		TokenDuration: tm.UserAccessTokenDuration,
+	}
+	at, err := tm.MintToken(amto)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
@@ -335,5 +328,5 @@ func AuthenticateToken(c *gin.Context) {
 	}
 
 	// return the user with their jwt access token
-	c.JSON(http.StatusOK, library.Login{Token: &at})
+	c.JSON(http.StatusOK, library.Token{Token: &at})
 }

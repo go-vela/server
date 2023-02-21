@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -51,6 +51,10 @@ func validateCore(c *cli.Context) error {
 		return fmt.Errorf("vela-secret (VELA_SECRET) flag is not properly configured")
 	}
 
+	if len(c.String("vela-server-private-key")) == 0 {
+		return fmt.Errorf("vela-server-private-key (VELA_SERVER_PRIVATE_KEY) flag is not properly configured")
+	}
+
 	if len(c.String("webui-addr")) == 0 {
 		logrus.Warn("optional flag webui-addr (VELA_WEBUI_ADDR or VELA_WEBUI_HOST) not set")
 	} else {
@@ -67,8 +71,12 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
-	if c.Duration("refresh-token-duration").Seconds() <= c.Duration("access-token-duration").Seconds() {
-		return fmt.Errorf("refresh-token-duration (VELA_REFRESH_TOKEN_DURATION) must be larger than the access-token-duration (VELA_ACCESS_TOKEN_DURATION)")
+	if c.Duration("token-manager-user-refresh-token-duration").Seconds() <= c.Duration("token-manager-user-access-token-duration").Seconds() {
+		return fmt.Errorf("token-manager-user-refresh-token-duration (VELA_TOKEN_MANAGER_USER_REFRESH_TOKEN_DURATION) must be larger than the token-manager-user-access-token-duration (VELA_TOKEN_MANAGER_USER_ACCESS_TOKEN_DURATION)")
+	}
+
+	if c.Duration("token-manager-build-token-buffer-duration").Seconds() < 0 {
+		return fmt.Errorf("token-manager-build-token-buffer-duration (VELA_TOKEN_MANAGER_BUILD_TOKEN_BUFFER_DURATION) must not be a negative time value")
 	}
 
 	if c.Int64("default-build-limit") == 0 {
