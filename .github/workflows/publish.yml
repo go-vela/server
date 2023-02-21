@@ -1,0 +1,51 @@
+# name of the action
+name: publish
+
+# trigger on push events with branch main
+on:
+  push:
+    branches: [ main ]
+
+# pipeline to execute
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: clone
+      uses: actions/checkout@v3
+      with:
+        # ensures we fetch tag history for the repository
+        fetch-depth: 0
+
+    - name: install go
+      uses: actions/setup-go@v3
+      with:
+        # use version from go.mod file
+        go-version-file: 'go.mod'
+        cache: true
+        check-latest: true
+
+    - name: build
+      env:
+        GOOS: linux
+        CGO_ENABLED: '1'
+      run: |
+        make build-static-ci
+    - name: publish
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: target/vela-server
+        cache: true
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: publish-alpine
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: target/vela-server
+        cache: true
+        tags: "latest-alpine"
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        dockerfile: Dockerfile-alpine
