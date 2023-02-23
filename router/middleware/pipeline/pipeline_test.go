@@ -267,7 +267,10 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		t.Errorf("unable to mint user access token: %v", err)
 	}
 
-	comp, err := native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", "target/vela-git:latest", "doc")
+
+	comp, err := native.New(cli.NewContext(nil, set, nil))
 	if err != nil {
 		t.Errorf("unable to create compiler: %v", err)
 	}

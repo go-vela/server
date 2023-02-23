@@ -48,6 +48,10 @@ func validateCore(c *cli.Context) error {
 		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag must not have trailing slash")
 	}
 
+	if len(c.String("clone-image")) == 0 {
+		return fmt.Errorf("clone-image (VELA_CLONE_IMAGE) flag is not properly configured")
+	}
+
 	if len(c.String("vela-secret")) == 0 {
 		return fmt.Errorf("vela-secret (VELA_SECRET) flag is not properly configured")
 	}
