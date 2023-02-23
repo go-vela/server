@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// Compose generates an refresh and access token pair unique
+// Compose generates a refresh and access token pair unique
 // to the provided user and sets a secure cookie.
 // It uses the user's hash to sign the token. to
 // guarantee the signature is unique per token. The refresh
