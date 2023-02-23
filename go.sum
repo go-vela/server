@@ -82,8 +82,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
-github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3 h1:q+sMKdA6L8LyGVudTkpGoC73h6ak2iWSPFiFo/pFOU8=
-github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3/go.mod h1:5hCug3EZaHXU3FdCA3gJm0YTNi+V+ooA2qNTiVpky4A=
+github.com/buildkite/yaml v0.0.0-20210326113714-4a3f40911396 h1:qLN32md48xyTEqw6XEZMyNMre7njm0XXvDrea6NVwOM=
+github.com/buildkite/yaml v0.0.0-20210326113714-4a3f40911396/go.mod h1:AV5wtJnn1/CRaRGlJ8xspkMWfKXV0/pkJVgGleTIrfk=
 github.com/cenkalti/backoff/v3 v3.0.0 h1:ske+9nBpD9qZsTBoF41nW5L+AIuFBKMeze18XQ3eG1c=
 github.com/cenkalti/backoff/v3 v3.0.0/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
@@ -161,8 +161,8 @@ github.com/go-redis/redis/v8 v8.11.5 h1:AcZZR7igkdvfVmQTPnu9WE37LRrO/YrBH5zWyjDC
 github.com/go-redis/redis/v8 v8.11.5/go.mod h1:gREzHqY1hg6oD9ngVRbLStwAWKhA0FEgq8Jd4h5lpwo=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/go-test/deep v1.0.2 h1:onZX1rnHT3Wv6cqNgYyFOOlgVKJrksuCMCRvJStbMYw=
-github.com/go-vela/types v0.17.0 h1:nvKBbNO8BSiLtYPMScT0XWosGqEWX85UKSkkclb2DVA=
-github.com/go-vela/types v0.17.0/go.mod h1:6KoRkvXMw9DkAcLdtI7PxPqMlT2Bl0DiigQamLGGjwo=
+github.com/go-vela/types v0.17.1-0.20230223155025-1c8a34f71425 h1:tdjas7NJLWlU2vmETaU36wjbd+zvWPLtznE4uwtnFlw=
+github.com/go-vela/types v0.17.1-0.20230223155025-1c8a34f71425/go.mod h1:6KoRkvXMw9DkAcLdtI7PxPqMlT2Bl0DiigQamLGGjwo=
 github.com/goccy/go-json v0.9.7 h1:IcB+Aqpx/iMHu5Yooh7jEzJk1JZ7Pjtmys2ukPr7EeM=
 github.com/goccy/go-json v0.9.7/go.mod h1:6MelG93GURQebXPDq3khkgXZkazVtN9CRI+MGFi0w8I=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=

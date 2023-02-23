@@ -6,8 +6,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-vela/types/constants"
 	"strings"
+
+	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"

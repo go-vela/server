@@ -664,6 +664,8 @@ func DeleteUser(c *gin.Context) {
 
 // CreateToken represents the API handler to create
 // a user token in the configured backend.
+//
+//nolint:dupl // ignore duplicate flag with delete token
 func CreateToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -723,6 +725,8 @@ func CreateToken(c *gin.Context) {
 
 // DeleteToken represents the API handler to revoke
 // and recreate a user token in the configured backend.
+//
+//nolint:dupl // ignore duplicate flag with create token
 func DeleteToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

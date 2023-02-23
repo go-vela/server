@@ -123,7 +123,6 @@ func main() {
 			Usage:   "override default events for newly activated repositories",
 			Value:   cli.NewStringSlice(constants.EventPush),
 		},
-    
 		// Token Manager Flags
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_USER_ACCESS_TOKEN_DURATION", "USER_ACCESS_TOKEN_DURATION"},
