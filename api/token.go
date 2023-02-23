@@ -30,7 +30,7 @@ import (
 //   '200':
 //     description: Successfully refreshed a token
 //     schema:
-//       "$ref": "#/definitions/Login"
+//       "$ref": "#/definitions/Token"
 //   '401':
 //     description: Unauthorized
 //     schema:

@@ -46,7 +46,7 @@ import (
 //       Set-Cookie:
 //         type: string
 //     schema:
-//       "$ref": "#/definitions/Login"
+//       "$ref": "#/definitions/Token"
 //   '307':
 //     description: Redirected for authentication
 //   '401':
@@ -275,7 +275,7 @@ func AuthenticateType(c *gin.Context) {
 //   '200':
 //     description: Successfully authenticated
 //     schema:
-//       "$ref": "#/definitions/Login"
+//       "$ref": "#/definitions/Token"
 //   '401':
 //     description: Unable to authenticate
 //     schema:

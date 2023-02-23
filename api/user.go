@@ -656,7 +656,7 @@ func DeleteUser(c *gin.Context) {
 //   '200':
 //     description: Successfully created a token for the current user
 //     schema:
-//       "$ref": "#/definitions/Login"
+//       "$ref": "#/definitions/Token"
 //   '503':
 //     description: Unable to create a token for the current user
 //     schema:
