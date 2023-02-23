@@ -79,8 +79,8 @@ func main() {
 			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
 			Name:    "vela-server-private-key",
 			Usage:   "private key used for signing tokens",
-    },
-    &cli.StringFlag{
+		},
+		&cli.StringFlag{
 			EnvVars: []string{"VELA_CLONE_IMAGE"},
 			Name:    "clone-image",
 			Usage:   "the clone image to use for the injected clone step",
