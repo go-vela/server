@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -88,6 +88,7 @@ func server(c *cli.Context) error {
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
+		middleware.TokenManager(setupTokenManager(c)),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),

@@ -26,7 +26,7 @@ const (
 func getTokenRefresh(c *gin.Context) {
 	data := []byte(TokenRefreshResp)
 
-	var body library.Login
+	var body library.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -48,7 +48,7 @@ func getAuthenticate(c *gin.Context) {
 		return
 	}
 
-	var body library.Login
+	var body library.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.SetCookie(constants.RefreshTokenName, "refresh", 2, "/", "", true, true)
@@ -68,7 +68,7 @@ func getAuthenticateFromToken(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
 	}
 
-	var body library.Login
+	var body library.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

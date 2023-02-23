@@ -9,12 +9,12 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/alicebob/miniredis/v2 v2.23.1
 	github.com/aws/aws-sdk-go v1.44.161
-	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
+	github.com/buildkite/yaml v0.0.0-20210326113714-4a3f40911396
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/go-vela/types v0.17.0
+	github.com/go-vela/types v0.17.1-0.20230223155025-1c8a34f71425
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-github/v44 v44.1.0
