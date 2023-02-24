@@ -17,7 +17,7 @@ require (
 	github.com/go-vela/types v0.17.1-0.20230223155025-1c8a34f71425
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/google/go-cmp v0.5.9
-	github.com/google/go-github/v44 v44.1.0
+	github.com/google/go-github/v50 v50.1.0
 	github.com/google/uuid v1.3.0
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/go-cleanhttp v0.5.2
