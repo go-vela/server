@@ -76,12 +76,12 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
-	if c.Duration("token-manager-user-refresh-token-duration").Seconds() <= c.Duration("token-manager-user-access-token-duration").Seconds() {
-		return fmt.Errorf("token-manager-user-refresh-token-duration (VELA_TOKEN_MANAGER_USER_REFRESH_TOKEN_DURATION) must be larger than the token-manager-user-access-token-duration (VELA_TOKEN_MANAGER_USER_ACCESS_TOKEN_DURATION)")
+	if c.Duration("user-refresh-token-duration").Seconds() <= c.Duration("user-access-token-duration").Seconds() {
+		return fmt.Errorf("user-refresh-token-duration (VELA_USER_REFRESH_TOKEN_DURATION) must be larger than the user-access-token-duration (VELA_USER_ACCESS_TOKEN_DURATION)")
 	}
 
-	if c.Duration("token-manager-build-token-buffer-duration").Seconds() < 0 {
-		return fmt.Errorf("token-manager-build-token-buffer-duration (VELA_TOKEN_MANAGER_BUILD_TOKEN_BUFFER_DURATION) must not be a negative time value")
+	if c.Duration("build-token-buffer-duration").Seconds() < 0 {
+		return fmt.Errorf("build-token-buffer-duration (VELA_BUILD_TOKEN_BUFFER_DURATION) must not be a negative time value")
 	}
 
 	if c.Int64("default-build-limit") == 0 {
