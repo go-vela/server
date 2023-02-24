@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
@@ -485,6 +486,7 @@ func GetSecrets(c *gin.Context) {
 // GetSecret gets a secret from the provided secrets service.
 func GetSecret(c *gin.Context) {
 	// capture middleware values
+	cl := claims.Retrieve(c)
 	u := user.Retrieve(c)
 	e := util.PathParameter(c, "engine")
 	t := util.PathParameter(c, "type")
@@ -533,7 +535,7 @@ func GetSecret(c *gin.Context) {
 	}
 
 	// only allow workers to access the full secret with the value
-	if u.GetAdmin() && u.GetName() == "vela-worker" {
+	if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
 		c.JSON(http.StatusOK, secret)
 
 		return

@@ -142,6 +142,13 @@ const (
     "full_name": "github/octocat"
   }
 ]`
+
+	// BuildTokenResp represents a JSON return for requesting a build token
+	//
+	//nolint:gosec // not actual credentials
+	BuildTokenResp = `{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJidWlsZF9pZCI6MSwicmVwbyI6ImZvby9iYXIiLCJzdWIiOiJPY3RvY2F0IiwiaWF0IjoxNTE2MjM5MDIyfQ.hD7gXpaf9acnLBdOBa4GOEa5KZxdzd0ZvK6fGwaN4bc"
+  }`
 )
 
 // getBuilds returns mock JSON for a http GET.
@@ -301,6 +308,31 @@ func buildQueue(c *gin.Context) {
 	data := []byte(BuildQueueResp)
 
 	var body []library.BuildQueue
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// buildToken has a param :build returns mock JSON for a http GET.
+//
+// Pass "0" to :build to test receiving a http 404 response. Pass "2"
+// to :build to test receiving a http 400 response.
+func buildToken(c *gin.Context) {
+	b := c.Param("build")
+
+	if strings.EqualFold(b, "0") {
+		c.AbortWithStatusJSON(http.StatusNotFound, "")
+
+		return
+	}
+
+	if strings.EqualFold(b, "2") {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "")
+	}
+
+	data := []byte(BuildTokenResp)
+
+	var body library.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
