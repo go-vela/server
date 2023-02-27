@@ -58,6 +58,12 @@ func TestRedis_Pop(t *testing.T) {
 	// overwrite channel to be invalid
 	badChannel.config.Channels = nil
 
+	// push something to badChannel queue
+	err = badChannel.Redis.RPush(context.Background(), "vela", bytes).Err()
+	if err != nil {
+		t.Errorf("unable to push item to queue: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure bool
