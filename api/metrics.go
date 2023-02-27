@@ -53,6 +53,19 @@ type MetricsQueryParameters struct {
 	ActiveWorkerCount bool `form:"active_worker_count"`
 	// InactiveWorkerCount represents total number of inactive workers
 	InactiveWorkerCount bool `form:"inactive_worker_count"`
+
+	// UnregisteredWorkerCount represents total number of workers with a status of unregistered,
+	UnregisteredWorkerCount bool `form:"unregistered_worker_count"`
+	// AvailableWorkerCount represents total number of workers with a status of available,
+	// where worker RunningBuildIDs.length < worker BuildLimit
+	AvailableWorkerCount bool `form:"available_worker_count"`
+	// BusyWorkerCount represents total number of workers with a status of busy,
+	// where worker BuildLimit == worker RunningBuildIDs.length
+	BusyWorkerCount bool `form:"busy_worker_count"`
+	// BusyWorkerCount represents total number of workers with a status of maintenance.
+	MaintenanceWorkerCount bool `form:"maintenance_worker_count"`
+	// ErrorWorkerCount represents total number of workers with a status of error
+	ErrorWorkerCount bool `form:"error_worker_count"`
 }
 
 // predefine Prometheus metrics else they will be regenerated
@@ -356,14 +369,19 @@ func recordGauges(c *gin.Context) {
 
 	// add worker metrics
 	var (
-		buildLimit      int64
-		activeWorkers   int64
-		inactiveWorkers int64
+		buildLimit          int64
+		activeWorkers       int64
+		inactiveWorkers     int64
+		unregisteredWorkers int64
+		availableWorkers    int64
+		busyWorkers         int64
+		maintenanceWorkers  int64
+		errorWorkers        int64
 	)
 
 	// get worker metrics based on request query parameters
-	// worker_build_limit, active_worker_count, inactive_worker_count
-	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount {
+	// worker_build_limit, active_worker_count, inactive_worker_count, unregistered_worker_count, available_worker_count, busy_worker_count, maintenance_worker_count, error_worker_count
+	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount || q.UnregisteredWorkerCount || q.AvailableWorkerCount || q.BusyWorkerCount || q.MaintenanceWorkerCount || q.ErrorWorkerCount {
 		// send API call to capture the workers
 		workers, err := database.FromContext(c).ListWorkers()
 		if err != nil {
@@ -396,6 +414,26 @@ func recordGauges(c *gin.Context) {
 		// inactive_worker_count
 		if q.InactiveWorkerCount {
 			totals.WithLabelValues("worker", "count", "inactive").Set(float64(inactiveWorkers))
+		}
+		// unregistered_worker_count
+		if q.UnregisteredWorkerCount {
+			totals.WithLabelValues("worker", "count", "unregistered").Set(float64(unregisteredWorkers))
+		}
+		// available_worker_count
+		if q.AvailableWorkerCount {
+			totals.WithLabelValues("worker", "count", "available").Set(float64(availableWorkers))
+		}
+		// busy_worker_count
+		if q.BusyWorkerCount {
+			totals.WithLabelValues("worker", "count", "busy").Set(float64(busyWorkers))
+		}
+		// maintenance_worker_count
+		if q.MaintenanceWorkerCount {
+			totals.WithLabelValues("worker", "count", "maintenance").Set(float64(maintenanceWorkers))
+		}
+		// error_worker_count
+		if q.ErrorWorkerCount {
+			totals.WithLabelValues("worker", "count", "error").Set(float64(errorWorkers))
 		}
 	}
 }

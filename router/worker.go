@@ -15,8 +15,9 @@ import (
 // WorkerHandlers is a function that extends the provided base router group
 // with the API handlers for worker functionality.
 //
-// POST   /api/v1/users
+// POST   /api/v1/workers
 // GET    /api/v1/workers
+// GET    /api/v1/status/:status
 // GET    /api/v1/workers/:worker
 // PUT    /api/v1/workers/:worker
 // DELETE /api/v1/workers/:worker .
@@ -26,6 +27,7 @@ func WorkerHandlers(base *gin.RouterGroup) {
 	{
 		workers.POST("", perm.MustWorker(), middleware.Payload(), api.CreateWorker)
 		workers.GET("", api.GetWorkers)
+		workers.GET("/status/:status", api.GetWorkersByStatus)
 
 		// Worker endpoints
 		w := workers.Group("/:worker")

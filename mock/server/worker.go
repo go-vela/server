@@ -28,7 +28,12 @@ const (
 			"large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"status": "available",
+			"last_status_update_at": 1602612590,
+			"running_build_ids": [],
+			"last_build_finished_at": 1602612590,
+			"last_checked_in": 1602612590,
+			"build_limit": 1
 		}`
 
 	// WorkersResp represents a JSON return for one to many workers.
@@ -43,7 +48,12 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"status": "available",
+			"last_status_update_at: 1602612590
+			"running_build_ids": [],
+			"last_build_finished_at": 1602612590,
+			"last_checked_in": 1602612590,
+			"build_limit": 1
 		  },
 		{
 			"id": 2,
@@ -55,7 +65,12 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"status": "available",
+			"last_status_update_at: 1602612590
+			"running_build_ids": [],
+			"last_build_finished_at": 1602612590,
+			"last_checked_in": 1602612590,
+			"build_limit": 1
 		  }
 	]`
 )

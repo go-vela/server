@@ -38,6 +38,8 @@ type WorkerService interface {
 	GetWorkerForHostname(string) (*library.Worker, error)
 	// ListWorkers defines a function that gets a list of all workers.
 	ListWorkers() ([]*library.Worker, error)
+	// ListWorkersByStatus defines a function that gets a list of all workers by specified status.
+	ListWorkersByStatus(string) ([]*library.Worker, error)
 	// UpdateWorker defines a function that updates an existing worker.
 	UpdateWorker(*library.Worker) error
 }
