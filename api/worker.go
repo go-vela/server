@@ -267,6 +267,26 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
+	if len(input.GetStatus()) > 0 {
+		// update status if set
+		w.SetStatus(input.GetStatus())
+	}
+
+	if input.GetLastStatusUpdateAt() > 0 {
+		// update LastStatusUpdateAt if set
+		w.SetLastStatusUpdateAt(input.GetLastStatusUpdateAt())
+	}
+
+	if len(input.GetRunningBuildIDs()) > 0 {
+		// update RunningBuildIDs if set
+		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
+	}
+
+	if input.GetLastBuildFinishedAt() > 0 {
+		// update LastBuildFinishedAt if set
+		w.SetLastBuildFinishedAt(input.GetLastBuildFinishedAt())
+	}
+
 	if input.GetLastCheckedIn() > 0 {
 		// update LastCheckedIn if set
 		w.SetLastCheckedIn(input.GetLastCheckedIn())

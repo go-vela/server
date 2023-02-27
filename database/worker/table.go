@@ -14,29 +14,36 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 workers (
-	id               SERIAL PRIMARY KEY,
-	hostname         VARCHAR(250),
-	address          VARCHAR(250),
-	routes           VARCHAR(1000),
-	active           BOOLEAN,
-	last_checked_in  INTEGER,
-	build_limit      INTEGER,
+	id                     SERIAL PRIMARY KEY,
+	hostname               VARCHAR(250),
+	address                VARCHAR(250),
+	routes                 VARCHAR(1000),
+	active                 BOOLEAN,
+	status                 VARCHAR(50),
+	last_status_update_at  INTEGER,
+	running_build_ids      VARCHAR(1000),
+	last_build_finished_at INTEGER,
+	last_checked_in        INTEGER,
+	build_limit            INTEGER,
 	UNIQUE(hostname)
 );
 `
-
 	// CreateSqliteTable represents a query to create the Sqlite workers table.
 	CreateSqliteTable = `
 CREATE TABLE
 IF NOT EXISTS
 workers (
-	id              INTEGER PRIMARY KEY AUTOINCREMENT,
-	hostname        TEXT,
-	address         TEXT,
-	routes          TEXT,
-	active          BOOLEAN,
-	last_checked_in	INTEGER,
-	build_limit     INTEGER,
+	id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+	hostname               TEXT,
+	address                TEXT,
+	routes                 TEXT,
+	active                 BOOLEAN,
+	status                 VARCHAR(50),
+	last_status_update_at  INTEGER,
+	running_build_ids      VARCHAR(1000),
+	last_build_finished_at INTEGER,
+	last_checked_in	       INTEGER,
+	build_limit            INTEGER,
 	UNIQUE(hostname)
 );
 `
