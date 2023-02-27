@@ -6,11 +6,16 @@ package redis
 
 import (
 	"context"
+	"errors"
 )
 
 // Push inserts an item to the specified channel in the queue.
 func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	c.Logger.Tracef("pushing item to queue %s", channel)
+
+	if item == nil {
+		return errors.New("item is nil")
+	}
 
 	// build a redis queue command to push an item to queue
 	//

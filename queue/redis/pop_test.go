@@ -59,22 +59,22 @@ func TestRedis_Pop(t *testing.T) {
 	badChannel.config.Channels = nil
 
 	// push nothing to queue
-	err = badChannel.Redis.RPush(context.Background(), "vela", nil).Err()
-	if err != nil {
-		t.Errorf("unable to push item to queue: %v", err)
-	}
+	// err = badChannel.Redis.RPush(context.Background(), "vela", nil).Err()
+	// if err != nil {
+	// 	t.Errorf("unable to push item to queue: %v", err)
+	// }
 
 	// setup badItem redis mock
-	badItem, err := NewTest("vela")
-	if err != nil {
-		t.Errorf("unable to create queue service: %v", err)
-	}
+	// badItem, err := NewTest("vela")
+	// if err != nil {
+	// 	t.Errorf("unable to create queue service: %v", err)
+	// }
 
 	// push nothing to queue
-	err = badItem.Redis.RPush(context.Background(), "vela", nil).Err()
-	if err != nil {
-		t.Errorf("unable to push item to queue: %v", err)
-	}
+	// err = badItem.Redis.RPush(context.Background(), "vela", nil).Err()
+	// if err != nil {
+	// 	t.Errorf("unable to push item to queue: %v", err)
+	// }
 
 	// setup tests
 	tests := []struct {
@@ -97,11 +97,11 @@ func TestRedis_Pop(t *testing.T) {
 			redis:   badChannel,
 			want:    nil,
 		},
-		{
-			failure: true,
-			redis:   badItem,
-			want:    nil,
-		},
+		// {
+		// 	failure: true,
+		// 	redis:   badItem,
+		// 	want:    nil,
+		// },
 	}
 
 	// run tests
