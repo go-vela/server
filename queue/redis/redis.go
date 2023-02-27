@@ -108,6 +108,7 @@ func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 		WriteTimeout:    source.WriteTimeout,
 		PoolSize:        source.PoolSize,
 		MinIdleConns:    source.MinIdleConns,
+		MaxIdleConns:    source.MaxIdleConns,
 		ConnMaxLifetime: source.ConnMaxLifetime,
 		PoolTimeout:     source.PoolTimeout,
 		ConnMaxIdleTime: source.ConnMaxIdleTime,
