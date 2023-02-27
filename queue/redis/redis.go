@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 )
 
@@ -97,22 +97,22 @@ func New(opts ...ClientOpt) (*client, error) {
 // the failover options from the parse options.
 func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 	target := &redis.FailoverOptions{
-		OnConnect:          source.OnConnect,
-		Password:           source.Password,
-		DB:                 source.DB,
-		MaxRetries:         source.MaxRetries,
-		MinRetryBackoff:    source.MinRetryBackoff,
-		MaxRetryBackoff:    source.MaxRetryBackoff,
-		DialTimeout:        source.DialTimeout,
-		ReadTimeout:        source.ReadTimeout,
-		WriteTimeout:       source.WriteTimeout,
-		PoolSize:           source.PoolSize,
-		MinIdleConns:       source.MinIdleConns,
-		MaxConnAge:         source.MaxConnAge,
-		PoolTimeout:        source.PoolTimeout,
-		IdleTimeout:        source.IdleTimeout,
-		IdleCheckFrequency: source.IdleCheckFrequency,
-		TLSConfig:          source.TLSConfig,
+		OnConnect:       source.OnConnect,
+		Password:        source.Password,
+		DB:              source.DB,
+		MaxRetries:      source.MaxRetries,
+		MinRetryBackoff: source.MinRetryBackoff,
+		MaxRetryBackoff: source.MaxRetryBackoff,
+		DialTimeout:     source.DialTimeout,
+		ReadTimeout:     source.ReadTimeout,
+		WriteTimeout:    source.WriteTimeout,
+		PoolSize:        source.PoolSize,
+		MinIdleConns:    source.MinIdleConns,
+		MaxIdleConns:    source.MaxIdleConns,
+		ConnMaxLifetime: source.ConnMaxLifetime,
+		PoolTimeout:     source.PoolTimeout,
+		ConnMaxIdleTime: source.ConnMaxIdleTime,
+		TLSConfig:       source.TLSConfig,
 	}
 
 	// trim auto appended :6379 from address
