@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/types/constants"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/worker"
@@ -55,6 +58,7 @@ import (
 func CreateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	cl := claims.Retrieve(c)
 
 	// capture body from API request
 	input := new(library.Worker)
@@ -85,7 +89,28 @@ func CreateWorker(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, fmt.Sprintf("worker %s created", input.GetHostname()))
+	tm := c.MustGet("token-manager").(*token.Manager)
+
+	wmto := &token.MintTokenOpts{
+		TokenType:     "WorkerAuth",
+		TokenDuration: tm.WorkerAuthTokenDuration,
+		Hostname:      cl.Subject,
+	}
+
+	tkn := new(library.Token)
+
+	wt, err := tm.MintToken(wmto)
+	if err != nil {
+		retErr := fmt.Errorf("unable to generate auth token for worker %s: %w", input.GetHostname(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	tkn.SetToken(wt)
+
+	c.JSON(http.StatusCreated, tkn)
 }
 
 // swagger:operation GET /api/v1/workers workers GetWorkers
@@ -231,6 +256,7 @@ func UpdateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	w := worker.Retrieve(c)
+	cl := claims.Retrieve(c)
 
 	// update engine logger with API metadata
 	//
@@ -272,20 +298,40 @@ func UpdateWorker(c *gin.Context) {
 		w.SetLastCheckedIn(input.GetLastCheckedIn())
 	}
 
-	// send API call to update the worker
-	err = database.FromContext(c).UpdateWorker(w)
-	if err != nil {
-		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// send API call to capture the updated worker
 	w, _ = database.FromContext(c).GetWorkerForHostname(w.GetHostname())
+	switch cl.TokenType {
+	case constants.UserAccessTokenType:
+		c.JSON(http.StatusOK, w)
+	default:
+		tm := c.MustGet("token-manager").(*token.Manager)
 
-	c.JSON(http.StatusOK, w)
+		wmto := &token.MintTokenOpts{
+			TokenType:     "WorkerAuth",
+			TokenDuration: tm.WorkerAuthTokenDuration,
+			Hostname:      cl.Subject,
+		}
+
+		tkn := new(library.Token)
+
+		wt, err := tm.MintToken(wmto)
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate auth token for worker %s: %w", w.GetHostname(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		tkn.SetToken(wt)
+
+		type WorkerCheckIn struct {
+			Worker *library.Worker
+			Token  *library.Token
+		}
+
+		c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
+	}
 }
 
 // swagger:operation DELETE /api/v1/workers/{worker} workers DeleteWorker

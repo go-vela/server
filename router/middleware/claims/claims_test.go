@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -65,10 +64,12 @@ func TestClaims_Establish(t *testing.T) {
 	user.SetFavorites([]string{})
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
-		UserAccessTokenDuration:  time.Minute * 5,
-		UserRefreshTokenDuration: time.Minute * 30,
+		PrivateKey:                  "123abc",
+		SignMethod:                  jwt.SigningMethodHS256,
+		UserAccessTokenDuration:     time.Minute * 5,
+		UserRefreshTokenDuration:    time.Minute * 30,
+		WorkerAuthTokenDuration:     time.Minute * 20,
+		WorkerRegisterTokenDuration: time.Minute * 1,
 	}
 
 	now := time.Now()
@@ -123,28 +124,42 @@ func TestClaims_Establish(t *testing.T) {
 			Endpoint:   "repos/:org/:repo/builds/:build",
 		},
 		{
-			TokenType: constants.ServerWorkerTokenType,
+			TokenType: "WorkerAuth",
 			WantClaims: &token.Claims{
-				TokenType: constants.ServerWorkerTokenType,
+				TokenType: "WorkerAuth",
 				RegisteredClaims: jwt.RegisteredClaims{
-					Subject: "vela-worker",
+					Subject:   "host",
+					IssuedAt:  jwt.NewNumericDate(now),
+					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerAuthTokenDuration)),
 				},
 			},
-			CtxRequest: "/repos/foo/bar/builds/1",
-			Endpoint:   "repos/:org/:repo/builds/:build",
+			Mto: &token.MintTokenOpts{
+				Hostname:      "host",
+				TokenDuration: tm.WorkerAuthTokenDuration,
+				TokenType:     "WorkerAuth",
+			},
+			CtxRequest: "/workers/host",
+			Endpoint:   "/workers/:hostname",
+		},
+		{
+			TokenType: "WorkerRegister",
+			WantClaims: &token.Claims{
+				TokenType: "WorkerRegister",
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject:   "host",
+					IssuedAt:  jwt.NewNumericDate(now),
+					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerRegisterTokenDuration)),
+				},
+			},
+			Mto: &token.MintTokenOpts{
+				Hostname:      "host",
+				TokenDuration: tm.WorkerRegisterTokenDuration,
+				TokenType:     "WorkerRegister",
+			},
+			CtxRequest: "/workers/host/register",
+			Endpoint:   "workers/:hostname/register",
 		},
 	}
-
-	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
-	}()
-
-	_ = db.CreateUser(user)
 
 	got := new(token.Claims)
 
@@ -156,13 +171,7 @@ func TestClaims_Establish(t *testing.T) {
 			context, engine := gin.CreateTestContext(resp)
 			context.Request, _ = http.NewRequest(http.MethodPut, tt.CtxRequest, nil)
 
-			var tkn string
-
-			if strings.EqualFold(tt.TokenType, constants.ServerWorkerTokenType) {
-				tkn = "very-secret"
-			} else {
-				tkn, _ = tm.MintToken(tt.Mto)
-			}
+			tkn, _ := tm.MintToken(tt.Mto)
 
 			context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
@@ -171,8 +180,6 @@ func TestClaims_Establish(t *testing.T) {
 
 			// setup vela mock server
 			engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-			engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-			engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 			engine.Use(Establish())
 			engine.PUT(tt.Endpoint, func(c *gin.Context) {
 				got = Retrieve(c)

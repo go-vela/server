@@ -24,14 +24,14 @@ func WorkerHandlers(base *gin.RouterGroup) {
 	// Workers endpoints
 	workers := base.Group("/workers")
 	{
-		workers.POST("", perm.MustWorker(), middleware.Payload(), api.CreateWorker)
+		workers.POST("", perm.MustWorkerRegisterToken(), middleware.Payload(), api.CreateWorker)
 		workers.GET("", api.GetWorkers)
 
 		// Worker endpoints
 		w := workers.Group("/:worker")
 		{
 			w.GET("", worker.Establish(), api.GetWorker)
-			w.PUT("", perm.MustWorker(), worker.Establish(), api.UpdateWorker)
+			w.PUT("", perm.MustWorkerAuthToken(), worker.Establish(), api.UpdateWorker)
 			w.DELETE("", perm.MustPlatformAdmin(), worker.Establish(), api.DeleteWorker)
 		} // end of worker endpoints
 	} // end of workers endpoints
