@@ -1719,6 +1719,88 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	}
 }
 
+func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		TokenDuration: time.Minute * 35,
+		TokenType:     constants.WorkerBuildTokenType,
+		BuildID:       1,
+		Repo:          "foo/bar",
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from builds")
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateBuild(b)
+	_ = db.CreateRepo(r)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustRead())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
 func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
