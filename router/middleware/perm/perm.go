@@ -444,6 +444,12 @@ func MustRead() gin.HandlerFunc {
 			if cl.BuildID == b.GetID() {
 				return
 			}
+
+			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
 		}
 
 		logger.Debugf("verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
