@@ -417,6 +417,7 @@ func MustWrite() gin.HandlerFunc {
 // MustRead ensures the user has admin, write or read access to the repo.
 func MustRead() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
@@ -437,8 +438,23 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 
+		// return if request is from worker with build token access
+		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+			b := build.Retrieve(c)
+			if cl.BuildID == b.GetID() {
+				return
+			}
+
+			retErr := fmt.Errorf("subject %s does not have 'read' permissions for repo %s", cl.Subject, r.GetFullName())
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+
 		logger.Debugf("verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
+		// return if user is platform admin
 		if u.GetAdmin() {
 			return
 		}
