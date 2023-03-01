@@ -445,7 +445,7 @@ func MustRead() gin.HandlerFunc {
 				return
 			}
 
-			retErr := fmt.Errorf("user %s does not have 'read' permissions for repo %s", u.GetName(), r.GetFullName())
+			retErr := fmt.Errorf("subject %s does not have 'read' permissions for repo %s", cl.Subject, r.GetFullName())
 
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
