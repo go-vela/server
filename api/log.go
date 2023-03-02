@@ -7,15 +7,15 @@ package api
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
+	"strconv"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/library"
@@ -47,6 +47,17 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 500
+//   default: 100
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -82,10 +93,30 @@ func GetBuildLogs(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("reading logs for build %s", entry)
 
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		//nolint:lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(500, perPage))
+
 	// send API call to capture the list of logs for the build
-	//
-	// TODO: add page and per_page query parameters
-	l, t, err := database.FromContext(c).ListLogsForBuild(b, 1, 100)
+	l, t, err := database.FromContext(c).ListLogsForBuild(b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for build %s: %w", entry, err)
 
@@ -96,8 +127,8 @@ func GetBuildLogs(c *gin.Context) {
 
 	// create pagination object
 	pagination := Pagination{
-		Page:    1,
-		PerPage: 100,
+		Page:    page,
+		PerPage: perPage,
 		Total:   t,
 	}
 	// set pagination headers
