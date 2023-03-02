@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"testing"
@@ -10,12 +10,12 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestInit_Engine_CreateInitsTable(t *testing.T) {
+func TestInitStep_Engine_CreateInitStepIndexes(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -41,18 +41,18 @@ func TestInit_Engine_CreateInitsTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateInitsTable(test.name)
+			err := test.database.CreateInitStepIndexes()
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateInitTable for %s should have returned err", test.name)
+					t.Errorf("CreateInitStepIndexes for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateInitTable for %s returned err: %v", test.name, err)
+				t.Errorf("CreateInitStepIndexes for %s returned err: %v", test.name, err)
 			}
 		})
 	}

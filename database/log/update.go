@@ -21,8 +21,8 @@ func (e *engine) UpdateLog(l *library.Log) error {
 		e.logger.Tracef("updating log for service %d for build %d in the database", l.GetServiceID(), l.GetBuildID())
 	case l.GetStepID() > 0:
 		e.logger.Tracef("updating log for step %d for build %d in the database", l.GetStepID(), l.GetBuildID())
-	case l.GetInitID() > 0:
-		e.logger.Tracef("updating log for init %d for build %d in the database", l.GetInitID(), l.GetBuildID())
+	case l.GetInitStepID() > 0:
+		e.logger.Tracef("updating log for init step %d for build %d in the database", l.GetInitStepID(), l.GetBuildID())
 	}
 
 	// cast the library type to database type
@@ -48,8 +48,8 @@ func (e *engine) UpdateLog(l *library.Log) error {
 			return fmt.Errorf("unable to compress log for service %d for build %d: %w", l.GetServiceID(), l.GetBuildID(), err)
 		case l.GetStepID() > 0:
 			return fmt.Errorf("unable to compress log for step %d for build %d: %w", l.GetStepID(), l.GetBuildID(), err)
-		case l.GetInitID() > 0:
-			return fmt.Errorf("unable to compress log for init %d for build %d: %w", l.GetInitID(), l.GetBuildID(), err)
+		case l.GetInitStepID() > 0:
+			return fmt.Errorf("unable to compress log for init step %d for build %d: %w", l.GetInitStepID(), l.GetBuildID(), err)
 		}
 	}
 

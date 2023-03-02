@@ -13,11 +13,11 @@ import (
 
 func TestLog_Engine_UpdateLog(t *testing.T) {
 	// setup types
-	_init := testLog()
-	_init.SetID(1)
-	_init.SetRepoID(1)
-	_init.SetBuildID(1)
-	_init.SetInitID(1)
+	_initStep := testLog()
+	_initStep.SetID(1)
+	_initStep.SetRepoID(1)
+	_initStep.SetBuildID(1)
+	_initStep.SetInitStepID(1)
 
 	_service := testLog()
 	_service.SetID(2)
@@ -36,23 +36,23 @@ func TestLog_Engine_UpdateLog(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// ensure the mock expects the init query
+	// ensure the mock expects the init step query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"init_id"=$5,"data"=$6
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"initstep_id"=$5,"data"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, nil, nil, 1, AnyArgument{}, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the service query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"init_id"=$5,"data"=$6
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"initstep_id"=$5,"data"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, 1, nil, nil, AnyArgument{}, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the step query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"init_id"=$5,"data"=$6
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"initstep_id"=$5,"data"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, nil, 1, nil, AnyArgument{}, 3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
@@ -60,9 +60,9 @@ WHERE "id" = $7`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_init)
+	err := _sqlite.CreateLog(_initStep)
 	if err != nil {
-		t.Errorf("unable to create test init log for sqlite: %v", err)
+		t.Errorf("unable to create test init step log for sqlite: %v", err)
 	}
 
 	err = _sqlite.CreateLog(_service)
@@ -86,13 +86,13 @@ WHERE "id" = $7`).
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			logs:     []*library.Log{_init, _service, _step},
+			logs:     []*library.Log{_initStep, _service, _step},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			logs:     []*library.Log{_init, _service, _step},
+			logs:     []*library.Log{_initStep, _service, _step},
 		},
 	}
 

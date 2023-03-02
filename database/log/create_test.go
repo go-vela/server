@@ -13,11 +13,11 @@ import (
 
 func TestLog_Engine_CreateLog(t *testing.T) {
 	// setup types
-	_init := testLog()
-	_init.SetID(1)
-	_init.SetRepoID(1)
-	_init.SetBuildID(1)
-	_init.SetInitID(1)
+	_initStep := testLog()
+	_initStep.SetID(1)
+	_initStep.SetRepoID(1)
+	_initStep.SetBuildID(1)
+	_initStep.SetInitStepID(1)
 
 	_service := testLog()
 	_service.SetID(2)
@@ -37,23 +37,23 @@ func TestLog_Engine_CreateLog(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
-	// ensure the mock expects the init query
+	// ensure the mock expects the init step query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","init_id","data","id")
+("build_id","repo_id","service_id","step_id","initstep_id","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 		WithArgs(1, 1, nil, nil, 1, AnyArgument{}, 1).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the service query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","init_id","data","id")
+("build_id","repo_id","service_id","step_id","initstep_id","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 		WithArgs(1, 1, 1, nil, nil, AnyArgument{}, 2).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the step query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","init_id","data","id")
+("build_id","repo_id","service_id","step_id","initstep_id","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 		WithArgs(1, 1, nil, 1, nil, AnyArgument{}, 3).
 		WillReturnRows(_rows)
@@ -72,13 +72,13 @@ VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			logs:     []*library.Log{_init, _service, _step},
+			logs:     []*library.Log{_initStep, _service, _step},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			logs:     []*library.Log{_init, _service, _step},
+			logs:     []*library.Log{_initStep, _service, _step},
 		},
 	}
 

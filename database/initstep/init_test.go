@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"reflect"
@@ -17,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestInit_New(t *testing.T) {
+func TestInitStep_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -138,7 +138,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new postgres init engine: %v", err)
+		t.Errorf("unable to create new postgres init step engine: %v", err)
 	}
 
 	return _engine, _mock
@@ -160,16 +160,16 @@ func testSqlite(t *testing.T) *engine {
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new sqlite init engine: %v", err)
+		t.Errorf("unable to create new sqlite init step engine: %v", err)
 	}
 
 	return _engine
 }
 
-// testInit is a test helper function to create a library
-// Init type with all fields set to their zero values.
-func testInit() *library.Init {
-	return &library.Init{
+// testInitStep is a test helper function to create a library
+// InitStep type with all fields set to their zero values.
+func testInitStep() *library.InitStep {
+	return &library.InitStep{
 		ID:       new(int64),
 		RepoID:   new(int64),
 		BuildID:  new(int64),

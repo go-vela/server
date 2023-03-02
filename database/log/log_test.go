@@ -221,13 +221,13 @@ func testBuild() *library.Build {
 // Log type with all fields set to their zero values.
 func testLog() *library.Log {
 	return &library.Log{
-		ID:        new(int64),
-		RepoID:    new(int64),
-		BuildID:   new(int64),
-		ServiceID: new(int64),
-		StepID:    new(int64),
-		InitID:    new(int64),
-		Data:      new([]byte),
+		ID:         new(int64),
+		RepoID:     new(int64),
+		BuildID:    new(int64),
+		ServiceID:  new(int64),
+		StepID:     new(int64),
+		InitStepID: new(int64),
+		Data:       new([]byte),
 	}
 }
 
@@ -276,10 +276,10 @@ func testStep() *library.Step {
 	}
 }
 
-// testInit is a test helper function to create a library
-// Init type with all fields set to their zero values.
-func testInit() *library.Init {
-	return &library.Init{
+// testInitStep is a test helper function to create a library
+// InitStep type with all fields set to their zero values.
+func testInitStep() *library.InitStep {
+	return &library.InitStep{
 		ID:       new(int64),
 		BuildID:  new(int64),
 		RepoID:   new(int64),

@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"github.com/go-vela/types/constants"
@@ -11,19 +11,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetInitForBuild gets a init by build ID and number from the database.
-func (e *engine) GetInitForBuild(b *library.Build, number int) (*library.Init, error) {
+// GetInitStepForBuild gets an init step by build ID and number from the database.
+func (e *engine) GetInitStepForBuild(b *library.Build, number int) (*library.InitStep, error) {
 	e.logger.WithFields(logrus.Fields{
-		"init":  number,
-		"build": b.GetNumber(),
-	}).Tracef("getting init %d/%d from the database", b.GetNumber(), number)
+		"build":    b.GetNumber(),
+		"initstep": number,
+	}).Tracef("getting init step #%d for build %d from the database", number, b.GetID())
 
 	// variable to store query results
-	h := new(database.Init)
+	h := new(database.InitStep)
 
 	// send query to the database and store result in variable
 	err := e.client.
-		Table(constants.TableInit).
+		Table(constants.TableInitStep).
 		Where("build_id = ?", b.GetID()).
 		Where("number = ?", number).
 		Take(h).
@@ -32,8 +32,8 @@ func (e *engine) GetInitForBuild(b *library.Build, number int) (*library.Init, e
 		return nil, err
 	}
 
-	// return the init
+	// return the InitStep
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Init.ToLibrary
+	// https://pkg.go.dev/github.com/go-vela/types/database#InitStep.ToLibrary
 	return h.ToLibrary(), nil
 }

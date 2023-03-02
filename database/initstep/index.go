@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 const (
 	// CreateBuildIDIndex represents a query to create an
@@ -10,14 +10,14 @@ const (
 	CreateBuildIDIndex = `
 CREATE INDEX
 IF NOT EXISTS
-inits_build_id
-ON inits (build_id);
+initsteps_build_id
+ON initsteps (build_id);
 `
 )
 
-// CreateHookIndexes creates the indexes for the inits table in the database.
-func (e *engine) CreateInitsIndexes() error {
-	e.logger.Tracef("creating indexes for inits table in the database")
+// CreateInitStepIndexes creates the indexes for the inits table in the database.
+func (e *engine) CreateInitStepIndexes() error {
+	e.logger.Tracef("creating indexes for initsteps table in the database")
 
 	// create the hostname and address columns index for the inits table
 	return e.client.Exec(CreateBuildIDIndex).Error

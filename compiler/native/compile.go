@@ -300,7 +300,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 		}
 	}
 
-	// inject the init step
+	// inject the init step // TODO: stop injecting the init step
 	p, err = c.InitStep(p)
 	if err != nil {
 		return nil, _pipeline, err
@@ -397,7 +397,7 @@ func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls
 		}
 	}
 
-	// inject the init stage
+	// inject the init stage // TODO: stop injecting the init stage
 	p, err = c.InitStage(p)
 	if err != nil {
 		return nil, _pipeline, err

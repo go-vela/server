@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"fmt"
@@ -57,23 +57,23 @@ func New(opts ...EngineOpt) (*engine, error) {
 		}
 	}
 
-	// check if we should skip creating init database objects
+	// check if we should skip creating init step database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of inits table and indexes in the database")
+		e.logger.Warning("skipping creation of initsteps table and indexes in the database")
 
 		return e, nil
 	}
 
 	// create the inits table
-	err := e.CreateInitsTable(e.client.Config.Dialector.Name())
+	err := e.CreateInitStepTable(e.client.Config.Dialector.Name())
 	if err != nil {
-		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableInit, err)
+		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableInitStep, err)
 	}
 
 	// create the indexes for the inits table
-	err = e.CreateInitsIndexes()
+	err = e.CreateInitStepIndexes()
 	if err != nil {
-		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableInit, err)
+		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableInitStep, err)
 	}
 
 	return e, nil

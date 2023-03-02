@@ -13,11 +13,11 @@ import (
 
 func TestLog_Engine_CountLogs(t *testing.T) {
 	// setup types
-	_init := testLog()
-	_init.SetID(1)
-	_init.SetRepoID(1)
-	_init.SetBuildID(1)
-	_init.SetInitID(1)
+	_initStep := testLog()
+	_initStep.SetID(1)
+	_initStep.SetRepoID(1)
+	_initStep.SetBuildID(1)
+	_initStep.SetInitStepID(1)
 
 	_service := testLog()
 	_service.SetID(2)
@@ -43,9 +43,9 @@ func TestLog_Engine_CountLogs(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_init)
+	err := _sqlite.CreateLog(_initStep)
 	if err != nil {
-		t.Errorf("unable to create test init log for sqlite: %v", err)
+		t.Errorf("unable to create test init step log for sqlite: %v", err)
 	}
 
 	err = _sqlite.CreateLog(_service)

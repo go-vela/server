@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"github.com/go-vela/types/constants"
@@ -11,28 +11,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// UpdateInit updates an existing init in the database.
-func (e *engine) UpdateInit(i *library.Init) error {
+// UpdateInitStep updates an existing init step in the database.
+func (e *engine) UpdateInitStep(i *library.InitStep) error {
 	e.logger.WithFields(logrus.Fields{
-		"init": i.GetNumber(),
-	}).Tracef("updating init %d in the database", i.GetNumber())
+		"initstep": i.GetNumber(),
+	}).Tracef("updating init step %d in the database", i.GetID())
 
 	// cast the library type to database type
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#InitFromLibrary
-	init := database.InitFromLibrary(i)
+	// https://pkg.go.dev/github.com/go-vela/types/database#InitStepFromLibrary
+	initStep := database.InitStepFromLibrary(i)
 
 	// validate the necessary fields are populated
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Init.Validate
-	err := init.Validate()
+	// https://pkg.go.dev/github.com/go-vela/types/database#InitStep.Validate
+	err := initStep.Validate()
 	if err != nil {
 		return err
 	}
 
 	// send query to the database
 	return e.client.
-		Table(constants.TableInit).
-		Save(init).
+		Table(constants.TableInitStep).
+		Save(initStep).
 		Error
 }

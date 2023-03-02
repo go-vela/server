@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"testing"
@@ -10,32 +10,32 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestInit_Engine_CreateInit(t *testing.T) {
+func TestInitStep_Engine_DeleteInitStep(t *testing.T) {
 	// setup types
-	_init := testInit()
-	_init.SetID(1)
-	_init.SetRepoID(1)
-	_init.SetBuildID(1)
-	_init.SetNumber(1)
-	_init.SetReporter("Foobar Runtime")
-	_init.SetName("foobar")
-	_init.SetMimetype("text/plain")
+	_initStep := testInitStep()
+	_initStep.SetID(1)
+	_initStep.SetRepoID(1)
+	_initStep.SetBuildID(1)
+	_initStep.SetNumber(1)
+	_initStep.SetReporter("Foobar Runtime")
+	_initStep.SetName("foobar")
+	_initStep.SetMimetype("text/plain")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "inits"
-("repo_id","build_id","number","reporter","name","mimetype","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
-		WithArgs(1, 1, 1, "Foobar Runtime", "foobar", "text/plain", 1).
-		WillReturnRows(_rows)
+	_mock.ExpectExec(`DELETE FROM "initsteps" WHERE "initsteps"."id" = $1`).
+		WithArgs(1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
+
+	err := _sqlite.CreateInitStep(_initStep)
+	if err != nil {
+		t.Errorf("unable to create test init step for sqlite: %v", err)
+	}
 
 	// setup tests
 	tests := []struct {
@@ -58,18 +58,18 @@ VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateInit(_init)
+			err = test.database.DeleteInitStep(_initStep)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateInit for %s should have returned err", test.name)
+					t.Errorf("DeleteInitStep for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateInit for %s returned err: %v", test.name, err)
+				t.Errorf("DeleteInitStep for %s returned err: %v", test.name, err)
 			}
 		})
 	}

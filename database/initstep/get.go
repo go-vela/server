@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"github.com/go-vela/types/constants"
@@ -10,16 +10,16 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// GetInit gets a hook by ID from the database.
-func (e *engine) GetInit(id int64) (*library.Init, error) {
-	e.logger.Tracef("getting hook %d from the database", id)
+// GetInitStep gets an init step by ID from the database.
+func (e *engine) GetInitStep(id int64) (*library.InitStep, error) {
+	e.logger.Tracef("getting init step %d from the database", id)
 
 	// variable to store query results
-	i := new(database.Init)
+	i := new(database.InitStep)
 
 	// send query to the database and store result in variable
 	err := e.client.
-		Table(constants.TableInit).
+		Table(constants.TableInitStep).
 		Where("id = ?", id).
 		Take(i).
 		Error
@@ -27,8 +27,8 @@ func (e *engine) GetInit(id int64) (*library.Init, error) {
 		return nil, err
 	}
 
-	// return the hook
+	// return the InitStep
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Init.ToLibrary
+	// https://pkg.go.dev/github.com/go-vela/types/database#InitStep.ToLibrary
 	return i.ToLibrary(), nil
 }

@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"github.com/go-vela/types/constants"
@@ -13,7 +13,7 @@ const (
 	CreatePostgresTable = `
 CREATE TABLE
 IF NOT EXISTS
-inits (
+initsteps (
 	id           SERIAL PRIMARY KEY,
 	repo_id      INTEGER,
 	build_id     INTEGER,
@@ -29,7 +29,7 @@ inits (
 	CreateSqliteTable = `
 CREATE TABLE
 IF NOT EXISTS
-inits (
+initsteps (
 	id           INTEGER PRIMARY KEY AUTOINCREMENT,
 	repo_id      INTEGER,
 	build_id     INTEGER,
@@ -42,9 +42,9 @@ inits (
 `
 )
 
-// CreateHookTable creates the inits table in the database.
-func (e *engine) CreateInitsTable(driver string) error {
-	e.logger.Tracef("creating inits table in the database")
+// CreateInitStepTable creates the inits table in the database.
+func (e *engine) CreateInitStepTable(driver string) error {
+	e.logger.Tracef("creating initsteps table in the database")
 
 	// handle the driver provided to create the table
 	switch driver {

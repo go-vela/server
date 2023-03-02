@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"reflect"
@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestHook_EngineOpt_WithClient(t *testing.T) {
+func TestInitStep_EngineOpt_WithClient(t *testing.T) {
 	// setup types
 	e := &engine{client: new(gorm.DB)}
 
@@ -62,7 +62,7 @@ func TestHook_EngineOpt_WithClient(t *testing.T) {
 	}
 }
 
-func TestHook_EngineOpt_WithLogger(t *testing.T) {
+func TestInitStep_EngineOpt_WithLogger(t *testing.T) {
 	// setup types
 	e := &engine{logger: new(logrus.Entry)}
 
@@ -111,7 +111,7 @@ func TestHook_EngineOpt_WithLogger(t *testing.T) {
 	}
 }
 
-func TestHook_EngineOpt_WithSkipCreation(t *testing.T) {
+func TestInitStep_EngineOpt_WithSkipCreation(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 

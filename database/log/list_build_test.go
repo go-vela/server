@@ -14,12 +14,12 @@ import (
 
 func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	// setup types
-	_init := testLog()
-	_init.SetID(1)
-	_init.SetRepoID(1)
-	_init.SetBuildID(1)
-	_init.SetInitID(1)
-	_init.SetData([]byte{})
+	_initStep := testLog()
+	_initStep.SetID(1)
+	_initStep.SetRepoID(1)
+	_initStep.SetBuildID(1)
+	_initStep.SetInitStepID(1)
+	_initStep.SetData([]byte{})
 
 	_service := testLog()
 	_service.SetID(2)
@@ -52,7 +52,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "init_id", "data"}).
+		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "initstep_id", "data"}).
 		AddRow(1, 1, 1, 0, 0, 1, []byte{}).
 		AddRow(2, 1, 1, 1, 0, 0, []byte{}).
 		AddRow(3, 1, 1, 0, 1, 0, []byte{})
@@ -63,9 +63,9 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_init)
+	err := _sqlite.CreateLog(_initStep)
 	if err != nil {
-		t.Errorf("unable to create test init log for sqlite: %v", err)
+		t.Errorf("unable to create test init step log for sqlite: %v", err)
 	}
 
 	err = _sqlite.CreateLog(_service)
@@ -89,13 +89,13 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Log{_init, _service, _step},
+			want:     []*library.Log{_initStep, _service, _step},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Log{_init, _service, _step},
+			want:     []*library.Log{_initStep, _service, _step},
 		},
 	}
 

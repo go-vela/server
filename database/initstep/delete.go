@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"github.com/go-vela/types/constants"
@@ -11,20 +11,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// DeleteInit deletes an existing init from the database.
-func (e *engine) DeleteInit(i *library.Init) error {
+// DeleteInitStep deletes an existing init step from the database.
+func (e *engine) DeleteInitStep(i *library.InitStep) error {
 	e.logger.WithFields(logrus.Fields{
-		"init": i.GetNumber(),
-	}).Tracef("deleting init %d in the database", i.GetNumber())
+		"initstep": i.GetNumber(),
+	}).Tracef("deleting init step %d in the database", i.GetID())
 
 	// cast the library type to database type
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#InitFromLibrary
-	init := database.InitFromLibrary(i)
+	// https://pkg.go.dev/github.com/go-vela/types/database#InitStepFromLibrary
+	initStep := database.InitStepFromLibrary(i)
 
 	// send query to the database
 	return e.client.
-		Table(constants.TableInit).
-		Delete(init).
+		Table(constants.TableInitStep).
+		Delete(initStep).
 		Error
 }

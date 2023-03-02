@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"testing"
@@ -10,22 +10,22 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestInit_Engine_UpdateInit(t *testing.T) {
+func TestInitStep_Engine_UpdateInitStep(t *testing.T) {
 	// setup types
-	_init := testInit()
-	_init.SetID(1)
-	_init.SetRepoID(1)
-	_init.SetBuildID(1)
-	_init.SetNumber(1)
-	_init.SetReporter("Foobar Runtime")
-	_init.SetName("foobar")
-	_init.SetMimetype("text/plain")
+	_initStep := testInitStep()
+	_initStep.SetID(1)
+	_initStep.SetRepoID(1)
+	_initStep.SetBuildID(1)
+	_initStep.SetNumber(1)
+	_initStep.SetReporter("Foobar Runtime")
+	_initStep.SetName("foobar")
+	_initStep.SetMimetype("text/plain")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
-	_mock.ExpectExec(`UPDATE "inits"
+	_mock.ExpectExec(`UPDATE "initsteps"
 SET "repo_id"=$1,"build_id"=$2,"number"=$3,"reporter"=$4,"name"=$5,"mimetype"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, 1, "Foobar Runtime", "foobar", "text/plain", 1).
@@ -34,9 +34,9 @@ WHERE "id" = $7`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateInit(_init)
+	err := _sqlite.CreateInitStep(_initStep)
 	if err != nil {
-		t.Errorf("unable to create test init for sqlite: %v", err)
+		t.Errorf("unable to create test init step for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -60,18 +60,18 @@ WHERE "id" = $7`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateInit(_init)
+			err = test.database.UpdateInitStep(_initStep)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("UpdateInit for %s should have returned err", test.name)
+					t.Errorf("UpdateInitStep for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("UpdateInit for %s returned err: %v", test.name, err)
+				t.Errorf("UpdateInitStep for %s returned err: %v", test.name, err)
 			}
 		})
 	}

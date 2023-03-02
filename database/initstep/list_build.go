@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package init
+package initstep
 
 import (
 	"github.com/go-vela/types/constants"
@@ -11,26 +11,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ListInitsForBuild gets a list of inits by build ID from the database.
-func (e *engine) ListInitsForBuild(b *library.Build, page, perPage int) ([]*library.Init, int64, error) {
+// ListInitStepsForBuild gets a list of inits by build ID from the database.
+func (e *engine) ListInitStepsForBuild(b *library.Build, page, perPage int) ([]*library.InitStep, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-	}).Tracef("listing inits for build %d from the database", b.GetNumber())
+	}).Tracef("listing init steps for build %d from the database", b.GetID())
 
 	// variables to store query results and return value
 	count := int64(0)
-	h := new([]database.Init)
-	inits := []*library.Init{}
+	h := new([]database.InitStep)
+	initSteps := []*library.InitStep{}
 
 	// count the results
-	count, err := e.CountInitsForBuild(b)
+	count, err := e.CountInitStepsForBuild(b)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// short-circuit if there are no results
 	if count == 0 {
-		return inits, 0, nil
+		return initSteps, 0, nil
 	}
 
 	// calculate offset for pagination through results
@@ -38,7 +38,7 @@ func (e *engine) ListInitsForBuild(b *library.Build, page, perPage int) ([]*libr
 
 	// send query to the database and store result in variable
 	err = e.client.
-		Table(constants.TableInit).
+		Table(constants.TableInitStep).
 		Where("build_id = ?", b.GetID()).
 		Order("id DESC").
 		Limit(perPage).
@@ -50,15 +50,15 @@ func (e *engine) ListInitsForBuild(b *library.Build, page, perPage int) ([]*libr
 	}
 
 	// iterate through all query results
-	for _, init := range *h {
+	for _, initStep := range *h {
 		// https://golang.org/doc/faq#closures_and_goroutines
-		tmp := init
+		tmp := initStep
 
 		// convert query result to library type
 		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Init.ToLibrary
-		inits = append(inits, tmp.ToLibrary())
+		// https://pkg.go.dev/github.com/go-vela/types/database#InitStep.ToLibrary
+		initSteps = append(initSteps, tmp.ToLibrary())
 	}
 
-	return inits, count, nil
+	return initSteps, count, nil
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/hook"
-	"github.com/go-vela/server/database/init"
+	"github.com/go-vela/server/database/initstep"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -49,8 +49,8 @@ type (
 		Logger *logrus.Entry
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
-		// https://pkg.go.dev/github.com/go-vela/server/database/init#InitService
-		init.InitService
+		// https://pkg.go.dev/github.com/go-vela/server/database/initstep#InitStepService
+		initstep.InitStepService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
 		log.LogService
 		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
@@ -329,13 +329,13 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic init service
+	// create the database agnostic init step service
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/database/init#New
-	c.InitService, err = init.New(
-		init.WithClient(c.Sqlite),
-		init.WithLogger(c.Logger),
-		init.WithSkipCreation(c.config.SkipCreation),
+	// https://pkg.go.dev/github.com/go-vela/server/database/initstep#New
+	c.InitStepService, err = initstep.New(
+		initstep.WithClient(c.Sqlite),
+		initstep.WithLogger(c.Logger),
+		initstep.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
