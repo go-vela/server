@@ -6,6 +6,7 @@ package database
 
 import (
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/initstep"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -77,6 +78,10 @@ type Service interface {
 	// HookService provides the interface for functionality
 	// related to hooks stored in the database.
 	hook.HookService
+
+	// InitStepService provides the interface for functionality
+	// related to repos stored in the database.
+	initstep.InitStepService
 
 	// LogService provides the interface for functionality
 	// related to logs stored in the database.
