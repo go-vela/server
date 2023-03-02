@@ -1,11 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package log
+package init
 
 import (
-	"database/sql/driver"
 	"reflect"
 	"testing"
 
@@ -18,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestLog_New(t *testing.T) {
+func TestInit_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -139,7 +138,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new postgres log engine: %v", err)
+		t.Errorf("unable to create new postgres init engine: %v", err)
 	}
 
 	return _engine, _mock
@@ -161,27 +160,27 @@ func testSqlite(t *testing.T) *engine {
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new sqlite log engine: %v", err)
+		t.Errorf("unable to create new sqlite init engine: %v", err)
 	}
 
 	return _engine
 }
 
-// This will be used with the github.com/DATA-DOG/go-sqlmock
-// library to compare values that are otherwise not easily
-// compared. These typically would be values generated before
-// adding or updating them in the database.
-//
-// https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
-type AnyArgument struct{}
-
-// Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
-	return true
+// testInit is a test helper function to create a library
+// Init type with all fields set to their zero values.
+func testInit() *library.Init {
+	return &library.Init{
+		ID:       new(int64),
+		RepoID:   new(int64),
+		BuildID:  new(int64),
+		Number:   new(int),
+		Mimetype: new(string),
+		Reporter: new(string),
+	}
 }
 
 // testBuild is a test helper function to create a library
-// Build type with all fields set to their zero values.
+// Repo type with all fields set to their zero values.
 func testBuild() *library.Build {
 	return &library.Build{
 		ID:           new(int64),
@@ -214,78 +213,5 @@ func testBuild() *library.Build {
 		Host:         new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
-	}
-}
-
-// testLog is a test helper function to create a library
-// Log type with all fields set to their zero values.
-func testLog() *library.Log {
-	return &library.Log{
-		ID:        new(int64),
-		RepoID:    new(int64),
-		BuildID:   new(int64),
-		ServiceID: new(int64),
-		StepID:    new(int64),
-		InitID:    new(int64),
-		Data:      new([]byte),
-	}
-}
-
-// testService is a test helper function to create a library
-// Service type with all fields set to their zero values.
-func testService() *library.Service {
-	return &library.Service{
-		ID:           new(int64),
-		BuildID:      new(int64),
-		RepoID:       new(int64),
-		Number:       new(int),
-		Name:         new(string),
-		Image:        new(string),
-		Status:       new(string),
-		Error:        new(string),
-		ExitCode:     new(int),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
-}
-
-// testStep is a test helper function to create a library
-// Step type with all fields set to their zero values.
-func testStep() *library.Step {
-	return &library.Step{
-		ID:           new(int64),
-		BuildID:      new(int64),
-		RepoID:       new(int64),
-		Number:       new(int),
-		Name:         new(string),
-		Image:        new(string),
-		Stage:        new(string),
-		Status:       new(string),
-		Error:        new(string),
-		ExitCode:     new(int),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
-}
-
-// testInit is a test helper function to create a library
-// Init type with all fields set to their zero values.
-func testInit() *library.Init {
-	return &library.Init{
-		ID:       new(int64),
-		BuildID:  new(int64),
-		RepoID:   new(int64),
-		Number:   new(int),
-		Name:     new(string),
-		Mimetype: new(string),
-		Reporter: new(string),
 	}
 }

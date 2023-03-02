@@ -13,14 +13,20 @@ import (
 
 func TestLog_Engine_CountLogs(t *testing.T) {
 	// setup types
+	_init := testLog()
+	_init.SetID(1)
+	_init.SetRepoID(1)
+	_init.SetBuildID(1)
+	_init.SetInitID(1)
+
 	_service := testLog()
-	_service.SetID(1)
+	_service.SetID(2)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetServiceID(1)
 
 	_step := testLog()
-	_step.SetID(2)
+	_step.SetID(3)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetStepID(1)
@@ -29,7 +35,7 @@ func TestLog_Engine_CountLogs(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(3)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "logs"`).WillReturnRows(_rows)
@@ -37,7 +43,12 @@ func TestLog_Engine_CountLogs(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_service)
+	err := _sqlite.CreateLog(_init)
+	if err != nil {
+		t.Errorf("unable to create test init log for sqlite: %v", err)
+	}
+
+	err = _sqlite.CreateLog(_service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
@@ -58,13 +69,13 @@ func TestLog_Engine_CountLogs(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     2,
+			want:     3,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     2,
+			want:     3,
 		},
 	}
 

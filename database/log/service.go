@@ -36,6 +36,8 @@ type LogService interface {
 	DeleteLog(*library.Log) error
 	// GetLog defines a function that gets a log by ID.
 	GetLog(int64) (*library.Log, error)
+	// GetLogForInit defines a function that gets a log by init ID.
+	GetLogForInit(*library.Init) (*library.Log, error)
 	// GetLogForService defines a function that gets a log by service ID.
 	GetLogForService(*library.Service) (*library.Log, error)
 	// GetLogForStep defines a function that gets a log by step ID.

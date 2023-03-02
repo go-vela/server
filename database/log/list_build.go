@@ -37,7 +37,7 @@ func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*libra
 	err = e.client.
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
-		Order("step_id ASC").
+		Order("step_id ASC"). // TODO: should this also sort by service_id and/or init_id?
 		Limit(perPage).
 		Offset(offset).
 		Find(&l).

@@ -26,8 +26,8 @@ func TestLog_Engine_GetLog(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"}).
-		AddRow(1, 1, 1, 0, 1, []byte{})
+		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "init_id", "data"}).
+		AddRow(1, 1, 1, 0, 1, 0, []byte{})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)

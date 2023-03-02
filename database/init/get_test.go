@@ -1,8 +1,8 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package log
+package init
 
 import (
 	"reflect"
@@ -12,38 +12,34 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestLog_Engine_GetLogForStep(t *testing.T) {
+func TestInit_Engine_GetInit(t *testing.T) {
 	// setup types
-	_log := testLog()
-	_log.SetID(1)
-	_log.SetRepoID(1)
-	_log.SetBuildID(1)
-	_log.SetStepID(1)
-	_log.SetData([]byte{})
-
-	_step := testStep()
-	_step.SetID(1)
-	_step.SetRepoID(1)
-	_step.SetBuildID(1)
-	_step.SetNumber(1)
+	_init := testInit()
+	_init.SetID(1)
+	_init.SetRepoID(1)
+	_init.SetBuildID(1)
+	_init.SetNumber(1)
+	_init.SetReporter("Foobar Runtime")
+	_init.SetName("foobar")
+	_init.SetMimetype("text/plain")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "step_id", "step_id", "init_id", "data"}).
-		AddRow(1, 1, 1, 0, 1, 0, []byte{})
+		[]string{"id", "repo_id", "build_id", "number", "reporter", "name", "mimetype"},
+	).AddRow(1, 1, 1, 1, "Foobar Runtime", "foobar", "text/plain")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE step_id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "inits" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_log)
+	err := _sqlite.CreateInit(_init)
 	if err != nil {
-		t.Errorf("unable to create test log for sqlite: %v", err)
+		t.Errorf("unable to create test init for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -51,41 +47,41 @@ func TestLog_Engine_GetLogForStep(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Log
+		want     *library.Init
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     _log,
+			want:     _init,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     _log,
+			want:     _init,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetLogForStep(_step)
+			got, err := test.database.GetInit(1)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetLogForStep for %s should have returned err", test.name)
+					t.Errorf("GetInit for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetLogForStep for %s returned err: %v", test.name, err)
+				t.Errorf("GetInit for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetLogForStep for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("GetInit for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

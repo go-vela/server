@@ -23,7 +23,6 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 
 	_service := testService()
 	_service.SetID(1)
-	_service.SetID(1)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)
 	_service.SetNumber(1)
@@ -33,8 +32,8 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "data"}).
-		AddRow(1, 1, 1, 1, 0, []byte{})
+		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "init_id", "data"}).
+		AddRow(1, 1, 1, 1, 0, 0, []byte{})
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE service_id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)

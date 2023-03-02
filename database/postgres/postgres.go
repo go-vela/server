@@ -10,6 +10,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/init"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
@@ -49,6 +50,8 @@ type (
 		Logger *logrus.Entry
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
+		// https://pkg.go.dev/github.com/go-vela/server/database/init#InitService
+		init.InitService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
 		log.LogService
 		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
@@ -341,6 +344,18 @@ func createServices(c *client) error {
 		hook.WithClient(c.Postgres),
 		hook.WithLogger(c.Logger),
 		hook.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic init service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/init#New
+	c.InitService, err = init.New(
+		init.WithClient(c.Postgres),
+		init.WithLogger(c.Logger),
+		init.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

@@ -40,6 +40,9 @@ require (
 	k8s.io/apimachinery v0.26.2
 )
 
+// pipeline-init branch
+replace github.com/go-vela/types => github.com/cognifloyd/vela-types v0.10.0-rc1.0.20230301205826-be802ec2dce0
+
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
