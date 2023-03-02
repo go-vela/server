@@ -20,22 +20,14 @@ func FakeHandler() http.Handler {
 	e := gin.New()
 
 	// mock endpoints for admin calls
-	e.GET("/api/v1/admin/builds", getBuilds)
 	e.PUT("/api/v1/admin/build", updateBuild)
 	e.GET("/api/v1/admin/builds/queue", buildQueue)
-	e.GET("/api/v1/admin/deployments", getDeployments)
 	e.PUT("/api/v1/admin/deployment", updateDeployment)
-	e.GET("/api/v1/admin/hooks", getHooks)
 	e.PUT("/api/v1/admin/hook", updateHook)
-	e.GET("/api/v1/admin/repos", getRepos)
 	e.PUT("/api/v1/admin/repo", updateRepo)
-	e.GET("/api/v1/admin/secrets", getSecrets)
 	e.PUT("/api/v1/admin/secret", updateSecret)
-	e.GET("/api/v1/admin/services", getServices)
 	e.PUT("/api/v1/admin/service", updateService)
-	e.GET("/api/v1/admin/steps", getSteps)
 	e.PUT("/api/v1/admin/step", updateStep)
-	e.GET("/api/v1/admin/users", getUsers)
 	e.PUT("/api/v1/admin/user", updateUser)
 	e.POST("/api/v1/admin/workers/:worker/register-token", registerToken)
 
