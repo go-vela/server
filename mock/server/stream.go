@@ -19,3 +19,8 @@ func postServiceStream(c *gin.Context) {
 func postStepStream(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
+
+// postInitStepStream returns a mock response for an http POST.
+func postInitStepStream(c *gin.Context) {
+	c.JSON(http.StatusNoContent, nil)
+}

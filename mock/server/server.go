@@ -62,6 +62,14 @@ func FakeHandler() http.Handler {
 	e.PUT("/api/v1/hooks/:org/:repo/:hook", updateHook)
 	e.DELETE("/api/v1/hooks/:org/:repo/:hook", removeHook)
 
+	// mock endpoints for initstep calls
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep", getInitStep)
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/initsteps", getInitSteps)
+	e.POST("/api/v1/repos/:org/:repo/builds/:build/initsteps", addInitStep)
+	e.PUT("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep", updateInitStep)
+	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep", removeInitStep)
+	e.POST("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/stream", postInitStepStream)
+
 	// mock endpoints for log calls
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/services/:service/logs", getServiceLog)
 	e.POST("/api/v1/repos/:org/:repo/builds/:build/services/:service/logs", addServiceLog)
@@ -71,6 +79,10 @@ func FakeHandler() http.Handler {
 	e.POST("/api/v1/repos/:org/:repo/builds/:build/steps/:step/logs", addStepLog)
 	e.PUT("/api/v1/repos/:org/:repo/builds/:build/steps/:step/logs", updateStepLog)
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/steps/:step/logs", removeStepLog)
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs", getInitStepLog)
+	e.POST("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs", addInitStepLog)
+	e.PUT("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs", updateInitStepLog)
+	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs", removeInitStepLog)
 
 	// mock endpoints for pipeline calls
 	e.POST("/api/v1/pipelines/:org/:repo", addPipeline)

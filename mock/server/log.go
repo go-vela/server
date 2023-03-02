@@ -23,6 +23,7 @@ const (
   "repo_id": 1,
   "service_id": 1,
   "step_id": 1,
+  "initstep_id": 1,
   "data": "SGVsbG8sIFdvcmxkIQ=="
 }`
 )
@@ -167,4 +168,75 @@ func removeStepLog(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Log %s removed", s))
+}
+
+// getInitStepLog has a param :initstep returns mock JSON for a http GET.
+//
+// Pass "0" to :initstep to test receiving a http 404 response.
+func getInitStepLog(c *gin.Context) {
+	i := c.Param("initstep")
+
+	if strings.EqualFold(i, "0") {
+		msg := fmt.Sprintf("Log %s does not exist", i)
+
+		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(LogResp)
+
+	var body library.Log
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// addInitStepLog returns mock JSON for a http GET.
+func addInitStepLog(c *gin.Context) {
+	data := []byte(LogResp)
+
+	var body library.Log
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
+}
+
+// updateInitStepLog has a param :initstep returns mock JSON for a http PUT.
+//
+// Pass "0" to :initstep to test receiving a http 404 response.
+func updateInitStepLog(c *gin.Context) {
+	i := c.Param("initstep")
+
+	if strings.EqualFold(i, "0") {
+		msg := fmt.Sprintf("Log %s does not exist", i)
+
+		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(LogResp)
+
+	var body library.Log
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// removeInitStepLog has a param :initstep returns mock JSON for a http DELETE.
+//
+// Pass "0" to :initstep to test receiving a http 404 response.
+func removeInitStepLog(c *gin.Context) {
+	i := c.Param("initstep")
+
+	if strings.EqualFold(i, "0") {
+		msg := fmt.Sprintf("Log %s does not exist", i)
+
+		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, fmt.Sprintf("Log %s removed", i))
 }
