@@ -7,15 +7,16 @@ package api
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
+	"strconv"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/initstep"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/library"
@@ -47,6 +48,17 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 500
+//   default: 100
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -82,10 +94,30 @@ func GetBuildLogs(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("reading logs for build %s", entry)
 
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		//nolint:lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(500, perPage))
+
 	// send API call to capture the list of logs for the build
-	//
-	// TODO: add page and per_page query parameters
-	l, t, err := database.FromContext(c).ListLogsForBuild(b, 1, 100)
+	l, t, err := database.FromContext(c).ListLogsForBuild(b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for build %s: %w", entry, err)
 
@@ -96,8 +128,8 @@ func GetBuildLogs(c *gin.Context) {
 
 	// create pagination object
 	pagination := Pagination{
-		Page:    1,
-		PerPage: 100,
+		Page:    page,
+		PerPage: perPage,
 		Total:   t,
 	}
 	// set pagination headers
@@ -891,4 +923,398 @@ func DeleteStepLog(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("logs deleted for step %s", entry))
+}
+
+//
+// swagger:operation POST /api/v1/repos/{org}/{repo}/builds/{build}/initsteps/{initstep}/logs initsteps CreateInitStepLog
+//
+// Create the logs for an initstep
+//
+// ---
+// deprecated: true
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: initstep
+//   description: InitStep number
+//   required: true
+//   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the log to create
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '201':
+//     description: Successfully created the logs for initstep
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Unable to create the logs for an initstep
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to create the logs for an initstep
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// CreateInitStepLog represents the API handler to create
+// the logs for an InitStep in the configured backend.
+//
+//nolint:dupl // ignore similar code with service
+func CreateInitStepLog(c *gin.Context) {
+	// capture middleware values
+	b := build.Retrieve(c)
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	i := initstep.Retrieve(c)
+	u := user.Retrieve(c)
+
+	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), i.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":      o,
+		"repo":     r.GetName(),
+		"build":    b.GetNumber(),
+		"initstep": i.GetNumber(),
+		"user":     u.GetName(),
+	}).Infof("creating logs for initstep %s", entry)
+
+	// capture body from API request
+	input := new(library.Log)
+
+	err := c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// update fields in log object
+	input.SetInitStepID(i.GetID())
+	input.SetBuildID(b.GetID())
+	input.SetRepoID(r.GetID())
+
+	// send API call to create the logs
+	err = database.FromContext(c).CreateLog(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create logs for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// send API call to capture the created log
+	l, _ := database.FromContext(c).GetLogForInitStep(i)
+
+	c.JSON(http.StatusCreated, l)
+}
+
+//
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/initsteps/{initstep}/logs initsteps GetInitStepLog
+//
+// Retrieve the logs for an initstep
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: initstep
+//   description: InitStep number
+//   required: true
+//   type: integer
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved the logs for initstep
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '500':
+//     description: Unable to retrieve the logs for an initstep
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetInitStepLog represents the API handler to capture
+// the logs for an initstep from the configured backend.
+func GetInitStepLog(c *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	b := build.Retrieve(c)
+	i := initstep.Retrieve(c)
+	u := user.Retrieve(c)
+
+	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), i.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build":    b.GetNumber(),
+		"org":      o,
+		"repo":     r.GetName(),
+		"initstep": i.GetNumber(),
+		"user":     u.GetName(),
+	}).Infof("reading logs for initstep %s", entry)
+
+	// send API call to capture the initstep logs
+	l, err := database.FromContext(c).GetLogForInitStep(i)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, l)
+}
+
+//
+// swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/initsteps/{initstep}/logs initsteps UpdateInitStepLog
+//
+// Update the logs for an initstep
+//
+// ---
+// deprecated: true
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: initstep
+//   description: InitStep number
+//   required: true
+//   type: integer
+// - in: body
+//   name: body
+//   description: Payload containing the log to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Log"
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully updated the logs for initstep
+//     schema:
+//       "$ref": "#/definitions/Log"
+//   '400':
+//     description: Unable to update the logs for an initstep
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to update the logs for an initstep
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// UpdateInitStepLog represents the API handler to update
+// the logs for an initstep in the configured backend.
+func UpdateInitStepLog(c *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	b := build.Retrieve(c)
+	i := initstep.Retrieve(c)
+	u := user.Retrieve(c)
+
+	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), i.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":      o,
+		"repo":     r.GetName(),
+		"build":    b.GetNumber(),
+		"initstep": i.GetNumber(),
+		"user":     u.GetName(),
+	}).Infof("updating logs for initstep %s", entry)
+
+	// send API call to capture the initstep logs
+	l, err := database.FromContext(c).GetLogForInitStep(i)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// capture body from API request
+	input := new(library.Log)
+
+	err = c.Bind(input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to decode JSON for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// update log fields if provided
+	if len(input.GetData()) > 0 {
+		// update data if set
+		l.SetData(input.GetData())
+	}
+
+	// send API call to update the log
+	err = database.FromContext(c).UpdateLog(l)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update logs for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// send API call to capture the updated log
+	l, _ = database.FromContext(c).GetLogForInitStep(i)
+
+	c.JSON(http.StatusOK, l)
+}
+
+//
+// swagger:operation DELETE /api/v1/repos/{org}/{repo}/builds/{build}/initsteps/{initstep}/logs initsteps DeleteInitStepLog
+//
+// Delete the logs for an initstep
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// - in: path
+//   name: initstep
+//   description: InitStep number
+//   required: true
+//   type: integer
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully deleted the logs for the initstep
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to delete the logs for the initstep
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// DeleteInitStepLog represents the API handler to remove
+// the logs for an initstep from the configured backend.
+func DeleteInitStepLog(c *gin.Context) {
+	// capture middleware values
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	b := build.Retrieve(c)
+	i := initstep.Retrieve(c)
+	u := user.Retrieve(c)
+
+	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), i.GetNumber())
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"org":      o,
+		"repo":     r.GetName(),
+		"build":    b.GetNumber(),
+		"initstep": i.GetNumber(),
+		"user":     u.GetName(),
+	}).Infof("deleting logs for initstep %s", entry)
+
+	// send API call to capture the initstep logs
+	l, err := database.FromContext(c).GetLogForInitStep(i)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// send API call to remove the log
+	err = database.FromContext(c).DeleteLog(l)
+	if err != nil {
+		retErr := fmt.Errorf("unable to delete logs for initstep %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, fmt.Sprintf("logs deleted for initstep %s", entry))
 }

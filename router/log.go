@@ -45,3 +45,21 @@ func LogStepHandlers(base *gin.RouterGroup) {
 		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteStepLog)
 	} // end of logs endpoints
 }
+
+// LogInitStepHandlers is a function that extends the provided base router group
+// with the API handlers for step logs functionality.
+//
+// POST   /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// PUT    /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs .
+func LogInitStepHandlers(base *gin.RouterGroup) {
+	// Logs endpoints
+	logs := base.Group("/logs")
+	{
+		logs.POST("", perm.MustAdmin(), api.CreateInitStepLog)
+		logs.GET("", perm.MustRead(), api.GetInitStepLog)
+		logs.PUT("", perm.MustBuildAccess(), api.UpdateInitStepLog)
+		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteInitStepLog)
+	} // end of logs endpoints
+}

@@ -67,6 +67,10 @@ func BuildHandlers(base *gin.RouterGroup) {
 			// Step endpoints
 			// * Log endpoints
 			StepHandlers(build)
+
+			// InitStep endpoints
+			// * Log endpoints
+			InitStepHandlers(build)
 		} // end of build endpoints
 	} // end of builds endpoints
 }
