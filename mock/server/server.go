@@ -24,6 +24,7 @@ func FakeHandler() http.Handler {
 	e.GET("/api/v1/admin/builds/queue", buildQueue)
 	e.PUT("/api/v1/admin/deployment", updateDeployment)
 	e.PUT("/api/v1/admin/hook", updateHook)
+	e.PUT("/api/v1/admin/initstep", updateInitStep)
 	e.PUT("/api/v1/admin/repo", updateRepo)
 	e.PUT("/api/v1/admin/secret", updateSecret)
 	e.PUT("/api/v1/admin/service", updateService)
