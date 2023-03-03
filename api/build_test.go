@@ -25,6 +25,11 @@ func Test_skipEmptyBuild(t *testing.T) {
 				Name: "init",
 			},
 		}}}, "skipping build since only init stage found"},
+		{"only clone stage", args{p: &pipeline.Build{Stages: []*pipeline.Stage{
+			{
+				Name: "clone",
+			},
+		}}}, "skipping build since only clone stage found"},
 		{"init and clone stages", args{p: &pipeline.Build{Stages: []*pipeline.Stage{
 			{
 				Name: "init",
@@ -49,6 +54,11 @@ func Test_skipEmptyBuild(t *testing.T) {
 				Name: "init",
 			},
 		}}}, "skipping build since only init step found"},
+		{"only clone step", args{p: &pipeline.Build{Steps: []*pipeline.Container{
+			{
+				Name: "clone",
+			},
+		}}}, "skipping build since only clone step found"},
 		{"init and clone steps", args{p: &pipeline.Build{Steps: []*pipeline.Container{
 			{
 				Name: "init",

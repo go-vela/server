@@ -386,9 +386,12 @@ func CreateBuild(c *gin.Context) {
 //
 //nolint:goconst // ignore init and clone constants
 func skipEmptyBuild(p *pipeline.Build) string {
+	// TODO: drop check for init stage and step once no longer injected
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
 			return "skipping build since only init stage found"
+		} else if p.Stages[0].Name == "clone" {
+			return "skipping build since only clone stage found"
 		}
 	}
 
@@ -401,6 +404,8 @@ func skipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Steps) == 1 {
 		if p.Steps[0].Name == "init" {
 			return "skipping build since only init step found"
+		} else if p.Steps[0].Name == "clone" {
+			return "skipping build since only clone step found"
 		}
 	}
 
