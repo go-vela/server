@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/server/api/initstep"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -392,7 +391,7 @@ func PostWebhook(c *gin.Context) {
 	// Because we've populated b.RepoID and b.Number.
 	initStep, initLog := library.InitStepLogFromBuild(b)
 	defer func() {
-		initStep, initLog, err = initstep.SaveLog(c, b, initStep, initLog)
+		initStep, initLog, err = SaveInitStepLog(c, b, initStep, initLog)
 		if err != nil {
 			err = fmt.Errorf("failed to create webhook init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
@@ -560,7 +559,7 @@ func PostWebhook(c *gin.Context) {
 
 		compilerStep, compilerLog := library.InitStepLogFromBuild(b)
 		saveCompilerLog := func() error {
-			compilerStep, compilerLog, err = initstep.SaveLog(c, b, compilerStep, compilerLog)
+			compilerStep, compilerLog, err = SaveInitStepLog(c, b, compilerStep, compilerLog)
 			if err != nil {
 				err = fmt.Errorf("failed to create compiler init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 

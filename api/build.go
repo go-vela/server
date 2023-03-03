@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/server/api/initstep"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
@@ -194,7 +193,7 @@ func CreateBuild(c *gin.Context) {
 	// Because we've populated input.RepoID and input.Number.
 	initStep, initLog := library.InitStepLogFromBuild(input)
 	defer func() {
-		initStep, initLog, err = initstep.SaveLog(c, input, initStep, initLog)
+		initStep, initLog, err = SaveInitStepLog(c, input, initStep, initLog)
 		if err != nil {
 			err = fmt.Errorf("failed to create init step log for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
@@ -287,7 +286,7 @@ func CreateBuild(c *gin.Context) {
 
 	compilerStep, compilerLog := library.InitStepLogFromBuild(input)
 	saveCompilerLog := func() error {
-		compilerStep, compilerLog, err = initstep.SaveLog(c, input, compilerStep, compilerLog)
+		compilerStep, compilerLog, err = SaveInitStepLog(c, input, compilerStep, compilerLog)
 		if err != nil {
 			retErr := fmt.Errorf("failed to create compiler init step log for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
@@ -1175,7 +1174,7 @@ func RestartBuild(c *gin.Context) {
 	// Because we've populated input.RepoID and input.Number.
 	initStep, initLog := library.InitStepLogFromBuild(b)
 	defer func() {
-		initStep, initLog, err = initstep.SaveLog(c, b, initStep, initLog)
+		initStep, initLog, err = SaveInitStepLog(c, b, initStep, initLog)
 		if err != nil {
 			err = fmt.Errorf("failed to create init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
@@ -1269,7 +1268,7 @@ func RestartBuild(c *gin.Context) {
 
 	compilerStep, compilerLog := library.InitStepLogFromBuild(b)
 	saveCompilerLog := func() error {
-		compilerStep, compilerLog, err = initstep.SaveLog(c, b, compilerStep, compilerLog)
+		compilerStep, compilerLog, err = SaveInitStepLog(c, b, compilerStep, compilerLog)
 		if err != nil {
 			retErr := fmt.Errorf("failed to create compiler init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 
