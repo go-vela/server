@@ -41,7 +41,7 @@ require (
 )
 
 // pipeline-init branch
-replace github.com/go-vela/types => github.com/cognifloyd/vela-types v0.10.0-rc1.0.20230303041148-2b476d46526c
+replace github.com/go-vela/types => github.com/cognifloyd/vela-types v0.10.0-rc1.0.20230303084626-f18ac2b81172
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect

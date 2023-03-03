@@ -38,21 +38,21 @@ func TestLog_Engine_UpdateLog(t *testing.T) {
 
 	// ensure the mock expects the init step query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"initstep_id"=$5,"data"=$6
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"init_step_id"=$5,"data"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, nil, nil, 1, AnyArgument{}, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the service query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"initstep_id"=$5,"data"=$6
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"init_step_id"=$5,"data"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, 1, nil, nil, AnyArgument{}, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the step query
 	_mock.ExpectExec(`UPDATE "logs"
-SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"initstep_id"=$5,"data"=$6
+SET "build_id"=$1,"repo_id"=$2,"service_id"=$3,"step_id"=$4,"init_step_id"=$5,"data"=$6
 WHERE "id" = $7`).
 		WithArgs(1, 1, nil, 1, nil, AnyArgument{}, 3).
 		WillReturnResult(sqlmock.NewResult(1, 1))

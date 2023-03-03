@@ -23,7 +23,7 @@ const (
   "repo_id": 1,
   "service_id": 1,
   "step_id": 1,
-  "initstep_id": 1,
+  "init_step_id": 1,
   "data": "SGVsbG8sIFdvcmxkIQ=="
 }`
 )

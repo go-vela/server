@@ -21,7 +21,7 @@ func (e *engine) GetLogForInitStep(i *library.InitStep) (*library.Log, error) {
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableLog).
-		Where("initstep_id = ?", i.GetID()).
+		Where("init_step_id = ?", i.GetID()).
 		Take(l).
 		Error
 	if err != nil {

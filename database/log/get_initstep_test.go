@@ -32,11 +32,11 @@ func TestLog_Engine_GetLogForInitStep(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "initstep_id", "data"}).
+		[]string{"id", "build_id", "repo_id", "service_id", "step_id", "init_step_id", "data"}).
 		AddRow(1, 1, 1, 0, 0, 1, []byte{})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE initstep_id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE init_step_id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

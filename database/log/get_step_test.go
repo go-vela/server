@@ -32,7 +32,7 @@ func TestLog_Engine_GetLogForStep(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "build_id", "repo_id", "step_id", "step_id", "initstep_id", "data"}).
+		[]string{"id", "build_id", "repo_id", "step_id", "step_id", "init_step_id", "data"}).
 		AddRow(1, 1, 1, 0, 1, 0, []byte{})
 
 	// ensure the mock expects the query

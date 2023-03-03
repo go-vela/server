@@ -19,10 +19,11 @@ logs (
 	repo_id       INTEGER,
 	service_id    INTEGER,
 	step_id       INTEGER,
-	initstep_id   INTEGER,
+	init_step_id   INTEGER,
 	data          BYTEA,
 	UNIQUE(step_id),
-	UNIQUE(service_id)
+	UNIQUE(service_id),
+	UNIQUE(init_step_id)
 );
 `
 
@@ -36,10 +37,11 @@ logs (
 	repo_id       INTEGER,
 	service_id    INTEGER,
 	step_id       INTEGER,
-	initstep_id   INTEGER,
+	init_step_id   INTEGER,
 	data          BLOB,
 	UNIQUE(step_id),
-	UNIQUE(service_id)
+	UNIQUE(service_id),
+	UNIQUE(init_step_id)
 );
 `
 )

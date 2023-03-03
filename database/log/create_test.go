@@ -39,21 +39,21 @@ func TestLog_Engine_CreateLog(t *testing.T) {
 
 	// ensure the mock expects the init step query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","initstep_id","data","id")
+("build_id","repo_id","service_id","step_id","init_step_id","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 		WithArgs(1, 1, nil, nil, 1, AnyArgument{}, 1).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the service query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","initstep_id","data","id")
+("build_id","repo_id","service_id","step_id","init_step_id","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 		WithArgs(1, 1, 1, nil, nil, AnyArgument{}, 2).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the step query
 	_mock.ExpectQuery(`INSERT INTO "logs"
-("build_id","repo_id","service_id","step_id","initstep_id","data","id")
+("build_id","repo_id","service_id","step_id","init_step_id","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
 		WithArgs(1, 1, nil, 1, nil, AnyArgument{}, 3).
 		WillReturnRows(_rows)
