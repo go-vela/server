@@ -199,8 +199,6 @@ func CreateBuild(c *gin.Context) {
 
 			// log the error for traceability
 			logrus.Error(err.Error())
-
-			// already returning: Don't overwrite any existing errors.
 		}
 	}()
 
@@ -217,11 +215,14 @@ func CreateBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
 
 	// check if the build event is a pull_request
+	//
+	//nolint:dupl // ignore similar code with CreateBuild/RestartBuild
 	if strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(input)
@@ -231,6 +232,7 @@ func CreateBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -242,6 +244,7 @@ func CreateBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
@@ -268,6 +271,7 @@ func CreateBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	} else {
@@ -294,6 +298,7 @@ func CreateBuild(c *gin.Context) {
 
 			return err
 		}
+
 		return nil
 	}
 
@@ -314,7 +319,9 @@ func CreateBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		compilerLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		_ = saveCompilerLog()
+
 		return
 	}
 
@@ -346,6 +353,7 @@ func CreateBuild(c *gin.Context) {
 		c.JSON(http.StatusOK, skip)
 
 		initLog.AppendData([]byte("Skipped Empty Build.\n"))
+
 		return
 	}
 
@@ -366,6 +374,7 @@ func CreateBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -378,6 +387,7 @@ func CreateBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
@@ -390,6 +400,7 @@ func CreateBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
 		initLog.AppendData([]byte(err.Error() + "\n"))
+
 		return
 	}
 
@@ -401,6 +412,7 @@ func CreateBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		return
 	}
 
@@ -1180,8 +1192,6 @@ func RestartBuild(c *gin.Context) {
 
 			// log the error for traceability
 			logrus.Error(err.Error())
-
-			// already returning: Don't overwrite any existing errors.
 		}
 	}()
 
@@ -1198,11 +1208,14 @@ func RestartBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
 
 	// check if the build event is a pull_request
+	//
+	//nolint:dupl // ignore similar code with CreateBuild/RestartBuild
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// capture number from build
 		number, err := getPRNumberFromBuild(b)
@@ -1212,6 +1225,7 @@ func RestartBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -1223,6 +1237,7 @@ func RestartBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
@@ -1250,6 +1265,7 @@ func RestartBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	} else {
@@ -1276,6 +1292,7 @@ func RestartBuild(c *gin.Context) {
 
 			return err
 		}
+
 		return nil
 	}
 
@@ -1296,7 +1313,9 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		compilerLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		_ = saveCompilerLog()
+
 		return
 	}
 
@@ -1328,6 +1347,7 @@ func RestartBuild(c *gin.Context) {
 		c.JSON(http.StatusOK, skip)
 
 		initLog.AppendData([]byte("Skipped Empty Build.\n"))
+
 		return
 	}
 
@@ -1348,6 +1368,7 @@ func RestartBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -1360,6 +1381,7 @@ func RestartBuild(c *gin.Context) {
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
@@ -1372,6 +1394,7 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
 		initLog.AppendData([]byte(err.Error() + "\n"))
+
 		return
 	}
 
@@ -1382,6 +1405,7 @@ func RestartBuild(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		return
 	}
 

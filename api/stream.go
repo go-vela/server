@@ -270,8 +270,6 @@ func PostStepStream(c *gin.Context) {
 
 // PostInitStepStream represents the API handler that
 // streams service logs to the database.
-//
-//nolint:dupl // separate service/step/initstep functions for consistency with API
 func PostInitStepStream(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

@@ -397,8 +397,6 @@ func PostWebhook(c *gin.Context) {
 
 			// log the error for traceability
 			logrus.Error(err.Error())
-
-			// already returning: Don't overwrite any existing errors.
 		}
 	}()
 
@@ -413,6 +411,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -437,6 +436,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
@@ -453,6 +453,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 	}
@@ -498,6 +499,7 @@ func PostWebhook(c *gin.Context) {
 				h.SetError(retErr.Error())
 
 				initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 				return
 			}
 		} else {
@@ -523,6 +525,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -574,6 +577,7 @@ func PostWebhook(c *gin.Context) {
 
 				return err
 			}
+
 			return nil
 		}
 
@@ -604,7 +608,9 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			compilerLog.AppendData([]byte(err.Error() + "\n"))
+
 			_ = saveCompilerLog()
+
 			return
 		}
 
@@ -637,6 +643,7 @@ func PostWebhook(c *gin.Context) {
 			c.JSON(http.StatusOK, skip)
 
 			initLog.AppendData([]byte("Skipped Empty Build.\n"))
+
 			return
 		}
 
@@ -666,6 +673,7 @@ func PostWebhook(c *gin.Context) {
 				h.SetError(retErr.Error())
 
 				initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 				return
 			}
 
@@ -680,6 +688,7 @@ func PostWebhook(c *gin.Context) {
 				h.SetError(retErr.Error())
 
 				initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 				return
 			}
 		}
@@ -716,6 +725,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 			return
 		}
 
@@ -733,6 +743,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		return
 	}
 
@@ -745,6 +756,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		return
 	}
 
@@ -757,6 +769,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		return
 	}
 
@@ -770,6 +783,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetError(retErr.Error())
 
 		initLog.AppendData([]byte(retErr.Error() + "\n"))
+
 		return
 	}
 

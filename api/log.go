@@ -291,6 +291,8 @@ func CreateServiceLog(c *gin.Context) {
 
 // GetServiceLog represents the API handler to capture
 // the logs for a service from the configured backend.
+//
+//nolint:dupl // ignore similar code with initstep/step/service
 func GetServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -685,6 +687,8 @@ func CreateStepLog(c *gin.Context) {
 
 // GetStepLog represents the API handler to capture
 // the logs for a step from the configured backend.
+//
+//nolint:dupl // ignore similar code with initstep/step/service
 func GetStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -979,8 +983,6 @@ func DeleteStepLog(c *gin.Context) {
 
 // CreateInitStepLog represents the API handler to create
 // the logs for an InitStep in the configured backend.
-//
-//nolint:dupl // ignore similar code with service
 func CreateInitStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -1079,6 +1081,8 @@ func CreateInitStepLog(c *gin.Context) {
 
 // GetInitStepLog represents the API handler to capture
 // the logs for an initstep from the configured backend.
+//
+//nolint:dupl // ignore similar code with initstep/step/service
 func GetInitStepLog(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)

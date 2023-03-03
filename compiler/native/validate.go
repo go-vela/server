@@ -67,6 +67,7 @@ func (c *client) Validate(p *yaml.Build) error {
 	if result != nil {
 		c.log.AppendData([]byte(fmt.Sprintf("pipeline Validate error: %v\n", result)))
 	}
+
 	return result
 }
 
