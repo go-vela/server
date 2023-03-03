@@ -35,7 +35,7 @@ func (e *engine) GetLogForService(s *library.Service) (*library.Log, error) {
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
-		// which allowing us to fetch uncompressed logs
+		// which allows us to fetch uncompressed logs
 		e.logger.Errorf("unable to decompress log for service %d for build %d: %v", s.GetID(), s.GetBuildID(), err)
 
 		// return the uncompressed log
