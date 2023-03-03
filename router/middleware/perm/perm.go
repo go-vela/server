@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -11,34 +11,123 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // MustPlatformAdmin ensures the user has admin access to the platform.
 func MustPlatformAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		u := user.Retrieve(c)
+		cl := claims.Retrieve(c)
 
 		// update engine logger with API metadata
 		//
 		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 		logrus.WithFields(logrus.Fields{
-			"user": u.GetName(),
-		}).Debugf("verifying user %s is a platform admin", u.GetName())
+			"user": cl.Subject,
+		}).Debugf("verifying user %s is a platform admin", cl.Subject)
 
 		switch {
-		case globalPerms(u):
+		case cl.IsAdmin:
 			return
 
 		default:
-			retErr := fmt.Errorf("user %s is not a platform admin", u.GetName())
+			if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+				logrus.WithFields(logrus.Fields{
+					"user":  cl.Subject,
+					"repo":  cl.Repo,
+					"build": cl.BuildID,
+				}).Warnf("attempted access of admin endpoint with build token from %s", cl.Subject)
+			}
+
+			retErr := fmt.Errorf("user %s is not a platform admin", cl.Subject)
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+	}
+}
+
+// MustWorker ensures the request is coming from an agent.
+func MustWorker() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
+
+		// global permissions bypass
+		if cl.IsAdmin {
+			logrus.WithFields(logrus.Fields{
+				"user": cl.Subject,
+			}).Debugf("user %s has platform admin permissions", cl.Subject)
+
+			return
+		}
+
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"subject": cl.Subject,
+		}).Debugf("verifying user %s is a worker", cl.Subject)
+
+		// validate claims as worker
+		switch {
+		case (strings.EqualFold(cl.Subject, "vela-worker") && strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType)):
+			return
+
+		default:
+			retErr := fmt.Errorf("user %s is not a worker", cl.Subject)
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+	}
+}
+
+// MustBuildAccess ensures the token is a build token for the appropriate build.
+func MustBuildAccess() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
+		b := build.Retrieve(c)
+
+		// global permissions bypass
+		if cl.IsAdmin {
+			logrus.WithFields(logrus.Fields{
+				"user": cl.Subject,
+			}).Debugf("user %s has platform admin permissions", cl.Subject)
+
+			return
+		}
+
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"worker": cl.Subject,
+		}).Debugf("verifying worker %s has a valid build token", cl.Subject)
+
+		// validate token type and match build id in request with build id in token claims
+		switch cl.TokenType {
+		case constants.WorkerBuildTokenType:
+			if b.GetID() == cl.BuildID {
+				return
+			}
+
+			logrus.WithFields(logrus.Fields{
+				"user":  cl.Subject,
+				"repo":  cl.Repo,
+				"build": cl.BuildID,
+			}).Warnf("build token for build %d attempted to be used for build %d by %s", cl.BuildID, b.GetID(), cl.Subject)
+
+			fallthrough
+		default:
+			retErr := fmt.Errorf("invalid token: must provide matching worker build token")
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return
@@ -49,11 +138,13 @@ func MustPlatformAdmin() gin.HandlerFunc {
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
 		u := user.Retrieve(c)
 		e := util.PathParameter(c, "engine")
 		t := util.PathParameter(c, "type")
 		o := util.PathParameter(c, "org")
 		n := util.PathParameter(c, "name")
+		s := util.PathParameter(c, "secret")
 		m := c.Request.Method
 
 		// create log fields from API metadata
@@ -82,8 +173,54 @@ func MustSecretAdmin() gin.HandlerFunc {
 		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 		logger := logrus.WithFields(fields)
 
-		if globalPerms(u) {
+		if u.GetAdmin() {
 			return
+		}
+
+		// if caller is worker with build token, verify it has access to requested secret
+		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+			// split repo full name into org and repo
+			repoSlice := strings.Split(cl.Repo, "/")
+			if len(repoSlice) != 2 {
+				logger.Errorf("unable to parse repo claim in build token")
+			}
+
+			org := repoSlice[0]
+			repo := repoSlice[1]
+
+			switch t {
+			case constants.SecretShared:
+				return
+			case constants.SecretOrg:
+				logger.Debugf("verifying subject %s has token permissions for org %s", cl.Subject, o)
+
+				if strings.EqualFold(org, o) {
+					return
+				}
+
+				logger.Warnf("build token for build %s/%d attempted to be used for secret %s/%s by %s", cl.Repo, cl.BuildID, o, s, cl.Subject)
+
+				retErr := fmt.Errorf("subject %s does not have token permissions for the org %s", cl.Subject, o)
+
+				util.HandleError(c, http.StatusUnauthorized, retErr)
+
+				return
+
+			case constants.SecretRepo:
+				logger.Debugf("verifying subject %s has token permissions for repo %s/%s", cl.Subject, o, n)
+
+				if strings.EqualFold(org, o) && strings.EqualFold(repo, n) {
+					return
+				}
+
+				logger.Warnf("build token for build %s/%d attempted to be used for secret %s/%s/%s by %s", cl.Repo, cl.BuildID, o, n, s, cl.Subject)
+
+				retErr := fmt.Errorf("subject %s does not have token permissions for the repo %s/%s", cl.Subject, o, n)
+
+				util.HandleError(c, http.StatusUnauthorized, retErr)
+
+				return
+			}
 		}
 
 		switch t {
@@ -178,7 +315,7 @@ func MustAdmin() gin.HandlerFunc {
 
 		logger.Debugf("verifying user %s has 'admin' permissions for repo %s", u.GetName(), r.GetFullName())
 
-		if globalPerms(u) {
+		if u.GetAdmin() {
 			return
 		}
 
@@ -236,7 +373,7 @@ func MustWrite() gin.HandlerFunc {
 
 		logger.Debugf("verifying user %s has 'write' permissions for repo %s", u.GetName(), r.GetFullName())
 
-		if globalPerms(u) {
+		if u.GetAdmin() {
 			return
 		}
 
@@ -280,6 +417,7 @@ func MustWrite() gin.HandlerFunc {
 // MustRead ensures the user has admin, write or read access to the repo.
 func MustRead() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
@@ -300,9 +438,24 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 
+		// return if request is from worker with build token access
+		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+			b := build.Retrieve(c)
+			if cl.BuildID == b.GetID() {
+				return
+			}
+
+			retErr := fmt.Errorf("subject %s does not have 'read' permissions for repo %s", cl.Subject, r.GetFullName())
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+
 		logger.Debugf("verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
-		if globalPerms(u) {
+		// return if user is platform admin
+		if u.GetAdmin() {
 			return
 		}
 
@@ -343,18 +496,4 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 	}
-}
-
-// helper function to check if the user is a platform admin.
-func globalPerms(user *library.User) bool {
-	switch {
-	// Agents have full access to endpoints
-	case user.GetName() == "vela-worker":
-		return true
-	// platform admins have full access to endpoints
-	case user.GetAdmin():
-		return true
-	}
-
-	return false
 }
