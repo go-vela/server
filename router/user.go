@@ -18,9 +18,6 @@ import (
 // GET    /api/v1/users/:user
 // PUT    /api/v1/users/:user
 // DELETE /api/v1/users/:user
-// GET    /api/v1/users/:user/source/repos
-// POST   /api/v1/users/:user/token
-// DELETE /api/v1/users/:user/token
 // GET    /api/v1/user
 // PUT    /api/v1/user
 // GET    /api/v1/user/source/repos

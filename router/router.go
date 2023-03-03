@@ -113,6 +113,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		//     * Log endpoints
 		//   * Step endpoints
 		//     * Log endpoints
+		//   * InitStep endpoints
+		//     * Log endpoints
 		RepoHandlers(baseAPI)
 
 		// Source code management endpoints

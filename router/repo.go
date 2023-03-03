@@ -32,7 +32,9 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build
 // PUT    /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build
+// DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/token
 // POST   /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
@@ -42,6 +44,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/stream .
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step
@@ -51,6 +54,17 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
+// POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/stream .
+// POST   /api/v1/repos/:org/:repo/builds/:build/initsteps
+// GET    /api/v1/repos/:org/:repo/builds/:build/initsteps
+// GET    /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep
+// PUT    /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep
+// DELETE /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep
+// POST   /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// PUT    /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/logs
+// POST   /api/v1/repos/:org/:repo/builds/:build/initsteps/:initstep/stream .
 func RepoHandlers(base *gin.RouterGroup) {
 	// Repos endpoints
 	_repos := base.Group("/repos")
@@ -77,6 +91,8 @@ func RepoHandlers(base *gin.RouterGroup) {
 				// * Service endpoints
 				//   * Log endpoints
 				// * Step endpoints
+				//   * Log endpoints
+				// * InitStep endpoints
 				//   * Log endpoints
 				BuildHandlers(_repo)
 			} // end of repo endpoints

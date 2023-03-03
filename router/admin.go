@@ -18,6 +18,7 @@ import (
 // PUT    /api/v1/admin/build
 // PUT    /api/v1/admin/deployment
 // PUT    /api/v1/admin/hook
+// PUT    /api/v1/admin/initstep
 // PUT    /api/v1/admin/repo
 // PUT    /api/v1/admin/secret
 // PUT    /api/v1/admin/service
@@ -38,6 +39,9 @@ func AdminHandlers(base *gin.RouterGroup) {
 
 		// Admin hook endpoint
 		_admin.PUT("/hook", admin.UpdateHook)
+
+		// Admin initstep endpoint
+		_admin.PUT("/initstep", admin.UpdateInitStep)
 
 		// Admin repo endpoint
 		_admin.PUT("/repo", admin.UpdateRepo)
