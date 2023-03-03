@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/api/initstep"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -387,6 +388,21 @@ func PostWebhook(c *gin.Context) {
 	logrus.Debug("updating status to pending")
 	b.SetStatus(constants.StatusPending)
 
+	// We now have enough to create an InitStep to log info,
+	// Because we've populated b.RepoID and b.Number.
+	initStep, initLog := library.InitStepLogFromBuild(b)
+	defer func() {
+		initStep, initLog, err = initstep.SaveLog(c, b, initStep, initLog)
+		if err != nil {
+			err = fmt.Errorf("failed to create webhook init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			// already returning: Don't overwrite any existing errors.
+		}
+	}()
+
 	// if this is a comment on a pull_request event
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
 		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
@@ -397,6 +413,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -420,6 +437,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -435,6 +453,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -458,6 +477,7 @@ func PostWebhook(c *gin.Context) {
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
 	for i := 0; i < retryLimit; i++ {
+		initLog.AppendData([]byte(fmt.Sprintf("Compiling pipeline - attempt %d/%d\n", i+1, retryLimit)))
 		logrus.Debugf("compilation loop - attempt %d", i+1)
 		// check if we're on the first iteration of the loop
 		if i > 0 {
@@ -478,6 +498,7 @@ func PostWebhook(c *gin.Context) {
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(retErr.Error())
 
+				initLog.AppendData([]byte(retErr.Error() + "\n"))
 				return
 			}
 		} else {
@@ -502,6 +523,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -536,6 +558,26 @@ func PostWebhook(c *gin.Context) {
 			r.SetPipelineType(pipeline.GetType())
 		}
 
+		compilerStep, compilerLog := library.InitStepLogFromBuild(b)
+		saveCompilerLog := func() error {
+			compilerStep, compilerLog, err = initstep.SaveLog(c, b, compilerStep, compilerLog)
+			if err != nil {
+				err = fmt.Errorf("failed to create compiler init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+				// log the error for traceability
+				logrus.Error(err.Error())
+
+				retErr := fmt.Errorf("%s: %w", baseErr, err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return err
+			}
+			return nil
+		}
+
 		var compiled *library.Pipeline
 		// parse and compile the pipeline configuration file
 		p, compiled, err = compiler.FromContext(c).
@@ -546,8 +588,10 @@ func PostWebhook(c *gin.Context) {
 			WithMetadata(m).
 			WithRepo(r).
 			WithUser(u).
+			WithLog(compilerLog).
 			Compile(config)
 		if err != nil {
+			// TODO: create an InitStep for the build?
 			// format the error message with extra information
 			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -560,6 +604,13 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
 
+			compilerLog.AppendData([]byte(err.Error() + "\n"))
+			_ = saveCompilerLog()
+			return
+		}
+
+		err = saveCompilerLog()
+		if err != nil {
 			return
 		}
 
@@ -580,11 +631,13 @@ func PostWebhook(c *gin.Context) {
 			// send API call to set the status on the commit
 			err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 			if err != nil {
+				compilerLog.AppendData([]byte(err.Error() + "\n"))
 				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 			}
 
 			c.JSON(http.StatusOK, skip)
 
+			initLog.AppendData([]byte("Skipped Empty Build.\n"))
 			return
 		}
 
@@ -613,6 +666,7 @@ func PostWebhook(c *gin.Context) {
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(retErr.Error())
 
+				initLog.AppendData([]byte(retErr.Error() + "\n"))
 				return
 			}
 
@@ -626,6 +680,7 @@ func PostWebhook(c *gin.Context) {
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(retErr.Error())
 
+				initLog.AppendData([]byte(retErr.Error() + "\n"))
 				return
 			}
 		}
@@ -661,6 +716,7 @@ func PostWebhook(c *gin.Context) {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(retErr.Error())
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -677,6 +733,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
+		initLog.AppendData([]byte(retErr.Error() + "\n"))
 		return
 	}
 
@@ -688,6 +745,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
+		initLog.AppendData([]byte(retErr.Error() + "\n"))
 		return
 	}
 
@@ -699,6 +757,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
+		initLog.AppendData([]byte(retErr.Error() + "\n"))
 		return
 	}
 
@@ -711,6 +770,7 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
+		initLog.AppendData([]byte(retErr.Error() + "\n"))
 		return
 	}
 
@@ -722,7 +782,9 @@ func PostWebhook(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		msg := fmt.Sprintf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		logrus.Error(msg)
+		initLog.AppendData([]byte(msg + "\n"))
 	}
 
 	// publish the build to the queue
@@ -734,6 +796,8 @@ func PostWebhook(c *gin.Context) {
 		r,
 		u,
 	)
+
+	initLog.AppendData([]byte("Done processing webhook.\n"))
 }
 
 // publishToQueue is a helper function that creates

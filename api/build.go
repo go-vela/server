@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/api/initstep"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
@@ -189,6 +190,21 @@ func CreateBuild(c *gin.Context) {
 		)
 	}
 
+	// We now have enough to create an InitStep to log info,
+	// Because we've populated input.RepoID and input.Number.
+	initStep, initLog := library.InitStepLogFromBuild(input)
+	defer func() {
+		initStep, initLog, err = initstep.SaveLog(c, input, initStep, initLog)
+		if err != nil {
+			err = fmt.Errorf("failed to create init step log for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			// already returning: Don't overwrite any existing errors.
+		}
+	}()
+
 	// variable to store changeset files
 	var files []string
 	// check if the build event is not issue_comment or pull_request
@@ -201,6 +217,7 @@ func CreateBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -214,6 +231,7 @@ func CreateBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -224,6 +242,7 @@ func CreateBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -249,6 +268,7 @@ func CreateBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	} else {
@@ -265,6 +285,19 @@ func CreateBuild(c *gin.Context) {
 		r.SetPipelineType(pipeline.GetType())
 	}
 
+	compilerStep, compilerLog := library.InitStepLogFromBuild(input)
+	saveCompilerLog := func() error {
+		compilerStep, compilerLog, err = initstep.SaveLog(c, input, compilerStep, compilerLog)
+		if err != nil {
+			retErr := fmt.Errorf("failed to create compiler init step log for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return err
+		}
+		return nil
+	}
+
 	var compiled *library.Pipeline
 	// parse and compile the pipeline configuration file
 	p, compiled, err = compiler.FromContext(c).
@@ -274,14 +307,23 @@ func CreateBuild(c *gin.Context) {
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
+		WithLog(compilerLog).
 		Compile(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
+		compilerLog.AppendData([]byte(retErr.Error() + "\n"))
+		_ = saveCompilerLog()
 		return
 	}
+
+	err = saveCompilerLog()
+	if err != nil {
+		return
+	}
+
 	// reset the pipeline type for the repo
 	//
 	// The pipeline type for a repo can change at any time which can break compiling
@@ -304,6 +346,7 @@ func CreateBuild(c *gin.Context) {
 
 		c.JSON(http.StatusOK, skip)
 
+		initLog.AppendData([]byte("Skipped Empty Build.\n"))
 		return
 	}
 
@@ -323,6 +366,7 @@ func CreateBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -334,6 +378,7 @@ func CreateBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -345,6 +390,7 @@ func CreateBuild(c *gin.Context) {
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
+		initLog.AppendData([]byte(err.Error() + "\n"))
 		return
 	}
 
@@ -355,6 +401,7 @@ func CreateBuild(c *gin.Context) {
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
+		initLog.AppendData([]byte(retErr.Error() + "\n"))
 		return
 	}
 
@@ -366,7 +413,9 @@ func CreateBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
 	if err != nil {
-		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		msg := fmt.Sprintf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		logrus.Error(msg)
+		initLog.AppendData([]byte(msg + "\n"))
 	}
 
 	// publish the build to the queue
@@ -378,6 +427,8 @@ func CreateBuild(c *gin.Context) {
 		r,
 		u,
 	)
+
+	initLog.AppendData([]byte("Done restarting build.\n"))
 }
 
 // skipEmptyBuild checks if the build should be skipped due to it
@@ -1120,6 +1171,21 @@ func RestartBuild(c *gin.Context) {
 		)
 	}
 
+	// We now have enough to create an InitStep to log info,
+	// Because we've populated input.RepoID and input.Number.
+	initStep, initLog := library.InitStepLogFromBuild(b)
+	defer func() {
+		initStep, initLog, err = initstep.SaveLog(c, b, initStep, initLog)
+		if err != nil {
+			err = fmt.Errorf("failed to create init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+			// log the error for traceability
+			logrus.Error(err.Error())
+
+			// already returning: Don't overwrite any existing errors.
+		}
+	}()
+
 	// variable to store changeset files
 	var files []string
 	// check if the build event is not issue_comment or pull_request
@@ -1132,6 +1198,7 @@ func RestartBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -1145,6 +1212,7 @@ func RestartBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -1155,6 +1223,7 @@ func RestartBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -1181,6 +1250,7 @@ func RestartBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusNotFound, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	} else {
@@ -1197,6 +1267,19 @@ func RestartBuild(c *gin.Context) {
 		r.SetPipelineType(pipeline.GetType())
 	}
 
+	compilerStep, compilerLog := library.InitStepLogFromBuild(b)
+	saveCompilerLog := func() error {
+		compilerStep, compilerLog, err = initstep.SaveLog(c, b, compilerStep, compilerLog)
+		if err != nil {
+			retErr := fmt.Errorf("failed to create compiler init step log for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return err
+		}
+		return nil
+	}
+
 	var compiled *library.Pipeline
 	// parse and compile the pipeline configuration file
 	p, compiled, err = compiler.FromContext(c).
@@ -1206,14 +1289,23 @@ func RestartBuild(c *gin.Context) {
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
+		WithLog(compilerLog).
 		Compile(config)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
+		compilerLog.AppendData([]byte(retErr.Error() + "\n"))
+		_ = saveCompilerLog()
 		return
 	}
+
+	err = saveCompilerLog()
+	if err != nil {
+		return
+	}
+
 	// reset the pipeline type for the repo
 	//
 	// The pipeline type for a repo can change at any time which can break compiling
@@ -1236,6 +1328,7 @@ func RestartBuild(c *gin.Context) {
 
 		c.JSON(http.StatusOK, skip)
 
+		initLog.AppendData([]byte("Skipped Empty Build.\n"))
 		return
 	}
 
@@ -1255,6 +1348,7 @@ func RestartBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 
@@ -1266,6 +1360,7 @@ func RestartBuild(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			initLog.AppendData([]byte(retErr.Error() + "\n"))
 			return
 		}
 	}
@@ -1277,6 +1372,7 @@ func RestartBuild(c *gin.Context) {
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
+		initLog.AppendData([]byte(err.Error() + "\n"))
 		return
 	}
 
@@ -1286,6 +1382,7 @@ func RestartBuild(c *gin.Context) {
 		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
+		initLog.AppendData([]byte(retErr.Error() + "\n"))
 		return
 	}
 
@@ -1297,7 +1394,9 @@ func RestartBuild(c *gin.Context) {
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {
-		logger.Errorf("unable to set commit status for build %s: %v", entry, err)
+		msg := fmt.Sprintf("unable to set commit status for build %s: %v", entry, err)
+		logrus.Error(msg)
+		initLog.AppendData([]byte(msg + "\n"))
 	}
 
 	// publish the build to the queue
@@ -1309,6 +1408,8 @@ func RestartBuild(c *gin.Context) {
 		r,
 		u,
 	)
+
+	initLog.AppendData([]byte("Done restarting build.\n"))
 }
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build} builds UpdateBuild
