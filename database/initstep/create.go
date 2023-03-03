@@ -14,8 +14,10 @@ import (
 // CreateInitStep creates a new init step in the database.
 func (e *engine) CreateInitStep(i *library.InitStep) error {
 	e.logger.WithFields(logrus.Fields{
+		"repo_id":  i.GetRepoID(),
+		"build_id": i.GetBuildID(),
 		"initstep": i.GetNumber(),
-	}).Tracef("creating init step %d in the database", i.GetID())
+	}).Tracef("creating init step %d in the database", i.GetNumber())
 
 	// cast the library type to database type
 	//

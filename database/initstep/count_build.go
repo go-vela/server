@@ -13,7 +13,8 @@ import (
 // CountInitStepsForBuild gets the count of inits by build ID from the database.
 func (e *engine) CountInitStepsForBuild(b *library.Build) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
+		"repo_id": b.GetRepoID(),
+		"build":   b.GetNumber(),
 	}).Tracef("getting count of init steps for build %d from the database", b.GetID())
 
 	// variable to store query results
