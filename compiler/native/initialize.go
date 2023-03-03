@@ -20,6 +20,8 @@ const (
 
 // InitStage injects the init stage process into a yaml configuration.
 func (c *client) InitStage(p *yaml.Build) (*yaml.Build, error) {
+	c.log.AppendData([]byte("injecting init stage (deprecated)\n"))
+
 	stages := yaml.StageSlice{}
 
 	// create new clone stage
@@ -50,6 +52,8 @@ func (c *client) InitStage(p *yaml.Build) (*yaml.Build, error) {
 
 // InitStep injects the init step process into a yaml configuration.
 func (c *client) InitStep(p *yaml.Build) (*yaml.Build, error) {
+	c.log.AppendData([]byte("injecting init step (deprecated)\n"))
+
 	steps := yaml.StepSlice{}
 
 	// create new init step

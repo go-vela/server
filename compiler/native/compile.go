@@ -44,6 +44,7 @@ type ModifyResponse struct {
 func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
+		c.log.AppendData([]byte("pipeline parse failed\n"))
 		return nil, nil, err
 	}
 
@@ -195,6 +196,8 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 
 // compileInline parses and expands out inline pipelines.
 func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Build, error) {
+	c.log.AppendData([]byte("rendering inline pipeline template...\n"))
+
 	newPipeline := *p
 	newPipeline.Templates = yaml.TemplateSlice{}
 
@@ -289,6 +292,8 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 //
 //nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
+	c.log.AppendData([]byte("compiling steps...\n"))
+
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -316,6 +321,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 		// send config to external endpoint for modification
 		p, err = c.modifyConfig(p, c.build, c.repo)
 		if err != nil {
+			c.log.AppendData([]byte("modification endpoint error\n"))
 			return nil, _pipeline, err
 		}
 	}
@@ -386,6 +392,8 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 //
 //nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
+	c.log.AppendData([]byte("compiling stages...\n"))
+
 	var err error
 
 	// check if the pipeline disabled the clone
@@ -413,6 +421,7 @@ func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls
 		// send config to external endpoint for modification
 		p, err = c.modifyConfig(p, c.build, c.repo)
 		if err != nil {
+			c.log.AppendData([]byte("modification endpoint error\n"))
 			return nil, _pipeline, err
 		}
 	}
@@ -490,6 +499,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 
 // modifyConfig sends the configuration to external http endpoint for modification.
 func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *library.Repo) (*yaml.Build, error) {
+	c.log.AppendData([]byte("sending pipeline to modification endpoint\n"))
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {

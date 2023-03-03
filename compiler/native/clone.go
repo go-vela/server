@@ -24,6 +24,8 @@ func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 		return p, nil
 	}
 
+	c.log.AppendData([]byte("injecting clone stage\n"))
+
 	stages := yaml.StageSlice{}
 
 	// create new clone stage
@@ -59,6 +61,8 @@ func (c *client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 		// skip injecting the clone process
 		return p, nil
 	}
+
+	c.log.AppendData([]byte("injecting clone step\n"))
 
 	steps := yaml.StepSlice{}
 

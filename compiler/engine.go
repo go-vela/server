@@ -139,4 +139,7 @@ type Engine interface {
 	// WithUser defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine
+	// WithLog defines a function that sets
+	// the library log type in the Engine.
+	WithLog(*library.Log) Engine
 }
