@@ -19,6 +19,9 @@ func TestInitStep_Engine_GetInitStepForBuild(t *testing.T) {
 	_initStep.SetRepoID(1)
 	_initStep.SetBuildID(1)
 	_initStep.SetNumber(1)
+	_initStep.SetReporter("Foobar Runtime")
+	_initStep.SetName("foobar")
+	_initStep.SetMimetype("text/plain")
 
 	_build := testBuild()
 	_build.SetID(1)

@@ -41,7 +41,7 @@ func TestInitStep_Engine_ListInitStepsForBuild(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "initsteps" WHERE build_id = $1`).WithArgs(1).WillReturnRows(_rows)
@@ -49,7 +49,6 @@ func TestInitStep_Engine_ListInitStepsForBuild(t *testing.T) {
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "build_id", "number", "reporter", "name", "mimetype"}).
-		AddRow(2, 1, 2, 2, "Foobar Runtime", "foobar", "text/plain").
 		AddRow(1, 1, 1, 1, "Foobar Runtime", "foobar", "text/plain")
 
 	// ensure the mock expects the query
@@ -79,13 +78,13 @@ func TestInitStep_Engine_ListInitStepsForBuild(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.InitStep{_initStepTwo, _initStepOne},
+			want:     []*library.InitStep{_initStepOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.InitStep{_initStepTwo, _initStepOne},
+			want:     []*library.InitStep{_initStepOne},
 		},
 	}
 

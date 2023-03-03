@@ -37,9 +37,7 @@ func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*libra
 	err = e.client.
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
-		// Sqlite defaults to NULLS FIRST; Postgres defaults to NULLS LAST
-		Order("initstep_id ASC NULLS LAST").
-		Order("step_id ASC NULLS LAST").
+		Order("step_id ASC").
 		Limit(perPage).
 		Offset(offset).
 		Find(&l).
