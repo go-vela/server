@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -7,6 +7,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/go-vela/types/constants"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -46,8 +48,16 @@ func validateCore(c *cli.Context) error {
 		return fmt.Errorf("server-addr (VELA_ADDR or VELA_HOST) flag must not have trailing slash")
 	}
 
+	if len(c.String("clone-image")) == 0 {
+		return fmt.Errorf("clone-image (VELA_CLONE_IMAGE) flag is not properly configured")
+	}
+
 	if len(c.String("vela-secret")) == 0 {
 		return fmt.Errorf("vela-secret (VELA_SECRET) flag is not properly configured")
+	}
+
+	if len(c.String("vela-server-private-key")) == 0 {
+		return fmt.Errorf("vela-server-private-key (VELA_SERVER_PRIVATE_KEY) flag is not properly configured")
 	}
 
 	if len(c.String("webui-addr")) == 0 {
@@ -66,8 +76,12 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
-	if c.Duration("refresh-token-duration").Seconds() <= c.Duration("access-token-duration").Seconds() {
-		return fmt.Errorf("refresh-token-duration (VELA_REFRESH_TOKEN_DURATION) must be larger than the access-token-duration (VELA_ACCESS_TOKEN_DURATION)")
+	if c.Duration("user-refresh-token-duration").Seconds() <= c.Duration("user-access-token-duration").Seconds() {
+		return fmt.Errorf("user-refresh-token-duration (VELA_USER_REFRESH_TOKEN_DURATION) must be larger than the user-access-token-duration (VELA_USER_ACCESS_TOKEN_DURATION)")
+	}
+
+	if c.Duration("build-token-buffer-duration").Seconds() < 0 {
+		return fmt.Errorf("build-token-buffer-duration (VELA_BUILD_TOKEN_BUFFER_DURATION) must not be a negative time value")
 	}
 
 	if c.Int64("default-build-limit") == 0 {
@@ -76,6 +90,18 @@ func validateCore(c *cli.Context) error {
 
 	if c.Int64("max-build-limit") == 0 {
 		return fmt.Errorf("max-build-limit (VELA_MAX_BUILD_LIMIT) flag must be greater than 0")
+	}
+
+	for _, event := range c.StringSlice("default-repo-events") {
+		switch event {
+		case constants.EventPull:
+		case constants.EventPush:
+		case constants.EventDeploy:
+		case constants.EventTag:
+		case constants.EventComment:
+		default:
+			return fmt.Errorf("default-repo-events (VELA_DEFAULT_REPO_EVENTS) has the unsupported value of %s", event)
+		}
 	}
 
 	return nil

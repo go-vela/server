@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -75,6 +75,17 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
+			Name:    "vela-server-private-key",
+			Usage:   "private key used for signing tokens",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_CLONE_IMAGE"},
+			Name:    "clone-image",
+			Usage:   "the clone image to use for the injected clone step",
+			Value:   "target/vela-git:v0.7.0@sha256:c2e8794556d6debceeaa2c82ff3cc9e8e6ed045b723419e3ff050409f25cc258",
+		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
 			Name:    "vela-repo-allowlist",
@@ -84,9 +95,8 @@ func main() {
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_DISABLE_WEBHOOK_VALIDATION"},
 			Name:    "vela-disable-webhook-validation",
-
-			Usage: "determines whether or not webhook validation is disabled.  useful for local development.",
-			Value: false,
+			Usage:   "determines whether or not webhook validation is disabled.  useful for local development.",
+			Value:   false,
 		},
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_ENABLE_SECURE_COOKIE"},
@@ -112,18 +122,30 @@ func main() {
 			Usage:   "override default build timeout (minutes)",
 			Value:   constants.BuildTimeoutDefault,
 		},
-		// Security Flags
+		&cli.StringSliceFlag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS"},
+			Name:    "default-repo-events",
+			Usage:   "override default events for newly activated repositories",
+			Value:   cli.NewStringSlice(constants.EventPush),
+		},
+		// Token Manager Flags
 		&cli.DurationFlag{
-			EnvVars: []string{"VELA_ACCESS_TOKEN_DURATION", "ACCESS_TOKEN_DURATION"},
-			Name:    "access-token-duration",
-			Usage:   "sets the duration of the access token",
+			EnvVars: []string{"VELA_USER_ACCESS_TOKEN_DURATION", "USER_ACCESS_TOKEN_DURATION"},
+			Name:    "user-access-token-duration",
+			Usage:   "sets the duration of the user access token",
 			Value:   15 * time.Minute,
 		},
 		&cli.DurationFlag{
-			EnvVars: []string{"VELA_REFRESH_TOKEN_DURATION", "REFRESH_TOKEN_DURATION"},
-			Name:    "refresh-token-duration",
-			Usage:   "sets the duration of the refresh token",
+			EnvVars: []string{"VELA_USER_REFRESH_TOKEN_DURATION", "USER_REFRESH_TOKEN_DURATION"},
+			Name:    "user-refresh-token-duration",
+			Usage:   "sets the duration of the user refresh token",
 			Value:   8 * time.Hour,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_BUILD_TOKEN_BUFFER_DURATION", "BUILD_TOKEN_BUFFER_DURATION"},
+			Name:    "build-token-buffer-duration",
+			Usage:   "sets the duration of the buffer for build token expiration based on repo build timeout",
+			Value:   5 * time.Minute,
 		},
 		// Compiler Flags
 		&cli.BoolFlag{
@@ -149,22 +171,19 @@ func main() {
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_SECRET", "MODIFICATION_SECRET"},
 			Name:    "modification-secret",
-
-			Usage: "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
+			Usage:   "modification secret, used by compiler, secret to allow connectivity between compiler and modification endpoint",
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_MODIFICATION_TIMEOUT", "MODIFICATION_TIMEOUT"},
 			Name:    "modification-timeout",
-
-			Usage: "modification timeout, used by compiler, duration that the modification http request will timeout after",
-			Value: 8 * time.Second,
+			Usage:   "modification timeout, used by compiler, duration that the modification http request will timeout after",
+			Value:   8 * time.Second,
 		},
 		&cli.IntFlag{
 			EnvVars: []string{"VELA_MODIFICATION_RETRIES", "MODIFICATION_RETRIES"},
 			Name:    "modification-retries",
-
-			Usage: "modification retries, used by compiler, number of http requires that the modification http request will fail after",
-			Value: 5,
+			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
+			Value:   5,
 		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
