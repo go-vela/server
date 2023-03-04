@@ -25,7 +25,8 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"user": u.GetName(),
-		}).Warnf("skipping access level check for user %s with org %s", u.GetName(), org)
+		}).Debugf("skipping access level check for user %s with org %s", u.GetName(), org)
+
 		//nolint:goconst // ignore making constant
 		return "admin", nil
 	}
@@ -61,8 +62,8 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 			"org":  org,
 			"repo": repo,
 			"user": u.GetName(),
-		}).Warnf("skipping access level check for user %s with repo %s/%s", u.GetName(), org, repo)
-		//nolint:goconst // ignore making constant
+		}).Debugf("skipping access level check for user %s with repo %s/%s", u.GetName(), org, repo)
+
 		return "admin", nil
 	}
 
@@ -92,8 +93,8 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 			"org":  org,
 			"team": team,
 			"user": u.GetName(),
-		}).Warnf("skipping access level check for user %s with team %s/%s", u.GetName(), org, team)
-		//nolint:goconst // ignore making constant
+		}).Debugf("skipping access level check for user %s with team %s/%s", u.GetName(), org, team)
+
 		return "admin", nil
 	}
 

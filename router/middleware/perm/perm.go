@@ -136,6 +136,8 @@ func MustBuildAccess() gin.HandlerFunc {
 }
 
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
+//
+//nolint:funlen // ignore function length
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
@@ -261,7 +263,8 @@ func MustSecretAdmin() gin.HandlerFunc {
 					logger.WithFields(logrus.Fields{
 						"org":  o,
 						"user": u.GetName(),
-					}).Warnf("skipping gathering teams for user %s with org %s", u.GetName(), o)
+					}).Debugf("skipping gathering teams for user %s with org %s", u.GetName(), o)
+
 					return
 				}
 

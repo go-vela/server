@@ -137,6 +137,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 			"repo": name,
 			"user": u.GetName(),
 		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+
 		return nil
 	}
 
