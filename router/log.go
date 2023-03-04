@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -23,7 +23,7 @@ func LogServiceHandlers(base *gin.RouterGroup) {
 	{
 		logs.POST("", perm.MustAdmin(), api.CreateServiceLog)
 		logs.GET("", perm.MustRead(), api.GetServiceLog)
-		logs.PUT("", perm.MustWrite(), api.UpdateServiceLog)
+		logs.PUT("", perm.MustBuildAccess(), api.UpdateServiceLog)
 		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteServiceLog)
 	} // end of logs endpoints
 }
@@ -41,7 +41,7 @@ func LogStepHandlers(base *gin.RouterGroup) {
 	{
 		logs.POST("", perm.MustAdmin(), api.CreateStepLog)
 		logs.GET("", perm.MustRead(), api.GetStepLog)
-		logs.PUT("", perm.MustWrite(), api.UpdateStepLog)
+		logs.PUT("", perm.MustBuildAccess(), api.UpdateStepLog)
 		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteStepLog)
 	} // end of logs endpoints
 }
