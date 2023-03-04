@@ -75,14 +75,26 @@ func RepairRepo(c *gin.Context) {
 		return
 	}
 
-	// send API call to create the webhook
-	_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
-	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
+	// check if we should create the webhook
+	if c.Value("webhookvalidation").(bool) {
+		// send API call to create the webhook
+		_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+		if err != nil {
+			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+			switch err.Error() {
+			case "repo already enabled":
+				util.HandleError(c, http.StatusConflict, retErr)
+				return
+			case "repo not found":
+				util.HandleError(c, http.StatusNotFound, retErr)
+				return
+			}
 
-		return
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
 	}
 
 	// if the repo was previously inactive, mark it as active

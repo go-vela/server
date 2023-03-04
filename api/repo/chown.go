@@ -67,7 +67,7 @@ func ChownRepo(c *gin.Context) {
 	// update repo owner
 	r.SetUserID(u.GetID())
 
-	// send API call to updated the repo
+	// send API call to update the repo
 	err := database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to change owner of repo %s to %s: %w", r.GetFullName(), u.GetName(), err)
