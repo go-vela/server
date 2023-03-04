@@ -29,7 +29,9 @@ func TestSecret_New(t *testing.T) {
 	defer _sql.Close()
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
@@ -123,7 +125,9 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -174,7 +178,7 @@ func testSqlite(t *testing.T) *engine {
 
 // TestSecret is a test helper function to create a library
 // Repo type with all fields set to their zero values.
-func TestSecret() *library.Repo {
+func TestSecret() *library.Secret {
 	return &library.Repo{
 		ID:           new(int64),
 		UserID:       new(int64),

@@ -14,6 +14,7 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
@@ -55,6 +56,8 @@ type (
 		pipeline.PipelineService
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
 		repo.RepoService
+		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretService
+		secret.SecretService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
 		// https://pkg.go.dev/github.com/go-vela/server/database/worker#WorkerService
@@ -380,6 +383,19 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
+	c.SecretService, err = secret.New(
+		secret.WithClient(c.Postgres),
+		secret.WithEncryptionKey(c.config.EncryptionKey),
+		secret.WithLogger(c.Logger),
+		secret.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

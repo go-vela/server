@@ -5,9 +5,10 @@
 package secret
 
 import (
+	"strings"
+
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
 // CountSecretsForTeam gets the count of secrets by org and team name from the database.
@@ -35,7 +36,7 @@ func (e *engine) CountSecretsForTeam(org, team string, filters map[string]interf
 }
 
 // CountSecretsForTeams gets the count of secrets by teams within an org from the database.
-func (e *engine) CountSecretsForTeams(org, teams []string, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountSecretsForTeams(org string, teams []string, filters map[string]interface{}) (int64, error) {
 	// iterate through the list of teams provided
 	for index, team := range teams {
 		// ensure the team name is lower case
