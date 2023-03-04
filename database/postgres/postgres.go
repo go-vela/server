@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
@@ -45,6 +47,10 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
+		hook.HookService
+		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
+		log.LogService
 		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
 		pipeline.PipelineService
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
@@ -149,12 +155,22 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
+	// ensure the mock expects the hook queries
+	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the log queries
+	_mock.ExpectExec(log.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(log.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the pipeline queries
 	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the repo queries
 	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the worker queries
 	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -243,18 +259,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the hooks table
-	err = c.Postgres.Exec(ddl.CreateHookTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableHook, err)
-	}
-
-	// create the logs table
-	err = c.Postgres.Exec(ddl.CreateLogTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableLog, err)
-	}
-
 	// create the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTable).Error
 	if err != nil {
@@ -305,18 +309,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create builds_source index for the %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the hooks_repo_id index for the hooks table
-	err = c.Postgres.Exec(ddl.CreateHookRepoIDIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create hooks_repo_id index for the %s table: %w", constants.TableHook, err)
-	}
-
-	// create the logs_build_id index for the logs table
-	err = c.Postgres.Exec(ddl.CreateLogBuildIDIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create logs_build_id index for the %s table: %w", constants.TableLog, err)
-	}
-
 	// create the secrets_type_org_repo index for the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTypeOrgRepo).Error
 	if err != nil {
@@ -341,6 +333,31 @@ func createIndexes(c *client) error {
 // createServices is a helper function to create the database services.
 func createServices(c *client) error {
 	var err error
+
+	// create the database agnostic hook service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/hook#New
+	c.HookService, err = hook.New(
+		hook.WithClient(c.Postgres),
+		hook.WithLogger(c.Logger),
+		hook.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic log service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/log#New
+	c.LogService, err = log.New(
+		log.WithClient(c.Postgres),
+		log.WithCompressionLevel(c.config.CompressionLevel),
+		log.WithLogger(c.Logger),
+		log.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
 
 	// create the database agnostic pipeline service
 	//

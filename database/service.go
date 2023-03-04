@@ -1,10 +1,12 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
 package database
 
 import (
+	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
@@ -72,53 +74,13 @@ type Service interface {
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
 
-	// Hook Database Interface Functions
+	// HookService provides the interface for functionality
+	// related to hooks stored in the database.
+	hook.HookService
 
-	// GetHook defines a function that
-	// gets a webhook by number and repo ID.
-	GetHook(int, *library.Repo) (*library.Hook, error)
-	// GetLastHook defines a function that
-	// gets the last hook by repo ID.
-	GetLastHook(*library.Repo) (*library.Hook, error)
-	// GetHookList defines a function that gets
-	// a list of all webhooks.
-	GetHookList() ([]*library.Hook, error)
-	// GetRepoHookList defines a function that
-	// gets a list of webhooks by repo ID.
-	GetRepoHookList(*library.Repo, int, int) ([]*library.Hook, error)
-	// GetRepoHookCount defines a function that
-	// gets the count of webhooks by repo ID.
-	GetRepoHookCount(*library.Repo) (int64, error)
-	// CreateHook defines a function that
-	// creates a new webhook.
-	CreateHook(*library.Hook) error
-	// UpdateHook defines a function that
-	// updates a webhook.
-	UpdateHook(*library.Hook) error
-	// DeleteHook defines a function that
-	// deletes a webhook by unique ID.
-	DeleteHook(int64) error
-
-	// Log Database Interface Functions
-
-	// GetStepLog defines a function that
-	// gets a step log by unique ID.
-	GetStepLog(int64) (*library.Log, error)
-	// GetServiceLog defines a function that
-	// gets a service log by unique ID.
-	GetServiceLog(int64) (*library.Log, error)
-	// GetBuildLogs defines a function that
-	// gets a list of logs by build ID.
-	GetBuildLogs(int64) ([]*library.Log, error)
-	// CreateLog defines a function that
-	// creates a new log.
-	CreateLog(*library.Log) error
-	// UpdateLog defines a function that
-	// updates a log.
-	UpdateLog(*library.Log) error
-	// DeleteLog defines a function that
-	// deletes a log by unique ID.
-	DeleteLog(int64) error
+	// LogService provides the interface for functionality
+	// related to logs stored in the database.
+	log.LogService
 
 	// PipelineService provides the interface for functionality
 	// related to pipelines stored in the database.

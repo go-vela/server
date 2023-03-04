@@ -230,6 +230,14 @@ func UpdateRepo(c *gin.Context) {
 		)
 	}
 
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
 	// send API call to update the repo
 	err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {

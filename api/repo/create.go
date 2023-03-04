@@ -74,6 +74,7 @@ func CreateRepo(c *gin.Context) {
 	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -146,13 +147,32 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// fields restricted to platform admins
+	if u.GetAdmin() {
+		// trusted default is false
+		if input.GetTrusted() != r.GetTrusted() {
+			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
 		!input.GetAllowComment() {
-		// default events to push and pull_request
-		r.SetAllowPull(true)
-		r.SetAllowPush(true)
+		for _, event := range defaultRepoEvents {
+			switch event {
+			case constants.EventPull:
+				r.SetAllowPull(true)
+			case constants.EventPush:
+				r.SetAllowPush(true)
+			case constants.EventDeploy:
+				r.SetAllowDeploy(true)
+			case constants.EventTag:
+				r.SetAllowTag(true)
+			case constants.EventComment:
+				r.SetAllowComment(true)
+			}
+		}
 	} else {
 		r.SetAllowComment(input.GetAllowComment())
 		r.SetAllowDeploy(input.GetAllowDeploy())
@@ -279,11 +299,12 @@ func CreateRepo(c *gin.Context) {
 }
 
 // checkAllowlist is a helper function to ensure only repos in the
-// allowlist are allowed to enable repos. If the allowlist is
-// empty then any repo can be enabled.
+// allowlist are allowed to enable repos.
+//
+// a single entry of '*' allows any repo to be enabled.
 func checkAllowlist(r *library.Repo, allowlist []string) bool {
-	// if the allowlist is not set or empty allow any repo to be enabled
-	if len(allowlist) == 0 {
+	// check if all repos are allowed to be enabled
+	if len(allowlist) == 1 && allowlist[0] == "*" {
 		return true
 	}
 
