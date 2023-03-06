@@ -13,23 +13,29 @@ import (
 
 func TestSecret_Engine_CountSecrets(t *testing.T) {
 	// setup types
-	_repoOne := TestSecret()
-	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
-	_repoOne.SetHash("baz")
-	_repoOne.SetOrg("foo")
-	_repoOne.SetName("bar")
-	_repoOne.SetFullName("foo/bar")
-	_repoOne.SetVisibility("public")
+	_secretOne := testSecret()
+	_secretOne.SetID(1)
+	_secretOne.SetOrg("foo")
+	_secretOne.SetRepo("bar")
+	_secretOne.SetName("baz")
+	_secretOne.SetValue("foob")
+	_secretOne.SetType("repo")
+	_secretOne.SetCreatedAt(1)
+	_secretOne.SetCreatedBy("user")
+	_secretOne.SetUpdatedAt(1)
+	_secretOne.SetUpdatedBy("user2")
 
-	_repoTwo := TestSecret()
-	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
-	_repoTwo.SetHash("baz")
-	_repoTwo.SetOrg("bar")
-	_repoTwo.SetName("foo")
-	_repoTwo.SetFullName("bar/foo")
-	_repoTwo.SetVisibility("public")
+	_secretTwo := testSecret()
+	_secretTwo.SetID(2)
+	_secretTwo.SetOrg("bar")
+	_secretTwo.SetRepo("foo")
+	_secretTwo.SetName("foob")
+	_secretTwo.SetValue("baz")
+	_secretTwo.SetType("repo")
+	_secretTwo.SetCreatedAt(1)
+	_secretTwo.SetCreatedBy("user")
+	_secretTwo.SetUpdatedAt(1)
+	_secretTwo.SetUpdatedBy("user2")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -38,17 +44,17 @@ func TestSecret_Engine_CountSecrets(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "repos"`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "secrets"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateRepo(_repoOne)
+	err := _sqlite.CreateSecret(_secretOne)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateRepo(_repoTwo)
+	err = _sqlite.CreateSecret(_secretTwo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}

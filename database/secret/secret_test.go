@@ -176,9 +176,9 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// TestSecret is a test helper function to create a library
+// testRepo is a test helper function to create a library
 // Repo type with all fields set to their zero values.
-func TestSecret() *library.Secret {
+func testRepo() *library.Repo {
 	return &library.Repo{
 		ID:           new(int64),
 		UserID:       new(int64),
@@ -203,6 +203,27 @@ func TestSecret() *library.Secret {
 		AllowDeploy:  new(bool),
 		AllowTag:     new(bool),
 		AllowComment: new(bool),
+	}
+}
+
+// testSecret is a test helper function to create a library
+// Secret type with all fields set to their zero values.
+func testSecret() *library.Secret {
+	return &library.Secret{
+		ID:           new(int64),
+		Org:          new(string),
+		Repo:         new(string),
+		Team:         new(string),
+		Name:         new(string),
+		Value:        new(string),
+		Type:         new(string),
+		Images:       new([]string),
+		Events:       new([]string),
+		AllowCommand: new(bool),
+		CreatedAt:    new(int64),
+		CreatedBy:    new(string),
+		UpdatedAt:    new(int64),
+		UpdatedBy:    new(string),
 	}
 }
 

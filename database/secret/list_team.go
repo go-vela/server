@@ -86,7 +86,7 @@ func (e *engine) ListSecretsForTeam(org, team string, filters map[string]interfa
 }
 
 // ListSecretsForTeams gets a list of secrets by teams within an org from the database.
-func (e *engine) ListSecretsForTeams(org, teams []string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
+func (e *engine) ListSecretsForTeams(org string, teams []string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
 	// iterate through the list of teams provided
 	for index, team := range teams {
 		// ensure the team name is lower case
@@ -158,5 +158,5 @@ func (e *engine) ListSecretsForTeams(org, teams []string, filters map[string]int
 		secrets = append(secrets, tmp.ToLibrary())
 	}
 
-	return secrets, count, err
+	return secrets, count, nil
 }

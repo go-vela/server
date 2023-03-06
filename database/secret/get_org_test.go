@@ -9,38 +9,42 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
-func TestSecret_Engine_GetRepoForName(t *testing.T) {
+func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 	// setup types
-	_repo := TestSecret()
-	_repo.SetID(1)
-	_repo.SetUserID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
-	_repo.SetPipelineType("yaml")
+	_secret := testSecret()
+	_secret.SetID(1)
+	_secret.SetOrg("foo")
+	_secret.SetRepo("*")
+	_secret.SetName("baz")
+	_secret.SetValue("bar")
+	_secret.SetType("org")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy("user")
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy("user2")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", "")
+		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, nil, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE org = $1 AND name = $2 LIMIT 1`).WithArgs("foo", "bar").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND name = $3 LIMIT 1`).
+		WithArgs(constants.SecretOrg, "foo", "baz").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateRepo(_repo)
+	err := _sqlite.CreateSecret(_secret)
 	if err != nil {
-		t.Errorf("unable to create test repo for sqlite: %v", err)
+		t.Errorf("unable to create test secret for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -48,41 +52,41 @@ func TestSecret_Engine_GetRepoForName(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Repo
+		want     *library.Secret
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     _repo,
+			want:     _secret,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     _repo,
+			want:     _secret,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetRepoForOrg("foo", "bar")
+			got, err := test.database.GetSecretForOrg("foo", "baz")
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetRepoForOrg for %s should have returned err", test.name)
+					t.Errorf("GetSecretForOrg for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetRepoForOrg for %s returned err: %v", test.name, err)
+				t.Errorf("GetSecretForOrg for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetRepoForOrg for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("GetSecretForOrg for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

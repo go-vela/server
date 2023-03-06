@@ -10,18 +10,19 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestSecret_Engine_CreateRepo(t *testing.T) {
+func TestSecret_Engine_CreateSecret(t *testing.T) {
 	// setup types
-	_repo := TestSecret()
-	_repo.SetID(1)
-	_repo.SetUserID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
-	_repo.SetPipelineType("yaml")
-	_repo.SetPreviousName("oldName")
+	_secret := testSecret()
+	_secret.SetID(1)
+	_secret.SetOrg("foo")
+	_secret.SetRepo("bar")
+	_secret.SetName("baz")
+	_secret.SetValue("foob")
+	_secret.SetType("repo")
+	_secret.SetCreatedAt(1)
+	_secret.SetCreatedBy("user")
+	_secret.SetUpdatedAt(1)
+	_secret.SetUpdatedBy("user2")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -30,10 +31,10 @@ func TestSecret_Engine_CreateRepo(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "repos"
-("user_id","hash","org","name","full_name","link","clone","branch","build_limit","timeout","counter","visibility","private","trusted","active","allow_pull","allow_push","allow_deploy","allow_tag","allow_comment","pipeline_type","previous_name","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING "id"`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, false, false, false, false, false, "yaml", "oldName", 1).
+	_mock.ExpectQuery(`INSERT INTO "secrets"
+("org","repo","team","name","value","type","images","events","allow_command","created_at","created_by","updated_at","updated_by","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
+		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", nil, nil, false, 1, "user", 1, "user2", 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
@@ -60,18 +61,18 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateRepo(_repo)
+			err := test.database.CreateSecret(_secret)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateRepo for %s should have returned err", test.name)
+					t.Errorf("CreateSecret for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateRepo for %s returned err: %v", test.name, err)
+				t.Errorf("CreateSecret for %s returned err: %v", test.name, err)
 			}
 		})
 	}

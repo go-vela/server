@@ -262,12 +262,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the secrets table
-	err = c.Postgres.Exec(ddl.CreateSecretTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableSecret, err)
-	}
-
 	// create the services table
 	err = c.Postgres.Exec(ddl.CreateServiceTable).Error
 	if err != nil {
@@ -310,24 +304,6 @@ func createIndexes(c *client) error {
 	err = c.Postgres.Exec(ddl.CreateBuildSourceIndex).Error
 	if err != nil {
 		return fmt.Errorf("unable to create builds_source index for the %s table: %w", constants.TableBuild, err)
-	}
-
-	// create the secrets_type_org_repo index for the secrets table
-	err = c.Postgres.Exec(ddl.CreateSecretTypeOrgRepo).Error
-	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org_repo index for the %s table: %w", constants.TableSecret, err)
-	}
-
-	// create the secrets_type_org_team index for the secrets table
-	err = c.Postgres.Exec(ddl.CreateSecretTypeOrgTeam).Error
-	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org_team index for the %s table: %w", constants.TableSecret, err)
-	}
-
-	// create the secrets_type_org index for the secrets table
-	err = c.Postgres.Exec(ddl.CreateSecretTypeOrg).Error
-	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
 	return nil

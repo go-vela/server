@@ -8,12 +8,24 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/types/constants"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
 )
 
-func TestSecret_Engine_ListSecrets(t *testing.T) {
+func TestSecret_Engine_ListSecretsForRepo(t *testing.T) {
 	// setup types
+	_repo := testRepo()
+	_repo.SetID(1)
+	_repo.SetUserID(1)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetPipelineType("yaml")
+
 	_secretOne := testSecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
@@ -41,20 +53,22 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected result in mock
+	// create expected name count query result in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets"`).WillReturnRows(_rows)
+	// ensure the mock expects the name count query
+	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3`).
+		WithArgs(constants.SecretRepo, "foo", "bar").WillReturnRows(_rows)
 
-	// create expected result in mock
+	// create expected name query result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false, 1, "user", 1, "user2").
-		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, nil, false, 1, "user", 1, "user2")
+		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, nil, false, 1, "user", 1, "user2").
+		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false, 1, "user", 1, "user2")
 
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "secrets"`).WillReturnRows(_rows)
+	// ensure the mock expects the name query
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3 ORDER BY id DESC LIMIT 10`).
+		WithArgs(constants.SecretRepo, "foo", "bar").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -80,35 +94,37 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Secret{_secretOne, _secretTwo},
+			want:     []*library.Secret{_secretTwo, _secretOne},
 		},
 		{
 			failure:  false,
-			name:     "sqlite3",
+			name:     "sqlite",
 			database: _sqlite,
-			want:     []*library.Secret{_secretOne, _secretTwo},
+			want:     []*library.Secret{_secretTwo, _secretOne},
 		},
 	}
+
+	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListSecrets()
+			got, _, err := test.database.ListSecretsForRepo(_repo, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("ListSecrets for %s should have returned err", test.name)
+					t.Errorf("ListSecretsForRepo for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("ListSecrets for %s returned err: %v", test.name, err)
+				t.Errorf("ListSecretsForRepo for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListSecrets for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("ListSecretsForRepo for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

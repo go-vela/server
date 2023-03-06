@@ -8,19 +8,30 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/constants"
+
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestSecret_Engine_CountSecretsForOrg(t *testing.T) {
+func TestSecret_Engine_CountSecretsForRepo(t *testing.T) {
 	// setup types
+	_repo := testRepo()
+	_repo.SetID(1)
+	_repo.SetUserID(1)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+	_repo.SetPipelineType("yaml")
+
 	_secretOne := testSecret()
 	_secretOne.SetID(1)
 	_secretOne.SetOrg("foo")
-	_secretOne.SetRepo("*")
+	_secretOne.SetRepo("bar")
 	_secretOne.SetName("baz")
-	_secretOne.SetValue("bar")
-	_secretOne.SetType("org")
+	_secretOne.SetValue("foob")
+	_secretOne.SetType("repo")
 	_secretOne.SetCreatedAt(1)
 	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
@@ -29,10 +40,10 @@ func TestSecret_Engine_CountSecretsForOrg(t *testing.T) {
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
 	_secretTwo.SetOrg("bar")
-	_secretTwo.SetRepo("*")
-	_secretTwo.SetName("foo")
+	_secretTwo.SetRepo("foo")
+	_secretTwo.SetName("foob")
 	_secretTwo.SetValue("baz")
-	_secretTwo.SetType("org")
+	_secretTwo.SetType("repo")
 	_secretTwo.SetCreatedAt(1)
 	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
@@ -45,8 +56,8 @@ func TestSecret_Engine_CountSecretsForOrg(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2`).
-		WithArgs(constants.SecretOrg, "foo").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "secrets" WHERE type = $1 AND org = $2 AND repo = $3`).
+		WithArgs(constants.SecretRepo, "foo", "bar").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -87,22 +98,22 @@ func TestSecret_Engine_CountSecretsForOrg(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountSecretsForOrg("foo", filters)
+			got, err := test.database.CountSecretsForRepo(_repo, filters)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CountSecretsForOrg for %s should have returned err", test.name)
+					t.Errorf("CountSecretsForRepo for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CountSecretsForOrg for %s returned err: %v", test.name, err)
+				t.Errorf("CountSecretsForRepo for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("CountSecretsForOrg for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("CountSecretsForRepo for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

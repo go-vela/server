@@ -47,17 +47,17 @@ type SecretService interface {
 	// GetSecretForRepo defines a function that gets a secret by org and repo name.
 	GetSecretForRepo(string, *library.Repo) (*library.Secret, error)
 	// GetSecretForTeam defines a function that gets a secret by org and team name.
-	GetSecretForTeam(string, string) (*library.Secret, error)
+	GetSecretForTeam(string, string, string) (*library.Secret, error)
 	// ListSecrets defines a function that gets a list of all secrets.
 	ListSecrets() ([]*library.Secret, error)
 	// ListSecretsForOrg defines a function that gets a list of secrets by org name.
-	ListSecretsForOrg(string, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
+	ListSecretsForOrg(string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForRepo defines a function that gets a list of secrets by org and repo name.
-	ListSecretsForRepo(*library.Repo, map[string]interface{}) ([]*library.Secret, int64, error)
+	ListSecretsForRepo(*library.Repo, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForTeam defines a function that gets a list of secrets by org and team name.
-	ListSecretsForTeam(string, string, map[string]interface{}) ([]*library.Secret, int64, error)
+	ListSecretsForTeam(string, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
-	ListSecretsForTeams(string, []string, map[string]interface{}) ([]*library.Secret, int64, error)
+	ListSecretsForTeams(string, []string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// UpdateSecret defines a function that updates an existing repo.
 	UpdateSecret(*library.Secret) error
 }
