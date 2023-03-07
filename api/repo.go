@@ -833,7 +833,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// grab last hook from repo to fetch the webhook ID
-	lastHook, err := database.FromContext(c).GetLastHook(r)
+	lastHook, err := database.FromContext(c).LastHookForRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
 
