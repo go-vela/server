@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -37,7 +37,7 @@ func StepHandlers(base *gin.RouterGroup) {
 		step := steps.Group("/:step", step.Establish())
 		{
 			step.GET("", perm.MustRead(), api.GetStep)
-			step.PUT("", perm.MustPlatformAdmin(), middleware.Payload(), api.UpdateStep)
+			step.PUT("", perm.MustBuildAccess(), middleware.Payload(), api.UpdateStep)
 			step.DELETE("", perm.MustPlatformAdmin(), api.DeleteStep)
 
 			step.POST("/stream", perm.MustPlatformAdmin(), api.PostStepStream)

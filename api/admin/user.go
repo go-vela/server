@@ -18,45 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/users admin AdminAllUsers
-//
-// Get all of the users in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all users from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/User"
-//   '500':
-//     description: Unable to retrieve all users from the database
-//     schema:
-//       type: string
-
-// AllUsers represents the API handler to
-// captures all users stored in the database.
-func AllUsers(c *gin.Context) {
-	logrus.Info("Admin: reading all users")
-
-	// send API call to capture all users
-	u, err := database.FromContext(c).ListUsers()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all users: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, u)
-}
-
 // swagger:operation PUT /api/v1/admin/user admin AdminUpdateUser
 //
 // Update a user in the database

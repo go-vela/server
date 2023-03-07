@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
@@ -191,11 +192,40 @@ func TestNative_ExpandSteps(t *testing.T) {
 	set.String("github-token", "", "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	tmpls := map[string]*yaml.Template{
-		"gradle": {
-			Name:   "gradle",
-			Source: "github.example.com/foo/bar/template.yml",
-			Type:   "github",
+	testBuild := new(library.Build)
+
+	testBuild.SetID(1)
+	testBuild.SetCommit("123abc456def")
+
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "GitHub",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "github.example.com/foo/bar/template.yml",
+					Type:   "github",
+				},
+			},
+		},
+		{
+			name: "File",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "template.yml",
+					Type:   "file",
+				},
+			},
 		},
 	}
 
@@ -288,25 +318,31 @@ func TestNative_ExpandSteps(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, tmpls, new(pipeline.RuleData))
-	if err != nil {
-		t.Errorf("ExpandSteps returned err: %v", err)
-	}
+	compiler.WithBuild(testBuild).WithRepo(testRepo)
 
-	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData))
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
 
-	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+			if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+			if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(build.Services, wantServices); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
 	}
 }
 

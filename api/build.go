@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -14,6 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 
 	"github.com/go-vela/server/compiler"
@@ -411,6 +413,105 @@ func skipEmptyBuild(p *pipeline.Build) string {
 	return ""
 }
 
+// swagger:operation GET /api/v1/search/builds/{id} builds GetBuildByID
+//
+// Get a single build by its id in the configured backend
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: id
+//   description: build id
+//   required: true
+//   type: number
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved build
+//     schema:
+//       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Unable to retrieve the build
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to retrieve the build
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetBuildByID represents the API handler to capture a
+// build by its id from the configured backend.
+func GetBuildByID(c *gin.Context) {
+	// Variables that will hold the library types of the build and repo
+	var (
+		b *library.Build
+		r *library.Repo
+	)
+
+	// Capture user from middleware
+	u := user.Retrieve(c)
+
+	// Parse build ID from path
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse build id: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": id,
+		"user":  u.GetName(),
+	}).Infof("reading build %d", id)
+
+	// Get build from database
+	b, err = database.FromContext(c).GetBuildByID(id)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get build: %w", err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// Get repo from database using repo ID field from build
+	r, err = database.FromContext(c).GetRepo(b.GetRepoID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get repo: %w", err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// Capture user access from SCM. We do this in order to ensure user has access and is not
+	// just retrieving any build using a random id number.
+	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+	if err != nil {
+		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+	}
+
+	// Ensure that user has at least read access to repo to return the build
+	if perm == "none" && !u.GetAdmin() {
+		retErr := fmt.Errorf("unable to retrieve build %d: user does not have read access to repo %s", id, r.GetFullName())
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, b)
+}
+
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds GetBuilds
 //
 // Get builds from the configured backend
@@ -793,8 +894,7 @@ func GetOrgBuilds(c *gin.Context) {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 	// Only show public repos to non-admins
-	//
-	//nolint:goconst // ignore admin constant
+	//nolint:goconst // ignore need for constant
 	if perm != "admin" {
 		filters["visibility"] = constants.VisibilityPublic
 	}
@@ -1638,7 +1738,7 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	// retrieve the worker info
-	w, err := database.FromContext(c).GetWorker(b.GetHost())
+	w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusNotFound, retErr)
@@ -1800,4 +1900,96 @@ func CancelBuild(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, b)
+}
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/token builds GetBuildToken
+//
+// Get a build token
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number
+//   required: true
+//   type: integer
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved build token
+//     schema:
+//       "$ref": "#/definitions/Token"
+//   '400':
+//     description: Bad request
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to generate build token
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// GetBuildToken represents the API handler to generate a build token.
+func GetBuildToken(c *gin.Context) {
+	// capture middleware values
+	b := build.Retrieve(c)
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	cl := claims.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  cl.Subject,
+	}).Infof("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
+
+	// if build is not in a pending state, then a build token should not be needed - bad request
+	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {
+		retErr := fmt.Errorf("unable to mint build token: build is not in pending state")
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// retrieve token manager from context
+	tm := c.MustGet("token-manager").(*token.Manager)
+
+	// set expiration to repo timeout plus configurable buffer
+	exp := (time.Duration(r.GetTimeout()) * time.Minute) + tm.BuildTokenBufferDuration
+
+	// set mint token options
+	bmto := &token.MintTokenOpts{
+		Hostname:      cl.Subject,
+		BuildID:       b.GetID(),
+		Repo:          r.GetFullName(),
+		TokenType:     constants.WorkerBuildTokenType,
+		TokenDuration: exp,
+	}
+
+	// mint token
+	bt, err := tm.MintToken(bmto)
+	if err != nil {
+		retErr := fmt.Errorf("unable to generate build token: %w", err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, library.Token{Token: &bt})
 }

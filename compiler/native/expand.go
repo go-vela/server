@@ -11,6 +11,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/pipeline"
 
+	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/spf13/afero"
@@ -220,6 +221,39 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"repo": src.Repo,
 				"path": src.Name,
 				"host": src.Host,
+			}).Tracef("Using authenticated GitHub client to pull template")
+
+			// use private (authenticated) github instance to pull from
+			bytes, err = c.PrivateGithub.Template(c.user, src)
+			if err != nil {
+				return bytes, err
+			}
+		}
+
+	case strings.EqualFold(tmpl.Type, "file"):
+		src := &registry.Source{
+			Org:  c.repo.GetOrg(),
+			Repo: c.repo.GetName(),
+			Name: tmpl.Source,
+			Ref:  c.build.GetCommit(),
+		}
+
+		if !c.UsePrivateGithub {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+			}).Tracef("Using GitHub client to pull template")
+
+			bytes, err = c.Github.Template(nil, src)
+			if err != nil {
+				return bytes, err
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
 			}).Tracef("Using authenticated GitHub client to pull template")
 
 			// use private (authenticated) github instance to pull from

@@ -145,9 +145,7 @@ func PostWebhook(c *gin.Context) {
 	// check if build was parsed from webhook.
 	// build will be nil on repository events, but
 	// for renaming, we want to continue.
-	if b == nil &&
-		h.GetEvent() != constants.EventRepository &&
-		h.GetEventAction() != constants.ActionRenamed {
+	if b == nil && h.GetEvent() != constants.EventRepository {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
@@ -172,14 +170,66 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	if h.GetEvent() == constants.EventRepository {
-		err = renameRepository(h, r, c, m)
-		if err != nil {
-			util.HandleError(c, http.StatusBadRequest, err)
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(err.Error())
-		}
+		switch h.GetEventAction() {
+		// if action is rename, go through rename routine
+		case constants.ActionRenamed:
+			err = renameRepository(h, r, c, m)
+			if err != nil {
+				util.HandleError(c, http.StatusBadRequest, err)
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(err.Error())
+			}
 
-		return
+			c.JSON(http.StatusOK, fmt.Sprintf("no build to process, repository renamed from %s to %s", r.GetPreviousName(), r.GetFullName()))
+
+			return
+		// if action is archived, unarchived, or edited, perform edits to relevant repo fields
+		case "archived", "unarchived", constants.ActionEdited:
+			// send call to get repository from database
+			dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+
+			var retMsg string
+			// the only edits to a repo that impact Vela are to these two fields
+			if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
+				retMsg = fmt.Sprintf("no build to process, repository default branch changed from %s to %s", dbRepo.GetBranch(), r.GetBranch())
+				dbRepo.SetBranch(r.GetBranch())
+			}
+
+			if dbRepo.GetActive() != r.GetActive() {
+				retMsg = fmt.Sprintf("no build to process, repository changed active status from %t to %t", dbRepo.GetActive(), r.GetActive())
+				dbRepo.SetActive(r.GetActive())
+			}
+
+			// update repo object in the database after applying edits
+			err = database.FromContext(c).UpdateRepo(dbRepo)
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+
+			c.JSON(http.StatusOK, retMsg)
+
+			return
+		// all other repo event actions are skippable
+		default:
+			c.JSON(http.StatusOK, "no build to process")
+
+			return
+		}
 	}
 
 	// send API call to capture parsed repo from webhook
@@ -199,7 +249,7 @@ func PostWebhook(c *gin.Context) {
 	h.SetRepoID(r.GetID())
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).GetLastHook(r)
+	lastHook, err := database.FromContext(c).LastHookForRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -230,7 +280,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the created webhook
-	h, _ = database.FromContext(c).GetHook(h.GetNumber(), r)
+	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
@@ -785,7 +835,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	h.SetRepoID(r.GetID())
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).GetLastHook(dbR)
+	lastHook, err := database.FromContext(c).LastHookForRepo(dbR)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -864,8 +914,6 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 			return fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
 	}
-
-	c.JSON(http.StatusOK, r)
 
 	return nil
 }

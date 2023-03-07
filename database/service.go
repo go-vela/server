@@ -1,13 +1,16 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
 package database
 
 import (
+	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
 )
 
@@ -25,6 +28,9 @@ type Service interface {
 	// GetBuild defines a function that
 	// gets a build by number and repo ID.
 	GetBuild(int, *library.Repo) (*library.Build, error)
+	// GetBuildByID defines a function that
+	// gets a build by its id.
+	GetBuildByID(int64) (*library.Build, error)
 	// GetLastBuild defines a function that
 	// gets the last build ran by repo ID.
 	GetLastBuild(*library.Repo) (*library.Build, error)
@@ -68,53 +74,13 @@ type Service interface {
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
 
-	// Hook Database Interface Functions
+	// HookService provides the interface for functionality
+	// related to hooks stored in the database.
+	hook.HookService
 
-	// GetHook defines a function that
-	// gets a webhook by number and repo ID.
-	GetHook(int, *library.Repo) (*library.Hook, error)
-	// GetLastHook defines a function that
-	// gets the last hook by repo ID.
-	GetLastHook(*library.Repo) (*library.Hook, error)
-	// GetHookList defines a function that gets
-	// a list of all webhooks.
-	GetHookList() ([]*library.Hook, error)
-	// GetRepoHookList defines a function that
-	// gets a list of webhooks by repo ID.
-	GetRepoHookList(*library.Repo, int, int) ([]*library.Hook, error)
-	// GetRepoHookCount defines a function that
-	// gets the count of webhooks by repo ID.
-	GetRepoHookCount(*library.Repo) (int64, error)
-	// CreateHook defines a function that
-	// creates a new webhook.
-	CreateHook(*library.Hook) error
-	// UpdateHook defines a function that
-	// updates a webhook.
-	UpdateHook(*library.Hook) error
-	// DeleteHook defines a function that
-	// deletes a webhook by unique ID.
-	DeleteHook(int64) error
-
-	// Log Database Interface Functions
-
-	// GetStepLog defines a function that
-	// gets a step log by unique ID.
-	GetStepLog(int64) (*library.Log, error)
-	// GetServiceLog defines a function that
-	// gets a service log by unique ID.
-	GetServiceLog(int64) (*library.Log, error)
-	// GetBuildLogs defines a function that
-	// gets a list of logs by build ID.
-	GetBuildLogs(int64) ([]*library.Log, error)
-	// CreateLog defines a function that
-	// creates a new log.
-	CreateLog(*library.Log) error
-	// UpdateLog defines a function that
-	// updates a log.
-	UpdateLog(*library.Log) error
-	// DeleteLog defines a function that
-	// deletes a log by unique ID.
-	DeleteLog(int64) error
+	// LogService provides the interface for functionality
+	// related to logs stored in the database.
+	log.LogService
 
 	// PipelineService provides the interface for functionality
 	// related to pipelines stored in the database.
@@ -216,27 +182,7 @@ type Service interface {
 	// related to users stored in the database.
 	user.UserService
 
-	// Worker Database Interface Functions
-
-	// GetWorker defines a function that
-	// gets a worker by hostname.
-	GetWorker(string) (*library.Worker, error)
-	// GetWorkerByAddress defines a function that
-	// gets a worker by address.
-	GetWorkerByAddress(string) (*library.Worker, error)
-	// GetWorkerList defines a function that
-	// gets a list of all workers.
-	GetWorkerList() ([]*library.Worker, error)
-	// GetWorkerCount defines a function that
-	// gets the count of workers.
-	GetWorkerCount() (int64, error)
-	// CreateWorker defines a function that
-	// creates a new worker.
-	CreateWorker(*library.Worker) error
-	// UpdateWorker defines a function that
-	// updates a worker by unique ID.
-	UpdateWorker(*library.Worker) error
-	// DeleteWorker defines a function that
-	// deletes a worker by hostname.
-	DeleteWorker(int64) error
+	// WorkerService provides the interface for functionality
+	// related to workers stored in the database.
+	worker.WorkerService
 }
