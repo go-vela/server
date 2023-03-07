@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/go-vela/types"
+	"github.com/redis/go-redis/v9"
 )
 
 // Pop grabs an item from the specified channel off the queue.
