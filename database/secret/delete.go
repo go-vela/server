@@ -14,6 +14,8 @@ import (
 // DeleteSecret deletes an existing secret from the database.
 func (e *engine) DeleteSecret(s *library.Secret) error {
 	// handle the secret based off the type
+	//
+	//nolint:dupl // ignore similar code with update.go
 	switch s.GetType() {
 	case constants.SecretShared:
 		e.logger.WithFields(logrus.Fields{

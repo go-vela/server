@@ -5,6 +5,7 @@
 package native
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-vela/types/constants"
@@ -14,6 +15,46 @@ import (
 
 // Update updates an existing secret.
 func (c *client) Update(sType, org, name string, s *library.Secret) error {
+	// create the secret with the information available
+	s := new(library.Secret)
+	s.SetType(sType)
+	s.SetOrg(org)
+	s.SetRepo(name)
+	s.SetTeam(name)
+	s.SetName(path)
+
+	// handle the secret based off the type
+	switch sType {
+	case constants.SecretOrg:
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"type": sType,
+		}).Tracef("deleting native %s secret for %s", sType, org)
+
+		// delete the org secret in the native service
+		return c.Database.DeleteSecret(s)
+	case constants.SecretRepo:
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"repo": name,
+			"type": sType,
+		}).Tracef("deleting native %s secret for %s/%s", sType, org, name)
+
+		// delete the repo secret in the native service
+		return c.Database.DeleteSecret(s)
+	case constants.SecretShared:
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"team": name,
+			"type": sType,
+		}).Tracef("deleting native %s secret for %s/%s", sType, org, name)
+
+		// delete the shared secret in the native service
+		return c.Database.DeleteSecret(s)
+	default:
+		return fmt.Errorf("invalid secret type: %s", sType)
+	}
+
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

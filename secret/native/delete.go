@@ -5,41 +5,55 @@
 package native
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // Delete deletes a secret.
 func (c *client) Delete(sType, org, name, path string) error {
-	// create log fields from secret metadata
-	fields := logrus.Fields{
-		"org":    org,
-		"repo":   name,
-		"secret": path,
-		"type":   sType,
-	}
+	// create the secret with the information available
+	s := new(library.Secret)
+	s.SetType(sType)
+	s.SetOrg(org)
+	s.SetRepo(name)
+	s.SetTeam(name)
+	s.SetName(path)
 
-	// check if secret is a shared secret
-	if strings.EqualFold(sType, constants.SecretShared) {
-		// update log fields from secret metadata
-		fields = logrus.Fields{
+	// handle the secret based off the type
+	switch sType {
+	case constants.SecretOrg:
+		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
-			"team":   name,
 			"secret": path,
 			"type":   sType,
-		}
+		}).Tracef("deleting native %s secret %s for %s", sType, path, org)
+
+		// delete the org secret from the native service
+		return c.Database.DeleteSecret(s)
+	case constants.SecretRepo:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"repo":   name,
+			"secret": path,
+			"type":   sType,
+		}).Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
+
+		// delete the repo secret from the native service
+		return c.Database.DeleteSecret(s)
+	case constants.SecretShared:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"secret": path,
+			"team":   name,
+			"type":   sType,
+		}).Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
+
+		// delete the shared secret from the native service
+		return c.Database.DeleteSecret(s)
+	default:
+		return fmt.Errorf("invalid secret type: %s", sType)
 	}
-
-	c.Logger.WithFields(fields).Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
-
-	// capture the secret from the native service
-	s, err := c.Database.GetSecret(sType, org, name, path)
-	if err != nil {
-		return err
-	}
-
-	// delete the secret from the native service
-	return c.Database.DeleteSecret(s.GetID())
 }
