@@ -69,7 +69,7 @@ import (
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
 //
-//nolint:funlen // ignore line length
+//nolint:funlen // ignore function length
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
