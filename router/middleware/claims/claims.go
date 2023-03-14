@@ -6,10 +6,12 @@ package claims
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,8 +32,22 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
+		claims := new(token.Claims)
+
+		// special handling for workers if symmetric token is provided
+		if secret, ok := c.Value("secret").(string); ok {
+			if strings.EqualFold(at, secret) {
+				claims.Subject = "vela-worker"
+				claims.TokenType = constants.ServerWorkerTokenType
+				ToContext(c, claims)
+				c.Next()
+
+				return
+			}
+		}
+
 		// parse and validate the token and return the associated the user
-		claims, err := tm.ParseToken(at)
+		claims, err = tm.ParseToken(at)
 		if err != nil {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -159,6 +160,17 @@ func TestClaims_Establish(t *testing.T) {
 			CtxRequest: "/workers/host/register",
 			Endpoint:   "workers/:hostname/register",
 		},
+		{
+			TokenType: constants.ServerWorkerTokenType,
+			WantClaims: &token.Claims{
+				TokenType: constants.ServerWorkerTokenType,
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject: "vela-worker",
+				},
+			},
+			CtxRequest: "/repos/foo/bar/builds/1",
+			Endpoint:   "repos/:org/:repo/builds/:build",
+		},
 	}
 
 	got := new(token.Claims)
@@ -171,7 +183,14 @@ func TestClaims_Establish(t *testing.T) {
 			context, engine := gin.CreateTestContext(resp)
 			context.Request, _ = http.NewRequest(http.MethodPut, tt.CtxRequest, nil)
 
-			tkn, _ := tm.MintToken(tt.Mto)
+			var tkn string
+
+			if strings.EqualFold(tt.TokenType, constants.ServerWorkerTokenType) {
+				tkn = "very-secret"
+				engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
+			} else {
+				tkn, _ = tm.MintToken(tt.Mto)
+			}
 
 			context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 

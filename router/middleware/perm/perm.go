@@ -56,8 +56,6 @@ func MustPlatformAdmin() gin.HandlerFunc {
 }
 
 // MustWorkerRegisterToken ensures the token is a registration token retrieved by a platform admin.
-//
-//nolint:dupl // ignore duplicate with worker auth
 func MustWorkerRegisterToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
@@ -72,7 +70,15 @@ func MustWorkerRegisterToken() gin.HandlerFunc {
 		switch cl.TokenType {
 		case "WorkerRegister":
 			return
+		case constants.ServerWorkerTokenType:
+			if strings.EqualFold(cl.Subject, "vela-worker") {
+				return
+			}
 
+			retErr := fmt.Errorf("server-worker token provided but does not match configuration")
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
 		default:
 			retErr := fmt.Errorf("invalid token type: must provide a worker registration token")
 			util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -83,8 +89,6 @@ func MustWorkerRegisterToken() gin.HandlerFunc {
 }
 
 // MustWorkerAuthToken ensures the token is a  worker auth token.
-//
-//nolint:dupl // ignore duplicate with worker registration
 func MustWorkerAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
@@ -108,8 +112,19 @@ func MustWorkerAuthToken() gin.HandlerFunc {
 
 				return
 			}
+
 			retErr := fmt.Errorf("user %s does not have platform admin permissions", cl.Subject)
 			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		case constants.ServerWorkerTokenType:
+			if strings.EqualFold(cl.Subject, "vela-worker") {
+				return
+			}
+
+			retErr := fmt.Errorf("server-worker token provided but does not match configuration")
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		default:
 			retErr := fmt.Errorf("invalid token type: must provide a worker auth token")
