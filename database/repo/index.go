@@ -19,6 +19,6 @@ ON repos (org, name);
 func (e *engine) CreateRepoIndexes() error {
 	e.logger.Tracef("creating indexes for repos table in the database")
 
-	// create the repo_id column index for the repos table
+	// create the org and name columns index for the repos table
 	return e.client.Exec(CreateOrgNameIndex).Error
 }
