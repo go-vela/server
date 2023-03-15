@@ -55,6 +55,6 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.PUT("/user", admin.UpdateUser)
 
 		// Admin worker endpoint
-		_admin.GET("/workers/:worker/register-token", admin.RegisterToken)
+		_admin.POST("/workers/:worker/register-token", admin.RegisterToken)
 	} // end of admin endpoints
 }

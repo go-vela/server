@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/workers/{worker}/register-token admin RegisterToken
+// swagger:operation POST /api/v1/admin/workers/{worker}/register-token admin RegisterToken
 //
 // Get a worker registration token
 //
