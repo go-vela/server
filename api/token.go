@@ -68,6 +68,25 @@ func RefreshAccessToken(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Token{Token: &newAccessToken})
 }
 
+// swagger:operation GET /validate-token authenticate ValidateServerToken
+//
+// Validate a server token
+//
+// ---
+// produces:
+// - application/json
+// security:
+//   - CookieAuth: []
+// responses:
+//   '200':
+//     description: Successfully validated a token
+//     schema:
+//       type: string
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+
 // ValidateServerToken will return the claims of a valid server token
 // if it is provided in the auth header.
 func ValidateServerToken(c *gin.Context) {

@@ -202,7 +202,7 @@ func TestPerm_MustWorkerRegisterToken(t *testing.T) {
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
 		TokenDuration: tm.WorkerRegisterTokenDuration,
-		TokenType:     "WorkerRegister",
+		TokenType:     constants.WorkerRegisterTokenType,
 	}
 
 	tok, _ := tm.MintToken(mto)
@@ -314,7 +314,7 @@ func TestPerm_MustWorkerAuthToken(t *testing.T) {
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
 		TokenDuration: tm.WorkerAuthTokenDuration,
-		TokenType:     "WorkerAuth",
+		TokenType:     constants.WorkerAuthTokenType,
 	}
 
 	tok, _ := tm.MintToken(mto)

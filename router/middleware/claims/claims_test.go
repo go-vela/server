@@ -125,9 +125,9 @@ func TestClaims_Establish(t *testing.T) {
 			Endpoint:   "repos/:org/:repo/builds/:build",
 		},
 		{
-			TokenType: "WorkerAuth",
+			TokenType: constants.WorkerAuthTokenType,
 			WantClaims: &token.Claims{
-				TokenType: "WorkerAuth",
+				TokenType: constants.WorkerAuthTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
 					IssuedAt:  jwt.NewNumericDate(now),
@@ -137,15 +137,15 @@ func TestClaims_Establish(t *testing.T) {
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
 				TokenDuration: tm.WorkerAuthTokenDuration,
-				TokenType:     "WorkerAuth",
+				TokenType:     constants.WorkerAuthTokenType,
 			},
 			CtxRequest: "/workers/host",
 			Endpoint:   "/workers/:hostname",
 		},
 		{
-			TokenType: "WorkerRegister",
+			TokenType: constants.WorkerRegisterTokenType,
 			WantClaims: &token.Claims{
-				TokenType: "WorkerRegister",
+				TokenType: constants.WorkerRegisterTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
 					IssuedAt:  jwt.NewNumericDate(now),
@@ -155,7 +155,7 @@ func TestClaims_Establish(t *testing.T) {
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
 				TokenDuration: tm.WorkerRegisterTokenDuration,
-				TokenType:     "WorkerRegister",
+				TokenType:     constants.WorkerRegisterTokenType,
 			},
 			CtxRequest: "/workers/host/register",
 			Endpoint:   "workers/:hostname/register",

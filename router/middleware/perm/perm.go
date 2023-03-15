@@ -68,7 +68,7 @@ func MustWorkerRegisterToken() gin.HandlerFunc {
 		}).Debugf("verifying user %s has a registration token for worker", cl.Subject)
 
 		switch cl.TokenType {
-		case "WorkerRegister":
+		case constants.WorkerRegisterTokenType:
 			return
 		case constants.ServerWorkerTokenType:
 			if strings.EqualFold(cl.Subject, "vela-worker") {
@@ -102,7 +102,7 @@ func MustWorkerAuthToken() gin.HandlerFunc {
 		}).Debugf("verifying worker %s has a valid auth token", cl.Subject)
 
 		switch cl.TokenType {
-		case "WorkerAuth", "WorkerRegister":
+		case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
 			return
 		case constants.UserAccessTokenType:
 			if u.GetAdmin() {

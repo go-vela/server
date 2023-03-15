@@ -51,7 +51,7 @@ func RegisterToken(c *gin.Context) {
 	tm := c.MustGet("token-manager").(*token.Manager)
 	rmto := &token.MintTokenOpts{
 		Hostname:      host,
-		TokenType:     "WorkerRegister",
+		TokenType:     constants.WorkerRegisterTokenType,
 		TokenDuration: tm.WorkerRegisterTokenDuration,
 	}
 

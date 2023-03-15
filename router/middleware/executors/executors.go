@@ -57,7 +57,7 @@ func Establish() gin.HandlerFunc {
 		// set mint token options
 		mto := &token.MintTokenOpts{
 			Hostname:      "vela-server",
-			TokenType:     "WorkerAuth",
+			TokenType:     constants.WorkerAuthTokenType,
 			TokenDuration: time.Minute * 1,
 		}
 

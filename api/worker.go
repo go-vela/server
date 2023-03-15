@@ -92,7 +92,7 @@ func CreateWorker(c *gin.Context) {
 	tm := c.MustGet("token-manager").(*token.Manager)
 
 	wmto := &token.MintTokenOpts{
-		TokenType:     "WorkerAuth",
+		TokenType:     constants.WorkerAuthTokenType,
 		TokenDuration: tm.WorkerAuthTokenDuration,
 		Hostname:      cl.Subject,
 	}
@@ -307,7 +307,7 @@ func UpdateWorker(c *gin.Context) {
 		tm := c.MustGet("token-manager").(*token.Manager)
 
 		wmto := &token.MintTokenOpts{
-			TokenType:     "WorkerAuth",
+			TokenType:     constants.WorkerAuthTokenType,
 			TokenDuration: tm.WorkerAuthTokenDuration,
 			Hostname:      cl.Subject,
 		}

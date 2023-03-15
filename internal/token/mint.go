@@ -69,7 +69,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		claims.Repo = mto.Repo
 		claims.Subject = mto.Hostname
 
-	case "WorkerAuth", "WorkerRegister":
+	case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
 		if len(mto.Hostname) == 0 {
 			return "", fmt.Errorf("missing host name for %s token", mto.TokenType)
 		}
