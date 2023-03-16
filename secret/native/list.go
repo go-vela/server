@@ -13,7 +13,7 @@ import (
 )
 
 // List captures a list of secrets.
-func (c *client) List(sType, org, name string, page, perPage int, teams []string) ([]*library.Secret, int64, error) {
+func (c *client) List(sType, org, name string, page, perPage int, teams []string) ([]*library.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:
@@ -22,8 +22,13 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 			"type": sType,
 		}).Tracef("listing native %s secrets for %s", sType, org)
 
-		// capture the count of org secrets from the native service
-		return c.Database.ListSecretsForOrg(org, nil, page, perPage)
+		// capture the list of org secrets from the native service
+		secrets, _, err := c.Database.ListSecretsForOrg(org, nil, page, perPage)
+		if err != nil {
+			return nil, err
+		}
+
+		return secrets, nil
 	case constants.SecretRepo:
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
@@ -37,8 +42,13 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 		r.SetName(name)
 		r.SetFullName(fmt.Sprintf("%s/%s", org, name))
 
-		// capture the count of repo secrets from the native service
-		return c.Database.ListSecretsForRepo(r, nil, page, perPage)
+		// capture the list of repo secrets from the native service
+		secrets, _, err := c.Database.ListSecretsForRepo(r, nil, page, perPage)
+		if err != nil {
+			return nil, err
+		}
+
+		return secrets, nil
 	case constants.SecretShared:
 		// check if we should capture secrets for multiple teams
 		if name == "*" {
@@ -48,8 +58,9 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 				"type":  sType,
 			}).Tracef("listing native %s secrets for teams %s in org %s", sType, teams, org)
 
-			// capture the count of shared secrets for multiple teams from the native service
-			return c.Database.ListSecretsForTeams(org, teams, nil, page, perPage)
+			// capture the list of shared secrets for multiple teams from the native service
+			secrets, _, err := c.Database.ListSecretsForTeams(org, teams, nil, page, perPage)
+			return secrets, err
 		}
 
 		c.Logger.WithFields(logrus.Fields{
@@ -58,9 +69,14 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 			"type": sType,
 		}).Tracef("listing native %s secrets for %s/%s", sType, org, name)
 
-		// capture the count of shared secrets from the native service
-		return c.Database.ListSecretsForTeam(org, name, nil, page, perPage)
+		// capture the list of shared secrets from the native service
+		secrets, _, err := c.Database.ListSecretsForTeam(org, name, nil, page, perPage)
+		if err != nil {
+			return nil, err
+		}
+
+		return secrets, nil
 	default:
-		return nil, 0, fmt.Errorf("invalid secret type: %s", sType)
+		return nil, fmt.Errorf("invalid secret type: %s", sType)
 	}
 }

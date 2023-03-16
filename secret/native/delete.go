@@ -8,19 +8,16 @@ import (
 	"fmt"
 
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // Delete deletes a secret.
 func (c *client) Delete(sType, org, name, path string) error {
-	// create the secret with the information available
-	s := new(library.Secret)
-	s.SetType(sType)
-	s.SetOrg(org)
-	s.SetRepo(name)
-	s.SetTeam(name)
-	s.SetName(path)
+	// capture the secret from the native service
+	s, err := c.Get(sType, org, name, path)
+	if err != nil {
+		return err
+	}
 
 	// handle the secret based off the type
 	switch sType {
