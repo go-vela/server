@@ -65,18 +65,18 @@ func RepairRepo(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("repairing repo %s", r.GetFullName())
 
-	// send API call to remove the webhook
-	err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
-	if err != nil {
-		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
+		// send API call to remove the webhook
+		err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+		if err != nil {
+			retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
 		// send API call to create the webhook
 		_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
 		if err != nil {
@@ -102,7 +102,7 @@ func RepairRepo(c *gin.Context) {
 		r.SetActive(true)
 
 		// send API call to update the repo
-		err = database.FromContext(c).UpdateRepo(r)
+		err := database.FromContext(c).UpdateRepo(r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
 

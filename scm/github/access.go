@@ -21,7 +21,7 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 	}).Tracef("capturing %s access level to org %s", u.GetName(), org)
 
 	// check if user is accessing personal org
-	if strings.EqualFold(org, *u.Name) {
+	if strings.EqualFold(org, u.GetName()) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"user": u.GetName(),
@@ -57,7 +57,7 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 	}).Tracef("capturing %s access level to repo %s/%s", u.GetName(), org, repo)
 
 	// check if user is accessing repo in personal org
-	if strings.EqualFold(org, *u.Name) {
+	if strings.EqualFold(org, u.GetName()) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"repo": repo,
@@ -88,7 +88,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	}).Tracef("capturing %s access level to team %s/%s", u.GetName(), org, team)
 
 	// check if user is accessing team in personal org
-	if strings.EqualFold(org, *u.Name) {
+	if strings.EqualFold(org, u.GetName()) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"team": team,
