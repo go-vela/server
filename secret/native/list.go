@@ -60,7 +60,11 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 
 			// capture the list of shared secrets for multiple teams from the native service
 			secrets, _, err := c.Database.ListSecretsForTeams(org, teams, nil, page, perPage)
-			return secrets, err
+			if err != nil {
+				return nil, err
+			}
+
+			return secrets, nil
 		}
 
 		c.Logger.WithFields(logrus.Fields{
