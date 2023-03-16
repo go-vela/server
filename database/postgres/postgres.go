@@ -170,6 +170,11 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// ensure the mock expects the repo queries
 	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the secret queries
+	_mock.ExpectExec(secret.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(secret.CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(secret.CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
