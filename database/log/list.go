@@ -16,7 +16,7 @@ func (e *engine) ListLogs() ([]*library.Log, error) {
 
 	// variables to store query results and return value
 	count := int64(0)
-	h := new([]database.Log)
+	l := new([]database.Log)
 	logs := []*library.Log{}
 
 	// count the results
@@ -33,14 +33,14 @@ func (e *engine) ListLogs() ([]*library.Log, error) {
 	// send query to the database and store result in variable
 	err = e.client.
 		Table(constants.TableLog).
-		Find(&h).
+		Find(&l).
 		Error
 	if err != nil {
 		return nil, err
 	}
 
 	// iterate through all query results
-	for _, log := range *h {
+	for _, log := range *l {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := log
 

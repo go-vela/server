@@ -34,7 +34,7 @@ func (e *engine) GetLog(id int64) (*library.Log, error) {
 	if err != nil {
 		// ensures that the change is backwards compatible
 		// by logging the error instead of returning it
-		// which allowing us to fetch uncompressed logs
+		// which allows us to fetch uncompressed logs
 		e.logger.Errorf("unable to decompress log %d: %v", id, err)
 
 		// return the uncompressed log
