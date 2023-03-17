@@ -19,6 +19,6 @@ ON hooks (repo_id);
 func (e *engine) CreateHookIndexes() error {
 	e.logger.Tracef("creating indexes for hooks table in the database")
 
-	// create the hostname and address columns index for the hooks table
+	// create the repo_id column index for the hooks table
 	return e.client.Exec(CreateRepoIDIndex).Error
 }
