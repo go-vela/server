@@ -235,6 +235,30 @@ func Test_client_SubstituteSteps(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "step contains escape sequences",
+			args: args{
+				steps: yaml.StepSlice{
+					{
+						Name: "sample",
+						Environment: map[string]string{
+							"BUILD_MESSAGE":      "`\\`\r",
+							"VELA_BUILD_MESSAGE": "`\\`\r",
+						},
+					},
+				},
+			},
+			want: yaml.StepSlice{
+				{
+					Name: "sample",
+					Environment: map[string]string{
+						"BUILD_MESSAGE":      "`\\`\r",
+						"VELA_BUILD_MESSAGE": "`\\`\r",
+					},
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
