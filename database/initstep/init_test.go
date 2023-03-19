@@ -174,7 +174,6 @@ func testInitStep() *library.InitStep {
 		RepoID:   new(int64),
 		BuildID:  new(int64),
 		Number:   new(int),
-		Mimetype: new(string),
 		Reporter: new(string),
 	}
 }

@@ -62,7 +62,6 @@ func TestInitStep_Establish(t *testing.T) {
 	want.SetNumber(1)
 	want.SetReporter("Foo Runtime")
 	want.SetName("foo")
-	want.SetMimetype("text/plain")
 
 	got := new(library.InitStep)
 

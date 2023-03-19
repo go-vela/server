@@ -116,12 +116,6 @@ func UpdateInitStep(c *gin.Context) {
 		i.SetName(input.GetName())
 	}
 
-	// check if the Mimetype field in the initstep was provided
-	if len(input.GetMimetype()) > 0 {
-		// update the Mimetype field
-		i.SetMimetype(input.GetMimetype())
-	}
-
 	// send API call to update the initstep
 	err = database.FromContext(c).UpdateInitStep(i)
 	if err != nil {

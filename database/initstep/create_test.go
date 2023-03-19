@@ -19,7 +19,6 @@ func TestInitStep_Engine_CreateInitStep(t *testing.T) {
 	_initStep.SetNumber(1)
 	_initStep.SetReporter("Foobar Runtime")
 	_initStep.SetName("foobar")
-	_initStep.SetMimetype("text/plain")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

@@ -20,7 +20,6 @@ func TestInitStep_Engine_CountInitSteps(t *testing.T) {
 	_initStepOne.SetNumber(1)
 	_initStepOne.SetReporter("Foobar Runtime")
 	_initStepOne.SetName("foobar")
-	_initStepOne.SetMimetype("text/plain")
 
 	_initStepTwo := testInitStep()
 	_initStepTwo.SetID(2)
@@ -29,7 +28,6 @@ func TestInitStep_Engine_CountInitSteps(t *testing.T) {
 	_initStepTwo.SetNumber(2)
 	_initStepTwo.SetReporter("Foobar Runtime")
 	_initStepTwo.SetName("foobar")
-	_initStepTwo.SetMimetype("text/plain")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
