@@ -7,6 +7,7 @@ package pipeline
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
@@ -127,8 +128,16 @@ func GetTemplates(c *gin.Context) {
 			return
 		}
 
+		// capture source path to template
+		source := template.Source
+
+		// if type is file, compose a source string so the template can be found
+		if strings.EqualFold(template.Type, "file") {
+			source = fmt.Sprintf("%s%s/%s/%s@%s", registry.URL, o, r.GetName(), source, p.GetCommit())
+		}
+
 		// parse the source for the template using the compiler registry client
-		src, err := registry.Parse(template.Source)
+		src, err := registry.Parse(source)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to parse source for %s: %w", baseErr, template.Source, err))
 
