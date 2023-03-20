@@ -29,6 +29,7 @@ func (e *engine) GetSecretForTeam(org, team, name string) (*library.Secret, erro
 		Where("type = ?", constants.SecretShared).
 		Where("org = ?", org).
 		Where("team = ?", team).
+		Where("name = ?", name).
 		Take(s).
 		Error
 	if err != nil {

@@ -29,6 +29,7 @@ func (e *engine) GetSecretForRepo(name string, r *library.Repo) (*library.Secret
 		Where("type = ?", constants.SecretRepo).
 		Where("org = ?", r.GetOrg()).
 		Where("repo = ?", r.GetName()).
+		Where("name = ?", name).
 		Take(s).
 		Error
 	if err != nil {
