@@ -41,7 +41,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
@@ -121,7 +121,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -924,7 +924,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1020,7 +1020,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
@@ -1116,7 +1116,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1212,7 +1212,7 @@ func TestPerm_MustWrite(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1308,7 +1308,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
@@ -1404,7 +1404,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1500,7 +1500,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1596,7 +1596,7 @@ func TestPerm_MustRead(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1692,7 +1692,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
@@ -1870,7 +1870,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -1966,7 +1966,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -2062,7 +2062,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -2158,7 +2158,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
@@ -2338,7 +2338,7 @@ const permNonePayload = `
 
 const userPayload = `
 {
-  "login": "foo",
+  "login": "foob",
   "id": 1,
   "node_id": "MDQ6VXNlcjE=",
   "avatar_url": "https://github.com/images/error/octocat_happy.gif",
