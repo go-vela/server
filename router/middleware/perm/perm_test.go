@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -11,33 +11,48 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
-	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/token"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
-
-const accessTokenDuration = time.Minute * 15
 
 func TestPerm_MustPlatformAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup database
 	db, _ := sqlite.NewTest()
@@ -72,8 +87,10 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(MustPlatformAdmin())
 	engine.GET("/admin/users", func(c *gin.Context) {
@@ -95,14 +112,27 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -137,8 +167,10 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(MustPlatformAdmin())
 	engine.GET("/admin/users", func(c *gin.Context) {
@@ -156,7 +188,184 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	}
 }
 
-func TestPerm_MustAdmin(t *testing.T) {
+func TestPerm_MustWorker(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprint(secret))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(MustWorker())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustWorker returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustWorker_PlatAdmin(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("vela-worker")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
+
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateUser(u)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(MustWorker())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustWorker returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustWorker_UserNamedVelaWorker(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("vela-worker")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(false)
+
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateUser(u)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(MustWorker())
+	engine.GET("/test/:org/:repo", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusUnauthorized {
+		t.Errorf("MustWorker returned %v, want %v", resp.Code, http.StatusUnauthorized)
+	}
+}
+
+func TestPerm_MustBuildAccess(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
@@ -169,14 +378,517 @@ func TestPerm_MustAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		BuildID:       1,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.WorkerBuildTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateBuild(b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustBuildAccess())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("admin")
+	u.SetToken("bar")
+	u.SetHash("baz")
+	u.SetAdmin(true)
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		db.Sqlite.Exec("delete from builds;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateBuild(b)
+	_ = db.CreateUser(u)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustBuildAccess())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		BuildID:       2,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.WorkerBuildTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateBuild(b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustBuildAccess())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusUnauthorized {
+		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		BuildID:       1,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.WorkerBuildTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateBuild(b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/repo/foo/bar/baz", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(MustSecretAdmin())
+	engine.GET("/test/:engine/:type/:org/:name/:secret", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		BuildID:       1,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.WorkerBuildTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateBuild(b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/org/foo/*/baz", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(MustSecretAdmin())
+	engine.GET("/test/:engine/:type/:org/:name/:secret", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustSecretAdmin returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		BuildID:       1,
+		Repo:          "foo/bar",
+		TokenDuration: time.Minute * 30,
+		TokenType:     constants.WorkerBuildTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from repos;")
+		db.Sqlite.Exec("delete from users;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateRepo(r)
+	_ = db.CreateBuild(b)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/shared/foo/*/*", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(MustSecretAdmin())
+	engine.GET("/test/:engine/:type/:org/:name/:secret", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustSecretAdmin returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
+func TestPerm_MustAdmin(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("public")
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -216,8 +928,10 @@ func TestPerm_MustAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -241,6 +955,13 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -252,12 +973,18 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -297,8 +1024,10 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -322,6 +1051,13 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -333,12 +1069,18 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -378,8 +1120,10 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -403,6 +1147,13 @@ func TestPerm_MustWrite(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -414,12 +1165,18 @@ func TestPerm_MustWrite(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -459,8 +1216,10 @@ func TestPerm_MustWrite(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -484,6 +1243,13 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -495,12 +1261,18 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -540,8 +1312,10 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -565,6 +1339,13 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -576,12 +1357,18 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -621,8 +1408,10 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -646,6 +1435,13 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -657,12 +1453,18 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -702,8 +1504,10 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -727,6 +1531,13 @@ func TestPerm_MustRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -738,12 +1549,18 @@ func TestPerm_MustRead(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -783,8 +1600,10 @@ func TestPerm_MustRead(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -808,6 +1627,13 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -819,12 +1645,18 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -864,8 +1696,10 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -885,9 +1719,98 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	}
 }
 
+func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetUserID(1)
+	r.SetHash("baz")
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetFullName("foo/bar")
+	r.SetVisibility("private")
+
+	b := new(library.Build)
+	b.SetID(1)
+	b.SetRepoID(1)
+	b.SetNumber(1)
+
+	mto := &token.MintTokenOpts{
+		Hostname:      "worker",
+		TokenDuration: time.Minute * 35,
+		TokenType:     constants.WorkerBuildTokenType,
+		BuildID:       1,
+		Repo:          "foo/bar",
+	}
+
+	tok, _ := tm.MintToken(mto)
+
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+
+	// setup database
+	db, _ := sqlite.NewTest()
+
+	defer func() {
+		db.Sqlite.Exec("delete from builds")
+		db.Sqlite.Exec("delete from repos;")
+		_sql, _ := db.Sqlite.DB()
+		_sql.Close()
+	}()
+
+	_ = db.CreateBuild(b)
+	_ = db.CreateRepo(r)
+
+	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+
+	// setup vela mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(claims.Establish())
+	engine.Use(user.Establish())
+	engine.Use(org.Establish())
+	engine.Use(repo.Establish())
+	engine.Use(build.Establish())
+	engine.Use(MustRead())
+	engine.GET("/test/:org/:repo/builds/:build", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	s1 := httptest.NewServer(engine)
+	defer s1.Close()
+
+	// run test
+	engine.ServeHTTP(context.Writer, context.Request)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusOK)
+	}
+}
+
 func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
+
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
 
 	r := new(library.Repo)
 	r.SetID(1)
@@ -900,12 +1823,18 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -945,8 +1874,10 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -970,6 +1901,13 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -981,12 +1919,18 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -1026,8 +1970,10 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -1051,6 +1997,13 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -1062,12 +2015,18 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -1107,8 +2066,10 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -1132,6 +2093,13 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	r := new(library.Repo)
 	r.SetID(1)
 	r.SetUserID(1)
@@ -1143,12 +2111,18 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 
 	u := new(library.User)
 	u.SetID(1)
-	u.SetName("foo")
+	u.SetName("foob")
 	u.SetToken("bar")
 	u.SetHash("baz")
 	u.SetAdmin(false)
 
-	tok, _ := token.CreateAccessToken(u, accessTokenDuration)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -1188,8 +2162,10 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(user.Establish())
 	engine.Use(org.Establish())
 	engine.Use(repo.Establish())
@@ -1206,57 +2182,6 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 
 	if resp.Code != http.StatusUnauthorized {
 		t.Errorf("MustRead returned %v, want %v", resp.Code, http.StatusUnauthorized)
-	}
-}
-
-func TestPerm_globalPerms(t *testing.T) {
-	// setup types
-	u := new(library.User)
-	u.SetID(1)
-	u.SetName("foo")
-	u.SetToken("bar")
-	u.SetHash("baz")
-	u.SetAdmin(false)
-
-	// run test
-	got := globalPerms(u)
-
-	if got {
-		t.Errorf("globalPerms returned %v, want false", got)
-	}
-}
-
-func TestPerm_globalPerms_Agent(t *testing.T) {
-	// setup types
-	u := new(library.User)
-	u.SetID(1)
-	u.SetName("vela-worker")
-	u.SetToken("bar")
-	u.SetHash("baz")
-	u.SetAdmin(false)
-
-	// run test
-	got := globalPerms(u)
-
-	if !got {
-		t.Errorf("globalPerms returned %v, want true", got)
-	}
-}
-
-func TestPerm_globalPerms_Admin(t *testing.T) {
-	// setup types
-	u := new(library.User)
-	u.SetID(1)
-	u.SetName("foo")
-	u.SetToken("bar")
-	u.SetHash("baz")
-	u.SetAdmin(true)
-
-	// run test
-	got := globalPerms(u)
-
-	if !got {
-		t.Errorf("globalPerms returned %v, want true", got)
 	}
 }
 
@@ -1366,7 +2291,7 @@ const permNonePayload = `
 
 const userPayload = `
 {
-  "login": "foo",
+  "login": "foob",
   "id": 1,
   "node_id": "MDQ6VXNlcjE=",
   "avatar_url": "https://github.com/images/error/octocat_happy.gif",

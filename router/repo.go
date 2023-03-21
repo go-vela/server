@@ -7,10 +7,11 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/repo"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
-	"github.com/go-vela/server/router/middleware/repo"
+	rmiddleware "github.com/go-vela/server/router/middleware/repo"
 )
 
 // RepoHandlers is a function that extends the provided base router group
@@ -52,32 +53,32 @@ import (
 // DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
 func RepoHandlers(base *gin.RouterGroup) {
 	// Repos endpoints
-	repos := base.Group("/repos")
+	_repos := base.Group("/repos")
 	{
-		repos.POST("", middleware.Payload(), api.CreateRepo)
-		repos.GET("", api.GetRepos)
+		_repos.POST("", middleware.Payload(), repo.CreateRepo)
+		_repos.GET("", repo.ListRepos)
 
 		// Org endpoints
-		org := repos.Group("/:org", org.Establish())
+		org := _repos.Group("/:org", org.Establish())
 		{
-			org.GET("", api.GetOrgRepos)
+			org.GET("", repo.ListReposForOrg)
 			org.GET("/builds", api.GetOrgBuilds)
 
 			// Repo endpoints
-			repo := org.Group("/:repo", repo.Establish())
+			_repo := org.Group("/:repo", rmiddleware.Establish())
 			{
-				repo.GET("", perm.MustRead(), api.GetRepo)
-				repo.PUT("", perm.MustAdmin(), middleware.Payload(), api.UpdateRepo)
-				repo.DELETE("", perm.MustAdmin(), api.DeleteRepo)
-				repo.PATCH("/repair", perm.MustAdmin(), api.RepairRepo)
-				repo.PATCH("/chown", perm.MustAdmin(), api.ChownRepo)
+				_repo.GET("", perm.MustRead(), repo.GetRepo)
+				_repo.PUT("", perm.MustAdmin(), middleware.Payload(), repo.UpdateRepo)
+				_repo.DELETE("", perm.MustAdmin(), repo.DeleteRepo)
+				_repo.PATCH("/repair", perm.MustAdmin(), repo.RepairRepo)
+				_repo.PATCH("/chown", perm.MustAdmin(), repo.ChownRepo)
 
 				// Build endpoints
 				// * Service endpoints
 				//   * Log endpoints
 				// * Step endpoints
 				//   * Log endpoints
-				BuildHandlers(repo)
+				BuildHandlers(_repo)
 			} // end of repo endpoints
 		} // end of org endpoints
 	} // end of repos endpoints

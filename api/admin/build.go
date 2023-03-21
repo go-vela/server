@@ -19,45 +19,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/builds admin AdminAllBuilds
-//
-// Get all of the builds in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all builds from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Build"
-//   '500':
-//     description: Unable to retrieve all builds from the database
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// AllBuilds represents the API handler to
-// captures all builds stored in the database.
-func AllBuilds(c *gin.Context) {
-	logrus.Info("Admin: reading all builds")
-
-	// send API call to capture all builds
-	b, err := database.FromContext(c).GetBuildList()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all builds: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, b)
-}
-
 // swagger:operation GET /api/v1/admin/builds/queue admin AllBuildsQueue
 //
 // Get all of the running and pending builds in the database

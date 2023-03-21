@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v44/github"
+	"github.com/google/go-github/v50/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -25,6 +25,7 @@ func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (da
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
+		logrus.Debugf("Fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
 		data, err = c.Config(u, r, ref)
 
@@ -97,7 +98,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		"org":  org,
 		"repo": name,
 		"user": u.GetName(),
-	}).Tracef("deleting repository webhook for %s/%s", org, name)
+	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -131,6 +132,12 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 	// skip if we have no hook IDs
 	if len(ids) == 0 {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"repo": name,
+			"user": u.GetName(),
+		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+
 		return nil
 	}
 
@@ -307,6 +314,26 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 	}
 
 	return toLibraryRepo(*repo), nil
+}
+
+// GetOrgAndRepoName returns the name of the org and the repository in the SCM.
+func (c *client) GetOrgAndRepoName(u *library.User, o string, r string) (string, string, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  o,
+		"repo": r,
+		"user": u.GetName(),
+	}).Tracef("retrieving repository information for %s/%s", o, r)
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	// send an API call to get the repo info
+	repo, _, err := client.Repositories.Get(ctx, o, r)
+	if err != nil {
+		return "", "", err
+	}
+
+	return repo.GetOwner().GetLogin(), repo.GetName(), nil
 }
 
 // ListUserRepos returns a list of all repos the user has access to.

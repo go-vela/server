@@ -34,6 +34,7 @@ package router
 import (
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
@@ -92,7 +93,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	// API endpoints
-	baseAPI := r.Group(base, user.Establish())
+	baseAPI := r.Group(base, claims.Establish(), user.Establish())
 	{
 		// Admin endpoints
 		AdminHandlers(baseAPI)
@@ -113,6 +114,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// Source code management endpoints
 		ScmHandlers(baseAPI)
+
+		// Search endpoints
+		SearchHandlers(baseAPI)
 
 		// Secret endpoints
 		SecretHandlers(baseAPI)

@@ -18,8 +18,6 @@ import (
 )
 
 // GetBuild gets a build by number and repo ID from the database.
-//
-//nolint:dupl // ignore similar code with hook
 func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"build": number,
@@ -34,6 +32,29 @@ func (c *client) GetBuild(number int, r *library.Repo) (*library.Build, error) {
 	result := c.Postgres.
 		Table(constants.TableBuild).
 		Raw(dml.SelectRepoBuild, r.GetID(), number).
+		Scan(b)
+
+	// check if the query returned a record not found error or no rows were returned
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return b.ToLibrary(), result.Error
+}
+
+// GetBuildByID gets a build by id from the database.
+func (c *client) GetBuildByID(id int64) (*library.Build, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"build": id,
+	}).Tracef("getting build %d from the database", id)
+
+	// variable to store query result
+	b := new(database.Build)
+
+	// send query to the database and store result in variable
+	result := c.Postgres.
+		Table(constants.TableBuild).
+		Raw(dml.SelectBuildByID, id).
 		Scan(b)
 
 	// check if the query returned a record not found error or no rows were returned

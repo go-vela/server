@@ -111,6 +111,12 @@ type Service interface {
 	// GetRepo defines a function that retrieves
 	// details for a repo.
 	GetRepo(*library.User, *library.Repo) (*library.Repo, error)
+	// GetOrgAndRepoName defines a function that retrieves
+	// the name of the org and repo in the SCM.
+	GetOrgAndRepoName(*library.User, string, string) (string, string, error)
+	// GetOrg defines a function that retrieves
+	// the name for an org in the SCM.
+	GetOrgName(*library.User, string) (string, error)
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(*library.User, string, string, string, string) (string, error)

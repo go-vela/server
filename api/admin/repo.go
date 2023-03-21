@@ -18,45 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/repos admin AdminAllRepos
-//
-// Get all of the repos in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all repos from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Repo"
-//   '500':
-//     description: Unable to retrieve all repos from the database
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// AllRepos represents the API handler to
-// captures all repos stored in the database.
-func AllRepos(c *gin.Context) {
-	logrus.Info("Admin: reading all repos")
-
-	// send API call to capture all repos
-	r, err := database.FromContext(c).GetRepoList()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all repos: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, r)
-}
-
 // swagger:operation PUT /api/v1/admin/repo admin AdminUpdateRepo
 //
 // Update a repo in the database

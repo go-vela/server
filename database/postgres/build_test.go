@@ -93,6 +93,74 @@ func TestPostgres_Client_GetBuild(t *testing.T) {
 	}
 }
 
+func TestPostgres_Client_GetBuildByID(t *testing.T) {
+	// setup types
+	_build := testBuild()
+	_build.SetID(1)
+	_build.SetRepoID(1)
+	_build.SetNumber(1)
+	_build.SetDeployPayload(nil)
+
+	// setup the test database client
+	_database, _mock, err := NewTest()
+	if err != nil {
+		t.Errorf("unable to create new postgres test database: %v", err)
+	}
+
+	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
+
+	// capture the current expected SQL query
+	//
+	// https://gorm.io/docs/sql_builder.html#DryRun-Mode
+	_query := _database.Postgres.Session(&gorm.Session{DryRun: true}).Raw(dml.SelectBuildByID, 1).Statement
+
+	// create expected return in mock
+	_rows := sqlmock.NewRows(
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"},
+	).AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+
+	// ensure the mock expects the query for test case 1
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnRows(_rows)
+	// ensure the mock expects the error for test case 2
+	_mock.ExpectQuery(_query.SQL.String()).WillReturnError(gorm.ErrRecordNotFound)
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		want    *library.Build
+	}{
+		{
+			failure: false,
+			want:    _build,
+		},
+		{
+			failure: true,
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		got, err := _database.GetBuildByID(1)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("GetBuildByID should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("GetBuildByID returned err: %v", err)
+		}
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("GetBuildByID is %v, want %v", got, test.want)
+		}
+	}
+}
+
 func TestPostgres_Client_GetLastBuild(t *testing.T) {
 	// setup types
 	_build := testBuild()

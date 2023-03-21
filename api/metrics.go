@@ -8,9 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-vela/server/database"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -218,7 +217,7 @@ func recordGauges(c *gin.Context) {
 	// repo_count
 	if q.RepoCount {
 		// send API call to capture the total number of repos
-		r, err := database.FromContext(c).GetRepoCount()
+		r, err := database.FromContext(c).CountRepos()
 		if err != nil {
 			logrus.Errorf("unable to get count of all repos: %v", err)
 		}
@@ -366,7 +365,7 @@ func recordGauges(c *gin.Context) {
 	// worker_build_limit, active_worker_count, inactive_worker_count
 	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount {
 		// send API call to capture the workers
-		workers, err := database.FromContext(c).GetWorkerList()
+		workers, err := database.FromContext(c).ListWorkers()
 		if err != nil {
 			logrus.Errorf("unable to get workers: %v", err)
 		}

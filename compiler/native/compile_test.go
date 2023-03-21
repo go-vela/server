@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
-	"github.com/google/go-github/v44/github"
+	"github.com/google/go-github/v50/github"
 
 	"testing"
 	"time"
@@ -37,6 +37,7 @@ import (
 func TestNative_Compile_StagesPipeline(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -135,7 +136,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 						ID:          "__0_clone_clone",
 						Directory:   "/vela/src/foo//",
 						Environment: cloneEnv,
-						Image:       "target/vela-git:v0.5.1",
+						Image:       defaultCloneImage,
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
@@ -415,6 +416,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 func TestNative_Compile_StepsPipeline(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -495,7 +497,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: cloneEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -616,6 +618,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -712,7 +715,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 						ID:          "__0_clone_clone",
 						Directory:   "/vela/src/foo//",
 						Environment: setupEnv,
-						Image:       "target/vela-git:v0.5.1",
+						Image:       defaultCloneImage,
 						Name:        "clone",
 						Number:      2,
 						Pull:        "not_present",
@@ -879,6 +882,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -965,7 +969,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: setupEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1082,6 +1086,244 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	}
 }
 
+// Test evaluation of `vela "tempalate_name"` function.
+func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	m := &types.Metadata{
+		Database: &types.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &types.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &types.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &types.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	setupEnv := environment(nil, m, nil, nil)
+
+	helloEnv := environment(nil, m, nil, nil)
+	helloEnv["HOME"] = "/root"
+	helloEnv["SHELL"] = "/bin/sh"
+	helloEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo sample"})
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "step___0_init",
+				Directory:   "/vela/src/foo//",
+				Environment: setupEnv,
+				Image:       "#init",
+				Name:        "init",
+				Number:      1,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_clone",
+				Directory:   "/vela/src/foo//",
+				Environment: setupEnv,
+				Image:       defaultCloneImage,
+				Name:        "clone",
+				Number:      2,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_sample_hello",
+				Directory:   "/vela/src/foo//",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: helloEnv,
+				Image:       "sample",
+				Name:        "sample_hello",
+				Number:      3,
+				Pull:        "not_present",
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/template_name.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	got, _, err := compiler.Compile(yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+}
+
+// Test evaluation of `vela "tempalate_name"` function on a inline template.
+func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	m := &types.Metadata{
+		Database: &types.Database{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Queue: &types.Queue{
+			Channel: "foo",
+			Driver:  "foo",
+			Host:    "foo",
+		},
+		Source: &types.Source{
+			Driver: "foo",
+			Host:   "foo",
+		},
+		Vela: &types.Vela{
+			Address:    "foo",
+			WebAddress: "foo",
+		},
+	}
+
+	setupEnv := environment(nil, m, nil, nil)
+
+	helloEnv := environment(nil, m, nil, nil)
+	helloEnv["HOME"] = "/root"
+	helloEnv["SHELL"] = "/bin/sh"
+	helloEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"echo inline_templatename"})
+
+	want := &pipeline.Build{
+		Version: "1",
+		ID:      "__0",
+		Metadata: pipeline.Metadata{
+			Clone:       true,
+			Template:    false,
+			Environment: []string{"steps", "services", "secrets"},
+		},
+		Steps: pipeline.ContainerSlice{
+			&pipeline.Container{
+				ID:          "step___0_init",
+				Directory:   "/vela/src/foo//",
+				Environment: setupEnv,
+				Image:       "#init",
+				Name:        "init",
+				Number:      1,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_clone",
+				Directory:   "/vela/src/foo//",
+				Environment: setupEnv,
+				Image:       defaultCloneImage,
+				Name:        "clone",
+				Number:      2,
+				Pull:        "not_present",
+			},
+			&pipeline.Container{
+				ID:          "step___0_inline_templatename_hello",
+				Directory:   "/vela/src/foo//",
+				Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+				Entrypoint:  []string{"/bin/sh", "-c"},
+				Environment: helloEnv,
+				Image:       "inline_templatename",
+				Name:        "inline_templatename_hello",
+				Number:      3,
+				Pull:        "not_present",
+			},
+		},
+	}
+
+	// run test
+	yaml, err := os.ReadFile("testdata/template_name_inline.yml")
+	if err != nil {
+		t.Errorf("Reading yaml file return err: %v", err)
+	}
+
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Creating compiler returned err: %v", err)
+	}
+
+	compiler.WithMetadata(m)
+
+	got, _, err := compiler.Compile(yaml)
+	if err != nil {
+		t.Errorf("Compile returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+}
+
 func TestNative_Compile_InvalidType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -1159,6 +1401,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 	set := flag.NewFlagSet("test", 0)
 	set.Bool("github-driver", true, "doc")
 	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1239,7 +1482,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1348,6 +1591,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	set := flag.NewFlagSet("test", 0)
 	set.Bool("github-driver", true, "doc")
 	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1396,7 +1640,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: defaultEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1441,7 +1685,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: defaultGoEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1486,7 +1730,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 				ID:          "step___0_clone",
 				Directory:   "/vela/src/foo//",
 				Environment: defaultStarlarkEnv,
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Number:      2,
 				Pull:        "not_present",
@@ -1674,7 +1918,7 @@ func Test_client_modifyConfig(t *testing.T) {
 			},
 			&yaml.Step{
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Pull:        "not_present",
 			},
@@ -1707,7 +1951,7 @@ func Test_client_modifyConfig(t *testing.T) {
 			},
 			&yaml.Step{
 				Environment: environment(nil, m, nil, nil),
-				Image:       "target/vela-git:v0.5.1",
+				Image:       defaultCloneImage,
 				Name:        "clone",
 				Pull:        "not_present",
 			},
@@ -1916,6 +2160,7 @@ func Test_Compile_Inline(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1996,7 +2241,7 @@ func Test_Compile_Inline(t *testing.T) {
 								ID:          "__0_clone_clone",
 								Directory:   "/vela/src/foo//",
 								Environment: initEnv,
-								Image:       "target/vela-git:v0.5.1",
+								Image:       defaultCloneImage,
 								Name:        "clone",
 								Number:      2,
 								Pull:        "not_present",
@@ -2142,7 +2387,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Directory:   "/vela/src/foo//",
 						Environment: initEnv,
 						Name:        "clone",
-						Image:       "target/vela-git:v0.5.1",
+						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
 					},
@@ -2250,7 +2495,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Directory:   "/vela/src/foo//",
 						Environment: initEnv,
 						Name:        "clone",
-						Image:       "target/vela-git:v0.5.1",
+						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
 					},
@@ -2347,7 +2592,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Directory:   "/vela/src/foo//",
 						Environment: initEnv,
 						Name:        "clone",
-						Image:       "target/vela-git:v0.5.1",
+						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
 					},
@@ -2422,7 +2667,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Directory:   "/vela/src/foo//",
 						Environment: testEnv,
 						Name:        "clone",
-						Image:       "target/vela-git:v0.5.1",
+						Image:       defaultCloneImage,
 						Number:      2,
 						Pull:        "not_present",
 					},
@@ -2475,7 +2720,7 @@ func Test_Compile_Inline(t *testing.T) {
 								ID:          "__0_clone_clone",
 								Directory:   "/vela/src/foo//",
 								Environment: golangEnv,
-								Image:       "target/vela-git:v0.5.1",
+								Image:       defaultCloneImage,
 								Name:        "clone",
 								Number:      2,
 								Pull:        "not_present",

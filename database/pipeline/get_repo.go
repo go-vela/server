@@ -27,8 +27,7 @@ func (e *engine) GetPipelineForRepo(commit string, r *library.Repo) (*library.Pi
 		Table(constants.TablePipeline).
 		Where("repo_id = ?", r.GetID()).
 		Where("\"commit\" = ?", commit).
-		Limit(1).
-		Scan(p).
+		Take(p).
 		Error
 	if err != nil {
 		return nil, err

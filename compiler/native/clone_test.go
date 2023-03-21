@@ -13,9 +13,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const defaultCloneImage = "target/vela-git:latest"
+
 func TestNative_CloneStage(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -53,7 +56,7 @@ func TestNative_CloneStage(t *testing.T) {
 						Name: "clone",
 						Steps: yaml.StepSlice{
 							&yaml.Step{
-								Image: "target/vela-git:v0.5.1",
+								Image: defaultCloneImage,
 								Name:  "clone",
 								Pull:  "not_present",
 							},
@@ -113,6 +116,7 @@ func TestNative_CloneStage(t *testing.T) {
 func TestNative_CloneStep(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -142,7 +146,7 @@ func TestNative_CloneStep(t *testing.T) {
 				Version: "v1",
 				Steps: yaml.StepSlice{
 					&yaml.Step{
-						Image: "target/vela-git:v0.5.1",
+						Image: defaultCloneImage,
 						Name:  "clone",
 						Pull:  "not_present",
 					},

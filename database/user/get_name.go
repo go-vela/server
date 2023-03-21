@@ -24,8 +24,7 @@ func (e *engine) GetUserForName(name string) (*library.User, error) {
 	err := e.client.
 		Table(constants.TableUser).
 		Where("name = ?", name).
-		Limit(1).
-		Scan(u).
+		Take(u).
 		Error
 	if err != nil {
 		return nil, err

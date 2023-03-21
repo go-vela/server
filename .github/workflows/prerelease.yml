@@ -25,6 +25,7 @@ jobs:
         # use version from go.mod file
         go-version-file: 'go.mod'
         cache: true
+        check-latest: true
 
     - name: setup
       run: |
@@ -39,7 +40,7 @@ jobs:
         make build-static-ci
 
     - name: publish
-      uses: elgohr/Publish-Docker-Github-Action@v4
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: target/vela-server
         cache: true
@@ -48,7 +49,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: publish-alpine
-      uses: elgohr/Publish-Docker-Github-Action@v4
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: target/vela-server
         cache: true

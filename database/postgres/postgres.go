@@ -9,9 +9,13 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
+	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
@@ -43,10 +47,18 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
+		hook.HookService
+		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
+		log.LogService
 		// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#PipelineService
 		pipeline.PipelineService
+		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
+		repo.RepoService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
+		// https://pkg.go.dev/github.com/go-vela/server/database/worker#WorkerService
+		worker.WorkerService
 	}
 )
 
@@ -143,10 +155,24 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
+	// ensure the mock expects the hook queries
+	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the log queries
+	_mock.ExpectExec(log.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(log.CreateBuildIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the pipeline queries
 	_mock.ExpectExec(pipeline.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(pipeline.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the repo queries
+	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the worker queries
+	_mock.ExpectExec(worker.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(worker.CreateHostnameAddressIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -233,24 +259,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the hooks table
-	err = c.Postgres.Exec(ddl.CreateHookTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableHook, err)
-	}
-
-	// create the logs table
-	err = c.Postgres.Exec(ddl.CreateLogTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableLog, err)
-	}
-
-	// create the repos table
-	err = c.Postgres.Exec(ddl.CreateRepoTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableRepo, err)
-	}
-
 	// create the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTable).Error
 	if err != nil {
@@ -267,12 +275,6 @@ func createTables(c *client) error {
 	err = c.Postgres.Exec(ddl.CreateStepTable).Error
 	if err != nil {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
-	}
-
-	// create the workers table
-	err = c.Postgres.Exec(ddl.CreateWorkerTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableWorker, err)
 	}
 
 	return nil
@@ -307,24 +309,6 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create builds_source index for the %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the hooks_repo_id index for the hooks table
-	err = c.Postgres.Exec(ddl.CreateHookRepoIDIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create hooks_repo_id index for the %s table: %w", constants.TableHook, err)
-	}
-
-	// create the logs_build_id index for the logs table
-	err = c.Postgres.Exec(ddl.CreateLogBuildIDIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create logs_build_id index for the %s table: %w", constants.TableLog, err)
-	}
-
-	// create the repos_org_name index for the repos table
-	err = c.Postgres.Exec(ddl.CreateRepoOrgNameIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create repos_org_name index for the %s table: %w", constants.TableRepo, err)
-	}
-
 	// create the secrets_type_org_repo index for the secrets table
 	err = c.Postgres.Exec(ddl.CreateSecretTypeOrgRepo).Error
 	if err != nil {
@@ -343,18 +327,37 @@ func createIndexes(c *client) error {
 		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
-	// create the workers_hostname_address index for the workers table
-	err = c.Postgres.Exec(ddl.CreateWorkerHostnameAddressIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create workers_hostname_address index for the %s table: %w", constants.TableWorker, err)
-	}
-
 	return nil
 }
 
 // createServices is a helper function to create the database services.
 func createServices(c *client) error {
 	var err error
+
+	// create the database agnostic hook service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/hook#New
+	c.HookService, err = hook.New(
+		hook.WithClient(c.Postgres),
+		hook.WithLogger(c.Logger),
+		hook.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic log service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/log#New
+	c.LogService, err = log.New(
+		log.WithClient(c.Postgres),
+		log.WithCompressionLevel(c.config.CompressionLevel),
+		log.WithLogger(c.Logger),
+		log.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
 
 	// create the database agnostic pipeline service
 	//
@@ -369,6 +372,19 @@ func createServices(c *client) error {
 		return err
 	}
 
+	// create the database agnostic repo service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/repo#New
+	c.RepoService, err = repo.New(
+		repo.WithClient(c.Postgres),
+		repo.WithEncryptionKey(c.config.EncryptionKey),
+		repo.WithLogger(c.Logger),
+		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
 	// create the database agnostic user service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/user#New
@@ -377,6 +393,18 @@ func createServices(c *client) error {
 		user.WithEncryptionKey(c.config.EncryptionKey),
 		user.WithLogger(c.Logger),
 		user.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic worker service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/worker#New
+	c.WorkerService, err = worker.New(
+		worker.WithClient(c.Postgres),
+		worker.WithLogger(c.Logger),
+		worker.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
