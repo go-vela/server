@@ -253,12 +253,8 @@ func UpdateRepo(c *gin.Context) {
 	if lastHook.GetWebhookID() != 0 {
 		// if user is platform admin, fetch the repo owner token to make changes to webhook
 		if u.GetAdmin() {
-			// log admin override update repo hook
-			logrus.WithFields(logrus.Fields{
-				"org":  o,
-				"repo": r.GetName(),
-				"user": u.GetName(),
-			}).Infof("platform admin updating repo webhook events for repo %s", r.GetFullName())
+			// capture admin name for logging
+			admn := u.GetName()
 
 			u, err = database.FromContext(c).GetUser(r.GetUserID())
 			if err != nil {
@@ -268,6 +264,13 @@ func UpdateRepo(c *gin.Context) {
 
 				return
 			}
+
+			// log admin override update repo hook
+			logrus.WithFields(logrus.Fields{
+				"org":  o,
+				"repo": r.GetName(),
+				"user": u.GetName(),
+			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
 		}
 		// update webhook with new events
 		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
