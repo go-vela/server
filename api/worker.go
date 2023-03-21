@@ -89,28 +89,42 @@ func CreateWorker(c *gin.Context) {
 		return
 	}
 
-	tm := c.MustGet("token-manager").(*token.Manager)
+	switch cl.TokenType {
+	case constants.ServerWorkerTokenType:
+		if secret, ok := c.Value("secret").(string); ok {
+			tkn := new(library.Token)
+			tkn.SetToken(secret)
+			c.JSON(http.StatusOK, tkn)
+		}
 
-	wmto := &token.MintTokenOpts{
-		TokenType:     constants.WorkerAuthTokenType,
-		TokenDuration: tm.WorkerAuthTokenDuration,
-		Hostname:      cl.Subject,
-	}
-
-	tkn := new(library.Token)
-
-	wt, err := tm.MintToken(wmto)
-	if err != nil {
-		retErr := fmt.Errorf("unable to generate auth token for worker %s: %w", input.GetHostname(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		retErr := fmt.Errorf("symmetric token provided but not configured in server")
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
+	default:
+		tm := c.MustGet("token-manager").(*token.Manager)
+
+		wmto := &token.MintTokenOpts{
+			TokenType:     constants.WorkerAuthTokenType,
+			TokenDuration: tm.WorkerAuthTokenDuration,
+			Hostname:      cl.Subject,
+		}
+
+		tkn := new(library.Token)
+
+		wt, err := tm.MintToken(wmto)
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate auth token for worker %s: %w", input.GetHostname(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		tkn.SetToken(wt)
+
+		c.JSON(http.StatusCreated, tkn)
 	}
-
-	tkn.SetToken(wt)
-
-	c.JSON(http.StatusCreated, tkn)
 }
 
 // swagger:operation GET /api/v1/workers workers GetWorkers
@@ -258,6 +272,12 @@ func UpdateWorker(c *gin.Context) {
 	w := worker.Retrieve(c)
 	cl := claims.Retrieve(c)
 
+	// establish check in type
+	type WorkerCheckIn struct {
+		Worker *library.Worker `json:"worker,omitempty"`
+		Token  *library.Token  `json:"token,omitempty"`
+	}
+
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
@@ -300,9 +320,21 @@ func UpdateWorker(c *gin.Context) {
 
 	// send API call to capture the updated worker
 	w, _ = database.FromContext(c).GetWorkerForHostname(w.GetHostname())
+
 	switch cl.TokenType {
 	case constants.UserAccessTokenType:
 		c.JSON(http.StatusOK, w)
+	case constants.ServerWorkerTokenType:
+		if secret, ok := c.Value("secret").(string); ok {
+			tkn := new(library.Token)
+			tkn.SetToken(secret)
+			c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
+		}
+
+		retErr := fmt.Errorf("symmetric token provided but not configured in server")
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
 	default:
 		tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -324,11 +356,6 @@ func UpdateWorker(c *gin.Context) {
 		}
 
 		tkn.SetToken(wt)
-
-		type WorkerCheckIn struct {
-			Worker *library.Worker `json:"worker,omitempty"`
-			Token  *library.Token  `json:"token,omitempty"`
-		}
 
 		c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
 	}
