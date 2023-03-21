@@ -253,6 +253,13 @@ func UpdateRepo(c *gin.Context) {
 	if lastHook.GetWebhookID() != 0 {
 		// if user is platform admin, fetch the repo owner token to make changes to webhook
 		if u.GetAdmin() {
+			// log admin override update repo hook
+			logrus.WithFields(logrus.Fields{
+				"org":  o,
+				"repo": r.GetName(),
+				"user": u.GetName(),
+			}).Infof("platform admin updating repo webhook events for repo %s", r.GetFullName())
+
 			u, err = database.FromContext(c).GetUser(r.GetUserID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
