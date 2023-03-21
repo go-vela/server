@@ -31,6 +31,26 @@ const (
 			"last_checked_in": 1602612590
 		}`
 
+	// UpdateWorkerResp represents a JSON return for a single updated worker.
+	UpdateWorkerResp = `
+		{
+			"worker": {
+				"id": 1,
+				"hostname": "worker_1",
+				"address": "http://vela:8080",
+				"routes": [
+				"large",
+				"docker",
+				"large:docker"
+				],
+				"active": true,
+				"last_checked_in": 1602612590
+			},
+			"token": {
+				"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJBdXRoIn0.qeULIimCJlrwsE0JykNpzBmMaHUbvfk0vkyAz2eEo38"
+			}
+		}`
+
 	// WorkersResp represents a JSON return for one to many workers.
 	WorkersResp = `[
 		{
@@ -58,6 +78,16 @@ const (
 			"last_checked_in": 1602612590
 		  }
 	]`
+
+	// AddWorkerResp represents a JSON return for adding a worker.
+	AddWorkerResp = `{
+    	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJBdXRoIn0.qeULIimCJlrwsE0JykNpzBmMaHUbvfk0vkyAz2eEo38"
+    }`
+
+	// RegisterTokenResp represents a JSON return for an admin requesting a registration token.
+	RegisterTokenResp = `{
+		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJSZWdpc3RlciJ9.gEzKaZB-sDd_gFCVF5uGo2mcf3iy9CrXDTLPZ6PTsTc"
+	}`
 )
 
 // getWorkers returns mock JSON for a http GET.
@@ -92,9 +122,9 @@ func getWorker(c *gin.Context) {
 
 // addWorker returns mock JSON for a http POST.
 func addWorker(c *gin.Context) {
-	data := []byte(WorkerResp)
+	data := []byte(AddWorkerResp)
 
-	var body library.Worker
+	var body library.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -114,9 +144,14 @@ func updateWorker(c *gin.Context) {
 		return
 	}
 
-	data := []byte(WorkerResp)
+	data := []byte(UpdateWorkerResp)
 
-	var body library.Worker
+	type WorkerCheckIn struct {
+		Worker *library.Worker `json:"worker,omitempty"`
+		Token  *library.Token  `json:"token,omitempty"`
+	}
+
+	var body WorkerCheckIn
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -137,4 +172,26 @@ func removeWorker(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Worker %s removed", w))
+}
+
+// registerToken has a param :worker returns mock JSON for a http POST.
+//
+// Pass "0" to :worker to test receiving a http 401 response.
+func registerToken(c *gin.Context) {
+	w := c.Param("worker")
+
+	if strings.EqualFold(w, "0") {
+		msg := fmt.Sprintf("user %s is not a platform admin", w)
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(RegisterTokenResp)
+
+	var body library.Token
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
 }

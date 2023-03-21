@@ -73,3 +73,17 @@ func getAuthenticateFromToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, body)
 }
+
+// validateToken returns mock response for a http GET.
+//
+// Don't pass "Token" in header to receive an error message. Pass "0" in "Token" header to receive invalid token resp.
+func validateToken(c *gin.Context) {
+	err := "error"
+
+	token := c.Request.Header.Get("Token")
+	if len(token) == 0 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
+	}
+
+	c.JSON(http.StatusOK, "vela-server")
+}

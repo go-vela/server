@@ -326,8 +326,8 @@ func UpdateWorker(c *gin.Context) {
 		tkn.SetToken(wt)
 
 		type WorkerCheckIn struct {
-			Worker *library.Worker
-			Token  *library.Token
+			Worker *library.Worker `json:"worker,omitempty"`
+			Token  *library.Token  `json:"token,omitempty"`
 		}
 
 		c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
