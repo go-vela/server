@@ -98,7 +98,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		"org":  org,
 		"repo": name,
 		"user": u.GetName(),
-	}).Tracef("deleting repository webhook for %s/%s", org, name)
+	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -132,6 +132,12 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 	// skip if we have no hook IDs
 	if len(ids) == 0 {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"repo": name,
+			"user": u.GetName(),
+		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+
 		return nil
 	}
 
