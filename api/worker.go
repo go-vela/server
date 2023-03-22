@@ -267,7 +267,7 @@ func GetWorker(c *gin.Context) {
 //       "$ref": "#/definitions/Error"
 
 // UpdateWorker represents the API handler to
-// create a worker in the configured backend.
+// update a worker in the configured backend.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -318,6 +318,16 @@ func UpdateWorker(c *gin.Context) {
 	if input.GetLastCheckedIn() > 0 {
 		// update LastCheckedIn if set
 		w.SetLastCheckedIn(input.GetLastCheckedIn())
+	}
+
+	// send API call to update the worker
+	err = database.FromContext(c).UpdateWorker(w)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
 	}
 
 	// send API call to capture the updated worker
