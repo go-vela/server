@@ -38,6 +38,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -417,6 +418,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -619,6 +621,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -883,6 +886,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1112,6 +1116,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1231,6 +1236,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1346,6 +1352,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1402,6 +1409,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1592,6 +1600,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -2161,6 +2170,7 @@ func Test_Compile_Inline(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -2944,6 +2954,7 @@ func Test_CompileLite(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -2993,7 +3004,22 @@ func Test_CompileLite(t *testing.T) {
 					RenderInline: true,
 					Environment:  []string{"steps", "services", "secrets"},
 				},
-				Templates: []*yaml.Template{},
+				Environment: raw.StringSliceMap{},
+				Templates: []*yaml.Template{
+					{
+						Name:      "golang",
+						Source:    "github.example.com/github/octocat/golang_inline_stages.yml",
+						Format:    "golang",
+						Type:      "github",
+						Variables: map[string]any{"image": string("golang:latest")},
+					},
+					{
+						Name:   "starlark",
+						Source: "github.example.com/github/octocat/starlark_inline_stages.star",
+						Format: "starlark",
+						Type:   "github",
+					},
+				},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "test",
@@ -3085,6 +3111,7 @@ func Test_CompileLite(t *testing.T) {
 					RenderInline: true,
 					Environment:  []string{"steps", "services", "secrets"},
 				},
+				Environment: raw.StringSliceMap{},
 				Steps: yaml.StepSlice{
 					{
 						Commands: raw.StringSlice{"echo from inline"},
@@ -3123,7 +3150,20 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 					},
 				},
-				Templates: yaml.TemplateSlice{},
+				Templates: yaml.TemplateSlice{
+					{
+						Name:   "golang",
+						Source: "github.example.com/github/octocat/golang_inline_steps.yml",
+						Format: "golang",
+						Type:   "github",
+					},
+					{
+						Name:   "starlark",
+						Source: "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format: "starlark",
+						Type:   "github",
+					},
+				},
 			},
 			wantErr: false,
 		},
