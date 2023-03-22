@@ -196,6 +196,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 // compileInline parses and expands out inline pipelines.
 func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Build, error) {
 	newPipeline := *p
+	newPipeline.Templates = yaml.TemplateSlice{}
 
 	for _, template := range p.Templates {
 		if c.local {
