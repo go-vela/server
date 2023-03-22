@@ -331,6 +331,8 @@ func UpdateWorker(c *gin.Context) {
 			tkn := new(library.Token)
 			tkn.SetToken(secret)
 			c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
+
+			return
 		}
 
 		retErr := fmt.Errorf("symmetric token provided but not configured in server")
