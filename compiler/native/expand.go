@@ -51,6 +51,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, dep
 		return s, nil
 	}
 
+	// if max template depth has been reached, return to avoid circular dependencies
 	if depth == 0 {
 		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
 
@@ -106,6 +107,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, dep
 			return s, err
 		}
 
+		// if template references other templates, expand again
 		if len(tmplBuild.Templates) != 0 {
 			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), depth-1)
 			if err != nil {
