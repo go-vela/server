@@ -90,6 +90,7 @@ func CreateWorker(c *gin.Context) {
 	}
 
 	switch cl.TokenType {
+	// if symmetric token configured, send back symmetric token
 	case constants.ServerWorkerTokenType:
 		if secret, ok := c.Value("secret").(string); ok {
 			tkn := new(library.Token)
@@ -103,6 +104,7 @@ func CreateWorker(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
+	// if worker register token, send back auth token
 	default:
 		tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -333,9 +335,12 @@ func UpdateWorker(c *gin.Context) {
 	// send API call to capture the updated worker
 	w, _ = database.FromContext(c).GetWorkerForHostname(w.GetHostname())
 
+	// prepare the token to send back
 	switch cl.TokenType {
+	// if update performed by platform admin user, do not send back token
 	case constants.UserAccessTokenType:
 		c.JSON(http.StatusOK, w)
+	// if symmetric token configured, send back symmetric token
 	case constants.ServerWorkerTokenType:
 		if secret, ok := c.Value("secret").(string); ok {
 			tkn := new(library.Token)
@@ -349,6 +354,7 @@ func UpdateWorker(c *gin.Context) {
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
+	// if worker auth / register token, send back auth token
 	default:
 		tm := c.MustGet("token-manager").(*token.Manager)
 
