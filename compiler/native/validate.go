@@ -16,7 +16,7 @@ import (
 func (c *client) Validate(p *yaml.Build) error {
 	var result error
 	// check a version is provided
-	if len(p.Version) == 0 && !p.Metadata.Template {
+	if len(p.Version) == 0 {
 		result = multierror.Append(result, fmt.Errorf("no \"version:\" YAML property provided"))
 	}
 
