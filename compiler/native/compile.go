@@ -82,7 +82,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p, nil, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, nil)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -117,7 +117,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p, localTemplates, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, localTemplates)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -194,11 +194,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int) (*yaml.Build, error) {
-	if depth == 0 {
-		return nil, fmt.Errorf("reached maximum template depth of %d", c.TemplateDepth)
-	}
-
+func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Build, error) {
 	newPipeline := *p
 
 	for _, template := range p.Templates {
@@ -276,13 +272,6 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int
 		if len(newPipeline.Stages) > 0 && len(newPipeline.Steps) > 0 {
 			//nolint:lll // ignore long line length due to error message
 			return nil, fmt.Errorf("invalid template %s provided: templates cannot mix stages and steps", template.Name)
-		}
-
-		if len(parsed.Templates) > 0 {
-			parsed, err = c.compileInline(parsed, nil, depth-1)
-			if err != nil {
-				return nil, err
-			}
 		}
 	}
 
