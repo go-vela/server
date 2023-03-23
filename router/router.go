@@ -77,6 +77,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Metric endpoint
 	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
 
+	// Validate Server Token endpoint
+	r.GET("/validate-token", claims.Establish(), api.ValidateServerToken)
+
 	// Version endpoint
 	r.GET("/version", api.Version)
 
