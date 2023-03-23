@@ -80,7 +80,7 @@ func getAuthenticateFromToken(c *gin.Context) {
 func validateToken(c *gin.Context) {
 	err := "error"
 
-	token := c.Request.Header.Get("Token")
+	token := c.Request.Header.Get("Authorization")
 	if len(token) == 0 {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
 	}
