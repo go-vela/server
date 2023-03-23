@@ -78,7 +78,7 @@ func RepairRepo(c *gin.Context) {
 		}
 
 		// send API call to create the webhook
-		_, err = scm.FromContext(c).Enable(u, r.GetOrg(), r.GetName(), r.GetHash())
+		hook, _, err := scm.FromContext(c).Enable(u, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -90,6 +90,17 @@ func RepairRepo(c *gin.Context) {
 				util.HandleError(c, http.StatusNotFound, retErr)
 				return
 			}
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		hook.SetRepoID(r.GetID())
+
+		err = database.FromContext(c).CreateHook(hook)
+		if err != nil {
+			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 

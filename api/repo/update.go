@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -235,6 +236,50 @@ func UpdateRepo(c *gin.Context) {
 		// trusted
 		if input.GetTrusted() != r.GetTrusted() {
 			r.SetTrusted(input.GetTrusted())
+		}
+	}
+
+	// grab last hook from repo to fetch the webhook ID
+	lastHook, err := database.FromContext(c).LastHookForRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// if repo has no hook deliveries, skip webhook update
+	if lastHook.GetWebhookID() != 0 {
+		// if user is platform admin, fetch the repo owner token to make changes to webhook
+		if u.GetAdmin() {
+			// capture admin name for logging
+			admn := u.GetName()
+
+			u, err = database.FromContext(c).GetUser(r.GetUserID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			// log admin override update repo hook
+			logrus.WithFields(logrus.Fields{
+				"org":  o,
+				"repo": r.GetName(),
+				"user": u.GetName(),
+			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
+		}
+		// update webhook with new events
+		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
 		}
 	}
 
