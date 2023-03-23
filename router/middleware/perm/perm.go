@@ -92,7 +92,6 @@ func MustWorkerRegisterToken() gin.HandlerFunc {
 func MustWorkerAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
-		u := user.Retrieve(c)
 
 		// update engine logger with API metadata
 		//
@@ -103,19 +102,6 @@ func MustWorkerAuthToken() gin.HandlerFunc {
 
 		switch cl.TokenType {
 		case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
-			return
-		case constants.UserAccessTokenType:
-			if u.GetAdmin() {
-				logrus.WithFields(logrus.Fields{
-					"user": cl.Subject,
-				}).Debugf("user %s has platform admin permissions", cl.Subject)
-
-				return
-			}
-
-			retErr := fmt.Errorf("user %s does not have platform admin permissions", cl.Subject)
-			util.HandleError(c, http.StatusUnauthorized, retErr)
-
 			return
 		case constants.ServerWorkerTokenType:
 			if strings.EqualFold(cl.Subject, "vela-worker") {

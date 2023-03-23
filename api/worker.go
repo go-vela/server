@@ -41,9 +41,9 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '201':
-//     description: Successfully created the worker
+//     description: Successfully created the worker and retrieved auth token
 //     schema:
-//       type: string
+//       "$ref": "#definitions/Token"
 //   '400':
 //     description: Unable to create the worker
 //     schema:
@@ -274,13 +274,6 @@ func UpdateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	w := worker.Retrieve(c)
-	cl := claims.Retrieve(c)
-
-	// establish check in type
-	type WorkerCheckIn struct {
-		Worker *library.Worker `json:"worker,omitempty"`
-		Token  *library.Token  `json:"token,omitempty"`
-	}
 
 	// update engine logger with API metadata
 	//
@@ -335,17 +328,63 @@ func UpdateWorker(c *gin.Context) {
 	// send API call to capture the updated worker
 	w, _ = database.FromContext(c).GetWorkerForHostname(w.GetHostname())
 
-	// prepare the token to send back
+	c.JSON(http.StatusOK, w)
+}
+
+// swagger:operation POST /api/v1/workers/{worker}/refresh workers RefreshWorkerAuth
+//
+// Refresh authorization token for worker
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: worker
+//   description: Name of the worker
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully refreshed auth
+//     schema:
+//       "$ref": "#/definitions/Token"
+//   '400':
+//     description: Unable to refresh worker auth
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to refresh worker auth
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to refresh worker auth
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// RefreshWorkerAuth represents the API handler to
+// refresh the auth token for a worker.
+func RefreshWorkerAuth(c *gin.Context) {
+	// capture middleware values
+	w := worker.Retrieve(c)
+	cl := claims.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"worker": w.GetHostname(),
+	}).Infof("refreshing worker %s authentication", w.GetHostname())
+
 	switch cl.TokenType {
-	// if update performed by platform admin user, do not send back token
-	case constants.UserAccessTokenType:
-		c.JSON(http.StatusOK, w)
 	// if symmetric token configured, send back symmetric token
 	case constants.ServerWorkerTokenType:
 		if secret, ok := c.Value("secret").(string); ok {
 			tkn := new(library.Token)
 			tkn.SetToken(secret)
-			c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
+			c.JSON(http.StatusOK, tkn)
 
 			return
 		}
@@ -355,7 +394,7 @@ func UpdateWorker(c *gin.Context) {
 
 		return
 	// if worker auth / register token, send back auth token
-	default:
+	case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
 		tm := c.MustGet("token-manager").(*token.Manager)
 
 		wmto := &token.MintTokenOpts{
@@ -377,7 +416,7 @@ func UpdateWorker(c *gin.Context) {
 
 		tkn.SetToken(wt)
 
-		c.JSON(http.StatusOK, WorkerCheckIn{Worker: w, Token: tkn})
+		c.JSON(http.StatusCreated, tkn)
 	}
 }
 

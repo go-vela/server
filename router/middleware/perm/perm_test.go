@@ -348,28 +348,17 @@ func TestPerm_MustWorkerAuthToken(t *testing.T) {
 	}
 }
 
-func TestPerm_MustWorkerAuth_PlatAdmin(t *testing.T) {
+func TestPerm_MustWorkerAuth_ServerWorkerToken(t *testing.T) {
+	// setup types
+	secret := "superSecret"
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
-		UserAccessTokenDuration:  time.Minute * 5,
-		UserRefreshTokenDuration: time.Minute * 30,
+		PrivateKey:                  "123abc",
+		SignMethod:                  jwt.SigningMethodHS256,
+		UserAccessTokenDuration:     time.Minute * 5,
+		UserRefreshTokenDuration:    time.Minute * 30,
+		WorkerRegisterTokenDuration: time.Minute * 1,
+		WorkerAuthTokenDuration:     time.Minute * 15,
 	}
-
-	u := new(library.User)
-	u.SetID(1)
-	u.SetName("vela-worker")
-	u.SetToken("bar")
-	u.SetHash("baz")
-	u.SetAdmin(true)
-
-	mto := &token.MintTokenOpts{
-		User:          u,
-		TokenDuration: tm.UserAccessTokenDuration,
-		TokenType:     constants.UserAccessTokenType,
-	}
-
-	tok, _ := tm.MintToken(mto)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -377,22 +366,11 @@ func TestPerm_MustWorkerAuth_PlatAdmin(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
-	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
-	}()
-
-	_ = db.CreateUser(u)
-
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
-	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", secret))
 
 	// setup vela mock server
-	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(claims.Establish())
 	engine.Use(user.Establish())

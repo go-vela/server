@@ -19,6 +19,7 @@ import (
 // GET    /api/v1/workers
 // GET    /api/v1/workers/:worker
 // PUT    /api/v1/workers/:worker
+// POST   /api/v1/workers/:worker/refresh
 // DELETE /api/v1/workers/:worker .
 func WorkerHandlers(base *gin.RouterGroup) {
 	// Workers endpoints
@@ -31,7 +32,8 @@ func WorkerHandlers(base *gin.RouterGroup) {
 		w := workers.Group("/:worker")
 		{
 			w.GET("", worker.Establish(), api.GetWorker)
-			w.PUT("", perm.MustWorkerAuthToken(), worker.Establish(), api.UpdateWorker)
+			w.PUT("", perm.MustPlatformAdmin(), worker.Establish(), api.UpdateWorker)
+			w.POST("/refresh", perm.MustWorkerAuthToken(), worker.Establish(), api.RefreshWorkerAuth)
 			w.DELETE("", perm.MustPlatformAdmin(), worker.Establish(), api.DeleteWorker)
 		} // end of worker endpoints
 	} // end of workers endpoints
