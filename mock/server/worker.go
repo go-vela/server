@@ -45,9 +45,6 @@ const (
 				],
 				"active": true,
 				"last_checked_in": 1602612590
-			},
-			"token": {
-				"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJBdXRoIn0.qeULIimCJlrwsE0JykNpzBmMaHUbvfk0vkyAz2eEo38"
 			}
 		}`
 
@@ -83,6 +80,11 @@ const (
 	AddWorkerResp = `{
     	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJBdXRoIn0.qeULIimCJlrwsE0JykNpzBmMaHUbvfk0vkyAz2eEo38"
     }`
+
+	// RefreshWorkerAuthResp represents a JSON return for refreshing a worker's authentication.
+	RefreshWorkerAuthResp = `{
+		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJBdXRoIn0.qeULIimCJlrwsE0JykNpzBmMaHUbvfk0vkyAz2eEo38"
+	}`
 
 	// RegisterTokenResp represents a JSON return for an admin requesting a registration token.
 	//
@@ -148,12 +150,29 @@ func updateWorker(c *gin.Context) {
 
 	data := []byte(UpdateWorkerResp)
 
-	type WorkerCheckIn struct {
-		Worker *library.Worker `json:"worker,omitempty"`
-		Token  *library.Token  `json:"token,omitempty"`
+	var body library.Worker
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// refreshWorkerAuth has a param :worker returns mock JSON for a http PUT.
+//
+// Pass "0" to :worker to test receiving a http 404 response.
+func refreshWorkerAuth(c *gin.Context) {
+	w := c.Param("worker")
+
+	if strings.EqualFold(w, "0") {
+		msg := fmt.Sprintf("Worker %s does not exist", w)
+
+		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+
+		return
 	}
 
-	var body WorkerCheckIn
+	data := []byte(RefreshWorkerAuthResp)
+
+	var body library.Token
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
