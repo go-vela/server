@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -95,7 +96,7 @@ func CreateWorker(c *gin.Context) {
 		if secret, ok := c.Value("secret").(string); ok {
 			tkn := new(library.Token)
 			tkn.SetToken(secret)
-			c.JSON(http.StatusOK, tkn)
+			c.JSON(http.StatusCreated, tkn)
 
 			return
 		}
@@ -310,11 +311,6 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
-	if input.GetLastCheckedIn() > 0 {
-		// update LastCheckedIn if set
-		w.SetLastCheckedIn(input.GetLastCheckedIn())
-	}
-
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
 	if err != nil {
@@ -371,6 +367,19 @@ func RefreshWorkerAuth(c *gin.Context) {
 	w := worker.Retrieve(c)
 	cl := claims.Retrieve(c)
 
+	// set last checked in time
+	w.SetLastCheckedIn(time.Now().Unix())
+
+	// send API call to update the worker
+	err := database.FromContext(c).UpdateWorker(w)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
@@ -416,7 +425,7 @@ func RefreshWorkerAuth(c *gin.Context) {
 
 		tkn.SetToken(wt)
 
-		c.JSON(http.StatusCreated, tkn)
+		c.JSON(http.StatusOK, tkn)
 	}
 }
 
