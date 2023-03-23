@@ -81,7 +81,7 @@ func RefreshAccessToken(c *gin.Context) {
 //   '200':
 //     description: Successfully validated a token
 //     schema:
-//       "$ref": "#/definitions/Claims"
+//       type: string
 //   '401':
 //     description: Unauthorized
 //     schema:
@@ -100,5 +100,5 @@ func ValidateServerToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, cl)
+	c.JSON(http.StatusOK, "valid server token")
 }
