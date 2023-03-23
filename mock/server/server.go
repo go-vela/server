@@ -136,7 +136,7 @@ func FakeHandler() http.Handler {
 	e.GET("/token-refresh", getTokenRefresh)
 	e.GET("/authenticate", getAuthenticate)
 	e.POST("/authenticate/token", getAuthenticateFromToken)
-	e.POST("/validate-token", validateToken)
+	e.GET("/validate-token", validateToken)
 
 	return e
 }
