@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -45,7 +46,10 @@ import (
 // RegisterToken represents the API handler to
 // generate a registration token for onboarding a worker.
 func RegisterToken(c *gin.Context) {
-	logrus.Info("Admin: generating registration token")
+	// retrieve user from context
+	u := user.Retrieve(c)
+
+	logrus.Infof("Platform admin %s: generating registration token", u.GetName())
 
 	host := util.PathParameter(c, "worker")
 
