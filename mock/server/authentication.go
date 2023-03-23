@@ -76,7 +76,7 @@ func getAuthenticateFromToken(c *gin.Context) {
 
 // validateToken returns mock response for a http GET.
 //
-// Don't pass "Token" in header to receive an error message. Pass "0" in "Token" header to receive invalid token resp.
+// Don't pass "Authorization" in header to receive an unauthorized error message.
 func validateToken(c *gin.Context) {
 	err := "error"
 
