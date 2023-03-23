@@ -31,23 +31,6 @@ const (
 			"last_checked_in": 1602612590
 		}`
 
-	// UpdateWorkerResp represents a JSON return for a single updated worker.
-	UpdateWorkerResp = `
-		{
-			"worker": {
-				"id": 1,
-				"hostname": "worker_1",
-				"address": "http://vela:8080",
-				"routes": [
-				"large",
-				"docker",
-				"large:docker"
-				],
-				"active": true,
-				"last_checked_in": 1602612590
-			}
-		}`
-
 	// WorkersResp represents a JSON return for one to many workers.
 	WorkersResp = `[
 		{
@@ -148,7 +131,7 @@ func updateWorker(c *gin.Context) {
 		return
 	}
 
-	data := []byte(UpdateWorkerResp)
+	data := []byte(WorkerResp)
 
 	var body library.Worker
 	_ = json.Unmarshal(data, &body)
