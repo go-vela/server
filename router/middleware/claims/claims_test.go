@@ -65,10 +65,12 @@ func TestClaims_Establish(t *testing.T) {
 	user.SetFavorites([]string{})
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
-		UserAccessTokenDuration:  time.Minute * 5,
-		UserRefreshTokenDuration: time.Minute * 30,
+		PrivateKey:                  "123abc",
+		SignMethod:                  jwt.SigningMethodHS256,
+		UserAccessTokenDuration:     time.Minute * 5,
+		UserRefreshTokenDuration:    time.Minute * 30,
+		WorkerAuthTokenDuration:     time.Minute * 20,
+		WorkerRegisterTokenDuration: time.Minute * 1,
 	}
 
 	now := time.Now()
@@ -123,6 +125,42 @@ func TestClaims_Establish(t *testing.T) {
 			Endpoint:   "repos/:org/:repo/builds/:build",
 		},
 		{
+			TokenType: constants.WorkerAuthTokenType,
+			WantClaims: &token.Claims{
+				TokenType: constants.WorkerAuthTokenType,
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject:   "host",
+					IssuedAt:  jwt.NewNumericDate(now),
+					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerAuthTokenDuration)),
+				},
+			},
+			Mto: &token.MintTokenOpts{
+				Hostname:      "host",
+				TokenDuration: tm.WorkerAuthTokenDuration,
+				TokenType:     constants.WorkerAuthTokenType,
+			},
+			CtxRequest: "/workers/host",
+			Endpoint:   "/workers/:hostname",
+		},
+		{
+			TokenType: constants.WorkerRegisterTokenType,
+			WantClaims: &token.Claims{
+				TokenType: constants.WorkerRegisterTokenType,
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject:   "host",
+					IssuedAt:  jwt.NewNumericDate(now),
+					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerRegisterTokenDuration)),
+				},
+			},
+			Mto: &token.MintTokenOpts{
+				Hostname:      "host",
+				TokenDuration: tm.WorkerRegisterTokenDuration,
+				TokenType:     constants.WorkerRegisterTokenType,
+			},
+			CtxRequest: "/workers/host/register",
+			Endpoint:   "workers/:hostname/register",
+		},
+		{
 			TokenType: constants.ServerWorkerTokenType,
 			WantClaims: &token.Claims{
 				TokenType: constants.ServerWorkerTokenType,
@@ -134,17 +172,6 @@ func TestClaims_Establish(t *testing.T) {
 			Endpoint:   "repos/:org/:repo/builds/:build",
 		},
 	}
-
-	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
-	}()
-
-	_ = db.CreateUser(user)
 
 	got := new(token.Claims)
 
@@ -160,6 +187,7 @@ func TestClaims_Establish(t *testing.T) {
 
 			if strings.EqualFold(tt.TokenType, constants.ServerWorkerTokenType) {
 				tkn = "very-secret"
+				engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 			} else {
 				tkn, _ = tm.MintToken(tt.Mto)
 			}
@@ -171,8 +199,6 @@ func TestClaims_Establish(t *testing.T) {
 
 			// setup vela mock server
 			engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
-			engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
-			engine.Use(func(c *gin.Context) { c.Set("secret", "very-secret") })
 			engine.Use(Establish())
 			engine.PUT(tt.Endpoint, func(c *gin.Context) {
 				got = Retrieve(c)
