@@ -116,7 +116,7 @@ func PostServiceStream(c *gin.Context) {
 		return
 	}
 
-	streamLog(c, logger, _log, "service", entry, r.GetTimeout())
+	streamLogToDatabase(c, logger, _log, "service", entry, r.GetTimeout())
 
 	c.JSON(http.StatusNoContent, nil)
 }
@@ -210,13 +210,13 @@ func PostStepStream(c *gin.Context) {
 		return
 	}
 
-	streamLog(c, logger, _log, "step", entry, r.GetTimeout())
+	streamLogToDatabase(c, logger, _log, "step", entry, r.GetTimeout())
 
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// streamLog handles streaming logs to the database.
-func streamLog(c *gin.Context, logger *logrus.Entry, log *library.Log, entryType, entry string, timeout int64) {
+// streamLogToDatabase handles streaming logs to the database.
+func streamLogToDatabase(c *gin.Context, logger *logrus.Entry, log *library.Log, entryType, entry string, timeout int64) {
 	// create new buffer for uploading logs
 	logs := new(bytes.Buffer)
 	// create new channel for processing logs
