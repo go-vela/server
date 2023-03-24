@@ -104,7 +104,7 @@ func GetBuildLogs(c *gin.Context) {
 	}
 
 	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "100"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
