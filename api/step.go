@@ -292,7 +292,7 @@ func GetSteps(c *gin.Context) {
 //   type: integer
 // - in: path
 //   name: step
-//   description: Build number
+//   description: Step number
 //   required: true
 //   type: string
 // security:
