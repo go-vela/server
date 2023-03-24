@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// postServiceStream returns a nock response for an http POST.
+// postServiceStream returns a mock response for an http POST.
 func postServiceStream(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// postStepStream returns a nock response for an http POST.
+// postStepStream returns a mock response for an http POST.
 func postStepStream(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
