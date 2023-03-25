@@ -56,7 +56,7 @@ import (
 //   name: per_page
 //   description: How many results per page to return
 //   type: integer
-//   maximum: 500
+//   maximum: 100
 //   default: 100
 // security:
 //   - ApiKeyAuth: []
@@ -113,7 +113,7 @@ func GetBuildLogs(c *gin.Context) {
 	}
 
 	// ensure per_page isn't above or below allowed values
-	perPage = util.MaxInt(1, util.MinInt(500, perPage))
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of logs for the build
 	l, t, err := database.FromContext(c).ListLogsForBuild(b, page, perPage)
