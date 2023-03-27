@@ -36,9 +36,9 @@ type SecretService interface {
 	CountSecretsForTeam(string, string, map[string]interface{}) (int64, error)
 	// CountSecretsForTeams defines a function that gets the count of secrets by teams within an org.
 	CountSecretsForTeams(string, []string, map[string]interface{}) (int64, error)
-	// CreateSecret defines a function that creates a new repo.
+	// CreateSecret defines a function that creates a new secret.
 	CreateSecret(*library.Secret) error
-	// DeleteSecret defines a function that deletes an existing repo.
+	// DeleteSecret defines a function that deletes an existing secret.
 	DeleteSecret(*library.Secret) error
 	// GetSecret defines a function that gets a secret by ID.
 	GetSecret(int64) (*library.Secret, error)
@@ -58,6 +58,6 @@ type SecretService interface {
 	ListSecretsForTeam(string, string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
 	// ListSecretsForTeams defines a function that gets a list of secrets by teams within an org.
 	ListSecretsForTeams(string, []string, map[string]interface{}, int, int) ([]*library.Secret, int64, error)
-	// UpdateSecret defines a function that updates an existing repo.
+	// UpdateSecret defines a function that updates an existing secret.
 	UpdateSecret(*library.Secret) error
 }
