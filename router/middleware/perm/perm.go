@@ -78,7 +78,7 @@ func MustWorker() gin.HandlerFunc {
 
 		// validate claims as worker
 		switch {
-		case (strings.EqualFold(cl.Subject, "vela-worker") && strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType)):
+		case strings.EqualFold(cl.Subject, "vela-worker") && strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType):
 			return
 
 		default:
@@ -136,6 +136,8 @@ func MustBuildAccess() gin.HandlerFunc {
 }
 
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
+//
+//nolint:funlen // ignore function length
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
@@ -256,6 +258,16 @@ func MustSecretAdmin() gin.HandlerFunc {
 			}
 		case constants.SecretShared:
 			if n == "*" && m == "GET" {
+				// check if user is accessing shared secrets in personal org
+				if strings.EqualFold(o, u.GetName()) {
+					logger.WithFields(logrus.Fields{
+						"org":  o,
+						"user": u.GetName(),
+					}).Debugf("skipping gathering teams for user %s with org %s", u.GetName(), o)
+
+					return
+				}
+
 				logger.Debugf("gathering teams user %s is a member of in the org %s", u.GetName(), o)
 
 				teams, err := scm.FromContext(c).ListUsersTeamsForOrg(u, o)
