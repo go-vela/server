@@ -107,7 +107,6 @@ func FakeHandler() http.Handler {
 	e.POST("/api/v1/repos/:org/:repo/builds/:build/steps", addStep)
 	e.PUT("/api/v1/repos/:org/:repo/builds/:build/steps/:step", updateStep)
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/steps/:step", removeStep)
-	e.POST("/api/v1/repos/:org/:repo/builds/:build/steps/:step/stream", postStepStream)
 
 	// mock endpoints for service calls
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/services/:service", getService)
@@ -115,7 +114,6 @@ func FakeHandler() http.Handler {
 	e.POST("/api/v1/repos/:org/:repo/builds/:build/services", addService)
 	e.PUT("/api/v1/repos/:org/:repo/builds/:build/services/:service", updateService)
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/services/:service", removeService)
-	e.POST("/api/v1/repos/:org/:repo/builds/:build/services/:service/stream", postServiceStream)
 
 	// mock endpoints for user calls
 	e.GET("/api/v1/users/:user", getUser)
