@@ -57,7 +57,7 @@ import (
 //   description: How many results per page to return
 //   type: integer
 //   maximum: 100
-//   default: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -104,7 +104,7 @@ func GetBuildLogs(c *gin.Context) {
 	}
 
 	// capture per_page query parameter if present
-	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "100"))
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
