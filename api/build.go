@@ -1764,8 +1764,26 @@ func CancelBuild(c *gin.Context) {
 				return
 			}
 
+			tm := c.MustGet("token-manager").(*token.Manager)
+
+			// set mint token options
+			mto := &token.MintTokenOpts{
+				Hostname:      "vela-server",
+				TokenType:     constants.WorkerAuthTokenType,
+				TokenDuration: time.Minute * 1,
+			}
+
+			// mint token
+			tkn, err := tm.MintToken(mto)
+			if err != nil {
+				retErr := fmt.Errorf("unable to generate auth token: %w", err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
 			// add the token to authenticate to the worker
-			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.MustGet("secret").(string)))
+			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
 			// perform the request to the worker
 			resp, err := client.Do(req)
