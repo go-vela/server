@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -29,6 +30,8 @@ type MetricsQueryParameters struct {
 	RunningBuildCount bool `form:"running_build_count"`
 	// PendingBuildCount represents total number of builds with status==pending
 	PendingBuildCount bool `form:"pending_build_count"`
+	// QueuedBuildCount represents total number of builds currently in the queue
+	QueuedBuildCount bool `form:"queued_build_count"`
 	// FailureBuildCount represents total number of builds with status==failure
 	FailureBuildCount bool `form:"failure_build_count"`
 	// KilledBuildCount represents total number of builds with status==killed
@@ -256,6 +259,17 @@ func recordGauges(c *gin.Context) {
 		}
 		// add build metrics
 		totals.WithLabelValues("build", "status", "pending").Set(float64(bPen))
+	}
+
+	// queued_build_count
+	if q.QueuedBuildCount {
+		// send API call to capture the total number of queued builds
+		t, err := queue.FromContext(c).Length(c)
+		if err != nil {
+			logrus.Errorf("unable to get count of all queued builds: %v", err)
+		}
+
+		totals.WithLabelValues("build", "status", "queued").Set(float64(t))
 	}
 
 	// failure_build_count
