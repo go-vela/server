@@ -25,4 +25,10 @@ type Manager struct {
 
 	// BuildTokenBufferDuration specifies the additional token duration of build tokens beyond repo timeout
 	BuildTokenBufferDuration time.Duration
+
+	// WorkerAuthTokenDuration specifies the token duration for worker auth (check in)
+	WorkerAuthTokenDuration time.Duration
+
+	// WorkerRegisterTokenDuration specifies the token duration for worker register
+	WorkerRegisterTokenDuration time.Duration
 }

@@ -212,7 +212,7 @@ func GetDeployments(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the list of steps for the build
+	// send API call to capture the list of deployments for the repo
 	d, err := scm.FromContext(c).GetDeploymentList(u, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
