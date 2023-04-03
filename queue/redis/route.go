@@ -37,5 +37,13 @@ func (c *client) Route(w *pipeline.Worker) (string, error) {
 		buf.WriteString(fmt.Sprintf(":%s", w.Platform))
 	}
 
-	return strings.TrimLeft(buf.String(), ":"), nil
+	route := strings.TrimLeft(buf.String(), ":")
+
+	for _, r := range c.config.Channels {
+		if strings.EqualFold(route, r) {
+			return route, nil
+		}
+	}
+
+	return "", fmt.Errorf("invalid route %s provided", route)
 }
