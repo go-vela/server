@@ -105,6 +105,7 @@ func TestNative_RenderBuild(t *testing.T) {
 		{"steps", args{velaFile: "testdata/build/basic/build.star"}, "testdata/build/basic/want.yml", false},
 		{"stages", args{velaFile: "testdata/build/basic_stages/build.star"}, "testdata/build/basic_stages/want.yml", false},
 		{"conditional match", args{velaFile: "testdata/build/conditional/build.star"}, "testdata/build/conditional/want.yml", false},
+		{"steps, with structs", args{velaFile: "testdata/build/with_struct/build.star"}, "testdata/build/with_struct/want.yml", false},
 	}
 
 	for _, tt := range tests {
