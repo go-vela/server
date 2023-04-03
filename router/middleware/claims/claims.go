@@ -24,8 +24,6 @@ func Retrieve(c *gin.Context) *token.Claims {
 // Establish sets the claims in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims := new(token.Claims)
-
 		tm := c.MustGet("token-manager").(*token.Manager)
 		// get the access token from the request
 		at, err := auth.RetrieveAccessToken(c.Request)
@@ -34,15 +32,18 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// special handling for workers
-		secret := c.MustGet("secret").(string)
-		if strings.EqualFold(at, secret) {
-			claims.Subject = "vela-worker"
-			claims.TokenType = constants.ServerWorkerTokenType
-			ToContext(c, claims)
-			c.Next()
+		claims := new(token.Claims)
 
-			return
+		// special handling for workers if symmetric token is provided
+		if secret, ok := c.Value("secret").(string); ok {
+			if strings.EqualFold(at, secret) {
+				claims.Subject = "vela-worker"
+				claims.TokenType = constants.ServerWorkerTokenType
+				ToContext(c, claims)
+				c.Next()
+
+				return
+			}
 		}
 
 		// parse and validate the token and return the associated the user
