@@ -147,7 +147,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new postgres repo engine: %v", err)
+		t.Errorf("unable to create new postgres secret engine: %v", err)
 	}
 
 	return _engine, _mock
@@ -170,7 +170,7 @@ func testSqlite(t *testing.T) *engine {
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new sqlite repo engine: %v", err)
+		t.Errorf("unable to create new sqlite secret engine: %v", err)
 	}
 
 	return _engine

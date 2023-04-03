@@ -16,7 +16,7 @@ type EngineOpt func(*engine) error
 // WithClient sets the gorm.io/gorm client in the database engine for Secrets.
 func WithClient(client *gorm.DB) EngineOpt {
 	return func(e *engine) error {
-		// set the gorm.io/gorm client in the repo engine
+		// set the gorm.io/gorm client in the secret engine
 		e.client = client
 
 		return nil
@@ -26,7 +26,7 @@ func WithClient(client *gorm.DB) EngineOpt {
 // WithEncryptionKey sets the encryption key in the database engine for Secrets.
 func WithEncryptionKey(key string) EngineOpt {
 	return func(e *engine) error {
-		// set the encryption key in the repo engine
+		// set the encryption key in the secret engine
 		e.config.EncryptionKey = key
 
 		return nil
@@ -36,7 +36,7 @@ func WithEncryptionKey(key string) EngineOpt {
 // WithLogger sets the github.com/sirupsen/logrus logger in the database engine for Secrets.
 func WithLogger(logger *logrus.Entry) EngineOpt {
 	return func(e *engine) error {
-		// set the github.com/sirupsen/logrus logger in the repo engine
+		// set the github.com/sirupsen/logrus logger in the secret engine
 		e.logger = logger
 
 		return nil
@@ -46,7 +46,7 @@ func WithLogger(logger *logrus.Entry) EngineOpt {
 // WithSkipCreation sets the skip creation logic in the database engine for Secrets.
 func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
-		// set to skip creating tables and indexes in the repo engine
+		// set to skip creating tables and indexes in the secret engine
 		e.config.SkipCreation = skipCreation
 
 		return nil
