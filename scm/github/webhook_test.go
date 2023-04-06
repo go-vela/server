@@ -1101,6 +1101,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("main")
+	wantRepo.SetTopics([]string{"cloud", "security"})
 	wantRepo.SetPrivate(false)
 
 	want := &types.Webhook{

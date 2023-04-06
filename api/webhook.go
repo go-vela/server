@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"strings"
 	"time"
 
@@ -134,24 +135,41 @@ func PostWebhook(c *gin.Context) {
 	logrus.Debugf("hook generated from SCM: %v", h)
 	logrus.Debugf("repo generated from SCM: %v", r)
 
-	if b != nil {
-		logrus.Debugf(`build author: %s,
-		build branch: %s,
-		build commit: %s,
-		build ref: %s`,
-			b.GetAuthor(), b.GetBranch(), b.GetCommit(), b.GetRef())
+	// if event is repository event, handle separately and return
+	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
+		r, err = handleRepositoryEvent(c, m, h, r)
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
+			return
+		}
+
+		// if there were actual changes to the repo, return the repo object
+		if r.GetID() != 0 {
+			c.JSON(http.StatusOK, r)
+			return
+		}
+
+		c.JSON(http.StatusOK, "no build to process")
+
+		return
 	}
 
 	// check if build was parsed from webhook.
 	// build will be nil on repository events, but
 	// for renaming, we want to continue.
-	if b == nil && h.GetEvent() != constants.EventRepository {
+	if b == nil {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
 		c.JSON(http.StatusOK, "no build to process")
 
 		return
 	}
+
+	logrus.Debugf(`build author: %s,
+		build branch: %s,
+		build commit: %s,
+		build ref: %s`,
+		b.GetAuthor(), b.GetBranch(), b.GetCommit(), b.GetRef())
 
 	// check if repo was parsed from webhook
 	if r == nil {
@@ -168,69 +186,6 @@ func PostWebhook(c *gin.Context) {
 			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
 	}()
-
-	if h.GetEvent() == constants.EventRepository {
-		switch h.GetEventAction() {
-		// if action is rename, go through rename routine
-		case constants.ActionRenamed:
-			err = renameRepository(h, r, c, m)
-			if err != nil {
-				util.HandleError(c, http.StatusBadRequest, err)
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(err.Error())
-			}
-
-			c.JSON(http.StatusOK, fmt.Sprintf("no build to process, repository renamed from %s to %s", r.GetPreviousName(), r.GetFullName()))
-
-			return
-		// if action is archived, unarchived, or edited, perform edits to relevant repo fields
-		case "archived", "unarchived", constants.ActionEdited:
-			// send call to get repository from database
-			dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
-			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
-
-				return
-			}
-
-			var retMsg string
-			// the only edits to a repo that impact Vela are to these two fields
-			if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
-				retMsg = fmt.Sprintf("no build to process, repository default branch changed from %s to %s", dbRepo.GetBranch(), r.GetBranch())
-				dbRepo.SetBranch(r.GetBranch())
-			}
-
-			if dbRepo.GetActive() != r.GetActive() {
-				retMsg = fmt.Sprintf("no build to process, repository changed active status from %t to %t", dbRepo.GetActive(), r.GetActive())
-				dbRepo.SetActive(r.GetActive())
-			}
-
-			// update repo object in the database after applying edits
-			err = database.FromContext(c).UpdateRepo(dbRepo)
-			if err != nil {
-				retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
-
-				return
-			}
-
-			c.JSON(http.StatusOK, retMsg)
-
-			return
-		// all other repo event actions are skippable
-		default:
-			c.JSON(http.StatusOK, "no build to process")
-
-			return
-		}
-	}
 
 	// send API call to capture parsed repo from webhook
 	r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
@@ -792,11 +747,96 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 	}
 }
 
+func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
+	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
+
+	defer func() {
+		// send API call to update the webhook
+		err := database.FromContext(c).CreateHook(h)
+		if err != nil {
+			logrus.Errorf("unable to create webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
+		}
+	}()
+
+	// send API call to capture the last hook for the repo
+	lastHook, err := database.FromContext(c).LastHookForRepo(r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return nil, retErr
+	}
+
+	// set the Number field
+	if lastHook != nil {
+		h.SetNumber(
+			lastHook.GetNumber() + 1,
+		)
+	}
+
+	switch h.GetEventAction() {
+	// if action is rename, go through rename routine
+	case constants.ActionRenamed:
+		r, err := renameRepository(h, r, c, m)
+		if err != nil {
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(err.Error())
+
+			return nil, err
+		}
+
+		return r, nil
+	// if action is archived, unarchived, or edited, perform edits to relevant repo fields
+	case "archived", "unarchived", constants.ActionEdited:
+		// send call to get repository from database
+		dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return nil, retErr
+		}
+
+		// the only edits to a repo that impact Vela are to these three fields
+		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
+			dbRepo.SetBranch(r.GetBranch())
+		}
+
+		if dbRepo.GetActive() != r.GetActive() {
+			dbRepo.SetActive(r.GetActive())
+		}
+
+		if !reflect.DeepEqual(dbRepo.GetTopics(), r.GetTopics()) {
+			dbRepo.SetTopics(r.GetTopics())
+		}
+
+		// update repo object in the database after applying edits
+		err = database.FromContext(c).UpdateRepo(dbRepo)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return nil, err
+		}
+
+		return dbRepo, nil
+	// all other repo event actions are skippable
+	default:
+		return r, nil
+	}
+}
+
 // renameRepository is a helper function that takes the old name of the repo,
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo.
-func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) error {
+func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
 	logrus.Debugf("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 	// get the old name of the repo
 	previousName := r.GetPreviousName()
@@ -809,7 +849,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
-		return retErr
+		return nil, retErr
 	}
 
 	// update the repo name information
@@ -828,7 +868,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
-		return retErr
+		return nil, retErr
 	}
 
 	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
@@ -843,7 +883,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
 
-		return retErr
+		return nil, retErr
 	}
 
 	// set the Number field
@@ -856,7 +896,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	// get total number of secrets associated with repository
 	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
 	if err != nil {
-		return fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
+		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
 	}
 
 	secrets := []*library.Secret{}
@@ -865,7 +905,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
 		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
 		if err != nil {
-			return fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
+			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
 		}
 
 		secrets = append(secrets, s...)
@@ -879,14 +919,14 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
-			return fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
+			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
 		}
 	}
 
 	// get total number of builds associated with repository
 	t, err = database.FromContext(c).GetRepoBuildCount(dbR, nil)
 	if err != nil {
-		return fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
+		return nil, fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
 	}
 
 	builds := []*library.Build{}
@@ -895,7 +935,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	for build := int64(0); build < t; build += 100 {
 		b, _, err := database.FromContext(c).GetRepoBuildList(dbR, nil, time.Now().Unix(), 0, page, 100)
 		if err != nil {
-			return fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
+			return nil, fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
 		}
 
 		builds = append(builds, b...)
@@ -911,9 +951,9 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 
 		err = database.FromContext(c).UpdateBuild(build)
 		if err != nil {
-			return fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
+			return nil, fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
 	}
 
-	return nil
+	return dbR, nil
 }

@@ -452,6 +452,11 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
 
+	// no "getter" for topics in github library — nil check
+	if repo.Topics != nil {
+		r.SetTopics(repo.Topics)
+	}
+
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {
 		r.SetPreviousName(payload.GetChanges().GetRepo().GetName().GetFrom())
