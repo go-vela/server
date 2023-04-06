@@ -19,6 +19,6 @@ ON logs (build_id);
 func (e *engine) CreateLogIndexes() error {
 	e.logger.Tracef("creating indexes for logs table in the database")
 
-	// create the hostname and address columns index for the logs table
+	// create the build_id column index for the logs table
 	return e.client.Exec(CreateBuildIDIndex).Error
 }

@@ -55,34 +55,65 @@ func MustPlatformAdmin() gin.HandlerFunc {
 	}
 }
 
-// MustWorker ensures the request is coming from an agent.
-func MustWorker() gin.HandlerFunc {
+// MustWorkerRegisterToken ensures the token is a registration token retrieved by a platform admin.
+func MustWorkerRegisterToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
-
-		// global permissions bypass
-		if cl.IsAdmin {
-			logrus.WithFields(logrus.Fields{
-				"user": cl.Subject,
-			}).Debugf("user %s has platform admin permissions", cl.Subject)
-
-			return
-		}
 
 		// update engine logger with API metadata
 		//
 		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 		logrus.WithFields(logrus.Fields{
-			"subject": cl.Subject,
-		}).Debugf("verifying user %s is a worker", cl.Subject)
+			"user": cl.Subject,
+		}).Debugf("verifying user %s has a registration token for worker", cl.Subject)
 
-		// validate claims as worker
-		switch {
-		case (strings.EqualFold(cl.Subject, "vela-worker") && strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType)):
+		switch cl.TokenType {
+		case constants.WorkerRegisterTokenType:
 			return
+		case constants.ServerWorkerTokenType:
+			if strings.EqualFold(cl.Subject, "vela-worker") {
+				return
+			}
 
+			retErr := fmt.Errorf("server-worker token provided but does not match configuration")
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
 		default:
-			retErr := fmt.Errorf("user %s is not a worker", cl.Subject)
+			retErr := fmt.Errorf("invalid token type: must provide a worker registration token")
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+	}
+}
+
+// MustWorkerAuthToken ensures the token is a  worker auth token.
+func MustWorkerAuthToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
+
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"worker": cl.Subject,
+		}).Debugf("verifying worker %s has a valid auth token", cl.Subject)
+
+		switch cl.TokenType {
+		case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
+			return
+		case constants.ServerWorkerTokenType:
+			if strings.EqualFold(cl.Subject, "vela-worker") {
+				return
+			}
+
+			retErr := fmt.Errorf("server-worker token provided but does not match configuration")
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		default:
+			retErr := fmt.Errorf("invalid token type: must provide a worker auth token")
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return
@@ -136,6 +167,8 @@ func MustBuildAccess() gin.HandlerFunc {
 }
 
 // MustSecretAdmin ensures the user has admin access to the org, repo or team.
+//
+//nolint:funlen // ignore function length
 func MustSecretAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
@@ -256,6 +289,16 @@ func MustSecretAdmin() gin.HandlerFunc {
 			}
 		case constants.SecretShared:
 			if n == "*" && m == "GET" {
+				// check if user is accessing shared secrets in personal org
+				if strings.EqualFold(o, u.GetName()) {
+					logger.WithFields(logrus.Fields{
+						"org":  o,
+						"user": u.GetName(),
+					}).Debugf("skipping gathering teams for user %s with org %s", u.GetName(), o)
+
+					return
+				}
+
 				logger.Debugf("gathering teams user %s is a member of in the org %s", u.GetName(), o)
 
 				teams, err := scm.FromContext(c).ListUsersTeamsForOrg(u, o)
@@ -417,6 +460,7 @@ func MustWrite() gin.HandlerFunc {
 // MustRead ensures the user has admin, write or read access to the repo.
 func MustRead() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		cl := claims.Retrieve(c)
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
@@ -437,8 +481,23 @@ func MustRead() gin.HandlerFunc {
 			return
 		}
 
+		// return if request is from worker with build token access
+		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
+			b := build.Retrieve(c)
+			if cl.BuildID == b.GetID() {
+				return
+			}
+
+			retErr := fmt.Errorf("subject %s does not have 'read' permissions for repo %s", cl.Subject, r.GetFullName())
+
+			util.HandleError(c, http.StatusUnauthorized, retErr)
+
+			return
+		}
+
 		logger.Debugf("verifying user %s has 'read' permissions for repo %s", u.GetName(), r.GetFullName())
 
+		// return if user is platform admin
 		if u.GetAdmin() {
 			return
 		}

@@ -52,10 +52,6 @@ func validateCore(c *cli.Context) error {
 		return fmt.Errorf("clone-image (VELA_CLONE_IMAGE) flag is not properly configured")
 	}
 
-	if len(c.String("vela-secret")) == 0 {
-		return fmt.Errorf("vela-secret (VELA_SECRET) flag is not properly configured")
-	}
-
 	if len(c.String("vela-server-private-key")) == 0 {
 		return fmt.Errorf("vela-server-private-key (VELA_SERVER_PRIVATE_KEY) flag is not properly configured")
 	}
