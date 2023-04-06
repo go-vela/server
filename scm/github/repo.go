@@ -98,7 +98,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 		"org":  org,
 		"repo": name,
 		"user": u.GetName(),
-	}).Tracef("deleting repository webhook for %s/%s", org, name)
+	}).Tracef("deleting repository webhooks for %s/%s", org, name)
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
@@ -132,6 +132,12 @@ func (c *client) Disable(u *library.User, org, name string) error {
 
 	// skip if we have no hook IDs
 	if len(ids) == 0 {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"repo": name,
+			"user": u.GetName(),
+		}).Warnf("no repository webhooks matching %s/webhook found for %s/%s", c.config.ServerWebhookAddress, org, name)
+
 		return nil
 	}
 
@@ -145,47 +151,119 @@ func (c *client) Disable(u *library.User, org, name string) error {
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(u *library.User, org, name, secret string) (string, error) {
+func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
-		"org":  org,
-		"repo": name,
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Tracef("creating repository webhook for %s/%s", org, name)
+	}).Tracef("creating repository webhook for %s/%s", r.GetOrg(), r.GetName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
+	// always listen to repository events in case of repo name change
+	events := []string{eventRepository}
+
+	if r.GetAllowComment() {
+		events = append(events, eventIssueComment)
+	}
+
+	if r.GetAllowDeploy() {
+		events = append(events, eventDeployment)
+	}
+
+	if r.GetAllowPull() {
+		events = append(events, eventPullRequest)
+	}
+
+	if r.GetAllowPush() || r.GetAllowTag() {
+		events = append(events, eventPush)
+	}
+
 	// create the hook object to make the API call
 	hook := &github.Hook{
-		Events: []string{
-			eventPush,
-			eventPullRequest,
-			eventDeployment,
-			eventIssueComment,
-			eventRepository,
-		},
+		Events: events,
 		Config: map[string]interface{}{
 			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
 			"content_type": "form",
-			"secret":       secret,
+			"secret":       r.GetHash(),
 		},
 		Active: github.Bool(true),
 	}
 
 	// send API call to create the webhook
-	_, resp, err := client.Repositories.CreateHook(ctx, org, name, hook)
+	hookInfo, resp, err := client.Repositories.CreateHook(ctx, r.GetOrg(), r.GetName(), hook)
+
+	// create the first hook for the repo and record its ID from GitHub
+	webhook := new(library.Hook)
+	webhook.SetWebhookID(hookInfo.GetID())
+	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
+	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
+	webhook.SetEvent(eventInitialize)
+	webhook.SetNumber(1)
 
 	switch resp.StatusCode {
 	case http.StatusUnprocessableEntity:
-		return "", fmt.Errorf("repo already enabled")
+		return nil, "", fmt.Errorf("repo already enabled")
 	case http.StatusNotFound:
-		return "", fmt.Errorf("repo not found")
+		return nil, "", fmt.Errorf("repo not found")
 	}
 
 	// create the URL for the repo
-	url := fmt.Sprintf("%s/%s/%s", c.config.Address, org, name)
+	url := fmt.Sprintf("%s/%s/%s", c.config.Address, r.GetOrg(), r.GetName())
 
-	return url, err
+	return webhook, url, err
+}
+
+// Update edits a repo webhook.
+func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Tracef("updating repository webhook for %s/%s", r.GetOrg(), r.GetName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+
+	// always listen to repository events in case of repo name change
+	events := []string{eventRepository}
+
+	if r.GetAllowComment() {
+		events = append(events, eventIssueComment)
+	}
+
+	if r.GetAllowDeploy() {
+		events = append(events, eventDeployment)
+	}
+
+	if r.GetAllowPull() {
+		events = append(events, eventPullRequest)
+	}
+
+	if r.GetAllowPush() || r.GetAllowTag() {
+		events = append(events, eventPush)
+	}
+
+	// create the hook object to make the API call
+	hook := &github.Hook{
+		Events: events,
+		Config: map[string]interface{}{
+			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
+			"content_type": "form",
+			"secret":       r.GetHash(),
+		},
+		Active: github.Bool(true),
+	}
+
+	// send API call to update the webhook
+	_, _, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.

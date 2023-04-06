@@ -7,8 +7,12 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/types/constants"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/worker"
@@ -38,9 +42,9 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '201':
-//     description: Successfully created the worker
+//     description: Successfully created the worker and retrieved auth token
 //     schema:
-//       type: string
+//       "$ref": "#definitions/Token"
 //   '400':
 //     description: Unable to create the worker
 //     schema:
@@ -55,6 +59,7 @@ import (
 func CreateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	cl := claims.Retrieve(c)
 
 	// capture body from API request
 	input := new(library.Worker)
@@ -85,7 +90,46 @@ func CreateWorker(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, fmt.Sprintf("worker %s created", input.GetHostname()))
+	switch cl.TokenType {
+	// if symmetric token configured, send back symmetric token
+	case constants.ServerWorkerTokenType:
+		if secret, ok := c.Value("secret").(string); ok {
+			tkn := new(library.Token)
+			tkn.SetToken(secret)
+			c.JSON(http.StatusCreated, tkn)
+
+			return
+		}
+
+		retErr := fmt.Errorf("symmetric token provided but not configured in server")
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	// if worker register token, send back auth token
+	default:
+		tm := c.MustGet("token-manager").(*token.Manager)
+
+		wmto := &token.MintTokenOpts{
+			TokenType:     constants.WorkerAuthTokenType,
+			TokenDuration: tm.WorkerAuthTokenDuration,
+			Hostname:      cl.Subject,
+		}
+
+		tkn := new(library.Token)
+
+		wt, err := tm.MintToken(wmto)
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate auth token for worker %s: %w", input.GetHostname(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		tkn.SetToken(wt)
+
+		c.JSON(http.StatusCreated, tkn)
+	}
 }
 
 // swagger:operation GET /api/v1/workers workers GetWorkers
@@ -254,7 +298,7 @@ func GetWorker(c *gin.Context) {
 //       "$ref": "#/definitions/Error"
 
 // UpdateWorker represents the API handler to
-// create a worker in the configured backend.
+// update a worker in the configured backend.
 func UpdateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
@@ -334,6 +378,108 @@ func UpdateWorker(c *gin.Context) {
 	w, _ = database.FromContext(c).GetWorkerForHostname(w.GetHostname())
 
 	c.JSON(http.StatusOK, w)
+}
+
+// swagger:operation POST /api/v1/workers/{worker}/refresh workers RefreshWorkerAuth
+//
+// Refresh authorization token for worker
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: worker
+//   description: Name of the worker
+//   required: true
+//   type: string
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully refreshed auth
+//     schema:
+//       "$ref": "#/definitions/Token"
+//   '400':
+//     description: Unable to refresh worker auth
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to refresh worker auth
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to refresh worker auth
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// RefreshWorkerAuth represents the API handler to
+// refresh the auth token for a worker.
+func RefreshWorkerAuth(c *gin.Context) {
+	// capture middleware values
+	w := worker.Retrieve(c)
+	cl := claims.Retrieve(c)
+
+	// set last checked in time
+	w.SetLastCheckedIn(time.Now().Unix())
+
+	// send API call to update the worker
+	err := database.FromContext(c).UpdateWorker(w)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"worker": w.GetHostname(),
+	}).Infof("refreshing worker %s authentication", w.GetHostname())
+
+	switch cl.TokenType {
+	// if symmetric token configured, send back symmetric token
+	case constants.ServerWorkerTokenType:
+		if secret, ok := c.Value("secret").(string); ok {
+			tkn := new(library.Token)
+			tkn.SetToken(secret)
+			c.JSON(http.StatusOK, tkn)
+
+			return
+		}
+
+		retErr := fmt.Errorf("symmetric token provided but not configured in server")
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	// if worker auth / register token, send back auth token
+	case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
+		tm := c.MustGet("token-manager").(*token.Manager)
+
+		wmto := &token.MintTokenOpts{
+			TokenType:     constants.WorkerAuthTokenType,
+			TokenDuration: tm.WorkerAuthTokenDuration,
+			Hostname:      cl.Subject,
+		}
+
+		tkn := new(library.Token)
+
+		wt, err := tm.MintToken(wmto)
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate auth token for worker %s: %w", w.GetHostname(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		tkn.SetToken(wt)
+
+		c.JSON(http.StatusOK, tkn)
+	}
 }
 
 // swagger:operation DELETE /api/v1/workers/{worker} workers DeleteWorker
