@@ -70,7 +70,7 @@ import (
 // UpdateRepo represents the API handler to update
 // a repo in the configured backend.
 //
-//nolint:funlen // ignore function length
+//nolint:funlen,gocyclo // ignore function length
 func UpdateRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
@@ -98,6 +98,8 @@ func UpdateRepo(c *gin.Context) {
 
 		return
 	}
+
+	eventsChanged := false
 
 	// update repo fields if provided
 	if len(input.GetBranch()) > 0 {
@@ -167,26 +169,36 @@ func UpdateRepo(c *gin.Context) {
 	if input.AllowPull != nil {
 		// update allow_pull if set
 		r.SetAllowPull(input.GetAllowPull())
+
+		eventsChanged = true
 	}
 
 	if input.AllowPush != nil {
 		// update allow_push if set
 		r.SetAllowPush(input.GetAllowPush())
+
+		eventsChanged = true
 	}
 
 	if input.AllowDeploy != nil {
 		// update allow_deploy if set
 		r.SetAllowDeploy(input.GetAllowDeploy())
+
+		eventsChanged = true
 	}
 
 	if input.AllowTag != nil {
 		// update allow_tag if set
 		r.SetAllowTag(input.GetAllowTag())
+
+		eventsChanged = true
 	}
 
 	if input.AllowComment != nil {
 		// update allow_comment if set
 		r.SetAllowComment(input.GetAllowComment())
+
+		eventsChanged = true
 	}
 
 	// set default events if no events are enabled
@@ -239,18 +251,17 @@ func UpdateRepo(c *gin.Context) {
 		}
 	}
 
-	// grab last hook from repo to fetch the webhook ID
-	lastHook, err := database.FromContext(c).LastHookForRepo(r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
+	// if webhook validation is not set or events didn't change, skip webhook update
+	if c.Value("webhookvalidation").(bool) && eventsChanged {
+		// grab last hook from repo to fetch the webhook ID
+		lastHook, err := database.FromContext(c).LastHookForRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-		return
-	}
-
-	// if repo has no hook deliveries, skip webhook update
-	if lastHook.GetWebhookID() != 0 {
+			return
+		}
 		// if user is platform admin, fetch the repo owner token to make changes to webhook
 		if u.GetAdmin() {
 			// capture admin name for logging
