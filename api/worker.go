@@ -309,9 +309,8 @@ func UpdateWorker(c *gin.Context) {
 	if input.GetActive() {
 		// update active if set
 		w.SetActive(input.GetActive())
-	}
+	)
 
-<<<<<<< HEAD
 	if len(input.GetStatus()) > 0 {
 		// update status if set
 		w.SetStatus(input.GetStatus())
@@ -336,9 +335,7 @@ func UpdateWorker(c *gin.Context) {
 		// update LastCheckedIn if set
 		w.SetLastCheckedIn(input.GetLastCheckedIn())
 	}
-
-=======
->>>>>>> 34164d0412e2bf5f966829420c325180f851e9c1
+	
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
 	if err != nil {
