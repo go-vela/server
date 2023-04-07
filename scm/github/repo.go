@@ -464,11 +464,6 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 
 // toLibraryRepo does a partial conversion of a github repo to a library repo.
 func toLibraryRepo(gr github.Repository) *library.Repo {
-	topics := new([]string)
-	if gr.Topics != nil {
-		topics = &gr.Topics
-	}
-
 	return &library.Repo{
 		Org:      gr.GetOwner().Login,
 		Name:     gr.Name,
@@ -476,7 +471,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 		Link:     gr.HTMLURL,
 		Clone:    gr.CloneURL,
 		Branch:   gr.DefaultBranch,
-		Topics:   topics,
+		Topics:   &gr.Topics,
 		Private:  gr.Private,
 	}
 }

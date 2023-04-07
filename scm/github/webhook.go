@@ -234,6 +234,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -300,6 +301,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -401,6 +403,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -451,11 +454,7 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
-
-	// no "getter" for topics in github library — nil check
-	if repo.Topics != nil {
-		r.SetTopics(repo.Topics)
-	}
+	r.SetTopics(repo.Topics)
 
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {
