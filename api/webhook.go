@@ -50,7 +50,10 @@ var baseErr = "unable to process webhook"
 //   '200':
 //     description: Successfully received the webhook
 //     schema:
-//       "$ref": "#/definitions/Build"
+//     oneOf:
+//       - "$ref": "#/definitions/Repo"
+//       - "$ref": "#/definitions/Build"
+//       - type: string
 //   '400':
 //     description: Malformed webhook payload
 //     schema:
