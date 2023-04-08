@@ -748,7 +748,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		cleanBuild(db, b, nil, nil)
+		cleanBuild(db, b, nil, nil, err)
 
 		return
 	}
@@ -760,7 +760,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		cleanBuild(db, b, nil, nil)
+		cleanBuild(db, b, nil, nil, err)
 
 		return
 	}
@@ -776,7 +776,7 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 			// error out the build
-			cleanBuild(db, b, nil, nil)
+			cleanBuild(db, b, nil, nil, err)
 
 			return
 		}

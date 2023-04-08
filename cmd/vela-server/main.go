@@ -147,6 +147,18 @@ func main() {
 			Usage:   "sets the duration of the buffer for build token expiration based on repo build timeout",
 			Value:   5 * time.Minute,
 		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_WORKER_AUTH_TOKEN_DURATION", "WORKER_AUTH_TOKEN_DURATION"},
+			Name:    "worker-auth-token-duration",
+			Usage:   "sets the duration of the worker auth token",
+			Value:   20 * time.Minute,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_WORKER_REGISTER_TOKEN_DURATION", "WORKER_REGISTER_TOKEN_DURATION"},
+			Name:    "worker-register-token-duration",
+			Usage:   "sets the duration of the worker register token",
+			Value:   1 * time.Minute,
+		},
 		// Compiler Flags
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_COMPILER_GITHUB", "COMPILER_GITHUB"},
