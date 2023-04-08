@@ -6,7 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/user"
 	"github.com/go-vela/server/router/middleware/perm"
 )
 
@@ -28,22 +28,22 @@ import (
 // DELETE /api/v1/user/token .
 func UserHandlers(base *gin.RouterGroup) {
 	// Users endpoints
-	users := base.Group("/users")
+	_users := base.Group("/users")
 	{
-		users.POST("", perm.MustPlatformAdmin(), api.CreateUser)
-		users.GET("", api.GetUsers)
-		users.GET("/:user", perm.MustPlatformAdmin(), api.GetUser)
-		users.PUT("/:user", perm.MustPlatformAdmin(), api.UpdateUser)
-		users.DELETE("/:user", perm.MustPlatformAdmin(), api.DeleteUser)
+		_users.POST("", perm.MustPlatformAdmin(), user.CreateUser)
+		_users.GET("", user.ListUsers)
+		_users.GET("/:user", perm.MustPlatformAdmin(), user.GetUser)
+		_users.PUT("/:user", perm.MustPlatformAdmin(), user.UpdateUser)
+		_users.DELETE("/:user", perm.MustPlatformAdmin(), user.DeleteUser)
 	} // end of users endpoints
 
 	// User endpoints
-	user := base.Group("/user")
+	_user := base.Group("/user")
 	{
-		user.GET("", api.GetCurrentUser)
-		user.PUT("", api.UpdateCurrentUser)
-		user.GET("/source/repos", api.GetUserSourceRepos)
-		user.POST("/token", api.CreateToken)
-		user.DELETE("/token", api.DeleteToken)
+		_user.GET("", user.GetCurrentUser)
+		_user.PUT("", user.UpdateCurrentUser)
+		_user.GET("/source/repos", user.GetSourceRepos)
+		_user.POST("/token", user.CreateToken)
+		_user.DELETE("/token", user.DeleteToken)
 	} // end of user endpoints
 }
