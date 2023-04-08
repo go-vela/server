@@ -75,7 +75,7 @@ func Establish() gin.HandlerFunc {
 			"user":  u.GetName(),
 		}).Debugf("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 
-		s, err := database.FromContext(c).GetStep(number, b)
+		s, err := database.FromContext(c).GetStepForBuild(b, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
