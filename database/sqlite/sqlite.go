@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/sqlite/ddl"
+	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
@@ -54,6 +55,8 @@ type (
 		pipeline.PipelineService
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
 		repo.RepoService
+		// https://pkg.go.dev/github.com/go-vela/server/database/step#StepService
+		step.StepService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
 		// https://pkg.go.dev/github.com/go-vela/server/database/worker#WorkerService
@@ -251,12 +254,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableService, err)
 	}
 
-	// create the steps table
-	err = c.Sqlite.Exec(ddl.CreateStepTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
-	}
-
 	return nil
 }
 
@@ -360,6 +357,18 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic step service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/step#New
+	c.StepService, err = step.New(
+		step.WithClient(c.Sqlite),
+		step.WithLogger(c.Logger),
+		step.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

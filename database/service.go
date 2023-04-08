@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
@@ -114,37 +115,9 @@ type Service interface {
 	// deletes a secret by unique ID.
 	DeleteSecret(int64) error
 
-	// Step Database Interface Functions
-
-	// GetStep defines a function that
-	// gets a step by number and build ID.
-	GetStep(int, *library.Build) (*library.Step, error)
-	// GetStepList defines a function that
-	// gets a list of all steps.
-	GetStepList() ([]*library.Step, error)
-	// GetBuildStepList defines a function that
-	// gets a list of steps by build ID.
-	GetBuildStepList(*library.Build, int, int) ([]*library.Step, error)
-	// GetBuildStepCount defines a function that
-	// gets the count of steps by build ID.
-	GetBuildStepCount(*library.Build) (int64, error)
-	// GetStepImageCount defines a function that
-	// gets a list of all step images and the
-	// count of their occurrence.
-	GetStepImageCount() (map[string]float64, error)
-	// GetStepStatusCount defines a function that
-	// gets a list of all step statuses and the
-	// count of their occurrence.
-	GetStepStatusCount() (map[string]float64, error)
-	// CreateStep defines a function that
-	// creates a new step.
-	CreateStep(*library.Step) error
-	// UpdateStep defines a function that
-	// updates a step.
-	UpdateStep(*library.Step) error
-	// DeleteStep defines a function that
-	// deletes a step by unique ID.
-	DeleteStep(int64) error
+	// StepService provides the interface for functionality
+	// related to steps stored in the database.
+	step.StepService
 
 	// Service Database Interface Functions
 
