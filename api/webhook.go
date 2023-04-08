@@ -133,22 +133,22 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
+	h, repo, b := webhook.Hook, webhook.Repo, webhook.Build
 
 	logrus.Debugf("hook generated from SCM: %v", h)
-	logrus.Debugf("repo generated from SCM: %v", r)
+	logrus.Debugf("repo generated from SCM: %v", repo)
 
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
-		r, err = handleRepositoryEvent(c, m, h, r)
+		repo, err = handleRepositoryEvent(c, m, h, repo)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 			return
 		}
 
 		// if there were actual changes to the repo, return the repo object
-		if r.GetID() != 0 {
-			c.JSON(http.StatusOK, r)
+		if repo.GetID() != 0 {
+			c.JSON(http.StatusOK, repo)
 			return
 		}
 
@@ -175,7 +175,7 @@ func PostWebhook(c *gin.Context) {
 		b.GetAuthor(), b.GetBranch(), b.GetCommit(), b.GetRef())
 
 	// check if repo was parsed from webhook
-	if r == nil {
+	if repo == nil {
 		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -186,12 +186,12 @@ func PostWebhook(c *gin.Context) {
 		// send API call to update the webhook
 		err = database.FromContext(c).UpdateHook(h)
 		if err != nil {
-			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
+			logrus.Errorf("unable to update webhook %s/%d: %v", repo.GetFullName(), h.GetNumber(), err)
 		}
 	}()
 
 	// send API call to capture parsed repo from webhook
-	r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+	r, err := database.FromContext(c).GetRepoForOrg(repo.GetOrg(), repo.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -205,6 +205,16 @@ func PostWebhook(c *gin.Context) {
 	// set the RepoID fields
 	b.SetRepoID(r.GetID())
 	h.SetRepoID(r.GetID())
+
+	// update repo fields with any changes (necessary for repos enabled before repository event handling)
+	// TODO: eventually remove this in favor of some sync scripting?
+	if !reflect.DeepEqual(r.GetTopics(), repo.GetTopics()) {
+		r.SetTopics(repo.GetTopics())
+	}
+
+	if !strings.EqualFold(r.GetBranch(), repo.GetBranch()) {
+		r.SetBranch(repo.GetBranch())
+	}
 
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).LastHookForRepo(r)
@@ -440,27 +450,6 @@ func PostWebhook(c *gin.Context) {
 			}
 		} else {
 			config = pipeline.GetData()
-		}
-
-		// send API call to capture repo for the counter
-		r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
-		if err != nil {
-			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
-
-			// check if the retry limit has been exceeded
-			if i < retryLimit-1 {
-				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
-
-				// continue to the next iteration of the loop
-				continue
-			}
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			h.SetStatus(constants.StatusFailure)
-			h.SetError(retErr.Error())
-
-			return
 		}
 
 		// set the parent equal to the current repo counter
