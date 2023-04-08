@@ -1585,7 +1585,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 		//   of UPDATE-ing the existing build - which results in
 		//   a constraint error (repo_id, number)
 		// - do we want to update the build or just delete it?
-		cleanBuild(database, b, nil, nil)
+		cleanBuild(database, b, nil, nil, err)
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
@@ -1602,7 +1602,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	services, err := planServices(database, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
-		cleanBuild(database, b, services, nil)
+		cleanBuild(database, b, services, nil, err)
 
 		return err
 	}
@@ -1611,7 +1611,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	steps, err := planSteps(database, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
-		cleanBuild(database, b, services, steps)
+		cleanBuild(database, b, services, steps, err)
 
 		return err
 	}
@@ -1623,9 +1623,9 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
-func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step) {
+func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
 	// update fields in build object
-	b.SetError("unable to publish build to queue")
+	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
 	b.SetStatus(constants.StatusError)
 	b.SetFinished(time.Now().UTC().Unix())
 
@@ -1764,8 +1764,26 @@ func CancelBuild(c *gin.Context) {
 				return
 			}
 
+			tm := c.MustGet("token-manager").(*token.Manager)
+
+			// set mint token options
+			mto := &token.MintTokenOpts{
+				Hostname:      "vela-server",
+				TokenType:     constants.WorkerAuthTokenType,
+				TokenDuration: time.Minute * 1,
+			}
+
+			// mint token
+			tkn, err := tm.MintToken(mto)
+			if err != nil {
+				retErr := fmt.Errorf("unable to generate auth token: %w", err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
 			// add the token to authenticate to the worker
-			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.MustGet("secret").(string)))
+			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
 			// perform the request to the worker
 			resp, err := client.Do(req)
