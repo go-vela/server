@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -15,7 +16,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
@@ -48,7 +48,8 @@ import (
 // SyncRepos represents the API handler to
 // synchronize organization repositories between
 // SCM Service and the database should a discrepancy
-// exist. Common after deleting SCM repos.
+// exist. Primarily used for deleted repos or to align
+// subscribed events with allowed events.
 func SyncRepos(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
@@ -64,20 +65,23 @@ func SyncRepos(c *gin.Context) {
 
 	logger.Infof("syncing repos for org %s", o)
 
-	// See if the user is an org admin to bypass individual permission checks
+	// see if the user is an org admin
 	perm, err := scm.FromContext(c).OrgAccess(u, o)
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
 
-	filters := map[string]interface{}{}
-	// Only show public repos to non-admins
+	// only allow org-wide syncing if user is admin of org
 	if perm != "admin" {
-		filters["visibility"] = constants.VisibilityPublic
+		retErr := fmt.Errorf("unable to sync repos in org %s: must be an org admin", o)
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
 	}
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).CountReposForOrg(o, filters)
+	t, err := database.FromContext(c).CountReposForOrg(o, map[string]interface{}{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -90,7 +94,7 @@ func SyncRepos(c *gin.Context) {
 	page := 0
 	// capture all repos belonging to a certain org in database
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, _, err := database.FromContext(c).ListReposForOrg(o, "name", filters, page, 100)
+		r, _, err := database.FromContext(c).ListReposForOrg(o, "name", map[string]interface{}{}, page, 100)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -114,6 +118,29 @@ func SyncRepos(c *gin.Context) {
 			err := database.FromContext(c).UpdateRepo(repo)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+		}
+
+		// if we have webhook validation, update the repo hook in the SCM
+		if c.Value("webhookvalidation").(bool) {
+			// grab last hook from repo to fetch the webhook ID
+			lastHook, err := database.FromContext(c).LastHookForRepo(repo)
+			if err != nil {
+				retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", repo.GetFullName(), err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			// update webhook
+			err = scm.FromContext(c).Update(u, repo, lastHook.GetWebhookID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", repo.GetFullName(), err)
 
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -158,7 +185,8 @@ func SyncRepos(c *gin.Context) {
 // SyncRepo represents the API handler to
 // synchronize a single repository between
 // SCM service and the database should a discrepancy
-// exist. Common after deleting SCM repos.
+// exist. Primarily used for deleted repos or to align
+// subscribed events with allowed events.
 func SyncRepo(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
@@ -179,7 +207,7 @@ func SyncRepo(c *gin.Context) {
 	// retrieve repo from source code manager service
 	_, err := scm.FromContext(c).GetRepo(u, r)
 
-	// if there is an error retrieving repo, we know it is deleted: sync time
+	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
 		// set repo to inactive - do not delete
 		r.SetActive(false)
@@ -188,6 +216,49 @@ func SyncRepo(c *gin.Context) {
 		err := database.FromContext(c).UpdateRepo(r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// exit with success as hook sync will be unnecessary
+		c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+
+		return
+	}
+
+	// verify the user is an admin of the repo
+	// we cannot use our normal permissions check due to the possibility the repo was deleted
+	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, r.GetName())
+	if err != nil {
+		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
+	}
+
+	if !strings.EqualFold(perm, "admin") {
+		retErr := fmt.Errorf("user %s does not have 'admin' permissions for the repo %s", u.GetName(), r.GetFullName())
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
+	// if we have webhook validation, update the repo hook in the SCM
+	if c.Value("webhookvalidation").(bool) {
+		// grab last hook from repo to fetch the webhook ID
+		lastHook, err := database.FromContext(c).LastHookForRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// update webhook
+		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
