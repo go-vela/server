@@ -285,9 +285,20 @@ func PostWebhook(c *gin.Context) {
 	// confirm current repo owner has at least write access to repo (needed for status update later)
 	// this also helps with "suspended" users that no longer have valid SCM accounts
 	owner, err := database.FromContext(c).GetUser(r.GetUserID())
-	perm, err := scm.FromContext(c).RepoAccess(owner, owner.GetToken(), r.GetOrg(), r.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("unable to get user %d from database: %w", r.GetUserID(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-	if !strings.EqualFold(perm, "admin") && !strings.EqualFold(perm, "write") {
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// will return error if user does not have at least push access
+	_, err = scm.FromContext(c).RepoAccess(owner, owner.GetToken(), r.GetOrg(), r.GetName())
+
+	if err != nil {
 		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", owner.GetName(), r.GetFullName())
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
