@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestRepo_Engine_GetRepoForName(t *testing.T) {
+func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
