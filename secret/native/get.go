@@ -5,7 +5,7 @@
 package native
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -14,32 +14,44 @@ import (
 
 // Get captures a secret.
 func (c *client) Get(sType, org, name, path string) (*library.Secret, error) {
-	// create log fields from secret metadata
-	fields := logrus.Fields{
-		"org":    org,
-		"repo":   name,
-		"secret": path,
-		"type":   sType,
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(sType, constants.SecretShared) {
-		// update log fields from secret metadata
-		fields = logrus.Fields{
+	// handle the secret based off the type
+	switch sType {
+	case constants.SecretOrg:
+		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
-			"team":   name,
 			"secret": path,
 			"type":   sType,
-		}
+		}).Tracef("getting native %s secret %s for %s", sType, path, org)
+
+		// capture the org secret from the native service
+		return c.Database.GetSecretForOrg(org, path)
+	case constants.SecretRepo:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"repo":   name,
+			"secret": path,
+			"type":   sType,
+		}).Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
+
+		// create the repo with the information available
+		r := new(library.Repo)
+		r.SetOrg(org)
+		r.SetName(name)
+		r.SetFullName(fmt.Sprintf("%s/%s", org, name))
+
+		// capture the repo secret from the native service
+		return c.Database.GetSecretForRepo(path, r)
+	case constants.SecretShared:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"secret": path,
+			"team":   name,
+			"type":   sType,
+		}).Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
+
+		// capture the shared secret from the native service
+		return c.Database.GetSecretForTeam(org, name, path)
+	default:
+		return nil, fmt.Errorf("invalid secret type: %s", sType)
 	}
-
-	c.Logger.WithFields(fields).Tracef("getting native %s secret %s for %s/%s", sType, path, org, name)
-
-	// capture the secret from the native service
-	s, err := c.Database.GetSecret(sType, org, name, path)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
 }
