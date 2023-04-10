@@ -24,6 +24,7 @@ import (
 // DELETE /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
+// GET    /api/v1/repos/:org/:repo/builds/:build/token
 // POST   /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
