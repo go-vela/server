@@ -282,6 +282,21 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the created webhook
 	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
 
+	// confirm current repo owner has at least write access to repo (needed for status update later)
+	// this also helps with "suspended" users that no longer have valid SCM accounts
+	owner, err := database.FromContext(c).GetUser(r.GetUserID())
+	perm, err := scm.FromContext(c).RepoAccess(owner, owner.GetToken(), r.GetOrg(), r.GetName())
+
+	if !strings.EqualFold(perm, "admin") && !strings.EqualFold(perm, "write") {
+		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", owner.GetName(), r.GetFullName())
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
 		err = scm.FromContext(c).VerifyWebhook(dupRequest, r)
