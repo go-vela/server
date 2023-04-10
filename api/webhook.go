@@ -158,8 +158,6 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if build was parsed from webhook.
-	// build will be nil on repository events, but
-	// for renaming, we want to continue.
 	if b == nil {
 		// typically, this should only happen on a webhook
 		// "ping" which gets sent when the webhook is created
@@ -208,7 +206,7 @@ func PostWebhook(c *gin.Context) {
 
 	// update repo fields with any changes (necessary for repos enabled before repository event handling)
 	// TODO: eventually remove this in favor of some sync scripting?
-	if !reflect.DeepEqual(r.GetTopics(), repo.GetTopics()) {
+	if !strings.EqualFold(h.GetEvent(), constants.EventPush) && !reflect.DeepEqual(r.GetTopics(), repo.GetTopics()) {
 		r.SetTopics(repo.GetTopics())
 	}
 
@@ -750,24 +748,6 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 		}
 	}()
 
-	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return nil, retErr
-	}
-
-	// set the Number field
-	if lastHook != nil {
-		h.SetNumber(
-			lastHook.GetNumber() + 1,
-		)
-	}
-
 	switch h.GetEventAction() {
 	// if action is rename, go through rename routine
 	case constants.ActionRenamed:
@@ -792,6 +772,26 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 
 			return nil, retErr
 		}
+
+		// send API call to capture the last hook for the repo
+		lastHook, err := database.FromContext(c).LastHookForRepo(dbRepo)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return nil, retErr
+		}
+
+		// set the Number field
+		if lastHook != nil {
+			h.SetNumber(
+				lastHook.GetNumber() + 1,
+			)
+		}
+
+		h.SetRepoID(dbRepo.GetID())
 
 		// the only edits to a repo that impact Vela are to these three fields
 		if !strings.EqualFold(dbRepo.GetBranch(), r.GetBranch()) {
