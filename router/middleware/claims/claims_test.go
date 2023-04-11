@@ -88,7 +88,7 @@ func TestClaims_Establish(t *testing.T) {
 				IsActive:  true,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "foo",
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
 				},
 			},
@@ -108,7 +108,7 @@ func TestClaims_Establish(t *testing.T) {
 				Repo:      "foo/bar",
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 35)),
 				},
 			},
