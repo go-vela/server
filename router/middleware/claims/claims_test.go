@@ -33,7 +33,7 @@ func TestClaims_Retrieve(t *testing.T) {
 		IsActive:  true,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   "octocat",
-			IssuedAt:  jwt.NewNumericDate(now),
+			IssuedAt:  nil,
 			ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
 		},
 	}
@@ -130,7 +130,7 @@ func TestClaims_Establish(t *testing.T) {
 				TokenType: constants.WorkerAuthTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerAuthTokenDuration)),
 				},
 			},
@@ -148,7 +148,7 @@ func TestClaims_Establish(t *testing.T) {
 				TokenType: constants.WorkerRegisterTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerRegisterTokenDuration)),
 				},
 			},
