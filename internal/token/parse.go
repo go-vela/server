@@ -34,6 +34,10 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 		claims = t.Claims.(*Claims)
 		name := claims.Subject
 
+		// according to JWT, the iat field is optional for security purposes and is purely informational.
+		// setting it to nil avoids any worries of race conditions.
+		claims.IssuedAt = nil
+
 		// check if subject has a value in claims;
 		// we can save a db lookup attempt
 		if len(name) == 0 {
