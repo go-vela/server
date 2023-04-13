@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/sqlite/ddl"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
@@ -54,6 +55,8 @@ type (
 		pipeline.PipelineService
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
 		repo.RepoService
+		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretService
+		secret.SecretService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
 		// https://pkg.go.dev/github.com/go-vela/server/database/worker#WorkerService
@@ -239,12 +242,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the secrets table
-	err = c.Sqlite.Exec(ddl.CreateSecretTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableSecret, err)
-	}
-
 	// create the services table
 	err = c.Sqlite.Exec(ddl.CreateServiceTable).Error
 	if err != nil {
@@ -287,24 +284,6 @@ func createIndexes(c *client) error {
 	err = c.Sqlite.Exec(ddl.CreateBuildSourceIndex).Error
 	if err != nil {
 		return fmt.Errorf("unable to create builds_source index for the %s table: %w", constants.TableBuild, err)
-	}
-
-	// create the secrets_type_org_repo index for the secrets table
-	err = c.Sqlite.Exec(ddl.CreateSecretTypeOrgRepo).Error
-	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org_repo index for the %s table: %w", constants.TableSecret, err)
-	}
-
-	// create the secrets_type_org_team index for the secrets table
-	err = c.Sqlite.Exec(ddl.CreateSecretTypeOrgTeam).Error
-	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org_team index for the %s table: %w", constants.TableSecret, err)
-	}
-
-	// create the secrets_type_org index for the secrets table
-	err = c.Sqlite.Exec(ddl.CreateSecretTypeOrg).Error
-	if err != nil {
-		return fmt.Errorf("unable to create secrets_type_org index for the %s table: %w", constants.TableSecret, err)
 	}
 
 	return nil
@@ -360,6 +339,19 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic secret service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
+	c.SecretService, err = secret.New(
+		secret.WithClient(c.Sqlite),
+		secret.WithEncryptionKey(c.config.EncryptionKey),
+		secret.WithLogger(c.Logger),
+		secret.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

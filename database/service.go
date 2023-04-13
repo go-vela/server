@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
@@ -90,29 +91,9 @@ type Service interface {
 	// related to repos stored in the database.
 	repo.RepoService
 
-	// Secret Database Interface Functions
-
-	// GetSecret defines a function that gets a secret
-	// by type, org, name (repo or team) and secret name.
-	GetSecret(string, string, string, string) (*library.Secret, error)
-	// GetSecretList defines a function that
-	// gets a list of all secrets.
-	GetSecretList() ([]*library.Secret, error)
-	// GetTypeSecretList defines a function that gets a list
-	// of secrets by type, owner, and name (repo or team).
-	GetTypeSecretList(string, string, string, int, int, []string) ([]*library.Secret, error)
-	// GetTypeSecretCount defines a function that gets a count
-	// of secrets by type, owner, and name (repo or team).
-	GetTypeSecretCount(string, string, string, []string) (int64, error)
-	// CreateSecret defines a function that
-	// creates a new secret.
-	CreateSecret(*library.Secret) error
-	// UpdateSecret defines a function that
-	// updates a secret.
-	UpdateSecret(*library.Secret) error
-	// DeleteSecret defines a function that
-	// deletes a secret by unique ID.
-	DeleteSecret(int64) error
+	// SecretService provides the interface for functionality
+	// related to secrets stored in the database.
+	secret.SecretService
 
 	// Step Database Interface Functions
 

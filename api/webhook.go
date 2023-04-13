@@ -880,7 +880,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	}
 
 	// get total number of secrets associated with repository
-	t, err := database.FromContext(c).GetTypeSecretCount(constants.SecretRepo, r.GetOrg(), previousName, []string{})
+	t, err := database.FromContext(c).CountSecretsForRepo(dbR, map[string]interface{}{})
 	if err != nil {
 		return fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
 	}
@@ -889,7 +889,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, err := database.FromContext(c).GetTypeSecretList(constants.SecretRepo, r.GetOrg(), previousName, page, 100, []string{})
+		s, _, err := database.FromContext(c).ListSecretsForRepo(dbR, map[string]interface{}{}, page, 100)
 		if err != nil {
 			return fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
 		}
