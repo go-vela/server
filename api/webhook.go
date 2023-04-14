@@ -448,7 +448,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+		repo, err = database.FromContext(c).GetRepoForOrg(repo.GetOrg(), repo.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
