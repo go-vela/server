@@ -282,32 +282,6 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture the created webhook
 	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
 
-	// confirm current repo owner has at least write access to repo (needed for status update later)
-	// this also helps with "suspended" users that no longer have valid SCM accounts
-	owner, err := database.FromContext(c).GetUser(r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get user %d from database: %w", r.GetUserID(), err)
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return
-	}
-
-	// will return error if user does not have at least push access
-	_, err = scm.FromContext(c).RepoAccess(owner, owner.GetToken(), r.GetOrg(), r.GetName())
-
-	if err != nil {
-		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", owner.GetName(), r.GetFullName())
-		util.HandleError(c, http.StatusUnauthorized, retErr)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return
-	}
-
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
 		err = scm.FromContext(c).VerifyWebhook(dupRequest, r)
@@ -366,6 +340,19 @@ func PostWebhook(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
+	// confirm current repo owner has at least write access to repo (needed for status update later)
+	_, err = scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
+		util.HandleError(c, http.StatusUnauthorized, retErr)
 
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(retErr.Error())
