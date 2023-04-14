@@ -188,7 +188,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture parsed repo from webhook
 	repo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, repo.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
