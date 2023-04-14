@@ -51,7 +51,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				TokenType: constants.UserAccessTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   u.GetName(),
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
 				},
 			},
@@ -69,7 +69,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				TokenType: constants.UserRefreshTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   u.GetName(),
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 30)),
 				},
 			},
@@ -89,7 +89,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				TokenType: constants.WorkerBuildTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "worker",
-					IssuedAt:  jwt.NewNumericDate(now),
+					IssuedAt:  nil,
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 90)),
 				},
 			},

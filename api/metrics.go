@@ -121,6 +121,11 @@ var (
 //   type: boolean
 //   default: false
 // - in: query
+//   name: queued_build_count
+//   description: Indicates a request for queued build count
+//   type: boolean
+//   default: false
+// - in: query
 //   name: failure_build_count
 //   description: Indicates a request for failure build count
 //   type: boolean
