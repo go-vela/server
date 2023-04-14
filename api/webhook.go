@@ -50,10 +50,7 @@ var baseErr = "unable to process webhook"
 //   '200':
 //     description: Successfully received the webhook
 //     schema:
-//     oneOf:
-//       - "$ref": "#/definitions/Repo"
-//       - "$ref": "#/definitions/Build"
-//       - type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
 //     description: Malformed webhook payload
 //     schema:
@@ -133,22 +130,22 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	h, repo, b := webhook.Hook, webhook.Repo, webhook.Build
+	h, r, b := webhook.Hook, webhook.Repo, webhook.Build
 
 	logrus.Debugf("hook generated from SCM: %v", h)
-	logrus.Debugf("repo generated from SCM: %v", repo)
+	logrus.Debugf("repo generated from SCM: %v", r)
 
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
-		repo, err = handleRepositoryEvent(c, m, h, repo)
+		r, err = handleRepositoryEvent(c, m, h, r)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 			return
 		}
 
 		// if there were actual changes to the repo, return the repo object
-		if repo.GetID() != 0 {
-			c.JSON(http.StatusOK, repo)
+		if r.GetID() != 0 {
+			c.JSON(http.StatusOK, r)
 			return
 		}
 
@@ -173,7 +170,7 @@ func PostWebhook(c *gin.Context) {
 		b.GetAuthor(), b.GetBranch(), b.GetCommit(), b.GetRef())
 
 	// check if repo was parsed from webhook
-	if repo == nil {
+	if r == nil {
 		retErr := fmt.Errorf("%s: failed to parse repo from webhook", baseErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -184,14 +181,14 @@ func PostWebhook(c *gin.Context) {
 		// send API call to update the webhook
 		err = database.FromContext(c).UpdateHook(h)
 		if err != nil {
-			logrus.Errorf("unable to update webhook %s/%d: %v", repo.GetFullName(), h.GetNumber(), err)
+			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
 	}()
 
 	// send API call to capture parsed repo from webhook
-	r, err := database.FromContext(c).GetRepoForOrg(repo.GetOrg(), repo.GetName())
+	repo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -201,23 +198,23 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// set the RepoID fields
-	b.SetRepoID(r.GetID())
-	h.SetRepoID(r.GetID())
+	b.SetRepoID(repo.GetID())
+	h.SetRepoID(repo.GetID())
 
 	// update repo fields with any changes (necessary for repos enabled before repository event handling)
 	// TODO: eventually remove this in favor of some sync scripting?
-	if !strings.EqualFold(h.GetEvent(), constants.EventPush) && !reflect.DeepEqual(r.GetTopics(), repo.GetTopics()) {
-		r.SetTopics(repo.GetTopics())
+	if len(r.GetTopics()) != 0 {
+		repo.SetTopics(r.GetTopics())
 	}
 
-	if !strings.EqualFold(r.GetBranch(), repo.GetBranch()) {
-		r.SetBranch(repo.GetBranch())
+	if !strings.EqualFold(repo.GetBranch(), r.GetBranch()) {
+		repo.SetBranch(r.GetBranch())
 	}
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(r)
+	lastHook, err := database.FromContext(c).LastHookForRepo(repo)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", repo.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -236,7 +233,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to create the webhook
 	err = database.FromContext(c).CreateHook(h)
 	if err != nil {
-		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", r.GetFullName(), h.GetNumber(), err)
+		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", repo.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -246,11 +243,11 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the created webhook
-	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
+	h, _ = database.FromContext(c).GetHookForRepo(repo, h.GetNumber())
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
-		err = scm.FromContext(c).VerifyWebhook(dupRequest, r)
+		err = scm.FromContext(c).VerifyWebhook(dupRequest, repo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to verify webhook: %w", err)
 			util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -263,8 +260,8 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if the repo is active
-	if !r.GetActive() {
-		retErr := fmt.Errorf("%s: %s is not an active repo", baseErr, r.GetFullName())
+	if !repo.GetActive() {
+		retErr := fmt.Errorf("%s: %s is not an active repo", baseErr, repo.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -274,12 +271,12 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// verify the build has a valid event and the repo allows that event type
-	if (b.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
-		(b.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
-		(b.GetEvent() == constants.EventComment && !r.GetAllowComment()) ||
-		(b.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
-		(b.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
-		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, r.GetFullName(), b.GetEvent())
+	if (b.GetEvent() == constants.EventPush && !repo.GetAllowPush()) ||
+		(b.GetEvent() == constants.EventPull && !repo.GetAllowPull()) ||
+		(b.GetEvent() == constants.EventComment && !repo.GetAllowComment()) ||
+		(b.GetEvent() == constants.EventTag && !repo.GetAllowTag()) ||
+		(b.GetEvent() == constants.EventDeploy && !repo.GetAllowDeploy()) {
+		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, repo.GetFullName(), b.GetEvent())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -289,8 +286,8 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if the repo has a valid owner
-	if r.GetUserID() == 0 {
-		retErr := fmt.Errorf("%s: %s has no valid owner", baseErr, r.GetFullName())
+	if repo.GetUserID() == 0 {
+		retErr := fmt.Errorf("%s: %s has no valid owner", baseErr, repo.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -300,11 +297,11 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture repo owner
-	logrus.Debugf("capturing owner of repository %s", r.GetFullName())
+	logrus.Debugf("capturing owner of repository %s", repo.GetFullName())
 
-	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	u, err := database.FromContext(c).GetUser(repo.GetUserID())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -319,9 +316,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).GetRepoBuildCount(repo, filters)
 	if err != nil {
-		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
+		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, repo.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -330,11 +327,11 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	logrus.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
+	logrus.Debugf("currently %d builds running on repo %s", builds, repo.GetFullName())
 
 	// check if the number of pending and running builds exceeds the limit for the repo
-	if builds >= r.GetBuildLimit() {
-		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
+	if builds >= repo.GetBuildLimit() {
+		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, repo.GetFullName(), repo.GetBuildLimit())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -344,8 +341,8 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// update fields in build object
-	logrus.Debugf("updating build number to %d", r.GetCounter())
-	b.SetNumber(r.GetCounter())
+	logrus.Debugf("updating build number to %d", repo.GetCounter())
+	b.SetNumber(repo.GetCounter())
 
 	logrus.Debugf("updating parent number to %d", b.GetNumber())
 	b.SetParent(b.GetNumber())
@@ -355,9 +352,9 @@ func PostWebhook(c *gin.Context) {
 
 	// if this is a comment on a pull_request event
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
-		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, r, webhook.PRNumber)
+		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, repo, webhook.PRNumber)
 		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
+			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
@@ -378,9 +375,9 @@ func PostWebhook(c *gin.Context) {
 	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
 		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
+		files, err = scm.FromContext(c).Changeset(u, repo, b.GetCommit())
 		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
@@ -393,9 +390,9 @@ func PostWebhook(c *gin.Context) {
 	// check if the build event is a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.FromContext(c).ChangesetPR(u, r, webhook.PRNumber)
+		files, err = scm.FromContext(c).ChangesetPR(u, repo, webhook.PRNumber)
 		if err != nil {
-			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
+			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
 			h.SetStatus(constants.StatusFailure)
@@ -415,7 +412,7 @@ func PostWebhook(c *gin.Context) {
 		// variable to control number of times to retry processing pipeline
 		retryLimit = 3
 		// variable to store the pipeline type for the repository
-		pipelineType = r.GetPipelineType()
+		pipelineType = repo.GetPipelineType()
 	)
 
 	// implement a loop to process asynchronous operations with a retry limit
@@ -432,12 +429,12 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), r)
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), repo)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+			config, err = scm.FromContext(c).ConfigBackoff(u, repo, b.GetCommit())
 			if err != nil {
-				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
+				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, repo.GetFullName(), err)
 
 				util.HandleError(c, http.StatusNotFound, retErr)
 
@@ -450,8 +447,29 @@ func PostWebhook(c *gin.Context) {
 			config = pipeline.GetData()
 		}
 
+		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
+		r, err = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+		if err != nil {
+			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
+
+			// check if the retry limit has been exceeded
+			if i < retryLimit-1 {
+				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
+
+				// continue to the next iteration of the loop
+				continue
+			}
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
 		// set the parent equal to the current repo counter
-		b.SetParent(r.GetCounter())
+		b.SetParent(repo.GetCounter())
 
 		// check if the parent is set to 0
 		if b.GetParent() == 0 {
@@ -460,14 +478,14 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// update the build numbers based off repo counter
-		inc := r.GetCounter() + 1
-		r.SetCounter(inc)
+		inc := repo.GetCounter() + 1
+		repo.SetCounter(inc)
 		b.SetNumber(inc)
 
 		// populate the build link if a web address is provided
 		if len(m.Vela.WebAddress) > 0 {
 			b.SetLink(
-				fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), b.GetNumber()),
+				fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, repo.GetFullName(), b.GetNumber()),
 			)
 		}
 
@@ -478,7 +496,7 @@ func PostWebhook(c *gin.Context) {
 		// the repo pipeline type to match what was defined for the existing pipeline
 		// before compiling. After we're done compiling, we reset the pipeline type.
 		if len(pipeline.GetType()) > 0 {
-			r.SetPipelineType(pipeline.GetType())
+			repo.SetPipelineType(pipeline.GetType())
 		}
 
 		var compiled *library.Pipeline
@@ -489,12 +507,12 @@ func PostWebhook(c *gin.Context) {
 			WithComment(webhook.Comment).
 			WithFiles(files).
 			WithMetadata(m).
-			WithRepo(r).
+			WithRepo(repo).
 			WithUser(u).
 			Compile(config)
 		if err != nil {
 			// format the error message with extra information
-			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
+			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", repo.GetFullName(), err)
 
 			// log the error for traceability
 			logrus.Error(err.Error())
@@ -514,7 +532,7 @@ func PostWebhook(c *gin.Context) {
 		// existing pipelines in the system for that repo. To account for this, we update
 		// the repo pipeline type to match what was defined for the existing pipeline
 		// before compiling. After we're done compiling, we reset the pipeline type.
-		r.SetPipelineType(pipelineType)
+		repo.SetPipelineType(pipelineType)
 
 		// skip the build if only the init or clone steps are found
 		skip := skipEmptyBuild(p)
@@ -523,9 +541,9 @@ func PostWebhook(c *gin.Context) {
 			b.SetStatus(constants.StatusSkipped)
 
 			// send API call to set the status on the commit
-			err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+			err = scm.FromContext(c).Status(u, b, repo.GetOrg(), repo.GetName())
 			if err != nil {
-				logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+				logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 			}
 
 			c.JSON(http.StatusOK, skip)
@@ -536,14 +554,14 @@ func PostWebhook(c *gin.Context) {
 		// check if the pipeline did not already exist in the database
 		if pipeline == nil {
 			pipeline = compiled
-			pipeline.SetRepoID(r.GetID())
+			pipeline.SetRepoID(repo.GetID())
 			pipeline.SetCommit(b.GetCommit())
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
 			err = database.FromContext(c).CreatePipeline(pipeline)
 			if err != nil {
-				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, r.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 
 				// check if the retry limit has been exceeded
 				if i < retryLimit-1 {
@@ -562,10 +580,10 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			// send API call to capture the created pipeline
-			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), r)
+			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), repo)
 			if err != nil {
 				//nolint:lll // ignore long line length due to error message
-				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, r.GetFullName(), pipeline.GetCommit(), err)
+				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, repo.GetFullName(), pipeline.GetCommit(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				h.SetStatus(constants.StatusFailure)
@@ -584,7 +602,7 @@ func PostWebhook(c *gin.Context) {
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = planBuild(database.FromContext(c), p, b, r)
+		err = planBuild(database.FromContext(c), p, b, repo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -614,9 +632,9 @@ func PostWebhook(c *gin.Context) {
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.FromContext(c).UpdateRepo(r)
+	err = database.FromContext(c).UpdateRepo(repo)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -627,7 +645,7 @@ func PostWebhook(c *gin.Context) {
 
 	// return error if pipeline didn't get populated
 	if p == nil {
-		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -638,7 +656,7 @@ func PostWebhook(c *gin.Context) {
 
 	// return error if build didn't get populated
 	if b == nil {
-		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, r.GetFullName(), err)
+		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -648,9 +666,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, err = database.FromContext(c).GetBuild(b.GetNumber(), repo)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, r.GetFullName(), b.GetNumber(), err)
+		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, repo.GetFullName(), b.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -665,9 +683,9 @@ func PostWebhook(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(u, b, repo.GetOrg(), repo.GetName())
 	if err != nil {
-		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
+		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
@@ -676,7 +694,7 @@ func PostWebhook(c *gin.Context) {
 		database.FromContext(c),
 		p,
 		b,
-		r,
+		repo,
 		u,
 	)
 }
@@ -762,6 +780,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 		return r, nil
 	// if action is archived, unarchived, or edited, perform edits to relevant repo fields
 	case "archived", "unarchived", constants.ActionEdited:
+		logrus.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
 		// send call to get repository from database
 		dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 		if err != nil {
