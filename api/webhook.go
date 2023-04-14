@@ -152,7 +152,7 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, "no build to process")
+		c.JSON(http.StatusOK, "handled repository event, no build to process")
 
 		return
 	}
