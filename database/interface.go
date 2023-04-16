@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/secret"
+	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
@@ -96,41 +97,13 @@ type Interface interface {
 	// related to secrets stored in the database.
 	secret.SecretInterface
 
+	// ServiceInterface provides the interface for functionality
+	// related to services stored in the database.
+	service.ServiceInterface
+
 	// StepInterface provides the interface for functionality
 	// related to steps stored in the database.
 	step.StepInterface
-
-	// Interface Database Interface Functions
-
-	// GetService defines a function that
-	// gets a step by number and build ID.
-	GetService(int, *library.Build) (*library.Service, error)
-	// GetServiceList defines a function that
-	// gets a list of all steps.
-	GetServiceList() ([]*library.Service, error)
-	// GetBuildServiceList defines a function
-	// that gets a list of steps by build ID.
-	GetBuildServiceList(*library.Build, int, int) ([]*library.Service, error)
-	// GetBuildServiceCount defines a function
-	// that gets the count of steps by build ID.
-	GetBuildServiceCount(*library.Build) (int64, error)
-	// GetServiceImageCount defines a function that
-	// gets a list of all service images and the
-	// count of their occurrence.
-	GetServiceImageCount() (map[string]float64, error)
-	// GetServiceStatusCount defines a function that
-	// gets a list of all service statuses and the
-	// count of their occurrence.
-	GetServiceStatusCount() (map[string]float64, error)
-	// CreateService defines a function that
-	// creates a new step.
-	CreateService(*library.Service) error
-	// UpdateService defines a function that
-	// updates a step.
-	UpdateService(*library.Service) error
-	// DeleteService defines a function that
-	// deletes a step by unique ID.
-	DeleteService(int64) error
 
 	// UserInterface provides the interface for functionality
 	// related to users stored in the database.

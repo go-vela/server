@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/secret"
+	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/sqlite/ddl"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
@@ -58,6 +59,8 @@ type (
 		repo.RepoInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretInterface
 		secret.SecretInterface
+		// https://pkg.go.dev/github.com/go-vela/server/database/service#ServiceInterface
+		service.ServiceInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/step#StepInterface
 		step.StepInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserInterface
@@ -245,12 +248,6 @@ func createTables(c *client) error {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
 	}
 
-	// create the services table
-	err = c.Sqlite.Exec(ddl.CreateServiceTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableService, err)
-	}
-
 	return nil
 }
 
@@ -290,7 +287,7 @@ func createIndexes(c *client) error {
 func createServices(c *client) error {
 	var err error
 
-	// create the database agnostic hook service
+	// create the database agnostic service for hooks
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/hook#New
 	c.HookInterface, err = hook.New(
@@ -302,7 +299,7 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic log service
+	// create the database agnostic service for logs
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/log#New
 	c.LogInterface, err = log.New(
@@ -315,7 +312,7 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic pipeline service
+	// create the database agnostic service for pipelines
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
 	c.PipelineInterface, err = pipeline.New(
@@ -328,7 +325,7 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic repo service
+	// create the database agnostic service for repos
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/repo#New
 	c.RepoInterface, err = repo.New(
@@ -341,7 +338,7 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic secret service
+	// create the database agnostic service for secrets
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
 	c.SecretInterface, err = secret.New(
@@ -354,7 +351,19 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic step service
+	// create the database agnostic service for services
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/service#New
+	c.ServiceInterface, err = service.New(
+		service.WithClient(c.Sqlite),
+		service.WithLogger(c.Logger),
+		service.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic service for steps
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/step#New
 	c.StepInterface, err = step.New(
@@ -366,7 +375,7 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic user service
+	// create the database agnostic service for users
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/user#New
 	c.UserInterface, err = user.New(
@@ -379,7 +388,7 @@ func createServices(c *client) error {
 		return err
 	}
 
-	// create the database agnostic worker service
+	// create the database agnostic service for workers
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/worker#New
 	c.WorkerInterface, err = worker.New(
