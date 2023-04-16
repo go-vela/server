@@ -394,7 +394,7 @@ func createServices(c *client) error {
 
 	// create the database agnostic service for steps
 	//
-	// https://pkg.go.dev/github.com/go-vela/server/database/repo#New
+	// https://pkg.go.dev/github.com/go-vela/server/database/step#New
 	c.StepInterface, err = step.New(
 		step.WithClient(c.Postgres),
 		step.WithLogger(c.Logger),
