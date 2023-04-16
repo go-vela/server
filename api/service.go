@@ -549,7 +549,7 @@ func DeleteService(c *gin.Context) {
 // planServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build in the configured backend.
-func planServices(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
+func planServices(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}
 

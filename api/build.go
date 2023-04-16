@@ -1569,7 +1569,7 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
+func planBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
@@ -1623,7 +1623,7 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
-func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
+func cleanBuild(database database.Interface, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
 	b.SetStatus(constants.StatusError)

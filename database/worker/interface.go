@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// WorkerService represents the Vela interface for worker
+// WorkerInterface represents the Vela interface for worker
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type WorkerService interface {
+type WorkerInterface interface {
 	// Worker Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
