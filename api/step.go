@@ -127,7 +127,7 @@ func CreateStep(c *gin.Context) {
 	}
 
 	// send API call to capture the created step
-	s, _ := database.FromContext(c).GetStep(input.GetNumber(), b)
+	s, _ := database.FromContext(c).GetStepForBuild(b, input.GetNumber())
 
 	c.JSON(http.StatusCreated, s)
 }
@@ -235,18 +235,8 @@ func GetSteps(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the total number of steps for the build
-	t, err := database.FromContext(c).GetBuildStepCount(b)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get steps count for build %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// send API call to capture the list of steps for the build
-	s, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
+	s, t, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get steps for build %s: %w", entry, err)
 
@@ -464,7 +454,7 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	// send API call to capture the updated step
-	s, _ = database.FromContext(c).GetStep(s.GetNumber(), b)
+	s, _ = database.FromContext(c).GetStepForBuild(b, s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }
@@ -535,7 +525,7 @@ func DeleteStep(c *gin.Context) {
 	}).Infof("deleting step %s", entry)
 
 	// send API call to remove the step
-	err := database.FromContext(c).DeleteStep(s.GetID())
+	err := database.FromContext(c).DeleteStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete step %s: %w", entry, err)
 
@@ -576,7 +566,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 			}
 
 			// send API call to capture the created step
-			s, err = database.GetStep(s.GetNumber(), b)
+			s, err = database.GetStepForBuild(b, s.GetNumber())
 			if err != nil {
 				return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
 			}
@@ -625,7 +615,7 @@ func planSteps(database database.Service, p *pipeline.Build, b *library.Build) (
 		}
 
 		// send API call to capture the created step
-		s, err = database.GetStep(s.GetNumber(), b)
+		s, err = database.GetStepForBuild(b, s.GetNumber())
 		if err != nil {
 			return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
 		}

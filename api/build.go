@@ -1837,7 +1837,7 @@ func CancelBuild(c *gin.Context) {
 
 	for page > 0 {
 		// retrieve build steps (per page) from the database
-		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
+		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
