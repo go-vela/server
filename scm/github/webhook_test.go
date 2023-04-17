@@ -222,6 +222,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("pull_request")
@@ -392,6 +393,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("deployment")
@@ -511,6 +513,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("deployment")
@@ -767,6 +770,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("comment")
@@ -843,6 +847,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("comment")
@@ -976,6 +981,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetPreviousName("Hello-Old-World")
+	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
 		Comment: "",
@@ -1039,6 +1045,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
 		Comment: "",
@@ -1101,6 +1108,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("main")
+	wantRepo.SetTopics([]string{"cloud", "security"})
 	wantRepo.SetPrivate(false)
 
 	want := &types.Webhook{
@@ -1165,6 +1173,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
 		Comment: "",

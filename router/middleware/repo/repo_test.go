@@ -48,6 +48,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetLink("")
 	want.SetClone("")
 	want.SetBranch("")
+	want.SetTopics([]string{})
 	want.SetBuildLimit(0)
 	want.SetTimeout(0)
 	want.SetCounter(0)
