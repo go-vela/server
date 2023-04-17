@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/secret"
+	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
@@ -82,7 +83,6 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	// ensure the mock expects the table queries
 	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateServiceTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateStepTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the index queries
 	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -107,6 +107,8 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the step queries
+	_mock.ExpectExec(step.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -175,7 +177,6 @@ func TestPostgres_createTables(t *testing.T) {
 	// ensure the mock expects the table queries
 	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateServiceTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateStepTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	tests := []struct {
 		failure bool
@@ -272,6 +273,8 @@ func TestPostgres_createServices(t *testing.T) {
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the step queries
+	_mock.ExpectExec(step.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))

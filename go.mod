@@ -13,7 +13,7 @@ require (
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.18.2-0.20230321015315-6c723879639c
+	github.com/go-vela/types v0.18.2-0.20230407145744-676c45c911b5
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-github/v50 v50.1.0
@@ -30,7 +30,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.4
 	github.com/urfave/cli/v2 v2.24.4
-	go.starlark.net v0.0.0-20230228032650-dded03209ead
+	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
 	golang.org/x/oauth2 v0.5.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
