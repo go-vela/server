@@ -471,6 +471,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 		Link:     gr.HTMLURL,
 		Clone:    gr.CloneURL,
 		Branch:   gr.DefaultBranch,
+		Topics:   &gr.Topics,
 		Private:  gr.Private,
 	}
 }

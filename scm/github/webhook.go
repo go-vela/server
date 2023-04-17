@@ -138,6 +138,8 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	// uncomment this line when next version (>v51.0.0) of go-github is released
+	// r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -234,6 +236,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -300,6 +303,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -401,6 +405,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -451,6 +456,7 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
+	r.SetTopics(repo.Topics)
 
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {

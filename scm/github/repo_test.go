@@ -1026,6 +1026,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetClone("https://github.com/octocat/Hello-World.git")
 	want.SetBranch("master")
 	want.SetPrivate(false)
+	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 
 	client, _ := NewTest(s.URL)
 
@@ -1188,6 +1189,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetClone("https://github.com/octocat/Hello-World.git")
 	r.SetBranch("master")
 	r.SetPrivate(false)
+	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 
 	want := []*library.Repo{r}
 
