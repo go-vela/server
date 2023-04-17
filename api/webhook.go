@@ -310,6 +310,18 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// confirm current repo owner has at least write access to repo (needed for status update later)
+	_, err = scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
 	// create SQL filters for querying pending and running builds for repo
 	filters := map[string]interface{}{
 		"status": []string{constants.StatusPending, constants.StatusRunning},
