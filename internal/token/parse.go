@@ -7,7 +7,7 @@ package token
 import (
 	"errors"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // ParseToken scans the signed JWT token as a string and extracts
@@ -21,10 +21,7 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 	var claims = new(Claims)
 
 	// create a new JWT parser
-	p := &jwt.Parser{
-		// explicitly only allow these signing methods
-		ValidMethods: []string{jwt.SigningMethodHS256.Name},
-	}
+	p := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 	// parse and validate given token
 	tkn, err := p.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
@@ -33,10 +30,6 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 		// extract the claims from the token
 		claims = t.Claims.(*Claims)
 		name := claims.Subject
-
-		// according to JWT, the iat field is optional for security purposes and is purely informational.
-		// setting it to nil avoids any worries of race conditions.
-		claims.IssuedAt = nil
 
 		// check if subject has a value in claims;
 		// we can save a db lookup attempt
