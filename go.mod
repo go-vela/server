@@ -31,11 +31,7 @@ require (
 	github.com/spf13/afero v1.9.4
 	github.com/urfave/cli/v2 v2.24.4
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
-<<<<<<< HEAD
-	golang.org/x/oauth2 v0.6.0
-=======
 	golang.org/x/oauth2 v0.7.0
->>>>>>> renovate/golang.org-x-oauth2-0.x
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.5.0
@@ -115,7 +111,7 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
-	golang.org/x/crypto v0.6.0 // indirect
+	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
