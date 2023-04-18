@@ -29,7 +29,7 @@ require (
 	github.com/redis/go-redis/v9 v9.0.3
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.5
-	github.com/urfave/cli/v2 v2.24.4
+	github.com/urfave/cli/v2 v2.25.1
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
 	golang.org/x/oauth2 v0.6.0
 	gopkg.in/square/go-jose.v2 v2.6.0
