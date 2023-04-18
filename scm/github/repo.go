@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v50/github"
+	"github.com/google/go-github/v51/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -471,6 +471,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 		Link:     gr.HTMLURL,
 		Clone:    gr.CloneURL,
 		Branch:   gr.DefaultBranch,
+		Topics:   &gr.Topics,
 		Private:  gr.Private,
 	}
 }

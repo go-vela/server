@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 )
 
 func TestTokenManager_ParseToken(t *testing.T) {
@@ -51,7 +51,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				TokenType: constants.UserAccessTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   u.GetName(),
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
 				},
 			},
@@ -69,7 +69,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				TokenType: constants.UserRefreshTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   u.GetName(),
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 30)),
 				},
 			},
@@ -89,7 +89,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 				TokenType: constants.WorkerBuildTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "worker",
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 90)),
 				},
 			},
