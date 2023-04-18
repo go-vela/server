@@ -5,10 +5,10 @@ go 1.19
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/Masterminds/semver/v3 v3.2.0
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/Masterminds/sprig/v3 v3.2.3
-	github.com/alicebob/miniredis/v2 v2.30.0
-	github.com/aws/aws-sdk-go v1.44.211
+	github.com/alicebob/miniredis/v2 v2.30.1
+	github.com/aws/aws-sdk-go v1.44.245
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.0
@@ -26,9 +26,9 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.15.0
-	github.com/redis/go-redis/v9 v9.0.2
+	github.com/redis/go-redis/v9 v9.0.3
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/afero v1.9.4
+	github.com/spf13/afero v1.9.5
 	github.com/urfave/cli/v2 v2.24.4
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
 	golang.org/x/oauth2 v0.5.0
@@ -107,7 +107,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
+	github.com/yuin/gopher-lua v1.1.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
