@@ -16,7 +16,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/internal/token"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -33,7 +33,7 @@ func TestClaims_Retrieve(t *testing.T) {
 		IsActive:  true,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   "octocat",
-			IssuedAt:  nil,
+			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 1)),
 		},
 	}
@@ -90,7 +90,7 @@ func TestClaims_Establish(t *testing.T) {
 				IsActive:  true,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "foo",
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 5)),
 				},
 			},
@@ -110,7 +110,7 @@ func TestClaims_Establish(t *testing.T) {
 				Repo:      "foo/bar",
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute * 35)),
 				},
 			},
@@ -130,7 +130,7 @@ func TestClaims_Establish(t *testing.T) {
 				TokenType: constants.WorkerAuthTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerAuthTokenDuration)),
 				},
 			},
@@ -148,7 +148,7 @@ func TestClaims_Establish(t *testing.T) {
 				TokenType: constants.WorkerRegisterTokenType,
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject:   "host",
-					IssuedAt:  nil,
+					IssuedAt:  jwt.NewNumericDate(now),
 					ExpiresAt: jwt.NewNumericDate(now.Add(tm.WorkerRegisterTokenDuration)),
 				},
 			},
