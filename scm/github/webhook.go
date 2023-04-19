@@ -47,10 +47,20 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
 	}
 
+	// grab signature we use for webhook verification
+	sig := request.Header.Get(github.SHA256SignatureHeader)
+
+	// set both signature types to nothing in order to properly get payload information
+	request.Header.Set(github.SHA256SignatureHeader, "")
+	request.Header.Set(github.SHA1SignatureHeader, "")
+
 	payload, err := github.ValidatePayload(request, nil)
 	if err != nil {
 		return &types.Webhook{Hook: h}, nil
 	}
+
+	// reset the signature so we can verify properly later
+	request.Header.Set(github.SHA256SignatureHeader, sig)
 
 	// parse the payload from the webhook
 	event, err := github.ParseWebHook(github.WebHookType(request), payload)
