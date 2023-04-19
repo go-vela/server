@@ -151,7 +151,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string, error) {
+func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*library.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -200,7 +200,7 @@ func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string
 	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
 	webhook.SetEvent(eventInitialize)
-	webhook.SetNumber(1)
+	webhook.SetNumber(h.GetNumber() + 1)
 
 	switch resp.StatusCode {
 	case http.StatusUnprocessableEntity:

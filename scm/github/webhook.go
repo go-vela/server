@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime"
 	"net/http"
 	"strconv"
 	"strings"
@@ -47,7 +48,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
 	}
 
-	payload, err := github.ValidatePayload(request, nil)
+	// get content type
+	contentType, _, err := mime.ParseMediaType(request.Header.Get("Content-Type"))
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := github.ValidatePayloadFromBody(contentType, request.Body, "", nil)
 	if err != nil {
 		return &types.Webhook{Hook: h}, nil
 	}
