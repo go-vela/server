@@ -201,16 +201,6 @@ func PostWebhook(c *gin.Context) {
 	b.SetRepoID(repo.GetID())
 	h.SetRepoID(repo.GetID())
 
-	// update repo fields with any changes (necessary for repos enabled before repository event handling)
-	// TODO: eventually remove this in favor of some sync scripting?
-	if len(r.GetTopics()) != 0 {
-		repo.SetTopics(r.GetTopics())
-	}
-
-	if !strings.EqualFold(repo.GetBranch(), r.GetBranch()) {
-		repo.SetBranch(r.GetBranch())
-	}
-
 	// send API call to capture the last hook for the repo
 	lastHook, err := database.FromContext(c).LastHookForRepo(repo)
 	if err != nil {
@@ -478,6 +468,16 @@ func PostWebhook(c *gin.Context) {
 			h.SetError(retErr.Error())
 
 			return
+		}
+
+		// update repo fields with any changes from SCM process
+		// TODO: eventually remove this in favor of some sync scripting?
+		if len(r.GetTopics()) != 0 {
+			repo.SetTopics(r.GetTopics())
+		}
+
+		if !strings.EqualFold(repo.GetBranch(), r.GetBranch()) {
+			repo.SetBranch(r.GetBranch())
 		}
 
 		// set the parent equal to the current repo counter
