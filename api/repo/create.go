@@ -239,8 +239,18 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	h := new(library.Hook)
+
+	// err being nil means we have a record of this repo (dbRepo)
 	if err == nil {
 		h, _ = database.FromContext(c).LastHookForRepo(dbRepo)
+
+		// make sure our record of the repo allowed events matches what we send to SCM
+		// what the dbRepo has should override default events on enable
+		r.SetAllowComment(dbRepo.GetAllowComment())
+		r.SetAllowDeploy(dbRepo.GetAllowDeploy())
+		r.SetAllowPull(dbRepo.GetAllowPull())
+		r.SetAllowPush(dbRepo.GetAllowPush())
+		r.SetAllowTag(dbRepo.GetAllowTag())
 	}
 
 	// check if we should create the webhook
