@@ -608,6 +608,7 @@ func TestGithub_Enable(t *testing.T) {
 	wantHook.SetCreated(1315329987)
 	wantHook.SetNumber(1)
 	wantHook.SetEvent("initialize")
+	wantHook.SetStatus("success")
 
 	r := new(library.Repo)
 	r.SetID(1)

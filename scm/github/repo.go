@@ -201,6 +201,7 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
 	webhook.SetEvent(eventInitialize)
 	webhook.SetNumber(h.GetNumber() + 1)
+	webhook.SetStatus(constants.StatusSuccess)
 
 	switch resp.StatusCode {
 	case http.StatusUnprocessableEntity:
