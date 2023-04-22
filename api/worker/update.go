@@ -84,7 +84,7 @@ func UpdateWorker(c *gin.Context) {
 	}
 
 	if len(input.GetAddress()) > 0 {
-		// update admin if set
+		// update address if set
 		w.SetAddress(input.GetAddress())
 	}
 
