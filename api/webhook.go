@@ -471,14 +471,8 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// update repo fields with any changes from SCM process
-		// TODO: eventually remove this in favor of some sync scripting?
-		if len(r.GetTopics()) != 0 {
-			repo.SetTopics(r.GetTopics())
-		}
-
-		if !strings.EqualFold(repo.GetBranch(), r.GetBranch()) {
-			repo.SetBranch(r.GetBranch())
-		}
+		repo.SetTopics(r.GetTopics())
+		repo.SetBranch(r.GetBranch())
 
 		// set the parent equal to the current repo counter
 		b.SetParent(repo.GetCounter())
