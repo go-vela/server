@@ -30,7 +30,7 @@ func TestRedis_Length(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela", "vela:second", "vela:third")
+	_redis, err := NewTest("vela:first", "vela:second", "vela:third")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestRedis_Length(t *testing.T) {
 			want:     4,
 		},
 		{
-			channels: []string{"vela", "vela:second", "phony"},
+			channels: []string{"vela:first", "vela:second", "phony"},
 			want:     6,
 		},
 	}
