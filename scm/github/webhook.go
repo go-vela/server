@@ -145,8 +145,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
-	// uncomment this line when next version (>v51.0.0) of go-github is released
-	// r.SetTopics(repo.Topics)
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
