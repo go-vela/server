@@ -16,7 +16,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/internal/token"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"

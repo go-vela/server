@@ -77,8 +77,17 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
+		hook, err := database.FromContext(c).LastHookForRepo(r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
 		// send API call to create the webhook
-		hook, _, err := scm.FromContext(c).Enable(u, r)
+		hook, _, err = scm.FromContext(c).Enable(u, r, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 

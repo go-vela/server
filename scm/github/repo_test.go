@@ -608,6 +608,7 @@ func TestGithub_Enable(t *testing.T) {
 	wantHook.SetCreated(1315329987)
 	wantHook.SetNumber(1)
 	wantHook.SetEvent("initialize")
+	wantHook.SetStatus("success")
 
 	r := new(library.Repo)
 	r.SetID(1)
@@ -621,7 +622,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, _, err := client.Enable(u, r)
+	got, _, err := client.Enable(u, r, new(library.Hook))
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -1026,6 +1027,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetClone("https://github.com/octocat/Hello-World.git")
 	want.SetBranch("master")
 	want.SetPrivate(false)
+	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 
 	client, _ := NewTest(s.URL)
 
@@ -1188,6 +1190,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetClone("https://github.com/octocat/Hello-World.git")
 	r.SetBranch("master")
 	r.SetPrivate(false)
+	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 
 	want := []*library.Repo{r}
 

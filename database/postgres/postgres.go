@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/secret"
+	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
@@ -58,6 +59,8 @@ type (
 		repo.RepoService
 		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretService
 		secret.SecretService
+		// https://pkg.go.dev/github.com/go-vela/server/database/step#StepService
+		step.StepService
 		// https://pkg.go.dev/github.com/go-vela/server/database/user#UserService
 		user.UserService
 		// https://pkg.go.dev/github.com/go-vela/server/database/worker#WorkerService
@@ -175,6 +178,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgTeam).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrg).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the step queries
+	_mock.ExpectExec(step.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the user queries
 	_mock.ExpectExec(user.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(user.CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -271,12 +276,6 @@ func createTables(c *client) error {
 	err = c.Postgres.Exec(ddl.CreateServiceTable).Error
 	if err != nil {
 		return fmt.Errorf("unable to create %s table: %w", constants.TableService, err)
-	}
-
-	// create the steps table
-	err = c.Postgres.Exec(ddl.CreateStepTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
 	}
 
 	return nil
@@ -377,6 +376,18 @@ func createServices(c *client) error {
 		secret.WithEncryptionKey(c.config.EncryptionKey),
 		secret.WithLogger(c.Logger),
 		secret.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic step service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/repo#New
+	c.StepService, err = step.New(
+		step.WithClient(c.Postgres),
+		step.WithLogger(c.Logger),
+		step.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
