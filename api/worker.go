@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-vela/server/internal/token"
@@ -72,6 +73,17 @@ func CreateWorker(c *gin.Context) {
 
 		return
 	}
+
+	// verify input host name matches worker hostname
+	if !strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType) && !strings.EqualFold(cl.Subject, input.GetHostname()) {
+		retErr := fmt.Errorf("unable to add worker; claims subject %s does not match worker hostname %s", cl.Subject, input.GetHostname())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	input.SetLastCheckedIn(time.Now().Unix())
 
 	// update engine logger with API metadata
 	//
@@ -419,6 +431,20 @@ func RefreshWorkerAuth(c *gin.Context) {
 	// capture middleware values
 	w := worker.Retrieve(c)
 	cl := claims.Retrieve(c)
+
+	// if we are not using a symmetric token, and the subject does not match the input, request should be denied
+	if !strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType) && !strings.EqualFold(cl.Subject, w.GetHostname()) {
+		retErr := fmt.Errorf("unable to refresh worker auth: claims subject %s does not match worker hostname %s", cl.Subject, w.GetHostname())
+
+		logrus.WithFields(logrus.Fields{
+			"subject": cl.Subject,
+			"worker":  w.GetHostname(),
+		}).Warnf("attempted refresh of worker %s using token from worker %s", w.GetHostname(), cl.Subject)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
 
 	// set last checked in time
 	w.SetLastCheckedIn(time.Now().Unix())

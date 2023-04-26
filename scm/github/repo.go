@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v50/github"
+	"github.com/google/go-github/v52/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -151,7 +151,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string, error) {
+func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*library.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -200,7 +200,8 @@ func (c *client) Enable(u *library.User, r *library.Repo) (*library.Hook, string
 	webhook.SetSourceID(r.GetName() + "-" + eventInitialize)
 	webhook.SetCreated(hookInfo.GetCreatedAt().Unix())
 	webhook.SetEvent(eventInitialize)
-	webhook.SetNumber(1)
+	webhook.SetNumber(h.GetNumber() + 1)
+	webhook.SetStatus(constants.StatusSuccess)
 
 	switch resp.StatusCode {
 	case http.StatusUnprocessableEntity:
@@ -471,6 +472,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 		Link:     gr.HTMLURL,
 		Clone:    gr.CloneURL,
 		Branch:   gr.DefaultBranch,
+		Topics:   &gr.Topics,
 		Private:  gr.Private,
 	}
 }

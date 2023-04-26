@@ -134,6 +134,11 @@ var (
 //   type: boolean
 //   default: false
 // - in: query
+//   name: queued_build_count
+//   description: Indicates a request for queued build count
+//   type: boolean
+//   default: false
+// - in: query
 //   name: failure_build_count
 //   description: Indicates a request for failure build count
 //   type: boolean
@@ -332,7 +337,7 @@ func recordGauges(c *gin.Context) {
 	// step_image_count
 	if q.StepImageCount {
 		// send API call to capture the total number of step images
-		stepImageMap, err := database.FromContext(c).GetStepImageCount()
+		stepImageMap, err := database.FromContext(c).ListStepImageCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all step images: %v", err)
 		}
@@ -345,7 +350,7 @@ func recordGauges(c *gin.Context) {
 	// step_status_count
 	if q.StepStatusCount {
 		// send API call to capture the total number of step statuses
-		stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
+		stepStatusMap, err := database.FromContext(c).ListStepStatusCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all step statuses: %v", err)
 		}

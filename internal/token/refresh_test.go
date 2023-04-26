@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 )
 
 func TestTokenManager_Refresh(t *testing.T) {

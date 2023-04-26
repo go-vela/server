@@ -98,7 +98,7 @@ type Service interface {
 	Disable(*library.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(*library.User, *library.Repo) (*library.Hook, string, error)
+	Enable(*library.User, *library.Repo, *library.Hook) (*library.Hook, string, error)
 	// Update defines a function that updates
 	// a webhook for a specified repo.
 	Update(*library.User, *library.Repo, int64) error

@@ -38,6 +38,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetTopics([]string{})
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -48,6 +49,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetTopics([]string{})
 
 	_user := new(library.User)
 	_user.SetID(1)
@@ -65,9 +67,9 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 
 	// create expected name query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil).
-		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil).
+		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil)
 
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE user_id = $1 ORDER BY name LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
@@ -80,9 +82,9 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 
 	// create expected latest query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil).
-		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil).
+		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, "yaml", nil)
 
 	// ensure the mock expects the latest query
 	_mock.ExpectQuery(`SELECT repos.* FROM "repos" LEFT JOIN (SELECT repos.id, MAX(builds.created) AS latest_build FROM "builds" INNER JOIN repos repos ON builds.repo_id = repos.id WHERE repos.user_id = $1 GROUP BY "repos"."id") t on repos.id = t.id ORDER BY latest_build DESC NULLS LAST LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
