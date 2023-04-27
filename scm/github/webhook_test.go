@@ -66,6 +66,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics([]string{"go", "vela"})
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("push")
@@ -144,6 +145,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics([]string{"go", "vela"})
 
 	wantBuild := new(library.Build)
 	wantBuild.SetEvent("push")
