@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/go-vela/server/api/types"
-
 	"github.com/go-vela/types/library"
 )
 
@@ -115,6 +114,16 @@ func TestTypes_Schedule_Validate(t *testing.T) {
 			name:     "schedule with valid fields",
 			failure:  false,
 			schedule: testSchedule(),
+		},
+		{
+			name:    "schedule with invalid entry",
+			failure: true,
+			schedule: &Schedule{
+				ID:     sql.NullInt64{Int64: 1, Valid: true},
+				RepoID: sql.NullInt64{Int64: 1, Valid: true},
+				Name:   sql.NullString{String: "invalid", Valid: false},
+				Entry:  sql.NullString{String: "!@#$%^&*()", Valid: false},
+			},
 		},
 		{
 			name:    "schedule with missing entry",
