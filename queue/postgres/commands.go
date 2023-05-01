@@ -43,18 +43,18 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	qb := new(QueueBuild)
 
 	tx := func(_db *gorm.DB) error {
-		c.Logger.Trace("tx: trying postgres queue transaction lock")
+		c.Logger.Trace("trying postgres queue transaction lock")
 
 		// this ID is arbitrary but shared among distributed servers
 		lockID := 123
 		err := c.TryTransactionLock(lockID, c.Postgres)
 		if err != nil {
-			c.Logger.Infof("tx: unable to obtain queue database lock %d", lockID)
+			c.Logger.Infof("unable to obtain queue database lock %d", lockID)
 
 			return err
 		}
 
-		c.Logger.Trace("tx: getting row from the postgres queue")
+		c.Logger.Trace("getting row from the postgres queue")
 
 		// send query to the database and store result in variable
 		err = c.Postgres.
@@ -66,7 +66,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 			return err
 		}
 
-		c.Logger.Trace("tx: removing row from the postgres queue")
+		c.Logger.Trace("removing row from the postgres queue")
 
 		// send query to the database and store result in variable
 		err = c.Postgres.
@@ -77,11 +77,11 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 			return err
 		}
 
-		c.Logger.Trace("tx: build popped, completing transaction")
+		c.Logger.Trace("build popped, completing transaction")
 		return nil
 	}
 
-	c.Logger.Trace("commiting transaction")
+	c.Logger.Trace("executing postgres queue pop transaction")
 
 	// attempt to execute and commit the transaction
 	err := c.Transaction(tx)
@@ -89,7 +89,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 		logrus.Errorf("unable to complete build queue transaction: %s", err)
 	}
 
-	c.Logger.Tracef("parsing row from postgres queue into executable item")
+	c.Logger.Tracef("parsing row from postgres builds queue")
 
 	item := new(types.Item)
 
