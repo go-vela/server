@@ -16,6 +16,7 @@ import (
 // Currently, the following queues are supported:
 //
 // * redis
+// * postgres
 // .
 func New(s *Setup) (Service, error) {
 	// validate the setup being provided
@@ -34,6 +35,11 @@ func New(s *Setup) (Service, error) {
 		//
 		// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#Setup.Kafka
 		return s.Kafka()
+	case constants.DriverPostgres:
+		// handle the Postgres queue driver being provided
+		//
+		// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#Setup.Postgres
+		return s.Postgres()
 	case constants.DriverRedis:
 		// handle the Redis queue driver being provided
 		//

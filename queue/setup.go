@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/queue/postgres"
 	"github.com/go-vela/server/queue/redis"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
@@ -46,6 +47,22 @@ func (s *Setup) Redis() (Service, error) {
 		redis.WithCluster(s.Cluster),
 		redis.WithTimeout(s.Timeout),
 	)
+}
+
+// Postgres creates and returns a Vela service capable
+// of integrating with a postgres database queue.
+func (s *Setup) Postgres() (Service, error) {
+	logrus.Trace("creating postgres queue client from setup")
+
+	// create new Postgres queue service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/queue/postgres?tab=doc#New
+	return postgres.New(
+		postgres.WithAddress(s.Address),
+		postgres.WithChannels(s.Routes...),
+		postgres.WithTimeout(s.Timeout),
+	)
+
 }
 
 // Kafka creates and returns a Vela service capable
