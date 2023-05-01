@@ -10,20 +10,24 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
+	"github.com/robfig/cron/v3"
 )
 
 var (
-	// ErrEmptyScheduleEntry defines the error type when a
-	// Schedule type has an empty Entry field provided.
+	// ErrEmptyScheduleEntry defines the error type when a Schedule type has an empty Entry field provided.
 	ErrEmptyScheduleEntry = errors.New("empty schedule entry provided")
 
-	// ErrEmptyScheduleName defines the error type when a
-	// Schedule type has an empty Name field provided.
+	// ErrEmptyScheduleName defines the error type when a Schedule type has an empty Name field provided.
 	ErrEmptyScheduleName = errors.New("empty schedule name provided")
 
-	// ErrEmptyScheduleRepoID defines the error type when a
-	// Schedule type has an empty RepoID field provided.
+	// ErrEmptyScheduleRepoID defines the error type when a Schedule type has an empty RepoID field provided.
 	ErrEmptyScheduleRepoID = errors.New("empty schedule repo_id provided")
+
+	// ErrInvalidScheduleEntry defines the error type when a Schedule type has an invalid Entry field provided.
+	ErrInvalidScheduleEntry = errors.New("invalid schedule entry provided")
+
+	// scheduleParser defines the parser used for validating the Entry field for the Schedule type.
+	scheduleParser = cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 )
 
 // Schedule is the database representation of a schedule for a repo.
@@ -122,6 +126,11 @@ func (s *Schedule) Validate() error {
 	// verify the Entry field is populated
 	if len(s.Entry.String) <= 0 {
 		return ErrEmptyScheduleEntry
+	}
+
+	_, err := scheduleParser.Parse(s.Entry.String)
+	if err != nil {
+		return ErrInvalidScheduleEntry
 	}
 
 	// ensure that all Schedule string fields that can be returned as JSON are sanitized to avoid unsafe HTML content
