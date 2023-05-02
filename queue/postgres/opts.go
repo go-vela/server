@@ -46,13 +46,25 @@ func WithChannels(channels ...string) ClientOpt {
 	}
 }
 
-// WithTimeout sets the timeout in the queue client for postgres.
-func WithTimeout(timeout time.Duration) ClientOpt {
+// WithPopTransactionTimeout sets the pop transaction timeout in the queue client for postgres.
+func WithPopTransactionTimeout(timeout time.Duration) ClientOpt {
 	return func(c *client) error {
-		c.Logger.Trace("configuring timeout in postgres queue client")
+		c.Logger.Trace("configuring pop transaction timeout in postgres queue client")
 
-		// set the queue timeout in the postgres client
-		c.config.Timeout = timeout
+		// set the queue pop transaction timeout in the postgres client
+		c.config.PopTransactionTimeout = timeout
+
+		return nil
+	}
+}
+
+// WithPopTimeout sets the pop query timeout in the queue client for postgres.
+func WithPopTimeout(timeout time.Duration) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring pop timeout in postgres queue client")
+
+		// set the queue pop query timeout in the postgres client
+		c.config.PopTimeout = timeout
 
 		return nil
 	}

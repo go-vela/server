@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// todo: (vader) should this be a generic helper?
+
 // Ping sends a "ping" request with backoff to the database.
 func (c *client) Ping() error {
 	c.Logger.Trace("sending ping requests to the database")

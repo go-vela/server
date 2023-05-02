@@ -12,8 +12,17 @@ CREATE TABLE
 IF NOT EXISTS
 builds_queue (
 	id             	SERIAL PRIMARY KEY,
-	route        	VARCHAR(250),
+	channel        	VARCHAR(250),
 	payload         BYTEA
 );
+`
+
+	// CreateBuildsQueueChannelIndex represents a query to create an
+	// index on the builds_queue table for the channel column.
+	CreateBuildsQueueChannelIndex = `
+CREATE INDEX
+IF NOT EXISTS
+builds_queue_channel
+ON builds_queue (channel);
 `
 )

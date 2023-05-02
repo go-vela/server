@@ -30,7 +30,9 @@ type Setup struct {
 	// specifies a list of routes (channels/topics) for managing builds for the queue client
 	Routes []string
 	// specifies the timeout for pop requests for the queue client
-	Timeout time.Duration
+	PopTimeout time.Duration
+	// specifies the timeout for pop transactions for database queue clients
+	PopDBTransactionTimeout time.Duration
 }
 
 // Redis creates and returns a Vela service capable
@@ -45,7 +47,7 @@ func (s *Setup) Redis() (Service, error) {
 		redis.WithAddress(s.Address),
 		redis.WithChannels(s.Routes...),
 		redis.WithCluster(s.Cluster),
-		redis.WithTimeout(s.Timeout),
+		redis.WithTimeout(s.PopTimeout),
 	)
 }
 
@@ -60,9 +62,9 @@ func (s *Setup) Postgres() (Service, error) {
 	return postgres.New(
 		postgres.WithAddress(s.Address),
 		postgres.WithChannels(s.Routes...),
-		postgres.WithTimeout(s.Timeout),
+		postgres.WithPopTimeout(s.PopTimeout),
+		postgres.WithPopTransactionTimeout(s.PopDBTransactionTimeout),
 	)
-
 }
 
 // Kafka creates and returns a Vela service capable
@@ -102,6 +104,8 @@ func (s *Setup) Validate() error {
 	if len(s.Routes) == 0 {
 		return fmt.Errorf("no queue routes provided")
 	}
+
+	// todo: (vader) if postgres, check that transaction timeout is > pop timeout
 
 	// setup is valid
 	return nil

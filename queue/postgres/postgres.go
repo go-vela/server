@@ -14,13 +14,16 @@ import (
 	"gorm.io/gorm"
 )
 
+// todo: (vader) confirm everything in config is used and necessary
 type config struct {
 	// specifies the address to use for the Postgres client
 	Address string
 	// specifies a list of channels for managing builds for the Postgres client
 	Channels []string
-	// specifies the timeout to use for the Postgres client
-	Timeout time.Duration
+	// specifies the timeout to use for "pop query transactions" executed by the Postgres client
+	PopTransactionTimeout time.Duration
+	// specifies the timeout to use for "pop query" executed by the Postgres client
+	PopTimeout time.Duration
 	// specifies the level of compression to use for the Postgres client
 	CompressionLevel int
 	// specifies the connection duration to use for the Postgres client
@@ -29,8 +32,6 @@ type config struct {
 	ConnectionIdle int
 	// specifies the maximum open connections for the Postgres client
 	ConnectionOpen int
-	// specifies the encryption key to use for the Postgres client
-	EncryptionKey string
 	// specifies to skip creating tables and indexes for the Postgres client
 	SkipCreation bool
 }
@@ -90,11 +91,11 @@ func New(opts ...ClientOpt) (*client, error) {
 		return nil, err
 	}
 
-	// // create the services for the database
-	// err = createServices(c)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	// create the indexes for the database
+	err = createIndexes(c)
+	if err != nil {
+		return nil, err
+	}
 
 	return c, nil
 }
@@ -144,11 +145,11 @@ func setupDatabase(c *client) error {
 		return err
 	}
 
-	// // create the indexes in the database
-	// err = createIndexes(c)
-	// if err != nil {
-	// 	return err
-	// }
+	// create the indexes in the database
+	err = createIndexes(c)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -163,6 +164,20 @@ func createTables(c *client) error {
 	if err != nil {
 		// todo: constants
 		return fmt.Errorf("unable to create %s table: %w", BuildsQueueTable, err)
+	}
+
+	return nil
+}
+
+// createIndexes is a helper function to setup
+// the database with the necessary indexes.
+func createIndexes(c *client) error {
+	c.Logger.Trace("creating data indexes in the postgres queue database")
+
+	// create the builds_queue_channels index for the builds table
+	err := c.Postgres.Exec(ddl.CreateBuildsQueueChannelIndex).Error
+	if err != nil {
+		return fmt.Errorf("unable to create builds_queue_channel index for the %s table: %w", BuildsQueueTable, err)
 	}
 
 	return nil
