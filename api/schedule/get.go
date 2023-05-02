@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package schedules
+package schedule
 
 import (
 	"github.com/go-vela/server/router/middleware/org"

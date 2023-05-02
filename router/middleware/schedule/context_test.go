@@ -5,14 +5,16 @@
 package schedule
 
 import (
+	"github.com/go-vela/server/api/types"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 )
 
-func TestSchedule_FromContext(t *testing.T) {
+func TestRepo_FromContext(t *testing.T) {
 	// setup types
-	want := "foo"
+	num := int64(1)
+	want := &types.Schedule{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -27,7 +29,7 @@ func TestSchedule_FromContext(t *testing.T) {
 	}
 }
 
-func TestSchedule_FromContext_Bad(t *testing.T) {
+func TestRepo_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -36,12 +38,12 @@ func TestSchedule_FromContext_Bad(t *testing.T) {
 	// run test
 	got := FromContext(context)
 
-	if got != "" {
+	if got != nil {
 		t.Errorf("FromContext is %v, want nil", got)
 	}
 }
 
-func TestSchedule_FromContext_WrongType(t *testing.T) {
+func TestRepo_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -50,12 +52,12 @@ func TestSchedule_FromContext_WrongType(t *testing.T) {
 	// run test
 	got := FromContext(context)
 
-	if got != "" {
+	if got != nil {
 		t.Errorf("FromContext is %v, want nil", got)
 	}
 }
 
-func TestSchedule_FromContext_Empty(t *testing.T) {
+func TestRepo_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -63,14 +65,15 @@ func TestSchedule_FromContext_Empty(t *testing.T) {
 	// run test
 	got := FromContext(context)
 
-	if got != "" {
+	if got != nil {
 		t.Errorf("FromContext is %v, want nil", got)
 	}
 }
 
-func TestSchedule_ToContext(t *testing.T) {
+func TestRepo_ToContext(t *testing.T) {
 	// setup types
-	want := "foo"
+	num := int64(1)
+	want := &types.Schedule{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

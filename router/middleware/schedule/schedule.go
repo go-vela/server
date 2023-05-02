@@ -7,6 +7,10 @@ package schedule
 import (
 	"fmt"
 	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
+	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,9 +22,12 @@ func Retrieve(c *gin.Context) *types.Schedule {
 	return FromContext(c)
 }
 
-// Establish used to check if schedule param is used only.
+// Establish sets the schedule in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		r := repo.Retrieve(c)
+		u := user.Retrieve(c)
+
 		sParam := util.PathParameter(c, "schedule")
 		if len(sParam) == 0 {
 			retErr := fmt.Errorf("no schedule parameter provided")
@@ -29,8 +36,24 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		ToContext(c, sParam)
+		// update engine logger with API metadata
+		//
+		// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+		logrus.WithFields(logrus.Fields{
+			"org":  r.GetOrg(),
+			"repo": r.GetName(),
+			"user": u.GetName(),
+		}).Debugf("reading schedule %s for repo %s", sParam, r.GetFullName())
 
+		s, err := database.FromContext(c).GetScheduleForRepo(r, sParam)
+		if err != nil {
+			retErr := fmt.Errorf("unable to read schedule %s for repo %s: %w", sParam, r.GetFullName(), err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		ToContext(c, s)
 		c.Next()
 	}
 }

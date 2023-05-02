@@ -5,6 +5,7 @@
 package util
 
 import (
+	"github.com/go-vela/types/library"
 	"html"
 	"strings"
 
@@ -69,4 +70,31 @@ func EscapeValue(value string) string {
 
 	// HTML escape the new line escaped value
 	return html.EscapeString(escaped)
+}
+
+// CheckAllowlist is a helper function to ensure only repos in the
+// allowlist are specified.
+//
+// a single entry of '*' allows any repo to be enabled.
+func CheckAllowlist(r *library.Repo, allowlist []string) bool {
+	// check if all repos are allowed to be enabled
+	if len(allowlist) == 1 && allowlist[0] == "*" {
+		return true
+	}
+
+	for _, repo := range allowlist {
+		// allow all repos in org
+		if strings.Contains(repo, "/*") {
+			if strings.HasPrefix(repo, r.GetOrg()) {
+				return true
+			}
+		}
+
+		// allow specific repo within org
+		if repo == r.GetFullName() {
+			return true
+		}
+	}
+
+	return false
 }

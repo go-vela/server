@@ -33,6 +33,6 @@ func FromContext(c context.Context) *types.Schedule {
 
 // ToContext adds the Schedule to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, s string) {
+func ToContext(c Setter, s *types.Schedule) {
 	c.Set(key, s)
 }
