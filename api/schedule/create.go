@@ -24,6 +24,16 @@ import (
 // produces:
 // - application/json
 // parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
 // - in: body
 //   name: body
 //   description: Payload containing the schedule to create

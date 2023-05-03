@@ -27,6 +27,16 @@ import (
 // security:
 //   - ApiKeyAuth: []
 // parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
 // - in: query
 //   name: page
 //   description: The page of results to retrieve

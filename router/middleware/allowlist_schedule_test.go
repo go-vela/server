@@ -26,7 +26,7 @@ func TestMiddleware_AllowlistSchedule(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Allowlist(want))
+	engine.Use(AllowlistSchedule(want))
 	engine.GET("/health", func(c *gin.Context) {
 		got = c.Value("allowlistschedule").([]string)
 
