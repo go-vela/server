@@ -66,12 +66,7 @@ func CreateSchedule(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	r := repo.Retrieve(c)
-	// TODO: add this to the server code
-	allowlist := c.Value("scheduleAllowlist").([]string)
-	// defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
-	// defaultTimeout := c.Value("defaultTimeout").(int64)
-	// maxBuildLimit := c.Value("maxBuildLimit").(int64)
-	// defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	allowlist := c.Value("allowlistschedule").([]string)
 
 	// capture body from API request
 	input := new(types.Schedule)
