@@ -103,6 +103,11 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
+	// ensure schedule name is defined
+	if input.GetName() == "" {
+		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("schedule name must be set"))
+	}
+
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
@@ -123,8 +128,11 @@ func CreateSchedule(c *gin.Context) {
 
 	s := new(types.Schedule)
 
-	// update fields in repo object
-	r.SetUserID(u.GetID())
+	// update fields in schedule object
+	s.SetCreatedBy(u.GetName())
+	s.SetRepo(r)
+	s.SetName(input.GetName())
+	s.SetEntry(input.GetEntry())
 
 	// set the active field based off the input provided
 	if input.Active == nil {
@@ -172,7 +180,7 @@ func CreateSchedule(c *gin.Context) {
 		// send API call to capture the updated repo
 		s, _ = database.FromContext(c).GetScheduleForRepo(r, dbSchedule.GetName())
 	} else {
-		// send API call to create the repo
+		// send API call to create the schedule
 		err = database.FromContext(c).CreateSchedule(s)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new schedule %s: %w", r.GetName(), err)

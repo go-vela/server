@@ -115,6 +115,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		//     * Log endpoints
 		RepoHandlers(baseAPI)
 
+		// Schedule endpoints
+		ScheduleHandler(baseAPI)
+
 		// Source code management endpoints
 		ScmHandlers(baseAPI)
 
@@ -132,6 +135,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// Pipeline endpoints
 		PipelineHandlers(baseAPI)
+
 	} // end of api
 
 	return r
