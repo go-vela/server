@@ -34,7 +34,7 @@ release/
 *.xml
 
 # VSCode project folder
-.vscode
+.vscode/
 
 # VSCode project files
 __debug_bin
