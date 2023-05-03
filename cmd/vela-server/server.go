@@ -103,6 +103,7 @@ func server(c *cli.Context) error {
 		middleware.Worker(c.Duration("worker-active-interval")),
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
+		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

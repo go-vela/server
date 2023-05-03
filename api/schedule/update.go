@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/repo"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -71,6 +72,7 @@ func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
 	scheduleName := util.PathParameter(c, "schedule")
+	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
 	// update engine logger with API metadata
 	//
@@ -115,6 +117,15 @@ func UpdateSchedule(c *gin.Context) {
 	}
 
 	if input.GetEntry() != "" {
+		err = validateEntry(minimumFrequency, input.GetEntry())
+		if err != nil {
+			retErr := fmt.Errorf("schedule of %s is invalid: %w", input.GetName(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
 		// update entry if defined
 		s.SetEntry(input.GetEntry())
 	}

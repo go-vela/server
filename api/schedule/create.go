@@ -6,6 +6,7 @@ package schedule
 
 import (
 	"fmt"
+	"github.com/adhocore/gronx"
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 // swagger:operation POST /api/v1/schedules/{org}/{repo} schedules CreateSchedule
@@ -77,6 +79,7 @@ func CreateSchedule(c *gin.Context) {
 	u := user.Retrieve(c)
 	r := repo.Retrieve(c)
 	allowlist := c.Value("allowlistschedule").([]string)
+	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
 	// capture body from API request
 	input := new(types.Schedule)
@@ -90,7 +93,15 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	// TODO: add code to validate the input.Entry matches what we allow
+	// ensure the entry is valid
+	err = validateEntry(minimumFrequency, input.GetEntry())
+	if err != nil {
+		retErr := fmt.Errorf("schedule of %s is invalid: %w", input.GetName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
 
 	// update engine logger with API metadata
 	//
@@ -133,10 +144,8 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the repo from the database
-	dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
-	if err == nil && !dbRepo.GetActive() {
-		retErr := fmt.Errorf("unable to create schedule: %s repo %s is disabled", input.GetName(), dbRepo.GetFullName())
+	if !r.GetActive() {
+		retErr := fmt.Errorf("unable to create schedule: %s repo %s is disabled", input.GetName(), r.GetFullName())
 
 		util.HandleError(c, http.StatusConflict, retErr)
 
@@ -144,7 +153,7 @@ func CreateSchedule(c *gin.Context) {
 	}
 
 	// if the repo exists but is inactive
-	if len(dbRepo.GetOrg()) > 0 && !dbSchedule.GetActive() && input.GetActive() {
+	if len(r.GetOrg()) > 0 && !dbSchedule.GetActive() && input.GetActive() {
 		// update the repo owner
 		dbSchedule.SetCreatedBy(u.GetName())
 		// activate the schedule
@@ -178,4 +187,34 @@ func CreateSchedule(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, s)
+}
+
+// validateEntry validates the entry for a minimum frequency
+func validateEntry(minimum time.Duration, entry string) error {
+	gron := gronx.New()
+
+	// check if expr is even valid
+	valid := gron.IsValid(entry)
+	if !valid {
+		return fmt.Errorf("invalid entry of %s", entry)
+	}
+
+	// check the previous occurrence of the entry
+	prevTime, err := gronx.PrevTick(entry, true)
+	if err != nil {
+		return err
+	}
+
+	// check the next occurrence of the entry
+	nextTime, err := gronx.NextTick(entry, true)
+	if err != nil {
+		return err
+	}
+
+	// ensure the time between previous and next schedule exceeds the minimum duration
+	if nextTime.Sub(prevTime) < minimum {
+		return fmt.Errorf("entry needs to occur less frequently then every %s", minimum)
+	}
+
+	return nil
 }
