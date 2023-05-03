@@ -27,6 +27,10 @@ release/
 # IntelliJ project folder
 .idea/
 
+# VSCode project files
+.vscode
+__debug_bin
+
 # IntelliJ project files
 *.iml
 *.ipr
