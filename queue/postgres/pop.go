@@ -65,14 +65,18 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 		return nil
 	}
 
-	c.Logger.Trace("executing postgres queue pop transaction")
+	c.Logger.Tracef("executing postgres queue pop transaction with timeout: %d", c.config.PopTimeout)
 
-	retries := 3
+	// avoid ghosting
 	var err error
-	// backoff is timeout / retries
-	// var backoff time.Duration = c.config.PopTimeout / time.Duration(retries)
-	var backoff time.Duration = 3
-	for retry := 0; retry <= retries; retry++ {
+	// time inbetween retries, which incrementally increases
+	var backoff time.Duration = 3 * time.Second
+	// elapsed time spent retrying
+	var elapsed time.Duration = 0
+	// for tracking purposes
+	try := 0
+	for {
+		try++
 
 		// use a transaction timeout for safety
 		timeoutCtx, cancel := context.WithTimeout(ctx, c.config.PopTransactionTimeout*time.Second)
@@ -80,23 +84,32 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 
 		// attempt to execute and commit the transaction
 		err = c.Transaction(timeoutCtx, transaction)
-		if err != nil {
-			// 'ignore' record not found, and try again until the pop query timeout is met
-			if errors.Is(err, gorm.ErrRecordNotFound) && retry != retries {
-				time.Sleep(backoff * time.Second)
-				backoff *= 2
-				continue
-			}
-
-			logrus.Errorf("error completing build queue transaction retry %d: %s", retry, err)
+		// 'ignore' record not found errors, and try again until the pop query timeout is met
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorf("error completing build queue transaction for try (%d): %s", try, err)
 		}
 
-		// build popped
-		if len(qb.Item) > 0 {
+		// build was popped
+		if err == nil && len(qb.Item) > 0 {
+			c.Logger.Tracef("popped build ID: %d", qb.ID.Int64)
 			break
 		}
+
+		// check for timeout deadline reached
+		if elapsed >= c.config.PopTimeout {
+			c.Logger.Trace("build pop timeout reached, no build to process")
+			break
+		}
+
+		// incremental backoff and retry
+		time.Sleep(backoff * time.Second)
+		elapsed += backoff
+		backoff *= 2
+
+		c.Logger.Trace("retrying build pop...")
 	}
 
+	// check the error returned by the final loop iteration
 	if err != nil {
 		// ignore not found errors which indicate the worker has no builds to execute
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -104,8 +117,8 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 			return nil, nil
 		}
 
-		// return any actual errors
-		logrus.Errorf("unable to complete build queue transaction after %d retries: %s", retries, err)
+		// return an actual error if encountered in the last loop iteration
+		logrus.Errorf("unable to complete build queue transaction after %d retries: %s", try, err)
 		return nil, err
 	}
 
