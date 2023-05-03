@@ -133,6 +133,9 @@ func CreateSchedule(c *gin.Context) {
 	s.SetRepo(r)
 	s.SetName(input.GetName())
 	s.SetEntry(input.GetEntry())
+	s.SetCreatedAt(time.Now().UTC().Unix())
+	s.SetUpdatedAt(time.Now().UTC().Unix())
+	s.SetUpdatedBy(u.GetName())
 
 	// set the active field based off the input provided
 	if input.Active == nil {
@@ -191,7 +194,7 @@ func CreateSchedule(c *gin.Context) {
 		}
 
 		// send API call to capture the created repo
-		s, _ = database.FromContext(c).GetScheduleForRepo(r, dbSchedule.GetName())
+		s, _ = database.FromContext(c).GetScheduleForRepo(r, input.GetName())
 	}
 
 	c.JSON(http.StatusCreated, s)
