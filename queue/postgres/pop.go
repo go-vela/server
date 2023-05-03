@@ -21,6 +21,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	// variable to store query results
 	qb := new(QueueBuild)
 
+	// create the transaction to combine SELECT and DELETE for concurrency
 	transaction := func(_db *gorm.DB) error {
 		c.Logger.Trace("trying postgres queue transaction lock")
 
@@ -34,34 +35,22 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 
 		c.Logger.Trace("getting row from the postgres queue")
 
-		// todo: pop query timeout manually, to retry the query with a backoff
-		retries := 3
+		// send query to the database and store result in variable
 
-		var backoff time.Duration = 1
-
-		for retry := 0; retry <= retries; retry++ {
-			// send query to the database and store result in variable
-			err = c.Postgres.
-				Table(BuildsQueueTable).
-				Where("channel IN ?", c.config.Channels).
-				First(qb).
-				Error
-
-			// 'ignore' record not found, and try again until the pop query timeout is met
-			if errors.Is(err, gorm.ErrRecordNotFound) && retry != retries {
-				time.Sleep(backoff * time.Second)
-				backoff *= 2
-			} else {
-				// actual error occurred
-				break
-			}
-		}
+		// todo: (vader) make sure this is performant for a full queue
+		err = c.Postgres.
+			Table(BuildsQueueTable).
+			Where("channel IN ?", c.config.Channels).
+			First(qb). // todo: (vader) maybe order by something like... queued_at?
+			Error
 
 		if err != nil {
 			return err
 		}
 
 		c.Logger.Trace("removing row from the postgres queue")
+
+		// todo: (vader) does this many deletions cause bloat that needs to be vacuumed?
 
 		// send query to the database and store result in variable
 		err = c.Postgres.
@@ -78,13 +67,46 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 
 	c.Logger.Trace("executing postgres queue pop transaction")
 
-	timeoutCtx, cancel := context.WithTimeout(ctx, c.config.PopTransactionTimeout*time.Second)
-	defer cancel()
+	retries := 3
+	var err error
+	// backoff is timeout / retries
+	// var backoff time.Duration = c.config.PopTimeout / time.Duration(retries)
+	var backoff time.Duration = 3
+	for retry := 0; retry <= retries; retry++ {
 
-	// attempt to execute and commit the transaction
-	err := c.Transaction(timeoutCtx, transaction)
+		// use a transaction timeout for safety
+		timeoutCtx, cancel := context.WithTimeout(ctx, c.config.PopTransactionTimeout*time.Second)
+		defer cancel()
+
+		// attempt to execute and commit the transaction
+		err = c.Transaction(timeoutCtx, transaction)
+		if err != nil {
+			// 'ignore' record not found, and try again until the pop query timeout is met
+			if errors.Is(err, gorm.ErrRecordNotFound) && retry != retries {
+				time.Sleep(backoff * time.Second)
+				backoff *= 2
+				continue
+			}
+
+			logrus.Errorf("error completing build queue transaction retry %d: %s", retry, err)
+		}
+
+		// build popped
+		if len(qb.Item) > 0 {
+			break
+		}
+	}
+
 	if err != nil {
-		logrus.Errorf("unable to complete build queue transaction: %s", err)
+		// ignore not found errors which indicate the worker has no builds to execute
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Trace("no build to pop from the queue")
+			return nil, nil
+		}
+
+		// return any actual errors
+		logrus.Errorf("unable to complete build queue transaction after %d retries: %s", retries, err)
+		return nil, err
 	}
 
 	c.Logger.Tracef("parsing row from postgres builds queue")

@@ -13,7 +13,7 @@ IF NOT EXISTS
 builds_queue (
 	id             	SERIAL PRIMARY KEY,
 	channel        	VARCHAR(250),
-	payload         BYTEA
+	item            BYTEA
 );
 `
 

@@ -23,6 +23,7 @@ func (c *client) TryTransactionLock(txID int, tx *gorm.DB) error {
 		db = tx
 	}
 
+	// todo: (vader) if worker A grabs the lock, then something goes wrong, does it unlock? does it remain locked?
 	err := db.Exec("SELECT PG_TRY_ADVISORY_XACT_LOCK(?);", txID).Error
 	if err != nil {
 		return err

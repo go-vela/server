@@ -50,4 +50,12 @@ var Flags = []cli.Flag{
 		Usage:    "timeout for requests that pop items off the queue",
 		Value:    60 * time.Second,
 	},
+	&cli.DurationFlag{
+		EnvVars:  []string{"VELA_QUEUE_POP_DB_TRANSACTION_TIMEOUT", "QUEUE_POP_DB_TRANSACTION_TIMEOUT"},
+		FilePath: "/vela/queue/pop_db_transaction_timeout",
+		Name:     "queue.pop.db.transaction.timeout",
+		Usage:    "database driver transaction timeout for requests that pop items off the queue",
+		// todo: (vader) validate this default value makes sense with retries and pop query timeouts
+		Value: 60 * time.Second,
+	},
 }
