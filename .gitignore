@@ -27,15 +27,17 @@ release/
 # IntelliJ project folder
 .idea/
 
-# VSCode project files
-.vscode
-__debug_bin
-
 # IntelliJ project files
 *.iml
 *.ipr
 *.iws
 *.xml
+
+# VSCode project folder
+.vscode
+
+# VSCode project files
+__debug_bin
 
 # Secrets environment file
 secrets.env
