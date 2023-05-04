@@ -6,6 +6,7 @@ package schedule
 
 import (
 	"context"
+
 	"github.com/go-vela/server/api/types"
 )
 

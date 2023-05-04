@@ -35,6 +35,5 @@ func ScheduleHandler(base *gin.RouterGroup) {
 			s.PUT("", perm.MustAdmin(), middleware.Payload(), schedule.UpdateSchedule)
 			s.DELETE("", perm.MustAdmin(), schedule.DeleteSchedule)
 		}
-
 	} // end of schedules endpoints
 }

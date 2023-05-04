@@ -72,8 +72,6 @@ import (
 
 // CreateSchedule represents the API handler to
 // create a schedule in the configured backend.
-//
-//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func CreateSchedule(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)

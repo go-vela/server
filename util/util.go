@@ -5,9 +5,10 @@
 package util
 
 import (
-	"github.com/go-vela/types/library"
 	"html"
 	"strings"
+
+	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
