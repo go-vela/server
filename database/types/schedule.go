@@ -8,9 +8,9 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/adhocore/gronx"
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
-	"github.com/robfig/cron/v3"
 )
 
 var (
@@ -25,9 +25,6 @@ var (
 
 	// ErrInvalidScheduleEntry defines the error type when a Schedule type has an invalid Entry field provided.
 	ErrInvalidScheduleEntry = errors.New("invalid schedule entry provided")
-
-	// scheduleParser defines the parser used for validating the Entry field for the Schedule type.
-	scheduleParser = cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 )
 
 // Schedule is the database representation of a schedule for a repo.
@@ -128,8 +125,8 @@ func (s *Schedule) Validate() error {
 		return ErrEmptyScheduleEntry
 	}
 
-	_, err := scheduleParser.Parse(s.Entry.String)
-	if err != nil {
+	gron := gronx.New()
+	if !gron.IsValid(s.Entry.String) {
 		return ErrInvalidScheduleEntry
 	}
 
