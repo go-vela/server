@@ -5,8 +5,9 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ScheduleFrequency is a middleware function that attaches the scheduleminimumfrequency used
