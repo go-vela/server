@@ -5,8 +5,9 @@
 package schedule
 
 import (
-	"github.com/go-vela/server/api/types"
 	"testing"
+
+	"github.com/go-vela/server/api/types"
 
 	"github.com/gin-gonic/gin"
 )

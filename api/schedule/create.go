@@ -198,7 +198,7 @@ func CreateSchedule(c *gin.Context) {
 	c.JSON(http.StatusCreated, s)
 }
 
-// validateEntry validates the entry for a minimum frequency
+// validateEntry validates the entry for a minimum frequency.
 func validateEntry(minimum time.Duration, entry string) error {
 	gron := gronx.New()
 
