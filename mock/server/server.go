@@ -122,6 +122,13 @@ func FakeHandler() http.Handler {
 	e.POST("/api/v1/workers/:worker/refresh", refreshWorkerAuth)
 	e.DELETE("/api/v1/workers/:worker", removeWorker)
 
+	// mock endpoints for schedule calls
+	e.GET("/api/v1/:org/:repo/schedules", getSchedules)
+	e.GET("/api/v1/:org/:repo/schedules/:schedule", getSchedules)
+	e.POST("/api/v1/:org/:repo/schedules/:schedule", addSchedule)
+	e.PUT("/api/v1/:org/:repo/schedules/:schedule", updateSchedule)
+	e.DELETE("/api/v1/:org/:repo/schedules/:schedule", removeSchedule)
+
 	// mock endpoints for authentication calls
 	e.GET("/token-refresh", getTokenRefresh)
 	e.GET("/authenticate", getAuthenticate)
