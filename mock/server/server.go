@@ -124,7 +124,7 @@ func FakeHandler() http.Handler {
 
 	// mock endpoints for schedule calls
 	e.GET("/api/v1/:org/:repo/schedules", getSchedules)
-	e.GET("/api/v1/:org/:repo/schedules/:schedule", getSchedules)
+	e.GET("/api/v1/:org/:repo/schedules/:schedule", getSchedule)
 	e.POST("/api/v1/:org/:repo/schedules/:schedule", addSchedule)
 	e.PUT("/api/v1/:org/:repo/schedules/:schedule", updateSchedule)
 	e.DELETE("/api/v1/:org/:repo/schedules/:schedule", removeSchedule)
