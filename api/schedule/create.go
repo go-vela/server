@@ -6,6 +6,9 @@ package schedule
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/adhocore/gronx"
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/types"
@@ -14,8 +17,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 // swagger:operation POST /api/v1/schedules/{org}/{repo} schedules CreateSchedule
