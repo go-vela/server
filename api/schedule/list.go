@@ -6,9 +6,10 @@ package schedule
 
 import (
 	"fmt"
-	"github.com/go-vela/server/router/middleware/repo"
 	"net/http"
 	"strconv"
+
+	"github.com/go-vela/server/router/middleware/repo"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
