@@ -10,7 +10,7 @@ import (
 
 	"github.com/buildkite/yaml"
 
-	"github.com/drone/envsubst/v2"
+	"github.com/drone/envsubst"
 
 	types "github.com/go-vela/types/yaml"
 )
