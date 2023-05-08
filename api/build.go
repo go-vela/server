@@ -1728,10 +1728,92 @@ func CancelBuild(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("canceling build %s", entry)
 
-	// TODO: add support for removing builds from the queue
-	//
-	// check to see if build is not running
-	if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
+	switch b.GetStatus() {
+	case constants.StatusRunning:
+		// retrieve the worker info
+		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		for _, executor := range e {
+			// check each executor on the worker running the build to see if it's running the build we want to cancel
+			if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+				// prepare the request to the worker
+				client := http.DefaultClient
+				client.Timeout = 30 * time.Second
+
+				// set the API endpoint path we send the request to
+				u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
+
+				req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
+				if err != nil {
+					retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				tm := c.MustGet("token-manager").(*token.Manager)
+
+				// set mint token options
+				mto := &token.MintTokenOpts{
+					Hostname:      "vela-server",
+					TokenType:     constants.WorkerAuthTokenType,
+					TokenDuration: time.Minute * 1,
+				}
+
+				// mint token
+				tkn, err := tm.MintToken(mto)
+				if err != nil {
+					retErr := fmt.Errorf("unable to generate auth token: %w", err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
+				// add the token to authenticate to the worker
+				req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+
+				// perform the request to the worker
+				resp, err := client.Do(req)
+				if err != nil {
+					retErr := fmt.Errorf("unable to connect to %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+				defer resp.Body.Close()
+
+				// Read Response Body
+				respBody, err := io.ReadAll(resp.Body)
+				if err != nil {
+					retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				err = json.Unmarshal(respBody, b)
+				if err != nil {
+					retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				c.JSON(resp.StatusCode, b)
+
+				return
+			}
+		}
+	case constants.StatusPending:
+		break
+
+	default:
 		retErr := fmt.Errorf("found build %s but its status was %s", entry, b.GetStatus())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -1739,92 +1821,11 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	// retrieve the worker info
-	w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	for _, executor := range e {
-		// check each executor on the worker running the build to see if it's running the build we want to cancel
-		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
-			// prepare the request to the worker
-			client := http.DefaultClient
-			client.Timeout = 30 * time.Second
-
-			// set the API endpoint path we send the request to
-			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
-
-			req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
-			if err != nil {
-				retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			tm := c.MustGet("token-manager").(*token.Manager)
-
-			// set mint token options
-			mto := &token.MintTokenOpts{
-				Hostname:      "vela-server",
-				TokenType:     constants.WorkerAuthTokenType,
-				TokenDuration: time.Minute * 1,
-			}
-
-			// mint token
-			tkn, err := tm.MintToken(mto)
-			if err != nil {
-				retErr := fmt.Errorf("unable to generate auth token: %w", err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
-			}
-
-			// add the token to authenticate to the worker
-			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
-
-			// perform the request to the worker
-			resp, err := client.Do(req)
-			if err != nil {
-				retErr := fmt.Errorf("unable to connect to %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-			defer resp.Body.Close()
-
-			// Read Response Body
-			respBody, err := io.ReadAll(resp.Body)
-			if err != nil {
-				retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			err = json.Unmarshal(respBody, b)
-			if err != nil {
-				retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			c.JSON(resp.StatusCode, b)
-
-			return
-		}
-	}
-
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
 
-	err = database.FromContext(c).UpdateBuild(b)
+	err := database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
