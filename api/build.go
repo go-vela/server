@@ -1980,10 +1980,10 @@ func GetBuildToken(c *gin.Context) {
 		"user":  cl.Subject,
 	}).Infof("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
 
-	// if build is not in a pending state, then a build token should not be needed - bad request
+	// if build is not in a pending state, then a build token should not be needed - conflict
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {
 		retErr := fmt.Errorf("unable to mint build token: build is not in pending state")
-		util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusConflict, retErr)
 
 		return
 	}
