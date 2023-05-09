@@ -1957,6 +1957,10 @@ func CancelBuild(c *gin.Context) {
 //     description: Bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '409':
+//     description: Conflict (requested build token for build not in pending state)
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to generate build token
 //     schema:
