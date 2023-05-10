@@ -1029,6 +1029,7 @@ func GetBuild(c *gin.Context) {
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
+	cl := claims.Retrieve(c)
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -1092,6 +1093,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
+	b.SetSender(cl.Subject)
 
 	// update the PR event action if action was never set
 	// for backwards compatibility with pre-0.14 releases.
