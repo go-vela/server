@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -49,6 +50,7 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		compiled.CompiledService
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
@@ -350,6 +352,19 @@ func createServices(c *client) error {
 		pipeline.WithCompressionLevel(c.config.CompressionLevel),
 		pipeline.WithLogger(c.Logger),
 		pipeline.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic pipeline service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
+	c.CompiledService, err = compiled.New(
+		compiled.WithClient(c.Postgres),
+		compiled.WithCompressionLevel(c.config.CompressionLevel),
+		compiled.WithLogger(c.Logger),
+		compiled.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

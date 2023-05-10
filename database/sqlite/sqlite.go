@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -48,6 +49,7 @@ type (
 		Sqlite *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		compiled.CompiledService
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService

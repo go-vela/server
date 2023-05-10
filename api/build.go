@@ -2018,3 +2018,65 @@ func GetBuildToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, library.Token{Token: &bt})
 }
+
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/compiled builds GetCompiledBuild
+//
+// Get a build in the configured backend
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: path
+//   name: org
+//   description: Name of the org
+//   required: true
+//   type: string
+// - in: path
+//   name: repo
+//   description: Name of the repo
+//   required: true
+//   type: string
+// - in: path
+//   name: build
+//   description: Build number to retrieve
+//   required: true
+//   type: integer
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully retrieved the build
+//     type: json
+//     schema:
+//       "$ref": "#/definitions/Build"
+
+// GetBuild represents the API handler to capture
+// a build for a repo from the configured backend.
+func GetCompiledBuild(c *gin.Context) {
+	// capture middleware values
+	b := build.Retrieve(c)
+	o := org.Retrieve(c)
+	r := repo.Retrieve(c)
+	u := user.Retrieve(c)
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   o,
+		"repo":  r.GetName(),
+		"user":  u.GetName(),
+	}).Infof("reading build %s/%d", r.GetFullName(), b.GetNumber())
+
+	compiled, err := database.FromContext(c).PopCompiled(b.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to pop compiled build: %w", err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, compiled)
+}

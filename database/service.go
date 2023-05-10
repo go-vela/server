@@ -5,6 +5,7 @@
 package database
 
 import (
+	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -75,6 +76,8 @@ type Service interface {
 	// DeleteBuild defines a function that
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
+
+	compiled.CompiledService
 
 	// HookService provides the interface for functionality
 	// related to hooks stored in the database.
