@@ -18,7 +18,7 @@ func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	var signed []byte
 	var out []byte
 
-	// check for this on startup
+	// this should already be validated on startup
 	if c.config.SigningPrivateKey == nil || len(*c.config.SigningPrivateKey) != 64 {
 		return errors.New("no valid signing private key provided")
 	}

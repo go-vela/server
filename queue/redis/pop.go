@@ -36,7 +36,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 		return nil, err
 	}
 
-	// check for this on startup
+	// this should already be validated on startup
 	if c.config.SigningPublicKey == nil || len(*c.config.SigningPublicKey) != 32 {
 		return nil, errors.New("no valid signing public key provided")
 	}
