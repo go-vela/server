@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -29,6 +30,8 @@ type MetricsQueryParameters struct {
 	RunningBuildCount bool `form:"running_build_count"`
 	// PendingBuildCount represents total number of builds with status==pending
 	PendingBuildCount bool `form:"pending_build_count"`
+	// QueuedBuildCount represents total number of builds currently in the queue
+	QueuedBuildCount bool `form:"queued_build_count"`
 	// FailureBuildCount represents total number of builds with status==failure
 	FailureBuildCount bool `form:"failure_build_count"`
 	// KilledBuildCount represents total number of builds with status==killed
@@ -115,6 +118,11 @@ var (
 // - in: query
 //   name: pending_build_count
 //   description: Indicates a request for pending build count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: queued_build_count
+//   description: Indicates a request for queued build count
 //   type: boolean
 //   default: false
 // - in: query
@@ -258,6 +266,17 @@ func recordGauges(c *gin.Context) {
 		totals.WithLabelValues("build", "status", "pending").Set(float64(bPen))
 	}
 
+	// queued_build_count
+	if q.QueuedBuildCount {
+		// send API call to capture the total number of queued builds
+		t, err := queue.FromContext(c).Length(c)
+		if err != nil {
+			logrus.Errorf("unable to get count of all queued builds: %v", err)
+		}
+
+		totals.WithLabelValues("build", "status", "queued").Set(float64(t))
+	}
+
 	// failure_build_count
 	if q.FailureBuildCount {
 		// send API call to capture the total number of failure builds
@@ -305,7 +324,7 @@ func recordGauges(c *gin.Context) {
 	// step_image_count
 	if q.StepImageCount {
 		// send API call to capture the total number of step images
-		stepImageMap, err := database.FromContext(c).GetStepImageCount()
+		stepImageMap, err := database.FromContext(c).ListStepImageCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all step images: %v", err)
 		}
@@ -318,7 +337,7 @@ func recordGauges(c *gin.Context) {
 	// step_status_count
 	if q.StepStatusCount {
 		// send API call to capture the total number of step statuses
-		stepStatusMap, err := database.FromContext(c).GetStepStatusCount()
+		stepStatusMap, err := database.FromContext(c).ListStepStatusCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all step statuses: %v", err)
 		}
@@ -365,7 +384,7 @@ func recordGauges(c *gin.Context) {
 	// worker_build_limit, active_worker_count, inactive_worker_count
 	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount {
 		// send API call to capture the workers
-		workers, err := database.FromContext(c).GetWorkerList()
+		workers, err := database.FromContext(c).ListWorkers()
 		if err != nil {
 			logrus.Errorf("unable to get workers: %v", err)
 		}

@@ -7,15 +7,15 @@ package api
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
+	"strconv"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 
 	"github.com/go-vela/types/library"
@@ -47,6 +47,17 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: query
+//   name: page
+//   description: The page of results to retrieve
+//   type: integer
+//   default: 1
+// - in: query
+//   name: per_page
+//   description: How many results per page to return
+//   type: integer
+//   maximum: 100
+//   default: 10
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -82,8 +93,30 @@ func GetBuildLogs(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("reading logs for build %s", entry)
 
+	// capture page query parameter if present
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		//nolint:lll // ignore long line length due to error message
+		retErr := fmt.Errorf("unable to convert page query parameter for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture per_page query parameter if present
+	perPage, err := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert per_page query parameter for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// ensure per_page isn't above or below allowed values
+	perPage = util.MaxInt(1, util.MinInt(100, perPage))
+
 	// send API call to capture the list of logs for the build
-	l, err := database.FromContext(c).GetBuildLogs(b.GetID())
+	l, t, err := database.FromContext(c).ListLogsForBuild(b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for build %s: %w", entry, err)
 
@@ -91,6 +124,15 @@ func GetBuildLogs(c *gin.Context) {
 
 		return
 	}
+
+	// create pagination object
+	pagination := Pagination{
+		Page:    page,
+		PerPage: perPage,
+		Total:   t,
+	}
+	// set pagination headers
+	pagination.SetHeaderLink(c)
 
 	c.JSON(http.StatusOK, l)
 }
@@ -200,7 +242,7 @@ func CreateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetServiceLog(s.GetID())
+	l, _ := database.FromContext(c).GetLogForService(s)
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -270,7 +312,7 @@ func GetServiceLog(c *gin.Context) {
 	}).Infof("reading logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetServiceLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 
@@ -358,7 +400,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}).Infof("updating logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetServiceLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 
@@ -396,7 +438,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetServiceLog(s.GetID())
+	l, _ = database.FromContext(c).GetLogForService(s)
 
 	c.JSON(http.StatusOK, l)
 }
@@ -444,8 +486,6 @@ func UpdateServiceLog(c *gin.Context) {
 
 // DeleteServiceLog represents the API handler to remove
 // the logs for a service from the configured backend.
-//
-//nolint:dupl // ignore similar code with step
 func DeleteServiceLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -467,8 +507,18 @@ func DeleteServiceLog(c *gin.Context) {
 		"user":    u.GetName(),
 	}).Infof("deleting logs for service %s", entry)
 
+	// send API call to capture the service logs
+	l, err := database.FromContext(c).GetLogForService(s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// send API call to remove the log
-	err := database.FromContext(c).DeleteLog(s.GetID())
+	err = database.FromContext(c).DeleteLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for service %s: %w", entry, err)
 
@@ -585,7 +635,7 @@ func CreateStepLog(c *gin.Context) {
 	}
 
 	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetStepLog(s.GetID())
+	l, _ := database.FromContext(c).GetLogForStep(s)
 
 	c.JSON(http.StatusCreated, l)
 }
@@ -656,7 +706,7 @@ func GetStepLog(c *gin.Context) {
 	}).Infof("reading logs for step %s", entry)
 
 	// send API call to capture the step logs
-	l, err := database.FromContext(c).GetStepLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
 
@@ -744,7 +794,7 @@ func UpdateStepLog(c *gin.Context) {
 	}).Infof("updating logs for step %s", entry)
 
 	// send API call to capture the step logs
-	l, err := database.FromContext(c).GetStepLog(s.GetID())
+	l, err := database.FromContext(c).GetLogForStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
 
@@ -782,7 +832,7 @@ func UpdateStepLog(c *gin.Context) {
 	}
 
 	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetStepLog(s.GetID())
+	l, _ = database.FromContext(c).GetLogForStep(s)
 
 	c.JSON(http.StatusOK, l)
 }
@@ -830,8 +880,6 @@ func UpdateStepLog(c *gin.Context) {
 
 // DeleteStepLog represents the API handler to remove
 // the logs for a step from the configured backend.
-//
-//nolint:dupl // ignore similar code with service
 func DeleteStepLog(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -853,8 +901,18 @@ func DeleteStepLog(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("deleting logs for step %s", entry)
 
+	// send API call to capture the step logs
+	l, err := database.FromContext(c).GetLogForStep(s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// send API call to remove the log
-	err := database.FromContext(c).DeleteLog(s.GetID())
+	err = database.FromContext(c).DeleteLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for step %s: %w", entry, err)
 

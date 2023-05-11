@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
 	"github.com/google/go-cmp/cmp"
@@ -144,7 +146,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData))
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
@@ -190,11 +192,40 @@ func TestNative_ExpandSteps(t *testing.T) {
 	set.String("github-token", "", "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	tmpls := map[string]*yaml.Template{
-		"gradle": {
-			Name:   "gradle",
-			Source: "github.example.com/foo/bar/template.yml",
-			Type:   "github",
+	testBuild := new(library.Build)
+
+	testBuild.SetID(1)
+	testBuild.SetCommit("123abc456def")
+
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "GitHub",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "github.example.com/foo/bar/template.yml",
+					Type:   "github",
+				},
+			},
+		},
+		{
+			name: "File",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "template.yml",
+					Type:   "file",
+				},
+			},
 		},
 	}
 
@@ -287,25 +318,31 @@ func TestNative_ExpandSteps(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, tmpls)
-	if err != nil {
-		t.Errorf("ExpandSteps returned err: %v", err)
-	}
+	compiler.WithBuild(testBuild).WithRepo(testRepo)
 
-	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData))
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
 
-	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+			if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+			if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(build.Services, wantServices); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
 	}
 }
 
@@ -349,6 +386,11 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Source: "github.example.com/bar/foo/maven.yml",
 			Type:   "github",
 		},
+		"npm": {
+			Name:   "npm",
+			Source: "github.example.com/foo/bar/gradle.yml",
+			Type:   "github",
+		},
 	}
 
 	steps := yaml.StepSlice{
@@ -371,6 +413,27 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
+				},
+			},
+			Ruleset: yaml.Ruleset{
+				If: yaml.Rules{
+					Branch: []string{"main"},
+				},
+			},
+		},
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "npm",
+				Variables: map[string]interface{}{
+					"image":       "openjdk:latest",
+					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
+					"pull_policy": "pull: true",
+				},
+			},
+			Ruleset: yaml.Ruleset{
+				If: yaml.Rules{
+					Branch: []string{"dev"},
 				},
 			},
 		},
@@ -521,7 +584,10 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	ruledata := new(pipeline.RuleData)
+	ruledata.Branch = "main"
+
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, ruledata)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -608,7 +674,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData))
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}

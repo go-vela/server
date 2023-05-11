@@ -9,7 +9,9 @@ import (
 	"strings"
 
 	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/pipeline"
 
+	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/spf13/afero"
@@ -21,7 +23,7 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
@@ -29,7 +31,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r)
 		if err != nil {
 			return nil, err
 		}
@@ -45,7 +47,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
@@ -72,6 +74,22 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		tmpl, ok := tmpls[step.Template.Name]
 		if !ok {
 			return s, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
+		}
+
+		// if ruledata is nil (CompileLite), continue with expansion
+		if r != nil {
+			// form a one-step pipeline to prep for purge check
+			check := &yaml.StepSlice{step}
+			pipeline := &pipeline.Build{
+				Steps: *check.ToPipeline(),
+			}
+
+			pipeline = pipeline.Purge(r)
+
+			// if step purged, do not proceed with expansion
+			if len(pipeline.Steps) == 0 {
+				continue
+			}
 		}
 
 		// Create some default global environment inject vars
@@ -203,6 +221,39 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"repo": src.Repo,
 				"path": src.Name,
 				"host": src.Host,
+			}).Tracef("Using authenticated GitHub client to pull template")
+
+			// use private (authenticated) github instance to pull from
+			bytes, err = c.PrivateGithub.Template(c.user, src)
+			if err != nil {
+				return bytes, err
+			}
+		}
+
+	case strings.EqualFold(tmpl.Type, "file"):
+		src := &registry.Source{
+			Org:  c.repo.GetOrg(),
+			Repo: c.repo.GetName(),
+			Name: tmpl.Source,
+			Ref:  c.build.GetCommit(),
+		}
+
+		if !c.UsePrivateGithub {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
+			}).Tracef("Using GitHub client to pull template")
+
+			bytes, err = c.Github.Template(nil, src)
+			if err != nil {
+				return bytes, err
+			}
+		} else {
+			logrus.WithFields(logrus.Fields{
+				"org":  src.Org,
+				"repo": src.Repo,
+				"path": src.Name,
 			}).Tracef("Using authenticated GitHub client to pull template")
 
 			// use private (authenticated) github instance to pull from

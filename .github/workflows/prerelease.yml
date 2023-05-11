@@ -20,7 +20,7 @@ jobs:
         fetch-depth: 0
 
     - name: install go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v4
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -40,7 +40,7 @@ jobs:
         make build-static-ci
 
     - name: publish
-      uses: elgohr/Publish-Docker-Github-Action@v4
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: target/vela-server
         cache: true
@@ -49,7 +49,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: publish-alpine
-      uses: elgohr/Publish-Docker-Github-Action@v4
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: target/vela-server
         cache: true

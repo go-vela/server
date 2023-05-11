@@ -15,6 +15,14 @@ import (
 func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	c.Logger.Tracef("pushing item to queue %s", channel)
 
+	// ensure the item to be pushed is valid
+	// go-redis RPush does not support nil as of v9.0.2
+	//
+	// https://github.com/redis/go-redis/pull/1960
+	if item == nil {
+		return errors.New("item is nil")
+	}
+
 	var signed []byte
 	var out []byte
 

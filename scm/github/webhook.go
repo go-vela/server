@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime"
 	"net/http"
 	"strconv"
 	"strings"
@@ -19,7 +20,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v44/github"
+	"github.com/google/go-github/v52/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -47,7 +48,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
 	}
 
-	payload, err := github.ValidatePayload(request, nil)
+	// get content type
+	contentType, _, err := mime.ParseMediaType(request.Header.Get("Content-Type"))
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := github.ValidatePayloadFromBody(contentType, request.Body, "", nil)
 	if err != nil {
 		return &types.Webhook{Hook: h}, nil
 	}
@@ -138,6 +145,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -234,6 +242,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -300,6 +309,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -401,6 +411,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -450,6 +461,8 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetActive(!repo.GetArchived())
+	r.SetTopics(repo.Topics)
 
 	// if action is renamed, then get the previous name from payload
 	if payload.GetAction() == "renamed" {

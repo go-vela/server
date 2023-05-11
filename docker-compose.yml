@@ -37,11 +37,13 @@ services:
       VELA_WEBUI_ADDR: 'http://localhost:8888'
       VELA_LOG_LEVEL: trace
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      VELA_REFRESH_TOKEN_DURATION: 90m
-      VELA_ACCESS_TOKEN_DURATION: 60m
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_QUEUE_SIGNING_PRIVATE_KEY: 'tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=='
+      VELA_REPO_ALLOWLIST: '*'
     env_file:
       - .env
     restart: always
@@ -65,7 +67,6 @@ services:
       - vela
     environment:
       EXECUTOR_DRIVER: linux
-      EXECUTOR_LOG_METHOD: 'time-chunks'
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       VELA_BUILD_LIMIT: 1
@@ -127,7 +128,7 @@ services:
   # https://www.postgresql.org/
   postgres:
     container_name: postgres
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     networks:
       - vela
     environment:

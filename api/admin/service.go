@@ -18,45 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/admin/services admin AdminAllServices
-//
-// Get all of the services in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all services from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Service"
-//   '500':
-//     description: Unable to retrieve all services from the database
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// AllServices represents the API handler to
-// captures all services stored in the database.
-func AllServices(c *gin.Context) {
-	logrus.Info("Admin: reading all services")
-
-	// send API call to capture all services
-	s, err := database.FromContext(c).GetServiceList()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all services: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, s)
-}
-
 // swagger:operation PUT /api/v1/admin/service admin AdminUpdateService
 //
 // Update a hook in the database

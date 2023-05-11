@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -25,7 +25,6 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/stream .
 func StepHandlers(base *gin.RouterGroup) {
 	// Steps endpoints
 	steps := base.Group("/steps")
@@ -37,10 +36,8 @@ func StepHandlers(base *gin.RouterGroup) {
 		step := steps.Group("/:step", step.Establish())
 		{
 			step.GET("", perm.MustRead(), api.GetStep)
-			step.PUT("", perm.MustPlatformAdmin(), middleware.Payload(), api.UpdateStep)
+			step.PUT("", perm.MustBuildAccess(), middleware.Payload(), api.UpdateStep)
 			step.DELETE("", perm.MustPlatformAdmin(), api.DeleteStep)
-
-			step.POST("/stream", perm.MustPlatformAdmin(), api.PostStepStream)
 
 			// Log endpoints
 			LogStepHandlers(step)
