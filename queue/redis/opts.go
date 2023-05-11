@@ -6,6 +6,7 @@ package redis
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -76,13 +77,29 @@ func WithPrivateKey(privateKeyEncoded string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring private key in redis queue client")
 
+		if len(privateKeyEncoded) == 0 {
+			return errors.New("unable to base64 decode private key, provided key is empty")
+		}
+
 		privateKeyDecoded, err := base64.StdEncoding.DecodeString(privateKeyEncoded)
 		if err != nil {
 			return err
 		}
 
+		if len(privateKeyDecoded) == 0 {
+			return errors.New("unable to base64 decode private key, decoded key is empty")
+		}
+
 		c.config.SigningPrivateKey = new([64]byte)
 		copy(c.config.SigningPrivateKey[:], privateKeyDecoded)
+
+		if c.config.SigningPrivateKey == nil {
+			return errors.New("unable to copy decoded queue signing private key, copied key is nil")
+		}
+
+		if len(c.config.SigningPrivateKey) == 0 {
+			return errors.New("unable to copy decoded queue signing private key, copied key is empty")
+		}
 
 		return nil
 	}
@@ -93,13 +110,29 @@ func WithPublicKey(publicKeyEncoded string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Tracef("configuring public key in redis queue client")
 
+		if len(publicKeyEncoded) == 0 {
+			return errors.New("unable to base64 decode public key, provided key is empty")
+		}
+
 		publicKeyDecoded, err := base64.StdEncoding.DecodeString(publicKeyEncoded)
 		if err != nil {
 			return err
 		}
 
+		if len(publicKeyDecoded) == 0 {
+			return errors.New("unable to base64 decode public key, decoded key is empty")
+		}
+
 		c.config.SigningPublicKey = new([32]byte)
 		copy(c.config.SigningPublicKey[:], publicKeyDecoded)
+
+		if c.config.SigningPublicKey == nil {
+			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
+		}
+
+		if len(c.config.SigningPublicKey) == 0 {
+			return errors.New("unable to copy decoded queue signing public key, copied key is empty")
+		}
 
 		return nil
 	}
