@@ -51,13 +51,13 @@ var Flags = []cli.Flag{
 		Value:    60 * time.Second,
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SIGNING_PRIVATE_KEY"},
+		EnvVars:  []string{"VELA_QUEUE_SIGNING_PRIVATE_KEY"},
 		FilePath: "/vela/signing.key",
 		Name:     "queue.signing.private-key",
 		Usage:    "set value of queue signing private key",
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"VELA_SIGNING_PUBLIC_KEY"},
+		EnvVars:  []string{"VELA_QUEUE_SIGNING_PUBLIC_KEY"},
 		FilePath: "/vela/signing.pub",
 		Name:     "queue.signing.public-key",
 		Usage:    "set value of queue signing public key",

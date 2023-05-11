@@ -41,7 +41,7 @@ services:
       VELA_ACCESS_TOKEN_DURATION: 60m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
-      VELA_SIGNING_PRIVATE_KEY: 'tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=='
+      VELA_QUEUE_SIGNING_PRIVATE_KEY: 'tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=='
     env_file:
       - .env
     restart: always
@@ -60,10 +60,7 @@ services:
   # https://go-vela.github.io/docs/administration/worker/
   worker:
     container_name: worker
-    build:
-      context: ../worker
-      dockerfile: Dockerfile
-    image: worker:local
+    image: target/vela-worker:latest
     networks:
       - vela
     environment:
@@ -80,7 +77,7 @@ services:
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 5m
-      VELA_SIGNING_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
+      VELA_QUEUE_SIGNING_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
     restart: always
     ports:
       - '8081:8080'
