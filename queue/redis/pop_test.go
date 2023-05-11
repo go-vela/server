@@ -89,7 +89,7 @@ func TestRedis_Pop(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.redis.Pop(context.Background())
+		got, err := test.redis.Pop(context.Background(), nil)
 
 		if test.failure {
 			if err == nil {

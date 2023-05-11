@@ -14,13 +14,24 @@ import (
 )
 
 // Pop grabs an item from the specified channel off the queue.
-func (c *client) Pop(ctx context.Context) (*types.Item, error) {
-	c.Logger.Tracef("popping item from queue %s", c.config.Channels)
+func (c *client) Pop(ctx context.Context, channels []string) (*types.Item, error) {
+	var popCmd *redis.StringSliceCmd
+	switch len(channels) {
+	case 0:
+		c.Logger.Tracef("popping item from queue %s", c.config.Channels)
 
-	// build a redis queue command to pop an item from queue
-	//
-	// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.BLPop
-	popCmd := c.Redis.BLPop(ctx, c.config.Timeout, c.config.Channels...)
+		// build a redis queue command to pop an item from queue
+		//
+		// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.BLPop
+		popCmd = c.Redis.BLPop(ctx, c.config.Timeout, c.config.Channels...)
+	default:
+		c.Logger.Tracef("popping item from queue %s", channels)
+
+		// build a redis queue command to pop an item from queue
+		//
+		// https://pkg.go.dev/github.com/go-redis/redis?tab=doc#Client.BLPop
+		popCmd = c.Redis.BLPop(ctx, c.config.Timeout, channels...)
+	}
 
 	// blocking call to pop item from queue
 	//
