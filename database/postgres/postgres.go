@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-vela/server/database/schedule"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -57,6 +59,8 @@ type (
 		pipeline.PipelineService
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoService
 		repo.RepoService
+		// https://pkg.go.dev/github.com/go-vela/server/database/schedule#ScheduleInterface
+		schedule.ScheduleInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretService
 		secret.SecretService
 		// https://pkg.go.dev/github.com/go-vela/server/database/step#StepService
@@ -173,6 +177,9 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// ensure the mock expects the repo queries
 	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the schedule queries
+	_mock.ExpectExec(schedule.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(schedule.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the secret queries
 	_mock.ExpectExec(secret.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -363,6 +370,18 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for schedules
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/schedule#New
+	c.ScheduleInterface, err = schedule.New(
+		schedule.WithClient(c.Postgres),
+		schedule.WithLogger(c.Logger),
+		schedule.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

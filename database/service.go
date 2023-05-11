@@ -9,6 +9,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
@@ -91,6 +92,10 @@ type Service interface {
 	// RepoService provides the interface for functionality
 	// related to repos stored in the database.
 	repo.RepoService
+
+	// ScheduleInterface provides the interface for functionality
+	// related to schedules stored in the database.
+	schedule.ScheduleInterface
 
 	// SecretService provides the interface for functionality
 	// related to secrets stored in the database.
