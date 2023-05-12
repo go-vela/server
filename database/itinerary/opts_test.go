@@ -2,18 +2,19 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package compiled
+package itinerary
 
 import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
 )
 
-func TestCompiled_EngineOpt_WithClient(t *testing.T) {
+func TestItinerary_EngineOpt_WithClient(t *testing.T) {
 	// setup types
 	e := &engine{client: new(gorm.DB)}
 
@@ -62,7 +63,7 @@ func TestCompiled_EngineOpt_WithClient(t *testing.T) {
 	}
 }
 
-func TestCompiled_EngineOpt_WithCompressionLevel(t *testing.T) {
+func TestItinerary_EngineOpt_WithCompressionLevel(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 
@@ -117,7 +118,7 @@ func TestCompiled_EngineOpt_WithCompressionLevel(t *testing.T) {
 	}
 }
 
-func TestCompiled_EngineOpt_WithLogger(t *testing.T) {
+func TestItinerary_EngineOpt_WithLogger(t *testing.T) {
 	// setup types
 	e := &engine{logger: new(logrus.Entry)}
 
@@ -166,7 +167,7 @@ func TestCompiled_EngineOpt_WithLogger(t *testing.T) {
 	}
 }
 
-func TestCompiled_EngineOpt_WithSkipCreation(t *testing.T) {
+func TestItinerary_EngineOpt_WithSkipCreation(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 
@@ -210,6 +211,55 @@ func TestCompiled_EngineOpt_WithSkipCreation(t *testing.T) {
 
 			if !reflect.DeepEqual(e.config.SkipCreation, test.want) {
 				t.Errorf("WithSkipCreation is %v, want %v", e.config.SkipCreation, test.want)
+			}
+		})
+	}
+}
+
+func TestItinerary_EngineOpt_WithDriver(t *testing.T) {
+	// setup types
+	e := &engine{config: new(config)}
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		name    string
+		driver  string
+		want    string
+	}{
+		{
+			failure: false,
+			name:    "postgres",
+			driver:  constants.DriverPostgres,
+			want:    constants.DriverPostgres,
+		},
+		{
+			failure: false,
+			name:    "sqlite",
+			driver:  constants.DriverSqlite,
+			want:    constants.DriverSqlite,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithDriver(test.driver)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithDriver for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WithDriver returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(e.config.CompressionLevel, test.want) {
+				t.Errorf("WithDriver is %v, want %v", e.config.CompressionLevel, test.want)
 			}
 		})
 	}

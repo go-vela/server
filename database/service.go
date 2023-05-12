@@ -5,8 +5,8 @@
 package database
 
 import (
-	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/itinerary"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -77,7 +77,9 @@ type Service interface {
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
 
-	compiled.CompiledService
+	// BuildItineraryService provides the interface for functionality
+	// related to build itineraries stored in the database.
+	itinerary.BuildItineraryService
 
 	// HookService provides the interface for functionality
 	// related to hooks stored in the database.

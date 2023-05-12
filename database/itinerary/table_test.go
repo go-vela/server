@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package compiled
+package itinerary
 
 import (
 	"testing"
@@ -10,24 +10,12 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestCompiled_Engine_CreateCompiled(t *testing.T) {
+func TestItinerary_Engine_CreateBuildItineraryTable(t *testing.T) {
 	// setup types
-	_compiled := testCompiled()
-	_compiled.SetID(1)
-	_compiled.SetBuildID(1)
-
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
-	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "compiled"
-("build_id","data","id")
-VALUES ($1,$2,$3) RETURNING "id"`).
-		WithArgs(1, AnyArgument{}, 1).
-		WillReturnRows(_rows)
+	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -53,18 +41,18 @@ VALUES ($1,$2,$3) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateCompiled(_compiled)
+			err := test.database.CreateBuildItineraryTable(test.name)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateCompiled for %s should have returned err", test.name)
+					t.Errorf("CreateBuildItineraryTable for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateCompiled for %s returned err: %v", test.name, err)
+				t.Errorf("CreateBuildItineraryTable for %s returned err: %v", test.name, err)
 			}
 		})
 	}

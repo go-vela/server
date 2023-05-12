@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/itinerary"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -49,7 +49,8 @@ type (
 		Sqlite *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
-		compiled.CompiledService
+		// https://pkg.go.dev/github.com/go-vela/server/database/itinerary#BuildItineraryService
+		itinerary.BuildItineraryService
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
@@ -333,12 +334,12 @@ func createServices(c *client) error {
 	// create the database agnostic pipeline service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
-	c.CompiledService, err = compiled.New(
-		compiled.WithClient(c.Sqlite),
-		compiled.WithCompressionLevel(c.config.CompressionLevel),
-		compiled.WithLogger(c.Logger),
-		compiled.WithSkipCreation(c.config.SkipCreation),
-		compiled.WithDriver(constants.DriverSqlite),
+	c.BuildItineraryService, err = itinerary.New(
+		itinerary.WithClient(c.Sqlite),
+		itinerary.WithCompressionLevel(c.config.CompressionLevel),
+		itinerary.WithLogger(c.Logger),
+		itinerary.WithSkipCreation(c.config.SkipCreation),
+		itinerary.WithDriver(constants.DriverSqlite),
 	)
 	if err != nil {
 		return err

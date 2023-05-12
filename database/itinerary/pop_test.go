@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package compiled
+package itinerary
 
 import (
 	"reflect"
@@ -12,12 +12,12 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestCompiled_Engine_PopCompiled(t *testing.T) {
+func TestItinerary_Engine_PopBuildItinerary(t *testing.T) {
 	// setup types
-	_compiled := testCompiled()
-	_compiled.SetID(1)
-	_compiled.SetBuildID(1)
-	_compiled.SetData([]byte("foo"))
+	_bItinerary := testBuildItinerary()
+	_bItinerary.SetID(1)
+	_bItinerary.SetBuildID(1)
+	_bItinerary.SetData([]byte("foo"))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -28,14 +28,14 @@ func TestCompiled_Engine_PopCompiled(t *testing.T) {
 		AddRow(1, 1, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`DELETE FROM "compiled" WHERE build_id = $1 RETURNING *`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`DELETE FROM "build_itineraries" WHERE build_id = $1 RETURNING *`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateCompiled(_compiled)
+	err := _sqlite.CreateBuildItinerary(_bItinerary)
 	if err != nil {
-		t.Errorf("unable to create test pipeline for sqlite: %v", err)
+		t.Errorf("unable to create test build itinerary for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -43,41 +43,41 @@ func TestCompiled_Engine_PopCompiled(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Compiled
+		want     *library.BuildItinerary
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     _compiled,
+			want:     _bItinerary,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     _compiled,
+			want:     _bItinerary,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.PopCompiled(1)
+			got, err := test.database.PopBuildItinerary(1)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetPipeline for %s should have returned err", test.name)
+					t.Errorf("PopBuildItinerary for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetPipeline for %s returned err: %v", test.name, err)
+				t.Errorf("PopBuildItinerary for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetPipeline for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("PopBuildItinerary for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

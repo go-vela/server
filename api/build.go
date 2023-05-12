@@ -2019,9 +2019,9 @@ func GetBuildToken(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Token{Token: &bt})
 }
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/compiled builds GetCompiledBuild
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/itinerary builds GetBuildItinerary
 //
-// Get a compiled build in the configured backend
+// Get a build itinerary in the configured backend
 //
 // ---
 // produces:
@@ -2046,7 +2046,7 @@ func GetBuildToken(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the compiled build
+//     description: Successfully retrieved the build itinerary
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
@@ -2059,36 +2059,36 @@ func GetBuildToken(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Could not retrieve compiled build
+//     description: Could not retrieve build itinerary
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuild represents the API handler to capture
-// a build for a repo from the configured backend.
-func GetCompiledBuild(c *gin.Context) {
+// GetBuildItinerary represents the API handler to capture
+// a build itinerary for a repo from the configured backend.
+func GetBuildItinerary(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	cl := claims.Retrieve(c)
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
-		"user":  u.GetName(),
-	}).Infof("reading build %s/%d", r.GetFullName(), b.GetNumber())
+		"build":   b.GetNumber(),
+		"org":     o,
+		"repo":    r.GetName(),
+		"subject": cl.Subject,
+	}).Infof("reading build itinerary %s/%d", r.GetFullName(), b.GetNumber())
 
-	compiled, err := database.FromContext(c).PopCompiled(b.GetID())
+	bItinerary, err := database.FromContext(c).PopBuildItinerary(b.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to pop compiled build: %w", err)
+		retErr := fmt.Errorf("unable to pop build itinerary: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, compiled)
+	c.JSON(http.StatusOK, bItinerary)
 }

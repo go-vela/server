@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package compiled
+package itinerary
 
 import (
 	"database/sql/driver"
@@ -19,7 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestPipeline_New(t *testing.T) {
+func TestItinerary_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -64,7 +64,7 @@ func TestPipeline_New(t *testing.T) {
 			skipCreation: false,
 			want: &engine{
 				client: _postgres,
-				config: &config{CompressionLevel: 1, SkipCreation: false},
+				config: &config{CompressionLevel: 1, SkipCreation: false, Driver: "postgres"},
 				logger: logger,
 			},
 		},
@@ -77,7 +77,7 @@ func TestPipeline_New(t *testing.T) {
 			skipCreation: false,
 			want: &engine{
 				client: _sqlite,
-				config: &config{CompressionLevel: 1, SkipCreation: false},
+				config: &config{CompressionLevel: 1, SkipCreation: false, Driver: "sqlite3"},
 				logger: logger,
 			},
 		},
@@ -91,6 +91,7 @@ func TestPipeline_New(t *testing.T) {
 				WithCompressionLevel(test.level),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
+				WithDriver(test.name),
 			)
 
 			if test.failure {
@@ -143,7 +144,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		WithDriver(constants.DriverPostgres),
 	)
 	if err != nil {
-		t.Errorf("unable to create new postgres pipeline engine: %v", err)
+		t.Errorf("unable to create new postgres build_itnerary engine: %v", err)
 	}
 
 	return _engine, _mock
@@ -167,16 +168,16 @@ func testSqlite(t *testing.T) *engine {
 		WithDriver(constants.DriverSqlite),
 	)
 	if err != nil {
-		t.Errorf("unable to create new sqlite pipeline engine: %v", err)
+		t.Errorf("unable to create new sqlite build_itnerary engine: %v", err)
 	}
 
 	return _engine
 }
 
-// testCompiled is a test helper function to create a library
-// Compiled type with all fields set to their zero values.
-func testCompiled() *library.Compiled {
-	return &library.Compiled{
+// testBuildItinerary is a test helper function to create a library
+// BuildItinerary type with all fields set to their zero values.
+func testBuildItinerary() *library.BuildItinerary {
+	return &library.BuildItinerary{
 		ID:      new(int64),
 		BuildID: new(int64),
 		Data:    new([]byte),

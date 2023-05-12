@@ -25,6 +25,7 @@ import (
 // DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/token
+// GET    /api/v1/repos/:org/:repo/builds/:build/itinerary
 // POST   /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
@@ -60,7 +61,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			build.DELETE("/cancel", executors.Establish(), perm.MustWrite(), api.CancelBuild)
 			build.GET("/logs", perm.MustRead(), api.GetBuildLogs)
 			build.GET("/token", perm.MustWorkerAuthToken(), api.GetBuildToken)
-			build.GET("/compiled", perm.MustBuildAccess(), api.GetCompiledBuild)
+			build.GET("/itinerary", perm.MustBuildAccess(), api.GetBuildItinerary)
 
 			// Service endpoints
 			// * Log endpoints

@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/itinerary"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
@@ -50,7 +50,8 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
-		compiled.CompiledService
+		// https://pkg.go.dev/github.com/go-vela/server/database/itinerary#BuildItineraryService
+		itinerary.BuildItineraryService
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
@@ -163,8 +164,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
-	// ensure the mock expects the compiled queries
-	_mock.ExpectExec(compiled.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the build_itinerary queries
+	_mock.ExpectExec(itinerary.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -321,15 +322,15 @@ func createIndexes(c *client) error {
 func createServices(c *client) error {
 	var err error
 
-	// create the database agnostic compiled service
+	// create the database agnostic build itinerary service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
-	c.CompiledService, err = compiled.New(
-		compiled.WithClient(c.Postgres),
-		compiled.WithCompressionLevel(c.config.CompressionLevel),
-		compiled.WithLogger(c.Logger),
-		compiled.WithSkipCreation(c.config.SkipCreation),
-		compiled.WithDriver(constants.DriverPostgres),
+	c.BuildItineraryService, err = itinerary.New(
+		itinerary.WithClient(c.Postgres),
+		itinerary.WithCompressionLevel(c.config.CompressionLevel),
+		itinerary.WithLogger(c.Logger),
+		itinerary.WithSkipCreation(c.config.SkipCreation),
+		itinerary.WithDriver(constants.DriverPostgres),
 	)
 	if err != nil {
 		return err
