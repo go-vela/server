@@ -149,6 +149,13 @@ const (
 	BuildTokenResp = `{
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJidWlsZF9pZCI6MSwicmVwbyI6ImZvby9iYXIiLCJzdWIiOiJPY3RvY2F0IiwiaWF0IjoxNTE2MjM5MDIyfQ.hD7gXpaf9acnLBdOBa4GOEa5KZxdzd0ZvK6fGwaN4bc"
   }`
+
+	// BuildItineraryResp represents a JSON return for requesting a build itinerary.
+	BuildItineraryResp = `{
+    "id": 1
+    "build_id": 1,
+    "data": "eyAKICAgICJpZCI6ICJzdGVwX25hbWUiLAogICAgInZlcnNpb24iOiAiMSIsCiAgICAibWV0YWRhdGEiOnsKICAgICAgICAiY2xvbmUiOnRydWUsCiAgICAgICAgImVudmlyb25tZW50IjpbInN0ZXBzIiwic2VydmljZXMiLCJzZWNyZXRzIl19LAogICAgIndvcmtlciI6e30sCiAgICAic3RlcHMiOlsKICAgICAgICB7CiAgICAgICAgICAgICJpZCI6InN0ZXBfZ2l0aHViX29jdG9jYXRfMV9pbml0IiwKICAgICAgICAgICAgImRpcmVjdG9yeSI6Ii92ZWxhL3NyYy9naXRodWIuY29tL2dpdGh1Yi9vY3RvY2F0IiwKICAgICAgICAgICAgImVudmlyb25tZW50IjogeyJCVUlMRF9BVVRIT1IiOiJPY3RvY2F0In0KICAgICAgICB9CiAgICBdCn0KCg=="
+  }`
 )
 
 // getBuilds returns mock JSON for a http GET.
@@ -333,6 +340,28 @@ func buildToken(c *gin.Context) {
 	data := []byte(BuildTokenResp)
 
 	var body library.Token
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// buildItinerary has a param :build returns mock JSON for a http GET.
+//
+// Pass "0" to :build to test receiving a http 500 response.
+func buildItinerary(c *gin.Context) {
+	b := c.Param("build")
+
+	if strings.EqualFold(b, "0") {
+		msg := fmt.Sprintf("unable to get build itinerary for build %s", b)
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(BuildItineraryResp)
+
+	var body library.BuildItinerary
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
