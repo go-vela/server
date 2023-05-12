@@ -163,6 +163,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
+	// ensure the mock expects the compiled queries
+	_mock.ExpectExec(compiled.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -319,6 +321,20 @@ func createIndexes(c *client) error {
 func createServices(c *client) error {
 	var err error
 
+	// create the database agnostic compiled service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
+	c.CompiledService, err = compiled.New(
+		compiled.WithClient(c.Postgres),
+		compiled.WithCompressionLevel(c.config.CompressionLevel),
+		compiled.WithLogger(c.Logger),
+		compiled.WithSkipCreation(c.config.SkipCreation),
+		compiled.WithDriver(constants.DriverPostgres),
+	)
+	if err != nil {
+		return err
+	}
+
 	// create the database agnostic hook service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/hook#New
@@ -352,19 +368,6 @@ func createServices(c *client) error {
 		pipeline.WithCompressionLevel(c.config.CompressionLevel),
 		pipeline.WithLogger(c.Logger),
 		pipeline.WithSkipCreation(c.config.SkipCreation),
-	)
-	if err != nil {
-		return err
-	}
-
-	// create the database agnostic pipeline service
-	//
-	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
-	c.CompiledService, err = compiled.New(
-		compiled.WithClient(c.Postgres),
-		compiled.WithCompressionLevel(c.config.CompressionLevel),
-		compiled.WithLogger(c.Logger),
-		compiled.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

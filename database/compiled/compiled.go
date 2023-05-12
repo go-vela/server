@@ -20,6 +20,8 @@ type (
 		CompressionLevel int
 		// specifies to skip creating tables and indexes for the Pipeline engine
 		SkipCreation bool
+		// specifies the driver for proper popping query
+		Driver string
 	}
 
 	// engine represents the pipeline functionality that implements the PipelineService interface.

@@ -330,6 +330,20 @@ func createServices(c *client) error {
 		return err
 	}
 
+	// create the database agnostic pipeline service
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
+	c.CompiledService, err = compiled.New(
+		compiled.WithClient(c.Sqlite),
+		compiled.WithCompressionLevel(c.config.CompressionLevel),
+		compiled.WithLogger(c.Logger),
+		compiled.WithSkipCreation(c.config.SkipCreation),
+		compiled.WithDriver(constants.DriverSqlite),
+	)
+	if err != nil {
+		return err
+	}
+
 	// create the database agnostic repo service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/repo#New

@@ -2021,7 +2021,7 @@ func GetBuildToken(c *gin.Context) {
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/compiled builds GetCompiledBuild
 //
-// Get a build in the configured backend
+// Get a compiled build in the configured backend
 //
 // ---
 // produces:
@@ -2046,10 +2046,22 @@ func GetBuildToken(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the build
+//     description: Successfully retrieved the compiled build
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
+//   '400':
+//     description: Bad request
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Could not retrieve compiled build
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetBuild represents the API handler to capture
 // a build for a repo from the configured backend.

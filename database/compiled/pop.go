@@ -18,22 +18,44 @@ func (e *engine) PopCompiled(id int64) (*library.Compiled, error) {
 	// variable to store query results
 	c := new(database.Compiled)
 
-	// send query to the database and store result in variable
-	err := e.client.
-		Table(constants.TableCompiled).
-		Clauses(clause.Returning{}).
-		Where("build_id = ?", id).
-		Delete(c).
-		Error
+	switch e.config.Driver {
+	case constants.DriverPostgres:
+		// send query to the database and store result in variable
+		err := e.client.
+			Table(constants.TableCompiled).
+			Clauses(clause.Returning{}).
+			Where("build_id = ?", id).
+			Delete(c).
+			Error
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+
+	case constants.DriverSqlite:
+		// send query to the database and store result in variable
+		err := e.client.
+			Table(constants.TableCompiled).
+			Where("id = ?", id).
+			Take(c).
+			Error
+		if err != nil {
+			return nil, err
+		}
+
+		err = e.client.
+			Table(constants.TableCompiled).
+			Delete(c).
+			Error
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// decompress data for the pipeline
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Decompress
-	err = c.Decompress()
+	err := c.Decompress()
 	if err != nil {
 		return nil, err
 	}

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/compiled"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -90,6 +91,8 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	_mock.ExpectExec(ddl.CreateBuildCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(ddl.CreateBuildSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
+	// ensure the mock expects the compiled queries
+	_mock.ExpectExec(compiled.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -256,6 +259,8 @@ func TestPostgres_createServices(t *testing.T) {
 
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// ensure the mock expects the compiled queries
+	_mock.ExpectExec(compiled.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
