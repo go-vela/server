@@ -190,6 +190,34 @@ func GetWorkers(c *gin.Context) {
 	c.JSON(http.StatusOK, w)
 }
 
+// GetWorkersByStatus represents the API handler to capture a
+// list of workers with specified status from the configured backend.
+func GetWorkersByStatus(c *gin.Context) {
+	s := c.Param("status")
+	// capture middleware values
+	u := user.Retrieve(c)
+
+	// TODO message/error if not valid status or empty string, or they get back all the workers (GetWorkers), how do other endpoints do it? prob use regex to confirm alpha charas only
+
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
+	logrus.WithFields(logrus.Fields{
+		"user": u.GetName(),
+	}).Info("reading workers")
+
+	w, err := database.FromContext(c).ListWorkersByStatus(s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to get workers: %w", err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, w)
+}
+
 // swagger:operation GET /api/v1/workers/{worker} workers GetWorker
 //
 // Retrieve a worker for the configured backend
@@ -321,6 +349,31 @@ func UpdateWorker(c *gin.Context) {
 	if input.GetActive() {
 		// update active if set
 		w.SetActive(input.GetActive())
+	}
+
+	if len(input.GetStatus()) > 0 {
+		// update status if set
+		w.SetStatus(input.GetStatus())
+	}
+
+	if input.GetLastStatusUpdateAt() > 0 {
+		// update LastStatusUpdateAt if set
+		w.SetLastStatusUpdateAt(input.GetLastStatusUpdateAt())
+	}
+
+	if len(input.GetRunningBuildIDs()) > 0 {
+		// update RunningBuildIDs if set
+		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
+	}
+
+	if input.GetLastBuildFinishedAt() > 0 {
+		// update LastBuildFinishedAt if set
+		w.SetLastBuildFinishedAt(input.GetLastBuildFinishedAt())
+	}
+
+	if input.GetLastCheckedIn() > 0 {
+		// update LastCheckedIn if set
+		w.SetLastCheckedIn(input.GetLastCheckedIn())
 	}
 
 	// send API call to update the worker
