@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package itinerary
+package executable
 
 import (
 	"testing"
@@ -10,11 +10,11 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestItinerary_Engine_CreateBuildItinerary(t *testing.T) {
+func TestExecutable_Engine_CreateBuildExecutable(t *testing.T) {
 	// setup types
-	_bItinerary := testBuildItinerary()
-	_bItinerary.SetID(1)
-	_bItinerary.SetBuildID(1)
+	_bExecutable := testBuildExecutable()
+	_bExecutable.SetID(1)
+	_bExecutable.SetBuildID(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -23,7 +23,7 @@ func TestItinerary_Engine_CreateBuildItinerary(t *testing.T) {
 	_rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`INSERT INTO "build_itineraries"
+	_mock.ExpectQuery(`INSERT INTO "build_executables"
 ("build_id","data","id")
 VALUES ($1,$2,$3) RETURNING "id"`).
 		WithArgs(1, AnyArgument{}, 1).
@@ -53,18 +53,18 @@ VALUES ($1,$2,$3) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateBuildItinerary(_bItinerary)
+			err := test.database.CreateBuildExecutable(_bExecutable)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateBuildItinerary for %s should have returned err", test.name)
+					t.Errorf("CreateBuildExecutable for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateBuildItinerary for %s returned err: %v", test.name, err)
+				t.Errorf("CreateBuildExecutable for %s returned err: %v", test.name, err)
 			}
 		})
 	}

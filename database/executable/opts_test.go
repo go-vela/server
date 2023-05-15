@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package itinerary
+package executable
 
 import (
 	"reflect"
@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestItinerary_EngineOpt_WithClient(t *testing.T) {
+func TestExecutable_EngineOpt_WithClient(t *testing.T) {
 	// setup types
 	e := &engine{client: new(gorm.DB)}
 
@@ -63,7 +63,7 @@ func TestItinerary_EngineOpt_WithClient(t *testing.T) {
 	}
 }
 
-func TestItinerary_EngineOpt_WithCompressionLevel(t *testing.T) {
+func TestExecutable_EngineOpt_WithCompressionLevel(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 
@@ -118,7 +118,7 @@ func TestItinerary_EngineOpt_WithCompressionLevel(t *testing.T) {
 	}
 }
 
-func TestItinerary_EngineOpt_WithLogger(t *testing.T) {
+func TestExecutable_EngineOpt_WithLogger(t *testing.T) {
 	// setup types
 	e := &engine{logger: new(logrus.Entry)}
 
@@ -167,7 +167,7 @@ func TestItinerary_EngineOpt_WithLogger(t *testing.T) {
 	}
 }
 
-func TestItinerary_EngineOpt_WithSkipCreation(t *testing.T) {
+func TestExecutable_EngineOpt_WithSkipCreation(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 
@@ -216,7 +216,7 @@ func TestItinerary_EngineOpt_WithSkipCreation(t *testing.T) {
 	}
 }
 
-func TestItinerary_EngineOpt_WithDriver(t *testing.T) {
+func TestExecutable_EngineOpt_WithDriver(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 

@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package itinerary
+package executable
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestItinerary_Engine_CreateBuildItineraryTable(t *testing.T) {
+func TestExecutable_Engine_CreateBuildExecutableTable(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -41,18 +41,18 @@ func TestItinerary_Engine_CreateBuildItineraryTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateBuildItineraryTable(test.name)
+			err := test.database.CreateBuildExecutableTable(test.name)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("CreateBuildItineraryTable for %s should have returned err", test.name)
+					t.Errorf("CreateBuildExecutableTable for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("CreateBuildItineraryTable for %s returned err: %v", test.name, err)
+				t.Errorf("CreateBuildExecutableTable for %s returned err: %v", test.name, err)
 			}
 		})
 	}

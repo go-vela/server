@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package itinerary
+package executable
 
 import (
 	"github.com/go-vela/types/constants"
@@ -11,28 +11,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CreateBuildItinerary creates a new build itinerary in the database.
-func (e *engine) CreateBuildItinerary(b *library.BuildItinerary) error {
+// CreateBuildExecutable creates a new build executable in the database.
+func (e *engine) CreateBuildExecutable(b *library.BuildExecutable) error {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetBuildID(),
-	}).Tracef("creating build itinerary for build %d in the database", b.GetBuildID())
+	}).Tracef("creating build executable for build %d in the database", b.GetBuildID())
 
 	// cast the library type to database type
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildItineraryFromLibrary
-	compiled := database.BuildItineraryFromLibrary(b)
+	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutableFromLibrary
+	compiled := database.BuildExecutableFromLibrary(b)
 
 	// validate the necessary fields are populated
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildItinerary.Validate
+	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.Validate
 	err := compiled.Validate()
 	if err != nil {
 		return err
 	}
 
-	// compress data for the build itinerary
+	// compress data for the build executable
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildItinerary.Compress
+	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.Compress
 	err = compiled.Compress(e.config.CompressionLevel)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (e *engine) CreateBuildItinerary(b *library.BuildItinerary) error {
 
 	// send query to the database
 	return e.client.
-		Table(constants.TableBuildItinerary).
+		Table(constants.TableBuildExecutable).
 		Create(compiled).
 		Error
 }

@@ -2019,9 +2019,9 @@ func GetBuildToken(c *gin.Context) {
 	c.JSON(http.StatusOK, library.Token{Token: &bt})
 }
 
-// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/itinerary builds GetBuildItinerary
+// swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/executable builds GetBuildExecutable
 //
-// Get a build itinerary in the configured backend
+// Get a build executable in the configured backend
 //
 // ---
 // produces:
@@ -2046,7 +2046,7 @@ func GetBuildToken(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the build itinerary
+//     description: Successfully retrieved the build executable
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
@@ -2059,13 +2059,13 @@ func GetBuildToken(c *gin.Context) {
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Could not retrieve build itinerary
+//     description: Could not retrieve build executable
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// GetBuildItinerary represents the API handler to capture
-// a build itinerary for a repo from the configured backend.
-func GetBuildItinerary(c *gin.Context) {
+// GetBuildExecutable represents the API handler to capture
+// a build executable for a repo from the configured backend.
+func GetBuildExecutable(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
@@ -2080,15 +2080,15 @@ func GetBuildItinerary(c *gin.Context) {
 		"org":     o,
 		"repo":    r.GetName(),
 		"subject": cl.Subject,
-	}).Infof("reading build itinerary %s/%d", r.GetFullName(), b.GetNumber())
+	}).Infof("reading build executable %s/%d", r.GetFullName(), b.GetNumber())
 
-	bItinerary, err := database.FromContext(c).PopBuildItinerary(b.GetID())
+	bExecutable, err := database.FromContext(c).PopBuildExecutable(b.GetID())
 	if err != nil {
-		retErr := fmt.Errorf("unable to pop build itinerary: %w", err)
+		retErr := fmt.Errorf("unable to pop build executable: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, bItinerary)
+	c.JSON(http.StatusOK, bExecutable)
 }

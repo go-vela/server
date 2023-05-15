@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package itinerary
+package executable
 
 import (
 	"database/sql/driver"
@@ -19,7 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestItinerary_New(t *testing.T) {
+func TestExecutable_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -174,10 +174,10 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testBuildItinerary is a test helper function to create a library
-// BuildItinerary type with all fields set to their zero values.
-func testBuildItinerary() *library.BuildItinerary {
-	return &library.BuildItinerary{
+// testBuildExecutable is a test helper function to create a library
+// BuildExecutable type with all fields set to their zero values.
+func testBuildExecutable() *library.BuildExecutable {
+	return &library.BuildExecutable{
 		ID:      new(int64),
 		BuildID: new(int64),
 		Data:    new([]byte),

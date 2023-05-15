@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package itinerary
+package executable
 
 import (
 	"github.com/go-vela/types/constants"
@@ -11,12 +11,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// PopBuildItinerary pops a build itinerary by build_id from the database.
-func (e *engine) PopBuildItinerary(id int64) (*library.BuildItinerary, error) {
-	e.logger.Tracef("popping build itinerary for build %d from the database", id)
+// PopBuildExecutable pops a build executable by build_id from the database.
+func (e *engine) PopBuildExecutable(id int64) (*library.BuildExecutable, error) {
+	e.logger.Tracef("popping build executable for build %d from the database", id)
 
 	// variable to store query results
-	b := new(database.BuildItinerary)
+	b := new(database.BuildExecutable)
 
 	// at the time of coding, GORM does not implement a version of Sqlite3 that supports RETURNING.
 	// so we have to select and delete for the Sqlite driver.
@@ -24,7 +24,7 @@ func (e *engine) PopBuildItinerary(id int64) (*library.BuildItinerary, error) {
 	case constants.DriverPostgres:
 		// send query to the database and store result in variable
 		err := e.client.
-			Table(constants.TableBuildItinerary).
+			Table(constants.TableBuildExecutable).
 			Clauses(clause.Returning{}).
 			Where("build_id = ?", id).
 			Delete(b).
@@ -37,7 +37,7 @@ func (e *engine) PopBuildItinerary(id int64) (*library.BuildItinerary, error) {
 	case constants.DriverSqlite:
 		// send query to the database and store result in variable
 		err := e.client.
-			Table(constants.TableBuildItinerary).
+			Table(constants.TableBuildExecutable).
 			Where("id = ?", id).
 			Take(b).
 			Error
@@ -47,7 +47,7 @@ func (e *engine) PopBuildItinerary(id int64) (*library.BuildItinerary, error) {
 
 		// send query to the database to delete result just got
 		err = e.client.
-			Table(constants.TableBuildItinerary).
+			Table(constants.TableBuildExecutable).
 			Delete(b).
 			Error
 		if err != nil {
@@ -55,16 +55,16 @@ func (e *engine) PopBuildItinerary(id int64) (*library.BuildItinerary, error) {
 		}
 	}
 
-	// decompress data for the build itinerary
+	// decompress data for the build executable
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildItinerary.Decompress
+	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.Decompress
 	err := b.Decompress()
 	if err != nil {
 		return nil, err
 	}
 
-	// return the decompressed build itinerary
+	// return the decompressed build executable
 	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildItinerary.ToLibrary
+	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.ToLibrary
 	return b.ToLibrary(), nil
 }

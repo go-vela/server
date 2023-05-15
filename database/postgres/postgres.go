@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
-	"github.com/go-vela/server/database/itinerary"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/postgres/ddl"
@@ -50,8 +50,8 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
-		// https://pkg.go.dev/github.com/go-vela/server/database/itinerary#BuildItineraryService
-		itinerary.BuildItineraryService
+		// https://pkg.go.dev/github.com/go-vela/server/database/executable#BuildExecutableService
+		executable.BuildExecutableService
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookService
 		hook.HookService
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogService
@@ -164,8 +164,8 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
-	// ensure the mock expects the build_itinerary queries
-	_mock.ExpectExec(itinerary.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the build_executable queries
+	_mock.ExpectExec(executable.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -322,15 +322,15 @@ func createIndexes(c *client) error {
 func createServices(c *client) error {
 	var err error
 
-	// create the database agnostic build itinerary service
+	// create the database agnostic build executable service
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/pipeline#New
-	c.BuildItineraryService, err = itinerary.New(
-		itinerary.WithClient(c.Postgres),
-		itinerary.WithCompressionLevel(c.config.CompressionLevel),
-		itinerary.WithLogger(c.Logger),
-		itinerary.WithSkipCreation(c.config.SkipCreation),
-		itinerary.WithDriver(constants.DriverPostgres),
+	c.BuildExecutableService, err = executable.New(
+		executable.WithClient(c.Postgres),
+		executable.WithCompressionLevel(c.config.CompressionLevel),
+		executable.WithLogger(c.Logger),
+		executable.WithSkipCreation(c.config.SkipCreation),
+		executable.WithDriver(constants.DriverPostgres),
 	)
 	if err != nil {
 		return err

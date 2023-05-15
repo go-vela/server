@@ -708,7 +708,7 @@ func PostWebhook(c *gin.Context) {
 // publishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
 func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	byteItinerary, err := json.Marshal(p)
+	byteExecutable, err := json.Marshal(p)
 	if err != nil {
 		logrus.Errorf("Failed to marshal compiled build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
@@ -718,11 +718,11 @@ func publishToQueue(queue queue.Service, db database.Service, p *pipeline.Build,
 		return
 	}
 
-	bItinerary := new(library.BuildItinerary)
-	bItinerary.SetBuildID(b.GetID())
-	bItinerary.SetData(byteItinerary)
+	bExecutable := new(library.BuildExecutable)
+	bExecutable.SetBuildID(b.GetID())
+	bExecutable.SetData(byteExecutable)
 
-	err = db.CreateBuildItinerary(bItinerary)
+	err = db.CreateBuildExecutable(bExecutable)
 	if err != nil {
 		logrus.Errorf("Failed to publish compiled build to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
