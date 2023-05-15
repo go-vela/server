@@ -14,26 +14,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/executors"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -292,7 +289,7 @@ func CreateBuild(c *gin.Context) {
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
+	skip := SkipEmptyBuild(p)
 	if skip != "" {
 		// set build to successful status
 		input.SetStatus(constants.StatusSuccess)
@@ -381,11 +378,11 @@ func CreateBuild(c *gin.Context) {
 	)
 }
 
-// skipEmptyBuild checks if the build should be skipped due to it
+// SkipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
 //
 //nolint:goconst // ignore init and clone constants
-func skipEmptyBuild(p *pipeline.Build) string {
+func SkipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
 			return "skipping build since only init stage found"
@@ -1221,7 +1218,7 @@ func RestartBuild(c *gin.Context) {
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
+	skip := SkipEmptyBuild(p)
 	if skip != "" {
 		// set build to successful status
 		b.SetStatus(constants.StatusSkipped)

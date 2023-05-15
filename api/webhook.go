@@ -541,7 +541,7 @@ func PostWebhook(c *gin.Context) {
 		repo.SetPipelineType(pipelineType)
 
 		// skip the build if only the init or clone steps are found
-		skip := skipEmptyBuild(p)
+		skip := SkipEmptyBuild(p)
 		if skip != "" {
 			// set build to successful status
 			b.SetStatus(constants.StatusSkipped)

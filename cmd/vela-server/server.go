@@ -9,16 +9,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-
 	"github.com/urfave/cli/v2"
-	"gopkg.in/tomb.v2"
+	"golang.org/x/sync/errgroup"
 )
 
 func server(c *cli.Context) error {
@@ -111,47 +112,63 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	var tomb tomb.Tomb
-	// start http server
-	tomb.Go(func() error {
-		port := addr.Port()
-
-		// check if a port is part of the address
-		if len(port) == 0 {
-			port = c.String("server-port")
-		}
-
-		// gin expects the address to be ":<port>" ie ":8080"
-		srv := &http.Server{
-			Addr:              fmt.Sprintf(":%s", port),
-			Handler:           router,
-			ReadHeaderTimeout: 60 * time.Second,
-		}
-
-		logrus.Infof("running server on %s", addr.Host)
-		go func() {
-			logrus.Info("Starting HTTP server...")
-			err := srv.ListenAndServe()
-			if err != nil {
-				tomb.Kill(err)
-			}
-		}()
-
-		//nolint:gosimple // ignore this for now
-		for {
-			select {
-			case <-tomb.Dying():
-				logrus.Info("Stopping HTTP server...")
-				return srv.Shutdown(context.Background())
-			}
-		}
-	})
-
-	// Wait for stuff and watch for errors
-	err = tomb.Wait()
-	if err != nil {
-		return err
+	port := addr.Port()
+	// check if a port is part of the address
+	if len(port) == 0 {
+		port = c.String("server-port")
 	}
 
-	return tomb.Err()
+	// gin expects the address to be ":<port>" ie ":8080"
+	srv := &http.Server{
+		Addr:              fmt.Sprintf(":%s", port),
+		Handler:           router,
+		ReadHeaderTimeout: 60 * time.Second,
+	}
+
+	// create the context for controlling the worker subprocesses
+	ctx, done := context.WithCancel(context.Background())
+	// create the errgroup for managing worker subprocesses
+	//
+	// https://pkg.go.dev/golang.org/x/sync/errgroup?tab=doc#Group
+	g, gctx := errgroup.WithContext(ctx)
+
+	// spawn goroutine to check for signals to gracefully shutdown
+	g.Go(func() error {
+		signalChannel := make(chan os.Signal, 1)
+		signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
+
+		select {
+		case sig := <-signalChannel:
+			logrus.Infof("received signal: %s", sig)
+			err := srv.Shutdown(ctx)
+			if err != nil {
+				logrus.Error(err)
+			}
+			done()
+		case <-gctx.Done():
+			logrus.Info("closing signal goroutine")
+			err := srv.Shutdown(ctx)
+			if err != nil {
+				logrus.Error(err)
+			}
+			return gctx.Err()
+		}
+
+		return nil
+	})
+
+	// spawn goroutine for starting the server
+	g.Go(func() error {
+		logrus.Infof("starting server on %s", addr.Host)
+		err = srv.ListenAndServe()
+		if err != nil {
+			// log a message indicating the failure of the server
+			logrus.Errorf("failing server: %v", err)
+		}
+
+		return err
+	})
+
+	// wait for errors from server subprocesses
+	return g.Wait()
 }
