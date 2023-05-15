@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// HookService represents the Vela interface for hook
+// HookInterface represents the Vela interface for hook
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type HookService interface {
+type HookInterface interface {
 	// Hook Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language

@@ -10,15 +10,16 @@ import (
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/secret"
+	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
 )
 
-// Service represents the interface for Vela integrating
+// Interface represents the interface for Vela integrating
 // with the different supported Database backends.
-type Service interface {
+type Interface interface {
 	// Database Interface Functions
 
 	// Driver defines a function that outputs
@@ -76,67 +77,39 @@ type Service interface {
 	// deletes a build by unique ID.
 	DeleteBuild(int64) error
 
-	// HookService provides the interface for functionality
+	// HookInterface provides the interface for functionality
 	// related to hooks stored in the database.
-	hook.HookService
+	hook.HookInterface
 
-	// LogService provides the interface for functionality
+	// LogInterface provides the interface for functionality
 	// related to logs stored in the database.
-	log.LogService
+	log.LogInterface
 
-	// PipelineService provides the interface for functionality
+	// PipelineInterface provides the interface for functionality
 	// related to pipelines stored in the database.
-	pipeline.PipelineService
+	pipeline.PipelineInterface
 
-	// RepoService provides the interface for functionality
+	// RepoInterface provides the interface for functionality
 	// related to repos stored in the database.
-	repo.RepoService
+	repo.RepoInterface
 
-	// SecretService provides the interface for functionality
+	// SecretInterface provides the interface for functionality
 	// related to secrets stored in the database.
-	secret.SecretService
+	secret.SecretInterface
 
-	// StepService provides the interface for functionality
+	// ServiceInterface provides the interface for functionality
+	// related to services stored in the database.
+	service.ServiceInterface
+
+	// StepInterface provides the interface for functionality
 	// related to steps stored in the database.
-	step.StepService
+	step.StepInterface
 
-	// Service Database Interface Functions
-
-	// GetService defines a function that
-	// gets a step by number and build ID.
-	GetService(int, *library.Build) (*library.Service, error)
-	// GetServiceList defines a function that
-	// gets a list of all steps.
-	GetServiceList() ([]*library.Service, error)
-	// GetBuildServiceList defines a function
-	// that gets a list of steps by build ID.
-	GetBuildServiceList(*library.Build, int, int) ([]*library.Service, error)
-	// GetBuildServiceCount defines a function
-	// that gets the count of steps by build ID.
-	GetBuildServiceCount(*library.Build) (int64, error)
-	// GetServiceImageCount defines a function that
-	// gets a list of all service images and the
-	// count of their occurrence.
-	GetServiceImageCount() (map[string]float64, error)
-	// GetServiceStatusCount defines a function that
-	// gets a list of all service statuses and the
-	// count of their occurrence.
-	GetServiceStatusCount() (map[string]float64, error)
-	// CreateService defines a function that
-	// creates a new step.
-	CreateService(*library.Service) error
-	// UpdateService defines a function that
-	// updates a step.
-	UpdateService(*library.Service) error
-	// DeleteService defines a function that
-	// deletes a step by unique ID.
-	DeleteService(int64) error
-
-	// UserService provides the interface for functionality
+	// UserInterface provides the interface for functionality
 	// related to users stored in the database.
-	user.UserService
+	user.UserInterface
 
-	// WorkerService provides the interface for functionality
+	// WorkerInterface provides the interface for functionality
 	// related to workers stored in the database.
-	worker.WorkerService
+	worker.WorkerInterface
 }

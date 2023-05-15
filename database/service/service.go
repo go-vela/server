@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package step
+package service
 
 import (
 	"fmt"
@@ -14,34 +14,34 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the StepInterface interface.
+	// config represents the settings required to create the engine that implements the ServiceInterface interface.
 	config struct {
-		// specifies to skip creating tables and indexes for the Step engine
+		// specifies to skip creating tables and indexes for the Service engine
 		SkipCreation bool
 	}
 
-	// engine represents the step functionality that implements the StepInterface interface.
+	// engine represents the service functionality that implements the ServiceInterface interface.
 	engine struct {
-		// engine configuration settings used in step functions
+		// engine configuration settings used in service functions
 		config *config
 
-		// gorm.io/gorm database client used in step functions
+		// gorm.io/gorm database client used in service functions
 		//
 		// https://pkg.go.dev/gorm.io/gorm#DB
 		client *gorm.DB
 
-		// sirupsen/logrus logger used in step functions
+		// sirupsen/logrus logger used in service functions
 		//
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		logger *logrus.Entry
 	}
 )
 
-// New creates and returns a Vela service for integrating with steps in the database.
+// New creates and returns a Vela service for integrating with services in the database.
 //
 //nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (*engine, error) {
-	// create new Step engine
+	// create new Service engine
 	e := new(engine)
 
 	// create new fields
@@ -57,17 +57,17 @@ func New(opts ...EngineOpt) (*engine, error) {
 		}
 	}
 
-	// check if we should skip creating step database objects
+	// check if we should skip creating service database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of steps table in the database")
+		e.logger.Warning("skipping creation of services table in the database")
 
 		return e, nil
 	}
 
-	// create the steps table
-	err := e.CreateStepTable(e.client.Config.Dialector.Name())
+	// create the services table
+	err := e.CreateServiceTable(e.client.Config.Dialector.Name())
 	if err != nil {
-		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableStep, err)
+		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableService, err)
 	}
 
 	return e, nil

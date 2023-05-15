@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// LogService represents the Vela interface for log
+// LogInterface represents the Vela interface for log
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type LogService interface {
+type LogInterface interface {
 	// Log Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
