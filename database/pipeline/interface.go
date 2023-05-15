@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// PipelineService represents the Vela interface for pipeline
+// PipelineInterface represents the Vela interface for pipeline
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type PipelineService interface {
+type PipelineInterface interface {
 	// Pipeline Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language

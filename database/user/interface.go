@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// UserService represents the Vela interface for user
+// UserInterface represents the Vela interface for user
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type UserService interface {
+type UserInterface interface {
 	// User Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
