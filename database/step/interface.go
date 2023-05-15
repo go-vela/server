@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// StepService represents the Vela interface for step
+// StepInterface represents the Vela interface for step
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type StepService interface {
+type StepInterface interface {
 	// Step Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language

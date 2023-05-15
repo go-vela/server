@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// RepoService represents the Vela interface for repo
+// RepoInterface represents the Vela interface for repo
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type RepoService interface {
+type RepoInterface interface {
 	// Repo Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language

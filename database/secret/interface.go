@@ -8,11 +8,11 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// SecretService represents the Vela interface for secret
+// SecretInterface represents the Vela interface for secret
 // functions with the supported Database backends.
 //
 //nolint:revive // ignore name stutter
-type SecretService interface {
+type SecretInterface interface {
 	// Secret Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
