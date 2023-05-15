@@ -540,7 +540,7 @@ func DeleteStep(c *gin.Context) {
 // planSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-func planSteps(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
+func planSteps(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
