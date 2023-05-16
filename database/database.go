@@ -20,7 +20,7 @@ import (
 // * Postgres
 // * Sqlite
 // .
-func New(s *Setup) (Service, error) {
+func New(s *Setup) (Interface, error) {
 	// validate the setup being provided
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database?tab=doc#Setup.Validate
