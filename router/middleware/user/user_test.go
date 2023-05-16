@@ -18,7 +18,7 @@ import (
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"

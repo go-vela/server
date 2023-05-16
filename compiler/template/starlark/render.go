@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-
 	"github.com/go-vela/types/raw"
+	"go.starlark.net/starlarkstruct"
 
 	yaml "github.com/buildkite/yaml"
 	types "github.com/go-vela/types/yaml"
@@ -40,7 +40,9 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
 	thread.SetMaxExecutionSteps(5000)
 
-	globals, err := starlark.ExecFile(thread, tName, tmpl, nil)
+	predeclared := starlark.StringDict{"struct": starlark.NewBuiltin("struct", starlarkstruct.Make)}
+
+	globals, err := starlark.ExecFile(thread, tName, tmpl, predeclared)
 
 	if err != nil {
 		return nil, err
@@ -146,7 +148,9 @@ func RenderBuild(tmpl string, b string, envs map[string]string, variables map[st
 	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
 	thread.SetMaxExecutionSteps(5000)
 
-	globals, err := starlark.ExecFile(thread, "templated-base", b, nil)
+	predeclared := starlark.StringDict{"struct": starlark.NewBuiltin("struct", starlarkstruct.Make)}
+
+	globals, err := starlark.ExecFile(thread, "templated-base", b, predeclared)
 	if err != nil {
 		return nil, err
 	}

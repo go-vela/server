@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/google/go-github/v50/github"
+	"github.com/google/go-github/v52/github"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2"
@@ -25,6 +25,7 @@ const (
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
 	eventRepository   = "repository"
+	eventInitialize   = "initialize"
 )
 
 var ctx = context.Background()

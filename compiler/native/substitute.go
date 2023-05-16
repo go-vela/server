@@ -16,7 +16,7 @@ import (
 )
 
 // SubstituteStages replaces every declared environment
-// variable with it's corresponding value for each step
+// variable with its corresponding value for each step
 // in every stage in a yaml configuration.
 func (c *client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) {
 	// iterate through all stages
@@ -34,7 +34,7 @@ func (c *client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) 
 }
 
 // SubstituteSteps replaces every declared environment
-// variable with it's corresponding value for each step
+// variable with its corresponding value for each step
 // in a yaml configuration.
 func (c *client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
 	// iterate through all steps

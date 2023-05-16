@@ -17,7 +17,7 @@ import (
 
 func TestMiddleware_Database(t *testing.T) {
 	// setup types
-	var got database.Service
+	var got database.Interface
 
 	want, _ := sqlite.NewTest()
 

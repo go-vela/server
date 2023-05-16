@@ -11,7 +11,7 @@ import (
 
 // Database is a middleware function that initializes the database and
 // attaches to the context of every http.Request.
-func Database(d database.Service) gin.HandlerFunc {
+func Database(d database.Interface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		database.ToContext(c, d)
 		c.Next()

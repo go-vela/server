@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/gin-gonic/gin"
 )

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/pipeline"
 
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
@@ -22,7 +23,7 @@ import (
 
 // ExpandStages injects the template for each
 // templated step in every stage in a yaml configuration.
-func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
@@ -30,7 +31,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r)
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +47,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template) (*
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*yaml.Build, error) {
+func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
 	}
@@ -73,6 +74,22 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template) (*y
 		tmpl, ok := tmpls[step.Template.Name]
 		if !ok {
 			return s, fmt.Errorf("missing template source for template %s in pipeline for step %s", step.Template.Name, step.Name)
+		}
+
+		// if ruledata is nil (CompileLite), continue with expansion
+		if r != nil {
+			// form a one-step pipeline to prep for purge check
+			check := &yaml.StepSlice{step}
+			pipeline := &pipeline.Build{
+				Steps: *check.ToPipeline(),
+			}
+
+			pipeline = pipeline.Purge(r)
+
+			// if step purged, do not proceed with expansion
+			if len(pipeline.Steps) == 0 {
+				continue
+			}
 		}
 
 		// Create some default global environment inject vars

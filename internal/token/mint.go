@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // Claims struct is an extension of the JWT standard claims. It
@@ -67,6 +67,13 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 
 		claims.BuildID = mto.BuildID
 		claims.Repo = mto.Repo
+		claims.Subject = mto.Hostname
+
+	case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
+		if len(mto.Hostname) == 0 {
+			return "", fmt.Errorf("missing host name for %s token", mto.TokenType)
+		}
+
 		claims.Subject = mto.Hostname
 
 	default:

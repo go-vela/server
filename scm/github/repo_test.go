@@ -602,10 +602,27 @@ func TestGithub_Enable(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	wantHook := new(library.Hook)
+	wantHook.SetWebhookID(1)
+	wantHook.SetSourceID("bar-initialize")
+	wantHook.SetCreated(1315329987)
+	wantHook.SetNumber(1)
+	wantHook.SetEvent("initialize")
+	wantHook.SetStatus("success")
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetName("bar")
+	r.SetOrg("foo")
+	r.SetHash("secret")
+	r.SetAllowPush(true)
+	r.SetAllowPull(true)
+	r.SetAllowDeploy(true)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.Enable(u, "foo", "bar", "secret")
+	got, _, err := client.Enable(u, r, new(library.Hook))
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -613,6 +630,57 @@ func TestGithub_Enable(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Enable returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(wantHook, got) {
+		t.Errorf("Enable returned hook %v, want %v", got, wantHook)
+	}
+}
+
+func TestGithub_Update(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/hook.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetID(1)
+	r.SetName("bar")
+	r.SetOrg("foo")
+	r.SetHash("secret")
+	r.SetAllowPush(true)
+	r.SetAllowPull(true)
+	r.SetAllowDeploy(true)
+
+	hookID := int64(1)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	err := client.Update(u, r, hookID)
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Update returned err: %v", err)
 	}
 }
 
@@ -959,6 +1027,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetClone("https://github.com/octocat/Hello-World.git")
 	want.SetBranch("master")
 	want.SetPrivate(false)
+	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 
 	client, _ := NewTest(s.URL)
 
@@ -1121,6 +1190,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetClone("https://github.com/octocat/Hello-World.git")
 	r.SetBranch("master")
 	r.SetPrivate(false)
+	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 
 	want := []*library.Repo{r}
 

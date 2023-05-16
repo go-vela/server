@@ -97,7 +97,11 @@
         "forks": 0,
         "open_issues": 2,
         "watchers": 0,
-        "default_branch": "main"
+        "default_branch": "main",
+        "topics": [
+          "cloud",
+          "security"
+        ]
     },
     "enterprise": {
         "id": 1,

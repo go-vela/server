@@ -7,7 +7,7 @@ package token
 import (
 	"errors"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // ParseToken scans the signed JWT token as a string and extracts
@@ -21,10 +21,7 @@ func (tm *Manager) ParseToken(token string) (*Claims, error) {
 	var claims = new(Claims)
 
 	// create a new JWT parser
-	p := &jwt.Parser{
-		// explicitly only allow these signing methods
-		ValidMethods: []string{jwt.SigningMethodHS256.Name},
-	}
+	p := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 	// parse and validate given token
 	tkn, err := p.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {

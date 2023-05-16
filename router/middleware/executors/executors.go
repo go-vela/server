@@ -14,8 +14,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
@@ -29,6 +31,15 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		e := new([]library.Executor)
 		b := build.Retrieve(c)
+
+		// if build has no host, we cannot establish executors
+		if len(b.GetHost()) == 0 {
+			ToContext(c, *e)
+			c.Next()
+
+			return
+		}
+
 		// retrieve the worker
 		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
 		if err != nil {
@@ -51,8 +62,26 @@ func Establish() gin.HandlerFunc {
 			return
 		}
 
-		// add the token to authenticate to the worker as a header
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.MustGet("secret").(string)))
+		tm := c.MustGet("token-manager").(*token.Manager)
+
+		// set mint token options
+		mto := &token.MintTokenOpts{
+			Hostname:      "vela-server",
+			TokenType:     constants.WorkerAuthTokenType,
+			TokenDuration: time.Minute * 1,
+		}
+
+		// mint token
+		tkn, err := tm.MintToken(mto)
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate auth token: %w", err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// add the token to authenticate to the worker
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
 		// make the request to the worker and check the response
 		resp, err := client.Do(req)
