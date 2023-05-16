@@ -5,7 +5,7 @@
 package schedule
 
 import (
-	"github.com/go-vela/server/database/constants"
+	"github.com/go-vela/types/constants"
 )
 
 // CountActiveSchedules gets the count of all active schedules from the database.

@@ -6,22 +6,20 @@
 package schedule
 
 import (
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/constants"
-	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(s *api.Schedule) error {
+func (e *engine) UpdateSchedule(s *library.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
-		"org":      s.GetRepo().GetOrg(),
-		"repo":     s.GetRepo().GetName(),
 		"schedule": s.GetName(),
-	}).Tracef("updating schedule %s/%s in the database", s.GetRepo().GetFullName(), s.GetName())
+	}).Tracef("updating schedule %s in the database", s.GetName())
 
 	// cast the library type to database type
-	schedule := types.ScheduleFromAPI(s)
+	schedule := database.ScheduleFromLibrary(s)
 
 	// validate the necessary fields are populated
 	err := schedule.Validate()

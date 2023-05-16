@@ -5,15 +5,14 @@
 package schedule
 
 import (
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/constants"
-	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // ListSchedulesForRepo gets a list of schedules by repo ID from the database.
-func (e *engine) ListSchedulesForRepo(r *library.Repo, page, perPage int) ([]*api.Schedule, int64, error) {
+func (e *engine) ListSchedulesForRepo(r *library.Repo, page, perPage int) ([]*library.Schedule, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -21,8 +20,8 @@ func (e *engine) ListSchedulesForRepo(r *library.Repo, page, perPage int) ([]*ap
 
 	// variables to store query results and return value
 	count := int64(0)
-	h := new([]types.Schedule)
-	schedules := []*api.Schedule{}
+	s := new([]database.Schedule)
+	schedules := []*library.Schedule{}
 
 	// count the results
 	count, err := e.CountSchedulesForRepo(r)
@@ -45,19 +44,19 @@ func (e *engine) ListSchedulesForRepo(r *library.Repo, page, perPage int) ([]*ap
 		Order("id DESC").
 		Limit(perPage).
 		Offset(offset).
-		Find(&h).
+		Find(&s).
 		Error
 	if err != nil {
 		return nil, count, err
 	}
 
 	// iterate through all query results
-	for _, schedule := range *h {
+	for _, schedule := range *s {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := schedule
 
 		// convert query result to library type
-		schedules = append(schedules, tmp.ToAPI(r))
+		schedules = append(schedules, tmp.ToLibrary())
 	}
 
 	return schedules, count, nil

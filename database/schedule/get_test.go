@@ -9,25 +9,19 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/library"
 )
 
 func TestSchedule_Engine_GetSchedule(t *testing.T) {
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-
 	_schedule := testSchedule()
 	_schedule.SetID(1)
+	_schedule.SetRepoID(1)
 	_schedule.SetName("nightly")
 	_schedule.SetEntry("0 0 * * *")
 	_schedule.SetCreatedAt(1)
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
-	_schedule.SetRepo(_repo)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -48,14 +42,12 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
 
-	_schedule.SetRepo(nil)
-
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     *types.Schedule
+		want     *library.Schedule
 	}{
 		{
 			failure:  false,
