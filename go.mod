@@ -10,7 +10,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.30.2
 	github.com/aws/aws-sdk-go v1.44.248
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
-	github.com/drone/envsubst/v2 v2.0.0-20210730161058-179042472c46
+	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-vela/types v0.19.3-0.20230515193930-cb989d14b504
@@ -56,7 +56,6 @@ require (
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/drone/envsubst v1.0.3 // indirect
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
