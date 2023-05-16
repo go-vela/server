@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetScheduleForRepo gets a schedule by repo ID and number from the database.
+// GetScheduleForRepo gets a schedule by repo ID and name from the database.
 func (e *engine) GetScheduleForRepo(r *library.Repo, name string) (*library.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),

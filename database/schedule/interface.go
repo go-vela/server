@@ -36,7 +36,7 @@ type ScheduleInterface interface {
 	DeleteSchedule(*library.Schedule) error
 	// GetSchedule defines a function that gets a schedule by ID.
 	GetSchedule(int64) (*library.Schedule, error)
-	// GetScheduleForRepo defines a function that gets a schedule by repo ID and number.
+	// GetScheduleForRepo defines a function that gets a schedule by repo ID and name.
 	GetScheduleForRepo(*library.Repo, string) (*library.Schedule, error)
 	// ListActiveSchedules defines a function that gets a list of all active schedules.
 	ListActiveSchedules() ([]*library.Schedule, error)

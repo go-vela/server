@@ -27,7 +27,7 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	_scheduleTwo := testSchedule()
 	_scheduleTwo.SetID(2)
 	_scheduleTwo.SetRepoID(2)
-	_scheduleTwo.SetActive(true)
+	_scheduleTwo.SetActive(false)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")
 	_scheduleTwo.SetCreatedAt(1)
@@ -47,8 +47,7 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at"}).
-		AddRow(1, 1, true, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil).
-		AddRow(2, 2, true, "hourly", "0 * * * *", 1, "user1", 1, "user2", nil)
+		AddRow(1, 1, true, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE active = $1`).WithArgs(true).WillReturnRows(_rows)
@@ -77,13 +76,13 @@ func TestSchedule_Engine_ListActiveSchedules(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Schedule{_scheduleOne, _scheduleTwo},
+			want:     []*library.Schedule{_scheduleOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Schedule{_scheduleOne, _scheduleTwo},
+			want:     []*library.Schedule{_scheduleOne},
 		},
 	}
 

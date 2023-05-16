@@ -31,7 +31,7 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 
 	_scheduleTwo := testSchedule()
 	_scheduleTwo.SetID(2)
-	_scheduleTwo.SetRepoID(1)
+	_scheduleTwo.SetRepoID(2)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")
 	_scheduleTwo.SetCreatedAt(1)
@@ -51,7 +51,6 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at"}).
-		AddRow(2, 1, false, "hourly", "0 * * * *", 1, "user1", 1, "user2", nil).
 		AddRow(1, 1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil)
 
 	// ensure the mock expects the query
@@ -81,13 +80,13 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Schedule{_scheduleTwo, _scheduleOne},
+			want:     []*library.Schedule{_scheduleOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Schedule{_scheduleTwo, _scheduleOne},
+			want:     []*library.Schedule{_scheduleOne},
 		},
 	}
 

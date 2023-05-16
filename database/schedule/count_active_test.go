@@ -26,7 +26,7 @@ func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
 	_scheduleTwo := testSchedule()
 	_scheduleTwo.SetID(2)
 	_scheduleTwo.SetRepoID(2)
-	_scheduleTwo.SetActive(true)
+	_scheduleTwo.SetActive(false)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")
 	_scheduleTwo.SetCreatedAt(1)
@@ -38,7 +38,7 @@ func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "schedules" WHERE active = $1`).WithArgs(true).WillReturnRows(_rows)
@@ -67,13 +67,13 @@ func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     2,
+			want:     1,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     2,
+			want:     1,
 		},
 	}
 
