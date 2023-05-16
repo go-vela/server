@@ -14,13 +14,13 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the StepService interface.
+	// config represents the settings required to create the engine that implements the StepInterface interface.
 	config struct {
 		// specifies to skip creating tables and indexes for the Step engine
 		SkipCreation bool
 	}
 
-	// engine represents the step functionality that implements the StepService interface.
+	// engine represents the step functionality that implements the StepInterface interface.
 	engine struct {
 		// engine configuration settings used in step functions
 		config *config

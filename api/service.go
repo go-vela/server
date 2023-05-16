@@ -130,7 +130,7 @@ func CreateService(c *gin.Context) {
 	}
 
 	// send API call to capture the created service
-	s, _ := database.FromContext(c).GetService(input.GetNumber(), b)
+	s, _ := database.FromContext(c).GetServiceForBuild(b, input.GetNumber())
 
 	c.JSON(http.StatusCreated, s)
 }
@@ -238,18 +238,8 @@ func GetServices(c *gin.Context) {
 	// ensure per_page isn't above or below allowed values
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	// send API call to capture the total number of services for the build
-	t, err := database.FromContext(c).GetBuildServiceCount(b)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get services count for build %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// send API call to capture the list of services for the build
-	s, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
+	s, t, err := database.FromContext(c).ListServicesForBuild(b, map[string]interface{}{}, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get services for build %s: %w", entry, err)
 
@@ -462,7 +452,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to capture the updated service
-	s, _ = database.FromContext(c).GetService(s.GetNumber(), b)
+	s, _ = database.FromContext(c).GetServiceForBuild(b, s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }
@@ -534,7 +524,7 @@ func DeleteService(c *gin.Context) {
 	}).Infof("deleting service %s", entry)
 
 	// send API call to remove the service
-	err := database.FromContext(c).DeleteService(s.GetID())
+	err := database.FromContext(c).DeleteService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete service %s: %w", entry, err)
 
@@ -549,7 +539,7 @@ func DeleteService(c *gin.Context) {
 // planServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build in the configured backend.
-func planServices(database database.Service, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
+func planServices(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}
 
@@ -572,7 +562,7 @@ func planServices(database database.Service, p *pipeline.Build, b *library.Build
 		}
 
 		// send API call to capture the created service
-		s, err = database.GetService(s.GetNumber(), b)
+		s, err = database.GetServiceForBuild(b, s.GetNumber())
 		if err != nil {
 			return services, fmt.Errorf("unable to get service %s: %w", s.GetName(), err)
 		}
