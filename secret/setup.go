@@ -13,7 +13,6 @@ import (
 	"github.com/go-vela/server/secret/native"
 	"github.com/go-vela/server/secret/vault"
 	"github.com/go-vela/types/constants"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +26,7 @@ type Setup struct {
 	Driver string
 
 	// specifies the database service to use for the secret client
-	Database database.Service
+	Database database.Interface
 
 	// specifies the address to use for the secret client
 	Address string

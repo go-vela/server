@@ -15,7 +15,7 @@ import (
 )
 
 // helper function to setup the secrets engines from the CLI arguments.
-func setupSecrets(c *cli.Context, d database.Service) (map[string]secret.Service, error) {
+func setupSecrets(c *cli.Context, d database.Interface) (map[string]secret.Service, error) {
 	logrus.Debug("Creating secret clients from CLI configuration")
 
 	secrets := make(map[string]secret.Service)
