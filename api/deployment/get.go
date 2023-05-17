@@ -38,7 +38,7 @@ import (
 //   type: string
 // - in: path
 //   name: deployment
-//   description: Name of the org
+//   description: Name of the deployment
 //   required: true
 //   type: string
 // security:
