@@ -178,7 +178,7 @@ func server(c *cli.Context) error {
 			// sleep for the half of the configured minimum frequency duration for schedules
 			time.Sleep(sleep)
 
-			err = processSchedules(compiler, database, metadata, scm)
+			err = processSchedules(compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

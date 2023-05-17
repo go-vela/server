@@ -695,7 +695,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go publishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -705,9 +705,9 @@ func PostWebhook(c *gin.Context) {
 	)
 }
 
-// publishToQueue is a helper function that creates
+// PublishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
-func publishToQueue(queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
+func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
 	item := types.ToItem(p, b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())

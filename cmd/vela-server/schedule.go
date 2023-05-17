@@ -9,9 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/adhocore/gronx"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
@@ -22,7 +24,7 @@ import (
 
 const baseErr = "unable to schedule build"
 
-func processSchedules(compiler compiler.Engine, database database.Interface, metadata *types.Metadata, scm scm.Service) error {
+func processSchedules(compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the list of active schedules
 	schedules, err := database.ListActiveSchedules()
 	if err != nil {
@@ -31,18 +33,54 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 
 	// iterate through the list of active schedules
 	for _, schedule := range schedules {
-		err = processSchedule(schedule, compiler, database, metadata, scm)
-		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+		// create a variable to track if a build should be triggered based off the schedule
+		trigger := false
 
-			continue
+		// check if a build has already been triggered for the schedule
+		if schedule.GetScheduledAt() == 0 {
+			// trigger a build for the schedule since one has not already been scheduled
+			trigger = true
+		} else {
+			// parse the previous occurrence of the entry for the schedule
+			prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
+			if err != nil {
+				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+				continue
+			}
+
+			// parse the next occurrence of the entry for the schedule
+			nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
+			if err != nil {
+				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+				continue
+			}
+
+			// parse the UNIX timestamp from when the last build was triggered for the schedule
+			t := time.Unix(schedule.GetScheduledAt(), 0)
+
+			// check if the time since the last triggered build is greater than the entry duration for the schedule
+			if time.Since(t) > nextTime.Sub(prevTime) {
+				// trigger a build for the schedule since it has not previously ran
+				trigger = true
+			}
+		}
+
+		if trigger {
+			err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+			if err != nil {
+				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+				continue
+			}
 		}
 	}
 
 	return nil
 }
 
-func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, scm scm.Service) error {
+func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
 	if err != nil {
@@ -65,15 +103,15 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to capture the owner for the repo
-	user, err := database.GetUser(r.GetUserID())
+	u, err := database.GetUser(r.GetUserID())
 	if err != nil {
 		return fmt.Errorf("unable to get owner for repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to confirm repo owner has at least write access to repo
-	_, err = scm.RepoAccess(user, user.GetToken(), r.GetOrg(), r.GetName())
+	_, err = scm.RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
-		return fmt.Errorf("%s does not have at least write access for repo %s", user.GetName(), r.GetFullName())
+		return fmt.Errorf("%s does not have at least write access for repo %s", u.GetName(), r.GetFullName())
 	}
 
 	// create SQL filters for querying pending and running builds for repo
@@ -143,7 +181,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		pipeline, err = database.GetPipelineForRepo(b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			config, err = scm.ConfigBackoff(user, r, b.GetCommit())
+			config, err = scm.ConfigBackoff(u, r, b.GetCommit())
 			if err != nil {
 				return fmt.Errorf("unable to get pipeline config for %s/%s: %w", r.GetFullName(), b.GetCommit(), err)
 			}
@@ -152,7 +190,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		repo, err := database.GetRepoForOrg(r.GetOrg(), r.GetName())
+		r, err = database.GetRepoForOrg(r.GetOrg(), r.GetName())
 		if err != nil {
 			err = fmt.Errorf("unable to get repo %s: %w", r.GetFullName(), err)
 
@@ -168,14 +206,14 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		}
 
 		// update repo fields with any changes from SCM process
-		repo.SetTopics(r.GetTopics())
-		repo.SetBranch(r.GetBranch())
+		r.SetTopics(r.GetTopics())
+		r.SetBranch(r.GetBranch())
 
 		// set the build numbers based off repo counter
-		repo.SetCounter(repo.GetCounter() + 1)
-		b.SetNumber(repo.GetCounter() + 1)
+		r.SetCounter(r.GetCounter() + 1)
+		b.SetNumber(r.GetCounter() + 1)
 		// set the parent equal to the current repo counter
-		b.SetParent(repo.GetCounter())
+		b.SetParent(r.GetCounter())
 		// check if the parent is set to 0
 		if b.GetParent() == 0 {
 			// parent should be "1" if it's the first build ran
@@ -184,7 +222,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 
 		// set the build link if a web address is provided
 		if len(metadata.Vela.WebAddress) > 0 {
-			b.SetLink(fmt.Sprintf("%s/%s/%d", metadata.Vela.WebAddress, repo.GetFullName(), b.GetNumber()))
+			b.SetLink(fmt.Sprintf("%s/%s/%d", metadata.Vela.WebAddress, r.GetFullName(), b.GetNumber()))
 		}
 
 		// ensure we use the expected pipeline type when compiling
@@ -194,7 +232,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		// the repo pipeline type to match what was defined for the existing pipeline
 		// before compiling. After we're done compiling, we reset the pipeline type.
 		if len(pipeline.GetType()) > 0 {
-			repo.SetPipelineType(pipeline.GetType())
+			r.SetPipelineType(pipeline.GetType())
 		}
 
 		var compiled *library.Pipeline
@@ -203,8 +241,8 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			Duplicate().
 			WithBuild(b).
 			WithMetadata(metadata).
-			WithRepo(repo).
-			WithUser(user).
+			WithRepo(r).
+			WithUser(u).
 			Compile(config)
 		if err != nil {
 			return fmt.Errorf("unable to compile pipeline config for %s/%s: %w", r.GetFullName(), b.GetCommit(), err)
@@ -216,7 +254,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		// existing pipelines in the system for that repo. To account for this, we update
 		// the repo pipeline type to match what was defined for the existing pipeline
 		// before compiling. After we're done compiling, we reset the pipeline type.
-		repo.SetPipelineType(pipelineType)
+		r.SetPipelineType(pipelineType)
 
 		// skip the build if only the init or clone steps are found
 		skip := api.SkipEmptyBuild(p)
@@ -227,14 +265,14 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		// check if the pipeline did not already exist in the database
 		if pipeline == nil {
 			pipeline = compiled
-			pipeline.SetRepoID(repo.GetID())
+			pipeline.SetRepoID(r.GetID())
 			pipeline.SetCommit(b.GetCommit())
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
 			err = database.CreatePipeline(pipeline)
 			if err != nil {
-				err = fmt.Errorf("failed to create pipeline for %s: %w", repo.GetFullName(), err)
+				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 
 				// check if the retry limit has been exceeded
 				if i < retryLimit-1 {
@@ -248,9 +286,9 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			}
 
 			// send API call to capture the created pipeline
-			pipeline, err = database.GetPipelineForRepo(pipeline.GetCommit(), repo)
+			pipeline, err = database.GetPipelineForRepo(pipeline.GetCommit(), r)
 			if err != nil {
-				return fmt.Errorf("unable to get new pipeline %s/%s: %w", repo.GetFullName(), pipeline.GetCommit(), err)
+				return fmt.Errorf("unable to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
 			}
 		}
 
@@ -263,7 +301,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = api.PlanBuild(database, p, b, repo)
+		err = api.PlanBuild(database, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -281,9 +319,39 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			return err
 		}
 
+		s.SetScheduledAt(time.Now().UTC().Unix())
+
 		// break the loop because everything was successful
 		break
 	} // end of retry loop
+
+	// send API call to update repo for ensuring counter is incremented
+	err = database.UpdateRepo(r)
+	if err != nil {
+		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
+	}
+
+	// send API call to update schedule for ensuring scheduled_at field is set
+	err = database.UpdateSchedule(s)
+	if err != nil {
+		return fmt.Errorf("unable to update schedule %s/%s: %w", r.GetFullName(), s.GetName(), err)
+	}
+
+	// send API call to capture the triggered build
+	b, err = database.GetBuild(b.GetNumber(), r)
+	if err != nil {
+		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+	}
+
+	// publish the build to the queue
+	go api.PublishToQueue(
+		queue,
+		database,
+		p,
+		b,
+		r,
+		u,
+	)
 
 	return nil
 }

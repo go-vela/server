@@ -368,7 +368,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go publishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -1296,7 +1296,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go publishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
