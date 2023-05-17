@@ -169,6 +169,24 @@ func server(c *cli.Context) error {
 		return err
 	})
 
+	// spawn goroutine for starting the server
+	g.Go(func() error {
+		logrus.Info("starting scheduler")
+		for {
+			sleep := c.Duration("schedule-minimum-frequency") / 2
+			logrus.Tracef("sleeping for half of configured minimum frequency duration %v", sleep)
+			// sleep for the half of the configured minimum frequency duration for schedules
+			time.Sleep(sleep)
+
+			err = processSchedules(compiler, database, metadata, scm)
+			if err != nil {
+				logrus.WithError(err).Warn("unable to process schedules")
+			} else {
+				logrus.Trace("successfully processed schedules")
+			}
+		}
+	})
+
 	// wait for errors from server subprocesses
 	return g.Wait()
 }

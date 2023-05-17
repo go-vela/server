@@ -339,7 +339,7 @@ func CreateBuild(c *gin.Context) {
 	input.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), p, input, r)
+	err = PlanBuild(database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -1268,7 +1268,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), p, b, r)
+	err = PlanBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -1563,12 +1563,12 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 	return strconv.Atoi(parts[2])
 }
 
-// planBuild is a helper function to plan the build for
+// PlanBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func planBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
+func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 

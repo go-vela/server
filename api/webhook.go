@@ -608,7 +608,7 @@ func PostWebhook(c *gin.Context) {
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = planBuild(database.FromContext(c), p, b, repo)
+		err = PlanBuild(database.FromContext(c), p, b, repo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
