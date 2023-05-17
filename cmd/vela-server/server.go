@@ -174,7 +174,7 @@ func server(c *cli.Context) error {
 		logrus.Info("starting scheduler")
 		for {
 			sleep := c.Duration("schedule-minimum-frequency") / 2
-			logrus.Tracef("sleeping for half of configured minimum frequency duration %v", sleep)
+			logrus.Tracef("sleeping for half of configured schedule minimum frequency duration %v", sleep)
 			// sleep for the half of the configured minimum frequency duration for schedules
 			time.Sleep(sleep)
 
