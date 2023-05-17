@@ -11,11 +11,11 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -81,7 +81,7 @@ func CreateSchedule(c *gin.Context) {
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
 	// capture body from API request
-	input := new(types.Schedule)
+	input := new(library.Schedule)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -125,11 +125,11 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	s := new(types.Schedule)
+	s := new(library.Schedule)
 
 	// update fields in schedule object
 	s.SetCreatedBy(u.GetName())
-	s.SetRepo(r)
+	s.SetRepoID(r.GetID())
 	s.SetName(input.GetName())
 	s.SetEntry(input.GetEntry())
 	s.SetCreatedAt(time.Now().UTC().Unix())

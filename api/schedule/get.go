@@ -7,11 +7,10 @@ package schedule
 import (
 	"net/http"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/schedule"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/sirupsen/logrus"
 )

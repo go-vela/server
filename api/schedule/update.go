@@ -9,12 +9,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/router/middleware/repo"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -85,7 +84,7 @@ func UpdateSchedule(c *gin.Context) {
 	}).Infof("updating schedule %s", scheduleName)
 
 	// capture body from API request
-	input := new(types.Schedule)
+	input := new(library.Schedule)
 
 	err := c.Bind(input)
 	if err != nil {
