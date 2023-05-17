@@ -10,11 +10,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CountBuildsForUser gets the count of builds by user ID from the database.
+// CountBuildsForRepo gets the count of builds by repo ID from the database.
 func (e *engine) CountBuildsForRepo(r *library.Repo, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
-		"user": u.GetName(),
-	}).Tracef("getting count of builds for user %s from the database", u.GetName())
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("getting count of builds for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
 	var b int64
@@ -22,10 +23,10 @@ func (e *engine) CountBuildsForRepo(r *library.Repo, filters map[string]interfac
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
-		Where("user_id = ?", u.GetID()).
+		Where("repo_id = ?", r.GetID()).
 		Where(filters).
-		Count(&r).
+		Count(&b).
 		Error
 
-	return r, err
+	return b, err
 }
