@@ -14,7 +14,7 @@ require (
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.19.2
+	github.com/go-vela/types v0.19.3-0.20230516131722-f538de06bbf6
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-github/v52 v52.0.0
@@ -25,7 +25,6 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/hashicorp/vault/api v1.9.1
 	github.com/joho/godotenv v1.5.1
-	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.15.0
 	github.com/redis/go-redis/v9 v9.0.3
@@ -93,6 +92,7 @@ require (
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.23 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

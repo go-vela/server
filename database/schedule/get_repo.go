@@ -5,15 +5,14 @@
 package schedule
 
 import (
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/constants"
-	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
-// GetScheduleForRepo gets a schedule by repo ID and number from the database.
-func (e *engine) GetScheduleForRepo(r *library.Repo, name string) (*api.Schedule, error) {
+// GetScheduleForRepo gets a schedule by repo ID and name from the database.
+func (e *engine) GetScheduleForRepo(r *library.Repo, name string) (*library.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"repo":     r.GetName(),
@@ -21,7 +20,7 @@ func (e *engine) GetScheduleForRepo(r *library.Repo, name string) (*api.Schedule
 	}).Tracef("getting schedule %s/%s from the database", r.GetFullName(), name)
 
 	// variable to store query results
-	s := new(types.Schedule)
+	s := new(database.Schedule)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -34,5 +33,5 @@ func (e *engine) GetScheduleForRepo(r *library.Repo, name string) (*api.Schedule
 		return nil, err
 	}
 
-	return s.ToAPI(r), nil
+	return s.ToLibrary(), nil
 }

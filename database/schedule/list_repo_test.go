@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/library"
 )
 
 func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
@@ -21,23 +21,23 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 
 	_scheduleOne := testSchedule()
 	_scheduleOne.SetID(1)
+	_scheduleOne.SetRepoID(1)
 	_scheduleOne.SetName("nightly")
 	_scheduleOne.SetEntry("0 0 * * *")
 	_scheduleOne.SetCreatedAt(1)
 	_scheduleOne.SetCreatedBy("user1")
 	_scheduleOne.SetUpdatedAt(1)
 	_scheduleOne.SetUpdatedBy("user2")
-	_scheduleOne.SetRepo(_repo)
 
 	_scheduleTwo := testSchedule()
 	_scheduleTwo.SetID(2)
+	_scheduleTwo.SetRepoID(2)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")
 	_scheduleTwo.SetCreatedAt(1)
 	_scheduleTwo.SetCreatedBy("user1")
 	_scheduleTwo.SetUpdatedAt(1)
 	_scheduleTwo.SetUpdatedBy("user2")
-	_scheduleTwo.SetRepo(_repo)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -51,7 +51,6 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at"}).
-		AddRow(2, 2, false, "hourly", "0 * * * *", 1, "user1", 1, "user2", nil).
 		AddRow(1, 1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil)
 
 	// ensure the mock expects the query
@@ -75,19 +74,19 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*types.Schedule
+		want     []*library.Schedule
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*types.Schedule{_scheduleTwo, _scheduleOne},
+			want:     []*library.Schedule{_scheduleOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*types.Schedule{_scheduleTwo, _scheduleOne},
+			want:     []*library.Schedule{_scheduleOne},
 		},
 	}
 

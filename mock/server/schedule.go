@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	apiTypes "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/library"
 )
 
 const (
@@ -133,7 +133,7 @@ const (
 func getSchedules(c *gin.Context) {
 	data := []byte(SchedulesResp)
 
-	var body []apiTypes.Schedule
+	var body []library.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -155,7 +155,7 @@ func getSchedule(c *gin.Context) {
 
 	data := []byte(ScheduleResp)
 
-	var body apiTypes.Schedule
+	var body library.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -165,7 +165,7 @@ func getSchedule(c *gin.Context) {
 func addSchedule(c *gin.Context) {
 	data := []byte(ScheduleResp)
 
-	var body apiTypes.Schedule
+	var body library.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -189,7 +189,7 @@ func updateSchedule(c *gin.Context) {
 
 	data := []byte(ScheduleResp)
 
-	var body apiTypes.Schedule
+	var body library.Schedule
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

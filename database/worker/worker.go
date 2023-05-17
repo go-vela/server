@@ -14,13 +14,13 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the WorkerService interface.
+	// config represents the settings required to create the engine that implements the WorkerInterface interface.
 	config struct {
 		// specifies to skip creating tables and indexes for the Worker engine
 		SkipCreation bool
 	}
 
-	// engine represents the worker functionality that implements the WorkerService interface.
+	// engine represents the worker functionality that implements the WorkerInterface interface.
 	engine struct {
 		// engine configuration settings used in worker functions
 		config *config
