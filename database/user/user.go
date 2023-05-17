@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the UserService interface.
+	// config represents the settings required to create the engine that implements the UserInterface interface.
 	config struct {
 		// specifies the encryption key to use for the User engine
 		EncryptionKey string
@@ -22,7 +22,7 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the user functionality that implements the UserService interface.
+	// engine represents the user functionality that implements the UserInterface interface.
 	engine struct {
 		// engine configuration settings used in user functions
 		config *config

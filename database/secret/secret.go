@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the SecretService interface.
+	// config represents the settings required to create the engine that implements the SecretInterface interface.
 	config struct {
 		// specifies the encryption key to use for the Secret engine
 		EncryptionKey string
@@ -22,7 +22,7 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the secret functionality that implements the SecretService interface.
+	// engine represents the secret functionality that implements the SecretInterface interface.
 	engine struct {
 		// engine configuration settings used in secret functions
 		config *config

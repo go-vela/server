@@ -41,7 +41,7 @@ type Setup struct {
 
 // Postgres creates and returns a Vela service capable of
 // integrating with a Postgres database system.
-func (s *Setup) Postgres() (Service, error) {
+func (s *Setup) Postgres() (Interface, error) {
 	logrus.Trace("creating postgres database client from setup")
 
 	// create new Postgres database service
@@ -60,7 +60,7 @@ func (s *Setup) Postgres() (Service, error) {
 
 // Sqlite creates and returns a Vela service capable of
 // integrating with a Sqlite database system.
-func (s *Setup) Sqlite() (Service, error) {
+func (s *Setup) Sqlite() (Interface, error) {
 	logrus.Trace("creating sqlite database client from setup")
 
 	// create new Sqlite database service
