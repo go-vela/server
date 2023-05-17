@@ -11,21 +11,15 @@ import (
 )
 
 func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-
 	_schedule := testSchedule()
 	_schedule.SetID(1)
+	_schedule.SetRepoID(1)
 	_schedule.SetName("nightly")
 	_schedule.SetEntry("0 0 * * *")
 	_schedule.SetCreatedAt(1)
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
-	_schedule.SetRepo(_repo)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

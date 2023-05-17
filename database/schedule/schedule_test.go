@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 
@@ -168,9 +167,10 @@ func testSqlite(t *testing.T) *engine {
 }
 
 // testSchedule is a test helper function to create an API Schedule type with all fields set to their zero values.
-func testSchedule() *types.Schedule {
-	return &types.Schedule{
+func testSchedule() *library.Schedule {
+	return &library.Schedule{
 		ID:          new(int64),
+		RepoID:      new(int64),
 		Active:      new(bool),
 		Name:        new(string),
 		Entry:       new(string),
@@ -179,7 +179,6 @@ func testSchedule() *types.Schedule {
 		UpdatedAt:   new(int64),
 		UpdatedBy:   new(string),
 		ScheduledAt: new(int64),
-		Repo:        new(library.Repo),
 	}
 }
 

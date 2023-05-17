@@ -7,7 +7,7 @@ package schedule
 import (
 	"fmt"
 
-	"github.com/go-vela/server/database/constants"
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"

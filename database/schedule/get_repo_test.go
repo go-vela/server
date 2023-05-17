@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/library"
 )
 
 func TestSchedule_Engine_GetScheduleForRepo(t *testing.T) {
@@ -21,13 +21,13 @@ func TestSchedule_Engine_GetScheduleForRepo(t *testing.T) {
 
 	_schedule := testSchedule()
 	_schedule.SetID(1)
+	_schedule.SetRepoID(1)
 	_schedule.SetName("nightly")
 	_schedule.SetEntry("0 0 * * *")
 	_schedule.SetCreatedAt(1)
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
-	_schedule.SetRepo(_repo)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -53,7 +53,7 @@ func TestSchedule_Engine_GetScheduleForRepo(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *types.Schedule
+		want     *library.Schedule
 	}{
 		{
 			failure:  false,

@@ -12,20 +12,9 @@ import (
 )
 
 func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
-	_repoOne := testRepo()
-	_repoOne.SetID(1)
-	_repoOne.SetOrg("foo")
-	_repoOne.SetName("bar")
-	_repoOne.SetFullName("foo/bar")
-
-	_repoTwo := testRepo()
-	_repoTwo.SetID(2)
-	_repoTwo.SetOrg("bar")
-	_repoTwo.SetName("foo")
-	_repoTwo.SetFullName("bar/foo")
-
 	_scheduleOne := testSchedule()
 	_scheduleOne.SetID(1)
+	_scheduleOne.SetRepoID(1)
 	_scheduleOne.SetActive(true)
 	_scheduleOne.SetName("nightly")
 	_scheduleOne.SetEntry("0 0 * * *")
@@ -33,24 +22,23 @@ func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
 	_scheduleOne.SetCreatedBy("user1")
 	_scheduleOne.SetUpdatedAt(1)
 	_scheduleOne.SetUpdatedBy("user2")
-	_scheduleOne.SetRepo(_repoOne)
 
 	_scheduleTwo := testSchedule()
 	_scheduleTwo.SetID(2)
-	_scheduleTwo.SetActive(true)
+	_scheduleTwo.SetRepoID(2)
+	_scheduleTwo.SetActive(false)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")
 	_scheduleTwo.SetCreatedAt(1)
 	_scheduleTwo.SetCreatedBy("user1")
 	_scheduleTwo.SetUpdatedAt(1)
 	_scheduleTwo.SetUpdatedBy("user2")
-	_scheduleTwo.SetRepo(_repoTwo)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "schedules" WHERE active = $1`).WithArgs(true).WillReturnRows(_rows)
@@ -79,13 +67,13 @@ func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     2,
+			want:     1,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     2,
+			want:     1,
 		},
 	}
 

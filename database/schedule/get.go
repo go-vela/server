@@ -5,17 +5,17 @@
 package schedule
 
 import (
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/constants"
-	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
+	"github.com/go-vela/types/library"
 )
 
 // GetSchedule gets a schedule by ID from the database.
-func (e *engine) GetSchedule(id int64) (*api.Schedule, error) {
+func (e *engine) GetSchedule(id int64) (*library.Schedule, error) {
 	e.logger.Tracef("getting schedule %d from the database", id)
 
 	// variable to store query results
-	s := new(types.Schedule)
+	s := new(database.Schedule)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -27,5 +27,5 @@ func (e *engine) GetSchedule(id int64) (*api.Schedule, error) {
 		return nil, err
 	}
 
-	return s.ToAPI(nil), nil
+	return s.ToLibrary(), nil
 }

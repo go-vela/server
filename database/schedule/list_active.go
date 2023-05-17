@@ -5,19 +5,19 @@
 package schedule
 
 import (
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/constants"
-	"github.com/go-vela/server/database/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
+	"github.com/go-vela/types/library"
 )
 
 // ListActiveSchedules gets a list of all active schedules from the database.
-func (e *engine) ListActiveSchedules() ([]*api.Schedule, error) {
+func (e *engine) ListActiveSchedules() ([]*library.Schedule, error) {
 	e.logger.Trace("listing all active schedules from the database")
 
 	// variables to store query results and return value
 	count := int64(0)
-	s := new([]types.Schedule)
-	schedules := []*api.Schedule{}
+	s := new([]database.Schedule)
+	schedules := []*library.Schedule{}
 
 	// count the results
 	count, err := e.CountActiveSchedules()
@@ -46,7 +46,7 @@ func (e *engine) ListActiveSchedules() ([]*api.Schedule, error) {
 		tmp := schedule
 
 		// convert query result to API type
-		schedules = append(schedules, tmp.ToAPI(nil))
+		schedules = append(schedules, tmp.ToLibrary())
 	}
 
 	return schedules, nil
