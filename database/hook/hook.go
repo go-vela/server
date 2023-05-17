@@ -14,13 +14,13 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the HookService interface.
+	// config represents the settings required to create the engine that implements the HookInterface interface.
 	config struct {
 		// specifies to skip creating tables and indexes for the Hook engine
 		SkipCreation bool
 	}
 
-	// engine represents the hook functionality that implements the HookService interface.
+	// engine represents the hook functionality that implements the HookInterface interface.
 	engine struct {
 		// engine configuration settings used in hook functions
 		config *config

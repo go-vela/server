@@ -58,16 +58,15 @@ type MetricsQueryParameters struct {
 	// InactiveWorkerCount represents total number of inactive workers
 	InactiveWorkerCount bool `form:"inactive_worker_count"`
 
-	// UnregisteredWorkerCount represents total number of workers with a status of unregistered
-	UnregisteredWorkerCount bool `form:"unregistered_worker_count"`
+	// IdleWorkerCount represents total number of workers with a status of idle
+	// where worker RunningBuildIDs.length = 0
+	IdleWorkerCount bool `form:"idle_worker_count"`
 	// AvailableWorkerCount represents total number of workers with a status of available,
-	// where worker RunningBuildIDs.length < worker BuildLimit
+	// where worker RunningBuildIDs.length > 0 and < worker BuildLimit
 	AvailableWorkerCount bool `form:"available_worker_count"`
 	// BusyWorkerCount represents total number of workers with a status of busy,
 	// where worker BuildLimit == worker RunningBuildIDs.length
 	BusyWorkerCount bool `form:"busy_worker_count"`
-	// BusyWorkerCount represents total number of workers with a status of maintenance
-	MaintenanceWorkerCount bool `form:"maintenance_worker_count"`
 	// ErrorWorkerCount represents total number of workers with a status of error
 	ErrorWorkerCount bool `form:"error_worker_count"`
 }
@@ -195,8 +194,8 @@ var (
 //   type: boolean
 //   default: false
 // - in: query
-//   name: unregistered_worker_count
-//   description: Indicates a request for unregistered worker count
+//   name: idle_worker_count
+//   description: Indicates a request for idle worker count
 //   type: boolean
 //   default: false
 // - in: query
@@ -207,11 +206,6 @@ var (
 // - in: query
 //   name: busy_worker_count
 //   description: Indicates a request for busy worker count
-//   type: boolean
-//   default: false
-// - in: query
-//   name: maintenance_worker_count
-//   description: Indicates a request for maintenance worker count
 //   type: boolean
 //   default: false
 // - in: query
@@ -389,7 +383,7 @@ func recordGauges(c *gin.Context) {
 	// service_image_count
 	if q.ServiceImageCount {
 		// send API call to capture the total number of service images
-		serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
+		serviceImageMap, err := database.FromContext(c).ListServiceImageCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all service images: %v", err)
 		}
@@ -402,7 +396,7 @@ func recordGauges(c *gin.Context) {
 	// service_status_count
 	if q.ServiceStatusCount {
 		// send API call to capture the total number of service statuses
-		serviceStatusMap, err := database.FromContext(c).GetServiceStatusCount()
+		serviceStatusMap, err := database.FromContext(c).ListServiceStatusCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all service statuses: %v", err)
 		}
@@ -414,19 +408,18 @@ func recordGauges(c *gin.Context) {
 
 	// add worker metrics
 	var (
-		buildLimit          int64
-		activeWorkers       int64
-		inactiveWorkers     int64
-		unregisteredWorkers int64
-		availableWorkers    int64
-		busyWorkers         int64
-		maintenanceWorkers  int64
-		errorWorkers        int64
+		buildLimit       int64
+		activeWorkers    int64
+		inactiveWorkers  int64
+		idleWorkers      int64
+		availableWorkers int64
+		busyWorkers      int64
+		errorWorkers     int64
 	)
 
 	// get worker metrics based on request query parameters
-	// worker_build_limit, active_worker_count, inactive_worker_count, unregistered_worker_count, available_worker_count, busy_worker_count, maintenance_worker_count, error_worker_count
-	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount || q.UnregisteredWorkerCount || q.AvailableWorkerCount || q.BusyWorkerCount || q.MaintenanceWorkerCount || q.ErrorWorkerCount {
+	// worker_build_limit, active_worker_count, inactive_worker_count, idle_worker_count, available_worker_count, busy_worker_count, error_worker_count
+	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount || q.IdleWorkerCount || q.AvailableWorkerCount || q.BusyWorkerCount || q.ErrorWorkerCount {
 		// send API call to capture the workers
 		workers, err := database.FromContext(c).ListWorkers()
 		if err != nil {
@@ -447,28 +440,21 @@ func recordGauges(c *gin.Context) {
 			}
 		}
 
-		// available, busy, maintenance, error counts
+		// idle, available, busy, error counts
 		for _, worker := range workers {
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
 
 				switch worker.GetStatus() {
-				case constants.WorkerStatusUnregistered:
+				case constants.WorkerStatusIdle:
+					idleWorkers++
+				case constants.WorkerStatusAvailable:
 					availableWorkers++
 				case constants.WorkerStatusBusy:
 					busyWorkers++
-				case constants.WorkerStatusMaintenance:
-					maintenanceWorkers++
 				case constants.WorkerStatusError:
 					errorWorkers++
 				}
-			}
-		}
-
-		// unregistered count
-		for _, worker := range workers {
-			if worker.GetStatus() == constants.WorkerStatusUnregistered {
-				unregisteredWorkers++
 			}
 		}
 
@@ -488,11 +474,6 @@ func recordGauges(c *gin.Context) {
 			totals.WithLabelValues("worker", "count", "inactive").Set(float64(inactiveWorkers))
 		}
 
-		// unregistered_worker_count
-		if q.UnregisteredWorkerCount {
-			totals.WithLabelValues("worker", "count", "unregistered").Set(float64(unregisteredWorkers))
-		}
-
 		// available_worker_count
 		if q.AvailableWorkerCount {
 			totals.WithLabelValues("worker", "count", "available").Set(float64(availableWorkers))
@@ -501,11 +482,6 @@ func recordGauges(c *gin.Context) {
 		// busy_worker_count
 		if q.BusyWorkerCount {
 			totals.WithLabelValues("worker", "count", "busy").Set(float64(busyWorkers))
-		}
-
-		// maintenance_worker_count
-		if q.MaintenanceWorkerCount {
-			totals.WithLabelValues("worker", "count", "maintenance").Set(float64(maintenanceWorkers))
 		}
 
 		// error_worker_count

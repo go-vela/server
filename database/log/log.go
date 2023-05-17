@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the LogService interface.
+	// config represents the settings required to create the engine that implements the LogInterface interface.
 	config struct {
 		// specifies the level of compression to use for the Log engine
 		CompressionLevel int
@@ -22,7 +22,7 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the log functionality that implements the LogService interface.
+	// engine represents the log functionality that implements the LogInterface interface.
 	engine struct {
 		// engine configuration settings used in log functions
 		config *config

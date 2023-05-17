@@ -13,7 +13,7 @@ import (
 )
 
 // helper function to setup the database from the CLI arguments.
-func setupDatabase(c *cli.Context) (database.Service, error) {
+func setupDatabase(c *cli.Context) (database.Interface, error) {
 	logrus.Debug("Creating database client from CLI configuration")
 
 	// database configuration

@@ -23,8 +23,8 @@ func TestNative_New(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure  bool
-		database database.Service
-		want     database.Service
+		database database.Interface
+		want     database.Interface
 	}{
 		{
 			failure:  false,
