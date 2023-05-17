@@ -31,6 +31,15 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		e := new([]library.Executor)
 		b := build.Retrieve(c)
+
+		// if build has no host, we cannot establish executors
+		if len(b.GetHost()) == 0 {
+			ToContext(c, *e)
+			c.Next()
+
+			return
+		}
+
 		// retrieve the worker
 		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
 		if err != nil {
