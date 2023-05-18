@@ -92,8 +92,8 @@ func UpdateWorker(c *gin.Context) {
 		// update routes if set
 		w.SetRoutes(input.GetRoutes())
 	}
-
-	if input.GetActive() {
+	
+	if input.Active != nil {
 		// update active if set
 		w.SetActive(input.GetActive())
 	}
