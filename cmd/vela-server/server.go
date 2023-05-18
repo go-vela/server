@@ -20,6 +20,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
+
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 func server(c *cli.Context) error {
@@ -173,10 +175,21 @@ func server(c *cli.Context) error {
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
 		for {
-			sleep := c.Duration("schedule-minimum-frequency") / 2
-			logrus.Tracef("sleeping for half of configured schedule minimum frequency duration %v", sleep)
-			// sleep for the half of the configured minimum frequency duration for schedules
-			time.Sleep(sleep)
+			// cut the configured minimum frequency duration for schedules in half
+			//
+			// We need to sleep for some amount of time before we attempt to process schedules
+			// setup in the database. Since the minimum frequency is configurable, we cut it in
+			// half and use that as the base duration to determine how long to sleep for.
+			base := c.Duration("schedule-minimum-frequency") / 2
+			logrus.Infof("sleeping for %v before scheduling builds", base)
+
+			// sleep for a duration of time before processing schedules
+			//
+			// This should prevent multiple servers from processing schedules at the same time by
+			// leveraging a base duration along with a standard deviation of randomness a.k.a.
+			// "jitter". To create the jitter, we use the configured minimum frequency duration
+			// along with a scale factor of 0.1.
+			time.Sleep(wait.Jitter(base, 0.1))
 
 			err = processSchedules(compiler, database, metadata, queue, scm)
 			if err != nil {

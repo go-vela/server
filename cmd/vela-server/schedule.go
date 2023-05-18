@@ -20,6 +20,8 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
+
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 const baseErr = "unable to schedule build"
@@ -33,6 +35,13 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 
 	// iterate through the list of active schedules
 	for _, schedule := range schedules {
+		// sleep for 1s - 5s before processing the schedule
+		//
+		// This should prevent multiple servers from processing a schedule at the same time by
+		// leveraging a base duration along with a standard deviation of randomness a.k.a.
+		// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 5.0.
+		time.Sleep(wait.Jitter(time.Second, 5.0))
+
 		// create a variable to track if a build should be triggered based off the schedule
 		trigger := false
 
@@ -58,7 +67,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 			}
 
 			// parse the UNIX timestamp from when the last build was triggered for the schedule
-			t := time.Unix(schedule.GetScheduledAt(), 0)
+			t := time.Unix(schedule.GetScheduledAt(), 0).UTC()
 
 			// check if the time since the last triggered build is greater than the entry duration for the schedule
 			if time.Since(t) > nextTime.Sub(prevTime) {
