@@ -108,6 +108,9 @@ type Service interface {
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
 	ListUserRepos(*library.User) ([]*library.Repo, error)
+	// GetBranch defines a function that retrieves
+	// a branch for a repo.
+	GetBranch(*library.User, *library.Repo) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
 	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, string, error)

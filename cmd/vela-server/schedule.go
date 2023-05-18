@@ -87,6 +87,8 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		return fmt.Errorf("unable to fetch repo: %w", err)
 	}
 
+	logrus.Tracef("processing schedule %s/%s", r.GetFullName(), s.GetName())
+
 	// check if the repo is active
 	if !r.GetActive() {
 		return fmt.Errorf("repo %s is not active", r.GetFullName())
@@ -130,13 +132,19 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		return fmt.Errorf("repo %s has excceded the concurrent build limit of %d", r.GetFullName(), r.GetBuildLimit())
 	}
 
+	// send API call to capture the commit sha for the branch
+	_, commit, err := scm.GetBranch(u, r)
+	if err != nil {
+		return fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
+	}
+
 	url := strings.TrimSuffix(r.GetClone(), ".git")
 
 	b := new(library.Build)
 	b.SetAuthor(s.GetCreatedBy())
 	b.SetBranch(r.GetBranch())
 	b.SetClone(r.GetClone())
-	b.SetCommit(r.GetBranch())
+	b.SetCommit(commit)
 	b.SetDeploy(s.GetName())
 	b.SetEvent(constants.EventSchedule)
 	b.SetMessage(fmt.Sprintf("triggered for %s schedule with %s entry", s.GetName(), s.GetEntry()))
