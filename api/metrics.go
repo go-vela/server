@@ -474,6 +474,11 @@ func recordGauges(c *gin.Context) {
 			totals.WithLabelValues("worker", "count", "inactive").Set(float64(inactiveWorkers))
 		}
 
+		// idle_worker_count
+		if q.IdleWorkerCount {
+			totals.WithLabelValues("worker", "count", "idle").Set(float64(idleWorkers))
+		}
+
 		// available_worker_count
 		if q.AvailableWorkerCount {
 			totals.WithLabelValues("worker", "count", "available").Set(float64(availableWorkers))
