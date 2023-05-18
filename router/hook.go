@@ -6,7 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/hook"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/perm"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -23,13 +23,13 @@ import (
 // POST   /api/v1/hooks/:org/:repo/:hook/redeliver .
 func HookHandlers(base *gin.RouterGroup) {
 	// Hooks endpoints
-	hooks := base.Group("/hooks/:org/:repo", org.Establish(), repo.Establish())
+	_hooks := base.Group("/hooks/:org/:repo", org.Establish(), repo.Establish())
 	{
-		hooks.POST("", perm.MustPlatformAdmin(), api.CreateHook)
-		hooks.GET("", perm.MustRead(), api.GetHooks)
-		hooks.GET("/:hook", perm.MustRead(), api.GetHook)
-		hooks.PUT("/:hook", perm.MustPlatformAdmin(), api.UpdateHook)
-		hooks.DELETE("/:hook", perm.MustPlatformAdmin(), api.DeleteHook)
-		hooks.POST("/:hook/redeliver", perm.MustWrite(), api.RedeliverHook)
+		_hooks.POST("", perm.MustPlatformAdmin(), hook.CreateHook)
+		_hooks.GET("", perm.MustRead(), hook.ListHooks)
+		_hooks.GET("/:hook", perm.MustRead(), hook.GetHook)
+		_hooks.PUT("/:hook", perm.MustPlatformAdmin(), hook.UpdateHook)
+		_hooks.DELETE("/:hook", perm.MustPlatformAdmin(), hook.DeleteHook)
+		_hooks.POST("/:hook/redeliver", perm.MustWrite(), hook.RedeliverHook)
 	} // end of hooks endpoints
 }
