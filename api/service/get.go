@@ -7,14 +7,12 @@ package service
 import (
 	"net/http"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
-
-	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/sirupsen/logrus"
 )
 
