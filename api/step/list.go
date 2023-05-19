@@ -98,7 +98,7 @@ func ListSteps(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("reading steps for build %s", entry)
+	}).Infof("listing steps for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -126,7 +126,7 @@ func ListSteps(c *gin.Context) {
 	// send API call to capture the list of steps for the build
 	s, t, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get steps for build %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to list steps for build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
