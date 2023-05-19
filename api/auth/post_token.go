@@ -17,7 +17,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// swagger:operation POST /authenticate/token authenticate PostAuthenticateToken
+// swagger:operation POST /authenticate/token authenticate PostAuthToken
 //
 // Authenticate to Vela via personal access token
 //
@@ -45,10 +45,10 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// AuthenticateToken represents the API handler to
+// PostAuthToken represents the API handler to
 // process a user logging in using PAT to Vela from
 // the API.
-func AuthenticateToken(c *gin.Context) {
+func PostAuthToken(c *gin.Context) {
 	// attempt to get user from source
 	u, err := scm.FromContext(c).AuthenticateToken(c.Request)
 	if err != nil {

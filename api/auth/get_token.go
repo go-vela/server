@@ -16,7 +16,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// swagger:operation GET /authenticate authenticate GetAuthenticate
+// swagger:operation GET /authenticate authenticate GetAuthToken
 //
 // Start OAuth flow or exchange tokens
 //
@@ -55,10 +55,10 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// Authenticate represents the API handler to
+// GetAuthToken represents the API handler to
 // process a user logging in to Vela from
 // the API or UI.
-func Authenticate(c *gin.Context) {
+func GetAuthToken(c *gin.Context) {
 	var err error
 
 	tm := c.MustGet("token-manager").(*token.Manager)

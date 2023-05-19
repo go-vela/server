@@ -63,12 +63,12 @@ import (
 //   '307':
 //     description: Redirected for authentication
 
-// AuthenticateType handles cases where the OAuth callback was
+// GetAuthRedirect handles cases where the OAuth callback was
 // overridden by supplying a redirect_uri in the login process.
 // It will send the user to the destination to handle the last leg
 // in the auth flow - exchanging "code" and "state" for a token.
 // This will only handle non-headless flows (ie. web or cli).
-func AuthenticateType(c *gin.Context) {
+func GetAuthRedirect(c *gin.Context) {
 	// load the metadata
 	m := c.MustGet("metadata").(*types.Metadata)
 
