@@ -162,8 +162,8 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	// if the repo exists but is inactive
-	if len(r.GetOrg()) > 0 && !dbSchedule.GetActive() && input.GetActive() {
+	// if the schedule exists but is inactive
+	if !dbSchedule.GetActive() && input.GetActive() {
 		// update the user who created the schedule
 		dbSchedule.SetUpdatedBy(u.GetName())
 		// activate the schedule
@@ -223,7 +223,7 @@ func validateEntry(minimum time.Duration, entry string) error {
 
 	// ensure the time between previous and next schedule exceeds the minimum duration
 	if nextTime.Sub(prevTime) < minimum {
-		return fmt.Errorf("entry needs to occur less frequently then every %s", minimum)
+		return fmt.Errorf("entry needs to occur less frequently than every %s", minimum)
 	}
 
 	return nil

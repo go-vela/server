@@ -6,6 +6,7 @@ package schedule
 
 import (
 	"fmt"
+	"github.com/go-vela/server/router/middleware/schedule"
 	"net/http"
 	"time"
 
@@ -19,7 +20,7 @@ import (
 
 // swagger:operation PUT /api/v1/schedules/{org}/{repo}/{schedule} schedules UpdateSchedule
 //
-// Update a user for the configured backend
+// Update a schedule for the configured backend
 //
 // ---
 // produces:
@@ -71,6 +72,7 @@ import (
 func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
+	s := schedule.Retrieve(c)
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
@@ -91,16 +93,6 @@ func UpdateSchedule(c *gin.Context) {
 		retErr := fmt.Errorf("unable to decode JSON for schedule %s: %w", scheduleName, err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// send API call to capture the schedule
-	s, err := database.FromContext(c).GetScheduleForRepo(r, scheduleName)
-	if err != nil {
-		retErr := fmt.Errorf("unable to get schedule %s: %w", scheduleName, err)
-
-		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
 	}
@@ -130,7 +122,7 @@ func UpdateSchedule(c *gin.Context) {
 		s.SetEntry(input.GetEntry())
 	}
 
-	// send API call to update the user
+	// update the schedule within the database
 	err = database.FromContext(c).UpdateSchedule(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update scheduled %s: %w", scheduleName, err)
@@ -140,7 +132,7 @@ func UpdateSchedule(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the updated scheduled
+	// capture the updated scheduled
 	s, _ = database.FromContext(c).GetScheduleForRepo(r, scheduleName)
 
 	c.JSON(http.StatusOK, s)

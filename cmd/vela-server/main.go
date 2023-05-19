@@ -92,12 +92,6 @@ func main() {
 			Usage:   "allowlist is used to limit which repos can be activated within the system",
 			Value:   &cli.StringSlice{},
 		},
-		&cli.StringSliceFlag{
-			EnvVars: []string{"VELA_SCHEDULE_ALLOWLIST"},
-			Name:    "vela-schedule-allowlist",
-			Usage:   "limit which repos can be utilize the schedule feature within the system",
-			Value:   &cli.StringSlice{},
-		},
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_DISABLE_WEBHOOK_VALIDATION"},
 			Name:    "vela-disable-webhook-validation",
@@ -215,6 +209,12 @@ func main() {
 			Name:    "schedule-minimum-frequency",
 			Usage:   "minimum time between each schedule entry",
 			Value:   1 * time.Hour,
+		},
+		&cli.StringSliceFlag{
+			EnvVars: []string{"VELA_SCHEDULE_ALLOWLIST"},
+			Name:    "vela-schedule-allowlist",
+			Usage:   "limit which repos can be utilize the schedule feature within the system",
+			Value:   &cli.StringSlice{},
 		},
 	}
 	// Add Database Flags
