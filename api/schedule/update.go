@@ -6,9 +6,10 @@ package schedule
 
 import (
 	"fmt"
-	"github.com/go-vela/server/router/middleware/schedule"
 	"net/http"
 	"time"
+
+	"github.com/go-vela/server/router/middleware/schedule"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
