@@ -169,7 +169,7 @@ func CreateSchedule(c *gin.Context) {
 		// activate the schedule
 		dbSchedule.SetActive(true)
 
-		// send API call to update the repo
+		// send API call to update the schedule
 		err = database.FromContext(c).UpdateSchedule(dbSchedule)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set schedule %s to active: %w", dbSchedule.GetName(), err)
