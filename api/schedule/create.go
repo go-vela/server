@@ -95,7 +95,7 @@ func CreateSchedule(c *gin.Context) {
 	// ensure the entry is valid
 	err = validateEntry(minimumFrequency, input.GetEntry())
 	if err != nil {
-		retErr := fmt.Errorf("schedule of %s is invalid: %w", input.GetName(), err)
+		retErr := fmt.Errorf("schedule of %s with entry %s is invalid: %w", input.GetName(), input.GetEntry(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 

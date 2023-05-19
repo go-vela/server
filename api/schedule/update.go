@@ -99,7 +99,7 @@ func UpdateSchedule(c *gin.Context) {
 	}
 
 	// update schedule fields if provided
-	if input.GetActive() {
+	if input.Active != nil {
 		// update active if set to true
 		s.SetActive(input.GetActive())
 	}
