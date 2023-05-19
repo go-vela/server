@@ -7,10 +7,10 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/service"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/perm"
-	"github.com/go-vela/server/router/middleware/service"
+	smiddleware "github.com/go-vela/server/router/middleware/service"
 )
 
 // ServiceHandlers is a function that extends the provided base router group
@@ -24,23 +24,23 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/services/:service/logs .
 func ServiceHandlers(base *gin.RouterGroup) {
 	// Services endpoints
 	services := base.Group("/services")
 	{
-		services.POST("", perm.MustPlatformAdmin(), middleware.Payload(), api.CreateService)
-		services.GET("", perm.MustRead(), api.GetServices)
+		services.POST("", perm.MustPlatformAdmin(), middleware.Payload(), service.CreateService)
+		services.GET("", perm.MustRead(), service.ListServices)
 
 		// Service endpoints
-		service := services.Group("/:service", service.Establish())
+		s := services.Group("/:service", smiddleware.Establish())
 		{
-			service.GET("", perm.MustRead(), api.GetService)
-			service.PUT("", perm.MustBuildAccess(), middleware.Payload(), api.UpdateService)
-			service.DELETE("", perm.MustPlatformAdmin(), api.DeleteService)
+			s.GET("", perm.MustRead(), service.GetService)
+			s.PUT("", perm.MustBuildAccess(), middleware.Payload(), service.UpdateService)
+			s.DELETE("", perm.MustPlatformAdmin(), service.DeleteService)
 
 			// Log endpoints
-			LogServiceHandlers(service)
+			LogServiceHandlers(s)
 		} // end of service endpoints
 	} // end of services endpoints
 }
