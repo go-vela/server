@@ -33,7 +33,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// ValidateServerToken will return the claims of a valid server token
+// ValidateServerToken will validate if a token was issued by the server
 // if it is provided in the auth header.
 func ValidateServerToken(c *gin.Context) {
 	cl := claims.Retrieve(c)
