@@ -72,13 +72,13 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.GET("/logout", user.Establish(), auth.Logout)
 
 	// Refresh Access Token endpoint
-	r.GET("/token-refresh", api.RefreshAccessToken)
+	r.GET("/token-refresh", auth.RefreshAccessToken)
 
 	// Metric endpoint
 	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
 
 	// Validate Server Token endpoint
-	r.GET("/validate-token", claims.Establish(), api.ValidateServerToken)
+	r.GET("/validate-token", claims.Establish(), auth.ValidateServerToken)
 
 	// Version endpoint
 	r.GET("/version", api.Version)
