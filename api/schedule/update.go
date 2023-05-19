@@ -112,7 +112,7 @@ func UpdateSchedule(c *gin.Context) {
 	if input.GetEntry() != "" {
 		err = validateEntry(minimumFrequency, input.GetEntry())
 		if err != nil {
-			retErr := fmt.Errorf("schedule of %s is invalid: %w", input.GetName(), err)
+			retErr := fmt.Errorf("schedule entry of %s is invalid: %w", input.GetEntry(), err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
