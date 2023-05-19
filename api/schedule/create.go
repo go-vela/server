@@ -165,7 +165,7 @@ func CreateSchedule(c *gin.Context) {
 	// if the repo exists but is inactive
 	if len(r.GetOrg()) > 0 && !dbSchedule.GetActive() && input.GetActive() {
 		// update the repo owner
-		dbSchedule.SetCreatedBy(u.GetName())
+		dbSchedule.SetUpdatedBy(u.GetName())
 		// activate the schedule
 		dbSchedule.SetActive(true)
 
