@@ -116,7 +116,7 @@ func CreateSchedule(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("creating new schedule %s", input.GetName())
 
-	// ensure repo is allowed to be activated
+	// ensure repo is allowed to create new schedules
 	if !util.CheckAllowlist(r, allowlist) {
 		retErr := fmt.Errorf("unable to create schedule %s: %s is not on allowlist", input.GetName(), r.GetFullName())
 
