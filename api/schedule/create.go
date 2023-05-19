@@ -163,7 +163,7 @@ func CreateSchedule(c *gin.Context) {
 	}
 
 	// if the schedule exists but is inactive
-	if !dbSchedule.GetActive() && input.GetActive() {
+	if dbSchedule.GetID() != 0 && !dbSchedule.GetActive() && input.GetActive() {
 		// update the user who created the schedule
 		dbSchedule.SetUpdatedBy(u.GetName())
 		// activate the schedule
