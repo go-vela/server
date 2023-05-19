@@ -192,7 +192,7 @@ func CreateSchedule(c *gin.Context) {
 			return
 		}
 
-		// send API call to capture the created repo
+		// send API call to capture the created schedule
 		s, _ = database.FromContext(c).GetScheduleForRepo(r, input.GetName())
 	}
 
