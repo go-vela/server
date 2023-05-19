@@ -89,10 +89,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Authentication endpoints
 	authenticate := r.Group("/authenticate")
 	{
-		authenticate.GET("", api.Authenticate)
-		authenticate.GET("/:type", api.AuthenticateType)
-		authenticate.GET("/:type/:port", api.AuthenticateType)
-		authenticate.POST("/token", api.AuthenticateToken)
+		authenticate.GET("", auth.Authenticate)
+		authenticate.GET("/:type", auth.AuthenticateType)
+		authenticate.GET("/:type/:port", auth.AuthenticateType)
+		authenticate.POST("/token", auth.AuthenticateToken)
 	}
 
 	// API endpoints
