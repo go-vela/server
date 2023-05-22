@@ -107,7 +107,7 @@ func ListSecrets(c *gin.Context) {
 
 		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
 		if err != nil {
-			retErr := fmt.Errorf("unable to get users %s teams for org %s: %w", u.GetName(), o, err)
+			retErr := fmt.Errorf("unable to list users %s teams for org %s: %w", u.GetName(), o, err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
 
