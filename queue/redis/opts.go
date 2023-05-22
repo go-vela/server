@@ -78,7 +78,8 @@ func WithPrivateKey(privateKeyEncoded string) ClientOpt {
 		c.Logger.Trace("configuring private key in redis queue client")
 
 		if len(privateKeyEncoded) == 0 {
-			return errors.New("unable to base64 decode private key, provided key is empty")
+			// return errors.New("unable to base64 decode private key, provided key is empty")
+			return nil
 		}
 
 		privateKeyDecoded, err := base64.StdEncoding.DecodeString(privateKeyEncoded)
@@ -111,7 +112,8 @@ func WithPublicKey(publicKeyEncoded string) ClientOpt {
 		c.Logger.Tracef("configuring public key in redis queue client")
 
 		if len(publicKeyEncoded) == 0 {
-			return errors.New("unable to base64 decode public key, provided key is empty")
+			//  errors.New("unable to base64 decode public key, provided key is empty")
+			return nil
 		}
 
 		publicKeyDecoded, err := base64.StdEncoding.DecodeString(publicKeyEncoded)
