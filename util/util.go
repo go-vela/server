@@ -73,6 +73,23 @@ func EscapeValue(value string) string {
 	return html.EscapeString(escaped)
 }
 
+// Unique is a helper function that takes a slice and
+// validates that there are no duplicate entries.
+func Unique(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+
+			list = append(list, entry)
+		}
+	}
+
+	return list
+}
+
 // CheckAllowlist is a helper function to ensure only repos in the
 // allowlist are specified.
 //
