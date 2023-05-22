@@ -7,6 +7,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/log"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
@@ -58,7 +59,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			build.PUT("", perm.MustBuildAccess(), middleware.Payload(), api.UpdateBuild)
 			build.DELETE("", perm.MustPlatformAdmin(), api.DeleteBuild)
 			build.DELETE("/cancel", executors.Establish(), perm.MustWrite(), api.CancelBuild)
-			build.GET("/logs", perm.MustRead(), api.GetBuildLogs)
+			build.GET("/logs", perm.MustRead(), log.ListLogsForBuild)
 			build.GET("/token", perm.MustWorkerAuthToken(), api.GetBuildToken)
 
 			// Service endpoints

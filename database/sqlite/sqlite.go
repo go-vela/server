@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/sqlite/ddl"
@@ -57,6 +58,8 @@ type (
 		pipeline.PipelineInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoInterface
 		repo.RepoInterface
+		// https://pkg.go.dev/github.com/go-vela/server/database/schedule#ScheduleInterface
+		schedule.ScheduleInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretInterface
 		secret.SecretInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/service#ServiceInterface
@@ -333,6 +336,18 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for schedules
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/schedule#New
+	c.ScheduleInterface, err = schedule.New(
+		schedule.WithClient(c.Sqlite),
+		schedule.WithLogger(c.Logger),
+		schedule.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
