@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
@@ -58,6 +59,8 @@ type (
 		pipeline.PipelineInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoInterface
 		repo.RepoInterface
+		// https://pkg.go.dev/github.com/go-vela/server/database/schedule#ScheduleInterface
+		schedule.ScheduleInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretInterface
 		secret.SecretInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/service#ServiceInterface
@@ -182,6 +185,9 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// ensure the mock expects the repo queries
 	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the schedule queries
+	_mock.ExpectExec(schedule.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(schedule.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the secret queries
 	_mock.ExpectExec(secret.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -322,6 +328,18 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for schedules
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/schedule#New
+	c.ScheduleInterface, err = schedule.New(
+		schedule.WithClient(c.Postgres),
+		schedule.WithLogger(c.Logger),
+		schedule.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err

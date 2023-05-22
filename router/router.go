@@ -32,14 +32,14 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/auth"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -66,19 +66,19 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.GET("/health", api.Health)
 
 	// Login endpoint
-	r.GET("/login", api.Login)
+	r.GET("/login", auth.Login)
 
 	// Logout endpoint
-	r.GET("/logout", user.Establish(), api.Logout)
+	r.GET("/logout", claims.Establish(), user.Establish(), auth.Logout)
 
 	// Refresh Access Token endpoint
-	r.GET("/token-refresh", api.RefreshAccessToken)
+	r.GET("/token-refresh", auth.RefreshAccessToken)
 
 	// Metric endpoint
 	r.GET("/metrics", api.CustomMetrics, gin.WrapH(api.BaseMetrics()))
 
 	// Validate Server Token endpoint
-	r.GET("/validate-token", claims.Establish(), api.ValidateServerToken)
+	r.GET("/validate-token", claims.Establish(), auth.ValidateServerToken)
 
 	// Version endpoint
 	r.GET("/version", api.Version)
@@ -89,10 +89,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Authentication endpoints
 	authenticate := r.Group("/authenticate")
 	{
-		authenticate.GET("", api.Authenticate)
-		authenticate.GET("/:type", api.AuthenticateType)
-		authenticate.GET("/:type/:port", api.AuthenticateType)
-		authenticate.POST("/token", api.AuthenticateToken)
+		authenticate.GET("", auth.GetAuthToken)
+		authenticate.GET("/:type", auth.GetAuthRedirect)
+		authenticate.GET("/:type/:port", auth.GetAuthRedirect)
+		authenticate.POST("/token", auth.PostAuthToken)
 	}
 
 	// API endpoints
@@ -115,6 +115,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		//     * Log endpoints
 		RepoHandlers(baseAPI)
 
+		// Schedule endpoints
+		ScheduleHandler(baseAPI)
+
 		// Source code management endpoints
 		ScmHandlers(baseAPI)
 
@@ -132,6 +135,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 
 		// Pipeline endpoints
 		PipelineHandlers(baseAPI)
+
 	} // end of api
 
 	return r

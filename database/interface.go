@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
@@ -40,6 +41,9 @@ type Interface interface {
 
 	// RepoInterface defines the interface for repos stored in the database.
 	repo.RepoInterface
+
+	// ScheduleInterface defines the interface for schedules stored in the database.
+	schedule.ScheduleInterface
 
 	// SecretInterface defines the interface for secrets stored in the database.
 	secret.SecretInterface
