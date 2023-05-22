@@ -34,13 +34,18 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 	}
 
 	// iterate through the list of active schedules
-	for _, schedule := range schedules {
-		// sleep for 1s - 5s before processing the schedule
+	for _, s := range schedules {
+		// send API call to capture the schedule
 		//
-		// This should prevent multiple servers from processing a schedule at the same time by
-		// leveraging a base duration along with a standard deviation of randomness a.k.a.
-		// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 5.0.
-		time.Sleep(wait.Jitter(time.Second, 5.0))
+		// This is needed to ensure we are not dealing with a stale schedule since we fetch
+		// all schedules once and iterate through that list which can take a significant
+		// amount of time to get to the end of the list.
+		schedule, err := database.GetSchedule(s.GetID())
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
 
 		// create a variable to track if a build should be triggered based off the schedule
 		trigger := false
@@ -76,7 +81,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 			}
 		}
 
-		if trigger {
+		if trigger && schedule.GetActive() {
 			err = processSchedule(schedule, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
@@ -90,6 +95,13 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 }
 
 func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+	// sleep for 1s - 3s before processing the schedule
+	//
+	// This should prevent multiple servers from processing a schedule at the same time by
+	// leveraging a base duration along with a standard deviation of randomness a.k.a.
+	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 3.0.
+	time.Sleep(wait.Jitter(time.Second, 3.0))
+
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
 	if err != nil {
@@ -101,11 +113,6 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	// check if the repo is active
 	if !r.GetActive() {
 		return fmt.Errorf("repo %s is not active", r.GetFullName())
-	}
-
-	// check if the repo allows the schedule event type
-	if !r.GetAllowSchedule() {
-		return fmt.Errorf("repo %s does not have %s events enabled", r.GetFullName(), constants.EventSchedule)
 	}
 
 	// check if the repo has a valid owner

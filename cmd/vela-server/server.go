@@ -171,7 +171,7 @@ func server(c *cli.Context) error {
 		return err
 	})
 
-	// spawn goroutine for starting the server
+	// spawn goroutine for starting the scheduler
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
 		for {
