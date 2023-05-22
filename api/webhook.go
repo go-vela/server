@@ -15,18 +15,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -318,7 +316,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(repo, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(repo, filters)
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, repo.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -672,7 +670,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.FromContext(c).GetBuild(b.GetNumber(), repo)
+	b, err = database.FromContext(c).GetBuildForRepo(repo, b.GetNumber())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, repo.GetFullName(), b.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -941,7 +939,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	}
 
 	// get total number of builds associated with repository
-	t, err = database.FromContext(c).GetRepoBuildCount(dbR, nil)
+	t, err = database.FromContext(c).CountBuildsForRepo(dbR, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
 	}
@@ -950,7 +948,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	page = 1
 	// capture all builds belonging to repo in database
 	for build := int64(0); build < t; build += 100 {
-		b, _, err := database.FromContext(c).GetRepoBuildList(dbR, nil, time.Now().Unix(), 0, page, 100)
+		b, _, err := database.FromContext(c).ListBuildsForRepo(dbR, nil, time.Now().Unix(), 0, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
 		}

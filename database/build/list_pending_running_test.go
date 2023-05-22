@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/kr/pretty"
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -126,7 +124,6 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				pretty.Ldiff(t, got, test.want)
 				t.Errorf("ListPendingAndRunningBuilds for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
