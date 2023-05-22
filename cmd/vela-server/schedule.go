@@ -94,6 +94,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 	return nil
 }
 
+//nolint:funlen // ignore function length and number of statements
 func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// sleep for 1s - 3s before processing the schedule
 	//
