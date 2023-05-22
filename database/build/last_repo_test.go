@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -12,13 +12,23 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestBuild_Engine_GetBuild(t *testing.T) {
+func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	// setup types
 	_build := testBuild()
 	_build.SetID(1)
 	_build.SetRepoID(1)
 	_build.SetNumber(1)
 	_build.SetDeployPayload(nil)
+	_build.SetBranch("master")
+
+	_repo := testRepo()
+	_repo.SetID(1)
+	_repo.SetUserID(1)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -26,10 +36,10 @@ func TestBuild_Engine_GetBuild(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "master", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch = $2 ORDER BY number DESC LIMIT 1`).WithArgs(1, "master").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -63,22 +73,22 @@ func TestBuild_Engine_GetBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetBuild(1)
+			got, err := test.database.LastBuildForRepo(_repo, "master")
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetBuild for %s should have returned err", test.name)
+					t.Errorf("LastBuildForRepo for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetBuild for %s returned err: %v", test.name, err)
+				t.Errorf("LastBuildForRepo for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetBuild for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("LastBuildForRepo for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

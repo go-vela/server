@@ -8,11 +8,16 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
-// GetBuild gets a build by ID from the database.
-func (e *engine) GetBuild(id int64) (*library.Build, error) {
-	e.logger.Tracef("getting build %d from the database", id)
+// GetBuildForRepo gets a build by repo ID and number from the database.
+func (e *engine) GetBuildForRepo(r *library.Repo, number int) (*library.Build, error) {
+	e.logger.WithFields(logrus.Fields{
+		"build": number,
+		"org":   r.GetOrg(),
+		"repo":  r.GetName(),
+	}).Tracef("getting build %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
 	b := new(database.Build)
@@ -20,7 +25,8 @@ func (e *engine) GetBuild(id int64) (*library.Build, error) {
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
-		Where("id = ?", id).
+		Where("repo_id = ?", r.GetID()).
+		Where("number = ?", number).
 		Take(b).
 		Error
 	if err != nil {

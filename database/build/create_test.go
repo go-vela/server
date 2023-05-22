@@ -14,14 +14,9 @@ func TestBuild_Engine_CreateBuild(t *testing.T) {
 	// setup types
 	_build := testBuild()
 	_build.SetID(1)
-	_build.SetUserID(1)
-	_build.SetHash("baz")
-	_build.SetOrg("foo")
-	_build.SetName("bar")
-	_build.SetFullName("foo/bar")
-	_build.SetVisibility("public")
-	_build.SetPipelineType("yaml")
-	_build.SetPreviousName("oldName")
+	_build.SetRepoID(1)
+	_build.SetNumber(1)
+	_build.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -31,9 +26,9 @@ func TestBuild_Engine_CreateBuild(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "builds"
-("user_id","hash","org","name","full_name","link","clone","branch","topics","build_limit","timeout","counter","visibility","private","trusted","active","allow_pull","allow_push","allow_deploy","allow_tag","allow_comment","pipeline_type","previous_name","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24) RETURNING "id"`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, false, false, false, false, false, "yaml", "oldName", 1).
+("repo_id","pipeline_id","number","parent","event","event_action","status","error","enqueued","created","started","finished","deploy","deploy_payload","clone","source","title","message","commit","sender","author","email","link","branch","ref","base_ref","head_ref","host","runtime","distribution","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31) RETURNING "id"`).
+		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

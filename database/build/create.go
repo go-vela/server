@@ -6,8 +6,6 @@
 package build
 
 import (
-	"fmt"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -15,16 +13,15 @@ import (
 )
 
 // CreateBuild creates a new build in the database.
-func (e *engine) CreateBuild(r *library.Build) error {
+func (e *engine) CreateBuild(b *library.Build) error {
 	e.logger.WithFields(logrus.Fields{
-		"org":   r.GetOrg(),
-		"build": r.GetName(),
-	}).Tracef("creating build %s in the database", r.GetFullName())
+		"build": b.GetNumber(),
+	}).Tracef("creating build %d in the database", b.GetNumber())
 
 	// cast the library type to database type
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#BuildFromLibrary
-	build := database.BuildFromLibrary(r)
+	build := database.BuildFromLibrary(b)
 
 	// validate the necessary fields are populated
 	//
@@ -34,17 +31,9 @@ func (e *engine) CreateBuild(r *library.Build) error {
 		return err
 	}
 
-	// encrypt the fields for the build
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Build.Encrypt
-	err = build.Encrypt(e.config.EncryptionKey)
-	if err != nil {
-		return fmt.Errorf("unable to encrypt build %s: %w", r.GetFullName(), err)
-	}
-
 	// send query to the database
 	return e.client.
 		Table(constants.TableBuild).
-		Create(build).
+		Create(build.Crop()).
 		Error
 }

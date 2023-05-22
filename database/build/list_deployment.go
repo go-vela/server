@@ -11,13 +11,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ListBuildsForOrg gets a list of builds by org name from the database.
+// ListBuildsForDeployment gets a list of builds by deployment url from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForOrg(org string, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
+func (e *engine) ListBuildsForDeployment(d *library.Deployment, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
-		"org": org,
-	}).Tracef("listing builds for org %s from the database", org)
+		"deployment": d.GetURL(),
+	}).Tracef("listing builds for deployment %s from the database", d.GetURL())
 
 	// variables to store query results and return values
 	count := int64(0)
@@ -25,7 +25,7 @@ func (e *engine) ListBuildsForOrg(org string, filters map[string]interface{}, pa
 	builds := []*library.Build{}
 
 	// count the results
-	count, err := e.CountBuildsForOrg(org, filters)
+	count, err := e.CountBuildsForDeployment(d, filters)
 	if err != nil {
 		return builds, 0, err
 	}
@@ -40,12 +40,9 @@ func (e *engine) ListBuildsForOrg(org string, filters map[string]interface{}, pa
 
 	err = e.client.
 		Table(constants.TableBuild).
-		Select("builds.*").
-		Joins("JOIN repos ON builds.repo_id = repos.id").
-		Where("repos.org = ?", org).
+		Where("source = ?", d.GetURL()).
 		Where(filters).
-		Order("created DESC").
-		Order("id").
+		Order("number DESC").
 		Limit(perPage).
 		Offset(offset).
 		Find(&b).

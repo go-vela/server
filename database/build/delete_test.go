@@ -14,12 +14,9 @@ func TestBuild_Engine_DeleteBuild(t *testing.T) {
 	// setup types
 	_build := testBuild()
 	_build.SetID(1)
-	_build.SetUserID(1)
-	_build.SetHash("baz")
-	_build.SetOrg("foo")
-	_build.SetName("bar")
-	_build.SetFullName("foo/bar")
-	_build.SetVisibility("public")
+	_build.SetRepoID(1)
+	_build.SetNumber(1)
+	_build.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

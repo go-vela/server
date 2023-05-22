@@ -29,7 +29,10 @@ func TestBuild_New(t *testing.T) {
 	defer _sql.Close()
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
@@ -50,7 +53,6 @@ func TestBuild_New(t *testing.T) {
 		failure      bool
 		name         string
 		client       *gorm.DB
-		key          string
 		logger       *logrus.Entry
 		skipCreation bool
 		want         *engine
@@ -59,7 +61,6 @@ func TestBuild_New(t *testing.T) {
 			failure:      false,
 			name:         "postgres",
 			client:       _postgres,
-			key:          "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
@@ -72,7 +73,6 @@ func TestBuild_New(t *testing.T) {
 			failure:      false,
 			name:         "sqlite3",
 			client:       _sqlite,
-			key:          "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
@@ -88,7 +88,6 @@ func TestBuild_New(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
 				WithClient(test.client),
-				WithEncryptionKey(test.key),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
 			)
@@ -123,7 +122,10 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -138,7 +140,6 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 
 	_engine, err := New(
 		WithClient(_postgres),
-		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 	)
@@ -161,7 +162,6 @@ func testSqlite(t *testing.T) *engine {
 
 	_engine, err := New(
 		WithClient(_sqlite),
-		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 	)
@@ -206,6 +206,52 @@ func testBuild() *library.Build {
 		Host:         new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
+	}
+}
+
+// testDeployment is a test helper function to create a library
+// Repo type with all fields set to their zero values.
+func testDeployment() *library.Deployment {
+	return &library.Deployment{
+		ID:          new(int64),
+		RepoID:      new(int64),
+		URL:         new(string),
+		User:        new(string),
+		Commit:      new(string),
+		Ref:         new(string),
+		Task:        new(string),
+		Target:      new(string),
+		Description: new(string),
+	}
+}
+
+// testRepo is a test helper function to create a library
+// Repo type with all fields set to their zero values.
+func testRepo() *library.Repo {
+	return &library.Repo{
+		ID:           new(int64),
+		UserID:       new(int64),
+		BuildLimit:   new(int64),
+		Timeout:      new(int64),
+		Counter:      new(int),
+		PipelineType: new(string),
+		Hash:         new(string),
+		Org:          new(string),
+		Name:         new(string),
+		FullName:     new(string),
+		Link:         new(string),
+		Clone:        new(string),
+		Branch:       new(string),
+		Visibility:   new(string),
+		PreviousName: new(string),
+		Private:      new(bool),
+		Trusted:      new(bool),
+		Active:       new(bool),
+		AllowPull:    new(bool),
+		AllowPush:    new(bool),
+		AllowDeploy:  new(bool),
+		AllowTag:     new(bool),
+		AllowComment: new(bool),
 	}
 }
 

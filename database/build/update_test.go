@@ -14,23 +14,18 @@ func TestBuild_Engine_UpdateBuild(t *testing.T) {
 	// setup types
 	_build := testBuild()
 	_build.SetID(1)
-	_build.SetUserID(1)
-	_build.SetHash("baz")
-	_build.SetOrg("foo")
-	_build.SetName("bar")
-	_build.SetFullName("foo/bar")
-	_build.SetVisibility("public")
-	_build.SetPipelineType("yaml")
-	_build.SetPreviousName("oldName")
+	_build.SetRepoID(1)
+	_build.SetNumber(1)
+	_build.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "builds"
-SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"visibility"=$13,"private"=$14,"trusted"=$15,"active"=$16,"allow_pull"=$17,"allow_push"=$18,"allow_deploy"=$19,"allow_tag"=$20,"allow_comment"=$21,"pipeline_type"=$22,"previous_name"=$23
-WHERE "id" = $24`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, false, false, false, false, false, "yaml", "oldName", 1).
+SET "repo_id"=$1,"pipeline_id"=$2,"number"=$3,"parent"=$4,"event"=$5,"event_action"=$6,"status"=$7,"error"=$8,"enqueued"=$9,"created"=$10,"started"=$11,"finished"=$12,"deploy"=$13,"deploy_payload"=$14,"clone"=$15,"source"=$16,"title"=$17,"message"=$18,"commit"=$19,"sender"=$20,"author"=$21,"email"=$22,"link"=$23,"branch"=$24,"ref"=$25,"base_ref"=$26,"head_ref"=$27,"host"=$28,"runtime"=$29,"distribution"=$30
+WHERE "id" = $31`).
+		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

@@ -8,35 +8,47 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
-// ListBuilds gets a list of all builds from the database.
-func (e *engine) ListBuilds() ([]*library.Build, error) {
-	e.logger.Trace("listing all builds from the database")
+func (e *engine) ListBuildsForRepo(r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
+	e.logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("listing builds for repo %s from the database", r.GetFullName())
 
-	// variables to store query results and return value
+	// variables to store query results and return values
 	count := int64(0)
 	b := new([]database.Build)
 	builds := []*library.Build{}
 
 	// count the results
-	count, err := e.CountBuilds()
+	count, err := e.CountBuildsForRepo(r, filters)
 	if err != nil {
-		return nil, err
+		return builds, 0, err
 	}
 
 	// short-circuit if there are no results
 	if count == 0 {
-		return builds, nil
+		return builds, 0, nil
 	}
 
-	// send query to the database and store result in variable
+	// calculate offset for pagination through results
+	offset := perPage * (page - 1)
+
 	err = e.client.
 		Table(constants.TableBuild).
+		Where("repo_id = ?", r.GetID()).
+		Where("created < ?", before).
+		Where("created > ?", after).
+		Where(filters).
+		Order("number DESC").
+		Limit(perPage).
+		Offset(offset).
 		Find(&b).
 		Error
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
 
 	// iterate through all query results
@@ -50,5 +62,5 @@ func (e *engine) ListBuilds() ([]*library.Build, error) {
 		builds = append(builds, tmp.ToLibrary())
 	}
 
-	return builds, nil
+	return builds, count, nil
 }

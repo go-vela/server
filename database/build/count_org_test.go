@@ -9,36 +9,54 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
 )
 
 func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	// setup types
 	_buildOne := testBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetUserID(1)
-	_buildOne.SetHash("baz")
-	_buildOne.SetOrg("foo")
-	_buildOne.SetName("bar")
-	_buildOne.SetFullName("foo/bar")
-	_buildOne.SetVisibility("public")
+	_buildOne.SetRepoID(1)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetUserID(1)
-	_buildTwo.SetHash("baz")
-	_buildTwo.SetOrg("bar")
-	_buildTwo.SetName("foo")
-	_buildTwo.SetFullName("bar/foo")
-	_buildTwo.SetVisibility("public")
+	_buildTwo.SetRepoID(2)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
+
+	_repoOne := testRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetUserID(1)
+	_repoOne.SetHash("baz")
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+	_repoOne.SetVisibility("public")
+	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetTopics([]string{})
+
+	_repoTwo := testRepo()
+	_repoTwo.SetID(2)
+	_repoTwo.SetUserID(1)
+	_repoTwo.SetHash("bar")
+	_repoTwo.SetOrg("foo")
+	_repoTwo.SetName("baz")
+	_repoTwo.SetFullName("foo/baz")
+	_repoTwo.SetVisibility("public")
+	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetTopics([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT count(*) FROM "builds" WHERE org = $1`).WithArgs("foo").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1`).WithArgs("foo").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -53,6 +71,21 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
+	err = _sqlite.client.AutoMigrate(&database.Repo{})
+	if err != nil {
+		t.Errorf("unable to create repo table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoOne)).Error
+	if err != nil {
+		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoTwo)).Error
+	if err != nil {
+		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure  bool
@@ -64,13 +97,13 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     1,
+			want:     2,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     1,
+			want:     2,
 		},
 	}
 

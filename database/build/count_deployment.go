@@ -10,12 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CountBuildsForDeployment gets the count of builds by deployment from the database.
-func (e *engine) CountBuildsForDeployment(r *library.Repo, filters map[string]interface{}) (int64, error) {
+// CountBuildsForDeployment gets the count of builds by deployment URL from the database.
+func (e *engine) CountBuildsForDeployment(d *library.Deployment, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
-		"org":  r.GetOrg(),
-		"repo": r.GetName(),
-	}).Tracef("getting count of builds for repo %s from the database", r.GetFullName())
+		"deployment": d.GetURL(),
+	}).Tracef("getting count of builds for deployment %s from the database", d.GetURL())
 
 	// variable to store query results
 	var b int64
@@ -23,8 +22,9 @@ func (e *engine) CountBuildsForDeployment(r *library.Repo, filters map[string]in
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
-		Where("repo_id = ?", r.GetID()).
+		Where("source = ?", d.GetURL()).
 		Where(filters).
+		Order("number DESC").
 		Count(&b).
 		Error
 

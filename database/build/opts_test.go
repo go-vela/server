@@ -62,55 +62,6 @@ func TestBuild_EngineOpt_WithClient(t *testing.T) {
 	}
 }
 
-func TestBuild_EngineOpt_WithEncryptionKey(t *testing.T) {
-	// setup types
-	e := &engine{config: new(config)}
-
-	// setup tests
-	tests := []struct {
-		failure bool
-		name    string
-		key     string
-		want    string
-	}{
-		{
-			failure: false,
-			name:    "encryption key set",
-			key:     "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
-			want:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
-		},
-		{
-			failure: false,
-			name:    "encryption key not set",
-			key:     "",
-			want:    "",
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			err := WithEncryptionKey(test.key)(e)
-
-			if test.failure {
-				if err == nil {
-					t.Errorf("WithEncryptionKey for %s should have returned err", test.name)
-				}
-
-				return
-			}
-
-			if err != nil {
-				t.Errorf("WithEncryptionKey returned err: %v", err)
-			}
-
-			if !reflect.DeepEqual(e.config.EncryptionKey, test.want) {
-				t.Errorf("WithEncryptionKey is %v, want %v", e.config.EncryptionKey, test.want)
-			}
-		})
-	}
-}
-
 func TestBuild_EngineOpt_WithLogger(t *testing.T) {
 	// setup types
 	e := &engine{logger: new(logrus.Entry)}

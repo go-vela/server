@@ -8,7 +8,7 @@ const (
 	// CreateCreatedIndex represents a query to create an
 	// index on the builds table for the created column.
 	CreateCreatedIndex = `
-CREATE INDEX CONCURRENTLY
+CREATE INDEX
 IF NOT EXISTS
 builds_created
 ON builds (created);
@@ -19,14 +19,14 @@ ON builds (created);
 	CreateRepoIDIndex = `
 CREATE INDEX
 IF NOT EXISTS
-builds_build_id
+builds_repo_id
 ON builds (repo_id);
 `
 
 	// CreateSourceIndex represents a query to create an
 	// index on the builds table for the source column.
 	CreateSourceIndex = `
-CREATE INDEX CONCURRENTLY
+CREATE INDEX
 IF NOT EXISTS
 builds_source
 ON builds (source);

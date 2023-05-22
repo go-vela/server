@@ -35,7 +35,7 @@ type BuildInterface interface {
 	// CountBuildsForRepo defines a function that gets the count of builds by repo ID.
 	CountBuildsForRepo(*library.Repo, map[string]interface{}) (int64, error)
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
-	CountBuildsForStatus(string) (int64, error)
+	CountBuildsForStatus(string, map[string]interface{}) (int64, error)
 	// CreateBuild defines a function that creates a new build.
 	CreateBuild(*library.Build) error
 	// DeleteBuild defines a function that deletes an existing build.
@@ -52,8 +52,10 @@ type BuildInterface interface {
 	ListBuildsForDeployment(*library.Deployment, map[string]interface{}, int, int) ([]*library.Build, int64, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
 	ListBuildsForOrg(string, map[string]interface{}, int, int) ([]*library.Build, int64, error)
-	// ListBuildsFoRepo defines a function that gets a list of builds by repo ID.
-	ListBuildsFoRepo(*library.Repo, map[string]interface{}, int, int) ([]*library.Build, int64, error)
+	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.
+	ListBuildsForRepo(*library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
+	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
+	ListPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)
 	// UpdateBuild defines a function that updates an existing build.
 	UpdateBuild(*library.Build) error
 }
