@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
-	"github.com/google/go-github/v50/github"
+	"github.com/google/go-github/v52/github"
 
 	"testing"
 	"time"

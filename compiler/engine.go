@@ -71,10 +71,10 @@ type Engine interface {
 
 	// ExpandStages defines a function that injects the template
 	// for each templated step in every stage in a yaml configuration.
-	ExpandStages(*yaml.Build, map[string]*yaml.Template) (*yaml.Build, error)
+	ExpandStages(*yaml.Build, map[string]*yaml.Template, *pipeline.RuleData) (*yaml.Build, error)
 	// ExpandSteps defines a function that injects the template
 	// for each templated step in a yaml configuration.
-	ExpandSteps(*yaml.Build, map[string]*yaml.Template, int) (*yaml.Build, error)
+	ExpandSteps(*yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, int) (*yaml.Build, error)
 
 	// Init Compiler Interface Functions
 

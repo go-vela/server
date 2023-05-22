@@ -214,7 +214,7 @@ func CreateRepo(c *gin.Context) {
 	)
 
 	// ensure repo is allowed to be activated
-	if !checkAllowlist(r, allowlist) {
+	if !util.CheckAllowlist(r, allowlist) {
 		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", r.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)
@@ -238,11 +238,25 @@ func CreateRepo(c *gin.Context) {
 		r.SetHash(dbRepo.GetHash())
 	}
 
-	hook := new(library.Hook)
+	h := new(library.Hook)
+
+	// err being nil means we have a record of this repo (dbRepo)
+	if err == nil {
+		h, _ = database.FromContext(c).LastHookForRepo(dbRepo)
+
+		// make sure our record of the repo allowed events matches what we send to SCM
+		// what the dbRepo has should override default events on enable
+		r.SetAllowComment(dbRepo.GetAllowComment())
+		r.SetAllowDeploy(dbRepo.GetAllowDeploy())
+		r.SetAllowPull(dbRepo.GetAllowPull())
+		r.SetAllowPush(dbRepo.GetAllowPush())
+		r.SetAllowTag(dbRepo.GetAllowTag())
+	}
+
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-		hook, _, err = scm.FromContext(c).Enable(u, r)
+		h, _, err = scm.FromContext(c).Enable(u, r, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -300,9 +314,9 @@ func CreateRepo(c *gin.Context) {
 	// create init hook in the DB after repo has been added in order to capture its ID
 	if c.Value("webhookvalidation").(bool) {
 		// update initialization hook
-		hook.SetRepoID(r.GetID())
+		h.SetRepoID(r.GetID())
 		// create first hook for repo in the database
-		err = database.FromContext(c).CreateHook(hook)
+		err = database.FromContext(c).CreateHook(h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
@@ -313,31 +327,4 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, r)
-}
-
-// checkAllowlist is a helper function to ensure only repos in the
-// allowlist are allowed to enable repos.
-//
-// a single entry of '*' allows any repo to be enabled.
-func checkAllowlist(r *library.Repo, allowlist []string) bool {
-	// check if all repos are allowed to be enabled
-	if len(allowlist) == 1 && allowlist[0] == "*" {
-		return true
-	}
-
-	for _, repo := range allowlist {
-		// allow all repos in org
-		if strings.Contains(repo, "/*") {
-			if strings.HasPrefix(repo, r.GetOrg()) {
-				return true
-			}
-		}
-
-		// allow specific repo within org
-		if repo == r.GetFullName() {
-			return true
-		}
-	}
-
-	return false
 }

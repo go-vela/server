@@ -155,7 +155,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 		switch {
 		case len(p.Stages) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandStages(p, templates)
+			p, err = c.ExpandStages(p, templates, nil)
 			if err != nil {
 				return nil, _pipeline, err
 			}
@@ -169,7 +169,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 			}
 		case len(p.Steps) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandSteps(p, templates, c.TemplateDepth)
+			p, err = c.ExpandSteps(p, templates, nil, c.TemplateDepth)
 			if err != nil {
 				return nil, _pipeline, err
 			}
@@ -307,7 +307,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 	}
 
 	// inject the templates into the steps
-	p, err = c.ExpandSteps(p, tmpls, c.TemplateDepth)
+	p, err = c.ExpandSteps(p, tmpls, r, c.TemplateDepth)
 	if err != nil {
 		return nil, _pipeline, err
 	}
@@ -404,7 +404,7 @@ func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls
 	}
 
 	// inject the templates into the stages
-	p, err = c.ExpandStages(p, tmpls)
+	p, err = c.ExpandStages(p, tmpls, r)
 	if err != nil {
 		return nil, _pipeline, err
 	}

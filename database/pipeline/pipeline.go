@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the PipelineService interface.
+	// config represents the settings required to create the engine that implements the PipelineInterface interface.
 	config struct {
 		// specifies the level of compression to use for the Pipeline engine
 		CompressionLevel int
@@ -22,7 +22,7 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the pipeline functionality that implements the PipelineService interface.
+	// engine represents the pipeline functionality that implements the PipelineInterface interface.
 	engine struct {
 		// engine configuration settings used in pipeline functions
 		config *config

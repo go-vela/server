@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
 	"github.com/google/go-cmp/cmp"
@@ -146,7 +147,7 @@ func TestNative_ExpandStages(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData))
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
@@ -323,7 +324,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, compiler.TemplateDepth)
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -388,6 +389,11 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Source: "github.example.com/bar/foo/maven.yml",
 			Type:   "github",
 		},
+		"npm": {
+			Name:   "npm",
+			Source: "github.example.com/foo/bar/gradle.yml",
+			Type:   "github",
+		},
 	}
 
 	steps := yaml.StepSlice{
@@ -410,6 +416,27 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
+				},
+			},
+			Ruleset: yaml.Ruleset{
+				If: yaml.Rules{
+					Branch: []string{"main"},
+				},
+			},
+		},
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "npm",
+				Variables: map[string]interface{}{
+					"image":       "openjdk:latest",
+					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
+					"pull_policy": "pull: true",
+				},
+			},
+			Ruleset: yaml.Ruleset{
+				If: yaml.Rules{
+					Branch: []string{"dev"},
 				},
 			},
 		},
@@ -560,7 +587,10 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, compiler.TemplateDepth)
+	ruledata := new(pipeline.RuleData)
+	ruledata.Branch = "main"
+
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, ruledata, compiler.TemplateDepth)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -648,7 +678,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, compiler.TemplateDepth)
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
@@ -816,7 +846,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, compiler.TemplateDepth)
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
@@ -915,7 +945,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, compiler.TemplateDepth)
+			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
 			if err == nil {
 				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
 			}

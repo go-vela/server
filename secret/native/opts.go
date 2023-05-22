@@ -14,7 +14,7 @@ import (
 type ClientOpt func(*client) error
 
 // WithDatabase sets the Vela database service in the secret client for Native.
-func WithDatabase(d database.Service) ClientOpt {
+func WithDatabase(d database.Interface) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring database service in native secret client")
 

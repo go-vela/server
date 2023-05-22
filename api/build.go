@@ -1029,6 +1029,7 @@ func GetBuild(c *gin.Context) {
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
+	cl := claims.Retrieve(c)
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -1092,6 +1093,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
+	b.SetSender(cl.Subject)
 
 	// update the PR event action if action was never set
 	// for backwards compatibility with pre-0.14 releases.
@@ -1569,7 +1571,7 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r *library.Repo) error {
+func planBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
@@ -1619,11 +1621,177 @@ func planBuild(database database.Service, p *pipeline.Build, b *library.Build, r
 	return nil
 }
 
+// planServices is a helper function to plan all services
+// in the build for execution. This creates the services
+// for the build in the configured backend.
+func planServices(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
+	// variable to store planned services
+	services := []*library.Service{}
+
+	// iterate through all pipeline services
+	for _, service := range p.Services {
+		// create the service object
+		s := new(library.Service)
+		s.SetBuildID(b.GetID())
+		s.SetRepoID(b.GetRepoID())
+		s.SetName(service.Name)
+		s.SetImage(service.Image)
+		s.SetNumber(service.Number)
+		s.SetStatus(constants.StatusPending)
+		s.SetCreated(time.Now().UTC().Unix())
+
+		// send API call to create the service
+		err := database.CreateService(s)
+		if err != nil {
+			return services, fmt.Errorf("unable to create service %s: %w", s.GetName(), err)
+		}
+
+		// send API call to capture the created service
+		s, err = database.GetServiceForBuild(b, s.GetNumber())
+		if err != nil {
+			return services, fmt.Errorf("unable to get service %s: %w", s.GetName(), err)
+		}
+
+		// populate environment variables from service library
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/library#Service.Environment
+		err = service.MergeEnv(s.Environment())
+		if err != nil {
+			return services, err
+		}
+
+		// create the log object
+		l := new(library.Log)
+		l.SetServiceID(s.GetID())
+		l.SetBuildID(b.GetID())
+		l.SetRepoID(b.GetRepoID())
+		l.SetData([]byte{})
+
+		// send API call to create the service logs
+		err = database.CreateLog(l)
+		if err != nil {
+			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
+		}
+	}
+
+	return services, nil
+}
+
+// planSteps is a helper function to plan all steps
+// in the build for execution. This creates the steps
+// for the build in the configured backend.
+func planSteps(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
+	// variable to store planned steps
+	steps := []*library.Step{}
+
+	// iterate through all pipeline stages
+	for _, stage := range p.Stages {
+		// iterate through all steps for each pipeline stage
+		for _, step := range stage.Steps {
+			// create the step object
+			s := new(library.Step)
+			s.SetBuildID(b.GetID())
+			s.SetRepoID(b.GetRepoID())
+			s.SetNumber(step.Number)
+			s.SetName(step.Name)
+			s.SetImage(step.Image)
+			s.SetStage(stage.Name)
+			s.SetStatus(constants.StatusPending)
+			s.SetCreated(time.Now().UTC().Unix())
+
+			// send API call to create the step
+			err := database.CreateStep(s)
+			if err != nil {
+				return steps, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
+			}
+
+			// send API call to capture the created step
+			s, err = database.GetStepForBuild(b, s.GetNumber())
+			if err != nil {
+				return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
+			}
+
+			// populate environment variables from step library
+			//
+			// https://pkg.go.dev/github.com/go-vela/types/library#step.Environment
+			err = step.MergeEnv(s.Environment())
+			if err != nil {
+				return steps, err
+			}
+
+			// create the log object
+			l := new(library.Log)
+			l.SetStepID(s.GetID())
+			l.SetBuildID(b.GetID())
+			l.SetRepoID(b.GetRepoID())
+			l.SetData([]byte{})
+
+			// send API call to create the step logs
+			err = database.CreateLog(l)
+			if err != nil {
+				return nil, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
+			}
+
+			steps = append(steps, s)
+		}
+	}
+
+	// iterate through all pipeline steps
+	for _, step := range p.Steps {
+		// create the step object
+		s := new(library.Step)
+		s.SetBuildID(b.GetID())
+		s.SetRepoID(b.GetRepoID())
+		s.SetNumber(step.Number)
+		s.SetName(step.Name)
+		s.SetImage(step.Image)
+		s.SetStatus(constants.StatusPending)
+		s.SetCreated(time.Now().UTC().Unix())
+
+		// send API call to create the step
+		err := database.CreateStep(s)
+		if err != nil {
+			return steps, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
+		}
+
+		// send API call to capture the created step
+		s, err = database.GetStepForBuild(b, s.GetNumber())
+		if err != nil {
+			return steps, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
+		}
+
+		// populate environment variables from step library
+		//
+		// https://pkg.go.dev/github.com/go-vela/types/library#step.Environment
+		err = step.MergeEnv(s.Environment())
+		if err != nil {
+			return steps, err
+		}
+
+		// create the log object
+		l := new(library.Log)
+		l.SetStepID(s.GetID())
+		l.SetBuildID(b.GetID())
+		l.SetRepoID(b.GetRepoID())
+		l.SetData([]byte{})
+
+		// send API call to create the step logs
+		err = database.CreateLog(l)
+		if err != nil {
+			return steps, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
+		}
+
+		steps = append(steps, s)
+	}
+
+	return steps, nil
+}
+
 // cleanBuild is a helper function to kill the build
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
-func cleanBuild(database database.Service, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
+func cleanBuild(database database.Interface, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
 	b.SetStatus(constants.StatusError)
@@ -1726,10 +1894,92 @@ func CancelBuild(c *gin.Context) {
 		"user":  u.GetName(),
 	}).Infof("canceling build %s", entry)
 
-	// TODO: add support for removing builds from the queue
-	//
-	// check to see if build is not running
-	if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
+	switch b.GetStatus() {
+	case constants.StatusRunning:
+		// retrieve the worker info
+		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+
+		for _, executor := range e {
+			// check each executor on the worker running the build to see if it's running the build we want to cancel
+			if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+				// prepare the request to the worker
+				client := http.DefaultClient
+				client.Timeout = 30 * time.Second
+
+				// set the API endpoint path we send the request to
+				u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
+
+				req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
+				if err != nil {
+					retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				tm := c.MustGet("token-manager").(*token.Manager)
+
+				// set mint token options
+				mto := &token.MintTokenOpts{
+					Hostname:      "vela-server",
+					TokenType:     constants.WorkerAuthTokenType,
+					TokenDuration: time.Minute * 1,
+				}
+
+				// mint token
+				tkn, err := tm.MintToken(mto)
+				if err != nil {
+					retErr := fmt.Errorf("unable to generate auth token: %w", err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
+				// add the token to authenticate to the worker
+				req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
+
+				// perform the request to the worker
+				resp, err := client.Do(req)
+				if err != nil {
+					retErr := fmt.Errorf("unable to connect to %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+				defer resp.Body.Close()
+
+				// Read Response Body
+				respBody, err := io.ReadAll(resp.Body)
+				if err != nil {
+					retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				err = json.Unmarshal(respBody, b)
+				if err != nil {
+					retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
+					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				c.JSON(resp.StatusCode, b)
+
+				return
+			}
+		}
+	case constants.StatusPending:
+		break
+
+	default:
 		retErr := fmt.Errorf("found build %s but its status was %s", entry, b.GetStatus())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -1737,92 +1987,11 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	// retrieve the worker info
-	w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	for _, executor := range e {
-		// check each executor on the worker running the build to see if it's running the build we want to cancel
-		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
-			// prepare the request to the worker
-			client := http.DefaultClient
-			client.Timeout = 30 * time.Second
-
-			// set the API endpoint path we send the request to
-			u := fmt.Sprintf("%s/api/v1/executors/%d/build/cancel", w.GetAddress(), executor.GetID())
-
-			req, err := http.NewRequestWithContext(context.Background(), "DELETE", u, nil)
-			if err != nil {
-				retErr := fmt.Errorf("unable to form a request to %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			tm := c.MustGet("token-manager").(*token.Manager)
-
-			// set mint token options
-			mto := &token.MintTokenOpts{
-				Hostname:      "vela-server",
-				TokenType:     constants.WorkerAuthTokenType,
-				TokenDuration: time.Minute * 1,
-			}
-
-			// mint token
-			tkn, err := tm.MintToken(mto)
-			if err != nil {
-				retErr := fmt.Errorf("unable to generate auth token: %w", err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
-			}
-
-			// add the token to authenticate to the worker
-			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
-
-			// perform the request to the worker
-			resp, err := client.Do(req)
-			if err != nil {
-				retErr := fmt.Errorf("unable to connect to %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-			defer resp.Body.Close()
-
-			// Read Response Body
-			respBody, err := io.ReadAll(resp.Body)
-			if err != nil {
-				retErr := fmt.Errorf("unable to read response from %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			err = json.Unmarshal(respBody, b)
-			if err != nil {
-				retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			c.JSON(resp.StatusCode, b)
-
-			return
-		}
-	}
-
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
 
-	err = database.FromContext(c).UpdateBuild(b)
+	err := database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -1837,7 +2006,7 @@ func CancelBuild(c *gin.Context) {
 
 	for page > 0 {
 		// retrieve build steps (per page) from the database
-		stepsPart, err := database.FromContext(c).GetBuildStepList(b, page, perPage)
+		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -1878,7 +2047,7 @@ func CancelBuild(c *gin.Context) {
 
 	for page > 0 {
 		// retrieve build services (per page) from the database
-		servicesPart, err := database.FromContext(c).GetBuildServiceList(b, page, perPage)
+		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -1954,6 +2123,10 @@ func CancelBuild(c *gin.Context) {
 //     description: Bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '409':
+//     description: Conflict (requested build token for build not in pending state)
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to generate build token
 //     schema:
@@ -1977,10 +2150,10 @@ func GetBuildToken(c *gin.Context) {
 		"user":  cl.Subject,
 	}).Infof("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
 
-	// if build is not in a pending state, then a build token should not be needed - bad request
+	// if build is not in a pending state, then a build token should not be needed - conflict
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {
 		retErr := fmt.Errorf("unable to mint build token: build is not in pending state")
-		util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusConflict, retErr)
 
 		return
 	}

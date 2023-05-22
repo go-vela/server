@@ -209,6 +209,19 @@ func main() {
 			Usage:   "interval at which workers will show as active within the /metrics endpoint",
 			Value:   5 * time.Minute,
 		},
+		// schedule flags
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_SCHEDULE_MINIMUM_FREQUENCY", "SCHEDULE_MINIMUM_FREQUENCY"},
+			Name:    "schedule-minimum-frequency",
+			Usage:   "minimum time between each schedule entry",
+			Value:   1 * time.Hour,
+		},
+		&cli.StringSliceFlag{
+			EnvVars: []string{"VELA_SCHEDULE_ALLOWLIST"},
+			Name:    "vela-schedule-allowlist",
+			Usage:   "limit which repos can be utilize the schedule feature within the system",
+			Value:   &cli.StringSlice{},
+		},
 	}
 	// Add Database Flags
 	app.Flags = append(app.Flags, database.Flags...)
