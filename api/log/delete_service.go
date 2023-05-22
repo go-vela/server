@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
@@ -16,8 +17,6 @@ import (
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,7 +45,7 @@ import (
 //   type: integer
 // - in: path
 //   name: service
-//   description: ID of the service
+//   description: Service number
 //   required: true
 //   type: integer
 // security:

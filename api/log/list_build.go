@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
@@ -16,8 +17,6 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -88,7 +87,7 @@ func ListLogsForBuild(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("reading logs for build %s", entry)
+	}).Infof("listing logs for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -115,7 +114,7 @@ func ListLogsForBuild(c *gin.Context) {
 	// send API call to capture the list of logs for the build
 	l, t, err := database.FromContext(c).ListLogsForBuild(b, page, perPage)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get logs for build %s: %w", entry, err)
+		retErr := fmt.Errorf("unable to list logs for build %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
