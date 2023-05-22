@@ -11,7 +11,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestRepo_FromContext(t *testing.T) {
+func TestSchedule_FromContext(t *testing.T) {
 	// setup types
 	num := int64(1)
 	want := &library.Schedule{ID: &num}
@@ -29,7 +29,7 @@ func TestRepo_FromContext(t *testing.T) {
 	}
 }
 
-func TestRepo_FromContext_Bad(t *testing.T) {
+func TestSchedule_FromContext_Bad(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -43,7 +43,7 @@ func TestRepo_FromContext_Bad(t *testing.T) {
 	}
 }
 
-func TestRepo_FromContext_WrongType(t *testing.T) {
+func TestSchedule_FromContext_WrongType(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -57,7 +57,7 @@ func TestRepo_FromContext_WrongType(t *testing.T) {
 	}
 }
 
-func TestRepo_FromContext_Empty(t *testing.T) {
+func TestSchedule_FromContext_Empty(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
@@ -70,7 +70,7 @@ func TestRepo_FromContext_Empty(t *testing.T) {
 	}
 }
 
-func TestRepo_ToContext(t *testing.T) {
+func TestSchedule_ToContext(t *testing.T) {
 	// setup types
 	num := int64(1)
 	want := &library.Schedule{ID: &num}

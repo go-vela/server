@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -95,7 +95,7 @@ func CreateSchedule(c *gin.Context) {
 	// ensure the entry is valid
 	err = validateEntry(minimumFrequency, input.GetEntry())
 	if err != nil {
-		retErr := fmt.Errorf("schedule of %s is invalid: %w", input.GetName(), err)
+		retErr := fmt.Errorf("schedule of %s with entry %s is invalid: %w", input.GetName(), input.GetEntry(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -116,7 +116,7 @@ func CreateSchedule(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("creating new schedule %s", input.GetName())
 
-	// ensure repo is allowed to be activated
+	// ensure repo is allowed to create new schedules
 	if !util.CheckAllowlist(r, allowlist) {
 		retErr := fmt.Errorf("unable to create schedule %s: %s is not on allowlist", input.GetName(), r.GetFullName())
 
@@ -162,14 +162,14 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	// if the repo exists but is inactive
-	if len(r.GetOrg()) > 0 && !dbSchedule.GetActive() && input.GetActive() {
-		// update the repo owner
-		dbSchedule.SetCreatedBy(u.GetName())
+	// if the schedule exists but is inactive
+	if dbSchedule.GetID() != 0 && !dbSchedule.GetActive() && input.GetActive() {
+		// update the user who created the schedule
+		dbSchedule.SetUpdatedBy(u.GetName())
 		// activate the schedule
 		dbSchedule.SetActive(true)
 
-		// send API call to update the repo
+		// send API call to update the schedule
 		err = database.FromContext(c).UpdateSchedule(dbSchedule)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set schedule %s to active: %w", dbSchedule.GetName(), err)
@@ -179,7 +179,7 @@ func CreateSchedule(c *gin.Context) {
 			return
 		}
 
-		// send API call to capture the updated repo
+		// send API call to capture the updated schedule
 		s, _ = database.FromContext(c).GetScheduleForRepo(r, dbSchedule.GetName())
 	} else {
 		// send API call to create the schedule
@@ -192,7 +192,7 @@ func CreateSchedule(c *gin.Context) {
 			return
 		}
 
-		// send API call to capture the created repo
+		// send API call to capture the created schedule
 		s, _ = database.FromContext(c).GetScheduleForRepo(r, input.GetName())
 	}
 
@@ -223,7 +223,7 @@ func validateEntry(minimum time.Duration, entry string) error {
 
 	// ensure the time between previous and next schedule exceeds the minimum duration
 	if nextTime.Sub(prevTime) < minimum {
-		return fmt.Errorf("entry needs to occur less frequently then every %s", minimum)
+		return fmt.Errorf("entry needs to occur less frequently than every %s", minimum)
 	}
 
 	return nil

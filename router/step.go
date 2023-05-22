@@ -7,10 +7,10 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/step"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/perm"
-	"github.com/go-vela/server/router/middleware/step"
+	smiddleware "github.com/go-vela/server/router/middleware/step"
 )
 
 // StepHandlers is a function that extends the provided base router group
@@ -24,23 +24,23 @@ import (
 // POST   /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
 // PUT    /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
-// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs
+// DELETE /api/v1/repos/:org/:repo/builds/:build/steps/:step/logs .
 func StepHandlers(base *gin.RouterGroup) {
 	// Steps endpoints
 	steps := base.Group("/steps")
 	{
-		steps.POST("", perm.MustPlatformAdmin(), middleware.Payload(), api.CreateStep)
-		steps.GET("", perm.MustRead(), api.GetSteps)
+		steps.POST("", perm.MustPlatformAdmin(), middleware.Payload(), step.CreateStep)
+		steps.GET("", perm.MustRead(), step.ListSteps)
 
 		// Step endpoints
-		step := steps.Group("/:step", step.Establish())
+		s := steps.Group("/:step", smiddleware.Establish())
 		{
-			step.GET("", perm.MustRead(), api.GetStep)
-			step.PUT("", perm.MustBuildAccess(), middleware.Payload(), api.UpdateStep)
-			step.DELETE("", perm.MustPlatformAdmin(), api.DeleteStep)
+			s.GET("", perm.MustRead(), step.GetStep)
+			s.PUT("", perm.MustBuildAccess(), middleware.Payload(), step.UpdateStep)
+			s.DELETE("", perm.MustPlatformAdmin(), step.DeleteStep)
 
 			// Log endpoints
-			LogStepHandlers(step)
+			LogStepHandlers(s)
 		} // end of step endpoints
 	} // end of steps endpoints
 }
