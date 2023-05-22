@@ -200,7 +200,7 @@ func main() {
 		&cli.IntFlag{
 			EnvVars: []string{"VELA_MAX_TEMPLATE_DEPTH", "MAX_TEMPLATE_DEPTH"},
 			Name:    "max-template-depth",
-			Usage:   "max template depth, used by compiler, maximum number of templates that can be called in a template chain. Prevents circular depenendcies",
+			Usage:   "max template depth, used by compiler, maximum number of templates that can be called in a template chain. Prevents circular dependencies",
 			Value:   5,
 		},
 		&cli.DurationFlag{
