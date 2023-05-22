@@ -32,7 +32,7 @@ func WorkerHandlers(base *gin.RouterGroup) {
 		_worker := _workers.Group("/:worker")
 		{
 			_worker.GET("", wmiddleware.Establish(), worker.GetWorker)
-			_worker.PUT("", perm.MustPlatformAdmin(), wmiddleware.Establish(), worker.UpdateWorker)
+			_worker.PUT("", perm.MustPlatformAdmin(), perm.MustWorkerAuthToken(), wmiddleware.Establish(), worker.UpdateWorker)
 			_worker.POST("/refresh", perm.MustWorkerAuthToken(), wmiddleware.Establish(), worker.Refresh)
 			_worker.DELETE("", perm.MustPlatformAdmin(), wmiddleware.Establish(), worker.DeleteWorker)
 		} // end of worker endpoints
