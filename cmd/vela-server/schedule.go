@@ -232,10 +232,6 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			return err
 		}
 
-		// update repo fields with any changes from SCM process
-		r.SetTopics(r.GetTopics())
-		r.SetBranch(r.GetBranch())
-
 		// set the build numbers based off repo counter
 		r.SetCounter(r.GetCounter() + 1)
 		b.SetNumber(r.GetCounter() + 1)
