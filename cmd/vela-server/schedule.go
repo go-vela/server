@@ -27,6 +27,8 @@ import (
 const baseErr = "unable to schedule build"
 
 func processSchedules(compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+	logrus.Infof("processing active schedules to create builds")
+
 	// send API call to capture the list of active schedules
 	schedules, err := database.ListActiveSchedules()
 	if err != nil {
