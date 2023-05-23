@@ -35,6 +35,7 @@ type client struct {
 
 	build    *library.Build
 	comment  string
+	commit   string
 	files    []string
 	local    bool
 	metadata *types.Metadata
@@ -126,6 +127,15 @@ func (c *client) WithBuild(b *library.Build) compiler.Engine {
 func (c *client) WithComment(cmt string) compiler.Engine {
 	if cmt != "" {
 		c.comment = cmt
+	}
+
+	return c
+}
+
+// WithCommit sets the comment in the Engine.
+func (c *client) WithCommit(cmt string) compiler.Engine {
+	if cmt != "" {
+		c.commit = cmt
 	}
 
 	return c

@@ -77,6 +77,7 @@ func Establish() gin.HandlerFunc {
 			// parse and compile the pipeline configuration file
 			_, pipeline, err = compiler.FromContext(c).
 				Duplicate().
+				WithCommit(p).
 				WithMetadata(c.MustGet("metadata").(*types.Metadata)).
 				WithRepo(r).
 				WithUser(u).
