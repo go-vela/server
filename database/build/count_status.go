@@ -8,7 +8,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-// CountBuildsForStatus gets the count of builds by org name from the database.
+// CountBuildsForStatus gets the count of builds by status from the database.
 func (e *engine) CountBuildsForStatus(status string, filters map[string]interface{}) (int64, error) {
 	e.logger.Tracef("getting count of builds for status %s from the database", status)
 

@@ -20,12 +20,14 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetEvent("push")
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(2)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetEvent("push")
 
 	_repoOne := testRepo()
 	_repoOne.SetID(1)
@@ -52,11 +54,15 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
-	// create expected result in mock
+	// create expected result without filters in mock
 	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
-
-	// ensure the mock expects the query
+	// ensure the mock expects the query without filters
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1`).WithArgs("foo").WillReturnRows(_rows)
+
+	// create expected result with event filter in mock
+	_rows = sqlmock.NewRows([]string{"count"}).AddRow(2)
+	// ensure the mock expects the query with event filter
+	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -91,28 +97,47 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
+		filters  map[string]interface{}
 		want     int64
 	}{
 		{
 			failure:  false,
-			name:     "postgres",
+			name:     "postgres without filters",
 			database: _postgres,
+			filters:  map[string]interface{}{},
 			want:     2,
 		},
 		{
 			failure:  false,
-			name:     "sqlite3",
+			name:     "postgres with event filter",
+			database: _postgres,
+			filters: map[string]interface{}{
+				"event": "push",
+			},
+			want: 2,
+		},
+		{
+			failure:  false,
+			name:     "sqlite3 without filters",
 			database: _sqlite,
+			filters:  map[string]interface{}{},
 			want:     2,
 		},
+		{
+			failure:  false,
+			name:     "sqlite3 with event filter",
+			database: _sqlite,
+			filters: map[string]interface{}{
+				"event": "push",
+			},
+			want: 2,
+		},
 	}
-
-	filters := map[string]interface{}{}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountBuildsForOrg("foo", filters)
+			got, err := test.database.CountBuildsForOrg("foo", test.filters)
 
 			if test.failure {
 				if err == nil {

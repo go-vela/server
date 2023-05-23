@@ -11,6 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ListBuildsForRepo gets a list of builds by repo ID from the database.
+//
+//nolint:lll // ignore long line length due to variable names
 func (e *engine) ListBuildsForRepo(r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
