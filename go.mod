@@ -14,7 +14,7 @@ require (
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.19.3-0.20230516131722-f538de06bbf6
+	github.com/go-vela/types v0.19.3-0.20230519215217-0da8c8b5e90f
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-github/v52 v52.0.0
@@ -33,8 +33,8 @@ require (
 	github.com/urfave/cli/v2 v2.25.1
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
 	golang.org/x/oauth2 v0.7.0
+	golang.org/x/sync v0.1.0
 	gopkg.in/square/go-jose.v2 v2.6.0
-	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.25.0
@@ -123,4 +123,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.90.1 // indirect
+	k8s.io/utils v0.0.0-20230209194617-a36077c30491 // indirect
 )
