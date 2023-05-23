@@ -126,6 +126,11 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 
 		// if template references other templates, expand again
 		if len(tmplBuild.Templates) != 0 {
+			// if the tmplBuild has render_inline but the parent build does not, abort
+			if tmplBuild.Metadata.RenderInline && !s.Metadata.RenderInline {
+				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
+			}
+
 			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
 			if err != nil {
 				return s, err

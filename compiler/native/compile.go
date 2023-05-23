@@ -198,6 +198,13 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int
 	newPipeline := *p
 	newPipeline.Templates = yaml.TemplateSlice{}
 
+	// if max template depth has been reached, return to avoid circular dependencies
+	if depth == 0 {
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+
+		return nil, retErr
+	}
+
 	for _, template := range p.Templates {
 		if c.local {
 			for _, file := range localTemplates {
@@ -231,6 +238,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int
 			return nil, err
 		}
 
+		// if template parsed contains a template reference, recurse with decremented depth
 		if len(parsed.Templates) > 0 && parsed.Metadata.RenderInline {
 			parsed, err = c.compileInline(parsed, localTemplates, depth-1)
 			if err != nil {
