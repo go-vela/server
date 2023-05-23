@@ -267,6 +267,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		p, compiled, err = compiler.
 			Duplicate().
 			WithBuild(b).
+			WithCommit(b.GetCommit()).
 			WithMetadata(metadata).
 			WithRepo(r).
 			WithUser(u).
