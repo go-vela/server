@@ -194,11 +194,6 @@ func TestNative_ExpandSteps(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	testBuild := new(library.Build)
-
-	testBuild.SetID(1)
-	testBuild.SetCommit("123abc456def")
-
 	testRepo := new(library.Repo)
 
 	testRepo.SetID(1)
@@ -320,7 +315,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	compiler.WithBuild(testBuild).WithRepo(testRepo)
+	compiler.WithCommit("123abc456def").WithRepo(testRepo)
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

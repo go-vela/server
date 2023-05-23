@@ -121,6 +121,9 @@ type Engine interface {
 	// WithComment defines a function that sets
 	// the comment in the Engine.
 	WithComment(string) Engine
+	// WithCommit defines a function that sets
+	// the commit in the Engine.
+	WithCommit(string) Engine
 	// WithFiles defines a function that sets
 	// the changeset files in the Engine.
 	WithFiles([]string) Engine

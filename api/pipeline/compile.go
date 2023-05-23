@@ -94,7 +94,7 @@ func CompilePipeline(c *gin.Context) {
 	r.SetPipelineType(p.GetType())
 
 	// create the compiler object
-	compiler := compiler.FromContext(c).Duplicate().WithMetadata(m).WithRepo(r).WithUser(u)
+	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	// compile the pipeline
 	pipeline, _, err := compiler.CompileLite(p.GetData(), true, true, nil)
