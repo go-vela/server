@@ -511,6 +511,7 @@ func PostWebhook(c *gin.Context) {
 			Duplicate().
 			WithBuild(b).
 			WithComment(webhook.Comment).
+			WithCommit(b.GetCommit()).
 			WithFiles(files).
 			WithMetadata(m).
 			WithRepo(repo).
