@@ -96,7 +96,7 @@ func GetTemplates(c *gin.Context) {
 	}).Infof("reading templates from pipeline %s", entry)
 
 	// create the compiler object
-	compiler := compiler.FromContext(c).Duplicate().WithMetadata(m).WithRepo(r).WithUser(u)
+	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	// parse the pipeline configuration
 	pipeline, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))

@@ -235,7 +235,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			Org:  c.repo.GetOrg(),
 			Repo: c.repo.GetName(),
 			Name: tmpl.Source,
-			Ref:  c.build.GetCommit(),
+			Ref:  c.commit,
 		}
 
 		if !c.UsePrivateGithub {
