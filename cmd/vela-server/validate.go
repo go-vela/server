@@ -117,5 +117,9 @@ func validateCompiler(c *cli.Context) error {
 		}
 	}
 
+	if c.Int("max-template-depth") < 1 {
+		return fmt.Errorf("max-template-depth (VELA_MAX_TEMPLATE_DEPTH) or (MAX_TEMPLATE_DEPTH) flag must be greater than 0")
+	}
+
 	return nil
 }
