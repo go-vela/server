@@ -198,7 +198,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int
 	newPipeline := *p
 	newPipeline.Templates = yaml.TemplateSlice{}
 
-	// if max template depth has been reached, return to avoid circular dependencies
+	// return if max template depth has been reached
 	if depth == 0 {
 		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
 
