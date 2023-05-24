@@ -6,7 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/repo"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/org"
@@ -64,7 +64,7 @@ func RepoHandlers(base *gin.RouterGroup) {
 		org := _repos.Group("/:org", org.Establish())
 		{
 			org.GET("", repo.ListReposForOrg)
-			org.GET("/builds", api.GetOrgBuilds)
+			org.GET("/builds", build.ListBuildsForOrg)
 
 			// Repo endpoints
 			_repo := org.Group("/:repo", rmiddleware.Establish())

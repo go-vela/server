@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -274,7 +273,7 @@ func RestartBuild(c *gin.Context) {
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
+	skip := SkipEmptyBuild(p)
 	if skip != "" {
 		// set build to successful status
 		b.SetStatus(constants.StatusSkipped)
@@ -352,7 +351,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go api.PublishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,

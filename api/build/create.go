@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -283,7 +282,7 @@ func CreateBuild(c *gin.Context) {
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
+	skip := SkipEmptyBuild(p)
 	if skip != "" {
 		// set build to successful status
 		input.SetStatus(constants.StatusSuccess)
@@ -362,7 +361,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go api.PublishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -390,36 +389,4 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 
 	// return the results of converting number to string
 	return strconv.Atoi(parts[2])
-}
-
-// skipEmptyBuild checks if the build should be skipped due to it
-// not containing any steps besides init or clone.
-//
-//nolint:goconst // ignore init and clone constants
-func skipEmptyBuild(p *pipeline.Build) string {
-	if len(p.Stages) == 1 {
-		if p.Stages[0].Name == "init" {
-			return "skipping build since only init stage found"
-		}
-	}
-
-	if len(p.Stages) == 2 {
-		if p.Stages[0].Name == "init" && p.Stages[1].Name == "clone" {
-			return "skipping build since only init and clone stages found"
-		}
-	}
-
-	if len(p.Steps) == 1 {
-		if p.Steps[0].Name == "init" {
-			return "skipping build since only init step found"
-		}
-	}
-
-	if len(p.Steps) == 2 {
-		if p.Steps[0].Name == "init" && p.Steps[1].Name == "clone" {
-			return "skipping build since only init and clone steps found"
-		}
-	}
-
-	return ""
 }

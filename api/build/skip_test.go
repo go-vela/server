@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -10,7 +10,7 @@ import (
 	"github.com/go-vela/types/pipeline"
 )
 
-func Test_skipEmptyBuild(t *testing.T) {
+func Test_SkipEmptyBuild(t *testing.T) {
 	type args struct {
 		p *pipeline.Build
 	}
@@ -72,8 +72,8 @@ func Test_skipEmptyBuild(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := skipEmptyBuild(tt.args.p); got != tt.want {
-				t.Errorf("skipEmptyBuild() = %v, want %v", got, tt.want)
+			if got := SkipEmptyBuild(tt.args.p); got != tt.want {
+				t.Errorf("SkipEmptyBuild() = %v, want %v", got, tt.want)
 			}
 		})
 	}
