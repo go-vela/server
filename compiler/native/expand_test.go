@@ -948,6 +948,92 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	}
 }
 
+func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testBuild := new(library.Build)
+
+	testBuild.SetID(1)
+	testBuild.SetCommit("123abc456def")
+
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "Test 1",
+			tmpls: map[string]*yaml.Template{
+				"render_inline": {
+					Name:   "render_inline",
+					Source: "github.example.com/github/octocat/nested.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	steps := yaml.StepSlice{
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "render_inline",
+			},
+		},
+	}
+
+	globalEnvironment := raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	}
+
+	// run test
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithBuild(testBuild).WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
+			if err == nil {
+				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
+			}
+		})
+	}
+}
+
 func TestNative_mapFromTemplates(t *testing.T) {
 	// setup types
 	str := "foo"
