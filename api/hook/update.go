@@ -157,7 +157,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to update the webhook
-	err = database.FromContext(c).UpdateHook(h)
+	h, err = database.FromContext(c).UpdateHook(h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update hook %s: %w", entry, err)
 
@@ -165,9 +165,6 @@ func UpdateHook(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated user
-	h, _ = database.FromContext(c).GetHookForRepo(r, h.GetNumber())
 
 	c.JSON(http.StatusOK, h)
 }
