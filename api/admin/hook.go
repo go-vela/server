@@ -64,7 +64,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to update the hook
-	err = database.FromContext(c).UpdateHook(input)
+	h, err := database.FromContext(c).UpdateHook(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update hook %d: %w", input.GetID(), err)
 
@@ -73,5 +73,5 @@ func UpdateHook(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, input)
+	c.JSON(http.StatusOK, h)
 }

@@ -31,7 +31,7 @@ type HookInterface interface {
 	// CountHooksForRepo defines a function that gets the count of hooks by repo ID.
 	CountHooksForRepo(*library.Repo) (int64, error)
 	// CreateHook defines a function that creates a new hook.
-	CreateHook(*library.Hook) error
+	CreateHook(*library.Hook) (*library.Hook, error)
 	// DeleteHook defines a function that deletes an existing hook.
 	DeleteHook(*library.Hook) error
 	// GetHook defines a function that gets a hook by ID.
@@ -45,5 +45,5 @@ type HookInterface interface {
 	// ListHooksForRepo defines a function that gets a list of hooks by repo ID.
 	ListHooksForRepo(*library.Repo, int, int) ([]*library.Hook, int64, error)
 	// UpdateHook defines a function that updates an existing hook.
-	UpdateHook(*library.Hook) error
+	UpdateHook(*library.Hook) (*library.Hook, error)
 }
