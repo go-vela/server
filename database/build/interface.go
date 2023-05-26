@@ -26,6 +26,8 @@ type BuildInterface interface {
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
+	// CleanBuilds defines a function that sets pending or running builds to error created before a given time.
+	CleanBuilds(string, int64) (int64, error)
 	// CountBuilds defines a function that gets the count of all builds.
 	CountBuilds() (int64, error)
 	// CountBuildsForDeployment defines a function that gets the count of builds by deployment url.
