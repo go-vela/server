@@ -1667,7 +1667,7 @@ func planServices(database database.Interface, p *pipeline.Build, b *library.Bui
 		l.SetData([]byte{})
 
 		// send API call to create the service logs
-		err = database.CreateLog(l)
+		_, err = database.CreateLog(l)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
 		}
@@ -1726,7 +1726,7 @@ func planSteps(database database.Interface, p *pipeline.Build, b *library.Build)
 			l.SetData([]byte{})
 
 			// send API call to create the step logs
-			err = database.CreateLog(l)
+			_, err = database.CreateLog(l)
 			if err != nil {
 				return nil, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
 			}
@@ -1775,7 +1775,7 @@ func planSteps(database database.Interface, p *pipeline.Build, b *library.Build)
 		l.SetData([]byte{})
 
 		// send API call to create the step logs
-		err = database.CreateLog(l)
+		_, err = database.CreateLog(l)
 		if err != nil {
 			return steps, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
 		}
