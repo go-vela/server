@@ -144,7 +144,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -358,7 +358,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the created build
-	input, _ = database.FromContext(c).GetBuild(input.GetNumber(), r)
+	input, _ = database.FromContext(c).GetBuildForRepo(r, input.GetNumber())
 
 	c.JSON(http.StatusCreated, input)
 
@@ -472,7 +472,7 @@ func GetBuildByID(c *gin.Context) {
 	}).Infof("reading build %d", id)
 
 	// Get build from database
-	b, err = database.FromContext(c).GetBuildByID(id)
+	b, err = database.FromContext(c).GetBuild(id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build: %w", err)
 
@@ -725,7 +725,7 @@ func GetBuilds(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, before, after, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForRepo(r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
@@ -898,7 +898,7 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).GetOrgBuildList(o, filters, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForOrg(o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for org %s: %w", o, err)
@@ -1063,7 +1063,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -1287,7 +1287,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the restarted build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusCreated, b)
 
@@ -1448,7 +1448,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the updated build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 
@@ -1533,7 +1533,7 @@ func DeleteBuild(c *gin.Context) {
 	}).Infof("deleting build %s", entry)
 
 	// send API call to remove the build
-	err := database.FromContext(c).DeleteBuild(b.GetID())
+	err := database.FromContext(c).DeleteBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete build %s: %w", entry, err)
 
@@ -1594,7 +1594,7 @@ func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build,
 	// send API call to capture the created build
 	// TODO: this can be dropped once we return
 	// the created build above
-	b, err = database.GetBuild(b.GetNumber(), r)
+	b, err = database.GetBuildForRepo(r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
 	}
