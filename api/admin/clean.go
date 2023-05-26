@@ -63,7 +63,7 @@ import (
 // update any user stored in the database.
 func CleanResources(c *gin.Context) {
 	u := user.Retrieve(c)
-	logrus.Infof("Admin %s: updating pending resources in database", u.GetName())
+	logrus.Infof("platform admin %s: updating pending resources in database", u.GetName())
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -104,6 +104,7 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
 
 	// clean services
 	services, err := database.FromContext(c).CleanServices(before)
@@ -114,6 +115,7 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
 
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(before)
@@ -124,6 +126,7 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d services cleaned. %d steps cleaned.", builds, services, steps))
 }
