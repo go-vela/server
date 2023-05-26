@@ -12,7 +12,7 @@ import (
 )
 
 // CreateHook creates a new hook in the database.
-func (e *engine) CreateHook(h *library.Hook) error {
+func (e *engine) CreateHook(h *library.Hook) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("creating hook %d in the database", h.GetNumber())
@@ -27,12 +27,11 @@ func (e *engine) CreateHook(h *library.Hook) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.Validate
 	err := hook.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	result := e.client.Table(constants.TableHook).Create(hook)
+
 	// send query to the database
-	return e.client.
-		Table(constants.TableHook).
-		Create(hook).
-		Error
+	return hook.ToLibrary(), result.Error
 }

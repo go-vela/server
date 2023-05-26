@@ -58,12 +58,12 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateHook(_hookOne)
+	_, err := _sqlite.CreateHook(_hookOne)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateHook(_hookTwo)
+	_, err = _sqlite.CreateHook(_hookTwo)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
