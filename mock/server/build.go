@@ -345,7 +345,7 @@ func buildToken(c *gin.Context) {
 // Pass "0" to :before to test receiving a http 500 response. Pass "1" to :before
 // to test receiving a http 401 response.
 func cleanResoures(c *gin.Context) {
-	before := c.DefaultQuery("before", "42")
+	before := c.Query("before")
 
 	if strings.EqualFold(before, "0") {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, "")
