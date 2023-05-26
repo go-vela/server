@@ -5,24 +5,22 @@
 package postgres
 
 import (
-	"database/sql/driver"
 	"testing"
 	"time"
 
 	"github.com/go-vela/server/database/schedule"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
-	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
-	"github.com/go-vela/types/library"
 )
 
 func TestPostgres_New(t *testing.T) {
@@ -83,15 +81,12 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	// ensure the mock expects the ping
 	_mock.ExpectPing()
 
-	// ensure the mock expects the table queries
-	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
-
-	// ensure the mock expects the index queries
-	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateBuildStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateBuildCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateBuildSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-
+	// ensure the mock expects the build queries
+	_mock.ExpectExec(build.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -171,87 +166,6 @@ func TestPostgres_setupDatabase(t *testing.T) {
 	}
 }
 
-func TestPostgres_createTables(t *testing.T) {
-	// setup types
-	// setup the test database client
-	_database, _mock, err := NewTest()
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
-
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// ensure the mock expects the table queries
-	_mock.ExpectExec(ddl.CreateBuildTable).WillReturnResult(sqlmock.NewResult(1, 1))
-
-	tests := []struct {
-		failure bool
-	}{
-		{
-			failure: false,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		err := createTables(_database)
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("createTables should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("createTables returned err: %v", err)
-		}
-	}
-}
-
-func TestPostgres_createIndexes(t *testing.T) {
-	// setup types
-	// setup the test database client
-	_database, _mock, err := NewTest()
-	if err != nil {
-		t.Errorf("unable to create new postgres test database: %v", err)
-	}
-
-	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
-
-	// ensure the mock expects the index queries
-	_mock.ExpectExec(ddl.CreateBuildRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateBuildStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateBuildCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(ddl.CreateBuildSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-
-	tests := []struct {
-		failure bool
-	}{
-		{
-			failure: false,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		err := createIndexes(_database)
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("createIndexes should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("createIndexes returned err: %v", err)
-		}
-	}
-}
-
 func TestPostgres_createServices(t *testing.T) {
 	// setup types
 	// setup the test database client
@@ -262,6 +176,12 @@ func TestPostgres_createServices(t *testing.T) {
 
 	defer func() { _sql, _ := _database.Postgres.DB(); _sql.Close() }()
 
+	// ensure the mock expects the build queries
+	_mock.ExpectExec(build.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -316,54 +236,5 @@ func TestPostgres_createServices(t *testing.T) {
 		if err != nil {
 			t.Errorf("createServices returned err: %v", err)
 		}
-	}
-}
-
-// This will be used with the github.com/DATA-DOG/go-sqlmock
-// library to compare values that are otherwise not easily
-// compared. These typically would be values generated before
-// adding or updating them in the database.
-//
-// https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
-type AnyArgument struct{}
-
-// Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
-	return true
-}
-
-// testRepo is a test helper function to create a
-// library Repo type with all fields set to their
-// zero values.
-func testRepo() *library.Repo {
-	i64 := int64(0)
-	i := 0
-	str := ""
-	b := false
-
-	return &library.Repo{
-		ID:           &i64,
-		PipelineType: &str,
-		UserID:       &i64,
-		Hash:         &str,
-		Org:          &str,
-		Name:         &str,
-		FullName:     &str,
-		Link:         &str,
-		Clone:        &str,
-		Branch:       &str,
-		BuildLimit:   &i64,
-		Timeout:      &i64,
-		Counter:      &i,
-		Visibility:   &str,
-		Private:      &b,
-		Trusted:      &b,
-		Active:       &b,
-		AllowPull:    &b,
-		AllowPush:    &b,
-		AllowDeploy:  &b,
-		AllowTag:     &b,
-		AllowComment: &b,
-		PreviousName: &str,
 	}
 }
