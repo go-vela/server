@@ -113,7 +113,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	err = database.FromContext(c).CreateHook(input)
+	h, err := database.FromContext(c).CreateHook(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create hook for repo %s: %w", r.GetFullName(), err)
 
@@ -121,9 +121,6 @@ func CreateHook(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created webhook
-	h, _ := database.FromContext(c).GetHookForRepo(r, input.GetNumber())
 
 	c.JSON(http.StatusCreated, h)
 }

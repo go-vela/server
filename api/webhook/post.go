@@ -177,7 +177,7 @@ func PostWebhook(c *gin.Context) {
 
 	defer func() {
 		// send API call to update the webhook
-		err = database.FromContext(c).UpdateHook(h)
+		_, err = database.FromContext(c).UpdateHook(h)
 		if err != nil {
 			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
@@ -219,7 +219,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	err = database.FromContext(c).CreateHook(h)
+	h, err = database.FromContext(c).CreateHook(h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", repo.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -229,9 +229,6 @@ func PostWebhook(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created webhook
-	h, _ = database.FromContext(c).GetHookForRepo(repo, h.GetNumber())
 
 	// verify the webhook from the source control provider
 	if c.Value("webhookvalidation").(bool) {
@@ -709,7 +706,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 
 	defer func() {
 		// send API call to update the webhook
-		err := database.FromContext(c).CreateHook(h)
+		_, err := database.FromContext(c).CreateHook(h)
 		if err != nil {
 			logrus.Errorf("unable to create webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
