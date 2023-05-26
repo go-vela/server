@@ -14,26 +14,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/server/internal/token"
-	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/executors"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -147,7 +144,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -271,6 +268,7 @@ func CreateBuild(c *gin.Context) {
 	p, compiled, err = compiler.FromContext(c).
 		Duplicate().
 		WithBuild(input).
+		WithCommit(input.GetCommit()).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).
@@ -292,7 +290,7 @@ func CreateBuild(c *gin.Context) {
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
+	skip := SkipEmptyBuild(p)
 	if skip != "" {
 		// set build to successful status
 		input.SetStatus(constants.StatusSuccess)
@@ -342,7 +340,7 @@ func CreateBuild(c *gin.Context) {
 	input.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), p, input, r)
+	err = PlanBuild(database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -360,7 +358,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the created build
-	input, _ = database.FromContext(c).GetBuild(input.GetNumber(), r)
+	input, _ = database.FromContext(c).GetBuildForRepo(r, input.GetNumber())
 
 	c.JSON(http.StatusCreated, input)
 
@@ -371,7 +369,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go publishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -381,11 +379,11 @@ func CreateBuild(c *gin.Context) {
 	)
 }
 
-// skipEmptyBuild checks if the build should be skipped due to it
+// SkipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
 //
 //nolint:goconst // ignore init and clone constants
-func skipEmptyBuild(p *pipeline.Build) string {
+func SkipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
 			return "skipping build since only init stage found"
@@ -474,7 +472,7 @@ func GetBuildByID(c *gin.Context) {
 	}).Infof("reading build %d", id)
 
 	// Get build from database
-	b, err = database.FromContext(c).GetBuildByID(id)
+	b, err = database.FromContext(c).GetBuild(id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build: %w", err)
 
@@ -727,7 +725,7 @@ func GetBuilds(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, before, after, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForRepo(r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for repo %s: %w", r.GetFullName(), err)
 
@@ -900,7 +898,7 @@ func GetOrgBuilds(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).GetOrgBuildList(o, filters, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForOrg(o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to get builds for org %s: %w", o, err)
@@ -1065,7 +1063,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -1200,6 +1198,7 @@ func RestartBuild(c *gin.Context) {
 	p, compiled, err = compiler.FromContext(c).
 		Duplicate().
 		WithBuild(b).
+		WithCommit(b.GetCommit()).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).
@@ -1221,7 +1220,7 @@ func RestartBuild(c *gin.Context) {
 	r.SetPipelineType(pipelineType)
 
 	// skip the build if only the init or clone steps are found
-	skip := skipEmptyBuild(p)
+	skip := SkipEmptyBuild(p)
 	if skip != "" {
 		// set build to successful status
 		b.SetStatus(constants.StatusSkipped)
@@ -1271,7 +1270,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = planBuild(database.FromContext(c), p, b, r)
+	err = PlanBuild(database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -1288,7 +1287,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the restarted build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusCreated, b)
 
@@ -1299,7 +1298,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go publishToQueue(
+	go PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -1449,7 +1448,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the updated build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 
@@ -1534,7 +1533,7 @@ func DeleteBuild(c *gin.Context) {
 	}).Infof("deleting build %s", entry)
 
 	// send API call to remove the build
-	err := database.FromContext(c).DeleteBuild(b.GetID())
+	err := database.FromContext(c).DeleteBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete build %s: %w", entry, err)
 
@@ -1566,12 +1565,12 @@ func getPRNumberFromBuild(b *library.Build) (int, error) {
 	return strconv.Atoi(parts[2])
 }
 
-// planBuild is a helper function to plan the build for
+// PlanBuild is a helper function to plan the build for
 // execution. This creates all resources, like steps
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func planBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
+func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
@@ -1595,7 +1594,7 @@ func planBuild(database database.Interface, p *pipeline.Build, b *library.Build,
 	// send API call to capture the created build
 	// TODO: this can be dropped once we return
 	// the created build above
-	b, err = database.GetBuild(b.GetNumber(), r)
+	b, err = database.GetBuildForRepo(r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
 	}

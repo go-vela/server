@@ -56,7 +56,7 @@ func AllBuildsQueue(c *gin.Context) {
 	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
 
 	// send API call to capture pending and running builds
-	b, err := database.FromContext(c).GetPendingAndRunningBuilds(after)
+	b, err := database.FromContext(c).ListPendingAndRunningBuilds(after)
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all running and pending builds: %w", err)
 
