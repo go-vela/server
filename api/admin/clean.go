@@ -65,6 +65,7 @@ func CleanResources(c *gin.Context) {
 	u := user.Retrieve(c)
 	logrus.Infof("Admin %s: updating pending resources in database", u.GetName())
 
+	// default error message
 	msg := "build cleaned by platform admin"
 
 	// capture body from API request
@@ -79,6 +80,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
+	// if a message is provided, set the error message to that
 	if input.Message != nil {
 		msg = *input.Message
 	}
