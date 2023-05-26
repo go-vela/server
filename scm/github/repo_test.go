@@ -1302,3 +1302,52 @@ func TestGithub_GetPullRequest(t *testing.T) {
 		t.Errorf("HeadRef is %v, want %v", gotHeadRef, wantHeadRef)
 	}
 }
+
+func TestGithub_GetBranch(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:owner/:repo/branches/:branch", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/branch.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("octocat")
+	r.SetName("Hello-World")
+	r.SetFullName("octocat/Hello-World")
+	r.SetBranch("main")
+
+	wantBranch := "main"
+	wantCommit := "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	gotBranch, gotCommit, err := client.GetBranch(u, r)
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	if !strings.EqualFold(gotBranch, wantBranch) {
+		t.Errorf("Branch is %v, want %v", gotBranch, wantBranch)
+	}
+
+	if !strings.EqualFold(gotCommit, wantCommit) {
+		t.Errorf("Commit is %v, want %v", gotCommit, wantCommit)
+	}
+}
