@@ -79,7 +79,7 @@ func DeleteBuild(c *gin.Context) {
 	}).Infof("deleting build %s", entry)
 
 	// send API call to remove the build
-	err := database.FromContext(c).DeleteBuild(b.GetID())
+	err := database.FromContext(c).DeleteBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete build %s: %w", entry, err)
 

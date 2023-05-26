@@ -137,7 +137,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -350,7 +350,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the created build
-	input, _ = database.FromContext(c).GetBuild(input.GetNumber(), r)
+	input, _ = database.FromContext(c).GetBuildForRepo(r, input.GetNumber())
 
 	c.JSON(http.StatusCreated, input)
 

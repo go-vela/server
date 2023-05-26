@@ -237,7 +237,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).GetRepoBuildList(r, filters, before, after, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForRepo(r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for repo %s: %w", r.GetFullName(), err)
 

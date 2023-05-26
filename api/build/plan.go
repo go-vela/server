@@ -46,7 +46,7 @@ func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build,
 	// send API call to capture the created build
 	// TODO: this can be dropped once we return
 	// the created build above
-	b, err = database.GetBuild(b.GetNumber(), r)
+	b, err = database.GetBuildForRepo(r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
 	}

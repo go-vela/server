@@ -64,7 +64,7 @@ func Establish() gin.HandlerFunc {
 			"user":  u.GetName(),
 		}).Debugf("reading build %s/%d", r.GetFullName(), number)
 
-		b, err := database.FromContext(c).GetBuild(number, r)
+		b, err := database.FromContext(c).GetBuildForRepo(r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read build %s/%d: %w", r.GetFullName(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

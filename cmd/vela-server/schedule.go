@@ -141,7 +141,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.GetRepoBuildCount(r, filters)
+	builds, err := database.CountBuildsForRepo(r, filters)
 	if err != nil {
 		return fmt.Errorf("unable to get count of builds for repo %s: %w", r.GetFullName(), err)
 	}
@@ -362,7 +362,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.GetBuild(b.GetNumber(), r)
+	b, err = database.GetBuildForRepo(r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}

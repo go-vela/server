@@ -117,7 +117,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).GetRepoBuildCount(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -340,7 +340,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the restarted build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusCreated, b)
 

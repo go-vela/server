@@ -11,9 +11,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
@@ -70,10 +70,10 @@ import (
 // a build for a repo in the configured backend.
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
+	cl := claims.Retrieve(c)
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -84,7 +84,7 @@ func UpdateBuild(c *gin.Context) {
 		"build": b.GetNumber(),
 		"org":   o,
 		"repo":  r.GetName(),
-		"user":  u.GetName(),
+		"user":  cl.Subject,
 	}).Infof("updating build %s", entry)
 
 	// capture body from API request
@@ -161,7 +161,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the updated build
-	b, _ = database.FromContext(c).GetBuild(b.GetNumber(), r)
+	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 

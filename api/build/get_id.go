@@ -79,7 +79,7 @@ func GetBuildByID(c *gin.Context) {
 	}).Infof("reading build %d", id)
 
 	// Get build from database
-	b, err = database.FromContext(c).GetBuildByID(id)
+	b, err = database.FromContext(c).GetBuild(id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build: %w", err)
 
