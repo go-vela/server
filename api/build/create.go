@@ -47,7 +47,7 @@ import (
 //   type: string
 // - in: body
 //   name: body
-//   description: Payload containing the build to update
+//   description: Payload containing the build to create
 //   required: true
 //   schema:
 //     "$ref": "#/definitions/Build"

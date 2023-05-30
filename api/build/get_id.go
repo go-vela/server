@@ -107,7 +107,7 @@ func GetBuildByID(c *gin.Context) {
 
 	// Ensure that user has at least read access to repo to return the build
 	if perm == "none" && !u.GetAdmin() {
-		retErr := fmt.Errorf("unable to retrieve build %d: user does not have read access to repo %s", id, r.GetFullName())
+		retErr := fmt.Errorf("unable to retrieve build %d: user does not have read access to repo", id)
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
