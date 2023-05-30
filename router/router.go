@@ -35,6 +35,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/auth"
+	"github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
@@ -84,7 +85,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	r.GET("/version", api.Version)
 
 	// Webhook endpoint
-	r.POST("/webhook", api.PostWebhook)
+	r.POST("/webhook", webhook.PostWebhook)
 
 	// Authentication endpoints
 	authenticate := r.Group("/authenticate")

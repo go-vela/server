@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/adhocore/gronx"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -281,7 +281,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		r.SetPipelineType(pipelineType)
 
 		// skip the build if only the init or clone steps are found
-		skip := api.SkipEmptyBuild(p)
+		skip := build.SkipEmptyBuild(p)
 		if skip != "" {
 			return nil
 		}
@@ -325,7 +325,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = api.PlanBuild(database, p, b, r)
+		err = build.PlanBuild(database, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -368,7 +368,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// publish the build to the queue
-	go api.PublishToQueue(
+	go build.PublishToQueue(
 		queue,
 		database,
 		p,
