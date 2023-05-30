@@ -6,7 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/build"
 )
 
 // SearchHandlers is a function that extends the provided base router group
@@ -18,9 +18,9 @@ func SearchHandlers(base *gin.RouterGroup) {
 	search := base.Group("/search")
 	{
 		// Build endpoint
-		build := search.Group("/builds")
+		b := search.Group("/builds")
 		{
-			build.GET("/:id", api.GetBuildByID)
+			b.GET("/:id", build.GetBuildByID)
 		}
 	} // end of search endpoints
 }

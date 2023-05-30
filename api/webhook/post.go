@@ -1,13 +1,12 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package api
+package webhook
 
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -537,7 +537,7 @@ func PostWebhook(c *gin.Context) {
 		repo.SetPipelineType(pipelineType)
 
 		// skip the build if only the init or clone steps are found
-		skip := SkipEmptyBuild(p)
+		skip := build.SkipEmptyBuild(p)
 		if skip != "" {
 			// set build to successful status
 			b.SetStatus(constants.StatusSkipped)
@@ -604,7 +604,7 @@ func PostWebhook(c *gin.Context) {
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = PlanBuild(database.FromContext(c), p, b, repo)
+		err = build.PlanBuild(database.FromContext(c), p, b, repo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -691,7 +691,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go PublishToQueue(
+	go build.PublishToQueue(
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -699,62 +699,6 @@ func PostWebhook(c *gin.Context) {
 		repo,
 		u,
 	)
-}
-
-// PublishToQueue is a helper function that creates
-// a build item and publishes it to the queue.
-func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	item := types.ToItem(p, b, r, u)
-
-	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
-
-	byteItem, err := json.Marshal(item)
-	if err != nil {
-		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-
-		// error out the build
-		cleanBuild(db, b, nil, nil, err)
-
-		return
-	}
-
-	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
-
-	route, err := queue.Route(&p.Worker)
-	if err != nil {
-		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-
-		// error out the build
-		cleanBuild(db, b, nil, nil, err)
-
-		return
-	}
-
-	logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
-
-	err = queue.Push(context.Background(), route, byteItem)
-	if err != nil {
-		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-
-		err = queue.Push(context.Background(), route, byteItem)
-		if err != nil {
-			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
-
-			// error out the build
-			cleanBuild(db, b, nil, nil, err)
-
-			return
-		}
-	}
-
-	// update fields in build object
-	b.SetEnqueued(time.Now().UTC().Unix())
-
-	// update the build in the db to reflect the time it was enqueued
-	err = db.UpdateBuild(b)
-	if err != nil {
-		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
-	}
 }
 
 func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
