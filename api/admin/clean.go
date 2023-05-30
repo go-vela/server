@@ -104,10 +104,11 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+
 	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
 
 	// clean services
-	services, err := database.FromContext(c).CleanServices(before)
+	services, err := database.FromContext(c).CleanServices(msg, before)
 	if err != nil {
 		retErr := fmt.Errorf("%d builds cleaned. unable to update services: %w", builds, err)
 
@@ -115,10 +116,11 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+
 	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
 
 	// clean steps
-	steps, err := database.FromContext(c).CleanSteps(before)
+	steps, err := database.FromContext(c).CleanSteps(msg, before)
 	if err != nil {
 		retErr := fmt.Errorf("%d builds cleaned. %d services cleaned. unable to update steps: %w", builds, services, err)
 
@@ -126,6 +128,7 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+
 	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d services cleaned. %d steps cleaned.", builds, services, steps))

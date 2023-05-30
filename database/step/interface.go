@@ -25,7 +25,7 @@ type StepInterface interface {
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CleanSteps defines a function that sets running or pending steps to error status before a given created time.
-	CleanSteps(int64) (int64, error)
+	CleanSteps(string, int64) (int64, error)
 	// CountSteps defines a function that gets the count of all steps.
 	CountSteps() (int64, error)
 	// CountStepsForBuild defines a function that gets the count of steps by build ID.

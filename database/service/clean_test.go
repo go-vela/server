@@ -7,6 +7,7 @@ package service
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
@@ -57,8 +58,8 @@ func TestService_Engine_CleanService(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the name query
-	_mock.ExpectExec(`UPDATE "services" SET "status"=$1 WHERE created < $2 AND (status = 'running' OR status = 'pending')`).
-		WithArgs("error", 3).
+	_mock.ExpectExec(`UPDATE "services" SET "status"=$1,"error"=$2,"finished"=$3 WHERE created < $4 AND (status = 'running' OR status = 'pending')`).
+		WithArgs("error", "msg", time.Now().UTC().Unix(), 3).
 		WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_sqlite := testSqlite(t)
@@ -108,7 +109,7 @@ func TestService_Engine_CleanService(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CleanServices(3)
+			got, err := test.database.CleanServices("msg", 3)
 
 			if test.failure {
 				if err == nil {

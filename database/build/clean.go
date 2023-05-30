@@ -5,6 +5,8 @@
 package build
 
 import (
+	"time"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -18,6 +20,7 @@ func (e *engine) CleanBuilds(msg string, before int64) (int64, error) {
 	b := new(library.Build)
 	b.SetStatus(constants.StatusError)
 	b.SetError(msg)
+	b.SetFinished(time.Now().UTC().Unix())
 
 	build := database.BuildFromLibrary(b)
 
