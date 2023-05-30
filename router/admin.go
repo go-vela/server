@@ -16,6 +16,7 @@ import (
 // GET    /api/v1/admin/builds/queue
 // GET    /api/v1/admin/build/:id
 // PUT    /api/v1/admin/build
+// PUT    /api/v1/admin/clean
 // PUT    /api/v1/admin/deployment
 // PUT    /api/v1/admin/hook
 // PUT    /api/v1/admin/repo
@@ -32,6 +33,9 @@ func AdminHandlers(base *gin.RouterGroup) {
 
 		// Admin build endpoint
 		_admin.PUT("/build", admin.UpdateBuild)
+
+		// Admin clean endpoint
+		_admin.PUT("/clean", admin.CleanResources)
 
 		// Admin deployment endpoint
 		_admin.PUT("/deployment", admin.UpdateDeployment)
