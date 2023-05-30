@@ -1,0 +1,19 @@
+version: "1"
+
+metadata:
+  render_inline: true
+
+templates:
+  - name: nested
+    source: github.example.com/github/octocat/circular.yml
+    type: github
+    vars:
+      image: golang:latest
+
+stages:
+  test:
+    steps:
+      - name: test
+        image: alpine
+        commands:
+          - echo from inline
