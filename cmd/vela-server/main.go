@@ -197,6 +197,12 @@ func main() {
 			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
 			Value:   5,
 		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_MAX_TEMPLATE_DEPTH", "MAX_TEMPLATE_DEPTH"},
+			Name:    "max-template-depth",
+			Usage:   "max template depth, used by compiler, maximum number of templates that can be called in a template chain",
+			Value:   3,
+		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
 			Name:    "worker-active-interval",
