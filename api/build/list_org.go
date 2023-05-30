@@ -21,7 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/repos/{org} builds ListBuildsForOrg
+// swagger:operation GET /api/v1/repos/{org}/builds builds ListBuildsForOrg
 //
 // Get a list of builds by org in the configured backend
 //
