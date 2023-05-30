@@ -82,7 +82,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p, nil)
+		newPipeline, err := c.compileInline(p, nil, c.TemplateDepth)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -117,7 +117,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p, localTemplates)
+		newPipeline, err := c.compileInline(p, localTemplates, c.TemplateDepth)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -169,7 +169,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 			}
 		case len(p.Steps) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandSteps(p, templates, nil)
+			p, err = c.ExpandSteps(p, templates, nil, c.TemplateDepth)
 			if err != nil {
 				return nil, _pipeline, err
 			}
@@ -194,9 +194,16 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Build, error) {
+func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int) (*yaml.Build, error) {
 	newPipeline := *p
 	newPipeline.Templates = yaml.TemplateSlice{}
+
+	// return if max template depth has been reached
+	if depth == 0 {
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+
+		return nil, retErr
+	}
 
 	for _, template := range p.Templates {
 		if c.local {
@@ -229,6 +236,14 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 		parsed, _, err := c.Parse(bytes, format, template)
 		if err != nil {
 			return nil, err
+		}
+
+		// if template parsed contains a template reference, recurse with decremented depth
+		if len(parsed.Templates) > 0 && parsed.Metadata.RenderInline {
+			parsed, err = c.compileInline(parsed, localTemplates, depth-1)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		switch {
@@ -276,12 +291,6 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string) (*yaml.Bu
 		}
 	}
 
-	// validate the yaml configuration
-	err := c.Validate(&newPipeline)
-	if err != nil {
-		return nil, err
-	}
-
 	return &newPipeline, nil
 }
 
@@ -307,7 +316,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 	}
 
 	// inject the templates into the steps
-	p, err = c.ExpandSteps(p, tmpls, r)
+	p, err = c.ExpandSteps(p, tmpls, r, c.TemplateDepth)
 	if err != nil {
 		return nil, _pipeline, err
 	}
