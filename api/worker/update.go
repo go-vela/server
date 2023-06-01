@@ -99,13 +99,18 @@ func UpdateWorker(c *gin.Context) {
 	}
 
 	if input.GetRunningBuildIDs() != nil {
-		// update status if set
+		// update runningBuildIDs if set
 		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
 	}
 
 	if len(input.GetStatus()) > 0 {
 		// update status if set
 		w.SetStatus(input.GetStatus())
+	}
+
+	if input.GetLastStatusUpdateAt() > 0 {
+		// update lastStatusUpdateAt if set
+		w.SetLastStatusUpdateAt(input.GetLastStatusUpdateAt())
 	}
 
 	// send API call to update the worker
