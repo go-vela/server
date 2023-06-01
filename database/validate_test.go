@@ -10,6 +10,7 @@ import (
 )
 
 func TestDatabase_Config_Validate(t *testing.T) {
+	// setup tests
 	tests := []struct {
 		failure bool
 		name    string
