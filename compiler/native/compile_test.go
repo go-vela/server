@@ -38,6 +38,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -417,6 +418,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -619,6 +621,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -883,6 +886,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1112,6 +1116,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1231,6 +1236,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1346,6 +1352,7 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1402,6 +1409,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -1592,6 +1600,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -2161,6 +2170,7 @@ func Test_Compile_Inline(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.String("clone-image", defaultCloneImage, "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{
@@ -2361,6 +2371,179 @@ func Test_Compile_Inline(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "nested templates",
+			args: args{
+				file: "testdata/inline_nested_template.yml",
+			},
+			want: &pipeline.Build{
+				Version: "1",
+				ID:      "__0",
+				Metadata: pipeline.Metadata{
+					Clone:       true,
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Stages: []*pipeline.Stage{
+					{
+						Name:        "init",
+						Environment: initEnv,
+						Steps: pipeline.ContainerSlice{
+							&pipeline.Container{
+								ID:          "__0_init_init",
+								Directory:   "/vela/src/foo//",
+								Environment: initEnv,
+								Image:       "#init",
+								Name:        "init",
+								Number:      1,
+								Pull:        "not_present",
+							},
+						},
+					},
+					{
+						Name:        "clone",
+						Environment: initEnv,
+						Steps: pipeline.ContainerSlice{
+							&pipeline.Container{
+								ID:          "__0_clone_clone",
+								Directory:   "/vela/src/foo//",
+								Environment: initEnv,
+								Image:       defaultCloneImage,
+								Name:        "clone",
+								Number:      2,
+								Pull:        "not_present",
+							},
+						},
+					},
+					{
+						Name:        "test",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_test_test",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo from inline", m, ""),
+								Image:       "alpine",
+								Name:        "test",
+								Pull:        "not_present",
+								Number:      3,
+							},
+						},
+					},
+					{
+						Name:        "nested_test",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_nested_test_nested_test",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo from inline", m, ""),
+								Image:       "alpine",
+								Name:        "nested_test",
+								Pull:        "not_present",
+								Number:      4,
+							},
+						},
+					},
+					{
+						Name:        "nested_golang_foo",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_nested_golang_foo_nested_golang_foo",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from foo", m, ""),
+								Image:       "golang:latest",
+								Name:        "nested_golang_foo",
+								Pull:        "not_present",
+								Number:      5,
+							},
+						},
+					},
+					{
+						Name:        "nested_golang_bar",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_nested_golang_bar_nested_golang_bar",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from bar", m, ""),
+								Image:       "golang:latest",
+								Name:        "nested_golang_bar",
+								Pull:        "not_present",
+								Number:      6,
+							},
+						},
+					},
+					{
+						Name:        "nested_golang_star",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_nested_golang_star_nested_golang_star",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from star", m, ""),
+								Image:       "golang:latest",
+								Name:        "nested_golang_star",
+								Pull:        "not_present",
+								Number:      7,
+							},
+						},
+					},
+					{
+						Name:        "nested_starlark_foo",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_nested_starlark_foo_nested_starlark_build_foo",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from foo", m, ""),
+								Image:       "alpine",
+								Name:        "nested_starlark_build_foo",
+								Pull:        "not_present",
+								Number:      8,
+							},
+						},
+					},
+					{
+						Name:        "nested_starlark_bar",
+						Needs:       []string{"clone"},
+						Environment: initEnv,
+						Steps: []*pipeline.Container{
+							{
+								ID:          "__0_nested_starlark_bar_nested_starlark_build_bar",
+								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
+								Directory:   "/vela/src/foo//",
+								Entrypoint:  []string{"/bin/sh", "-c"},
+								Environment: generateTestEnv("echo hello from bar", m, ""),
+								Image:       "alpine",
+								Name:        "nested_starlark_build_bar",
+								Pull:        "not_present",
+								Number:      9,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
 			name: "root steps",
 			args: args{
 				file: "testdata/inline_with_steps.yml",
@@ -2464,6 +2647,14 @@ func Test_Compile_Inline(t *testing.T) {
 			name: "stages and steps",
 			args: args{
 				file: "testdata/inline_with_stages_and_steps.yml",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "circular template call",
+			args: args{
+				file: "testdata/inline_circular_template.yml",
 			},
 			want:    nil,
 			wantErr: true,
@@ -2944,6 +3135,7 @@ func Test_CompileLite(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &types.Metadata{

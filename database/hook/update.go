@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateHook updates an existing hook in the database.
-func (e *engine) UpdateHook(h *library.Hook) error {
+func (e *engine) UpdateHook(h *library.Hook) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("updating hook %d in the database", h.GetNumber())
@@ -27,12 +27,11 @@ func (e *engine) UpdateHook(h *library.Hook) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Hook.Validate
 	err := hook.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	result := e.client.Table(constants.TableHook).Save(hook)
+
 	// send query to the database
-	return e.client.
-		Table(constants.TableHook).
-		Save(hook).
-		Error
+	return hook.ToLibrary(), result.Error
 }

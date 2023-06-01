@@ -316,7 +316,7 @@ func CreateRepo(c *gin.Context) {
 		// update initialization hook
 		h.SetRepoID(r.GetID())
 		// create first hook for repo in the database
-		err = database.FromContext(c).CreateHook(h)
+		_, err = database.FromContext(c).CreateHook(h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
