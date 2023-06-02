@@ -36,7 +36,7 @@ func TestHook_Engine_GetHook(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateHook(_hook)
+	_, err := _sqlite.CreateHook(_hook)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}

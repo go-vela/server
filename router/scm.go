@@ -6,7 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/scm"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 )
@@ -23,7 +23,7 @@ func ScmHandlers(base *gin.RouterGroup) {
 		// SCM org endpoints
 		org := orgs.Group("/:org", org.Establish())
 		{
-			org.GET("/sync", api.SyncRepos)
+			org.GET("/sync", scm.SyncReposForOrg)
 		} // end of SCM org endpoints
 	} // end of SCM orgs endpoints
 
@@ -33,7 +33,7 @@ func ScmHandlers(base *gin.RouterGroup) {
 		// SCM repo endpoints
 		repo := repos.Group("/:org/:repo", org.Establish(), repo.Establish())
 		{
-			repo.GET("/sync", api.SyncRepo)
+			repo.GET("/sync", scm.SyncRepo)
 		} // end of SCM repo endpoints
 	} // end of SCM repos endpoints
 }

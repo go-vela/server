@@ -24,6 +24,8 @@ type ServiceInterface interface {
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
+	// CleanServices defines a function that sets running or pending services to error status before a given created time.
+	CleanServices(string, int64) (int64, error)
 	// CountServices defines a function that gets the count of all services.
 	CountServices() (int64, error)
 	// CountServicesForBuild defines a function that gets the count of services by build ID.
