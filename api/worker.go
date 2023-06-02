@@ -338,6 +338,11 @@ func UpdateWorker(c *gin.Context) {
 		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
 	}
 
+	if input.GetLastBuildStartedAt() > 0 {
+		// update LastBuildStartedAt if set
+		w.SetLastBuildStartedAt(input.GetLastBuildStartedAt())
+	}
+
 	if input.GetLastBuildFinishedAt() > 0 {
 		// update LastBuildFinishedAt if set
 		w.SetLastBuildFinishedAt(input.GetLastBuildFinishedAt())
