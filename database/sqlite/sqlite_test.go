@@ -7,8 +7,6 @@ package sqlite
 import (
 	"testing"
 	"time"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestSqlite_New(t *testing.T) {
@@ -111,78 +109,6 @@ func TestSqlite_setupDatabase(t *testing.T) {
 	}
 }
 
-func TestSqlite_createTables(t *testing.T) {
-	// setup types
-	// setup the test database client
-	_database, err := NewTest()
-	if err != nil {
-		t.Errorf("unable to create new sqlite test database: %v", err)
-	}
-
-	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
-
-	tests := []struct {
-		failure bool
-	}{
-		{
-			failure: false,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		err := createTables(_database)
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("createTables should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("createTables returned err: %v", err)
-		}
-	}
-}
-
-func TestSqlite_createIndexes(t *testing.T) {
-	// setup types
-	// setup the test database client
-	_database, err := NewTest()
-	if err != nil {
-		t.Errorf("unable to create new sqlite test database: %v", err)
-	}
-
-	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
-
-	tests := []struct {
-		failure bool
-	}{
-		{
-			failure: false,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		err := createIndexes(_database)
-
-		if test.failure {
-			if err == nil {
-				t.Errorf("createIndexes should have returned err")
-			}
-
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("createIndexes returned err: %v", err)
-		}
-	}
-}
-
 func TestSqlite_createServices(t *testing.T) {
 	// setup types
 	// setup the test database client
@@ -216,40 +142,5 @@ func TestSqlite_createServices(t *testing.T) {
 		if err != nil {
 			t.Errorf("createServices returned err: %v", err)
 		}
-	}
-}
-
-// testRepo is a test helper function to create a
-// library Repo type with all fields set to their
-// zero values.
-func testRepo() *library.Repo {
-	i64 := int64(0)
-	i := 0
-	str := ""
-	b := false
-
-	return &library.Repo{
-		ID:           &i64,
-		UserID:       &i64,
-		Hash:         &str,
-		Org:          &str,
-		Name:         &str,
-		FullName:     &str,
-		Link:         &str,
-		Clone:        &str,
-		Branch:       &str,
-		BuildLimit:   &i64,
-		Timeout:      &i64,
-		Counter:      &i,
-		Visibility:   &str,
-		Private:      &b,
-		Trusted:      &b,
-		Active:       &b,
-		AllowPull:    &b,
-		AllowPush:    &b,
-		AllowDeploy:  &b,
-		AllowTag:     &b,
-		AllowComment: &b,
-		PreviousName: &str,
 	}
 }

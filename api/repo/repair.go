@@ -107,7 +107,7 @@ func RepairRepo(c *gin.Context) {
 
 		hook.SetRepoID(r.GetID())
 
-		err = database.FromContext(c).CreateHook(hook)
+		_, err = database.FromContext(c).CreateHook(hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 

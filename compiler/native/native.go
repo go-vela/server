@@ -32,9 +32,11 @@ type client struct {
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
 	CloneImage          string
+	TemplateDepth       int
 
 	build    *library.Build
 	comment  string
+	commit   string
 	files    []string
 	local    bool
 	metadata *types.Metadata
@@ -69,6 +71,8 @@ func New(ctx *cli.Context) (*client, error) {
 
 	// set the clone image to use for the injected clone step
 	c.CloneImage = ctx.String("clone-image")
+
+	c.TemplateDepth = ctx.Int("max-template-depth")
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
@@ -109,6 +113,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.UsePrivateGithub = c.UsePrivateGithub
 	cc.ModificationService = c.ModificationService
 	cc.CloneImage = c.CloneImage
+	cc.TemplateDepth = c.TemplateDepth
 
 	return cc
 }
@@ -126,6 +131,15 @@ func (c *client) WithBuild(b *library.Build) compiler.Engine {
 func (c *client) WithComment(cmt string) compiler.Engine {
 	if cmt != "" {
 		c.comment = cmt
+	}
+
+	return c
+}
+
+// WithCommit sets the comment in the Engine.
+func (c *client) WithCommit(cmt string) compiler.Engine {
+	if cmt != "" {
+		c.commit = cmt
 	}
 
 	return c

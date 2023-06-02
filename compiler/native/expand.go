@@ -31,7 +31,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.TemplateDepth)
 		if err != nil {
 			return nil, err
 		}
@@ -47,9 +47,16 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 
 // ExpandSteps injects the template for each
 // templated step in a yaml configuration.
-func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*yaml.Build, error) {
+func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *pipeline.RuleData, depth int) (*yaml.Build, error) {
 	if len(tmpls) == 0 {
 		return s, nil
+	}
+
+	// return if max template depth has been reached
+	if depth == 0 {
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+
+		return s, retErr
 	}
 
 	steps := yaml.StepSlice{}
@@ -115,6 +122,19 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err
+		}
+
+		// if template references other templates, expand again
+		if len(tmplBuild.Templates) != 0 {
+			// if the tmplBuild has render_inline but the parent build does not, abort
+			if tmplBuild.Metadata.RenderInline && !s.Metadata.RenderInline {
+				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
+			}
+
+			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
+			if err != nil {
+				return s, err
+			}
 		}
 
 		// loop over secrets within template
@@ -235,7 +255,7 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			Org:  c.repo.GetOrg(),
 			Repo: c.repo.GetName(),
 			Name: tmpl.Source,
-			Ref:  c.build.GetCommit(),
+			Ref:  c.commit,
 		}
 
 		if !c.UsePrivateGithub {

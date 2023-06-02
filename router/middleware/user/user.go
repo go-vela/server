@@ -29,8 +29,8 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
 
-		// if token is not a user token, establish empty user to better handle nil checks
-		if !strings.EqualFold(cl.TokenType, constants.UserAccessTokenType) {
+		// if token is not a user token or claims were not retrieved, establish empty user to better handle nil checks
+		if cl == nil || !strings.EqualFold(cl.TokenType, constants.UserAccessTokenType) {
 			u := new(library.User)
 
 			ToContext(c, u)

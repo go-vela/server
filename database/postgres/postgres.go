@@ -5,21 +5,20 @@
 package postgres
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
-	"github.com/go-vela/server/database/postgres/ddl"
 	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -50,6 +49,8 @@ type (
 		Postgres *gorm.DB
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		Logger *logrus.Entry
+		// https://pkg.go.dev/github.com/go-vela/server/database/build#BuildInterface
+		build.BuildInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/hook#HookInterface
 		hook.HookInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/log#LogInterface
@@ -58,6 +59,8 @@ type (
 		pipeline.PipelineInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/repo#RepoInterface
 		repo.RepoInterface
+		// https://pkg.go.dev/github.com/go-vela/server/database/schedule#ScheduleInterface
+		schedule.ScheduleInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/secret#SecretInterface
 		secret.SecretInterface
 		// https://pkg.go.dev/github.com/go-vela/server/database/service#ServiceInterface
@@ -164,6 +167,12 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 		return nil, nil, err
 	}
 
+	// ensure the mock expects the build queries
+	_mock.ExpectExec(build.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(build.CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -176,6 +185,9 @@ func NewTest() (*client, sqlmock.Sqlmock, error) {
 	// ensure the mock expects the repo queries
 	_mock.ExpectExec(repo.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(repo.CreateOrgNameIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the schedule queries
+	_mock.ExpectExec(schedule.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(schedule.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the secret queries
 	_mock.ExpectExec(secret.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(secret.CreateTypeOrgRepo).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -251,70 +263,24 @@ func setupDatabase(c *client) error {
 		return nil
 	}
 
-	// create the tables in the database
-	err = createTables(c)
-	if err != nil {
-		return err
-	}
-
-	// create the indexes in the database
-	err = createIndexes(c)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// createTables is a helper function to setup
-// the database with the necessary tables.
-func createTables(c *client) error {
-	c.Logger.Trace("creating data tables in the postgres database")
-
-	// create the builds table
-	err := c.Postgres.Exec(ddl.CreateBuildTable).Error
-	if err != nil {
-		return fmt.Errorf("unable to create %s table: %w", constants.TableBuild, err)
-	}
-
-	return nil
-}
-
-// createIndexes is a helper function to setup
-// the database with the necessary indexes.
-func createIndexes(c *client) error {
-	c.Logger.Trace("creating data indexes in the postgres database")
-
-	// create the builds_repo_id index for the builds table
-	err := c.Postgres.Exec(ddl.CreateBuildRepoIDIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create builds_repo_id index for the %s table: %w", constants.TableBuild, err)
-	}
-
-	// create the builds_status index for the builds table
-	err = c.Postgres.Exec(ddl.CreateBuildStatusIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create builds_status index for the %s table: %w", constants.TableBuild, err)
-	}
-
-	// create the builds_created index for the builds table
-	err = c.Postgres.Exec(ddl.CreateBuildCreatedIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create builds_created index for the %s table: %w", constants.TableBuild, err)
-	}
-
-	// create the builds_source index for the builds table
-	err = c.Postgres.Exec(ddl.CreateBuildSourceIndex).Error
-	if err != nil {
-		return fmt.Errorf("unable to create builds_source index for the %s table: %w", constants.TableBuild, err)
-	}
-
 	return nil
 }
 
 // createServices is a helper function to create the database services.
 func createServices(c *client) error {
 	var err error
+
+	// create the database agnostic engine for builds
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/build#New
+	c.BuildInterface, err = build.New(
+		build.WithClient(c.Postgres),
+		build.WithLogger(c.Logger),
+		build.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
 
 	// create the database agnostic engine for hooks
 	//
@@ -362,6 +328,18 @@ func createServices(c *client) error {
 		repo.WithEncryptionKey(c.config.EncryptionKey),
 		repo.WithLogger(c.Logger),
 		repo.WithSkipCreation(c.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for schedules
+	//
+	// https://pkg.go.dev/github.com/go-vela/server/database/schedule#New
+	c.ScheduleInterface, err = schedule.New(
+		schedule.WithClient(c.Postgres),
+		schedule.WithLogger(c.Logger),
+		schedule.WithSkipCreation(c.config.SkipCreation),
 	)
 	if err != nil {
 		return err
