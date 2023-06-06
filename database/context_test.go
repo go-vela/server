@@ -1,91 +1,152 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
 package database
 
 import (
+	"flag"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/urfave/cli/v2"
 )
 
 func TestDatabase_FromContext(t *testing.T) {
-	// setup types
-	want, _ := sqlite.NewTest()
+	_postgres, _ := testPostgres(t)
+	defer _postgres.Close()
 
-	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
-
-	// setup context
 	gin.SetMode(gin.TestMode)
-	context, _ := gin.CreateTestContext(nil)
-	context.Set(key, want)
+	ctx, _ := gin.CreateTestContext(nil)
+	ctx.Set(key, _postgres)
 
-	// run test
-	got := FromContext(context)
+	typeCtx, _ := gin.CreateTestContext(nil)
+	typeCtx.Set(key, nil)
 
-	if got != want {
-		t.Errorf("FromContext is %v, want %v", got, want)
+	nilCtx, _ := gin.CreateTestContext(nil)
+	nilCtx.Set(key, nil)
+
+	// setup tests
+	tests := []struct {
+		name    string
+		context *gin.Context
+		want    Interface
+	}{
+		{
+			name:    "success",
+			context: ctx,
+			want:    _postgres,
+		},
+		{
+			name:    "failure with nil",
+			context: nilCtx,
+			want:    nil,
+		},
+		{
+			name:    "failure with wrong type",
+			context: typeCtx,
+			want:    nil,
+		},
 	}
-}
 
-func TestDatabase_FromContext_Bad(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-	context, _ := gin.CreateTestContext(nil)
-	context.Set(key, nil)
-
-	// run test
-	got := FromContext(context)
-
-	if got != nil {
-		t.Errorf("FromContext is %v, want nil", got)
-	}
-}
-
-func TestDatabase_FromContext_WrongType(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-	context, _ := gin.CreateTestContext(nil)
-	context.Set(key, 1)
-
-	// run test
-	got := FromContext(context)
-
-	if got != nil {
-		t.Errorf("FromContext is %v, want nil", got)
-	}
-}
-
-func TestDatabase_FromContext_Empty(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-	context, _ := gin.CreateTestContext(nil)
-
-	// run test
-	got := FromContext(context)
-
-	if got != nil {
-		t.Errorf("FromContext is %v, want nil", got)
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := FromContext(test.context)
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("FromContext for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
 	}
 }
 
 func TestDatabase_ToContext(t *testing.T) {
-	// setup types
-	want, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
-
-	// setup context
-	gin.SetMode(gin.TestMode)
 	context, _ := gin.CreateTestContext(nil)
-	ToContext(context, want)
 
-	// run test
-	got := context.Value(key)
+	_postgres, _ := testPostgres(t)
+	defer _postgres.Close()
 
-	if got != want {
-		t.Errorf("ToContext is %v, want %v", got, want)
+	_sqlite := testSqlite(t)
+	defer _sqlite.Close()
+
+	// setup tests
+	tests := []struct {
+		name     string
+		database *engine
+		want     *engine
+	}{
+		{
+			name:     "success with postgres",
+			database: _postgres,
+			want:     _postgres,
+		},
+		{
+			name:     "success with sqlite3",
+			database: _sqlite,
+			want:     _sqlite,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ToContext(context, test.want)
+
+			got := context.Value(key)
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("ToContext for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
+	}
+}
+
+func TestDatabase_FromCLIContext(t *testing.T) {
+	flags := flag.NewFlagSet("test", 0)
+	flags.String("database.driver", "sqlite3", "doc")
+	flags.String("database.addr", "file::memory:?cache=shared", "doc")
+	flags.Int("database.compression.level", 3, "doc")
+	flags.Duration("database.connection.life", 10*time.Second, "doc")
+	flags.Int("database.connection.idle", 5, "doc")
+	flags.Int("database.connection.open", 20, "doc")
+	flags.String("database.encryption.key", "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW", "doc")
+	flags.Bool("database.skip_creation", true, "doc")
+
+	// setup tests
+	tests := []struct {
+		name    string
+		failure bool
+		context *cli.Context
+	}{
+		{
+			name:    "success",
+			failure: false,
+			context: cli.NewContext(&cli.App{Name: "vela"}, flags, nil),
+		},
+		{
+			name:    "failure",
+			failure: true,
+			context: cli.NewContext(&cli.App{Name: "vela"}, flag.NewFlagSet("test", 0), nil),
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := FromCLIContext(test.context)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("FromCLIContext for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("FromCLIContext for %s returned err: %v", test.name, err)
+			}
+		})
 	}
 }
