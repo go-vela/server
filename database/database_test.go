@@ -20,11 +20,13 @@ func TestDatabase_New(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
-		setup   *Setup
+		name    string
+		config  *Config
 	}{
 		{
+			name:    "failure with postgres",
 			failure: true,
-			setup: &Setup{
+			config: &Config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 3,
@@ -36,8 +38,9 @@ func TestDatabase_New(t *testing.T) {
 			},
 		},
 		{
+			name:    "success with sqlite3",
 			failure: false,
-			setup: &Setup{
+			config: &Config{
 				Driver:           "sqlite3",
 				Address:          "file::memory:?cache=shared",
 				CompressionLevel: 3,
@@ -49,10 +52,11 @@ func TestDatabase_New(t *testing.T) {
 			},
 		},
 		{
+			name:    "failure with invalid config",
 			failure: true,
-			setup: &Setup{
-				Driver:           "mysql",
-				Address:          "foo:bar@tcp(localhost:3306)/vela?charset=utf8mb4&parseTime=True&loc=Local",
+			config: &Config{
+				Driver:           "postgres",
+				Address:          "",
 				CompressionLevel: 3,
 				ConnectionLife:   10 * time.Second,
 				ConnectionIdle:   5,
@@ -62,10 +66,11 @@ func TestDatabase_New(t *testing.T) {
 			},
 		},
 		{
+			name:    "failure with invalid driver",
 			failure: true,
-			setup: &Setup{
-				Driver:           "postgres",
-				Address:          "",
+			config: &Config{
+				Driver:           "mysql",
+				Address:          "foo:bar@tcp(localhost:3306)/vela?charset=utf8mb4&parseTime=True&loc=Local",
 				CompressionLevel: 3,
 				ConnectionLife:   10 * time.Second,
 				ConnectionIdle:   5,
@@ -78,19 +83,21 @@ func TestDatabase_New(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		_, err := New(test.setup)
+		t.Run(test.name, func(t *testing.T) {
+			_, err := New(test.config)
 
-		if test.failure {
-			if err == nil {
-				t.Errorf("New should have returned err")
+			if test.failure {
+				if err == nil {
+					t.Errorf("New for %s should have returned err", test.name)
+				}
+
+				return
 			}
 
-			continue
-		}
-
-		if err != nil {
-			t.Errorf("New returned err: %v", err)
-		}
+			if err != nil {
+				t.Errorf("New for %s returned err: %v", test.name, err)
+			}
+		})
 	}
 }
 
