@@ -30,21 +30,21 @@ import (
 type (
 	// Config represents the settings required to create the engine that implements the Interface.
 	Config struct {
-		// specifies the address to use for the database client
+		// specifies the address to use for the database engine
 		Address string
-		// specifies the level of compression to use for the database client
+		// specifies the level of compression to use for the database engine
 		CompressionLevel int
-		// specifies the connection duration to use for the database client
+		// specifies the connection duration to use for the database engine
 		ConnectionLife time.Duration
-		// specifies the maximum idle connections for the database client
+		// specifies the maximum idle connections for the database engine
 		ConnectionIdle int
-		// specifies the maximum open connections for the database client
+		// specifies the maximum open connections for the database engine
 		ConnectionOpen int
-		// specifies the driver to use for the database client
+		// specifies the driver to use for the database engine
 		Driver string
-		// specifies the encryption key to use for the database client
+		// specifies the encryption key to use for the database engine
 		EncryptionKey string
-		// specifies to skip creating tables and indexes for the database client
+		// specifies to skip creating tables and indexes for the database engine
 		SkipCreation bool
 	}
 
