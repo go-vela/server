@@ -18,14 +18,22 @@ import (
 	"github.com/go-vela/server/database/worker"
 )
 
-// Interface represents the interface for Vela integrating
-// with the different supported Database backends.
+// Interface represents the interface for integrating with the supported database providers.
 type Interface interface {
-	// Database Interface Functions
+	// Generic Interface Functions
 
-	// Driver defines a function that outputs
-	// the configured database driver.
+	// TODO: Add this function to the interface once other code has been updated to use the agnostic engine.
+	//
+	// Close defines a function that stops and terminates the connection to the database.
+	// Close() error
+
+	// Driver defines a function that outputs the configured database driver.
 	Driver() string
+
+	// Ping defines a function that sends a "ping" request to the configured database.
+	Ping() error
+
+	// Resource Interface Functions
 
 	// BuildInterface defines the interface for builds stored in the database.
 	build.BuildInterface
