@@ -13,15 +13,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/internal/token"
-	"github.com/golang-jwt/jwt/v5"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestClaims_Retrieve(t *testing.T) {
@@ -271,12 +268,14 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	u.SetHash("abc")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(u)
