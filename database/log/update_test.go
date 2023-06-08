@@ -47,12 +47,12 @@ WHERE "id" = $6`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateLog(_service)
+	err := _sqlite.CreateLog(_service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateLog(_step)
+	err = _sqlite.CreateLog(_step)
 	if err != nil {
 		t.Errorf("unable to create test step log for sqlite: %v", err)
 	}
@@ -82,7 +82,7 @@ WHERE "id" = $6`).
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, log := range test.logs {
-				_, err = test.database.UpdateLog(log)
+				err = test.database.UpdateLog(log)
 
 				if test.failure {
 					if err == nil {

@@ -61,7 +61,7 @@ func PlanServices(database database.Interface, p *pipeline.Build, b *library.Bui
 		l.SetData([]byte{})
 
 		// send API call to create the service logs
-		_, err = database.CreateLog(l)
+		err = database.CreateLog(l)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
 		}

@@ -31,7 +31,7 @@ type LogInterface interface {
 	// CountLogsForBuild defines a function that gets the count of logs by build ID.
 	CountLogsForBuild(*library.Build) (int64, error)
 	// CreateLog defines a function that creates a new log.
-	CreateLog(*library.Log) (*library.Log, error)
+	CreateLog(*library.Log) error
 	// DeleteLog defines a function that deletes an existing log.
 	DeleteLog(*library.Log) error
 	// GetLog defines a function that gets a log by ID.
@@ -45,5 +45,5 @@ type LogInterface interface {
 	// ListLogsForBuild defines a function that gets a list of logs by build ID.
 	ListLogsForBuild(*library.Build, int, int) ([]*library.Log, int64, error)
 	// UpdateLog defines a function that updates an existing log.
-	UpdateLog(*library.Log) (*library.Log, error)
+	UpdateLog(*library.Log) error
 }
