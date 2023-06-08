@@ -88,7 +88,7 @@ func planStep(database database.Interface, b *library.Build, c *pipeline.Contain
 	l.SetData([]byte{})
 
 	// send API call to create the step logs
-	err = database.CreateLog(l)
+	_, err = database.CreateLog(l)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
 	}
