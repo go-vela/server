@@ -342,18 +342,18 @@ func buildToken(c *gin.Context) {
 
 // cleanResources has a query param :before returns mock JSON for a http PUT
 //
-// Pass "0" to :before to test receiving a http 500 response. Pass "1" to :before
+// Pass "1" to :before to test receiving a http 500 response. Pass "2" to :before
 // to test receiving a http 401 response.
 func cleanResoures(c *gin.Context) {
 	before := c.Query("before")
 
-	if strings.EqualFold(before, "0") {
+	if strings.EqualFold(before, "1") {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, "")
 
 		return
 	}
 
-	if strings.EqualFold(before, "1") {
+	if strings.EqualFold(before, "2") {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, "")
 	}
 
