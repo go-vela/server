@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/sirupsen/logrus"
@@ -61,7 +62,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	database, err := setupDatabase(c)
+	database, err := database.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
