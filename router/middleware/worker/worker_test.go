@@ -45,6 +45,7 @@ func TestWorker_Establish(t *testing.T) {
 	want.SetStatus("available")
 	want.SetLastStatusUpdateAt(12345)
 	want.SetRunningBuildIDs([]string{})
+	want.SetLastBuildStartedAt(12345)
 	want.SetLastBuildFinishedAt(12345)
 	want.SetLastCheckedIn(12345)
 	want.SetBuildLimit(0)

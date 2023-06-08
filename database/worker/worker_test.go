@@ -178,6 +178,7 @@ func testWorker() *library.Worker {
 		Status:              new(string),
 		LastStatusUpdateAt:  new(int64),
 		RunningBuildIDs:     new([]string),
+		LastBuildStartedAt:  new(int64),
 		LastBuildFinishedAt: new(int64),
 		LastCheckedIn:       new(int64),
 		BuildLimit:          new(int64),
