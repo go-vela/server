@@ -43,12 +43,12 @@ func TestLog_Engine_CountLogsForBuild(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_service)
+	_, err := _sqlite.CreateLog(_service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateLog(_step)
+	_, err = _sqlite.CreateLog(_step)
 	if err != nil {
 		t.Errorf("unable to create test step log for sqlite: %v", err)
 	}

@@ -124,7 +124,7 @@ func UpdateServiceLog(c *gin.Context) {
 	}
 
 	// send API call to update the log
-	err = database.FromContext(c).UpdateLog(l)
+	l, err = database.FromContext(c).UpdateLog(l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update logs for service %s: %w", entry, err)
 
@@ -132,9 +132,6 @@ func UpdateServiceLog(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated log
-	l, _ = database.FromContext(c).GetLogForService(s)
 
 	c.JSON(http.StatusOK, l)
 }

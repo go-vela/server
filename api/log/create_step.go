@@ -113,7 +113,7 @@ func CreateStepLog(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
-	err = database.FromContext(c).CreateLog(input)
+	l, err := database.FromContext(c).CreateLog(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for step %s: %w", entry, err)
 
@@ -121,9 +121,6 @@ func CreateStepLog(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created log
-	l, _ := database.FromContext(c).GetLogForStep(s)
 
 	c.JSON(http.StatusCreated, l)
 }
