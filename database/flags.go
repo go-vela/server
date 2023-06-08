@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -11,13 +11,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// Flags represents all supported command line
-// interface (CLI) flags for the database.
-//
-// https://pkg.go.dev/github.com/urfave/cli?tab=doc#Flag
+// Flags represents all supported command line interface (CLI) flags for the database.
 var Flags = []cli.Flag{
-	// Database Flags
-
 	&cli.StringFlag{
 		EnvVars:  []string{"VELA_DATABASE_DRIVER", "DATABASE_DRIVER"},
 		FilePath: "/vela/database/driver",
