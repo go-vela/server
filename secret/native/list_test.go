@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/library"
 )
 
@@ -49,12 +49,15 @@ func TestNative_List(t *testing.T) {
 	want := []*library.Secret{sTwo, sOne}
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(sOne)
+		db.DeleteSecret(sTwo)
+		db.Close()
 	}()
 
 	// run test
@@ -79,11 +82,13 @@ func TestNative_List(t *testing.T) {
 	}
 }
 
-func TestNative_List_Invalid(t *testing.T) {
+func TestNative_List_Empty(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	_sql, _ := db.Sqlite.DB()
-	_sql.Close()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// run test
 	s, err := New(
@@ -94,11 +99,11 @@ func TestNative_List_Invalid(t *testing.T) {
 	}
 
 	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
-	if err == nil {
-		t.Errorf("List should have returned err")
+	if err != nil {
+		t.Errorf("List returned err: %v", err)
 	}
 
-	if got != nil {
-		t.Errorf("List is %v, want nil", got)
+	if len(got) > 0 {
+		t.Errorf("List is %v, want []", got)
 	}
 }

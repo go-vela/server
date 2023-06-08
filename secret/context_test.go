@@ -7,20 +7,21 @@ package secret
 import (
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
-	"github.com/go-vela/server/secret/native"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/secret/native"
 )
 
 func TestSecret_FromContext(t *testing.T) {
 	// setup types
-	d, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	want, err := native.New(
-		native.WithDatabase(d),
+		native.WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -82,12 +83,14 @@ func TestSecret_FromContext_Empty(t *testing.T) {
 
 func TestSecret_ToContext(t *testing.T) {
 	// setup types
-	d, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	want, err := native.New(
-		native.WithDatabase(d),
+		native.WithDatabase(db),
 	)
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
