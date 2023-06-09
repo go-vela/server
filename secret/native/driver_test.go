@@ -8,18 +8,17 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
 )
 
 func TestNative_Driver(t *testing.T) {
 	// setup types
-	db, err := sqlite.NewTest()
+	db, err := database.NewTest()
 	if err != nil {
 		t.Errorf("unable to create database service: %v", err)
 	}
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	defer db.Close()
 
 	want := constants.DriverNative
 

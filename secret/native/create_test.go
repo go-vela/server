@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/library"
 )
 
@@ -31,12 +31,14 @@ func TestNative_Create_Org(t *testing.T) {
 	want.SetUpdatedBy("user2")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(want)
+		db.Close()
 	}()
 
 	// run test
@@ -78,12 +80,14 @@ func TestNative_Create_Repo(t *testing.T) {
 	want.SetUpdatedBy("user2")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(want)
+		db.Close()
 	}()
 
 	// run test
@@ -125,12 +129,14 @@ func TestNative_Create_Shared(t *testing.T) {
 	want.SetUpdatedBy("user2")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(want)
+		db.Close()
 	}()
 
 	// run test
@@ -172,12 +178,14 @@ func TestNative_Create_Invalid(t *testing.T) {
 	sec.SetUpdatedBy("user2")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(sec)
+		db.Close()
 	}()
 
 	// run test
