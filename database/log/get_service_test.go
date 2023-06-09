@@ -42,7 +42,7 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateLog(_log)
+	err := _sqlite.CreateLog(_log)
 	if err != nil {
 		t.Errorf("unable to create test log for sqlite: %v", err)
 	}
