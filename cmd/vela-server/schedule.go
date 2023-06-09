@@ -233,7 +233,6 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		}
 
 		// set the build numbers based off repo counter
-		r.SetCounter(r.GetCounter() + 1)
 		b.SetNumber(r.GetCounter() + 1)
 		// set the parent equal to the current repo counter
 		b.SetParent(r.GetCounter())
@@ -242,6 +241,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			// parent should be "1" if it's the first build ran
 			b.SetParent(1)
 		}
+		r.SetCounter(r.GetCounter() + 1)
 
 		// set the build link if a web address is provided
 		if len(metadata.Vela.WebAddress) > 0 {
