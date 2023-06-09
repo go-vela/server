@@ -12,16 +12,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 )
 
 func TestMiddleware_Database(t *testing.T) {
 	// setup types
 	var got database.Interface
 
-	want, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := want.Sqlite.DB(); _sql.Close() }()
+	want, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer want.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
