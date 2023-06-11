@@ -29,10 +29,12 @@ func TestNative_ExpandStages(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -49,7 +51,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	tmpls := map[string]*yaml.Template{
 		"gradle": {
 			Name:   "gradle",
-			Source: "github.example.com/foo/bar/template.yml",
+			Source: "github.example.com/foo/bar/long_template.yml",
 			Type:   "github",
 		},
 	}
@@ -177,10 +179,12 @@ func TestNative_ExpandSteps(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -209,7 +213,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			tmpls: map[string]*yaml.Template{
 				"gradle": {
 					Name:   "gradle",
-					Source: "github.example.com/foo/bar/template.yml",
+					Source: "github.example.com/foo/bar/steps_template.yml",
 					Type:   "github",
 				},
 			},
@@ -219,7 +223,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			tmpls: map[string]*yaml.Template{
 				"gradle": {
 					Name:   "gradle",
-					Source: "template.yml",
+					Source: "steps_template.yml",
 					Type:   "file",
 				},
 			},
@@ -351,15 +355,12 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-gradle.json")
-	})
-	engine.GET("/api/v3/repos/bar/foo/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-maven.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -538,7 +539,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{string("path"): string("docker"), string("source"): string("secret/docker")},
+						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -559,7 +560,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{string("path"): string("docker"), string("source"): string("secret/docker")},
+						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -615,10 +616,12 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-starlark.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -703,16 +706,12 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template.json")
-	})
-
-	engine.GET("/api/v3/repos/faz/baz/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-calls-template.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -746,7 +745,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 			tmpls: map[string]*yaml.Template{
 				"chain": {
 					Name:   "chain",
-					Source: "github.example.com/faz/baz/template.yml",
+					Source: "github.example.com/faz/baz/template_calls_template.yml",
 					Type:   "github",
 				},
 			},
@@ -872,10 +871,13 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
-	engine.GET("/api/v3/repos/bad/design/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-calls-itself.json")
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -909,7 +911,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 			tmpls: map[string]*yaml.Template{
 				"circle": {
 					Name:   "circle",
-					Source: "github.example.com/bad/design/template.yml",
+					Source: "github.example.com/bad/design/template_calls_itself.yml",
 					Type:   "github",
 				},
 			},
