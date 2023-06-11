@@ -213,7 +213,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			tmpls: map[string]*yaml.Template{
 				"gradle": {
 					Name:   "gradle",
-					Source: "github.example.com/foo/bar/steps_template.yml",
+					Source: "github.example.com/foo/bar/long_template.yml",
 					Type:   "github",
 				},
 			},
@@ -223,7 +223,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			tmpls: map[string]*yaml.Template{
 				"gradle": {
 					Name:   "gradle",
-					Source: "steps_template.yml",
+					Source: "long_template.yml",
 					Type:   "file",
 				},
 			},
