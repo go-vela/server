@@ -51,12 +51,7 @@ func getServiceLog(c *gin.Context) {
 
 // addServiceLog returns mock JSON for a http GET.
 func addServiceLog(c *gin.Context) {
-	data := []byte(LogResp)
-
-	var body library.Log
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusCreated, body)
+	c.JSON(http.StatusCreated, nil)
 }
 
 // updateServiceLog has a param :service returns mock JSON for a http PUT.
@@ -73,12 +68,7 @@ func updateServiceLog(c *gin.Context) {
 		return
 	}
 
-	data := []byte(LogResp)
-
-	var body library.Log
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusOK, body)
+	c.JSON(http.StatusOK, nil)
 }
 
 // removeServiceLog has a param :service returns mock JSON for a http DELETE.
@@ -122,12 +112,7 @@ func getStepLog(c *gin.Context) {
 
 // addStepLog returns mock JSON for a http GET.
 func addStepLog(c *gin.Context) {
-	data := []byte(LogResp)
-
-	var body library.Log
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusCreated, body)
+	c.JSON(http.StatusCreated, nil)
 }
 
 // updateStepLog has a param :step returns mock JSON for a http PUT.
@@ -144,12 +129,7 @@ func updateStepLog(c *gin.Context) {
 		return
 	}
 
-	data := []byte(LogResp)
-
-	var body library.Log
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusOK, body)
+	c.JSON(http.StatusOK, nil)
 }
 
 // removeStepLog has a param :step returns mock JSON for a http DELETE.

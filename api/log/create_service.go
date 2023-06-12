@@ -61,8 +61,6 @@ import (
 // responses:
 //   '201':
 //     description: Successfully created the service logs
-//     schema:
-//       "$ref": "#/definitions/Log"
 //   '400':
 //     description: Unable to create the service logs
 //     schema:
@@ -113,7 +111,7 @@ func CreateServiceLog(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
-	l, err := database.FromContext(c).CreateLog(input)
+	err = database.FromContext(c).CreateLog(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for service %s: %w", entry, err)
 
@@ -122,5 +120,5 @@ func CreateServiceLog(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, l)
+	c.JSON(http.StatusCreated, nil)
 }

@@ -12,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
 )
 
@@ -60,12 +59,14 @@ func TestOrg_Establish(t *testing.T) {
 	got := ""
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -100,9 +101,11 @@ func TestOrg_Establish(t *testing.T) {
 
 func TestOrg_Establish_NoOrgParameter(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

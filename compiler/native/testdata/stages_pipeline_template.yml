@@ -6,7 +6,7 @@ metadata:
 
 templates:
   - name: gradle
-    source: github.example.com/github/octocat/template.yml
+    source: github.example.com/github/octocat/long_template.yml
     type: github
 
 stages:

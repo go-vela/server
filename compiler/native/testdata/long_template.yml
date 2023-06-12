@@ -1,0 +1,59 @@
+environment:
+  star: "test3"
+  bar: "test4"
+
+metadata:
+  template: true
+
+steps:
+  - name: install
+    commands:
+      - ./gradlew downloadDependencies
+    environment: {{ .environment }}
+    image: {{ .image }}
+    {{ .pull_policy }}
+
+  - name: test
+    commands:
+      - ./gradlew check
+    environment: {{ .environment }}
+    image: {{ .image }}
+    {{ .pull_policy }}
+
+  - name: build
+    commands:
+      - ./gradlew build
+    environment: {{ .environment }}
+    image: {{ .image }}
+    {{ .pull_policy }}
+
+secrets:
+  - name: docker_username
+    key: org/repo/foo/bar
+    engine: native
+    type: repo
+
+  - name: foo_password
+    key: org/repo/foo/password
+    engine: vault
+    type: repo
+
+  {{ if .secret }}
+
+  - name: bar_password
+    key: org/repo/bar/password
+    engine: vault
+    type: repo
+
+    {{ end }}
+
+services:
+  - name: postgres
+    image: postgres:12
+
+  {{ if .service }}
+
+  - name: redis
+    key: redis:6
+
+  {{ end }}

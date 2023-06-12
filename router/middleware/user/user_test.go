@@ -12,18 +12,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-	"github.com/golang-jwt/jwt/v5"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestUser_Retrieve(t *testing.T) {
@@ -89,12 +86,14 @@ func TestUser_Establish(t *testing.T) {
 	})
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(want)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(want)
@@ -151,9 +150,11 @@ func TestUser_Establish_NoToken(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -238,9 +239,11 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -285,9 +288,11 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	secret := "superSecret"
 
 	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

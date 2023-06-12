@@ -84,7 +84,7 @@ func main() {
 			EnvVars: []string{"VELA_CLONE_IMAGE"},
 			Name:    "clone-image",
 			Usage:   "the clone image to use for the injected clone step",
-			Value:   "target/vela-git:v0.7.0@sha256:c2e8794556d6debceeaa2c82ff3cc9e8e6ed045b723419e3ff050409f25cc258",
+			Value:   "target/vela-git:v0.8.0@sha256:02de004ae9dbf184c70039cb9ce431c31d6e7580eb9e6ec64a97ebf108aa65cb",
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
