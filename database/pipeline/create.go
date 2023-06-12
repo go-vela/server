@@ -39,11 +39,8 @@ func (e *engine) CreatePipeline(p *library.Pipeline) (*library.Pipeline, error) 
 	}
 
 	// send query to the database
-	result := e.client.
-		Table(constants.TablePipeline).
-		Create(pipeline)
-
-	if result.Error != nil {
+	err = e.client.Table(constants.TablePipeline).Create(pipeline).Error
+	if err != nil {
 		return nil, err
 	}
 
