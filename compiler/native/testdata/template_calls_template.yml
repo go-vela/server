@@ -1,0 +1,15 @@
+version: "1"
+
+templates:
+  - name: test
+    source: github.example.com/foo/bar/long_template.yml
+    type: github
+
+steps:
+  - name: call template
+    template:
+      name: test
+      vars:
+        image: openjdk:latest
+        environment: "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }"
+        pull_policy: "pull: true"
