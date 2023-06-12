@@ -12,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
 )
 
@@ -53,12 +52,14 @@ func TestWorker_Establish(t *testing.T) {
 	got := new(library.Worker)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from workers;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteWorker(want)
+		db.Close()
 	}()
 
 	_ = db.CreateWorker(want)
@@ -93,9 +94,11 @@ func TestWorker_Establish(t *testing.T) {
 
 func TestWorker_Establish_NoWorkerParameter(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

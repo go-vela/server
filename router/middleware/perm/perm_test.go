@@ -11,21 +11,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/golang-jwt/jwt/v5"
-
-	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestPerm_MustPlatformAdmin(t *testing.T) {
@@ -55,12 +53,14 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	tok, _ := tm.MintToken(mto)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -141,12 +141,14 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -266,12 +268,14 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -432,13 +436,15 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -519,14 +525,16 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		db.Sqlite.Exec("delete from builds;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -603,13 +611,15 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -685,13 +695,15 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -764,13 +776,15 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -843,13 +857,15 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -922,13 +938,15 @@ func TestPerm_MustAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1018,13 +1036,15 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1114,13 +1134,15 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1210,13 +1232,15 @@ func TestPerm_MustWrite(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1306,13 +1330,15 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1402,13 +1428,15 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1498,13 +1526,15 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1594,13 +1624,15 @@ func TestPerm_MustRead(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1690,13 +1722,15 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1786,13 +1820,15 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from builds")
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(b)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateBuild(b)
@@ -1868,13 +1904,15 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -1964,13 +2002,15 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -2060,13 +2100,15 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -2156,13 +2198,15 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)

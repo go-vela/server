@@ -14,7 +14,7 @@ import (
 )
 
 // UpdateLog updates an existing log in the database.
-func (e *engine) UpdateLog(l *library.Log) (*library.Log, error) {
+func (e *engine) UpdateLog(l *library.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:
@@ -33,7 +33,7 @@ func (e *engine) UpdateLog(l *library.Log) (*library.Log, error) {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Log.Validate
 	err := log.Validate()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// compress log data for the resource
@@ -43,14 +43,15 @@ func (e *engine) UpdateLog(l *library.Log) (*library.Log, error) {
 	if err != nil {
 		switch {
 		case l.GetServiceID() > 0:
-			return nil, fmt.Errorf("unable to compress log for service %d for build %d: %w", l.GetServiceID(), l.GetBuildID(), err)
+			return fmt.Errorf("unable to compress log for service %d for build %d: %w", l.GetServiceID(), l.GetBuildID(), err)
 		case l.GetStepID() > 0:
-			return nil, fmt.Errorf("unable to compress log for step %d for build %d: %w", l.GetStepID(), l.GetBuildID(), err)
+			return fmt.Errorf("unable to compress log for step %d for build %d: %w", l.GetStepID(), l.GetBuildID(), err)
 		}
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableLog).Save(log)
-
-	return log.ToLibrary(), result.Error
+	return e.client.
+		Table(constants.TableLog).
+		Save(log).
+		Error
 }

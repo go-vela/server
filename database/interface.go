@@ -22,10 +22,8 @@ import (
 type Interface interface {
 	// Generic Interface Functions
 
-	// TODO: Add this function to the interface once other code has been updated to use the agnostic engine.
-	//
 	// Close defines a function that stops and terminates the connection to the database.
-	// Close() error
+	Close() error
 
 	// Driver defines a function that outputs the configured database driver.
 	Driver() string
