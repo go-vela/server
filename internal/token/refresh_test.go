@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestTokenManager_Refresh(t *testing.T) {
@@ -45,12 +45,14 @@ func TestTokenManager_Refresh(t *testing.T) {
 	u.SetRefreshToken(rt)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(u)
@@ -102,12 +104,14 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	u.SetRefreshToken(rt)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(u)

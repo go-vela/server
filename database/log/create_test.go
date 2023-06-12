@@ -73,7 +73,7 @@ VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`).
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, log := range test.logs {
-				_, err := test.database.CreateLog(log)
+				err := test.database.CreateLog(log)
 
 				if test.failure {
 					if err == nil {

@@ -1,0 +1,11 @@
+version: "1"
+
+templates:
+  - name: test
+    source: github.example.com/bad/design/template_calls_itself.yml
+    type: github
+
+steps:
+  - name: call template
+    template:
+      name: test

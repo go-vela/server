@@ -5,7 +5,7 @@ metadata:
 
 templates:
   - name: gradle
-    source: github.example.com/foo/bar/template.yml
+    source: github.example.com/foo/bar/long_template.yml
     type: github
 
 steps:
