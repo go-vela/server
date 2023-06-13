@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -19,6 +20,7 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 	_pipeline.SetRef("refs/heads/master")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
+	_pipeline.SetData([]byte{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -33,7 +35,7 @@ WHERE "id" = $15`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(_pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -59,7 +61,7 @@ WHERE "id" = $15`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdatePipeline(_pipeline)
+			got, err := test.database.UpdatePipeline(_pipeline)
 
 			if test.failure {
 				if err == nil {
@@ -71,6 +73,10 @@ WHERE "id" = $15`).
 
 			if err != nil {
 				t.Errorf("UpdatePipeline for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _pipeline) {
+				t.Errorf("UpdatePipeline for %s returned %s, want %s", test.name, got, _pipeline)
 			}
 		})
 	}
