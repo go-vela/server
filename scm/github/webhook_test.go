@@ -1033,7 +1033,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
-	wantHook.SetEventAction("transferred")
+	wantHook.SetEventAction(constants.ActionTransferred)
 	wantHook.SetBranch("master")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")

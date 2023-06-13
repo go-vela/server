@@ -714,7 +714,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 
 	switch h.GetEventAction() {
 	// if action is rename, go through rename routine
-	case constants.ActionRenamed, "transferred":
+	case constants.ActionRenamed, constants.ActionTransferred:
 		r, err := renameRepository(h, r, c, m)
 		if err != nil {
 			h.SetStatus(constants.StatusFailure)
