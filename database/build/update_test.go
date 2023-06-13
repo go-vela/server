@@ -5,6 +5,7 @@
 package build
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +32,7 @@ WHERE "id" = $31`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateBuild(_build)
+	_, err := _sqlite.CreateBuild(_build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -57,7 +58,7 @@ WHERE "id" = $31`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateBuild(_build)
+			got, err := test.database.UpdateBuild(_build)
 
 			if test.failure {
 				if err == nil {
@@ -69,6 +70,10 @@ WHERE "id" = $31`).
 
 			if err != nil {
 				t.Errorf("UpdateBuild for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _build) {
+				t.Errorf("UpdateBuild for %s returned %s, want %s", test.name, got, _build)
 			}
 		})
 	}

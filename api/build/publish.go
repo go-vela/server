@@ -67,7 +67,7 @@ func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Buil
 	b.SetEnqueued(time.Now().UTC().Unix())
 
 	// update the build in the db to reflect the time it was enqueued
-	err = db.UpdateBuild(b)
+	_, err = db.UpdateBuild(b)
 	if err != nil {
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
