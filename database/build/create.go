@@ -31,8 +31,11 @@ func (e *engine) CreateBuild(b *library.Build) (*library.Build, error) {
 		return nil, err
 	}
 
+	// crop build if any columns are too large
+	build = build.Crop()
+
 	// send query to the database
-	result := e.client.Table(constants.TableBuild).Create(build.Crop())
+	result := e.client.Table(constants.TableBuild).Create(build)
 
 	return build.ToLibrary(), result.Error
 }
