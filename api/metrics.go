@@ -430,6 +430,7 @@ func recordGauges(c *gin.Context) {
 		before := time.Now().UTC().Add(-c.Value("worker_active_interval").(time.Duration)).Unix()
 
 		// active, inactive counts
+		// idle, available, busy, error counts
 		for _, worker := range workers {
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
@@ -438,10 +439,6 @@ func recordGauges(c *gin.Context) {
 			} else {
 				inactiveWorkers++
 			}
-		}
-
-		// idle, available, busy, error counts
-		for _, worker := range workers {
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
 
