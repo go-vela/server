@@ -25,7 +25,7 @@ func CleanBuild(database database.Interface, b *library.Build, services []*libra
 	b.SetFinished(time.Now().UTC().Unix())
 
 	// send API call to update the build
-	err := database.UpdateBuild(b)
+	b, err := database.UpdateBuild(b)
 	if err != nil {
 		logrus.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}

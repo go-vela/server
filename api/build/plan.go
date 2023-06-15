@@ -26,11 +26,10 @@ func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build,
 
 	// send API call to create the build
 	// TODO: return created build and error instead of just error
-	err := database.CreateBuild(b)
+	b, err := database.CreateBuild(b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		// TODO:
-		// - return build in CreateBuild
 		// - even if it was created, we need to get the new build id
 		//   otherwise it will be 0, which attempts to INSERT instead
 		//   of UPDATE-ing the existing build - which results in
@@ -39,14 +38,6 @@ func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build,
 		CleanBuild(database, b, nil, nil, err)
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
-	}
-
-	// send API call to capture the created build
-	// TODO: this can be dropped once we return
-	// the created build above
-	b, err = database.GetBuildForRepo(r, b.GetNumber())
-	if err != nil {
-		return fmt.Errorf("unable to get new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// plan all services for the build

@@ -893,7 +893,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, dbR.GetFullName(), build.GetNumber()),
 		)
 
-		err = database.FromContext(c).UpdateBuild(build)
+		_, err = database.FromContext(c).UpdateBuild(build)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
