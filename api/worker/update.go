@@ -98,7 +98,7 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
-	if input.GetRunningBuildIDs() != nil {
+	if input.RunningBuildIDs != nil {
 		// update runningBuildIDs if set
 		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
 	}
