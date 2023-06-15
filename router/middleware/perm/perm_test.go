@@ -448,7 +448,7 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -538,7 +538,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 	_ = db.CreateUser(u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
@@ -623,7 +623,7 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -707,7 +707,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/repo/foo/bar/baz", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -788,7 +788,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/org/foo/*/baz", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -869,7 +869,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/shared/foo/*/*", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1831,7 +1831,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 	_ = db.CreateRepo(r)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)

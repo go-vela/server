@@ -85,7 +85,7 @@ func TestService_Establish(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 	_ = db.CreateService(want)
 
 	// setup context
@@ -226,7 +226,7 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -282,7 +282,7 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -338,7 +338,7 @@ func TestService_Establish_NoService(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

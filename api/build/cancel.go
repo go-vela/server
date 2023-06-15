@@ -190,7 +190,7 @@ func CancelBuild(c *gin.Context) {
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
 
-	err := database.FromContext(c).UpdateBuild(b)
+	b, err := database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)

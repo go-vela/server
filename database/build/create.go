@@ -13,7 +13,7 @@ import (
 )
 
 // CreateBuild creates a new build in the database.
-func (e *engine) CreateBuild(b *library.Build) error {
+func (e *engine) CreateBuild(b *library.Build) (*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("creating build %d in the database", b.GetNumber())
@@ -28,12 +28,14 @@ func (e *engine) CreateBuild(b *library.Build) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Build.Validate
 	err := build.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	// crop build if any columns are too large
+	build = build.Crop()
+
 	// send query to the database
-	return e.client.
-		Table(constants.TableBuild).
-		Create(build.Crop()).
-		Error
+	result := e.client.Table(constants.TableBuild).Create(build)
+
+	return build.ToLibrary(), result.Error
 }
