@@ -122,7 +122,7 @@ func RepairRepo(c *gin.Context) {
 		r.SetActive(true)
 
 		// send API call to update the repo
-		err := database.FromContext(c).UpdateRepo(r)
+		_, err := database.FromContext(c).UpdateRepo(r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
 

@@ -621,7 +621,7 @@ func PostWebhook(c *gin.Context) {
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.FromContext(c).UpdateRepo(repo)
+	repo, err = database.FromContext(c).UpdateRepo(repo)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
