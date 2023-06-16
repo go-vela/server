@@ -98,6 +98,31 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
+	if input.RunningBuildIDs != nil {
+		// update runningBuildIDs if set
+		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
+	}
+
+	if len(input.GetStatus()) > 0 {
+		// update status if set
+		w.SetStatus(input.GetStatus())
+	}
+
+	if input.GetLastStatusUpdateAt() > 0 {
+		// update lastStatusUpdateAt if set
+		w.SetLastStatusUpdateAt(input.GetLastStatusUpdateAt())
+	}
+
+	if input.GetLastBuildStartedAt() > 0 {
+		// update lastBuildStartedAt if set
+		w.SetLastBuildStartedAt(input.GetLastBuildStartedAt())
+	}
+
+	if input.GetLastBuildFinishedAt() > 0 {
+		// update lastBuildFinishedAt if set
+		w.SetLastBuildFinishedAt(input.GetLastBuildFinishedAt())
+	}
+
 	// send API call to update the worker
 	err = database.FromContext(c).UpdateWorker(w)
 	if err != nil {
