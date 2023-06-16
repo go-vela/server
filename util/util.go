@@ -8,6 +8,7 @@ import (
 	"html"
 	"strings"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -115,4 +116,43 @@ func CheckAllowlist(r *library.Repo, allowlist []string) bool {
 	}
 
 	return false
+}
+
+// ParseEventMask is a helper function to calculate the bit mask for
+// a given event.
+func ParseEventMask(event, action string) (mask int64) {
+	if len(action) > 0 {
+		event = event + ":" + action
+	}
+
+	switch event {
+	case constants.EventPush:
+		mask = constants.AllowPush
+	case constants.EventPull + ":" + constants.ActionOpened:
+		mask = constants.AllowPROpen
+	case constants.EventPull + ":" + constants.ActionSynchronize:
+		mask = constants.AllowPRSync
+	case constants.EventPull + ":" + constants.ActionEdited:
+		mask = constants.AllowPREdit
+	case constants.EventPull + ":" + constants.ActionReviewRequested:
+		mask = constants.AllowPRReviewRequest
+	case constants.EventTag:
+		mask = constants.AllowTag
+	case constants.EventComment + ":" + constants.ActionCreated:
+		mask = constants.AllowCommentCreate
+	case constants.EventComment + ":" + constants.ActionEdited:
+		mask = constants.AllowCommentEdit
+	case constants.EventPullReview + ":" + constants.ActionSubmitted:
+		mask = constants.AllowReviewSubmit
+	case constants.EventPullReview + ":" + constants.ActionEdited:
+		mask = constants.AllowReviewEdit
+	case constants.EventDeploy:
+		mask = constants.AllowDeploy
+	case constants.EventSchedule:
+		mask = constants.AllowSchedule
+	default:
+		mask = 0
+	}
+
+	return
 }

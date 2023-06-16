@@ -166,47 +166,16 @@ func UpdateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
-	if input.AllowPull != nil {
+	if input.AllowEvents != nil {
 		// update allow_pull if set
-		r.SetAllowPull(input.GetAllowPull())
-
-		eventsChanged = true
-	}
-
-	if input.AllowPush != nil {
-		// update allow_push if set
-		r.SetAllowPush(input.GetAllowPush())
-
-		eventsChanged = true
-	}
-
-	if input.AllowDeploy != nil {
-		// update allow_deploy if set
-		r.SetAllowDeploy(input.GetAllowDeploy())
-
-		eventsChanged = true
-	}
-
-	if input.AllowTag != nil {
-		// update allow_tag if set
-		r.SetAllowTag(input.GetAllowTag())
-
-		eventsChanged = true
-	}
-
-	if input.AllowComment != nil {
-		// update allow_comment if set
-		r.SetAllowComment(input.GetAllowComment())
+		r.SetAllowEvents(input.GetAllowEvents())
 
 		eventsChanged = true
 	}
 
 	// set default events if no events are enabled
-	if !r.GetAllowPull() && !r.GetAllowPush() &&
-		!r.GetAllowDeploy() && !r.GetAllowTag() &&
-		!r.GetAllowComment() {
-		r.SetAllowPull(true)
-		r.SetAllowPush(true)
+	if r.GetAllowEvents() == 0 {
+		r.SetAllowEvents(constants.AllowPush | constants.AllowTag)
 	}
 
 	if len(input.GetPipelineType()) != 0 {

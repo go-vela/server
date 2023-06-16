@@ -86,10 +86,7 @@ var (
 		Private:     Bool(false),
 		Trusted:     Bool(false),
 		Active:      Bool(true),
-		AllowPull:   Bool(false),
-		AllowPush:   Bool(true),
-		AllowDeploy: Bool(false),
-		AllowTag:    Bool(false),
+		AllowEvents: Int64(1),
 	}
 
 	_steps = &pipeline.Build{

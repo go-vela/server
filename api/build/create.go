@@ -109,12 +109,9 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
-	// verify the build has a valid event and the repo allows that event type
-	if (input.GetEvent() == constants.EventPush && !r.GetAllowPush()) ||
-		(input.GetEvent() == constants.EventPull && !r.GetAllowPull()) ||
-		(input.GetEvent() == constants.EventTag && !r.GetAllowTag()) ||
-		(input.GetEvent() == constants.EventDeploy && !r.GetAllowDeploy()) {
-		retErr := fmt.Errorf("unable to create new build: %s does not have %s events enabled", r.GetFullName(), input.GetEvent())
+	// verify repo has event configured
+	if (util.ParseEventMask(input.GetEvent(), input.GetEventAction()) & r.GetAllowEvents()) == 0 {
+		retErr := fmt.Errorf("unable to create new build: %s does not have %s%s events enabled", r.GetFullName(), input.GetEvent(), ":"+input.GetEventAction())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
