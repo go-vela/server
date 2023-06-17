@@ -43,14 +43,14 @@ func ToContext(c Setter, d Interface) {
 func FromCLIContext(c *cli.Context) (Interface, error) {
 	logrus.Debug("creating database engine from CLI configuration")
 
-	return New(&Config{
-		Address:          c.String("database.addr"),
-		CompressionLevel: c.Int("database.compression.level"),
-		ConnectionLife:   c.Duration("database.connection.life"),
-		ConnectionIdle:   c.Int("database.connection.idle"),
-		ConnectionOpen:   c.Int("database.connection.open"),
-		Driver:           c.String("database.driver"),
-		EncryptionKey:    c.String("database.encryption.key"),
-		SkipCreation:     c.Bool("database.skip_creation"),
-	})
+	return New(
+		WithAddress(c.String("database.addr")),
+		WithCompressionLevel(c.Int("database.compression.level")),
+		WithConnectionLife(c.Duration("database.connection.life")),
+		WithConnectionIdle(c.Int("database.connection.idle")),
+		WithConnectionOpen(c.Int("database.connection.open")),
+		WithDriver(c.String("database.driver")),
+		WithEncryptionKey(c.String("database.encryption.key")),
+		WithSkipCreation(c.Bool("database.skip_creation")),
+	)
 }
