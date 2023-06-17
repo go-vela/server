@@ -95,7 +95,7 @@ func TestBuild_Establish(t *testing.T) {
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(want)
+	_, _ = db.CreateBuild(want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

@@ -26,9 +26,9 @@ func TestWorker_Engine_CreateWorker(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "workers"
-("hostname","address","routes","active","last_checked_in","build_limit","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"`).
-		WithArgs("worker_0", "localhost", nil, true, nil, nil, 1).
+("hostname","address","routes","active","status","last_status_update_at","running_build_ids","last_build_started_at","last_build_finished_at","last_checked_in","build_limit","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
+		WithArgs("worker_0", "localhost", nil, true, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

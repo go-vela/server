@@ -151,7 +151,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to update the build
-	err = database.FromContext(c).UpdateBuild(b)
+	b, err = database.FromContext(c).UpdateBuild(b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %s: %w", entry, err)
 
@@ -159,9 +159,6 @@ func UpdateBuild(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated build
-	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 

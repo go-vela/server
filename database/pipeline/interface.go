@@ -31,7 +31,7 @@ type PipelineInterface interface {
 	// CountPipelinesForRepo defines a function that gets the count of pipelines by repo ID.
 	CountPipelinesForRepo(*library.Repo) (int64, error)
 	// CreatePipeline defines a function that creates a new pipeline.
-	CreatePipeline(*library.Pipeline) error
+	CreatePipeline(*library.Pipeline) (*library.Pipeline, error)
 	// DeletePipeline defines a function that deletes an existing pipeline.
 	DeletePipeline(*library.Pipeline) error
 	// GetPipeline defines a function that gets a pipeline by ID.
@@ -43,5 +43,5 @@ type PipelineInterface interface {
 	// ListPipelinesForRepo defines a function that gets a list of pipelines by repo ID.
 	ListPipelinesForRepo(*library.Repo, int, int) ([]*library.Pipeline, int64, error)
 	// UpdatePipeline defines a function that updates an existing pipeline.
-	UpdatePipeline(*library.Pipeline) error
+	UpdatePipeline(*library.Pipeline) (*library.Pipeline, error)
 }

@@ -53,12 +53,12 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreatePipeline(_pipelineOne)
+	_, err := _sqlite.CreatePipeline(_pipelineOne)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreatePipeline(_pipelineTwo)
+	_, err = _sqlite.CreatePipeline(_pipelineTwo)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}

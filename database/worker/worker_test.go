@@ -170,12 +170,17 @@ func testSqlite(t *testing.T) *engine {
 // Worker type with all fields set to their zero values.
 func testWorker() *library.Worker {
 	return &library.Worker{
-		ID:            new(int64),
-		Hostname:      new(string),
-		Address:       new(string),
-		Routes:        new([]string),
-		Active:        new(bool),
-		BuildLimit:    new(int64),
-		LastCheckedIn: new(int64),
+		ID:                  new(int64),
+		Hostname:            new(string),
+		Address:             new(string),
+		Routes:              new([]string),
+		Active:              new(bool),
+		Status:              new(string),
+		LastStatusUpdateAt:  new(int64),
+		RunningBuildIDs:     new([]string),
+		LastBuildStartedAt:  new(int64),
+		LastBuildFinishedAt: new(int64),
+		LastCheckedIn:       new(int64),
+		BuildLimit:          new(int64),
 	}
 }

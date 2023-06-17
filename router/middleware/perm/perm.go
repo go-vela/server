@@ -100,6 +100,15 @@ func MustWorkerAuthToken() gin.HandlerFunc {
 			"worker": cl.Subject,
 		}).Debugf("verifying worker %s has a valid auth token", cl.Subject)
 
+		// global permissions bypass
+		if cl.IsAdmin {
+			logrus.WithFields(logrus.Fields{
+				"user": cl.Subject,
+			}).Debugf("user %s has platform admin permissions", cl.Subject)
+
+			return
+		}
+
 		switch cl.TokenType {
 		case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
 			return

@@ -39,7 +39,7 @@ type BuildInterface interface {
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
 	CountBuildsForStatus(string, map[string]interface{}) (int64, error)
 	// CreateBuild defines a function that creates a new build.
-	CreateBuild(*library.Build) error
+	CreateBuild(*library.Build) (*library.Build, error)
 	// DeleteBuild defines a function that deletes an existing build.
 	DeleteBuild(*library.Build) error
 	// GetBuild defines a function that gets a build by ID.
@@ -59,5 +59,5 @@ type BuildInterface interface {
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)
 	// UpdateBuild defines a function that updates an existing build.
-	UpdateBuild(*library.Build) error
+	UpdateBuild(*library.Build) (*library.Build, error)
 }
