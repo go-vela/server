@@ -40,8 +40,6 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with pipelines in the database.
-//
-//nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (PipelineInterface, error) {
 	// create new Pipeline engine
 	e := new(engine)

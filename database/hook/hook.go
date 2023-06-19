@@ -38,8 +38,6 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with hooks in the database.
-//
-//nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (HookInterface, error) {
 	// create new Hook engine
 	e := new(engine)

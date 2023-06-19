@@ -38,8 +38,6 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with schedules in the database.
-//
-//nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (ScheduleInterface, error) {
 	// create new Schedule engine
 	e := new(engine)

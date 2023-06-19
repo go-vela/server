@@ -40,8 +40,6 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with users in the database.
-//
-//nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (UserInterface, error) {
 	// create new User engine
 	e := new(engine)
