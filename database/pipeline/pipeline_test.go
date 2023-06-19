@@ -136,7 +136,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new postgres database: %v", err)
 	}
 
-	_engine, err := New(
+	_interface, err := New(
 		WithClient(_postgres),
 		WithCompressionLevel(0),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
@@ -146,7 +146,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new postgres pipeline engine: %v", err)
 	}
 
-	return _engine, _mock
+	return _interface.(*engine), _mock
 }
 
 // testSqlite is a helper function to create a Sqlite engine for testing.
@@ -159,7 +159,7 @@ func testSqlite(t *testing.T) *engine {
 		t.Errorf("unable to create new sqlite database: %v", err)
 	}
 
-	_engine, err := New(
+	_interface, err := New(
 		WithClient(_sqlite),
 		WithCompressionLevel(0),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
@@ -169,7 +169,7 @@ func testSqlite(t *testing.T) *engine {
 		t.Errorf("unable to create new sqlite pipeline engine: %v", err)
 	}
 
-	return _engine
+	return _interface.(*engine)
 }
 
 // testPipeline is a test helper function to create a library
