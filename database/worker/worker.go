@@ -40,7 +40,7 @@ type (
 // New creates and returns a Vela service for integrating with workers in the database.
 //
 //nolint:revive // ignore returning unexported engine
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (WorkerInterface, error) {
 	// create new Worker engine
 	e := new(engine)
 
