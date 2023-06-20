@@ -33,7 +33,7 @@ require (
 	github.com/urfave/cli/v2 v2.25.6
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
 	golang.org/x/oauth2 v0.7.0
-	golang.org/x/sync v0.1.0
+	golang.org/x/sync v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.4.4
