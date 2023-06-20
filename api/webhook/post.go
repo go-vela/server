@@ -781,7 +781,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
-	logrus.Debugf("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
+	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 	// get the old name of the repo
 	prevOrg, prevRepo := util.SplitFullName(r.GetPreviousName())
 
