@@ -294,7 +294,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			err = database.CreatePipeline(pipeline)
+			pipeline, err = database.CreatePipeline(pipeline)
 			if err != nil {
 				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -307,12 +307,6 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 				}
 
 				return err
-			}
-
-			// send API call to capture the created pipeline
-			pipeline, err = database.GetPipelineForRepo(pipeline.GetCommit(), r)
-			if err != nil {
-				return fmt.Errorf("unable to get new pipeline %s/%s: %w", r.GetFullName(), pipeline.GetCommit(), err)
 			}
 		}
 

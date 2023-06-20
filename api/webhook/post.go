@@ -561,7 +561,7 @@ func PostWebhook(c *gin.Context) {
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			err = database.FromContext(c).CreatePipeline(pipeline)
+			pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 
@@ -574,19 +574,6 @@ func PostWebhook(c *gin.Context) {
 				}
 
 				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
-
-				return
-			}
-
-			// send API call to capture the created pipeline
-			pipeline, err = database.FromContext(c).GetPipelineForRepo(pipeline.GetCommit(), repo)
-			if err != nil {
-				//nolint:lll // ignore long line length due to error message
-				retErr := fmt.Errorf("%s: failed to get new pipeline %s/%s: %w", baseErr, repo.GetFullName(), pipeline.GetCommit(), err)
-				util.HandleError(c, http.StatusInternalServerError, retErr)
 
 				h.SetStatus(constants.StatusFailure)
 				h.SetError(retErr.Error())
@@ -889,7 +876,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), build.GetNumber()),
 		)
 
-		err = database.FromContext(c).UpdateBuild(build)
+		_, err = database.FromContext(c).UpdateBuild(build)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}

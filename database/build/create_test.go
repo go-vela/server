@@ -5,6 +5,7 @@
 package build
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -55,7 +56,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateBuild(_build)
+			got, err := test.database.CreateBuild(_build)
 
 			if test.failure {
 				if err == nil {
@@ -67,6 +68,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 
 			if err != nil {
 				t.Errorf("CreateBuild for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _build) {
+				t.Errorf("CreateBuild for %s returned %s, want %s", test.name, got, _build)
 			}
 		})
 	}

@@ -44,7 +44,7 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateBuild(_build)
+	_, err := _sqlite.CreateBuild(_build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}

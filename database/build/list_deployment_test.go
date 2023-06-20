@@ -54,12 +54,12 @@ func TestBuild_Engine_ListBuildsForDeployment(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateBuild(_buildOne)
+	_, err := _sqlite.CreateBuild(_buildOne)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateBuild(_buildTwo)
+	_, err = _sqlite.CreateBuild(_buildTwo)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
