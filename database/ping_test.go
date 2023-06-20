@@ -48,15 +48,15 @@ func TestDatabase_Engine_Ping(t *testing.T) {
 			name:    "failure with invalid gorm database",
 			failure: true,
 			database: &engine{
-				Config: &Config{
+				config: &config{
 					Driver: "invalid",
 				},
-				Database: &gorm.DB{
+				client: &gorm.DB{
 					Config: &gorm.Config{
 						ConnPool: nil,
 					},
 				},
-				Logger: logrus.NewEntry(logrus.StandardLogger()),
+				logger: logrus.NewEntry(logrus.StandardLogger()),
 			},
 		},
 	}
