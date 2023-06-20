@@ -22,15 +22,16 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("oldName")
+	_repo.SetAllowEvents(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "repos"
-SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"visibility"=$13,"private"=$14,"trusted"=$15,"active"=$16,"allow_pull"=$17,"allow_push"=$18,"allow_deploy"=$19,"allow_tag"=$20,"allow_comment"=$21,"pipeline_type"=$22,"previous_name"=$23
-WHERE "id" = $24`).
-		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, false, false, false, false, false, "yaml", "oldName", 1).
+SET "user_id"=$1,"hash"=$2,"org"=$3,"name"=$4,"full_name"=$5,"link"=$6,"clone"=$7,"branch"=$8,"topics"=$9,"build_limit"=$10,"timeout"=$11,"counter"=$12,"visibility"=$13,"private"=$14,"trusted"=$15,"active"=$16,"allow_events"=$17,"pipeline_type"=$18,"previous_name"=$19
+WHERE "id" = $20`).
+		WithArgs(1, AnyArgument{}, "foo", "bar", "foo/bar", nil, nil, nil, AnyArgument{}, AnyArgument{}, AnyArgument{}, AnyArgument{}, "public", false, false, false, 1, "yaml", "oldName", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
