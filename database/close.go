@@ -6,10 +6,10 @@ package database
 
 // Close stops and terminates the connection to the database.
 func (e *engine) Close() error {
-	e.Logger.Tracef("closing connection to the %s database", e.Driver())
+	e.logger.Tracef("closing connection to the %s database", e.Driver())
 
 	// capture database/sql database from gorm.io/gorm database
-	_sql, err := e.Database.DB()
+	_sql, err := e.client.DB()
 	if err != nil {
 		return err
 	}

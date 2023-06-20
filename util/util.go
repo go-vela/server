@@ -64,6 +64,20 @@ func PathParameter(c *gin.Context, parameter string) string {
 	return EscapeValue(c.Param(parameter))
 }
 
+// SplitFullName safely splits the repo.FullName field into an org and name.
+func SplitFullName(value string) (string, string) {
+	// split repo full name into org and repo
+	repoSlice := strings.Split(value, "/")
+	if len(repoSlice) != 2 {
+		return "", ""
+	}
+
+	org := repoSlice[0]
+	repo := repoSlice[1]
+
+	return org, repo
+}
+
 // EscapeValue safely escapes any string by removing any new lines and HTML escaping it.
 func EscapeValue(value string) string {
 	// replace all new lines in the value
