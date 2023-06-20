@@ -24,9 +24,9 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for builds
 	e.BuildInterface, err = build.New(
-		build.WithClient(e.Database),
-		build.WithLogger(e.Logger),
-		build.WithSkipCreation(e.Config.SkipCreation),
+		build.WithClient(e.client),
+		build.WithLogger(e.logger),
+		build.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -34,9 +34,9 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for hooks
 	e.HookInterface, err = hook.New(
-		hook.WithClient(e.Database),
-		hook.WithLogger(e.Logger),
-		hook.WithSkipCreation(e.Config.SkipCreation),
+		hook.WithClient(e.client),
+		hook.WithLogger(e.logger),
+		hook.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -44,10 +44,10 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(
-		log.WithClient(e.Database),
-		log.WithCompressionLevel(e.Config.CompressionLevel),
-		log.WithLogger(e.Logger),
-		log.WithSkipCreation(e.Config.SkipCreation),
+		log.WithClient(e.client),
+		log.WithCompressionLevel(e.config.CompressionLevel),
+		log.WithLogger(e.logger),
+		log.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -55,10 +55,10 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for pipelines
 	e.PipelineInterface, err = pipeline.New(
-		pipeline.WithClient(e.Database),
-		pipeline.WithCompressionLevel(e.Config.CompressionLevel),
-		pipeline.WithLogger(e.Logger),
-		pipeline.WithSkipCreation(e.Config.SkipCreation),
+		pipeline.WithClient(e.client),
+		pipeline.WithCompressionLevel(e.config.CompressionLevel),
+		pipeline.WithLogger(e.logger),
+		pipeline.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -66,10 +66,10 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for repos
 	e.RepoInterface, err = repo.New(
-		repo.WithClient(e.Database),
-		repo.WithEncryptionKey(e.Config.EncryptionKey),
-		repo.WithLogger(e.Logger),
-		repo.WithSkipCreation(e.Config.SkipCreation),
+		repo.WithClient(e.client),
+		repo.WithEncryptionKey(e.config.EncryptionKey),
+		repo.WithLogger(e.logger),
+		repo.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -77,9 +77,9 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for schedules
 	e.ScheduleInterface, err = schedule.New(
-		schedule.WithClient(e.Database),
-		schedule.WithLogger(e.Logger),
-		schedule.WithSkipCreation(e.Config.SkipCreation),
+		schedule.WithClient(e.client),
+		schedule.WithLogger(e.logger),
+		schedule.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -89,10 +89,10 @@ func (e *engine) NewResources() error {
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
 	e.SecretInterface, err = secret.New(
-		secret.WithClient(e.Database),
-		secret.WithEncryptionKey(e.Config.EncryptionKey),
-		secret.WithLogger(e.Logger),
-		secret.WithSkipCreation(e.Config.SkipCreation),
+		secret.WithClient(e.client),
+		secret.WithEncryptionKey(e.config.EncryptionKey),
+		secret.WithLogger(e.logger),
+		secret.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -100,9 +100,9 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for services
 	e.ServiceInterface, err = service.New(
-		service.WithClient(e.Database),
-		service.WithLogger(e.Logger),
-		service.WithSkipCreation(e.Config.SkipCreation),
+		service.WithClient(e.client),
+		service.WithLogger(e.logger),
+		service.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -110,9 +110,9 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for steps
 	e.StepInterface, err = step.New(
-		step.WithClient(e.Database),
-		step.WithLogger(e.Logger),
-		step.WithSkipCreation(e.Config.SkipCreation),
+		step.WithClient(e.client),
+		step.WithLogger(e.logger),
+		step.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -120,10 +120,10 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for users
 	e.UserInterface, err = user.New(
-		user.WithClient(e.Database),
-		user.WithEncryptionKey(e.Config.EncryptionKey),
-		user.WithLogger(e.Logger),
-		user.WithSkipCreation(e.Config.SkipCreation),
+		user.WithClient(e.client),
+		user.WithEncryptionKey(e.config.EncryptionKey),
+		user.WithLogger(e.logger),
+		user.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -131,9 +131,9 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for workers
 	e.WorkerInterface, err = worker.New(
-		worker.WithClient(e.Database),
-		worker.WithLogger(e.Logger),
-		worker.WithSkipCreation(e.Config.SkipCreation),
+		worker.WithClient(e.client),
+		worker.WithLogger(e.logger),
+		worker.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

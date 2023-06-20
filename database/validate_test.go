@@ -14,12 +14,12 @@ func TestDatabase_Config_Validate(t *testing.T) {
 	tests := []struct {
 		failure bool
 		name    string
-		config  *Config
+		config  *config
 	}{
 		{
 			name:    "success with postgres",
 			failure: false,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 3,
@@ -33,7 +33,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "success with sqlite3",
 			failure: false,
-			config: &Config{
+			config: &config{
 				Driver:           "sqlite3",
 				Address:          "file::memory:?cache=shared",
 				CompressionLevel: 3,
@@ -47,7 +47,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "success with negative compression level",
 			failure: false,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: -1,
@@ -61,7 +61,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "failure with empty driver",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 3,
@@ -75,7 +75,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "failure with empty address",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "",
 				CompressionLevel: 3,
@@ -89,7 +89,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "failure with invalid address",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela/",
 				CompressionLevel: 3,
@@ -103,7 +103,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "failure with invalid compression level",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 10,
@@ -117,7 +117,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "failure with empty encryption key",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 3,
@@ -131,7 +131,7 @@ func TestDatabase_Config_Validate(t *testing.T) {
 		{
 			name:    "failure with invalid encryption key",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 3,
