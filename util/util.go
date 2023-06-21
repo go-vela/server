@@ -154,5 +154,5 @@ func ParseEventMask(event, action string) (mask int64) {
 		mask = 0
 	}
 
-	return
+	return mask
 }
