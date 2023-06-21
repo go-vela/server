@@ -17,7 +17,7 @@ require (
 	github.com/go-vela/types v0.19.3-0.20230614134928-b1b57c0b34af
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/go-cmp v0.5.9
-	github.com/google/go-github/v52 v52.0.0
+	github.com/google/go-github/v53 v53.2.0
 	github.com/google/uuid v1.3.0
 	github.com/goware/urlx v0.3.2
 	github.com/hashicorp/go-cleanhttp v0.5.2
@@ -26,18 +26,18 @@ require (
 	github.com/hashicorp/vault/api v1.9.2
 	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.15.1
+	github.com/prometheus/client_golang v1.16.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.9.5
 	github.com/urfave/cli/v2 v2.25.6
-	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254
-	golang.org/x/oauth2 v0.7.0
-	golang.org/x/sync v0.1.0
+	go.starlark.net v0.0.0-20230612165344-9532f5667272
+	golang.org/x/oauth2 v0.9.0
+	golang.org/x/sync v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gorm.io/driver/postgres v1.5.2
-	gorm.io/driver/sqlite v1.4.4
-	gorm.io/gorm v1.25.1
+	gorm.io/driver/sqlite v1.5.2
+	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
 	k8s.io/apimachinery v0.27.2
 )
 
@@ -53,7 +53,7 @@ require (
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
-	github.com/cloudflare/circl v1.1.0 // indirect
+	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fatih/color v1.10.0 // indirect
@@ -91,7 +91,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
+	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.24 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
@@ -103,7 +103,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
-	github.com/prometheus/procfs v0.9.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
@@ -114,10 +114,10 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yuin/gopher-lua v1.1.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
-	golang.org/x/crypto v0.8.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/crypto v0.10.0 // indirect
+	golang.org/x/net v0.11.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
