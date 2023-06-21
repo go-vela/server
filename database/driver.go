@@ -6,5 +6,5 @@ package database
 
 // Driver outputs the configured database driver.
 func (e *engine) Driver() string {
-	return e.Config.Driver
+	return e.config.Driver
 }

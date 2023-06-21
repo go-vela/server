@@ -11,12 +11,12 @@ import (
 
 // Ping sends a "ping" request with backoff to the database.
 func (e *engine) Ping() error {
-	e.Logger.Tracef("sending ping request to the %s database", e.Driver())
+	e.logger.Tracef("sending ping request to the %s database", e.Driver())
 
 	// create a loop to attempt ping requests 5 times
 	for i := 0; i < 5; i++ {
 		// capture database/sql database from gorm.io/gorm database
-		_sql, err := e.Database.DB()
+		_sql, err := e.client.DB()
 		if err != nil {
 			return err
 		}
@@ -27,7 +27,7 @@ func (e *engine) Ping() error {
 			// create the duration of time to sleep for before attempting to retry
 			duration := time.Duration(i+1) * time.Second
 
-			e.Logger.Warnf("unable to ping %s database - retrying in %v", e.Driver(), duration)
+			e.logger.Warnf("unable to ping %s database - retrying in %v", e.Driver(), duration)
 
 			// sleep for loop iteration in seconds
 			time.Sleep(duration)

@@ -701,7 +701,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 
 	switch h.GetEventAction() {
 	// if action is rename, go through rename routine
-	case constants.ActionRenamed:
+	case constants.ActionRenamed, constants.ActionTransferred:
 		r, err := renameRepository(h, r, c, m)
 		if err != nil {
 			h.SetStatus(constants.StatusFailure)
@@ -779,34 +779,16 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 // renameRepository is a helper function that takes the old name of the repo,
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
-// associated with that repo.
+// associated with that repo as well as build links for the UI.
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
-	logrus.Debugf("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
+	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 	// get the old name of the repo
-	previousName := r.GetPreviousName()
+	prevOrg, prevRepo := util.SplitFullName(r.GetPreviousName())
+
 	// get the repo from the database that matches the old name
-	dbR, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), previousName)
+	dbR, err := database.FromContext(c).GetRepoForOrg(prevOrg, prevRepo)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, r.GetOrg(), previousName)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return nil, retErr
-	}
-
-	// update the repo name information
-	dbR.SetName(r.GetName())
-	dbR.SetFullName(r.GetFullName())
-	dbR.SetClone(r.GetClone())
-	dbR.SetLink(r.GetLink())
-	dbR.SetPreviousName(previousName)
-
-	// update the repo in the database
-	err = database.FromContext(c).UpdateRepo(dbR)
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, r.GetOrg(), previousName)
+		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, prevOrg, prevRepo)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
@@ -840,7 +822,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	// get total number of secrets associated with repository
 	t, err := database.FromContext(c).CountSecretsForRepo(dbR, map[string]interface{}{})
 	if err != nil {
-		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", r.GetOrg(), previousName, err)
+		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", prevOrg, prevRepo, err)
 	}
 
 	secrets := []*library.Secret{}
@@ -849,7 +831,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
 		s, _, err := database.FromContext(c).ListSecretsForRepo(dbR, map[string]interface{}{}, page, 100)
 		if err != nil {
-			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", r.GetOrg(), previousName, err)
+			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", prevOrg, prevRepo, err)
 		}
 
 		secrets = append(secrets, s...)
@@ -859,11 +841,12 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 
 	// update secrets to point to the new repository name
 	for _, secret := range secrets {
+		secret.SetOrg(r.GetOrg())
 		secret.SetRepo(r.GetName())
 
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
-			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", r.GetOrg(), previousName, err)
+			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", prevOrg, prevRepo, err)
 		}
 	}
 
@@ -890,13 +873,33 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	// update build link to route to proper repo name
 	for _, build := range builds {
 		build.SetLink(
-			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, dbR.GetFullName(), build.GetNumber()),
+			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), build.GetNumber()),
 		)
 
 		_, err = database.FromContext(c).UpdateBuild(build)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}
+	}
+
+	// update the repo name information
+	dbR.SetName(r.GetName())
+	dbR.SetOrg(r.GetOrg())
+	dbR.SetFullName(r.GetFullName())
+	dbR.SetClone(r.GetClone())
+	dbR.SetLink(r.GetLink())
+	dbR.SetPreviousName(r.GetPreviousName())
+
+	// update the repo in the database
+	err = database.FromContext(c).UpdateRepo(dbR)
+	if err != nil {
+		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, prevOrg, prevRepo)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(retErr.Error())
+
+		return nil, retErr
 	}
 
 	return dbR, nil
