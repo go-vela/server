@@ -615,7 +615,7 @@ func TestGithub_Enable(t *testing.T) {
 	r.SetName("bar")
 	r.SetOrg("foo")
 	r.SetHash("secret")
-	r.SetAllowEvents(1)
+	r.SetAllowEvents(library.NewEventsFromMask(1))
 
 	client, _ := NewTest(s.URL)
 
@@ -662,7 +662,7 @@ func TestGithub_Update(t *testing.T) {
 	r.SetName("bar")
 	r.SetOrg("foo")
 	r.SetHash("secret")
-	r.SetAllowEvents(1)
+	r.SetAllowEvents(library.NewEventsFromMask(1))
 
 	hookID := int64(1)
 

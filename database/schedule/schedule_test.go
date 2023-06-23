@@ -203,6 +203,6 @@ func testRepo() *library.Repo {
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
-		AllowEvents:  new(int64),
+		AllowEvents:  library.NewEventsFromMask(1),
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/library"
 )
 
 func TestRepo_Engine_CreateRepo(t *testing.T) {
@@ -22,7 +23,7 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("oldName")
-	_repo.SetAllowEvents(1)
+	_repo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

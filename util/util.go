@@ -120,39 +120,39 @@ func CheckAllowlist(r *library.Repo, allowlist []string) bool {
 
 // ParseEventMask is a helper function to calculate the bit mask for
 // a given event.
-func ParseEventMask(event, action string) (mask int64) {
+func EventAllowed(event, action string, r *library.Repo) (allowed bool) {
+	allowed = false
+
 	if len(action) > 0 {
 		event = event + ":" + action
 	}
 
 	switch event {
 	case constants.EventPush:
-		mask = constants.AllowPush
+		allowed = r.GetAllowEvents().GetPush()
 	case constants.EventPull + ":" + constants.ActionOpened:
-		mask = constants.AllowPROpen
+		allowed = r.GetAllowEvents().GetPullRequest().GetOpened()
 	case constants.EventPull + ":" + constants.ActionSynchronize:
-		mask = constants.AllowPRSync
+		allowed = r.GetAllowEvents().GetPullRequest().GetSynchronize()
 	case constants.EventPull + ":" + constants.ActionEdited:
-		mask = constants.AllowPREdit
+		allowed = r.GetAllowEvents().GetPullRequest().GetEdited()
 	case constants.EventPull + ":" + constants.ActionReviewRequested:
-		mask = constants.AllowPRReviewRequest
+		allowed = r.GetAllowEvents().GetPullRequest().GetReviewRequest()
 	case constants.EventTag:
-		mask = constants.AllowTag
+		allowed = r.GetAllowEvents().GetTag()
 	case constants.EventComment + ":" + constants.ActionCreated:
-		mask = constants.AllowCommentCreate
+		allowed = r.GetAllowEvents().GetComment().GetCreated()
 	case constants.EventComment + ":" + constants.ActionEdited:
-		mask = constants.AllowCommentEdit
+		allowed = r.GetAllowEvents().GetComment().GetEdited()
 	case constants.EventPullReview + ":" + constants.ActionSubmitted:
-		mask = constants.AllowReviewSubmit
+		allowed = r.GetAllowEvents().GetPullReview().GetSubmitted()
 	case constants.EventPullReview + ":" + constants.ActionEdited:
-		mask = constants.AllowReviewEdit
+		allowed = r.GetAllowEvents().GetPullReview().GetEdited()
 	case constants.EventDeploy:
-		mask = constants.AllowDeploy
+		allowed = r.GetAllowEvents().GetDeployment()
 	case constants.EventSchedule:
-		mask = constants.AllowSchedule
-	default:
-		mask = 0
+		allowed = r.GetAllowEvents().GetSchedule()
 	}
 
-	return mask
+	return
 }

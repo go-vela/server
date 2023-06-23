@@ -55,7 +55,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetPrivate(false)
 	want.SetTrusted(false)
 	want.SetActive(false)
-	want.SetAllowEvents(1)
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")
 

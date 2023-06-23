@@ -49,7 +49,7 @@ func TestOrg_Establish(t *testing.T) {
 	r.SetPrivate(false)
 	r.SetTrusted(false)
 	r.SetActive(false)
-	r.SetAllowEvents(1)
+	r.SetAllowEvents(library.NewEventsFromMask(1))
 
 	want := "foo"
 	got := ""

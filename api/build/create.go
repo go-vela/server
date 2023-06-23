@@ -110,7 +110,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// verify repo has event configured
-	if (util.ParseEventMask(input.GetEvent(), input.GetEventAction()) & r.GetAllowEvents()) == 0 {
+	if !util.EventAllowed(input.GetEvent(), input.GetEventAction(), r) {
 		retErr := fmt.Errorf("unable to create new build: %s does not have %s%s events enabled", r.GetFullName(), input.GetEvent(), ":"+input.GetEventAction())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)

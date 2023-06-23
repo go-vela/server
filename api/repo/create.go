@@ -156,22 +156,30 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set default events if no events are passed in
-	if input.GetAllowEvents() == 0 {
-		events := 0
+	if input.GetAllowEvents() == nil {
+		events := new(library.Events)
+
 		for _, event := range defaultRepoEvents {
 			switch event {
 			case constants.EventPull:
-				events = events | constants.AllowPROpen | constants.AllowPRSync
+				prActions := new(library.PRActions)
+				prActions.SetOpened(true)
+				prActions.SetSynchronize(true)
+				events.SetPullRequest(prActions)
 			case constants.EventPush:
-				events = events | constants.AllowPush
+				events.SetPush(true)
 			case constants.EventDeploy:
-				events = events | constants.AllowDeploy
+				events.SetDeployment(true)
 			case constants.EventTag:
-				events = events | constants.AllowTag
+				events.SetTag(true)
 			case constants.EventComment:
-				events = events | constants.AllowCommentCreate | constants.AllowCommentEdit
+				commentActions := new(library.CommentActions)
+				commentActions.SetCreated(true)
+				commentActions.SetEdited(true)
+				events.SetComment(commentActions)
 			}
 		}
+		r.SetAllowEvents(events)
 	} else {
 		r.SetAllowEvents(input.GetAllowEvents())
 	}

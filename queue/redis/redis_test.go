@@ -86,7 +86,7 @@ var (
 		Private:     Bool(false),
 		Trusted:     Bool(false),
 		Active:      Bool(true),
-		AllowEvents: Int64(1),
+		AllowEvents: library.NewEventsFromMask(1),
 	}
 
 	_steps = &pipeline.Build{

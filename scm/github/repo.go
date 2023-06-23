@@ -164,19 +164,23 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
 
-	if (r.GetAllowEvents() & (constants.AllowCommentCreate | constants.AllowCommentEdit)) > 0 {
+	if r.GetAllowEvents().GetComment().GetCreated() || r.GetAllowEvents().GetComment().GetEdited() {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowEvents()&constants.AllowDeploy > 0 {
+	if r.GetAllowEvents().GetDeployment() {
 		events = append(events, eventDeployment)
 	}
 
-	if r.GetAllowEvents()&(constants.AllowPROpen|constants.AllowPREdit|constants.AllowPRSync|constants.AllowPRLabel|constants.AllowPRReviewRequest) > 0 {
+	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
+		r.GetAllowEvents().GetPullRequest().GetEdited() ||
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() ||
+		r.GetAllowEvents().GetPullRequest().GetLabeled() ||
+		r.GetAllowEvents().GetPullRequest().GetReviewRequest() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowEvents()&(constants.AllowPush|constants.AllowTag) > 0 {
+	if r.GetAllowEvents().GetPush() || r.GetAllowEvents().GetTag() {
 		events = append(events, eventPush)
 	}
 
@@ -230,19 +234,23 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
 
-	if (r.GetAllowEvents() & (constants.AllowCommentCreate | constants.AllowCommentEdit)) > 0 {
+	if r.GetAllowEvents().GetComment().GetCreated() || r.GetAllowEvents().GetComment().GetEdited() {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowEvents()&constants.AllowDeploy > 0 {
+	if r.GetAllowEvents().GetDeployment() {
 		events = append(events, eventDeployment)
 	}
 
-	if r.GetAllowEvents()&(constants.AllowPROpen|constants.AllowPREdit|constants.AllowPRSync|constants.AllowPRLabel|constants.AllowPRReviewRequest) > 0 {
+	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
+		r.GetAllowEvents().GetPullRequest().GetEdited() ||
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() ||
+		r.GetAllowEvents().GetPullRequest().GetLabeled() ||
+		r.GetAllowEvents().GetPullRequest().GetReviewRequest() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowEvents()&(constants.AllowPush|constants.AllowTag) > 0 {
+	if r.GetAllowEvents().GetPush() || r.GetAllowEvents().GetTag() {
 		events = append(events, eventPush)
 	}
 

@@ -173,11 +173,6 @@ func UpdateRepo(c *gin.Context) {
 		eventsChanged = true
 	}
 
-	// set default events if no events are enabled
-	if r.GetAllowEvents() == 0 {
-		r.SetAllowEvents(constants.AllowPush | constants.AllowTag)
-	}
-
 	if len(input.GetPipelineType()) != 0 {
 		// ensure the pipeline type matches one of the expected values
 		if input.GetPipelineType() != constants.PipelineTypeYAML &&
