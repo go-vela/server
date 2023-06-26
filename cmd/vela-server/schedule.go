@@ -52,35 +52,29 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 		// create a variable to track if a build should be triggered based off the schedule
 		trigger := false
 
-		// check if a build has already been triggered for the schedule
-		if schedule.GetScheduledAt() == 0 {
-			// trigger a build for the schedule since one has not already been scheduled
+		// parse the previous occurrence of the entry for the schedule
+		prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
+
+		// parse the next occurrence of the entry for the schedule
+		nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
+
+		// parse the UNIX timestamp from when the last build was triggered for the schedule
+		t := time.Unix(schedule.GetScheduledAt(), 0).UTC()
+
+		// check if the time since the last triggered build is greater than the entry duration for the schedule
+		if time.Since(t) > nextTime.Sub(prevTime) {
+			// trigger a build for the schedule since it has not previously ran
 			trigger = true
-		} else {
-			// parse the previous occurrence of the entry for the schedule
-			prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
-			if err != nil {
-				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
-
-				continue
-			}
-
-			// parse the next occurrence of the entry for the schedule
-			nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
-			if err != nil {
-				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
-
-				continue
-			}
-
-			// parse the UNIX timestamp from when the last build was triggered for the schedule
-			t := time.Unix(schedule.GetScheduledAt(), 0).UTC()
-
-			// check if the time since the last triggered build is greater than the entry duration for the schedule
-			if time.Since(t) > nextTime.Sub(prevTime) {
-				// trigger a build for the schedule since it has not previously ran
-				trigger = true
-			}
 		}
 
 		if trigger && schedule.GetActive() {
