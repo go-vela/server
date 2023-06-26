@@ -176,12 +176,10 @@ func server(c *cli.Context) error {
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
 		for {
-			// cut the configured minimum frequency duration for schedules in half
-			//
 			// We need to sleep for some amount of time before we attempt to process schedules
-			// setup in the database. Since the minimum frequency is configurable, we cut it in
-			// half and use that as the base duration to determine how long to sleep for.
-			base := c.Duration("schedule-minimum-frequency") / 2
+			// setup in the database. Since the schedule interval is configurable, we use that
+			// as the base duration to determine how long to sleep for.
+			base := c.Duration("schedule-interval")
 			logrus.Infof("sleeping for %v before scheduling builds", base)
 
 			// sleep for a duration of time before processing schedules
@@ -189,8 +187,8 @@ func server(c *cli.Context) error {
 			// This should prevent multiple servers from processing schedules at the same time by
 			// leveraging a base duration along with a standard deviation of randomness a.k.a.
 			// "jitter". To create the jitter, we use the configured minimum frequency duration
-			// along with a scale factor of 0.1.
-			time.Sleep(wait.Jitter(base, 0.1))
+			// along with a scale factor of 0.5.
+			time.Sleep(wait.Jitter(base, 0.5))
 
 			err = processSchedules(compiler, database, metadata, queue, scm)
 			if err != nil {
