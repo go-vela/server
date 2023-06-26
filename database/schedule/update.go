@@ -2,7 +2,6 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-//nolint:dupl // ignore similar code with create.go
 package schedule
 
 import (
@@ -13,7 +12,7 @@ import (
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(s *library.Schedule, config bool) error {
+func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())
@@ -27,8 +26,8 @@ func (e *engine) UpdateSchedule(s *library.Schedule, config bool) error {
 		return err
 	}
 
-	// if update is just setting the scheduled_at, then ignore updating other fields
-	if config {
+	// If "fields" is true, update entire record; otherwise, just update scheduled_at (part of processSchedule)
+	if fields {
 		err = e.client.Table(constants.TableSchedule).Save(schedule).Error
 	} else {
 		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
