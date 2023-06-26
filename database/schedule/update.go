@@ -13,7 +13,7 @@ import (
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(s *library.Schedule) error {
+func (e *engine) UpdateSchedule(s *library.Schedule, config bool) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())
@@ -27,9 +27,12 @@ func (e *engine) UpdateSchedule(s *library.Schedule) error {
 		return err
 	}
 
-	// send query to the database
-	return e.client.
-		Table(constants.TableSchedule).
-		Save(schedule).
-		Error
+	// if update is just setting the scheduled_at, then ignore updating other fields
+	if config {
+		err = e.client.Table(constants.TableSchedule).Save(schedule).Error
+	} else {
+		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
+	}
+
+	return err
 }

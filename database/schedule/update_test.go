@@ -11,7 +11,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestSchedule_Engine_UpdateSchedule(t *testing.T) {
+func TestSchedule_Engine_UpdateSchedule_Config(t *testing.T) {
 	_repo := testRepo()
 	_repo.SetID(1)
 	_repo.SetOrg("foo")
@@ -67,7 +67,79 @@ WHERE "id" = $10`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule)
+			err = test.database.UpdateSchedule(_schedule, true)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("UpdateSchedule for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("UpdateSchedule for %s returned err: %v", test.name, err)
+			}
+		})
+	}
+}
+
+func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
+	_repo := testRepo()
+	_repo.SetID(1)
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+
+	_schedule := testSchedule()
+	_schedule.SetID(1)
+	_schedule.SetRepoID(1)
+	_schedule.SetName("nightly")
+	_schedule.SetEntry("0 0 * * *")
+	_schedule.SetCreatedAt(1)
+	_schedule.SetCreatedBy("user1")
+	_schedule.SetUpdatedAt(1)
+	_schedule.SetUpdatedBy("user2")
+	_schedule.SetScheduledAt(1)
+
+	_postgres, _mock := testPostgres(t)
+	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
+
+	// ensure the mock expects the query
+	_mock.ExpectExec(`UPDATE "schedules" SET "scheduled_at"=$1 WHERE "id" = $2`).
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	_sqlite := testSqlite(t)
+	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
+
+	err := _sqlite.CreateSchedule(_schedule)
+	if err != nil {
+		t.Errorf("unable to create test schedule for sqlite: %v", err)
+	}
+
+	// setup tests
+	tests := []struct {
+		failure  bool
+		name     string
+		database *engine
+	}{
+		{
+			failure:  false,
+			name:     "postgres",
+			database: _postgres,
+		},
+		{
+			failure:  false,
+			name:     "sqlite3",
+			database: _sqlite,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err = test.database.UpdateSchedule(_schedule, false)
 
 			if test.failure {
 				if err == nil {

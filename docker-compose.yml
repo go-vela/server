@@ -44,6 +44,7 @@ services:
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_REPO_ALLOWLIST: '*'
       VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: 10m
     env_file:
       - .env
     restart: always
