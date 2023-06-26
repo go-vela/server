@@ -123,7 +123,7 @@ func UpdateSchedule(c *gin.Context) {
 	}
 
 	// update the schedule within the database
-	err = database.FromContext(c).UpdateSchedule(s)
+	err = database.FromContext(c).UpdateSchedule(s, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update scheduled %s: %w", scheduleName, err)
 

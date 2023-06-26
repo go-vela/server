@@ -45,5 +45,5 @@ type ScheduleInterface interface {
 	// ListSchedulesForRepo defines a function that gets a list of schedules by repo ID.
 	ListSchedulesForRepo(*library.Repo, int, int) ([]*library.Schedule, int64, error)
 	// UpdateSchedule defines a function that updates an existing schedule.
-	UpdateSchedule(*library.Schedule) error
+	UpdateSchedule(*library.Schedule, bool) error
 }
