@@ -27,6 +27,9 @@ func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
 	}
 
 	// If "fields" is true, update entire record; otherwise, just update scheduled_at (part of processSchedule)
+	//
+	// we do this because Gorm will automatically set `updated_at` with the Save function
+	// and the `updated_at` field should reflect the last time a user updated the record, rather than the scheduler
 	if fields {
 		err = e.client.Table(constants.TableSchedule).Save(schedule).Error
 	} else {
