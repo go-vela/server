@@ -39,7 +39,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 	for _, s := range schedules {
 		gron := gronx.New()
 
-		// determine if a build should be triggered based off the schedule
+		// check if the schedule is due based off the entry accounting for UTC
 		due, err := gron.IsDue(s.GetEntry(), time.Now().UTC())
 		if err != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, s.GetName())
@@ -66,33 +66,48 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 			continue
 		}
 
-		// parse the previous occurrence of the entry for the schedule
-		prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
-		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+		// ignore triggering a build if the schedule is no longer active
+		if !schedule.GetActive() {
+			logrus.Tracef("ignoring to schedule build for %s", s.GetName())
 
 			continue
 		}
 
-		// parse the next occurrence of the entry for the schedule
-		nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
-		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
-
-			continue
-		}
-
-		// parse the UNIX timestamp from when the last build was triggered for the schedule
-		t := time.Unix(schedule.GetScheduledAt(), 0).UTC()
-
-		// check if the time since the last triggered build is greater than the entry duration for the schedule
-		if time.Since(t) > nextTime.Sub(prevTime) && schedule.GetActive() {
-			err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+		// check if a build has already been triggered for the schedule
+		if schedule.GetScheduledAt() > 0 {
+			// parse the previous occurrence of the entry for the schedule
+			prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
 			if err != nil {
 				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
 
 				continue
 			}
+
+			// parse the next occurrence of the entry for the schedule
+			nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
+			if err != nil {
+				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+				continue
+			}
+
+			// parse the UNIX timestamp from when the last build was triggered for the schedule
+			t := time.Unix(schedule.GetScheduledAt(), 0).UTC()
+
+			// check if the time since the last triggered build is less than the entry duration for the schedule
+			if time.Since(t) < nextTime.Sub(prevTime) {
+				logrus.Tracef("waiting to schedule build for %s", s.GetName())
+
+				continue
+			}
+		}
+
+		// process the schedule and trigger a new build
+		err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
 		}
 	}
 
