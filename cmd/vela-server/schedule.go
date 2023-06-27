@@ -26,7 +26,7 @@ import (
 
 const baseErr = "unable to schedule build"
 
-func processSchedules(base time.Duration, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(interval time.Duration, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
@@ -78,9 +78,9 @@ func processSchedules(base time.Duration, compiler compiler.Engine, database dat
 
 		// determine if schedule is due for processing
 		//
-		// The current time must be past the next occurrence and the current time (minus sweep gap) must be
-		// after the previous occurrence to ensure the schedule will run at the correct time.
-		due := time.Now().After(nextTime) && prevTime.After(time.Now().Add(-base))
+		// The current time must be past the next occurrence and the current time (minus schedule interval)
+		// must be after the previous occurrence to ensure the schedule will run at the correct time.
+		due := time.Now().After(nextTime) && prevTime.After(time.Now().Add(-interval))
 
 		// check if the schedule is due to trigger a build
 		if !due {

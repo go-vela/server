@@ -179,19 +179,19 @@ func server(c *cli.Context) error {
 			// We need to sleep for some amount of time before we attempt to process schedules
 			// setup in the database. Since the schedule interval is configurable, we use that
 			// as the base duration to determine how long to sleep for.
-			base := c.Duration("schedule-interval")
+			interval := c.Duration("schedule-interval")
 
 			// This should prevent multiple servers from processing schedules at the same time by
 			// leveraging a base duration along with a standard deviation of randomness a.k.a.
 			// "jitter". To create the jitter, we use the configured schedule interval duration
 			// along with a scale factor of 0.5.
-			jitter := wait.Jitter(base, 0.5)
+			jitter := wait.Jitter(interval, 0.5)
 
 			logrus.Infof("sleeping for %v before scheduling builds", jitter)
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(base, compiler, database, metadata, queue, scm)
+			err = processSchedules(interval, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {
