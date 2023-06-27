@@ -355,7 +355,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to update schedule for ensuring scheduled_at field is set
-	err = database.UpdateSchedule(s)
+	err = database.UpdateSchedule(s, false)
 	if err != nil {
 		return fmt.Errorf("unable to update schedule %s/%s: %w", r.GetFullName(), s.GetName(), err)
 	}
