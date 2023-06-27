@@ -66,24 +66,30 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 			continue
 		}
 
-		// capture the next occurrence of the entry for the schedule rounded to the nearest whole interval
+		// capture the next occurrence of the entry after the last schedule rounded to the nearest whole interval
 		//
 		// i.e. if it's 4:02 on five minute intervals, this will be 4:05
-		nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
+		nextTime, err := gronx.NextTickAfter(s.GetEntry(), time.Unix(s.GetScheduledAt(), 0).UTC(), true)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, s.GetName())
 
 			continue
 		}
 
-		// determine if schedule is due for processing
+		// check if we should wait to trigger a build for the schedule
 		//
-		// The current time must be past the next occurrence and the current time (minus schedule interval)
-		// must be after the previous occurrence to ensure the schedule will run at the correct time.
-		due := time.Now().After(nextTime) && prevTime.After(time.Now().Add(-interval))
+		// The current time must be after the next occurrence of the schedule.
+		if !time.Now().After(nextTime) {
+			logrus.Tracef("waiting to schedule build for %s", s.GetName())
 
-		// check if the schedule is due to trigger a build
-		if !due {
+			continue
+		}
+
+		// check if we should wait to trigger a build for the schedule
+		//
+		// The current time minus the schedule interval (with jitter as a buffer)
+		// must be after the previous occurrence of the schedule.
+		if !prevTime.After(time.Now().Add(-wait.Jitter(interval, 0.5))) {
 			logrus.Tracef("waiting to schedule build for %s", s.GetName())
 
 			continue
