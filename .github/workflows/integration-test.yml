@@ -1,0 +1,42 @@
+# name of the action
+name: integration-test
+
+# trigger on pull_request events
+on:
+  pull_request:
+
+# pipeline to execute
+jobs:
+  database:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: vela
+          POSTGRES_PASSWORD: notARealPassword1234
+          POSTGRES_USER: vela
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: clone
+        uses: actions/checkout@v3
+
+      - name: install go
+        uses: actions/setup-go@v4
+        with:
+          # use version from go.mod file
+          go-version-file: 'go.mod'
+          cache: true
+          check-latest: true
+
+      - name: test
+        run: |
+          make integration-test
