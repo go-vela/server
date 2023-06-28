@@ -96,7 +96,7 @@ fix:
 integration-test:
 	@echo
 	@echo "### Integration Testing"
-	@go test -run TestDatabase_Integration ./...
+	INTEGRATION=1 go test -run TestDatabase_Integration ./...
 
 # The `test` target is intended to run
 # the tests for the Go source code.

@@ -5,12 +5,18 @@
 package database
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
 func TestDatabase_Integration(t *testing.T) {
+	// check if we should skip the integration test
+	if os.Getenv("INTEGRATION") == "" {
+		t.Skipf("skipping %s integration test due to environment variable constraint", t.Name())
+	}
+
 	// setup tests
 	tests := []struct {
 		failure bool
