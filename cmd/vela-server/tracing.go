@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 
 	"go.opentelemetry.io/otel"
 	otlp "go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -11,9 +13,6 @@ import (
 )
 
 func tracerProvider() (*sdktrace.TracerProvider, error) {
-	// exporter, err := stdout.New(stdout.WithPrettyPrint())
-
-	// client := nil
 	client := otlptracehttp.NewClient()
 
 	exporter, err := otlp.New(context.TODO(), client)
@@ -21,9 +20,18 @@ func tracerProvider() (*sdktrace.TracerProvider, error) {
 		return nil, err
 	}
 
+	// TODO: make the serviceName configurable
+	res, err := resource.New(context.TODO(), resource.WithAttributes(
+		semconv.ServiceName("vela-server"),
+	))
+	if err != nil {
+		return nil, err
+	}
+
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(res),
 	)
 
 	otel.SetTracerProvider(tp)

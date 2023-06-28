@@ -122,7 +122,7 @@ func server(c *cli.Context) error {
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 
 		// inject service middleware
-		otelgin.Middleware("vela-server-dv1", otelgin.WithTracerProvider(tp)),
+		otelgin.Middleware("vela-server", otelgin.WithTracerProvider(tp)),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))
