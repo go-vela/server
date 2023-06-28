@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/worker"
+
 	"github.com/go-vela/types/library"
 )
 
@@ -82,6 +84,9 @@ func TestDatabase_Integration(t *testing.T) {
 }
 
 func testWorkers(t *testing.T, db Interface) {
+	// used to track the number of methods we call for workers
+	counter := 0
+
 	one := new(library.Worker)
 	one.SetID(1)
 	one.SetHostname("worker-1.example.com")
@@ -119,6 +124,7 @@ func testWorkers(t *testing.T, db Interface) {
 			t.Errorf("unable to create worker %s: %v", worker.GetHostname(), err)
 		}
 	}
+	counter++
 
 	// count the workers
 	count, err := db.CountWorkers()
@@ -128,6 +134,7 @@ func testWorkers(t *testing.T, db Interface) {
 	if int(count) != len(workers) {
 		t.Errorf("CountWorkers() is %v, want 2", count)
 	}
+	counter++
 
 	// list the workers
 	list, err := db.ListWorkers()
@@ -137,6 +144,7 @@ func testWorkers(t *testing.T, db Interface) {
 	if !reflect.DeepEqual(list, workers) {
 		t.Errorf("ListWorkers() is %v, want %v", list, workers)
 	}
+	counter++
 
 	// lookup the workers by hostname
 	for _, worker := range workers {
@@ -148,6 +156,7 @@ func testWorkers(t *testing.T, db Interface) {
 			t.Errorf("GetWorkerForHostname() is %v, want %v", got, worker)
 		}
 	}
+	counter++
 
 	// update the workers
 	for _, worker := range workers {
@@ -166,6 +175,8 @@ func testWorkers(t *testing.T, db Interface) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
 		}
 	}
+	counter++
+	counter++
 
 	// delete the workers
 	for _, worker := range workers {
@@ -173,5 +184,12 @@ func testWorkers(t *testing.T, db Interface) {
 		if err != nil {
 			t.Errorf("unable to delete worker %s: %v", worker.GetHostname(), err)
 		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
 }
