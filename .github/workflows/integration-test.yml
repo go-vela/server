@@ -4,9 +4,9 @@ name: integration-test
 # trigger on pull_request events that modify this file or any database files
 on:
   pull_request:
-    paths:
-      - '.github/workflows/integration-test.yml'
-      - 'database/**'
+#    paths:
+#      - '.github/workflows/integration-test.yml'
+#      - 'database/**'
 
 # pipeline to execute
 jobs:
