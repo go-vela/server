@@ -183,7 +183,8 @@ func CreateSchedule(c *gin.Context) {
 		s, _ = database.FromContext(c).GetScheduleForRepo(r, dbSchedule.GetName())
 	} else {
 		// send API call to create the schedule
-		err = database.FromContext(c).CreateSchedule(s)
+		ctx := c.Request.Context()
+		err = database.FromContext(c).CreateSchedule(ctx, s)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new schedule %s: %w", r.GetName(), err)
 

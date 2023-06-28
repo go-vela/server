@@ -67,6 +67,7 @@ func server(c *cli.Context) error {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
 			logrus.Printf("Error shutting down tracer provider: %v", err)
@@ -119,7 +120,9 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
-		otelgin.Middleware("vela-server"),
+
+		// inject service middleware
+		otelgin.Middleware("vela-server-dv1", otelgin.WithTracerProvider(tp)),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

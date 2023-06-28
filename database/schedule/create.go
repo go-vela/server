@@ -6,17 +6,31 @@
 package schedule
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // CreateSchedule creates a new schedule in the database.
-func (e *engine) CreateSchedule(s *library.Schedule) error {
+func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("creating schedule %s in the database", s.GetName())
+
+	span := trace.SpanFromContext(ctx)
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("db", "do-operation"),
+		)
+	}
+
+	logrus.Infof("CreateSchedule using span_id:", span.SpanContext().TraceID())
 
 	// cast the library type to database type
 	schedule := database.ScheduleFromLibrary(s)
@@ -29,6 +43,7 @@ func (e *engine) CreateSchedule(s *library.Schedule) error {
 
 	// send query to the database
 	return e.client.
+		WithContext(ctx).
 		Table(constants.TableSchedule).
 		Create(schedule).
 		Error
