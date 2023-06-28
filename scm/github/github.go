@@ -7,7 +7,6 @@ package github
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net/http/httptrace"
 	"net/url"
 
@@ -166,7 +165,7 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	// }
 
 	tc.Transport = otelhttp.NewTransport(
-		http.DefaultTransport,
+		tc.Transport,
 		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
 			return otelhttptrace.NewClientTrace(ctx)
 		}),
