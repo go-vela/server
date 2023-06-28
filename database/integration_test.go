@@ -125,7 +125,7 @@ func testWorkers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to count workers: %v", err)
 	}
-	if count != 2 {
+	if int(count) != len(workers) {
 		t.Errorf("CountWorkers() is %v, want 2", count)
 	}
 
