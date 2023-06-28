@@ -20,6 +20,7 @@ import (
 	"github.com/go-vela/server/router/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"golang.org/x/sync/errgroup"
 
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -62,7 +63,17 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	database, err := database.FromCLIContext(c)
+	tp, err := tracerProvider()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			logrus.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+
+	database, err := database.FromCLIContext(c, tp)
 	if err != nil {
 		return err
 	}
@@ -108,6 +119,7 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
+		otelgin.Middleware("vela-server"),
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

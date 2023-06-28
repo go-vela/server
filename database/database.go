@@ -21,7 +21,9 @@ import (
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -46,6 +48,8 @@ type (
 		EncryptionKey string
 		// specifies to skip creating tables and indexes for the database engine
 		SkipCreation bool
+
+		TracerProvider *sdktrace.TracerProvider
 	}
 
 	// engine represents the functionality that implements the Interface.
@@ -129,6 +133,12 @@ func New(opts ...EngineOpt) (Interface, error) {
 		return nil, err
 	}
 
+	logrus.Info("initializing gorm tracing")
+	otelPlugin := otelgorm.NewPlugin()
+	if err := e.client.Use(otelPlugin); err != nil {
+		return nil, err
+	}
+
 	// set the maximum amount of time a connection may be reused
 	db.SetConnMaxLifetime(e.config.ConnectionLife)
 	// set the maximum number of connections in the idle connection pool
@@ -164,5 +174,6 @@ func NewTest() (Interface, error) {
 		WithDriver("sqlite3"),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithSkipCreation(false),
+		WithTracerProvider(nil),
 	)
 }

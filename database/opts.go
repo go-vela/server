@@ -4,7 +4,11 @@
 
 package database
 
-import "time"
+import (
+	"time"
+
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+)
 
 // EngineOpt represents a configuration option to initialize the database engine.
 type EngineOpt func(*engine) error
@@ -84,6 +88,15 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
 		// set to skip creating tables and indexes in the database engine
 		e.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}
+
+func WithTracerProvider(tp *sdktrace.TracerProvider) EngineOpt {
+	return func(e *engine) error {
+		// set to skip creating tables and indexes in the database engine
+		e.config.TracerProvider = tp
 
 		return nil
 	}
