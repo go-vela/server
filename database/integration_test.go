@@ -188,7 +188,10 @@ func testWorkers(t *testing.T, db Interface) {
 	counter++
 
 	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod()
+	//
+	// we subtract 2 for creating the table and indexes for workers
+	// since those are already called when the database engine starts
+	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod() - 2
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
