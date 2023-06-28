@@ -6,9 +6,12 @@ package database
 
 import (
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestDatabase_Integration(t *testing.T) {
@@ -66,10 +69,109 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
+			t.Run("test_workers", func(t *testing.T) {
+				testWorkers(t, db)
+			})
+
 			err = db.Close()
 			if err != nil {
 				t.Errorf("unable to close database engine for %s: %v", test.name, err)
 			}
 		})
+	}
+}
+
+func testWorkers(t *testing.T, db Interface) {
+	one := new(library.Worker)
+	one.SetID(1)
+	one.SetHostname("worker-1.example.com")
+	one.SetAddress("https://worker-1.example.com")
+	one.SetRoutes([]string{"vela"})
+	one.SetActive(true)
+	one.SetStatus("available")
+	one.SetLastStatusUpdateAt(time.Time{}.UTC().Unix())
+	one.SetRunningBuildIDs([]string{"12345"})
+	one.SetLastBuildStartedAt(time.Time{}.UTC().Unix())
+	one.SetLastBuildFinishedAt(time.Time{}.UTC().Unix())
+	one.SetLastCheckedIn(time.Time{}.UTC().Unix())
+	one.SetBuildLimit(1)
+
+	two := new(library.Worker)
+	two.SetID(2)
+	two.SetHostname("worker-2.example.com")
+	two.SetAddress("https://worker-2.example.com")
+	two.SetRoutes([]string{"vela"})
+	two.SetActive(true)
+	two.SetStatus("available")
+	two.SetLastStatusUpdateAt(time.Time{}.UTC().Unix())
+	two.SetRunningBuildIDs([]string{"12345"})
+	two.SetLastBuildStartedAt(time.Time{}.UTC().Unix())
+	two.SetLastBuildFinishedAt(time.Time{}.UTC().Unix())
+	two.SetLastCheckedIn(time.Time{}.UTC().Unix())
+	two.SetBuildLimit(1)
+
+	workers := []*library.Worker{one, two}
+
+	// create the workers
+	for _, worker := range workers {
+		err := db.CreateWorker(worker)
+		if err != nil {
+			t.Errorf("unable to create worker %s: %v", worker.GetHostname(), err)
+		}
+	}
+
+	// count the workers
+	count, err := db.CountWorkers()
+	if err != nil {
+		t.Errorf("unable to count workers: %v", err)
+	}
+	if count != 2 {
+		t.Errorf("CountWorkers() is %v, want 2", count)
+	}
+
+	// list the workers
+	list, err := db.ListWorkers()
+	if err != nil {
+		t.Errorf("unable to list workers: %v", err)
+	}
+	if !reflect.DeepEqual(list, workers) {
+		t.Errorf("ListWorkers() is %v, want %v", list, workers)
+	}
+
+	// lookup the workers by hostname
+	for _, worker := range workers {
+		got, err := db.GetWorkerForHostname(worker.GetHostname())
+		if err != nil {
+			t.Errorf("unable to get worker %s by hostname: %v", worker.GetHostname(), err)
+		}
+		if !reflect.DeepEqual(got, worker) {
+			t.Errorf("GetWorkerForHostname() is %v, want %v", got, worker)
+		}
+	}
+
+	// update the workers
+	for _, worker := range workers {
+		worker.SetActive(false)
+		err = db.UpdateWorker(worker)
+		if err != nil {
+			t.Errorf("unable to update worker %s: %v", worker.GetHostname(), err)
+		}
+
+		// lookup the worker by ID
+		got, err := db.GetWorker(worker.GetID())
+		if err != nil {
+			t.Errorf("unable to get worker %s by ID: %v", worker.GetHostname(), err)
+		}
+		if !reflect.DeepEqual(got, worker) {
+			t.Errorf("GetWorker() is %v, want %v", got, worker)
+		}
+	}
+
+	// delete the workers
+	for _, worker := range workers {
+		err = db.DeleteWorker(worker)
+		if err != nil {
+			t.Errorf("unable to delete worker %s: %v", worker.GetHostname(), err)
+		}
 	}
 }
