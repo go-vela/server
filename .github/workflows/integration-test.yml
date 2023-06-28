@@ -1,9 +1,12 @@
 # name of the action
 name: integration-test
 
-# trigger on pull_request events
+# trigger on pull_request events that modify this file or any database files
 on:
   pull_request:
+    paths:
+      - '.github/workflows/integration-test.yml'
+      - 'database/**'
 
 # pipeline to execute
 jobs:
@@ -15,7 +18,7 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_DB: vela
-          POSTGRES_PASSWORD: notARealPassword1234
+          POSTGRES_PASSWORD: notARealPassword12345
           POSTGRES_USER: vela
         options: >-
           --health-cmd pg_isready
