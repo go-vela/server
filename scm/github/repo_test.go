@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -450,7 +451,7 @@ func TestGithub_Disable(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -484,7 +485,7 @@ func TestGithub_Disable_NotFoundHooks(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -523,7 +524,7 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foos.ball.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -565,7 +566,7 @@ func TestGithub_Disable_MultipleHooks(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if count != wantCount {
 		t.Errorf("Count returned %d, want %d", count, wantCount)
@@ -622,7 +623,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, _, err := client.Enable(u, r, new(library.Hook))
+	got, _, err := client.Enable(context.TODO(), u, r, new(library.Hook))
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -1032,7 +1033,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetRepo(u, r)
+	got, err := client.GetRepo(context.TODO(), u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetRepo returned %v, want %v", resp.Code, http.StatusOK)
@@ -1075,7 +1076,7 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetRepo(u, r)
+	_, err := client.GetRepo(context.TODO(), u, r)
 
 	if err == nil {
 		t.Error("GetRepo should return error")

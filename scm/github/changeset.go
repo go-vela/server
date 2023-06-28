@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -22,7 +23,7 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 	}).Tracef("capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(context.TODO(), u.GetToken())
 	s := []string{}
 
 	// set the max per page for the options to capture the commit
@@ -51,7 +52,7 @@ func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]st
 	}).Tracef("capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(context.TODO(), u.GetToken())
 	s := []string{}
 	f := []*github.CommitFile{}
 

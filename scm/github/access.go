@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(*u.Token)
+	client := c.newClientToken(context.TODO(), *u.Token)
 
 	// send API call to capture org access level for user
 	membership, _, err := client.Organizations.GetOrgMembership(ctx, *u.Name, org)
@@ -68,7 +69,7 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 	}
 
 	// create github oauth client with the given token
-	client := c.newClientToken(token)
+	client := c.newClientToken(context.TODO(), token)
 
 	// send API call to capture repo access level for user
 	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, u.GetName())
@@ -99,7 +100,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 	}
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(context.TODO(), u.GetToken())
 	teams := []*github.Team{}
 
 	// set the max per page for the options to capture the list of repos
@@ -149,7 +150,7 @@ func (c *client) ListUsersTeamsForOrg(u *library.User, org string) ([]string, er
 	}).Tracef("capturing %s team membership for org %s", u.GetName(), org)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(context.TODO(), u.GetToken())
 	teams := []*github.Team{}
 
 	// set the max per page for the options to capture the list of repos

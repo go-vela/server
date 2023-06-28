@@ -18,19 +18,18 @@ import (
 
 // CreateSchedule creates a new schedule in the database.
 func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) error {
-	e.logger.WithFields(logrus.Fields{
-		"schedule": s.GetName(),
-	}).Tracef("creating schedule %s in the database", s.GetName())
-
 	span := trace.SpanFromContext(ctx)
-
 	if span.IsRecording() {
 		span.SetAttributes(
 			attribute.String("db", "do-operation"),
 		)
 	}
 
-	logrus.Infof("CreateSchedule using span_id:", span.SpanContext().TraceID())
+	e.logger.WithFields(logrus.Fields{
+		"schedule": s.GetName(),
+		"span_id":  trace.SpanFromContext(ctx).SpanContext().SpanID(),
+		"trace_id": trace.SpanFromContext(ctx).SpanContext().TraceID(),
+	}).Tracef("creating schedule %s in the database", s.GetName())
 
 	// cast the library type to database type
 	schedule := database.ScheduleFromLibrary(s)

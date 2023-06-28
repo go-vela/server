@@ -72,7 +72,7 @@ func SyncRepo(c *gin.Context) {
 	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
-	_, err := scm.FromContext(c).GetRepo(u, r)
+	_, err := scm.FromContext(c).GetRepo(c.Request.Context(), u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {

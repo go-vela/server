@@ -70,7 +70,7 @@ func DeleteRepo(c *gin.Context) {
 	}).Infof("deleting repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
-	err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+	err := scm.FromContext(c).Disable(c.Request.Context(), u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 

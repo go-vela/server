@@ -1347,7 +1347,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
-	ghClient := client.newClientToken(*u.Token)
+	ghClient := client.newClientToken(context.TODO(), *u.Token)
 
 	// run test
 	got, err := client.getDeliveryID(ctx, ghClient, _repo, _hook)

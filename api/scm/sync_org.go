@@ -108,7 +108,7 @@ func SyncReposForOrg(c *gin.Context) {
 
 	// iterate through captured repos and check if they are in GitHub
 	for _, repo := range repos {
-		_, err := scm.FromContext(c).GetRepo(u, repo)
+		_, err := scm.FromContext(c).GetRepo(c.Request.Context(), u, repo)
 		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
 			repo.SetActive(false)

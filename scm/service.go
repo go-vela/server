@@ -95,10 +95,10 @@ type Service interface {
 	ConfigBackoff(*library.User, *library.Repo, string) ([]byte, error)
 	// Disable defines a function that deactivates
 	// a repo by destroying the webhook.
-	Disable(*library.User, string, string) error
+	Disable(context.Context, *library.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(*library.User, *library.Repo, *library.Hook) (*library.Hook, string, error)
+	Enable(context.Context, *library.User, *library.Repo, *library.Hook) (*library.Hook, string, error)
 	// Update defines a function that updates
 	// a webhook for a specified repo.
 	Update(*library.User, *library.Repo, int64) error
@@ -116,7 +116,7 @@ type Service interface {
 	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
-	GetRepo(*library.User, *library.Repo) (*library.Repo, error)
+	GetRepo(context.Context, *library.User, *library.Repo) (*library.Repo, error)
 	// GetOrgAndRepoName defines a function that retrieves
 	// the name of the org and repo in the SCM.
 	GetOrgAndRepoName(*library.User, string, string) (string, string, error)

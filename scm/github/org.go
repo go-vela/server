@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -20,7 +21,7 @@ func (c *client) GetOrgName(u *library.User, o string) (string, error) {
 	}).Tracef("retrieving org information for %s", o)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(context.TODO(), u.GetToken())
 
 	// send an API call to get the org info
 	orgInfo, resp, err := client.Organizations.Get(ctx, o)

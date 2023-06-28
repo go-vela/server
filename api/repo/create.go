@@ -98,7 +98,7 @@ func CreateRepo(c *gin.Context) {
 	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(u, input)
+	r, err := scm.FromContext(c).GetRepo(c.Request.Context(), u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -256,7 +256,7 @@ func CreateRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-		h, _, err = scm.FromContext(c).Enable(u, r, h)
+		h, _, err = scm.FromContext(c).Enable(c.Request.Context(), u, r, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
