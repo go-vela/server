@@ -262,21 +262,34 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	}
 	counter++
 
+	expected := map[string]float64{
+		"#init":                  1,
+		"target/vela-git:v0.3.0": 1,
+	}
 	images, err := db.ListStepImageCount()
 	if err != nil {
 		t.Errorf("unable to list step image count: %v", err)
 	}
-	if len(images) != len(steps) {
-		t.Errorf("ListStepImageCount() is %v, want %v", len(images), len(steps))
+	if !reflect.DeepEqual(images, expected) {
+		pretty.Ldiff(t, images, expected)
+		t.Errorf("ListStepImageCount() is %v, want %v", images, expected)
 	}
 	counter++
 
+	expected = map[string]float64{
+		"pending": 1,
+		"failure": 0,
+		"killed":  0,
+		"running": 1,
+		"success": 0,
+	}
 	statuses, err := db.ListStepStatusCount()
 	if err != nil {
 		t.Errorf("unable to list step status count: %v", err)
 	}
-	if len(statuses) != len(steps) {
-		t.Errorf("ListStepStatusCount() is %v, want %v", len(images), len(steps))
+	if !reflect.DeepEqual(statuses, expected) {
+		pretty.Ldiff(t, statuses, expected)
+		t.Errorf("ListStepStatusCount() is %v, want %v", statuses, expected)
 	}
 	counter++
 
