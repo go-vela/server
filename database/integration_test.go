@@ -264,7 +264,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 
 	images, err := db.ListStepImageCount()
 	if err != nil {
-		t.Errorf("unable to list step image count: %v",, err)
+		t.Errorf("unable to list step image count: %v", err)
 	}
 	if len(images) != len(steps) {
 		t.Errorf("ListStepImageCount() is %v, want %v", len(images), len(steps))
