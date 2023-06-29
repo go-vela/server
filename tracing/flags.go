@@ -13,7 +13,6 @@ var Flags = []cli.Flag{
 		Usage:   "enable otel tracing",
 		Value:   false,
 	},
-
 	&cli.StringFlag{
 		EnvVars: []string{"VELA_TRACING_SERVICE_NAME", "TRACING_SERVICE_NAME"},
 		Name:    "tracing.service.name",

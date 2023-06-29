@@ -22,8 +22,6 @@ services:
     networks:
       - vela
     environment:
-      VELA_ENABLE_TRACING: true
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
       DATABASE_DRIVER: postgres
       DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
       DATABASE_COMPRESSION_LEVEL: 3
@@ -46,6 +44,9 @@ services:
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_REPO_ALLOWLIST: '*'
       VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_ENABLE_TRACING: true
+      VELA_TRACING_SERVICE_NAME: 'vela-server'
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
     env_file:
       - .env
     restart: always
