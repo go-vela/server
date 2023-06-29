@@ -62,6 +62,7 @@ func TestSchedule_New(t *testing.T) {
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
+				ctx:    context.TODO(),
 				client: _postgres,
 				config: &config{SkipCreation: false},
 				logger: logger,
@@ -74,6 +75,7 @@ func TestSchedule_New(t *testing.T) {
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
+				ctx:    context.TODO(),
 				client: _sqlite,
 				config: &config{SkipCreation: false},
 				logger: logger,
