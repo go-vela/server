@@ -20,6 +20,8 @@ import (
 
 func TestDatabase_Integration(t *testing.T) {
 	// check if we should skip the integration test
+	//
+	// https://konradreiche.com/blog/how-to-separate-integration-tests-in-go
 	if os.Getenv("INTEGRATION") == "" {
 		t.Skipf("skipping %s integration test due to environment variable constraint", t.Name())
 	}
@@ -108,7 +110,7 @@ func testUsers(t *testing.T, db Interface) {
 
 	two := new(library.User)
 	two.SetID(2)
-	two.SetName("octocat")
+	two.SetName("octokitty")
 	two.SetToken("superSecretToken")
 	two.SetRefreshToken("superSecretRefreshToken")
 	two.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
