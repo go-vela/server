@@ -140,6 +140,7 @@ func TestDatabase_Integration(t *testing.T) {
 
 			repoOne := new(library.Repo)
 			repoOne.SetID(1)
+			repoOne.SetUserID(1)
 			repoOne.SetOrg("github")
 			repoOne.SetName("octocat")
 			repoOne.SetFullName("github/octocat")
@@ -164,6 +165,7 @@ func TestDatabase_Integration(t *testing.T) {
 
 			repoTwo := new(library.Repo)
 			repoTwo.SetID(2)
+			repoTwo.SetUserID(1)
 			repoTwo.SetOrg("github")
 			repoTwo.SetName("octokitty")
 			repoTwo.SetFullName("github/octokitty")
@@ -374,7 +376,6 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 		t.Errorf("unable to list builds: %v", err)
 	}
 	if !reflect.DeepEqual(list, builds) {
-		pretty.Ldiff(t, list, builds)
 		t.Errorf("ListBuilds() is %v, want %v", list, builds)
 	}
 	counter++
@@ -385,7 +386,6 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 		t.Errorf("unable to list builds for repo %s: %v", repos[0].GetFullName(), err)
 	}
 	if !reflect.DeepEqual(list, []*library.Build{builds[1], builds[0]}) {
-		pretty.Ldiff(t, list, builds)
 		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{builds[1], builds[0]})
 	}
 	counter++
@@ -407,6 +407,7 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 			t.Errorf("unable to get build %d for repo %s: %v", build.GetID(), repos[0].GetFullName(), err)
 		}
 		if !reflect.DeepEqual(got, build) {
+			pretty.Ldiff(t, got, build)
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
 		}
 	}
@@ -573,19 +574,39 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	// since those are already called when the database engine starts
 	counter := 2
 
-	one := new(library.Log)
-	one.SetID(1)
-	one.SetBuildID(1)
-	one.SetRepoID(1)
-	one.SetData([]byte("foo"))
+	serviceOne := new(library.Log)
+	serviceOne.SetID(1)
+	serviceOne.SetBuildID(1)
+	serviceOne.SetRepoID(1)
+	serviceOne.SetServiceID(1)
+	serviceOne.SetData([]byte("foo"))
 
-	two := new(library.Log)
-	two.SetID(2)
-	two.SetBuildID(1)
-	two.SetRepoID(1)
-	two.SetData([]byte("foo"))
+	serviceTwo := new(library.Log)
+	serviceTwo.SetID(2)
+	serviceTwo.SetBuildID(1)
+	serviceTwo.SetRepoID(1)
+	serviceTwo.SetServiceID(2)
+	serviceTwo.SetData([]byte("foo"))
 
-	logs := []*library.Log{one, two}
+	serviceLogs := []*library.Log{serviceOne, serviceTwo}
+
+	stepOne := new(library.Log)
+	stepOne.SetID(1)
+	stepOne.SetBuildID(1)
+	stepOne.SetRepoID(1)
+	stepOne.SetStepID(1)
+	stepOne.SetData([]byte("foo"))
+
+	stepTwo := new(library.Log)
+	stepTwo.SetID(2)
+	stepTwo.SetBuildID(1)
+	stepTwo.SetRepoID(1)
+	stepTwo.SetStepID(2)
+	stepTwo.SetData([]byte("foo"))
+
+	stepLogs := []*library.Log{stepOne, stepTwo}
+
+	logs := append(serviceLogs, stepLogs...)
 
 	// create the logs
 	for _, log := range logs {
@@ -617,7 +638,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	counter++
 
 	// lookup the logs by service
-	for _, log := range logs {
+	for _, log := range serviceLogs {
 		got, err := db.GetLogForService(services[0])
 		if err != nil {
 			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), services[0].GetID(), err)
@@ -629,7 +650,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	counter++
 
 	// lookup the logs by service
-	for _, log := range logs {
+	for _, log := range stepLogs {
 		got, err := db.GetLogForStep(steps[0])
 		if err != nil {
 			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), steps[0].GetID(), err)
@@ -999,9 +1020,35 @@ func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
 
 	one := new(library.Secret)
 	one.SetID(1)
+	one.SetOrg("github")
+	one.SetRepo("octocat")
+	one.SetTeam("")
+	one.SetName("foo")
+	one.SetValue("bar")
+	one.SetType("repo")
+	one.SetImages([]string{"alpine"})
+	one.SetEvents([]string{"push", "tag", "deployment"})
+	one.SetAllowCommand(true)
+	one.SetCreatedAt(time.Now().UTC().Unix())
+	one.SetCreatedBy("octocat")
+	one.SetUpdatedAt(time.Now().UTC().Unix())
+	one.SetUpdatedBy("octokitty")
 
 	two := new(library.Secret)
 	two.SetID(2)
+	two.SetOrg("github")
+	two.SetRepo("octocat")
+	two.SetTeam("")
+	two.SetName("bar")
+	two.SetValue("baz")
+	two.SetType("repo")
+	two.SetImages([]string{"alpine"})
+	two.SetEvents([]string{"push", "tag", "deployment"})
+	two.SetAllowCommand(true)
+	two.SetCreatedAt(time.Now().UTC().Unix())
+	two.SetCreatedBy("octocat")
+	two.SetUpdatedAt(time.Now().UTC().Unix())
+	two.SetUpdatedBy("octokitty")
 
 	secrets := []*library.Secret{one, two}
 
