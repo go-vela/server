@@ -591,14 +591,14 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	serviceLogs := []*library.Log{serviceOne, serviceTwo}
 
 	stepOne := new(library.Log)
-	stepOne.SetID(1)
+	stepOne.SetID(3)
 	stepOne.SetBuildID(1)
 	stepOne.SetRepoID(1)
 	stepOne.SetStepID(1)
 	stepOne.SetData([]byte("foo"))
 
 	stepTwo := new(library.Log)
-	stepTwo.SetID(2)
+	stepTwo.SetID(4)
 	stepTwo.SetBuildID(1)
 	stepTwo.SetRepoID(1)
 	stepTwo.SetStepID(2)
