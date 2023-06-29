@@ -177,6 +177,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	one.SetNumber(1)
 	one.SetName("init")
 	one.SetImage("#init")
+	one.SetStage("init")
 	one.SetStatus("running")
 	one.SetExitCode(0)
 	one.SetCreated(1563474076)
@@ -193,6 +194,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	two.SetNumber(2)
 	two.SetName("clone")
 	two.SetImage("target/vela-git:v0.3.0")
+	two.SetStage("init")
 	two.SetStatus("pending")
 	two.SetExitCode(0)
 	two.SetCreated(1563474086)
@@ -325,6 +327,10 @@ func testUsers(t *testing.T, db Interface) {
 	two.SetActive(true)
 	two.SetAdmin(false)
 
+	liteUsers := []*library.User{
+		{ID: one.ID, Name: one.Name},
+		{ID: two.ID, Name: two.Name},
+	}
 	users := []*library.User{one, two}
 
 	// create the users
@@ -361,11 +367,9 @@ func testUsers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
-	if !reflect.DeepEqual(list, []*library.User{
-		{ID: users[0].ID, Name: users[0].Name},
-		{ID: users[1].ID, Name: users[1].Name},
-	}) {
-		t.Errorf("ListLiteUsers() is %v, want %v", list, users)
+	if !reflect.DeepEqual(list, liteUsers) {
+		pretty.Ldiff(t, list, liteUsers)
+		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
 	if int(count) != len(users) {
 		t.Errorf("ListLiteUsers() is %v, want %v", count, len(users))
