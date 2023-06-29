@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/log"
+
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 
@@ -174,6 +176,76 @@ func TestDatabase_Integration(t *testing.T) {
 			repoTwo.SetPipelineType("")
 			repoTwo.SetPreviousName("")
 
+			serviceOne := new(library.Service)
+			serviceOne.SetID(1)
+			serviceOne.SetBuildID(1)
+			serviceOne.SetRepoID(1)
+			serviceOne.SetNumber(1)
+			serviceOne.SetName("init")
+			serviceOne.SetImage("#init")
+			serviceOne.SetStatus("running")
+			serviceOne.SetError("")
+			serviceOne.SetExitCode(0)
+			serviceOne.SetCreated(1563474076)
+			serviceOne.SetStarted(1563474078)
+			serviceOne.SetFinished(1563474079)
+			serviceOne.SetHost("example.company.com")
+			serviceOne.SetRuntime("docker")
+			serviceOne.SetDistribution("linux")
+
+			serviceTwo := new(library.Service)
+			serviceTwo.SetID(2)
+			serviceTwo.SetBuildID(1)
+			serviceTwo.SetRepoID(1)
+			serviceTwo.SetNumber(2)
+			serviceTwo.SetName("clone")
+			serviceTwo.SetImage("target/vela-git:v0.3.0")
+			serviceTwo.SetStatus("pending")
+			serviceTwo.SetError("")
+			serviceTwo.SetExitCode(0)
+			serviceTwo.SetCreated(1563474086)
+			serviceTwo.SetStarted(1563474088)
+			serviceTwo.SetFinished(1563474089)
+			serviceTwo.SetHost("example.company.com")
+			serviceTwo.SetRuntime("docker")
+			serviceTwo.SetDistribution("linux")
+
+			stepOne := new(library.Step)
+			stepOne.SetID(1)
+			stepOne.SetBuildID(1)
+			stepOne.SetRepoID(1)
+			stepOne.SetNumber(1)
+			stepOne.SetName("init")
+			stepOne.SetImage("#init")
+			stepOne.SetStage("init")
+			stepOne.SetStatus("running")
+			stepOne.SetError("")
+			stepOne.SetExitCode(0)
+			stepOne.SetCreated(1563474076)
+			stepOne.SetStarted(1563474078)
+			stepOne.SetFinished(1563474079)
+			stepOne.SetHost("example.company.com")
+			stepOne.SetRuntime("docker")
+			stepOne.SetDistribution("linux")
+
+			stepTwo := new(library.Step)
+			stepTwo.SetID(2)
+			stepTwo.SetBuildID(1)
+			stepTwo.SetRepoID(1)
+			stepTwo.SetNumber(2)
+			stepTwo.SetName("clone")
+			stepTwo.SetImage("target/vela-git:v0.3.0")
+			stepTwo.SetStage("init")
+			stepTwo.SetStatus("pending")
+			stepTwo.SetError("")
+			stepTwo.SetExitCode(0)
+			stepTwo.SetCreated(1563474086)
+			stepTwo.SetStarted(1563474088)
+			stepTwo.SetFinished(1563474089)
+			stepTwo.SetHost("example.company.com")
+			stepTwo.SetRuntime("docker")
+			stepTwo.SetDistribution("linux")
+
 			db, err := New(
 				WithAddress(test.config.Address),
 				WithCompressionLevel(test.config.CompressionLevel),
@@ -206,12 +278,16 @@ func TestDatabase_Integration(t *testing.T) {
 				testHooks(t, db, []*library.Repo{repoOne, repoTwo})
 			})
 
+			t.Run("test_logs", func(t *testing.T) {
+				testLogs(t, db, []*library.Service{serviceOne, serviceTwo}, []*library.Step{stepOne, stepTwo})
+			})
+
 			t.Run("test_services", func(t *testing.T) {
-				testServices(t, db, []*library.Build{buildOne, buildTwo})
+				testServices(t, db, []*library.Build{buildOne, buildTwo}, []*library.Service{serviceOne, serviceTwo})
 			})
 
 			t.Run("test_steps", func(t *testing.T) {
-				testSteps(t, db, []*library.Build{buildOne, buildTwo})
+				testSteps(t, db, []*library.Build{buildOne, buildTwo}, []*library.Step{stepOne, stepTwo})
 			})
 
 			t.Run("test_users", func(t *testing.T) {
@@ -438,48 +514,116 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 	}
 }
 
-func testServices(t *testing.T, db Interface, builds []*library.Build) {
+func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*library.Step) {
+	// used to track the number of methods we call for logs
+	//
+	// we start at 2 for creating the table and indexes for logs
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Log)
+	one.SetID(1)
+
+	two := new(library.Log)
+	two.SetID(2)
+
+	logs := []*library.Log{one, two}
+
+	// create the logs
+	for _, log := range logs {
+		err := db.CreateLog(log)
+		if err != nil {
+			t.Errorf("unable to create log %d: %v", log.GetID(), err)
+		}
+	}
+	counter++
+
+	// count the logs
+	count, err := db.CountLogs()
+	if err != nil {
+		t.Errorf("unable to count logs: %v", err)
+	}
+	if int(count) != len(logs) {
+		t.Errorf("CountLogs() is %v, want %v", count, len(logs))
+	}
+	counter++
+
+	// list the logs
+	list, err := db.ListLogs()
+	if err != nil {
+		t.Errorf("unable to list logs: %v", err)
+	}
+	if !reflect.DeepEqual(list, logs) {
+		t.Errorf("ListLogs() is %v, want %v", list, logs)
+	}
+	counter++
+
+	// lookup the logs by service
+	for _, log := range logs {
+		got, err := db.GetLogForService(services[0])
+		if err != nil {
+			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), services[0].GetID(), err)
+		}
+		if !reflect.DeepEqual(got, log) {
+			t.Errorf("GetLogForService() is %v, want %v", got, log)
+		}
+	}
+	counter++
+
+	// lookup the logs by service
+	for _, log := range logs {
+		got, err := db.GetLogForStep(steps[0])
+		if err != nil {
+			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), steps[0].GetID(), err)
+		}
+		if !reflect.DeepEqual(got, log) {
+			t.Errorf("GetLogForStep() is %v, want %v", got, log)
+		}
+	}
+	counter++
+
+	// update the logs
+	for _, log := range logs {
+		log.SetData([]byte("bar"))
+		err = db.UpdateLog(log)
+		if err != nil {
+			t.Errorf("unable to update log %d: %v", log.GetID(), err)
+		}
+
+		// lookup the log by ID
+		got, err := db.GetLog(log.GetID())
+		if err != nil {
+			t.Errorf("unable to get log %d by ID: %v", log.GetID(), err)
+		}
+		if !reflect.DeepEqual(got, log) {
+			t.Errorf("GetLog() is %v, want %v", got, log)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the logs
+	for _, log := range logs {
+		err = db.DeleteLog(log)
+		if err != nil {
+			t.Errorf("unable to delete log %d: %v", log.GetID(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(log.LogInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func testServices(t *testing.T, db Interface, builds []*library.Build, services []*library.Service) {
 	// used to track the number of methods we call for services
 	//
 	// we start at 2 for creating the table and indexes for services
 	// since those are already called when the database engine starts
 	counter := 2
-
-	one := new(library.Service)
-	one.SetID(1)
-	one.SetBuildID(1)
-	one.SetRepoID(1)
-	one.SetNumber(1)
-	one.SetName("init")
-	one.SetImage("#init")
-	one.SetStatus("running")
-	one.SetError("")
-	one.SetExitCode(0)
-	one.SetCreated(1563474076)
-	one.SetStarted(1563474078)
-	one.SetFinished(1563474079)
-	one.SetHost("example.company.com")
-	one.SetRuntime("docker")
-	one.SetDistribution("linux")
-
-	two := new(library.Service)
-	two.SetID(2)
-	two.SetBuildID(1)
-	two.SetRepoID(1)
-	two.SetNumber(2)
-	two.SetName("clone")
-	two.SetImage("target/vela-git:v0.3.0")
-	two.SetStatus("pending")
-	two.SetError("")
-	two.SetExitCode(0)
-	two.SetCreated(1563474086)
-	two.SetStarted(1563474088)
-	two.SetFinished(1563474089)
-	two.SetHost("example.company.com")
-	two.SetRuntime("docker")
-	two.SetDistribution("linux")
-
-	services := []*library.Service{one, two}
 
 	// create the services
 	for _, service := range services {
@@ -525,8 +669,8 @@ func testServices(t *testing.T, db Interface, builds []*library.Build) {
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Service{two, one}) {
-		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{two, one})
+	if !reflect.DeepEqual(list, []*library.Service{services[1], services[0]}) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{services[1], services[0]})
 	}
 	if int(count) != len(services) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(services))
@@ -610,50 +754,12 @@ func testServices(t *testing.T, db Interface, builds []*library.Build) {
 	}
 }
 
-func testSteps(t *testing.T, db Interface, builds []*library.Build) {
+func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*library.Step) {
 	// used to track the number of methods we call for steps
 	//
 	// we start at 2 for creating the table and indexes for steps
 	// since those are already called when the database engine starts
 	counter := 2
-
-	one := new(library.Step)
-	one.SetID(1)
-	one.SetBuildID(1)
-	one.SetRepoID(1)
-	one.SetNumber(1)
-	one.SetName("init")
-	one.SetImage("#init")
-	one.SetStage("init")
-	one.SetStatus("running")
-	one.SetError("")
-	one.SetExitCode(0)
-	one.SetCreated(1563474076)
-	one.SetStarted(1563474078)
-	one.SetFinished(1563474079)
-	one.SetHost("example.company.com")
-	one.SetRuntime("docker")
-	one.SetDistribution("linux")
-
-	two := new(library.Step)
-	two.SetID(2)
-	two.SetBuildID(1)
-	two.SetRepoID(1)
-	two.SetNumber(2)
-	two.SetName("clone")
-	two.SetImage("target/vela-git:v0.3.0")
-	two.SetStage("init")
-	two.SetStatus("pending")
-	two.SetError("")
-	two.SetExitCode(0)
-	two.SetCreated(1563474086)
-	two.SetStarted(1563474088)
-	two.SetFinished(1563474089)
-	two.SetHost("example.company.com")
-	two.SetRuntime("docker")
-	two.SetDistribution("linux")
-
-	steps := []*library.Step{one, two}
 
 	// create the steps
 	for _, step := range steps {
@@ -699,8 +805,8 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Step{two, one}) {
-		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{two, one})
+	if !reflect.DeepEqual(list, []*library.Step{steps[1], steps[0]}) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{steps[1], steps[0]})
 	}
 	if int(count) != len(steps) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(steps))
