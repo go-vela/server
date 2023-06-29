@@ -247,7 +247,17 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 		t.Errorf("unable to count builds: %v", err)
 	}
 	if int(count) != len(builds) {
-		t.Errorf("CountBuilds() is %v, want 2", count)
+		t.Errorf("CountBuilds() is %v, want %v", count, len(builds))
+	}
+	counter++
+
+	// count the builds for a repo
+	count, err = db.CountBuildsForRepo(repos[0], nil)
+	if err != nil {
+		t.Errorf("unable to count builds for repo %s: %v", repos[0].GetFullName(), err)
+	}
+	if int(count) != len(builds) {
+		t.Errorf("CountBuildsForRepo() is %v, want %v", count, len(builds))
 	}
 	counter++
 
@@ -257,7 +267,19 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 		t.Errorf("unable to list builds: %v", err)
 	}
 	if !reflect.DeepEqual(list, builds) {
+		pretty.Ldiff(t, list, builds)
 		t.Errorf("ListBuilds() is %v, want %v", list, builds)
+	}
+	counter++
+
+	// list the builds for a repo
+	list, count, err = db.ListBuildsForRepo(repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list builds for repo %s: %v", repos[0].GetFullName(), err)
+	}
+	if !reflect.DeepEqual(list, builds) {
+		pretty.Ldiff(t, list, builds)
+		t.Errorf("ListBuildsForRepo() is %v, want %v", list, builds)
 	}
 	counter++
 
@@ -377,7 +399,7 @@ func testServices(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to count services: %v", err)
 	}
 	if int(count) != len(services) {
-		t.Errorf("CountServices() is %v, want 2", count)
+		t.Errorf("CountServices() is %v, want %v", count, len(services))
 	}
 	counter++
 
@@ -551,7 +573,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to count steps: %v", err)
 	}
 	if int(count) != len(steps) {
-		t.Errorf("CountSteps() is %v, want 2", count)
+		t.Errorf("CountSteps() is %v, want %v", count, len(steps))
 	}
 	counter++
 
@@ -700,7 +722,7 @@ func testUsers(t *testing.T, db Interface) {
 	liteOne.SetToken("")
 	liteOne.SetRefreshToken("")
 	liteOne.SetHash("")
-	liteOne.SetFavorites(nil)
+	liteOne.SetFavorites([]string{})
 	liteOne.SetActive(false)
 	liteOne.SetAdmin(false)
 
@@ -710,7 +732,7 @@ func testUsers(t *testing.T, db Interface) {
 	liteTwo.SetToken("")
 	liteTwo.SetRefreshToken("")
 	liteTwo.SetHash("")
-	liteTwo.SetFavorites(nil)
+	liteTwo.SetFavorites([]string{})
 	liteTwo.SetActive(false)
 	liteTwo.SetAdmin(false)
 
