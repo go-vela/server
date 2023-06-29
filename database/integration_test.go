@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/user"
+
 	"github.com/go-vela/server/database/worker"
 
 	"github.com/go-vela/types/library"
@@ -71,6 +73,10 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
+			t.Run("test_users", func(t *testing.T) {
+				testUsers(t, db)
+			})
+
 			t.Run("test_workers", func(t *testing.T) {
 				testWorkers(t, db)
 			})
@@ -80,6 +86,125 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to close database engine for %s: %v", test.name, err)
 			}
 		})
+	}
+}
+
+func testUsers(t *testing.T, db Interface) {
+	// used to track the number of methods we call for users
+	counter := 0
+
+	one := new(library.User)
+	one.SetID(1)
+	one.SetName("octocat")
+	one.SetToken("superSecretToken")
+	one.SetRefreshToken("superSecretRefreshToken")
+	one.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	one.SetFavorites([]string{"github/octocat"})
+	one.SetActive(true)
+	one.SetAdmin(false)
+
+	two := new(library.User)
+	two.SetID(2)
+	two.SetName("octocat")
+	two.SetToken("superSecretToken")
+	two.SetRefreshToken("superSecretRefreshToken")
+	two.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	two.SetFavorites([]string{"github/octocat"})
+	two.SetActive(true)
+	two.SetAdmin(false)
+
+	users := []*library.User{one, two}
+
+	// create the users
+	for _, user := range users {
+		err := db.CreateUser(user)
+		if err != nil {
+			t.Errorf("unable to create user %s: %v", user.GetName(), err)
+		}
+	}
+	counter++
+
+	// count the users
+	count, err := db.CountUsers()
+	if err != nil {
+		t.Errorf("unable to count users: %v", err)
+	}
+	if int(count) != len(users) {
+		t.Errorf("CountUsers() is %v, want 2", count)
+	}
+	counter++
+
+	// list the users
+	list, err := db.ListUsers()
+	if err != nil {
+		t.Errorf("unable to list users: %v", err)
+	}
+	if !reflect.DeepEqual(list, users) {
+		t.Errorf("ListUsers() is %v, want %v", list, users)
+	}
+	counter++
+
+	// list the users
+	lite, count, err := db.ListLiteUsers(1, 10)
+	if err != nil {
+		t.Errorf("unable to list lite users: %v", err)
+	}
+	if !reflect.DeepEqual(lite, users) {
+		t.Errorf("ListLiteUsers() is %v, want %v", list, users)
+	}
+	if int(count) != len(users) {
+		t.Errorf("ListLiteUsers() is %v, want %v", count, len(users))
+	}
+	counter++
+
+	// lookup the users by name
+	for _, user := range users {
+		got, err := db.GetUserForName(user.GetName())
+		if err != nil {
+			t.Errorf("unable to get user %s by hostname: %v", user.GetName(), err)
+		}
+		if !reflect.DeepEqual(got, user) {
+			t.Errorf("GetUserForName() is %v, want %v", got, user)
+		}
+	}
+	counter++
+
+	// update the users
+	for _, user := range users {
+		user.SetActive(false)
+		err = db.UpdateUser(user)
+		if err != nil {
+			t.Errorf("unable to update user %s: %v", user.GetName(), err)
+		}
+
+		// lookup the user by ID
+		got, err := db.GetUser(user.GetID())
+		if err != nil {
+			t.Errorf("unable to get user %s by ID: %v", user.GetName(), err)
+		}
+		if !reflect.DeepEqual(got, user) {
+			t.Errorf("GetUser() is %v, want %v", got, user)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the users
+	for _, user := range users {
+		err = db.DeleteUser(user)
+		if err != nil {
+			t.Errorf("unable to delete user %s: %v", user.GetName(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	//
+	// we subtract 2 for creating the table and indexes for users
+	// since those are already called when the database engine starts
+	methods := reflect.TypeOf(new(user.UserInterface)).Elem().NumMethod() - 2
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
 }
 
@@ -132,7 +257,7 @@ func testWorkers(t *testing.T, db Interface) {
 		t.Errorf("unable to count workers: %v", err)
 	}
 	if int(count) != len(workers) {
-		t.Errorf("CountWorkers() is %v, want 2", count)
+		t.Errorf("CountWorkers() is %v, want %v", count, len(workers))
 	}
 	counter++
 
