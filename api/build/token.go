@@ -83,6 +83,9 @@ func GetBuildToken(c *gin.Context) {
 		"user":  cl.Subject,
 	}).Infof("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
 
+	fmt.Println("EASTON THIS IS THE BUILD WE COMPARE STATUS TO")
+	fmt.Println(b.GetStatus())
+	fmt.Println(b.GetNumber())
 	// if build is not in a pending state, then a build token should not be needed - conflict
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {
 		retErr := fmt.Errorf("unable to mint build token: build is not in pending state")

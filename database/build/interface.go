@@ -58,6 +58,7 @@ type BuildInterface interface {
 	ListBuildsForRepo(*library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(string) ([]*library.BuildQueue, error)
+	ListPendingAndRunningBuildsForRepo(*library.Repo) ([]*library.Build, error)
 	// UpdateBuild defines a function that updates an existing build.
 	UpdateBuild(*library.Build) (*library.Build, error)
 }
