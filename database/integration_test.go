@@ -248,7 +248,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	for _, step := range steps {
 		got, err := db.GetStepForBuild(builds[0], step.GetNumber())
 		if err != nil {
-			t.Errorf("unable to get step %s for build %d: %v", builds[0].GetID(), err)
+			t.Errorf("unable to get step %s for build %d: %v", step.GetName(), builds[0].GetID(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
