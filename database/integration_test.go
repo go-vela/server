@@ -394,7 +394,7 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 
 	// lookup the builds by repo and number
 	for _, build := range builds {
-		got, err = db.GetBuildForRepo(repos[build.GetRepoID()], build.GetNumber())
+		got, err = db.GetBuildForRepo(repos[build.GetRepoID()-1], build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %s: %v", build.GetID(), repos[0].GetFullName(), err)
 		}
@@ -634,7 +634,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 
 	// lookup the logs by service
 	for _, log := range serviceLogs {
-		got, err := db.GetLogForService(services[log.GetServiceID()])
+		got, err := db.GetLogForService(services[log.GetServiceID()-1])
 		if err != nil {
 			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), services[0].GetID(), err)
 		}
@@ -646,7 +646,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 
 	// lookup the logs by service
 	for _, log := range stepLogs {
-		got, err := db.GetLogForStep(steps[log.GetStepID()])
+		got, err := db.GetLogForStep(steps[log.GetStepID()-1])
 		if err != nil {
 			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), steps[0].GetID(), err)
 		}
