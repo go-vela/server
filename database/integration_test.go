@@ -581,6 +581,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	serviceOne.SetBuildID(1)
 	serviceOne.SetRepoID(1)
 	serviceOne.SetServiceID(1)
+	serviceOne.SetStepID(0)
 	serviceOne.SetData([]byte("foo"))
 
 	serviceTwo := new(library.Log)
@@ -588,6 +589,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	serviceTwo.SetBuildID(1)
 	serviceTwo.SetRepoID(1)
 	serviceTwo.SetServiceID(2)
+	serviceTwo.SetStepID(0)
 	serviceTwo.SetData([]byte("foo"))
 
 	serviceLogs := []*library.Log{serviceOne, serviceTwo}
@@ -596,6 +598,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	stepOne.SetID(3)
 	stepOne.SetBuildID(1)
 	stepOne.SetRepoID(1)
+	stepOne.SetServiceID(0)
 	stepOne.SetStepID(1)
 	stepOne.SetData([]byte("foo"))
 
@@ -603,6 +606,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	stepTwo.SetID(4)
 	stepTwo.SetBuildID(1)
 	stepTwo.SetRepoID(1)
+	stepTwo.SetServiceID(0)
 	stepTwo.SetStepID(2)
 	stepTwo.SetData([]byte("foo"))
 
@@ -917,9 +921,9 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	one.SetName("nightly")
 	one.SetEntry("0 0 * * *")
 	one.SetCreatedAt(time.Now().UTC().Unix())
-	one.SetCreatedBy("user1")
+	one.SetCreatedBy("octocat")
 	one.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
-	one.SetUpdatedBy("user2")
+	one.SetUpdatedBy("octokitty")
 	one.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 
 	two := new(library.Schedule)
@@ -929,9 +933,9 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	two.SetName("hourly")
 	two.SetEntry("0 * * * *")
 	two.SetCreatedAt(time.Now().UTC().Unix())
-	two.SetCreatedBy("user1")
+	two.SetCreatedBy("octocat")
 	two.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
-	two.SetUpdatedBy("user2")
+	two.SetUpdatedBy("octokitty")
 	two.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 
 	schedules := []*library.Schedule{one, two}
