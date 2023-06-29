@@ -11,10 +11,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/types/raw"
+
+	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
-
 	"github.com/go-vela/server/database/worker"
-
 	"github.com/go-vela/types/library"
 )
 
@@ -51,6 +52,71 @@ func TestDatabase_Integration(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			// create resources for testing
+			buildOne := new(library.Build)
+			buildOne.SetID(1)
+			buildOne.SetRepoID(1)
+			buildOne.SetPipelineID(1)
+			buildOne.SetNumber(1)
+			buildOne.SetParent(1)
+			buildOne.SetEvent("push")
+			buildOne.SetStatus("running")
+			buildOne.SetError("")
+			buildOne.SetEnqueued(1563474077)
+			buildOne.SetCreated(1563474076)
+			buildOne.SetStarted(1563474078)
+			buildOne.SetFinished(1563474079)
+			buildOne.SetDeploy("")
+			buildOne.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
+			buildOne.SetClone("https://github.com/github/octocat.git")
+			buildOne.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135163")
+			buildOne.SetTitle("push received from https://github.com/github/octocat")
+			buildOne.SetMessage("First commit...")
+			buildOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+			buildOne.SetSender("OctoKitty")
+			buildOne.SetAuthor("OctoKitty")
+			buildOne.SetEmail("OctoKitty@github.com")
+			buildOne.SetLink("https://example.company.com/github/octocat/1")
+			buildOne.SetBranch("master")
+			buildOne.SetRef("refs/heads/master")
+			buildOne.SetBaseRef("")
+			buildOne.SetHeadRef("changes")
+			buildOne.SetHost("example.company.com")
+			buildOne.SetRuntime("docker")
+			buildOne.SetDistribution("linux")
+
+			buildTwo := new(library.Build)
+			buildTwo.SetID(2)
+			buildTwo.SetRepoID(1)
+			buildTwo.SetPipelineID(1)
+			buildTwo.SetNumber(2)
+			buildTwo.SetParent(1)
+			buildTwo.SetEvent("pull_request")
+			buildTwo.SetStatus("running")
+			buildTwo.SetError("")
+			buildTwo.SetEnqueued(1563474077)
+			buildTwo.SetCreated(1563474076)
+			buildTwo.SetStarted(1563474078)
+			buildTwo.SetFinished(1563474079)
+			buildTwo.SetDeploy("")
+			buildTwo.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
+			buildTwo.SetClone("https://github.com/github/octocat.git")
+			buildTwo.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135164")
+			buildTwo.SetTitle("pull_request received from https://github.com/github/octocat")
+			buildTwo.SetMessage("Second commit...")
+			buildTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
+			buildTwo.SetSender("OctoKitty")
+			buildTwo.SetAuthor("OctoKitty")
+			buildTwo.SetEmail("OctoKitty@github.com")
+			buildTwo.SetLink("https://example.company.com/github/octocat/2")
+			buildTwo.SetBranch("master")
+			buildTwo.SetRef("refs/heads/master")
+			buildTwo.SetBaseRef("")
+			buildTwo.SetHeadRef("changes")
+			buildTwo.SetHost("example.company.com")
+			buildTwo.SetRuntime("docker")
+			buildTwo.SetDistribution("linux")
+
 			db, err := New(
 				WithAddress(test.config.Address),
 				WithCompressionLevel(test.config.CompressionLevel),
@@ -75,6 +141,10 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
+			t.Run("test_steps", func(t *testing.T) {
+				testSteps(t, db, []*library.Build{buildOne, buildTwo})
+			})
+
 			t.Run("test_users", func(t *testing.T) {
 				testUsers(t, db)
 			})
@@ -88,6 +158,137 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to close database engine for %s: %v", test.name, err)
 			}
 		})
+	}
+}
+
+func testSteps(t *testing.T, db Interface, builds []*library.Build) {
+	// used to track the number of methods we call for steps
+	//
+	// we start at 2 for creating the table and indexes for steps
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Step)
+	one.SetID(1)
+	one.SetBuildID(1)
+	one.SetRepoID(1)
+	one.SetNumber(1)
+	one.SetName("init")
+	one.SetImage("#init")
+	one.SetStatus("running")
+	one.SetExitCode(0)
+	one.SetCreated(1563474076)
+	one.SetStarted(1563474078)
+	one.SetFinished(1563474079)
+	one.SetHost("example.company.com")
+	one.SetRuntime("docker")
+	one.SetDistribution("linux")
+
+	two := new(library.Step)
+	two.SetID(2)
+	two.SetBuildID(1)
+	two.SetRepoID(1)
+	two.SetNumber(2)
+	two.SetName("clone")
+	two.SetImage("target/vela-git:v0.3.0")
+	two.SetStatus("pending")
+	two.SetExitCode(0)
+	two.SetCreated(1563474077)
+	two.SetStarted(0)
+	two.SetFinished(0)
+	two.SetHost("example.company.com")
+	two.SetRuntime("docker")
+	two.SetDistribution("linux")
+
+	steps := []*library.Step{one, two}
+
+	// create the steps
+	for _, step := range steps {
+		err := db.CreateStep(step)
+		if err != nil {
+			t.Errorf("unable to create step %s: %v", step.GetName(), err)
+		}
+	}
+	counter++
+
+	// count the steps
+	count, err := db.CountSteps()
+	if err != nil {
+		t.Errorf("unable to count steps: %v", err)
+	}
+	if int(count) != len(steps) {
+		t.Errorf("CountSteps() is %v, want 2", count)
+	}
+	counter++
+
+	// list the steps
+	list, err := db.ListSteps()
+	if err != nil {
+		t.Errorf("unable to list steps: %v", err)
+	}
+	if !reflect.DeepEqual(list, steps) {
+		t.Errorf("ListSteps() is %v, want %v", list, steps)
+	}
+	counter++
+
+	// list the steps for a build
+	list, count, err = db.ListStepsForBuild(builds[0], nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list steps for build: %v", err)
+	}
+	if !reflect.DeepEqual(list, steps) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", list, steps)
+	}
+	if int(count) != len(steps) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(steps))
+	}
+	counter++
+
+	// lookup the steps by name
+	for _, step := range steps {
+		got, err := db.GetStepForBuild(builds[0], step.GetNumber())
+		if err != nil {
+			t.Errorf("unable to get step %s for build %d: %v", builds[0].GetID(), err)
+		}
+		if !reflect.DeepEqual(got, step) {
+			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
+		}
+	}
+	counter++
+
+	// update the steps
+	for _, step := range steps {
+		step.SetStatus("success")
+		err = db.UpdateStep(step)
+		if err != nil {
+			t.Errorf("unable to update step %s: %v", step.GetName(), err)
+		}
+
+		// lookup the step by ID
+		got, err := db.GetStep(step.GetID())
+		if err != nil {
+			t.Errorf("unable to get step %s by ID: %v", step.GetName(), err)
+		}
+		if !reflect.DeepEqual(got, step) {
+			t.Errorf("GetStep() is %v, want %v", got, step)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the steps
+	for _, step := range steps {
+		err = db.DeleteStep(step)
+		if err != nil {
+			t.Errorf("unable to delete step %s: %v", step.GetName(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(step.StepInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
 }
 
@@ -149,12 +350,12 @@ func testUsers(t *testing.T, db Interface) {
 	}
 	counter++
 
-	// list the users
-	lite, count, err := db.ListLiteUsers(1, 10)
+	// lite list the users
+	list, count, err = db.ListLiteUsers(1, 10)
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
-	if !reflect.DeepEqual(lite, users) {
+	if !reflect.DeepEqual(list, users) {
 		t.Errorf("ListLiteUsers() is %v, want %v", list, users)
 	}
 	if int(count) != len(users) {
@@ -166,7 +367,7 @@ func testUsers(t *testing.T, db Interface) {
 	for _, user := range users {
 		got, err := db.GetUserForName(user.GetName())
 		if err != nil {
-			t.Errorf("unable to get user %s by hostname: %v", user.GetName(), err)
+			t.Errorf("unable to get user %s by name: %v", user.GetName(), err)
 		}
 		if !reflect.DeepEqual(got, user) {
 			t.Errorf("GetUserForName() is %v, want %v", got, user)
