@@ -107,7 +107,7 @@ type Service interface {
 	Status(*library.User, *library.Build, string, string) error
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
-	ListUserRepos(*library.User) ([]*library.Repo, error)
+	ListUserRepos(context.Context, *library.User) ([]*library.Repo, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
 	GetBranch(*library.User, *library.Repo) (string, string, error)

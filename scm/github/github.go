@@ -167,7 +167,7 @@ func (c *client) newClientToken(ctx context.Context, token string) *github.Clien
 	tc.Transport = otelhttp.NewTransport(
 		tc.Transport,
 		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
-			return otelhttptrace.NewClientTrace(ctx)
+			return otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans())
 		}),
 	)
 

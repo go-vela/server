@@ -7,6 +7,7 @@ package github
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/otel/trace"
 	"net/http"
 	"strconv"
 	"strings"
@@ -411,13 +412,15 @@ func (c *client) GetOrgAndRepoName(u *library.User, o string, r string) (string,
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
+func (c *client) ListUserRepos(ctx context.Context, u *library.User) ([]*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
-		"user": u.GetName(),
+		"user":     u.GetName(),
+		"span_id":  trace.SpanFromContext(ctx).SpanContext().SpanID(),
+		"trace_id": trace.SpanFromContext(ctx).SpanContext().TraceID(),
 	}).Tracef("listing source repositories for %s", u.GetName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(context.TODO(), u.GetToken())
+	client := c.newClientToken(ctx, u.GetToken())
 
 	r := []*github.Repository{}
 	f := []*library.Repo{}
