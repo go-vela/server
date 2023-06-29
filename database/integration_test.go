@@ -700,7 +700,7 @@ func testUsers(t *testing.T, db Interface) {
 	liteOne.SetToken("")
 	liteOne.SetRefreshToken("")
 	liteOne.SetHash("")
-	liteOne.SetFavorites([]string{})
+	liteOne.SetFavorites(nil)
 	liteOne.SetActive(false)
 	liteOne.SetAdmin(false)
 
@@ -710,7 +710,7 @@ func testUsers(t *testing.T, db Interface) {
 	liteTwo.SetToken("")
 	liteTwo.SetRefreshToken("")
 	liteTwo.SetHash("")
-	liteTwo.SetFavorites([]string{})
+	liteTwo.SetFavorites(nil)
 	liteTwo.SetActive(false)
 	liteTwo.SetAdmin(false)
 
