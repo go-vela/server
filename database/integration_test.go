@@ -179,6 +179,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	one.SetImage("#init")
 	one.SetStage("init")
 	one.SetStatus("running")
+	one.SetError("")
 	one.SetExitCode(0)
 	one.SetCreated(1563474076)
 	one.SetStarted(1563474078)
@@ -196,6 +197,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	two.SetImage("target/vela-git:v0.3.0")
 	two.SetStage("init")
 	two.SetStatus("pending")
+	two.SetError("")
 	two.SetExitCode(0)
 	two.SetCreated(1563474086)
 	two.SetStarted(1563474088)
@@ -327,11 +329,29 @@ func testUsers(t *testing.T, db Interface) {
 	two.SetActive(true)
 	two.SetAdmin(false)
 
-	liteUsers := []*library.User{
-		{ID: one.ID, Name: one.Name},
-		{ID: two.ID, Name: two.Name},
-	}
 	users := []*library.User{one, two}
+
+	liteOne := new(library.User)
+	liteOne.SetID(1)
+	liteOne.SetName("octocat")
+	liteOne.SetToken("")
+	liteOne.SetRefreshToken("")
+	liteOne.SetHash("")
+	liteOne.SetFavorites([]string{})
+	liteOne.SetActive(false)
+	liteOne.SetAdmin(false)
+
+	liteTwo := new(library.User)
+	liteTwo.SetID(2)
+	liteTwo.SetName("octokitty")
+	liteTwo.SetToken("")
+	liteTwo.SetRefreshToken("")
+	liteTwo.SetHash("")
+	liteTwo.SetFavorites([]string{})
+	liteTwo.SetActive(false)
+	liteTwo.SetAdmin(false)
+
+	liteUsers := []*library.User{liteOne, liteTwo}
 
 	// create the users
 	for _, user := range users {
@@ -368,7 +388,6 @@ func testUsers(t *testing.T, db Interface) {
 		t.Errorf("unable to list lite users: %v", err)
 	}
 	if !reflect.DeepEqual(list, liteUsers) {
-		pretty.Ldiff(t, list, liteUsers)
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
 	if int(count) != len(users) {
