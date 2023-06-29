@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/repo"
+
 	"github.com/go-vela/server/database/pipeline"
 
 	"github.com/go-vela/server/database/log"
@@ -286,6 +288,10 @@ func TestDatabase_Integration(t *testing.T) {
 
 			t.Run("test_pipelines", func(t *testing.T) {
 				testPipelines(t, db, []*library.Repo{repoOne, repoTwo})
+			})
+
+			t.Run("test_repos", func(t *testing.T) {
+				testRepos(t, db, []*library.Repo{repoOne, repoTwo})
 			})
 
 			t.Run("test_services", func(t *testing.T) {
@@ -711,6 +717,90 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 
 	// ensure we called all the functions we should have
 	methods := reflect.TypeOf(new(pipeline.PipelineInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
+	// used to track the number of methods we call for repos
+	//
+	// we start at 2 for creating the table and indexes for repos
+	// since those are already called when the database engine starts
+	counter := 2
+
+	// create the repos
+	for _, repo := range repos {
+		err := db.CreateRepo(repo)
+		if err != nil {
+			t.Errorf("unable to create repo %s: %v", repo.GetFullName(), err)
+		}
+	}
+	counter++
+
+	// count the repos
+	count, err := db.CountRepos()
+	if err != nil {
+		t.Errorf("unable to count repos: %v", err)
+	}
+	if int(count) != len(repos) {
+		t.Errorf("CountRepos() is %v, want %v", count, len(repos))
+	}
+	counter++
+
+	// list the repos
+	list, err := db.ListRepos()
+	if err != nil {
+		t.Errorf("unable to list repos: %v", err)
+	}
+	if !reflect.DeepEqual(list, repos) {
+		t.Errorf("ListRepos() is %v, want %v", list, repos)
+	}
+	counter++
+
+	// lookup the repos by name
+	for _, repo := range repos {
+		got, err := db.GetRepoForOrg(repo.GetOrg(), repo.GetName())
+		if err != nil {
+			t.Errorf("unable to get repo %s by org: %v", repo.GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, repo) {
+			t.Errorf("GetRepoForOrg() is %v, want %v", got, repo)
+		}
+	}
+	counter++
+
+	// update the repos
+	for _, repo := range repos {
+		repo.SetActive(false)
+		err = db.UpdateRepo(repo)
+		if err != nil {
+			t.Errorf("unable to update repo %s: %v", repo.GetFullName(), err)
+		}
+
+		// lookup the repo by ID
+		got, err := db.GetRepo(repo.GetID())
+		if err != nil {
+			t.Errorf("unable to get repo %s by ID: %v", repo.GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, repo) {
+			t.Errorf("GetRepo() is %v, want %v", got, repo)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the repos
+	for _, repo := range repos {
+		err = db.DeleteRepo(repo)
+		if err != nil {
+			t.Errorf("unable to delete repo %s: %v", repo.GetFullName(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(repo.RepoInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
