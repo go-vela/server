@@ -11,6 +11,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/build"
+
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/go-vela/server/database/service"
 
 	"github.com/kr/pretty"
@@ -121,6 +125,54 @@ func TestDatabase_Integration(t *testing.T) {
 			buildTwo.SetRuntime("docker")
 			buildTwo.SetDistribution("linux")
 
+			repoOne := new(library.Repo)
+			repoOne.SetID(1)
+			repoOne.SetOrg("github")
+			repoOne.SetName("octocat")
+			repoOne.SetFullName("github/octocat")
+			repoOne.SetLink("https://github.com/github/octocat")
+			repoOne.SetClone("https://github.com/github/octocat.git")
+			repoOne.SetBranch("main")
+			repoOne.SetTopics([]string{"cloud", "security"})
+			repoOne.SetBuildLimit(10)
+			repoOne.SetTimeout(30)
+			repoOne.SetCounter(0)
+			repoOne.SetVisibility("public")
+			repoOne.SetPrivate(false)
+			repoOne.SetTrusted(false)
+			repoOne.SetActive(true)
+			repoOne.SetAllowPull(false)
+			repoOne.SetAllowPush(true)
+			repoOne.SetAllowDeploy(false)
+			repoOne.SetAllowTag(false)
+			repoOne.SetAllowComment(false)
+			repoOne.SetPipelineType("")
+			repoOne.SetPreviousName("")
+
+			repoTwo := new(library.Repo)
+			repoTwo.SetID(2)
+			repoTwo.SetOrg("github")
+			repoTwo.SetName("octokitty")
+			repoTwo.SetFullName("github/octokitty")
+			repoTwo.SetLink("https://github.com/github/octokitty")
+			repoTwo.SetClone("https://github.com/github/octokitty.git")
+			repoTwo.SetBranch("master")
+			repoTwo.SetTopics([]string{"cloud", "security"})
+			repoTwo.SetBuildLimit(10)
+			repoTwo.SetTimeout(30)
+			repoTwo.SetCounter(0)
+			repoTwo.SetVisibility("public")
+			repoTwo.SetPrivate(false)
+			repoTwo.SetTrusted(false)
+			repoTwo.SetActive(true)
+			repoTwo.SetAllowPull(false)
+			repoTwo.SetAllowPush(true)
+			repoTwo.SetAllowDeploy(false)
+			repoTwo.SetAllowTag(false)
+			repoTwo.SetAllowComment(false)
+			repoTwo.SetPipelineType("")
+			repoTwo.SetPreviousName("")
+
 			db, err := New(
 				WithAddress(test.config.Address),
 				WithCompressionLevel(test.config.CompressionLevel),
@@ -145,6 +197,10 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
+			t.Run("test_build", func(t *testing.T) {
+				testBuilds(t, db, []*library.Build{buildOne, buildTwo}, []*library.Repo{repoOne, repoTwo})
+			})
+
 			t.Run("test_services", func(t *testing.T) {
 				testServices(t, db, []*library.Build{buildOne, buildTwo})
 			})
@@ -166,6 +222,100 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to close database engine for %s: %v", test.name, err)
 			}
 		})
+	}
+}
+
+func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*library.Repo) {
+	// used to track the number of methods we call for builds
+	//
+	// we start at 2 for creating the table and indexes for builds
+	// since those are already called when the database engine starts
+	counter := 2
+
+	// create the builds
+	for _, build := range builds {
+		_, err := db.CreateBuild(build)
+		if err != nil {
+			t.Errorf("unable to create build %d: %v", build.GetID(), err)
+		}
+	}
+	counter++
+
+	// count the builds
+	count, err := db.CountBuilds()
+	if err != nil {
+		t.Errorf("unable to count builds: %v", err)
+	}
+	if int(count) != len(builds) {
+		t.Errorf("CountBuilds() is %v, want 2", count)
+	}
+	counter++
+
+	// list the builds
+	list, err := db.ListBuilds()
+	if err != nil {
+		t.Errorf("unable to list builds: %v", err)
+	}
+	if !reflect.DeepEqual(list, builds) {
+		t.Errorf("ListBuilds() is %v, want %v", list, builds)
+	}
+	counter++
+
+	// lookup the last build by repo
+	got, err := db.LastBuildForRepo(repos[0], "main")
+	if err != nil {
+		t.Errorf("unable to get last build for repo %s: %v", repos[0].GetFullName(), err)
+	}
+	if !reflect.DeepEqual(got, builds[1]) {
+		t.Errorf("GetBuildForRepo() is %v, want %v", got, builds[1])
+	}
+	counter++
+
+	// lookup the builds by repo and number
+	for _, build := range builds {
+		got, err = db.GetBuildForRepo(repos[0], build.GetNumber())
+		if err != nil {
+			t.Errorf("unable to get build %d for repo %s: %v", build.GetID(), repos[0].GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, build) {
+			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
+		}
+	}
+	counter++
+
+	// update the builds
+	for _, build := range builds {
+		build.SetStatus("success")
+		_, err = db.UpdateBuild(build)
+		if err != nil {
+			t.Errorf("unable to update build %d: %v", build.GetID(), err)
+		}
+
+		// lookup the build by ID
+		got, err = db.GetBuild(build.GetID())
+		if err != nil {
+			t.Errorf("unable to get build %d by ID: %v", build.GetID(), err)
+		}
+		if !reflect.DeepEqual(got, build) {
+			t.Errorf("GetBuild() is %v, want %v", got, build)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the builds
+	for _, build := range builds {
+		err = db.DeleteBuild(build)
+		if err != nil {
+			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(build.BuildInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
 }
 
@@ -602,6 +752,9 @@ func testUsers(t *testing.T, db Interface) {
 	}
 	if !reflect.DeepEqual(list, liteUsers) {
 		pretty.Ldiff(t, list, liteUsers)
+		if diff := cmp.Diff(list, liteUsers); diff != "" {
+			t.Errorf("ListLiteUsers() mismatch (-want +got):\n%s", diff)
+		}
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
 	if int(count) != len(users) {
