@@ -11,31 +11,21 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/server/database/secret"
-
-	"github.com/go-vela/server/database/schedule"
-
-	"github.com/go-vela/server/database/repo"
-
-	"github.com/go-vela/server/database/pipeline"
-
-	"github.com/go-vela/server/database/log"
-
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
-
-	"github.com/google/go-cmp/cmp"
-
+	"github.com/go-vela/server/database/log"
+	"github.com/go-vela/server/database/pipeline"
+	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/schedule"
+	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
-
-	"github.com/kr/pretty"
-
-	"github.com/go-vela/types/raw"
-
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
+	"github.com/google/go-cmp/cmp"
+	"github.com/kr/pretty"
 )
 
 func TestDatabase_Integration(t *testing.T) {
@@ -404,12 +394,11 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 
 	// lookup the builds by repo and number
 	for _, build := range builds {
-		got, err = db.GetBuildForRepo(repos[0], build.GetNumber())
+		got, err = db.GetBuildForRepo(repos[build.GetRepoID()], build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %s: %v", build.GetID(), repos[0].GetFullName(), err)
 		}
 		if !reflect.DeepEqual(got, build) {
-			pretty.Ldiff(t, got, build)
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
 		}
 	}
@@ -645,7 +634,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 
 	// lookup the logs by service
 	for _, log := range serviceLogs {
-		got, err := db.GetLogForService(services[0])
+		got, err := db.GetLogForService(services[log.GetServiceID()])
 		if err != nil {
 			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), services[0].GetID(), err)
 		}
@@ -657,7 +646,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 
 	// lookup the logs by service
 	for _, log := range stepLogs {
-		got, err := db.GetLogForStep(steps[0])
+		got, err := db.GetLogForStep(steps[log.GetStepID()])
 		if err != nil {
 			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), steps[0].GetID(), err)
 		}
