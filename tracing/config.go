@@ -1,3 +1,7 @@
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package tracing
 
 import (
@@ -6,15 +10,15 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// TracingConfig represents the configurations for otel tracing
-type TracingConfig struct {
+// Config represents the configurations for otel tracing.
+type Config struct {
 	EnableTracing  bool
 	ServiceName    string
 	TracerProvider *sdktrace.TracerProvider
 }
 
-// New takes cli context and returns a tracing config to supply to traceable services
-func New(c *cli.Context) (*TracingConfig, error) {
+// New takes cli context and returns a tracing config to supply to traceable services.
+func New(c *cli.Context) (*Config, error) {
 	enable := c.Bool("tracing.enable")
 	serviceName := c.String("tracing.service.name")
 
@@ -24,7 +28,7 @@ func New(c *cli.Context) (*TracingConfig, error) {
 		return nil, err
 	}
 
-	return &TracingConfig{
+	return &Config{
 		EnableTracing:  enable,
 		ServiceName:    serviceName,
 		TracerProvider: tracerProvider,

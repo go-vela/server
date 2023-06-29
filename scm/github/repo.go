@@ -7,11 +7,12 @@ package github
 import (
 	"context"
 	"fmt"
-	"go.opentelemetry.io/otel/trace"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/sirupsen/logrus"
 

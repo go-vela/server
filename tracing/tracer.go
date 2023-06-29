@@ -1,3 +1,7 @@
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package tracing
 
 import (
@@ -14,7 +18,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-// initTracer returns the tracer provider supplied to the tracing config
+// initTracer returns the tracer provider supplied to the tracing config.
 func initTracer(c *cli.Context) (*sdktrace.TracerProvider, error) {
 	client := otlptracehttp.NewClient()
 
@@ -39,5 +43,6 @@ func initTracer(c *cli.Context) (*sdktrace.TracerProvider, error) {
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
 	return tp, nil
 }

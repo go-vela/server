@@ -59,7 +59,7 @@ type (
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
 		// configurations related to telemetry/tracing
-		tracing *tracing.TracingConfig
+		tracing *tracing.Config
 
 		build.BuildInterface
 		hook.HookInterface

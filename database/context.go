@@ -43,7 +43,7 @@ func ToContext(c Setter, d Interface) {
 }
 
 // FromCLIContext creates and returns a database engine from the urfave/cli context.
-func FromCLIContext(c *cli.Context, tc *tracing.TracingConfig) (Interface, error) {
+func FromCLIContext(c *cli.Context, tc *tracing.Config) (Interface, error) {
 	logrus.Debug("creating database engine from CLI configuration")
 
 	return New(
