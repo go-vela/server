@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kr/pretty"
+
 	"github.com/go-vela/types/raw"
 
 	"github.com/go-vela/server/database/step"
@@ -193,9 +195,9 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	two.SetImage("target/vela-git:v0.3.0")
 	two.SetStatus("pending")
 	two.SetExitCode(0)
-	two.SetCreated(1563474077)
-	two.SetStarted(0)
-	two.SetFinished(0)
+	two.SetCreated(1563474086)
+	two.SetStarted(1563474088)
+	two.SetFinished(1563474089)
 	two.SetHost("example.company.com")
 	two.SetRuntime("docker")
 	two.SetDistribution("linux")
@@ -227,6 +229,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to list steps: %v", err)
 	}
 	if !reflect.DeepEqual(list, steps) {
+		pretty.Ldiff(t, list, steps)
 		t.Errorf("ListSteps() is %v, want %v", list, steps)
 	}
 	counter++
@@ -237,6 +240,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to list steps for build: %v", err)
 	}
 	if !reflect.DeepEqual(list, steps) {
+		pretty.Ldiff(t, list, steps)
 		t.Errorf("ListStepsForBuild() is %v, want %v", list, steps)
 	}
 	if int(count) != len(steps) {
@@ -251,6 +255,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 			t.Errorf("unable to get step %s for build %d: %v", step.GetName(), builds[0].GetID(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
+			pretty.Ldiff(t, got, step)
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
 		}
 	}
@@ -270,6 +275,7 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 			t.Errorf("unable to get step %s by ID: %v", step.GetName(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
+			pretty.Ldiff(t, got, step)
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}
 	}
@@ -355,7 +361,10 @@ func testUsers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
-	if !reflect.DeepEqual(list, users) {
+	if !reflect.DeepEqual(list, []*library.User{
+		{ID: users[0].ID, Name: users[0].Name},
+		{ID: users[1].ID, Name: users[1].Name},
+	}) {
 		t.Errorf("ListLiteUsers() is %v, want %v", list, users)
 	}
 	if int(count) != len(users) {
