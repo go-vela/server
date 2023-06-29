@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/schedule"
+
 	"github.com/go-vela/server/database/repo"
 
 	"github.com/go-vela/server/database/pipeline"
@@ -292,6 +294,10 @@ func TestDatabase_Integration(t *testing.T) {
 
 			t.Run("test_repos", func(t *testing.T) {
 				testRepos(t, db, []*library.Repo{repoOne, repoTwo})
+			})
+
+			t.Run("test_schedules", func(t *testing.T) {
+				testSchedules(t, db, []*library.Repo{repoOne, repoTwo})
 			})
 
 			t.Run("test_services", func(t *testing.T) {
@@ -801,6 +807,98 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 
 	// ensure we called all the functions we should have
 	methods := reflect.TypeOf(new(repo.RepoInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
+	// used to track the number of methods we call for schedules
+	//
+	// we start at 2 for creating the table and indexes for schedules
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Schedule)
+	one.SetID(1)
+
+	two := new(library.Schedule)
+	two.SetID(2)
+
+	schedules := []*library.Schedule{one, two}
+
+	// create the schedules
+	for _, schedule := range schedules {
+		err := db.CreateSchedule(schedule)
+		if err != nil {
+			t.Errorf("unable to create schedule %s: %v", schedule.GetName(), err)
+		}
+	}
+	counter++
+
+	// count the schedules
+	count, err := db.CountSchedules()
+	if err != nil {
+		t.Errorf("unable to count schedules: %v", err)
+	}
+	if int(count) != len(schedules) {
+		t.Errorf("CountSchedules() is %v, want %v", count, len(schedules))
+	}
+	counter++
+
+	// list the schedules
+	list, err := db.ListSchedules()
+	if err != nil {
+		t.Errorf("unable to list schedules: %v", err)
+	}
+	if !reflect.DeepEqual(list, schedules) {
+		t.Errorf("ListSchedules() is %v, want %v", list, schedules)
+	}
+	counter++
+
+	// lookup the schedules by name
+	for _, schedule := range schedules {
+		got, err := db.GetScheduleForRepo(repos[0], schedule.GetName())
+		if err != nil {
+			t.Errorf("unable to get schedule %s for repo %s: %v", schedule.GetName(), repos[0].GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, schedule) {
+			t.Errorf("GetScheduleForRepo() is %v, want %v", got, schedule)
+		}
+	}
+	counter++
+
+	// update the schedules
+	for _, schedule := range schedules {
+		schedule.SetActive(false)
+		err = db.UpdateSchedule(schedule, false)
+		if err != nil {
+			t.Errorf("unable to update schedule %s: %v", schedule.GetName(), err)
+		}
+
+		// lookup the schedule by ID
+		got, err := db.GetSchedule(schedule.GetID())
+		if err != nil {
+			t.Errorf("unable to get schedule %s by ID: %v", schedule.GetName(), err)
+		}
+		if !reflect.DeepEqual(got, schedule) {
+			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the schedules
+	for _, schedule := range schedules {
+		err = db.DeleteSchedule(schedule)
+		if err != nil {
+			t.Errorf("unable to delete schedule %s: %v", schedule.GetName(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(schedule.ScheduleInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
