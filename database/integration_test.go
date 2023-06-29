@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/service"
+
 	"github.com/kr/pretty"
 
 	"github.com/go-vela/types/raw"
@@ -143,6 +145,10 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
+			t.Run("test_services", func(t *testing.T) {
+				testServices(t, db, []*library.Build{buildOne, buildTwo})
+			})
+
 			t.Run("test_steps", func(t *testing.T) {
 				testSteps(t, db, []*library.Build{buildOne, buildTwo})
 			})
@@ -160,6 +166,178 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to close database engine for %s: %v", test.name, err)
 			}
 		})
+	}
+}
+
+func testServices(t *testing.T, db Interface, builds []*library.Build) {
+	// used to track the number of methods we call for services
+	//
+	// we start at 2 for creating the table and indexes for services
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Service)
+	one.SetID(1)
+	one.SetBuildID(1)
+	one.SetRepoID(1)
+	one.SetNumber(1)
+	one.SetName("init")
+	one.SetImage("#init")
+	one.SetStatus("running")
+	one.SetError("")
+	one.SetExitCode(0)
+	one.SetCreated(1563474076)
+	one.SetStarted(1563474078)
+	one.SetFinished(1563474079)
+	one.SetHost("example.company.com")
+	one.SetRuntime("docker")
+	one.SetDistribution("linux")
+
+	two := new(library.Service)
+	two.SetID(2)
+	two.SetBuildID(1)
+	two.SetRepoID(1)
+	two.SetNumber(2)
+	two.SetName("clone")
+	two.SetImage("target/vela-git:v0.3.0")
+	two.SetStatus("pending")
+	two.SetError("")
+	two.SetExitCode(0)
+	two.SetCreated(1563474086)
+	two.SetStarted(1563474088)
+	two.SetFinished(1563474089)
+	two.SetHost("example.company.com")
+	two.SetRuntime("docker")
+	two.SetDistribution("linux")
+
+	services := []*library.Service{one, two}
+
+	// create the services
+	for _, service := range services {
+		err := db.CreateService(service)
+		if err != nil {
+			t.Errorf("unable to create service %s: %v", service.GetName(), err)
+		}
+	}
+	counter++
+
+	// count the services
+	count, err := db.CountServices()
+	if err != nil {
+		t.Errorf("unable to count services: %v", err)
+	}
+	if int(count) != len(services) {
+		t.Errorf("CountServices() is %v, want 2", count)
+	}
+	counter++
+
+	// count the services for a build
+	count, err = db.CountServicesForBuild(builds[0], nil)
+	if err != nil {
+		t.Errorf("unable to count services for build %d: %v", builds[0].GetID(), err)
+	}
+	if int(count) != len(services) {
+		t.Errorf("CountServicesForBuild() is %v, want %v", count, len(services))
+	}
+	counter++
+
+	// list the services
+	list, err := db.ListServices()
+	if err != nil {
+		t.Errorf("unable to list services: %v", err)
+	}
+	if !reflect.DeepEqual(list, services) {
+		t.Errorf("ListServices() is %v, want %v", list, services)
+	}
+	counter++
+
+	// list the services for a build
+	list, count, err = db.ListServicesForBuild(builds[0], nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list services for build %d: %v", builds[0].GetID(), err)
+	}
+	if !reflect.DeepEqual(list, []*library.Service{two, one}) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{two, one})
+	}
+	if int(count) != len(services) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(services))
+	}
+	counter++
+
+	expected := map[string]float64{
+		"#init":                  1,
+		"target/vela-git:v0.3.0": 1,
+	}
+	images, err := db.ListServiceImageCount()
+	if err != nil {
+		t.Errorf("unable to list service image count: %v", err)
+	}
+	if !reflect.DeepEqual(images, expected) {
+		t.Errorf("ListServiceImageCount() is %v, want %v", images, expected)
+	}
+	counter++
+
+	expected = map[string]float64{
+		"pending": 1,
+		"failure": 0,
+		"killed":  0,
+		"running": 1,
+		"success": 0,
+	}
+	statuses, err := db.ListServiceStatusCount()
+	if err != nil {
+		t.Errorf("unable to list service status count: %v", err)
+	}
+	if !reflect.DeepEqual(statuses, expected) {
+		t.Errorf("ListServiceStatusCount() is %v, want %v", statuses, expected)
+	}
+	counter++
+
+	// lookup the services by name
+	for _, service := range services {
+		got, err := db.GetServiceForBuild(builds[0], service.GetNumber())
+		if err != nil {
+			t.Errorf("unable to get service %s for build %d: %v", service.GetName(), builds[0].GetID(), err)
+		}
+		if !reflect.DeepEqual(got, service) {
+			t.Errorf("GetServiceForBuild() is %v, want %v", got, service)
+		}
+	}
+	counter++
+
+	// update the services
+	for _, service := range services {
+		service.SetStatus("success")
+		err = db.UpdateService(service)
+		if err != nil {
+			t.Errorf("unable to update service %s: %v", service.GetName(), err)
+		}
+
+		// lookup the service by ID
+		got, err := db.GetService(service.GetID())
+		if err != nil {
+			t.Errorf("unable to get service %s by ID: %v", service.GetName(), err)
+		}
+		if !reflect.DeepEqual(got, service) {
+			t.Errorf("GetService() is %v, want %v", got, service)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the services
+	for _, service := range services {
+		err = db.DeleteService(service)
+		if err != nil {
+			t.Errorf("unable to delete service %s: %v", service.GetName(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(service.ServiceInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
 }
 
@@ -243,7 +421,6 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to list steps: %v", err)
 	}
 	if !reflect.DeepEqual(list, steps) {
-		pretty.Ldiff(t, list, steps)
 		t.Errorf("ListSteps() is %v, want %v", list, steps)
 	}
 	counter++
@@ -254,7 +431,6 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to list steps for build %d: %v", builds[0].GetID(), err)
 	}
 	if !reflect.DeepEqual(list, []*library.Step{two, one}) {
-		pretty.Ldiff(t, list, steps)
 		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{two, one})
 	}
 	if int(count) != len(steps) {
@@ -271,7 +447,6 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to list step image count: %v", err)
 	}
 	if !reflect.DeepEqual(images, expected) {
-		pretty.Ldiff(t, images, expected)
 		t.Errorf("ListStepImageCount() is %v, want %v", images, expected)
 	}
 	counter++
@@ -288,7 +463,6 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 		t.Errorf("unable to list step status count: %v", err)
 	}
 	if !reflect.DeepEqual(statuses, expected) {
-		pretty.Ldiff(t, statuses, expected)
 		t.Errorf("ListStepStatusCount() is %v, want %v", statuses, expected)
 	}
 	counter++
@@ -300,7 +474,6 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 			t.Errorf("unable to get step %s for build %d: %v", step.GetName(), builds[0].GetID(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
-			pretty.Ldiff(t, got, step)
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
 		}
 	}
@@ -320,7 +493,6 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 			t.Errorf("unable to get step %s by ID: %v", step.GetName(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
-			pretty.Ldiff(t, got, step)
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}
 	}
