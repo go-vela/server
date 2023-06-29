@@ -91,7 +91,10 @@ func TestDatabase_Integration(t *testing.T) {
 
 func testUsers(t *testing.T, db Interface) {
 	// used to track the number of methods we call for users
-	counter := 0
+	//
+	// we start at 2 for creating the table and indexes for users
+	// since those are already called when the database engine starts
+	counter := 2
 
 	one := new(library.User)
 	one.SetID(1)
@@ -199,10 +202,7 @@ func testUsers(t *testing.T, db Interface) {
 	counter++
 
 	// ensure we called all the functions we should have
-	//
-	// we subtract 2 for creating the table and indexes for users
-	// since those are already called when the database engine starts
-	methods := reflect.TypeOf(new(user.UserInterface)).Elem().NumMethod() - 2
+	methods := reflect.TypeOf(new(user.UserInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
@@ -210,7 +210,10 @@ func testUsers(t *testing.T, db Interface) {
 
 func testWorkers(t *testing.T, db Interface) {
 	// used to track the number of methods we call for workers
-	counter := 0
+	//
+	// we start at 2 for creating the table and indexes for users
+	// since those are already called when the database engine starts
+	counter := 2
 
 	one := new(library.Worker)
 	one.SetID(1)
@@ -313,10 +316,7 @@ func testWorkers(t *testing.T, db Interface) {
 	counter++
 
 	// ensure we called all the functions we should have
-	//
-	// we subtract 2 for creating the table and indexes for workers
-	// since those are already called when the database engine starts
-	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod() - 2
+	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
