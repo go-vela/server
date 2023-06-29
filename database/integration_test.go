@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/secret"
+
 	"github.com/go-vela/server/database/schedule"
 
 	"github.com/go-vela/server/database/repo"
@@ -298,6 +300,10 @@ func TestDatabase_Integration(t *testing.T) {
 
 			t.Run("test_schedules", func(t *testing.T) {
 				testSchedules(t, db, []*library.Repo{repoOne, repoTwo})
+			})
+
+			t.Run("test_secrets", func(t *testing.T) {
+				testSecrets(t, db, []*library.Repo{repoOne, repoTwo})
 			})
 
 			t.Run("test_services", func(t *testing.T) {
@@ -899,6 +905,98 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 
 	// ensure we called all the functions we should have
 	methods := reflect.TypeOf(new(schedule.ScheduleInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
+	// used to track the number of methods we call for secrets
+	//
+	// we start at 2 for creating the table and indexes for secrets
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Secret)
+	one.SetID(1)
+
+	two := new(library.Secret)
+	two.SetID(2)
+
+	secrets := []*library.Secret{one, two}
+
+	// create the secrets
+	for _, secret := range secrets {
+		err := db.CreateSecret(secret)
+		if err != nil {
+			t.Errorf("unable to create secret %s: %v", secret.GetName(), err)
+		}
+	}
+	counter++
+
+	// count the secrets
+	count, err := db.CountSecrets()
+	if err != nil {
+		t.Errorf("unable to count secrets: %v", err)
+	}
+	if int(count) != len(secrets) {
+		t.Errorf("CountSecrets() is %v, want %v", count, len(secrets))
+	}
+	counter++
+
+	// list the secrets
+	list, err := db.ListSecrets()
+	if err != nil {
+		t.Errorf("unable to list secrets: %v", err)
+	}
+	if !reflect.DeepEqual(list, secrets) {
+		t.Errorf("ListSecrets() is %v, want %v", list, secrets)
+	}
+	counter++
+
+	// lookup the secrets by name
+	for _, secret := range secrets {
+		got, err := db.GetSecretForRepo(secret.GetName(), repos[0])
+		if err != nil {
+			t.Errorf("unable to get secret %s for repo %s: %v", secret.GetName(), repos[0].GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, secret) {
+			t.Errorf("GetSecretForRepo() is %v, want %v", got, secret)
+		}
+	}
+	counter++
+
+	// update the secrets
+	for _, secret := range secrets {
+		secret.SetAllowCommand(false)
+		err = db.UpdateSecret(secret)
+		if err != nil {
+			t.Errorf("unable to update secret %s: %v", secret.GetName(), err)
+		}
+
+		// lookup the secret by ID
+		got, err := db.GetSecret(secret.GetID())
+		if err != nil {
+			t.Errorf("unable to get secret %s by ID: %v", secret.GetName(), err)
+		}
+		if !reflect.DeepEqual(got, secret) {
+			t.Errorf("GetSecret() is %v, want %v", got, secret)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the secrets
+	for _, secret := range secrets {
+		err = db.DeleteSecret(secret)
+		if err != nil {
+			t.Errorf("unable to delete secret %s: %v", secret.GetName(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(secret.SecretInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
