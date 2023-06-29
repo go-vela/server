@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -26,11 +27,11 @@ import (
 
 const baseErr = "unable to schedule build"
 
-func processSchedules(compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(ctx context.Context, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
-	schedules, err := database.ListActiveSchedules()
+	schedules, err := database.ListActiveSchedules(ctx)
 	if err != nil {
 		return err
 	}
@@ -42,7 +43,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 		// This is needed to ensure we are not dealing with a stale schedule since we fetch
 		// all schedules once and iterate through that list which can take a significant
 		// amount of time to get to the end of the list.
-		schedule, err := database.GetSchedule(s.GetID())
+		schedule, err := database.GetSchedule(ctx, s.GetID())
 		if err != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
 
@@ -84,7 +85,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 		}
 
 		if trigger && schedule.GetActive() {
-			err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+			err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
 
@@ -97,7 +98,7 @@ func processSchedules(compiler compiler.Engine, database database.Interface, met
 }
 
 //nolint:funlen // ignore function length and number of statements
-func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// sleep for 1s - 3s before processing the schedule
 	//
 	// This should prevent multiple servers from processing a schedule at the same time by
@@ -350,7 +351,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to update schedule for ensuring scheduled_at field is set
-	err = database.UpdateSchedule(s, false)
+	err = database.UpdateSchedule(ctx, s, false)
 	if err != nil {
 		return fmt.Errorf("unable to update schedule %s/%s: %w", r.GetFullName(), s.GetName(), err)
 	}

@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -41,7 +42,7 @@ WHERE "id" = $10`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_schedule)
+	err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -67,7 +68,7 @@ WHERE "id" = $10`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule, true)
+			err = test.database.UpdateSchedule(context.TODO(), _schedule, true)
 
 			if test.failure {
 				if err == nil {
@@ -113,7 +114,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_schedule)
+	err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -139,7 +140,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule, false)
+			err = test.database.UpdateSchedule(context.TODO(), _schedule, false)
 
 			if test.failure {
 				if err == nil {

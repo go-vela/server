@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -84,6 +85,7 @@ func TestSchedule_New(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
+				WithContext(context.TODO()),
 				WithClient(test.client),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
@@ -133,6 +135,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_engine, err := New(
+		WithContext(context.TODO()),
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
@@ -155,6 +158,7 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	_engine, err := New(
+		WithContext(context.TODO()),
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),

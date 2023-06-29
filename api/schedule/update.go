@@ -73,6 +73,7 @@ func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
 	s := schedule.Retrieve(c)
+	ctx := c.Request.Context()
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
@@ -123,7 +124,7 @@ func UpdateSchedule(c *gin.Context) {
 	}
 
 	// update the schedule within the database
-	err = database.FromContext(c).UpdateSchedule(s, true)
+	err = database.FromContext(c).UpdateSchedule(ctx, s, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update scheduled %s: %w", scheduleName, err)
 
@@ -133,7 +134,7 @@ func UpdateSchedule(c *gin.Context) {
 	}
 
 	// capture the updated scheduled
-	s, _ = database.FromContext(c).GetScheduleForRepo(r, scheduleName)
+	s, _ = database.FromContext(c).GetScheduleForRepo(ctx, r, scheduleName)
 
 	c.JSON(http.StatusOK, s)
 }

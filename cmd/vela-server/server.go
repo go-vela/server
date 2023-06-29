@@ -192,7 +192,7 @@ func server(c *cli.Context) error {
 			// along with a scale factor of 0.1.
 			time.Sleep(wait.Jitter(base, 0.1))
 
-			err = processSchedules(compiler, database, metadata, queue, scm)
+			err = processSchedules(ctx, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {
