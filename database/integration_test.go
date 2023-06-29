@@ -79,6 +79,7 @@ func TestDatabase_Integration(t *testing.T) {
 			buildOne.SetNumber(1)
 			buildOne.SetParent(1)
 			buildOne.SetEvent("push")
+			buildOne.SetEventAction("")
 			buildOne.SetStatus("running")
 			buildOne.SetError("")
 			buildOne.SetEnqueued(1563474077)
@@ -111,6 +112,7 @@ func TestDatabase_Integration(t *testing.T) {
 			buildTwo.SetNumber(2)
 			buildTwo.SetParent(1)
 			buildTwo.SetEvent("pull_request")
+			buildTwo.SetEventAction("")
 			buildTwo.SetStatus("running")
 			buildTwo.SetError("")
 			buildTwo.SetEnqueued(1563474077)
@@ -382,9 +384,9 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	if err != nil {
 		t.Errorf("unable to list builds for repo %s: %v", repos[0].GetFullName(), err)
 	}
-	if !reflect.DeepEqual(list, builds) {
+	if !reflect.DeepEqual(list, []*library.Build{builds[1], builds[0]}) {
 		pretty.Ldiff(t, list, builds)
-		t.Errorf("ListBuildsForRepo() is %v, want %v", list, builds)
+		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{builds[1], builds[0]})
 	}
 	counter++
 
@@ -455,9 +457,35 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 
 	one := new(library.Hook)
 	one.SetID(1)
+	one.SetRepoID(1)
+	one.SetBuildID(1)
+	one.SetNumber(1)
+	one.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	one.SetCreated(time.Now().UTC().Unix())
+	one.SetHost("github.com")
+	one.SetEvent("push")
+	one.SetEventAction("")
+	one.SetBranch("master")
+	one.SetError("")
+	one.SetStatus("success")
+	one.SetLink("https://github.com/github/octocat/settings/hooks/1")
+	one.SetWebhookID(123456)
 
 	two := new(library.Hook)
 	two.SetID(2)
+	two.SetRepoID(1)
+	two.SetBuildID(1)
+	two.SetNumber(2)
+	two.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	two.SetCreated(time.Now().UTC().Unix())
+	two.SetHost("github.com")
+	two.SetEvent("push")
+	two.SetEventAction("")
+	two.SetBranch("master")
+	two.SetError("")
+	two.SetStatus("success")
+	two.SetLink("https://github.com/github/octocat/settings/hooks/1")
+	two.SetWebhookID(123456)
 
 	hooks := []*library.Hook{one, two}
 
@@ -547,9 +575,15 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 
 	one := new(library.Log)
 	one.SetID(1)
+	one.SetBuildID(1)
+	one.SetRepoID(1)
+	one.SetData([]byte("foo"))
 
 	two := new(library.Log)
 	two.SetID(2)
+	two.SetBuildID(1)
+	two.SetRepoID(1)
+	two.SetData([]byte("foo"))
 
 	logs := []*library.Log{one, two}
 
@@ -651,9 +685,37 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 
 	one := new(library.Pipeline)
 	one.SetID(1)
+	one.SetRepoID(1)
+	one.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	one.SetFlavor("large")
+	one.SetPlatform("docker")
+	one.SetRef("refs/heads/master")
+	one.SetRef("yaml")
+	one.SetVersion("1")
+	one.SetExternalSecrets(false)
+	one.SetInternalSecrets(false)
+	one.SetServices(true)
+	one.SetStages(false)
+	one.SetSteps(true)
+	one.SetTemplates(false)
+	one.SetData([]byte("version: 1"))
 
 	two := new(library.Pipeline)
 	two.SetID(2)
+	two.SetRepoID(1)
+	two.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	two.SetFlavor("large")
+	two.SetPlatform("docker")
+	two.SetRef("refs/heads/master")
+	two.SetRef("yaml")
+	two.SetVersion("1")
+	two.SetExternalSecrets(false)
+	two.SetInternalSecrets(false)
+	two.SetServices(true)
+	two.SetStages(false)
+	two.SetSteps(true)
+	two.SetTemplates(false)
+	two.SetData([]byte("version: 1"))
 
 	pipelines := []*library.Pipeline{one, two}
 
@@ -827,9 +889,27 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 
 	one := new(library.Schedule)
 	one.SetID(1)
+	one.SetRepoID(1)
+	one.SetActive(true)
+	one.SetName("nightly")
+	one.SetEntry("0 0 * * *")
+	one.SetCreatedAt(time.Now().UTC().Unix())
+	one.SetCreatedBy("user1")
+	one.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
+	one.SetUpdatedBy("user2")
+	one.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 
 	two := new(library.Schedule)
 	two.SetID(2)
+	two.SetRepoID(1)
+	two.SetActive(true)
+	two.SetName("hourly")
+	two.SetEntry("0 * * * *")
+	two.SetCreatedAt(time.Now().UTC().Unix())
+	two.SetCreatedBy("user1")
+	two.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
+	two.SetUpdatedBy("user2")
+	two.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 
 	schedules := []*library.Schedule{one, two}
 
