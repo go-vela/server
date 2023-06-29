@@ -55,7 +55,7 @@ services:
     depends_on:
       - postgres
       - redis
-      # - vault
+      - vault
 
   # The `worker` compose service hosts the Vela build daemon.
   #
