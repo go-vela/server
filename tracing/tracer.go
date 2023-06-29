@@ -14,41 +14,18 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-type TracingConfig struct {
-	EnableTracing  bool
-	TracerProvider *sdktrace.TracerProvider
-}
-
-func DefaultTracingConfig() *TracingConfig {
-	return &TracingConfig{
-		EnableTracing: false,
-	}
-}
-
-func SetupTracing(c *cli.Context) (*TracingConfig, error) {
-	// initialize the shared tracing provider
-	tp, err := setupTracerProvider()
-	if err != nil {
-		return nil, err
-	}
-
-	return &TracingConfig{
-		EnableTracing:  c.Bool("enable-tracing"),
-		TracerProvider: tp,
-	}, nil
-}
-
-func setupTracerProvider() (*sdktrace.TracerProvider, error) {
+// initTracer returns the tracer provider supplied to the tracing config
+func initTracer(c *cli.Context) (*sdktrace.TracerProvider, error) {
 	client := otlptracehttp.NewClient()
 
+	// TODO: inject actual context
 	exporter, err := otlp.New(context.TODO(), client)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: make the serviceName configurable
 	res, err := resource.New(context.TODO(), resource.WithAttributes(
-		semconv.ServiceName("vela-server"),
+		semconv.ServiceName(c.String("tracing.service.name")),
 	))
 	if err != nil {
 		return nil, err

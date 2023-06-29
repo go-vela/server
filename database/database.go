@@ -133,11 +133,15 @@ func New(opts ...EngineOpt) (Interface, error) {
 		return nil, err
 	}
 
-	logrus.Info("initializing gorm tracing")
-
+	// initialize otel tracing if enabled
 	if e.tracing.EnableTracing {
-		otelPlugin := otelgorm.NewPlugin(otelgorm.WithTracerProvider(e.tracing.TracerProvider), otelgorm.WithoutQueryVariables())
-		if err := e.client.Use(otelPlugin); err != nil {
+		otelPlugin := otelgorm.NewPlugin(
+			otelgorm.WithTracerProvider(e.tracing.TracerProvider),
+			otelgorm.WithoutQueryVariables(),
+		)
+
+		err := e.client.Use(otelPlugin)
+		if err != nil {
 			return nil, err
 		}
 	}

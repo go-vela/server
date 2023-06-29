@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -222,13 +223,6 @@ func main() {
 			Usage:   "limit which repos can be utilize the schedule feature within the system",
 			Value:   &cli.StringSlice{},
 		},
-		// tracing flags
-		&cli.BoolFlag{
-			EnvVars: []string{"VELA_ENABLE_TRACING", "ENABLE_TRACING"},
-			Name:    "enable-tracing",
-			Value:   true,
-			Usage:   "enable otel tracing",
-		},
 	}
 	// Add Database Flags
 	app.Flags = append(app.Flags, database.Flags...)
@@ -241,6 +235,9 @@ func main() {
 
 	// Add Source Flags
 	app.Flags = append(app.Flags, scm.Flags...)
+
+	// Add Tracing Flags
+	app.Flags = append(app.Flags, tracing.Flags...)
 
 	// set logrus to log in JSON format
 	logrus.SetFormatter(&logrus.JSONFormatter{})
