@@ -1198,7 +1198,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUserRepos(u)
+	got, err := client.ListUserRepos(context.TODO(), u)
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
@@ -1236,7 +1236,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUserRepos(u)
+	got, err := client.ListUserRepos(context.TODO(), u)
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)

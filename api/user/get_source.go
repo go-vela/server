@@ -6,6 +6,7 @@ package user
 
 import (
 	"fmt"
+	"go.opentelemetry.io/otel/trace"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,12 +42,15 @@ import (
 func GetSourceRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
-		"user": u.GetName(),
+		"user":     u.GetName(),
+		"span_id":  trace.SpanFromContext(ctx).SpanContext().SpanID(),
+		"trace_id": trace.SpanFromContext(ctx).SpanContext().TraceID(),
 	}).Infof("reading available SCM repos for user %s", u.GetName())
 
 	// variables to capture requested data
@@ -54,7 +58,7 @@ func GetSourceRepos(c *gin.Context) {
 	output := make(map[string][]library.Repo)
 
 	// send API call to capture the list of repos for the user
-	srcRepos, err := scm.FromContext(c).ListUserRepos(u)
+	srcRepos, err := scm.FromContext(c).ListUserRepos(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get SCM repos for user %s: %w", u.GetName(), err)
 
