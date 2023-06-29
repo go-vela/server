@@ -6,6 +6,7 @@ package database
 
 import (
 	"flag"
+	"github.com/go-vela/server/tracing"
 	"reflect"
 	"testing"
 	"time"
@@ -134,7 +135,7 @@ func TestDatabase_FromCLIContext(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := FromCLIContext(test.context, nil)
+			_, err := FromCLIContext(test.context, &tracing.Config{EnableTracing: false})
 
 			if test.failure {
 				if err == nil {
