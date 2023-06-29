@@ -12,19 +12,11 @@ import (
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
 // CreateSchedule creates a new schedule in the database.
 func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) error {
-	span := trace.SpanFromContext(ctx)
-	if span.IsRecording() {
-		span.SetAttributes(
-			attribute.String("db", "do-operation"),
-		)
-	}
-
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 		"span_id":  trace.SpanFromContext(ctx).SpanContext().SpanID(),

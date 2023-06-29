@@ -19,11 +19,11 @@ import (
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -48,8 +48,6 @@ type (
 		EncryptionKey string
 		// specifies to skip creating tables and indexes for the database engine
 		SkipCreation bool
-
-		TracerProvider *sdktrace.TracerProvider
 	}
 
 	// engine represents the functionality that implements the Interface.
@@ -60,6 +58,8 @@ type (
 		config *config
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
+		// configurations related to telemetry/tracing
+		tracing *tracing.TracingConfig
 
 		build.BuildInterface
 		hook.HookInterface
@@ -134,9 +134,12 @@ func New(opts ...EngineOpt) (Interface, error) {
 	}
 
 	logrus.Info("initializing gorm tracing")
-	otelPlugin := otelgorm.NewPlugin(otelgorm.WithTracerProvider(e.config.TracerProvider), otelgorm.WithoutQueryVariables())
-	if err := e.client.Use(otelPlugin); err != nil {
-		return nil, err
+
+	if e.tracing.EnableTracing {
+		otelPlugin := otelgorm.NewPlugin(otelgorm.WithTracerProvider(e.tracing.TracerProvider), otelgorm.WithoutQueryVariables())
+		if err := e.client.Use(otelPlugin); err != nil {
+			return nil, err
+		}
 	}
 
 	// set the maximum amount of time a connection may be reused
@@ -174,6 +177,5 @@ func NewTest() (Interface, error) {
 		WithDriver("sqlite3"),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithSkipCreation(false),
-		WithTracerProvider(nil),
 	)
 }

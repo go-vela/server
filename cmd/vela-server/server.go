@@ -18,6 +18,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/tracing"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -63,20 +64,31 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	tp, err := tracerProvider()
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	defer func() {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			logrus.Printf("Error shutting down tracer provider: %v", err)
-		}
-	}()
-
-	database, err := database.FromCLIContext(c, tp)
+	// create the tracing config
+	tc, err := tracing.SetupTracing(c)
 	if err != nil {
 		return err
+	}
+
+	database, err := database.FromCLIContext(c, tc)
+	if err != nil {
+		return err
+	}
+
+	// opt-in for telemetry
+	// todo: does this work for gorm by inheriting context
+	tracingMiddleware := func(ctx *gin.Context) {}
+	if tc.EnableTracing {
+		// initialize tracing middleware
+		tracingMiddleware = otelgin.Middleware("vela-server", otelgin.WithTracerProvider(tc.TracerProvider))
+
+		// shutdown tracing when server closes
+		defer func() {
+			err := tc.TracerProvider.Shutdown(context.Background())
+			if err != nil {
+				logrus.Errorf("unable to shutdown tracer provider: %v", err)
+			}
+		}()
 	}
 
 	queue, err := setupQueue(c)
@@ -121,8 +133,8 @@ func server(c *cli.Context) error {
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 
-		// inject service middleware
-		otelgin.Middleware("vela-server", otelgin.WithTracerProvider(tp)),
+		// tracing middle, which is an empty handler when tracing is enabled
+		tracingMiddleware,
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

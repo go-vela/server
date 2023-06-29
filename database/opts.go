@@ -7,7 +7,7 @@ package database
 import (
 	"time"
 
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"github.com/go-vela/server/tracing"
 )
 
 // EngineOpt represents a configuration option to initialize the database engine.
@@ -93,10 +93,11 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	}
 }
 
-func WithTracerProvider(tp *sdktrace.TracerProvider) EngineOpt {
+// WithTracingConfig sets the shared tracing config in the database engine.
+func WithTracingConfig(tracing *tracing.TracingConfig) EngineOpt {
 	return func(e *engine) error {
-		// set to skip creating tables and indexes in the database engine
-		e.config.TracerProvider = tp
+		// set the tracing config
+		e.tracing = tracing
 
 		return nil
 	}
