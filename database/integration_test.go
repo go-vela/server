@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-vela/server/database/pipeline"
+
 	"github.com/go-vela/server/database/log"
 
 	"github.com/go-vela/server/database/build"
@@ -280,6 +282,10 @@ func TestDatabase_Integration(t *testing.T) {
 
 			t.Run("test_logs", func(t *testing.T) {
 				testLogs(t, db, []*library.Service{serviceOne, serviceTwo}, []*library.Step{stepOne, stepTwo})
+			})
+
+			t.Run("test_pipelines", func(t *testing.T) {
+				testPipelines(t, db, []*library.Repo{repoOne, repoTwo})
 			})
 
 			t.Run("test_services", func(t *testing.T) {
@@ -613,6 +619,98 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 
 	// ensure we called all the functions we should have
 	methods := reflect.TypeOf(new(log.LogInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
+	// used to track the number of methods we call for pipelines
+	//
+	// we start at 2 for creating the table and indexes for pipelines
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Pipeline)
+	one.SetID(1)
+
+	two := new(library.Pipeline)
+	two.SetID(2)
+
+	pipelines := []*library.Pipeline{one, two}
+
+	// create the pipelines
+	for _, pipeline := range pipelines {
+		_, err := db.CreatePipeline(pipeline)
+		if err != nil {
+			t.Errorf("unable to create pipeline %s: %v", pipeline.GetCommit(), err)
+		}
+	}
+	counter++
+
+	// count the pipelines
+	count, err := db.CountPipelines()
+	if err != nil {
+		t.Errorf("unable to count pipelines: %v", err)
+	}
+	if int(count) != len(pipelines) {
+		t.Errorf("CountPipelines() is %v, want %v", count, len(pipelines))
+	}
+	counter++
+
+	// list the pipelines
+	list, err := db.ListPipelines()
+	if err != nil {
+		t.Errorf("unable to list pipelines: %v", err)
+	}
+	if !reflect.DeepEqual(list, pipelines) {
+		t.Errorf("ListPipelines() is %v, want %v", list, pipelines)
+	}
+	counter++
+
+	// lookup the pipelines by name
+	for _, pipeline := range pipelines {
+		got, err := db.GetPipelineForRepo(pipeline.GetCommit(), repos[0])
+		if err != nil {
+			t.Errorf("unable to get pipeline %s for repo %s: %v", pipeline.GetCommit(), repos[0].GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, pipeline) {
+			t.Errorf("GetPipelineForRepo() is %v, want %v", got, pipeline)
+		}
+	}
+	counter++
+
+	// update the pipelines
+	for _, pipeline := range pipelines {
+		pipeline.SetVersion("2")
+		_, err = db.UpdatePipeline(pipeline)
+		if err != nil {
+			t.Errorf("unable to update pipeline %s: %v", pipeline.GetCommit(), err)
+		}
+
+		// lookup the pipeline by ID
+		got, err := db.GetPipeline(pipeline.GetID())
+		if err != nil {
+			t.Errorf("unable to get pipeline %s by ID: %v", pipeline.GetCommit(), err)
+		}
+		if !reflect.DeepEqual(got, pipeline) {
+			t.Errorf("GetPipeline() is %v, want %v", got, pipeline)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the pipelines
+	for _, pipeline := range pipelines {
+		err = db.DeletePipeline(pipeline)
+		if err != nil {
+			t.Errorf("unable to delete pipeline %s: %v", pipeline.GetCommit(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(pipeline.PipelineInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
