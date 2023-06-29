@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/hook"
 
 	"github.com/google/go-cmp/cmp"
 
@@ -197,8 +198,12 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
-			t.Run("test_build", func(t *testing.T) {
+			t.Run("test_builds", func(t *testing.T) {
 				testBuilds(t, db, []*library.Build{buildOne, buildTwo}, []*library.Repo{repoOne, repoTwo})
+			})
+
+			t.Run("test_hooks", func(t *testing.T) {
+				testHooks(t, db, []*library.Repo{repoOne, repoTwo})
 			})
 
 			t.Run("test_services", func(t *testing.T) {
@@ -336,6 +341,98 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 
 	// ensure we called all the functions we should have
 	methods := reflect.TypeOf(new(build.BuildInterface)).Elem().NumMethod()
+	if counter != methods {
+		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
+	// used to track the number of methods we call for hooks
+	//
+	// we start at 2 for creating the table and indexes for hooks
+	// since those are already called when the database engine starts
+	counter := 2
+
+	one := new(library.Hook)
+	one.SetID(1)
+
+	two := new(library.Hook)
+	two.SetID(2)
+
+	hooks := []*library.Hook{one, two}
+
+	// create the hooks
+	for _, hook := range hooks {
+		_, err := db.CreateHook(hook)
+		if err != nil {
+			t.Errorf("unable to create hook %s: %v", hook.GetSourceID(), err)
+		}
+	}
+	counter++
+
+	// count the hooks
+	count, err := db.CountHooks()
+	if err != nil {
+		t.Errorf("unable to count hooks: %v", err)
+	}
+	if int(count) != len(hooks) {
+		t.Errorf("CountHooks() is %v, want %v", count, len(hooks))
+	}
+	counter++
+
+	// list the hooks
+	list, err := db.ListHooks()
+	if err != nil {
+		t.Errorf("unable to list hooks: %v", err)
+	}
+	if !reflect.DeepEqual(list, hooks) {
+		t.Errorf("ListHooks() is %v, want %v", list, hooks)
+	}
+	counter++
+
+	// lookup the hooks by name
+	for _, hook := range hooks {
+		got, err := db.GetHookForRepo(repos[0], hook.GetNumber())
+		if err != nil {
+			t.Errorf("unable to get hook %s for repo %s: %v", hook.GetSourceID(), repos[0].GetFullName(), err)
+		}
+		if !reflect.DeepEqual(got, hook) {
+			t.Errorf("GetHookForRepo() is %v, want %v", got, hook)
+		}
+	}
+	counter++
+
+	// update the hooks
+	for _, hook := range hooks {
+		hook.SetStatus("success")
+		_, err = db.UpdateHook(hook)
+		if err != nil {
+			t.Errorf("unable to update hook %s: %v", hook.GetSourceID(), err)
+		}
+
+		// lookup the hook by ID
+		got, err := db.GetHook(hook.GetID())
+		if err != nil {
+			t.Errorf("unable to get hook %s by ID: %v", hook.GetSourceID(), err)
+		}
+		if !reflect.DeepEqual(got, hook) {
+			t.Errorf("GetHook() is %v, want %v", got, hook)
+		}
+	}
+	counter++
+	counter++
+
+	// delete the hooks
+	for _, hook := range hooks {
+		err = db.DeleteHook(hook)
+		if err != nil {
+			t.Errorf("unable to delete hook %s: %v", hook.GetSourceID(), err)
+		}
+	}
+	counter++
+
+	// ensure we called all the functions we should have
+	methods := reflect.TypeOf(new(hook.HookInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
 	}
