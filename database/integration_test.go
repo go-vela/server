@@ -227,6 +227,16 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	}
 	counter++
 
+	// count the steps for a build
+	count, err = db.CountStepsForBuild(builds[0], nil)
+	if err != nil {
+		t.Errorf("unable to count steps for build %d: %v", builds[0].GetID(), err)
+	}
+	if int(count) != len(steps) {
+		t.Errorf("CountStepsForBuild() is %v, want %v", count, len(steps))
+	}
+	counter++
+
 	// list the steps
 	list, err := db.ListSteps()
 	if err != nil {
@@ -241,14 +251,32 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build) {
 	// list the steps for a build
 	list, count, err = db.ListStepsForBuild(builds[0], nil, 1, 10)
 	if err != nil {
-		t.Errorf("unable to list steps for build: %v", err)
+		t.Errorf("unable to list steps for build %d: %v", builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, steps) {
+	if !reflect.DeepEqual(list, []*library.Step{two, one}) {
 		pretty.Ldiff(t, list, steps)
-		t.Errorf("ListStepsForBuild() is %v, want %v", list, steps)
+		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{two, one})
 	}
 	if int(count) != len(steps) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(steps))
+	}
+	counter++
+
+	images, err := db.ListStepImageCount()
+	if err != nil {
+		t.Errorf("unable to list step image count: %v",, err)
+	}
+	if len(images) != len(steps) {
+		t.Errorf("ListStepImageCount() is %v, want %v", len(images), len(steps))
+	}
+	counter++
+
+	statuses, err := db.ListStepStatusCount()
+	if err != nil {
+		t.Errorf("unable to list step status count: %v", err)
+	}
+	if len(statuses) != len(steps) {
+		t.Errorf("ListStepStatusCount() is %v, want %v", len(images), len(steps))
 	}
 	counter++
 
@@ -368,7 +396,7 @@ func testUsers(t *testing.T, db Interface) {
 		t.Errorf("unable to count users: %v", err)
 	}
 	if int(count) != len(users) {
-		t.Errorf("CountUsers() is %v, want 2", count)
+		t.Errorf("CountUsers() is %v, want %v", count, len(users))
 	}
 	counter++
 
@@ -388,6 +416,7 @@ func testUsers(t *testing.T, db Interface) {
 		t.Errorf("unable to list lite users: %v", err)
 	}
 	if !reflect.DeepEqual(list, liteUsers) {
+		pretty.Ldiff(t, list, liteUsers)
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
 	if int(count) != len(users) {
