@@ -28,6 +28,20 @@ import (
 	"github.com/kr/pretty"
 )
 
+type Resources struct {
+	Builds    []*library.Build
+	Hooks     []*library.Hook
+	Logs      []*library.Log
+	Pipelines []*library.Pipeline
+	Repos     []*library.Repo
+	Schedules []*library.Schedule
+	Secrets   []*library.Secret
+	Services  []*library.Service
+	Steps     []*library.Step
+	Users     []*library.User
+	Workers   []*library.Worker
+}
+
 func TestDatabase_Integration(t *testing.T) {
 	// check if we should skip the integration test
 	//
@@ -62,193 +76,7 @@ func TestDatabase_Integration(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// create resources for testing
-			buildOne := new(library.Build)
-			buildOne.SetID(1)
-			buildOne.SetRepoID(1)
-			buildOne.SetPipelineID(1)
-			buildOne.SetNumber(1)
-			buildOne.SetParent(1)
-			buildOne.SetEvent("push")
-			buildOne.SetEventAction("")
-			buildOne.SetStatus("running")
-			buildOne.SetError("")
-			buildOne.SetEnqueued(1563474077)
-			buildOne.SetCreated(1563474076)
-			buildOne.SetStarted(1563474078)
-			buildOne.SetFinished(1563474079)
-			buildOne.SetDeploy("")
-			buildOne.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
-			buildOne.SetClone("https://github.com/github/octocat.git")
-			buildOne.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135163")
-			buildOne.SetTitle("push received from https://github.com/github/octocat")
-			buildOne.SetMessage("First commit...")
-			buildOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-			buildOne.SetSender("OctoKitty")
-			buildOne.SetAuthor("OctoKitty")
-			buildOne.SetEmail("OctoKitty@github.com")
-			buildOne.SetLink("https://example.company.com/github/octocat/1")
-			buildOne.SetBranch("master")
-			buildOne.SetRef("refs/heads/master")
-			buildOne.SetBaseRef("")
-			buildOne.SetHeadRef("changes")
-			buildOne.SetHost("example.company.com")
-			buildOne.SetRuntime("docker")
-			buildOne.SetDistribution("linux")
-
-			buildTwo := new(library.Build)
-			buildTwo.SetID(2)
-			buildTwo.SetRepoID(1)
-			buildTwo.SetPipelineID(1)
-			buildTwo.SetNumber(2)
-			buildTwo.SetParent(1)
-			buildTwo.SetEvent("pull_request")
-			buildTwo.SetEventAction("")
-			buildTwo.SetStatus("running")
-			buildTwo.SetError("")
-			buildTwo.SetEnqueued(1563474077)
-			buildTwo.SetCreated(1563474076)
-			buildTwo.SetStarted(1563474078)
-			buildTwo.SetFinished(1563474079)
-			buildTwo.SetDeploy("")
-			buildTwo.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
-			buildTwo.SetClone("https://github.com/github/octocat.git")
-			buildTwo.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135164")
-			buildTwo.SetTitle("pull_request received from https://github.com/github/octocat")
-			buildTwo.SetMessage("Second commit...")
-			buildTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
-			buildTwo.SetSender("OctoKitty")
-			buildTwo.SetAuthor("OctoKitty")
-			buildTwo.SetEmail("OctoKitty@github.com")
-			buildTwo.SetLink("https://example.company.com/github/octocat/2")
-			buildTwo.SetBranch("master")
-			buildTwo.SetRef("refs/heads/master")
-			buildTwo.SetBaseRef("")
-			buildTwo.SetHeadRef("changes")
-			buildTwo.SetHost("example.company.com")
-			buildTwo.SetRuntime("docker")
-			buildTwo.SetDistribution("linux")
-
-			repoOne := new(library.Repo)
-			repoOne.SetID(1)
-			repoOne.SetUserID(1)
-			repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-			repoOne.SetOrg("github")
-			repoOne.SetName("octocat")
-			repoOne.SetFullName("github/octocat")
-			repoOne.SetLink("https://github.com/github/octocat")
-			repoOne.SetClone("https://github.com/github/octocat.git")
-			repoOne.SetBranch("main")
-			repoOne.SetTopics([]string{"cloud", "security"})
-			repoOne.SetBuildLimit(10)
-			repoOne.SetTimeout(30)
-			repoOne.SetCounter(0)
-			repoOne.SetVisibility("public")
-			repoOne.SetPrivate(false)
-			repoOne.SetTrusted(false)
-			repoOne.SetActive(true)
-			repoOne.SetAllowPull(false)
-			repoOne.SetAllowPush(true)
-			repoOne.SetAllowDeploy(false)
-			repoOne.SetAllowTag(false)
-			repoOne.SetAllowComment(false)
-			repoOne.SetPipelineType("")
-			repoOne.SetPreviousName("")
-
-			repoTwo := new(library.Repo)
-			repoTwo.SetID(2)
-			repoTwo.SetUserID(1)
-			repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-			repoTwo.SetOrg("github")
-			repoTwo.SetName("octokitty")
-			repoTwo.SetFullName("github/octokitty")
-			repoTwo.SetLink("https://github.com/github/octokitty")
-			repoTwo.SetClone("https://github.com/github/octokitty.git")
-			repoTwo.SetBranch("master")
-			repoTwo.SetTopics([]string{"cloud", "security"})
-			repoTwo.SetBuildLimit(10)
-			repoTwo.SetTimeout(30)
-			repoTwo.SetCounter(0)
-			repoTwo.SetVisibility("public")
-			repoTwo.SetPrivate(false)
-			repoTwo.SetTrusted(false)
-			repoTwo.SetActive(true)
-			repoTwo.SetAllowPull(false)
-			repoTwo.SetAllowPush(true)
-			repoTwo.SetAllowDeploy(false)
-			repoTwo.SetAllowTag(false)
-			repoTwo.SetAllowComment(false)
-			repoTwo.SetPipelineType("")
-			repoTwo.SetPreviousName("")
-
-			serviceOne := new(library.Service)
-			serviceOne.SetID(1)
-			serviceOne.SetBuildID(1)
-			serviceOne.SetRepoID(1)
-			serviceOne.SetNumber(1)
-			serviceOne.SetName("init")
-			serviceOne.SetImage("#init")
-			serviceOne.SetStatus("running")
-			serviceOne.SetError("")
-			serviceOne.SetExitCode(0)
-			serviceOne.SetCreated(1563474076)
-			serviceOne.SetStarted(1563474078)
-			serviceOne.SetFinished(1563474079)
-			serviceOne.SetHost("example.company.com")
-			serviceOne.SetRuntime("docker")
-			serviceOne.SetDistribution("linux")
-
-			serviceTwo := new(library.Service)
-			serviceTwo.SetID(2)
-			serviceTwo.SetBuildID(1)
-			serviceTwo.SetRepoID(1)
-			serviceTwo.SetNumber(2)
-			serviceTwo.SetName("clone")
-			serviceTwo.SetImage("target/vela-git:v0.3.0")
-			serviceTwo.SetStatus("pending")
-			serviceTwo.SetError("")
-			serviceTwo.SetExitCode(0)
-			serviceTwo.SetCreated(1563474086)
-			serviceTwo.SetStarted(1563474088)
-			serviceTwo.SetFinished(1563474089)
-			serviceTwo.SetHost("example.company.com")
-			serviceTwo.SetRuntime("docker")
-			serviceTwo.SetDistribution("linux")
-
-			stepOne := new(library.Step)
-			stepOne.SetID(1)
-			stepOne.SetBuildID(1)
-			stepOne.SetRepoID(1)
-			stepOne.SetNumber(1)
-			stepOne.SetName("init")
-			stepOne.SetImage("#init")
-			stepOne.SetStage("init")
-			stepOne.SetStatus("running")
-			stepOne.SetError("")
-			stepOne.SetExitCode(0)
-			stepOne.SetCreated(1563474076)
-			stepOne.SetStarted(1563474078)
-			stepOne.SetFinished(1563474079)
-			stepOne.SetHost("example.company.com")
-			stepOne.SetRuntime("docker")
-			stepOne.SetDistribution("linux")
-
-			stepTwo := new(library.Step)
-			stepTwo.SetID(2)
-			stepTwo.SetBuildID(1)
-			stepTwo.SetRepoID(1)
-			stepTwo.SetNumber(2)
-			stepTwo.SetName("clone")
-			stepTwo.SetImage("target/vela-git:v0.3.0")
-			stepTwo.SetStage("init")
-			stepTwo.SetStatus("pending")
-			stepTwo.SetError("")
-			stepTwo.SetExitCode(0)
-			stepTwo.SetCreated(1563474086)
-			stepTwo.SetStarted(1563474088)
-			stepTwo.SetFinished(1563474089)
-			stepTwo.SetHost("example.company.com")
-			stepTwo.SetRuntime("docker")
-			stepTwo.SetDistribution("linux")
+			resources := newResources()
 
 			db, err := New(
 				WithAddress(test.config.Address),
@@ -274,49 +102,27 @@ func TestDatabase_Integration(t *testing.T) {
 				t.Errorf("unable to ping database engine for %s: %v", test.name, err)
 			}
 
-			t.Run("test_builds", func(t *testing.T) {
-				testBuilds(t, db, []*library.Build{buildOne, buildTwo}, []*library.Repo{repoOne, repoTwo})
-			})
+			t.Run("test_builds", func(t *testing.T) { testBuilds(t, db, resources) })
 
-			t.Run("test_hooks", func(t *testing.T) {
-				testHooks(t, db, []*library.Repo{repoOne, repoTwo})
-			})
+			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
 
-			t.Run("test_logs", func(t *testing.T) {
-				testLogs(t, db, []*library.Service{serviceOne, serviceTwo}, []*library.Step{stepOne, stepTwo})
-			})
+			t.Run("test_logs", func(t *testing.T) { testLogs(t, db, resources) })
 
-			t.Run("test_pipelines", func(t *testing.T) {
-				testPipelines(t, db, []*library.Repo{repoOne, repoTwo})
-			})
+			t.Run("test_pipelines", func(t *testing.T) { testPipelines(t, db, resources) })
 
-			t.Run("test_repos", func(t *testing.T) {
-				testRepos(t, db, []*library.Repo{repoOne, repoTwo})
-			})
+			t.Run("test_repos", func(t *testing.T) { testRepos(t, db, resources) })
 
-			t.Run("test_schedules", func(t *testing.T) {
-				testSchedules(t, db, []*library.Repo{repoOne, repoTwo})
-			})
+			t.Run("test_schedules", func(t *testing.T) { testSchedules(t, db, resources) })
 
-			t.Run("test_secrets", func(t *testing.T) {
-				testSecrets(t, db, []*library.Repo{repoOne, repoTwo})
-			})
+			t.Run("test_secrets", func(t *testing.T) { testSecrets(t, db, resources) })
 
-			t.Run("test_services", func(t *testing.T) {
-				testServices(t, db, []*library.Build{buildOne, buildTwo}, []*library.Service{serviceOne, serviceTwo})
-			})
+			t.Run("test_services", func(t *testing.T) { testServices(t, db, resources) })
 
-			t.Run("test_steps", func(t *testing.T) {
-				testSteps(t, db, []*library.Build{buildOne, buildTwo}, []*library.Step{stepOne, stepTwo})
-			})
+			t.Run("test_steps", func(t *testing.T) { testSteps(t, db, resources) })
 
-			t.Run("test_users", func(t *testing.T) {
-				testUsers(t, db)
-			})
+			t.Run("test_users", func(t *testing.T) { testUsers(t, db, resources) })
 
-			t.Run("test_workers", func(t *testing.T) {
-				testWorkers(t, db)
-			})
+			t.Run("test_workers", func(t *testing.T) { testWorkers(t, db, resources) })
 
 			err = db.Close()
 			if err != nil {
@@ -326,7 +132,7 @@ func TestDatabase_Integration(t *testing.T) {
 	}
 }
 
-func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*library.Repo) {
+func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for builds
 	//
 	// we start at 2 for creating the table and indexes for builds
@@ -334,7 +140,7 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	counter := 2
 
 	// create the builds
-	for _, build := range builds {
+	for _, build := range resources.Builds {
 		_, err := db.CreateBuild(build)
 		if err != nil {
 			t.Errorf("unable to create build %d: %v", build.GetID(), err)
@@ -347,18 +153,18 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	if err != nil {
 		t.Errorf("unable to count builds: %v", err)
 	}
-	if int(count) != len(builds) {
-		t.Errorf("CountBuilds() is %v, want %v", count, len(builds))
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountBuilds() is %v, want %v", count, len(resources.Builds))
 	}
 	counter++
 
 	// count the builds for a repo
-	count, err = db.CountBuildsForRepo(repos[0], nil)
+	count, err = db.CountBuildsForRepo(resources.Repos[0], nil)
 	if err != nil {
-		t.Errorf("unable to count builds for repo %s: %v", repos[0].GetFullName(), err)
+		t.Errorf("unable to count builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if int(count) != len(builds) {
-		t.Errorf("CountBuildsForRepo() is %v, want %v", count, len(builds))
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
 	counter++
 
@@ -367,36 +173,37 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	if err != nil {
 		t.Errorf("unable to list builds: %v", err)
 	}
-	if !reflect.DeepEqual(list, builds) {
-		t.Errorf("ListBuilds() is %v, want %v", list, builds)
+	if !reflect.DeepEqual(list, resources.Builds) {
+		t.Errorf("ListBuilds() is %v, want %v", list, resources.Builds)
 	}
 	counter++
 
 	// list the builds for a repo
-	list, count, err = db.ListBuildsForRepo(repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
+	list, count, err = db.ListBuildsForRepo(resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
 	if err != nil {
-		t.Errorf("unable to list builds for repo %s: %v", repos[0].GetFullName(), err)
+		t.Errorf("unable to list builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Build{builds[1], builds[0]}) {
-		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{builds[1], builds[0]})
+	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
+		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
 	counter++
 
 	// lookup the last build by repo
-	got, err := db.LastBuildForRepo(repos[0], "main")
+	got, err := db.LastBuildForRepo(resources.Repos[0], "main")
 	if err != nil {
-		t.Errorf("unable to get last build for repo %s: %v", repos[0].GetFullName(), err)
+		t.Errorf("unable to get last build for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(got, builds[1]) {
-		t.Errorf("GetBuildForRepo() is %v, want %v", got, builds[1])
+	if !reflect.DeepEqual(got, resources.Builds[1]) {
+		t.Errorf("GetBuildForRepo() is %v, want %v", got, resources.Builds[1])
 	}
 	counter++
 
 	// lookup the builds by repo and number
-	for _, build := range builds {
-		got, err = db.GetBuildForRepo(repos[build.GetRepoID()-1], build.GetNumber())
+	for _, build := range resources.Builds {
+		repo := resources.Repos[build.GetRepoID()-1]
+		got, err = db.GetBuildForRepo(repo, build.GetNumber())
 		if err != nil {
-			t.Errorf("unable to get build %d for repo %s: %v", build.GetID(), repos[0].GetFullName(), err)
+			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, build) {
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
@@ -405,7 +212,7 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	counter++
 
 	// update the builds
-	for _, build := range builds {
+	for _, build := range resources.Builds {
 		build.SetStatus("success")
 		_, err = db.UpdateBuild(build)
 		if err != nil {
@@ -425,7 +232,7 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	counter++
 
 	// delete the builds
-	for _, build := range builds {
+	for _, build := range resources.Builds {
 		err = db.DeleteBuild(build)
 		if err != nil {
 			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
@@ -440,52 +247,18 @@ func testBuilds(t *testing.T, db Interface, builds []*library.Build, repos []*li
 	}
 }
 
-func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
+func testHooks(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for hooks
 	//
 	// we start at 2 for creating the table and indexes for hooks
 	// since those are already called when the database engine starts
 	counter := 2
 
-	one := new(library.Hook)
-	one.SetID(1)
-	one.SetRepoID(1)
-	one.SetBuildID(1)
-	one.SetNumber(1)
-	one.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
-	one.SetCreated(time.Now().UTC().Unix())
-	one.SetHost("github.com")
-	one.SetEvent("push")
-	one.SetEventAction("")
-	one.SetBranch("master")
-	one.SetError("")
-	one.SetStatus("success")
-	one.SetLink("https://github.com/github/octocat/settings/hooks/1")
-	one.SetWebhookID(123456)
-
-	two := new(library.Hook)
-	two.SetID(2)
-	two.SetRepoID(1)
-	two.SetBuildID(1)
-	two.SetNumber(2)
-	two.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
-	two.SetCreated(time.Now().UTC().Unix())
-	two.SetHost("github.com")
-	two.SetEvent("push")
-	two.SetEventAction("")
-	two.SetBranch("master")
-	two.SetError("")
-	two.SetStatus("success")
-	two.SetLink("https://github.com/github/octocat/settings/hooks/1")
-	two.SetWebhookID(123456)
-
-	hooks := []*library.Hook{one, two}
-
 	// create the hooks
-	for _, hook := range hooks {
+	for _, hook := range resources.Hooks {
 		_, err := db.CreateHook(hook)
 		if err != nil {
-			t.Errorf("unable to create hook %s: %v", hook.GetSourceID(), err)
+			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
 		}
 	}
 	counter++
@@ -495,8 +268,8 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to count hooks: %v", err)
 	}
-	if int(count) != len(hooks) {
-		t.Errorf("CountHooks() is %v, want %v", count, len(hooks))
+	if int(count) != len(resources.Hooks) {
+		t.Errorf("CountHooks() is %v, want %v", count, len(resources.Hooks))
 	}
 	counter++
 
@@ -505,16 +278,17 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to list hooks: %v", err)
 	}
-	if !reflect.DeepEqual(list, hooks) {
-		t.Errorf("ListHooks() is %v, want %v", list, hooks)
+	if !reflect.DeepEqual(list, resources.Hooks) {
+		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
 	}
 	counter++
 
 	// lookup the hooks by name
-	for _, hook := range hooks {
-		got, err := db.GetHookForRepo(repos[0], hook.GetNumber())
+	for _, hook := range resources.Hooks {
+		repo := resources.Repos[hook.GetRepoID()-1]
+		got, err := db.GetHookForRepo(repo, hook.GetNumber())
 		if err != nil {
-			t.Errorf("unable to get hook %s for repo %s: %v", hook.GetSourceID(), repos[0].GetFullName(), err)
+			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, hook) {
 			t.Errorf("GetHookForRepo() is %v, want %v", got, hook)
@@ -523,17 +297,17 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// update the hooks
-	for _, hook := range hooks {
+	for _, hook := range resources.Hooks {
 		hook.SetStatus("success")
 		_, err = db.UpdateHook(hook)
 		if err != nil {
-			t.Errorf("unable to update hook %s: %v", hook.GetSourceID(), err)
+			t.Errorf("unable to update hook %d: %v", hook.GetID(), err)
 		}
 
 		// lookup the hook by ID
 		got, err := db.GetHook(hook.GetID())
 		if err != nil {
-			t.Errorf("unable to get hook %s by ID: %v", hook.GetSourceID(), err)
+			t.Errorf("unable to get hook %d by ID: %v", hook.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, hook) {
 			t.Errorf("GetHook() is %v, want %v", got, hook)
@@ -543,10 +317,10 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// delete the hooks
-	for _, hook := range hooks {
+	for _, hook := range resources.Hooks {
 		err = db.DeleteHook(hook)
 		if err != nil {
-			t.Errorf("unable to delete hook %s: %v", hook.GetSourceID(), err)
+			t.Errorf("unable to delete hook %d: %v", hook.GetID(), err)
 		}
 	}
 	counter++
@@ -558,53 +332,15 @@ func testHooks(t *testing.T, db Interface, repos []*library.Repo) {
 	}
 }
 
-func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*library.Step) {
+func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for logs
 	//
 	// we start at 2 for creating the table and indexes for logs
 	// since those are already called when the database engine starts
 	counter := 2
 
-	serviceOne := new(library.Log)
-	serviceOne.SetID(1)
-	serviceOne.SetBuildID(1)
-	serviceOne.SetRepoID(1)
-	serviceOne.SetServiceID(1)
-	serviceOne.SetStepID(0)
-	serviceOne.SetData([]byte("foo"))
-
-	serviceTwo := new(library.Log)
-	serviceTwo.SetID(2)
-	serviceTwo.SetBuildID(1)
-	serviceTwo.SetRepoID(1)
-	serviceTwo.SetServiceID(2)
-	serviceTwo.SetStepID(0)
-	serviceTwo.SetData([]byte("foo"))
-
-	serviceLogs := []*library.Log{serviceOne, serviceTwo}
-
-	stepOne := new(library.Log)
-	stepOne.SetID(3)
-	stepOne.SetBuildID(1)
-	stepOne.SetRepoID(1)
-	stepOne.SetServiceID(0)
-	stepOne.SetStepID(1)
-	stepOne.SetData([]byte("foo"))
-
-	stepTwo := new(library.Log)
-	stepTwo.SetID(4)
-	stepTwo.SetBuildID(1)
-	stepTwo.SetRepoID(1)
-	stepTwo.SetServiceID(0)
-	stepTwo.SetStepID(2)
-	stepTwo.SetData([]byte("foo"))
-
-	stepLogs := []*library.Log{stepOne, stepTwo}
-
-	logs := append(serviceLogs, stepLogs...)
-
 	// create the logs
-	for _, log := range logs {
+	for _, log := range resources.Logs {
 		err := db.CreateLog(log)
 		if err != nil {
 			t.Errorf("unable to create log %d: %v", log.GetID(), err)
@@ -617,8 +353,8 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	if err != nil {
 		t.Errorf("unable to count logs: %v", err)
 	}
-	if int(count) != len(logs) {
-		t.Errorf("CountLogs() is %v, want %v", count, len(logs))
+	if int(count) != len(resources.Logs) {
+		t.Errorf("CountLogs() is %v, want %v", count, len(resources.Logs))
 	}
 	counter++
 
@@ -627,16 +363,17 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	if err != nil {
 		t.Errorf("unable to list logs: %v", err)
 	}
-	if !reflect.DeepEqual(list, logs) {
-		t.Errorf("ListLogs() is %v, want %v", list, logs)
+	if !reflect.DeepEqual(list, resources.Logs) {
+		t.Errorf("ListLogs() is %v, want %v", list, resources.Logs)
 	}
 	counter++
 
 	// lookup the logs by service
-	for _, log := range serviceLogs {
-		got, err := db.GetLogForService(services[log.GetServiceID()-1])
+	for _, log := range []*library.Log{resources.Logs[0], resources.Logs[1]} {
+		service := resources.Services[log.GetServiceID()-1]
+		got, err := db.GetLogForService(service)
 		if err != nil {
-			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), services[0].GetID(), err)
+			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), service.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, log) {
 			t.Errorf("GetLogForService() is %v, want %v", got, log)
@@ -645,10 +382,11 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	counter++
 
 	// lookup the logs by service
-	for _, log := range stepLogs {
-		got, err := db.GetLogForStep(steps[log.GetStepID()-1])
+	for _, log := range []*library.Log{resources.Logs[2], resources.Logs[3]} {
+		step := resources.Steps[log.GetStepID()-1]
+		got, err := db.GetLogForStep(step)
 		if err != nil {
-			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), steps[0].GetID(), err)
+			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), step.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, log) {
 			t.Errorf("GetLogForStep() is %v, want %v", got, log)
@@ -657,7 +395,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	counter++
 
 	// update the logs
-	for _, log := range logs {
+	for _, log := range resources.Logs {
 		log.SetData([]byte("bar"))
 		err = db.UpdateLog(log)
 		if err != nil {
@@ -677,7 +415,7 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	counter++
 
 	// delete the logs
-	for _, log := range logs {
+	for _, log := range resources.Logs {
 		err = db.DeleteLog(log)
 		if err != nil {
 			t.Errorf("unable to delete log %d: %v", log.GetID(), err)
@@ -692,54 +430,18 @@ func testLogs(t *testing.T, db Interface, services []*library.Service, steps []*
 	}
 }
 
-func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
+func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for pipelines
 	//
 	// we start at 2 for creating the table and indexes for pipelines
 	// since those are already called when the database engine starts
 	counter := 2
 
-	one := new(library.Pipeline)
-	one.SetID(1)
-	one.SetRepoID(1)
-	one.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	one.SetFlavor("large")
-	one.SetPlatform("docker")
-	one.SetRef("refs/heads/master")
-	one.SetType("yaml")
-	one.SetVersion("1")
-	one.SetExternalSecrets(false)
-	one.SetInternalSecrets(false)
-	one.SetServices(true)
-	one.SetStages(false)
-	one.SetSteps(true)
-	one.SetTemplates(false)
-	one.SetData([]byte("version: 1"))
-
-	two := new(library.Pipeline)
-	two.SetID(2)
-	two.SetRepoID(1)
-	two.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
-	two.SetFlavor("large")
-	two.SetPlatform("docker")
-	two.SetRef("refs/heads/master")
-	two.SetType("yaml")
-	two.SetVersion("1")
-	two.SetExternalSecrets(false)
-	two.SetInternalSecrets(false)
-	two.SetServices(true)
-	two.SetStages(false)
-	two.SetSteps(true)
-	two.SetTemplates(false)
-	two.SetData([]byte("version: 1"))
-
-	pipelines := []*library.Pipeline{one, two}
-
 	// create the pipelines
-	for _, pipeline := range pipelines {
+	for _, pipeline := range resources.Pipelines {
 		_, err := db.CreatePipeline(pipeline)
 		if err != nil {
-			t.Errorf("unable to create pipeline %s: %v", pipeline.GetCommit(), err)
+			t.Errorf("unable to create pipeline %d: %v", pipeline.GetID(), err)
 		}
 	}
 	counter++
@@ -749,8 +451,8 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to count pipelines: %v", err)
 	}
-	if int(count) != len(pipelines) {
-		t.Errorf("CountPipelines() is %v, want %v", count, len(pipelines))
+	if int(count) != len(resources.Pipelines) {
+		t.Errorf("CountPipelines() is %v, want %v", count, len(resources.Pipelines))
 	}
 	counter++
 
@@ -759,16 +461,17 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to list pipelines: %v", err)
 	}
-	if !reflect.DeepEqual(list, pipelines) {
-		t.Errorf("ListPipelines() is %v, want %v", list, pipelines)
+	if !reflect.DeepEqual(list, resources.Pipelines) {
+		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
 	}
 	counter++
 
 	// lookup the pipelines by name
-	for _, pipeline := range pipelines {
-		got, err := db.GetPipelineForRepo(pipeline.GetCommit(), repos[0])
+	for _, pipeline := range resources.Pipelines {
+		repo := resources.Repos[pipeline.GetRepoID()-1]
+		got, err := db.GetPipelineForRepo(pipeline.GetCommit(), repo)
 		if err != nil {
-			t.Errorf("unable to get pipeline %s for repo %s: %v", pipeline.GetCommit(), repos[0].GetFullName(), err)
+			t.Errorf("unable to get pipeline %d for repo %d: %v", pipeline.GetID(), repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, pipeline) {
 			t.Errorf("GetPipelineForRepo() is %v, want %v", got, pipeline)
@@ -777,17 +480,17 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// update the pipelines
-	for _, pipeline := range pipelines {
+	for _, pipeline := range resources.Pipelines {
 		pipeline.SetVersion("2")
 		_, err = db.UpdatePipeline(pipeline)
 		if err != nil {
-			t.Errorf("unable to update pipeline %s: %v", pipeline.GetCommit(), err)
+			t.Errorf("unable to update pipeline %d: %v", pipeline.GetID(), err)
 		}
 
 		// lookup the pipeline by ID
 		got, err := db.GetPipeline(pipeline.GetID())
 		if err != nil {
-			t.Errorf("unable to get pipeline %s by ID: %v", pipeline.GetCommit(), err)
+			t.Errorf("unable to get pipeline %d by ID: %v", pipeline.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, pipeline) {
 			t.Errorf("GetPipeline() is %v, want %v", got, pipeline)
@@ -797,10 +500,10 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// delete the pipelines
-	for _, pipeline := range pipelines {
+	for _, pipeline := range resources.Pipelines {
 		err = db.DeletePipeline(pipeline)
 		if err != nil {
-			t.Errorf("unable to delete pipeline %s: %v", pipeline.GetCommit(), err)
+			t.Errorf("unable to delete pipeline %d: %v", pipeline.GetID(), err)
 		}
 	}
 	counter++
@@ -812,7 +515,7 @@ func testPipelines(t *testing.T, db Interface, repos []*library.Repo) {
 	}
 }
 
-func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
+func testRepos(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for repos
 	//
 	// we start at 2 for creating the table and indexes for repos
@@ -820,10 +523,10 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 	counter := 2
 
 	// create the repos
-	for _, repo := range repos {
+	for _, repo := range resources.Repos {
 		err := db.CreateRepo(repo)
 		if err != nil {
-			t.Errorf("unable to create repo %s: %v", repo.GetFullName(), err)
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
 	}
 	counter++
@@ -833,8 +536,8 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to count repos: %v", err)
 	}
-	if int(count) != len(repos) {
-		t.Errorf("CountRepos() is %v, want %v", count, len(repos))
+	if int(count) != len(resources.Repos) {
+		t.Errorf("CountRepos() is %v, want %v", count, len(resources.Repos))
 	}
 	counter++
 
@@ -843,16 +546,16 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to list repos: %v", err)
 	}
-	if !reflect.DeepEqual(list, repos) {
-		t.Errorf("ListRepos() is %v, want %v", list, repos)
+	if !reflect.DeepEqual(list, resources.Repos) {
+		t.Errorf("ListRepos() is %v, want %v", list, resources.Repos)
 	}
 	counter++
 
 	// lookup the repos by name
-	for _, repo := range repos {
+	for _, repo := range resources.Repos {
 		got, err := db.GetRepoForOrg(repo.GetOrg(), repo.GetName())
 		if err != nil {
-			t.Errorf("unable to get repo %s by org: %v", repo.GetFullName(), err)
+			t.Errorf("unable to get repo %d by org: %v", repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, repo) {
 			t.Errorf("GetRepoForOrg() is %v, want %v", got, repo)
@@ -861,17 +564,17 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// update the repos
-	for _, repo := range repos {
+	for _, repo := range resources.Repos {
 		repo.SetActive(false)
 		err = db.UpdateRepo(repo)
 		if err != nil {
-			t.Errorf("unable to update repo %s: %v", repo.GetFullName(), err)
+			t.Errorf("unable to update repo %d: %v", repo.GetID(), err)
 		}
 
 		// lookup the repo by ID
 		got, err := db.GetRepo(repo.GetID())
 		if err != nil {
-			t.Errorf("unable to get repo %s by ID: %v", repo.GetFullName(), err)
+			t.Errorf("unable to get repo %d by ID: %v", repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, repo) {
 			t.Errorf("GetRepo() is %v, want %v", got, repo)
@@ -881,10 +584,10 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// delete the repos
-	for _, repo := range repos {
+	for _, repo := range resources.Repos {
 		err = db.DeleteRepo(repo)
 		if err != nil {
-			t.Errorf("unable to delete repo %s: %v", repo.GetFullName(), err)
+			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
 		}
 	}
 	counter++
@@ -896,44 +599,18 @@ func testRepos(t *testing.T, db Interface, repos []*library.Repo) {
 	}
 }
 
-func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
+func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for schedules
 	//
 	// we start at 2 for creating the table and indexes for schedules
 	// since those are already called when the database engine starts
 	counter := 2
 
-	one := new(library.Schedule)
-	one.SetID(1)
-	one.SetRepoID(1)
-	one.SetActive(true)
-	one.SetName("nightly")
-	one.SetEntry("0 0 * * *")
-	one.SetCreatedAt(time.Now().UTC().Unix())
-	one.SetCreatedBy("octocat")
-	one.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
-	one.SetUpdatedBy("octokitty")
-	one.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
-
-	two := new(library.Schedule)
-	two.SetID(2)
-	two.SetRepoID(1)
-	two.SetActive(true)
-	two.SetName("hourly")
-	two.SetEntry("0 * * * *")
-	two.SetCreatedAt(time.Now().UTC().Unix())
-	two.SetCreatedBy("octocat")
-	two.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
-	two.SetUpdatedBy("octokitty")
-	two.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
-
-	schedules := []*library.Schedule{one, two}
-
 	// create the schedules
-	for _, schedule := range schedules {
+	for _, schedule := range resources.Schedules {
 		err := db.CreateSchedule(schedule)
 		if err != nil {
-			t.Errorf("unable to create schedule %s: %v", schedule.GetName(), err)
+			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
 	}
 	counter++
@@ -943,8 +620,8 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
-	if int(count) != len(schedules) {
-		t.Errorf("CountSchedules() is %v, want %v", count, len(schedules))
+	if int(count) != len(resources.Schedules) {
+		t.Errorf("CountSchedules() is %v, want %v", count, len(resources.Schedules))
 	}
 	counter++
 
@@ -953,16 +630,17 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
-	if !reflect.DeepEqual(list, schedules) {
-		t.Errorf("ListSchedules() is %v, want %v", list, schedules)
+	if !reflect.DeepEqual(list, resources.Schedules) {
+		t.Errorf("ListSchedules() is %v, want %v", list, resources.Schedules)
 	}
 	counter++
 
 	// lookup the schedules by name
-	for _, schedule := range schedules {
-		got, err := db.GetScheduleForRepo(repos[0], schedule.GetName())
+	for _, schedule := range resources.Schedules {
+		repo := resources.Repos[schedule.GetRepoID()-1]
+		got, err := db.GetScheduleForRepo(repo, schedule.GetName())
 		if err != nil {
-			t.Errorf("unable to get schedule %s for repo %s: %v", schedule.GetName(), repos[0].GetFullName(), err)
+			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, schedule) {
 			t.Errorf("GetScheduleForRepo() is %v, want %v", got, schedule)
@@ -971,17 +649,17 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// update the schedules
-	for _, schedule := range schedules {
+	for _, schedule := range resources.Schedules {
 		schedule.SetActive(false)
 		err = db.UpdateSchedule(schedule, false)
 		if err != nil {
-			t.Errorf("unable to update schedule %s: %v", schedule.GetName(), err)
+			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
 
 		// lookup the schedule by ID
 		got, err := db.GetSchedule(schedule.GetID())
 		if err != nil {
-			t.Errorf("unable to get schedule %s by ID: %v", schedule.GetName(), err)
+			t.Errorf("unable to get schedule %d by ID: %v", schedule.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, schedule) {
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
@@ -991,10 +669,10 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// delete the schedules
-	for _, schedule := range schedules {
+	for _, schedule := range resources.Schedules {
 		err = db.DeleteSchedule(schedule)
 		if err != nil {
-			t.Errorf("unable to delete schedule %s: %v", schedule.GetName(), err)
+			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
 	}
 	counter++
@@ -1006,52 +684,18 @@ func testSchedules(t *testing.T, db Interface, repos []*library.Repo) {
 	}
 }
 
-func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
+func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for secrets
 	//
 	// we start at 2 for creating the table and indexes for secrets
 	// since those are already called when the database engine starts
 	counter := 2
 
-	one := new(library.Secret)
-	one.SetID(1)
-	one.SetOrg("github")
-	one.SetRepo("octocat")
-	one.SetTeam("")
-	one.SetName("foo")
-	one.SetValue("bar")
-	one.SetType("repo")
-	one.SetImages([]string{"alpine"})
-	one.SetEvents([]string{"push", "tag", "deployment"})
-	one.SetAllowCommand(true)
-	one.SetCreatedAt(time.Now().UTC().Unix())
-	one.SetCreatedBy("octocat")
-	one.SetUpdatedAt(time.Now().UTC().Unix())
-	one.SetUpdatedBy("octokitty")
-
-	two := new(library.Secret)
-	two.SetID(2)
-	two.SetOrg("github")
-	two.SetRepo("octocat")
-	two.SetTeam("")
-	two.SetName("bar")
-	two.SetValue("baz")
-	two.SetType("repo")
-	two.SetImages([]string{"alpine"})
-	two.SetEvents([]string{"push", "tag", "deployment"})
-	two.SetAllowCommand(true)
-	two.SetCreatedAt(time.Now().UTC().Unix())
-	two.SetCreatedBy("octocat")
-	two.SetUpdatedAt(time.Now().UTC().Unix())
-	two.SetUpdatedBy("octokitty")
-
-	secrets := []*library.Secret{one, two}
-
 	// create the secrets
-	for _, secret := range secrets {
+	for _, secret := range resources.Secrets {
 		err := db.CreateSecret(secret)
 		if err != nil {
-			t.Errorf("unable to create secret %s: %v", secret.GetName(), err)
+			t.Errorf("unable to create secret %d: %v", secret.GetID(), err)
 		}
 	}
 	counter++
@@ -1061,8 +705,8 @@ func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to count secrets: %v", err)
 	}
-	if int(count) != len(secrets) {
-		t.Errorf("CountSecrets() is %v, want %v", count, len(secrets))
+	if int(count) != len(resources.Secrets) {
+		t.Errorf("CountSecrets() is %v, want %v", count, len(resources.Secrets))
 	}
 	counter++
 
@@ -1071,16 +715,16 @@ func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
 	if err != nil {
 		t.Errorf("unable to list secrets: %v", err)
 	}
-	if !reflect.DeepEqual(list, secrets) {
-		t.Errorf("ListSecrets() is %v, want %v", list, secrets)
+	if !reflect.DeepEqual(list, resources.Secrets) {
+		t.Errorf("ListSecrets() is %v, want %v", list, resources.Secrets)
 	}
 	counter++
 
 	// lookup the secrets by name
-	for _, secret := range secrets {
-		got, err := db.GetSecretForRepo(secret.GetName(), repos[0])
+	for _, secret := range resources.Secrets {
+		got, err := db.GetSecretForRepo(secret.GetName(), resources.Repos[0])
 		if err != nil {
-			t.Errorf("unable to get secret %s for repo %s: %v", secret.GetName(), repos[0].GetFullName(), err)
+			t.Errorf("unable to get secret %d for repo %d: %v", secret.GetID(), resources.Repos[0].GetID(), err)
 		}
 		if !reflect.DeepEqual(got, secret) {
 			t.Errorf("GetSecretForRepo() is %v, want %v", got, secret)
@@ -1089,17 +733,17 @@ func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// update the secrets
-	for _, secret := range secrets {
+	for _, secret := range resources.Secrets {
 		secret.SetAllowCommand(false)
 		err = db.UpdateSecret(secret)
 		if err != nil {
-			t.Errorf("unable to update secret %s: %v", secret.GetName(), err)
+			t.Errorf("unable to update secret %d: %v", secret.GetID(), err)
 		}
 
 		// lookup the secret by ID
 		got, err := db.GetSecret(secret.GetID())
 		if err != nil {
-			t.Errorf("unable to get secret %s by ID: %v", secret.GetName(), err)
+			t.Errorf("unable to get secret %d by ID: %v", secret.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, secret) {
 			t.Errorf("GetSecret() is %v, want %v", got, secret)
@@ -1109,10 +753,10 @@ func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
 	counter++
 
 	// delete the secrets
-	for _, secret := range secrets {
+	for _, secret := range resources.Secrets {
 		err = db.DeleteSecret(secret)
 		if err != nil {
-			t.Errorf("unable to delete secret %s: %v", secret.GetName(), err)
+			t.Errorf("unable to delete secret %d: %v", secret.GetID(), err)
 		}
 	}
 	counter++
@@ -1124,7 +768,7 @@ func testSecrets(t *testing.T, db Interface, repos []*library.Repo) {
 	}
 }
 
-func testServices(t *testing.T, db Interface, builds []*library.Build, services []*library.Service) {
+func testServices(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for services
 	//
 	// we start at 2 for creating the table and indexes for services
@@ -1132,10 +776,10 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	counter := 2
 
 	// create the services
-	for _, service := range services {
+	for _, service := range resources.Services {
 		err := db.CreateService(service)
 		if err != nil {
-			t.Errorf("unable to create service %s: %v", service.GetName(), err)
+			t.Errorf("unable to create service %d: %v", service.GetID(), err)
 		}
 	}
 	counter++
@@ -1145,18 +789,18 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	if err != nil {
 		t.Errorf("unable to count services: %v", err)
 	}
-	if int(count) != len(services) {
-		t.Errorf("CountServices() is %v, want %v", count, len(services))
+	if int(count) != len(resources.Services) {
+		t.Errorf("CountServices() is %v, want %v", count, len(resources.Services))
 	}
 	counter++
 
 	// count the services for a build
-	count, err = db.CountServicesForBuild(builds[0], nil)
+	count, err = db.CountServicesForBuild(resources.Builds[0], nil)
 	if err != nil {
-		t.Errorf("unable to count services for build %d: %v", builds[0].GetID(), err)
+		t.Errorf("unable to count services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if int(count) != len(services) {
-		t.Errorf("CountServicesForBuild() is %v, want %v", count, len(services))
+	if int(count) != len(resources.Services) {
+		t.Errorf("CountServicesForBuild() is %v, want %v", count, len(resources.Services))
 	}
 	counter++
 
@@ -1165,21 +809,21 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	if err != nil {
 		t.Errorf("unable to list services: %v", err)
 	}
-	if !reflect.DeepEqual(list, services) {
-		t.Errorf("ListServices() is %v, want %v", list, services)
+	if !reflect.DeepEqual(list, resources.Services) {
+		t.Errorf("ListServices() is %v, want %v", list, resources.Services)
 	}
 	counter++
 
 	// list the services for a build
-	list, count, err = db.ListServicesForBuild(builds[0], nil, 1, 10)
+	list, count, err = db.ListServicesForBuild(resources.Builds[0], nil, 1, 10)
 	if err != nil {
-		t.Errorf("unable to list services for build %d: %v", builds[0].GetID(), err)
+		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Service{services[1], services[0]}) {
-		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{services[1], services[0]})
+	if !reflect.DeepEqual(list, []*library.Service{resources.Services[1], resources.Services[0]}) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{resources.Services[1], resources.Services[0]})
 	}
-	if int(count) != len(services) {
-		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(services))
+	if int(count) != len(resources.Services) {
+		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(resources.Services))
 	}
 	counter++
 
@@ -1213,10 +857,11 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	counter++
 
 	// lookup the services by name
-	for _, service := range services {
-		got, err := db.GetServiceForBuild(builds[0], service.GetNumber())
+	for _, service := range resources.Services {
+		build := resources.Builds[service.GetBuildID()-1]
+		got, err := db.GetServiceForBuild(build, service.GetNumber())
 		if err != nil {
-			t.Errorf("unable to get service %s for build %d: %v", service.GetName(), builds[0].GetID(), err)
+			t.Errorf("unable to get service %d for build %d: %v", service.GetID(), build.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, service) {
 			t.Errorf("GetServiceForBuild() is %v, want %v", got, service)
@@ -1225,17 +870,17 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	counter++
 
 	// update the services
-	for _, service := range services {
+	for _, service := range resources.Services {
 		service.SetStatus("success")
 		err = db.UpdateService(service)
 		if err != nil {
-			t.Errorf("unable to update service %s: %v", service.GetName(), err)
+			t.Errorf("unable to update service %d: %v", service.GetID(), err)
 		}
 
 		// lookup the service by ID
 		got, err := db.GetService(service.GetID())
 		if err != nil {
-			t.Errorf("unable to get service %s by ID: %v", service.GetName(), err)
+			t.Errorf("unable to get service %d by ID: %v", service.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, service) {
 			t.Errorf("GetService() is %v, want %v", got, service)
@@ -1245,10 +890,10 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	counter++
 
 	// delete the services
-	for _, service := range services {
+	for _, service := range resources.Services {
 		err = db.DeleteService(service)
 		if err != nil {
-			t.Errorf("unable to delete service %s: %v", service.GetName(), err)
+			t.Errorf("unable to delete service %d: %v", service.GetID(), err)
 		}
 	}
 	counter++
@@ -1260,7 +905,7 @@ func testServices(t *testing.T, db Interface, builds []*library.Build, services 
 	}
 }
 
-func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*library.Step) {
+func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for steps
 	//
 	// we start at 2 for creating the table and indexes for steps
@@ -1268,10 +913,10 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	counter := 2
 
 	// create the steps
-	for _, step := range steps {
+	for _, step := range resources.Steps {
 		err := db.CreateStep(step)
 		if err != nil {
-			t.Errorf("unable to create step %s: %v", step.GetName(), err)
+			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
 	}
 	counter++
@@ -1281,18 +926,18 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	if err != nil {
 		t.Errorf("unable to count steps: %v", err)
 	}
-	if int(count) != len(steps) {
-		t.Errorf("CountSteps() is %v, want %v", count, len(steps))
+	if int(count) != len(resources.Steps) {
+		t.Errorf("CountSteps() is %v, want %v", count, len(resources.Steps))
 	}
 	counter++
 
 	// count the steps for a build
-	count, err = db.CountStepsForBuild(builds[0], nil)
+	count, err = db.CountStepsForBuild(resources.Builds[0], nil)
 	if err != nil {
-		t.Errorf("unable to count steps for build %d: %v", builds[0].GetID(), err)
+		t.Errorf("unable to count steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if int(count) != len(steps) {
-		t.Errorf("CountStepsForBuild() is %v, want %v", count, len(steps))
+	if int(count) != len(resources.Steps) {
+		t.Errorf("CountStepsForBuild() is %v, want %v", count, len(resources.Steps))
 	}
 	counter++
 
@@ -1301,21 +946,21 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	if err != nil {
 		t.Errorf("unable to list steps: %v", err)
 	}
-	if !reflect.DeepEqual(list, steps) {
-		t.Errorf("ListSteps() is %v, want %v", list, steps)
+	if !reflect.DeepEqual(list, resources.Steps) {
+		t.Errorf("ListSteps() is %v, want %v", list, resources.Steps)
 	}
 	counter++
 
 	// list the steps for a build
-	list, count, err = db.ListStepsForBuild(builds[0], nil, 1, 10)
+	list, count, err = db.ListStepsForBuild(resources.Builds[0], nil, 1, 10)
 	if err != nil {
-		t.Errorf("unable to list steps for build %d: %v", builds[0].GetID(), err)
+		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Step{steps[1], steps[0]}) {
-		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{steps[1], steps[0]})
+	if !reflect.DeepEqual(list, []*library.Step{resources.Steps[1], resources.Steps[0]}) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{resources.Steps[1], resources.Steps[0]})
 	}
-	if int(count) != len(steps) {
-		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(steps))
+	if int(count) != len(resources.Steps) {
+		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(resources.Steps))
 	}
 	counter++
 
@@ -1349,10 +994,11 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	counter++
 
 	// lookup the steps by name
-	for _, step := range steps {
-		got, err := db.GetStepForBuild(builds[0], step.GetNumber())
+	for _, step := range resources.Steps {
+		build := resources.Builds[step.GetBuildID()-1]
+		got, err := db.GetStepForBuild(build, step.GetNumber())
 		if err != nil {
-			t.Errorf("unable to get step %s for build %d: %v", step.GetName(), builds[0].GetID(), err)
+			t.Errorf("unable to get step %d for build %d: %v", step.GetID(), build.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
@@ -1361,17 +1007,17 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	counter++
 
 	// update the steps
-	for _, step := range steps {
+	for _, step := range resources.Steps {
 		step.SetStatus("success")
 		err = db.UpdateStep(step)
 		if err != nil {
-			t.Errorf("unable to update step %s: %v", step.GetName(), err)
+			t.Errorf("unable to update step %d: %v", step.GetID(), err)
 		}
 
 		// lookup the step by ID
 		got, err := db.GetStep(step.GetID())
 		if err != nil {
-			t.Errorf("unable to get step %s by ID: %v", step.GetName(), err)
+			t.Errorf("unable to get step %d by ID: %v", step.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, step) {
 			t.Errorf("GetStep() is %v, want %v", got, step)
@@ -1381,10 +1027,10 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	counter++
 
 	// delete the steps
-	for _, step := range steps {
+	for _, step := range resources.Steps {
 		err = db.DeleteStep(step)
 		if err != nil {
-			t.Errorf("unable to delete step %s: %v", step.GetName(), err)
+			t.Errorf("unable to delete step %d: %v", step.GetID(), err)
 		}
 	}
 	counter++
@@ -1396,34 +1042,12 @@ func testSteps(t *testing.T, db Interface, builds []*library.Build, steps []*lib
 	}
 }
 
-func testUsers(t *testing.T, db Interface) {
+func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for users
 	//
 	// we start at 2 for creating the table and indexes for users
 	// since those are already called when the database engine starts
 	counter := 2
-
-	one := new(library.User)
-	one.SetID(1)
-	one.SetName("octocat")
-	one.SetToken("superSecretToken")
-	one.SetRefreshToken("superSecretRefreshToken")
-	one.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	one.SetFavorites([]string{"github/octocat"})
-	one.SetActive(true)
-	one.SetAdmin(false)
-
-	two := new(library.User)
-	two.SetID(2)
-	two.SetName("octokitty")
-	two.SetToken("superSecretToken")
-	two.SetRefreshToken("superSecretRefreshToken")
-	two.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	two.SetFavorites([]string{"github/octocat"})
-	two.SetActive(true)
-	two.SetAdmin(false)
-
-	users := []*library.User{one, two}
 
 	liteOne := new(library.User)
 	liteOne.SetID(1)
@@ -1448,10 +1072,10 @@ func testUsers(t *testing.T, db Interface) {
 	liteUsers := []*library.User{liteOne, liteTwo}
 
 	// create the users
-	for _, user := range users {
+	for _, user := range resources.Users {
 		err := db.CreateUser(user)
 		if err != nil {
-			t.Errorf("unable to create user %s: %v", user.GetName(), err)
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
 	}
 	counter++
@@ -1461,8 +1085,8 @@ func testUsers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to count users: %v", err)
 	}
-	if int(count) != len(users) {
-		t.Errorf("CountUsers() is %v, want %v", count, len(users))
+	if int(count) != len(resources.Users) {
+		t.Errorf("CountUsers() is %v, want %v", count, len(resources.Users))
 	}
 	counter++
 
@@ -1471,8 +1095,8 @@ func testUsers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to list users: %v", err)
 	}
-	if !reflect.DeepEqual(list, users) {
-		t.Errorf("ListUsers() is %v, want %v", list, users)
+	if !reflect.DeepEqual(list, resources.Users) {
+		t.Errorf("ListUsers() is %v, want %v", list, resources.Users)
 	}
 	counter++
 
@@ -1488,16 +1112,16 @@ func testUsers(t *testing.T, db Interface) {
 		}
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
-	if int(count) != len(users) {
-		t.Errorf("ListLiteUsers() is %v, want %v", count, len(users))
+	if int(count) != len(liteUsers) {
+		t.Errorf("ListLiteUsers() is %v, want %v", count, len(liteUsers))
 	}
 	counter++
 
 	// lookup the users by name
-	for _, user := range users {
+	for _, user := range resources.Users {
 		got, err := db.GetUserForName(user.GetName())
 		if err != nil {
-			t.Errorf("unable to get user %s by name: %v", user.GetName(), err)
+			t.Errorf("unable to get user %d by name: %v", user.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, user) {
 			t.Errorf("GetUserForName() is %v, want %v", got, user)
@@ -1506,17 +1130,17 @@ func testUsers(t *testing.T, db Interface) {
 	counter++
 
 	// update the users
-	for _, user := range users {
+	for _, user := range resources.Users {
 		user.SetActive(false)
 		err = db.UpdateUser(user)
 		if err != nil {
-			t.Errorf("unable to update user %s: %v", user.GetName(), err)
+			t.Errorf("unable to update user %d: %v", user.GetID(), err)
 		}
 
 		// lookup the user by ID
 		got, err := db.GetUser(user.GetID())
 		if err != nil {
-			t.Errorf("unable to get user %s by ID: %v", user.GetName(), err)
+			t.Errorf("unable to get user %d by ID: %v", user.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, user) {
 			t.Errorf("GetUser() is %v, want %v", got, user)
@@ -1526,10 +1150,10 @@ func testUsers(t *testing.T, db Interface) {
 	counter++
 
 	// delete the users
-	for _, user := range users {
+	for _, user := range resources.Users {
 		err = db.DeleteUser(user)
 		if err != nil {
-			t.Errorf("unable to delete user %s: %v", user.GetName(), err)
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
 		}
 	}
 	counter++
@@ -1541,48 +1165,18 @@ func testUsers(t *testing.T, db Interface) {
 	}
 }
 
-func testWorkers(t *testing.T, db Interface) {
+func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	// used to track the number of methods we call for workers
 	//
 	// we start at 2 for creating the table and indexes for users
 	// since those are already called when the database engine starts
 	counter := 2
 
-	one := new(library.Worker)
-	one.SetID(1)
-	one.SetHostname("worker-1.example.com")
-	one.SetAddress("https://worker-1.example.com")
-	one.SetRoutes([]string{"vela"})
-	one.SetActive(true)
-	one.SetStatus("available")
-	one.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	one.SetRunningBuildIDs([]string{"12345"})
-	one.SetLastBuildStartedAt(time.Now().UTC().Unix())
-	one.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	one.SetLastCheckedIn(time.Now().UTC().Unix())
-	one.SetBuildLimit(1)
-
-	two := new(library.Worker)
-	two.SetID(2)
-	two.SetHostname("worker-2.example.com")
-	two.SetAddress("https://worker-2.example.com")
-	two.SetRoutes([]string{"vela"})
-	two.SetActive(true)
-	two.SetStatus("available")
-	two.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	two.SetRunningBuildIDs([]string{"12345"})
-	two.SetLastBuildStartedAt(time.Now().UTC().Unix())
-	two.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	two.SetLastCheckedIn(time.Now().UTC().Unix())
-	two.SetBuildLimit(1)
-
-	workers := []*library.Worker{one, two}
-
 	// create the workers
-	for _, worker := range workers {
+	for _, worker := range resources.Workers {
 		err := db.CreateWorker(worker)
 		if err != nil {
-			t.Errorf("unable to create worker %s: %v", worker.GetHostname(), err)
+			t.Errorf("unable to create worker %d: %v", worker.GetID(), err)
 		}
 	}
 	counter++
@@ -1592,8 +1186,8 @@ func testWorkers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to count workers: %v", err)
 	}
-	if int(count) != len(workers) {
-		t.Errorf("CountWorkers() is %v, want %v", count, len(workers))
+	if int(count) != len(resources.Workers) {
+		t.Errorf("CountWorkers() is %v, want %v", count, len(resources.Workers))
 	}
 	counter++
 
@@ -1602,16 +1196,16 @@ func testWorkers(t *testing.T, db Interface) {
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
-	if !reflect.DeepEqual(list, workers) {
-		t.Errorf("ListWorkers() is %v, want %v", list, workers)
+	if !reflect.DeepEqual(list, resources.Workers) {
+		t.Errorf("ListWorkers() is %v, want %v", list, resources.Workers)
 	}
 	counter++
 
 	// lookup the workers by hostname
-	for _, worker := range workers {
+	for _, worker := range resources.Workers {
 		got, err := db.GetWorkerForHostname(worker.GetHostname())
 		if err != nil {
-			t.Errorf("unable to get worker %s by hostname: %v", worker.GetHostname(), err)
+			t.Errorf("unable to get worker %d by hostname: %v", worker.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, worker) {
 			t.Errorf("GetWorkerForHostname() is %v, want %v", got, worker)
@@ -1620,17 +1214,17 @@ func testWorkers(t *testing.T, db Interface) {
 	counter++
 
 	// update the workers
-	for _, worker := range workers {
+	for _, worker := range resources.Workers {
 		worker.SetActive(false)
 		err = db.UpdateWorker(worker)
 		if err != nil {
-			t.Errorf("unable to update worker %s: %v", worker.GetHostname(), err)
+			t.Errorf("unable to update worker %d: %v", worker.GetID(), err)
 		}
 
 		// lookup the worker by ID
 		got, err := db.GetWorker(worker.GetID())
 		if err != nil {
-			t.Errorf("unable to get worker %s by ID: %v", worker.GetHostname(), err)
+			t.Errorf("unable to get worker %d by ID: %v", worker.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, worker) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
@@ -1640,10 +1234,10 @@ func testWorkers(t *testing.T, db Interface) {
 	counter++
 
 	// delete the workers
-	for _, worker := range workers {
+	for _, worker := range resources.Workers {
 		err = db.DeleteWorker(worker)
 		if err != nil {
-			t.Errorf("unable to delete worker %s: %v", worker.GetHostname(), err)
+			t.Errorf("unable to delete worker %d: %v", worker.GetID(), err)
 		}
 	}
 	counter++
@@ -1652,5 +1246,411 @@ func testWorkers(t *testing.T, db Interface) {
 	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod()
 	if counter != methods {
 		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	}
+}
+
+func newResources() *Resources {
+	buildOne := new(library.Build)
+	buildOne.SetID(1)
+	buildOne.SetRepoID(1)
+	buildOne.SetPipelineID(1)
+	buildOne.SetNumber(1)
+	buildOne.SetParent(1)
+	buildOne.SetEvent("push")
+	buildOne.SetEventAction("")
+	buildOne.SetStatus("running")
+	buildOne.SetError("")
+	buildOne.SetEnqueued(1563474077)
+	buildOne.SetCreated(1563474076)
+	buildOne.SetStarted(1563474078)
+	buildOne.SetFinished(1563474079)
+	buildOne.SetDeploy("")
+	buildOne.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
+	buildOne.SetClone("https://github.com/github/octocat.git")
+	buildOne.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135163")
+	buildOne.SetTitle("push received from https://github.com/github/octocat")
+	buildOne.SetMessage("First commit...")
+	buildOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	buildOne.SetSender("OctoKitty")
+	buildOne.SetAuthor("OctoKitty")
+	buildOne.SetEmail("OctoKitty@github.com")
+	buildOne.SetLink("https://example.company.com/github/octocat/1")
+	buildOne.SetBranch("master")
+	buildOne.SetRef("refs/heads/master")
+	buildOne.SetBaseRef("")
+	buildOne.SetHeadRef("changes")
+	buildOne.SetHost("example.company.com")
+	buildOne.SetRuntime("docker")
+	buildOne.SetDistribution("linux")
+
+	buildTwo := new(library.Build)
+	buildTwo.SetID(2)
+	buildTwo.SetRepoID(1)
+	buildTwo.SetPipelineID(1)
+	buildTwo.SetNumber(2)
+	buildTwo.SetParent(1)
+	buildTwo.SetEvent("pull_request")
+	buildTwo.SetEventAction("")
+	buildTwo.SetStatus("running")
+	buildTwo.SetError("")
+	buildTwo.SetEnqueued(1563474077)
+	buildTwo.SetCreated(1563474076)
+	buildTwo.SetStarted(1563474078)
+	buildTwo.SetFinished(1563474079)
+	buildTwo.SetDeploy("")
+	buildTwo.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
+	buildTwo.SetClone("https://github.com/github/octocat.git")
+	buildTwo.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135164")
+	buildTwo.SetTitle("pull_request received from https://github.com/github/octocat")
+	buildTwo.SetMessage("Second commit...")
+	buildTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
+	buildTwo.SetSender("OctoKitty")
+	buildTwo.SetAuthor("OctoKitty")
+	buildTwo.SetEmail("OctoKitty@github.com")
+	buildTwo.SetLink("https://example.company.com/github/octocat/2")
+	buildTwo.SetBranch("master")
+	buildTwo.SetRef("refs/heads/master")
+	buildTwo.SetBaseRef("")
+	buildTwo.SetHeadRef("changes")
+	buildTwo.SetHost("example.company.com")
+	buildTwo.SetRuntime("docker")
+	buildTwo.SetDistribution("linux")
+
+	hookOne := new(library.Hook)
+	hookOne.SetID(1)
+	hookOne.SetRepoID(1)
+	hookOne.SetBuildID(1)
+	hookOne.SetNumber(1)
+	hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	hookOne.SetCreated(time.Now().UTC().Unix())
+	hookOne.SetHost("github.com")
+	hookOne.SetEvent("push")
+	hookOne.SetEventAction("")
+	hookOne.SetBranch("master")
+	hookOne.SetError("")
+	hookOne.SetStatus("success")
+	hookOne.SetLink("https://github.com/github/octocat/settings/hooks/1")
+	hookOne.SetWebhookID(123456)
+
+	hookTwo := new(library.Hook)
+	hookTwo.SetID(2)
+	hookTwo.SetRepoID(1)
+	hookTwo.SetBuildID(1)
+	hookTwo.SetNumber(2)
+	hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
+	hookTwo.SetCreated(time.Now().UTC().Unix())
+	hookTwo.SetHost("github.com")
+	hookTwo.SetEvent("push")
+	hookTwo.SetEventAction("")
+	hookTwo.SetBranch("master")
+	hookTwo.SetError("")
+	hookTwo.SetStatus("success")
+	hookTwo.SetLink("https://github.com/github/octocat/settings/hooks/1")
+	hookTwo.SetWebhookID(123456)
+
+	logServiceOne := new(library.Log)
+	logServiceOne.SetID(1)
+	logServiceOne.SetBuildID(1)
+	logServiceOne.SetRepoID(1)
+	logServiceOne.SetServiceID(1)
+	logServiceOne.SetStepID(0)
+	logServiceOne.SetData([]byte("foo"))
+
+	logServiceTwo := new(library.Log)
+	logServiceTwo.SetID(2)
+	logServiceTwo.SetBuildID(1)
+	logServiceTwo.SetRepoID(1)
+	logServiceTwo.SetServiceID(2)
+	logServiceTwo.SetStepID(0)
+	logServiceTwo.SetData([]byte("foo"))
+
+	logStepOne := new(library.Log)
+	logStepOne.SetID(3)
+	logStepOne.SetBuildID(1)
+	logStepOne.SetRepoID(1)
+	logStepOne.SetServiceID(0)
+	logStepOne.SetStepID(1)
+	logStepOne.SetData([]byte("foo"))
+
+	logStepTwo := new(library.Log)
+	logStepTwo.SetID(4)
+	logStepTwo.SetBuildID(1)
+	logStepTwo.SetRepoID(1)
+	logStepTwo.SetServiceID(0)
+	logStepTwo.SetStepID(2)
+	logStepTwo.SetData([]byte("foo"))
+
+	pipelineOne := new(library.Pipeline)
+	pipelineOne.SetID(1)
+	pipelineOne.SetRepoID(1)
+	pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	pipelineOne.SetFlavor("large")
+	pipelineOne.SetPlatform("docker")
+	pipelineOne.SetRef("refs/heads/master")
+	pipelineOne.SetType("yaml")
+	pipelineOne.SetVersion("1")
+	pipelineOne.SetExternalSecrets(false)
+	pipelineOne.SetInternalSecrets(false)
+	pipelineOne.SetServices(true)
+	pipelineOne.SetStages(false)
+	pipelineOne.SetSteps(true)
+	pipelineOne.SetTemplates(false)
+	pipelineOne.SetData([]byte("version: 1"))
+
+	pipelineTwo := new(library.Pipeline)
+	pipelineTwo.SetID(2)
+	pipelineTwo.SetRepoID(1)
+	pipelineTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
+	pipelineTwo.SetFlavor("large")
+	pipelineTwo.SetPlatform("docker")
+	pipelineTwo.SetRef("refs/heads/master")
+	pipelineTwo.SetType("yaml")
+	pipelineTwo.SetVersion("1")
+	pipelineTwo.SetExternalSecrets(false)
+	pipelineTwo.SetInternalSecrets(false)
+	pipelineTwo.SetServices(true)
+	pipelineTwo.SetStages(false)
+	pipelineTwo.SetSteps(true)
+	pipelineTwo.SetTemplates(false)
+	pipelineTwo.SetData([]byte("version: 1"))
+
+	repoOne := new(library.Repo)
+	repoOne.SetID(1)
+	repoOne.SetUserID(1)
+	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoOne.SetOrg("github")
+	repoOne.SetName("octocat")
+	repoOne.SetFullName("github/octocat")
+	repoOne.SetLink("https://github.com/github/octocat")
+	repoOne.SetClone("https://github.com/github/octocat.git")
+	repoOne.SetBranch("main")
+	repoOne.SetTopics([]string{"cloud", "security"})
+	repoOne.SetBuildLimit(10)
+	repoOne.SetTimeout(30)
+	repoOne.SetCounter(0)
+	repoOne.SetVisibility("public")
+	repoOne.SetPrivate(false)
+	repoOne.SetTrusted(false)
+	repoOne.SetActive(true)
+	repoOne.SetAllowPull(false)
+	repoOne.SetAllowPush(true)
+	repoOne.SetAllowDeploy(false)
+	repoOne.SetAllowTag(false)
+	repoOne.SetAllowComment(false)
+	repoOne.SetPipelineType("")
+	repoOne.SetPreviousName("")
+
+	repoTwo := new(library.Repo)
+	repoTwo.SetID(2)
+	repoTwo.SetUserID(1)
+	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoTwo.SetOrg("github")
+	repoTwo.SetName("octokitty")
+	repoTwo.SetFullName("github/octokitty")
+	repoTwo.SetLink("https://github.com/github/octokitty")
+	repoTwo.SetClone("https://github.com/github/octokitty.git")
+	repoTwo.SetBranch("master")
+	repoTwo.SetTopics([]string{"cloud", "security"})
+	repoTwo.SetBuildLimit(10)
+	repoTwo.SetTimeout(30)
+	repoTwo.SetCounter(0)
+	repoTwo.SetVisibility("public")
+	repoTwo.SetPrivate(false)
+	repoTwo.SetTrusted(false)
+	repoTwo.SetActive(true)
+	repoTwo.SetAllowPull(false)
+	repoTwo.SetAllowPush(true)
+	repoTwo.SetAllowDeploy(false)
+	repoTwo.SetAllowTag(false)
+	repoTwo.SetAllowComment(false)
+	repoTwo.SetPipelineType("")
+	repoTwo.SetPreviousName("")
+
+	scheduleOne := new(library.Schedule)
+	scheduleOne.SetID(1)
+	scheduleOne.SetRepoID(1)
+	scheduleOne.SetActive(true)
+	scheduleOne.SetName("nightly")
+	scheduleOne.SetEntry("0 0 * * *")
+	scheduleOne.SetCreatedAt(time.Now().UTC().Unix())
+	scheduleOne.SetCreatedBy("octocat")
+	scheduleOne.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
+	scheduleOne.SetUpdatedBy("octokitty")
+	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
+
+	scheduleTwo := new(library.Schedule)
+	scheduleTwo.SetID(2)
+	scheduleTwo.SetRepoID(1)
+	scheduleTwo.SetActive(true)
+	scheduleTwo.SetName("hourly")
+	scheduleTwo.SetEntry("0 * * * *")
+	scheduleTwo.SetCreatedAt(time.Now().UTC().Unix())
+	scheduleTwo.SetCreatedBy("octocat")
+	scheduleTwo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
+	scheduleTwo.SetUpdatedBy("octokitty")
+	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
+
+	secretOne := new(library.Secret)
+	secretOne.SetID(1)
+	secretOne.SetOrg("github")
+	secretOne.SetRepo("octocat")
+	secretOne.SetTeam("")
+	secretOne.SetName("foo")
+	secretOne.SetValue("bar")
+	secretOne.SetType("repo")
+	secretOne.SetImages([]string{"alpine"})
+	secretOne.SetEvents([]string{"push", "tag", "deployment"})
+	secretOne.SetAllowCommand(true)
+	secretOne.SetCreatedAt(time.Now().UTC().Unix())
+	secretOne.SetCreatedBy("octocat")
+	secretOne.SetUpdatedAt(time.Now().UTC().Unix())
+	secretOne.SetUpdatedBy("octokitty")
+
+	secretTwo := new(library.Secret)
+	secretTwo.SetID(2)
+	secretTwo.SetOrg("github")
+	secretTwo.SetRepo("octocat")
+	secretTwo.SetTeam("")
+	secretTwo.SetName("bar")
+	secretTwo.SetValue("baz")
+	secretTwo.SetType("repo")
+	secretTwo.SetImages([]string{"alpine"})
+	secretTwo.SetEvents([]string{"push", "tag", "deployment"})
+	secretTwo.SetAllowCommand(true)
+	secretTwo.SetCreatedAt(time.Now().UTC().Unix())
+	secretTwo.SetCreatedBy("octocat")
+	secretTwo.SetUpdatedAt(time.Now().UTC().Unix())
+	secretTwo.SetUpdatedBy("octokitty")
+
+	serviceOne := new(library.Service)
+	serviceOne.SetID(1)
+	serviceOne.SetBuildID(1)
+	serviceOne.SetRepoID(1)
+	serviceOne.SetNumber(1)
+	serviceOne.SetName("init")
+	serviceOne.SetImage("#init")
+	serviceOne.SetStatus("running")
+	serviceOne.SetError("")
+	serviceOne.SetExitCode(0)
+	serviceOne.SetCreated(1563474076)
+	serviceOne.SetStarted(1563474078)
+	serviceOne.SetFinished(1563474079)
+	serviceOne.SetHost("example.company.com")
+	serviceOne.SetRuntime("docker")
+	serviceOne.SetDistribution("linux")
+
+	serviceTwo := new(library.Service)
+	serviceTwo.SetID(2)
+	serviceTwo.SetBuildID(1)
+	serviceTwo.SetRepoID(1)
+	serviceTwo.SetNumber(2)
+	serviceTwo.SetName("clone")
+	serviceTwo.SetImage("target/vela-git:v0.3.0")
+	serviceTwo.SetStatus("pending")
+	serviceTwo.SetError("")
+	serviceTwo.SetExitCode(0)
+	serviceTwo.SetCreated(1563474086)
+	serviceTwo.SetStarted(1563474088)
+	serviceTwo.SetFinished(1563474089)
+	serviceTwo.SetHost("example.company.com")
+	serviceTwo.SetRuntime("docker")
+	serviceTwo.SetDistribution("linux")
+
+	stepOne := new(library.Step)
+	stepOne.SetID(1)
+	stepOne.SetBuildID(1)
+	stepOne.SetRepoID(1)
+	stepOne.SetNumber(1)
+	stepOne.SetName("init")
+	stepOne.SetImage("#init")
+	stepOne.SetStage("init")
+	stepOne.SetStatus("running")
+	stepOne.SetError("")
+	stepOne.SetExitCode(0)
+	stepOne.SetCreated(1563474076)
+	stepOne.SetStarted(1563474078)
+	stepOne.SetFinished(1563474079)
+	stepOne.SetHost("example.company.com")
+	stepOne.SetRuntime("docker")
+	stepOne.SetDistribution("linux")
+
+	stepTwo := new(library.Step)
+	stepTwo.SetID(2)
+	stepTwo.SetBuildID(1)
+	stepTwo.SetRepoID(1)
+	stepTwo.SetNumber(2)
+	stepTwo.SetName("clone")
+	stepTwo.SetImage("target/vela-git:v0.3.0")
+	stepTwo.SetStage("init")
+	stepTwo.SetStatus("pending")
+	stepTwo.SetError("")
+	stepTwo.SetExitCode(0)
+	stepTwo.SetCreated(1563474086)
+	stepTwo.SetStarted(1563474088)
+	stepTwo.SetFinished(1563474089)
+	stepTwo.SetHost("example.company.com")
+	stepTwo.SetRuntime("docker")
+	stepTwo.SetDistribution("linux")
+
+	userOne := new(library.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("superSecretToken")
+	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	userOne.SetFavorites([]string{"github/octocat"})
+	userOne.SetActive(true)
+	userOne.SetAdmin(false)
+
+	userTwo := new(library.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("superSecretToken")
+	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetActive(true)
+	userTwo.SetAdmin(false)
+
+	workerOne := new(library.Worker)
+	workerOne.SetID(1)
+	workerOne.SetHostname("worker-1.example.com")
+	workerOne.SetAddress("https://worker-1.example.com")
+	workerOne.SetRoutes([]string{"vela"})
+	workerOne.SetActive(true)
+	workerOne.SetStatus("available")
+	workerOne.SetLastStatusUpdateAt(time.Now().UTC().Unix())
+	workerOne.SetRunningBuildIDs([]string{"12345"})
+	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
+	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
+	workerOne.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerOne.SetBuildLimit(1)
+
+	workerTwo := new(library.Worker)
+	workerTwo.SetID(2)
+	workerTwo.SetHostname("worker-2.example.com")
+	workerTwo.SetAddress("https://worker-2.example.com")
+	workerTwo.SetRoutes([]string{"vela"})
+	workerTwo.SetActive(true)
+	workerTwo.SetStatus("available")
+	workerTwo.SetLastStatusUpdateAt(time.Now().UTC().Unix())
+	workerTwo.SetRunningBuildIDs([]string{"12345"})
+	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
+	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
+	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerTwo.SetBuildLimit(1)
+
+	return &Resources{
+		Builds:    []*library.Build{buildOne, buildTwo},
+		Hooks:     []*library.Hook{hookOne, hookTwo},
+		Logs:      []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
+		Pipelines: []*library.Pipeline{pipelineOne, pipelineTwo},
+		Repos:     []*library.Repo{repoOne, repoTwo},
+		Schedules: []*library.Schedule{scheduleOne, scheduleTwo},
+		Secrets:   []*library.Secret{secretOne, secretTwo},
+		Services:  []*library.Service{serviceOne, serviceTwo},
+		Steps:     []*library.Step{stepOne, stepTwo},
+		Users:     []*library.User{userOne, userTwo},
+		Workers:   []*library.Worker{workerOne, workerTwo},
 	}
 }
