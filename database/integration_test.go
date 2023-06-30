@@ -324,7 +324,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	counter++
 
 	// clean the builds
-	count, err = db.CleanBuilds("msg", time.Now().UTC().Unix())
+	count, err = db.CleanBuilds("integration testing", 1563474090)
 	if err != nil {
 		t.Errorf("unable to clean builds: %v", err)
 	}
@@ -860,6 +860,16 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the schedules for a repo
+	count, err = db.CountSchedulesForRepo(resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Schedules) {
+		t.Errorf("CountSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
+	}
+	counter++
+
 	// list the schedules
 	list, err := db.ListSchedules()
 	if err != nil {
@@ -867,6 +877,29 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	}
 	if !reflect.DeepEqual(list, resources.Schedules) {
 		t.Errorf("ListSchedules() is %v, want %v", list, resources.Schedules)
+	}
+	counter++
+
+	// list the active schedules
+	list, err = db.ListActiveSchedules()
+	if err != nil {
+		t.Errorf("unable to list schedules: %v", err)
+	}
+	if !reflect.DeepEqual(list, resources.Schedules) {
+		t.Errorf("ListActiveSchedules() is %v, want %v", list, resources.Schedules)
+	}
+	counter++
+
+	// list the schedules for a repo
+	list, count, err = db.ListSchedulesForRepo(resources.Repos[0], 1, 10)
+	if err != nil {
+		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Schedules) {
+		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
+	}
+	if !reflect.DeepEqual(list, resources.Schedules) {
+		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, resources.Schedules)
 	}
 	counter++
 
@@ -885,8 +918,8 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// update the schedules
 	for _, schedule := range resources.Schedules {
-		schedule.SetActive(false)
-		err = db.UpdateSchedule(schedule, true)
+		schedule.SetScheduledAt(time.Now().UTC().Unix())
+		err = db.UpdateSchedule(schedule, false)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -897,7 +930,6 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get schedule %d by ID: %v", schedule.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, schedule) {
-			pretty.Ldiff(t, got, schedule)
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
 		}
 	}
@@ -1828,7 +1860,7 @@ func newResources() *Resources {
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)
 	secretOrg.SetOrg("github")
-	secretOrg.SetRepo("")
+	secretOrg.SetRepo("*")
 	secretOrg.SetTeam("")
 	secretOrg.SetName("foo")
 	secretOrg.SetValue("bar")
