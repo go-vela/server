@@ -651,7 +651,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetActive(false)
-		err = db.UpdateSchedule(schedule, false)
+		err = db.UpdateSchedule(schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1107,7 +1107,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	}
 	if !reflect.DeepEqual(list, liteUsers) {
 		pretty.Ldiff(t, list, liteUsers)
-		if diff := cmp.Diff(list, liteUsers); diff != "" {
+		if diff := cmp.Diff(liteUsers, list); diff != "" {
 			t.Errorf("ListLiteUsers() mismatch (-want +got):\n%s", diff)
 		}
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
@@ -1275,8 +1275,8 @@ func newResources() *Resources {
 	buildOne.SetAuthor("OctoKitty")
 	buildOne.SetEmail("OctoKitty@github.com")
 	buildOne.SetLink("https://example.company.com/github/octocat/1")
-	buildOne.SetBranch("master")
-	buildOne.SetRef("refs/heads/master")
+	buildOne.SetBranch("main")
+	buildOne.SetRef("refs/heads/main")
 	buildOne.SetBaseRef("")
 	buildOne.SetHeadRef("changes")
 	buildOne.SetHost("example.company.com")
@@ -1308,8 +1308,8 @@ func newResources() *Resources {
 	buildTwo.SetAuthor("OctoKitty")
 	buildTwo.SetEmail("OctoKitty@github.com")
 	buildTwo.SetLink("https://example.company.com/github/octocat/2")
-	buildTwo.SetBranch("master")
-	buildTwo.SetRef("refs/heads/master")
+	buildTwo.SetBranch("main")
+	buildTwo.SetRef("refs/heads/main")
 	buildTwo.SetBaseRef("")
 	buildTwo.SetHeadRef("changes")
 	buildTwo.SetHost("example.company.com")
@@ -1326,7 +1326,7 @@ func newResources() *Resources {
 	hookOne.SetHost("github.com")
 	hookOne.SetEvent("push")
 	hookOne.SetEventAction("")
-	hookOne.SetBranch("master")
+	hookOne.SetBranch("main")
 	hookOne.SetError("")
 	hookOne.SetStatus("success")
 	hookOne.SetLink("https://github.com/github/octocat/settings/hooks/1")
@@ -1342,7 +1342,7 @@ func newResources() *Resources {
 	hookTwo.SetHost("github.com")
 	hookTwo.SetEvent("push")
 	hookTwo.SetEventAction("")
-	hookTwo.SetBranch("master")
+	hookTwo.SetBranch("main")
 	hookTwo.SetError("")
 	hookTwo.SetStatus("success")
 	hookTwo.SetLink("https://github.com/github/octocat/settings/hooks/1")
@@ -1386,7 +1386,7 @@ func newResources() *Resources {
 	pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	pipelineOne.SetFlavor("large")
 	pipelineOne.SetPlatform("docker")
-	pipelineOne.SetRef("refs/heads/master")
+	pipelineOne.SetRef("refs/heads/main")
 	pipelineOne.SetType("yaml")
 	pipelineOne.SetVersion("1")
 	pipelineOne.SetExternalSecrets(false)
@@ -1403,7 +1403,7 @@ func newResources() *Resources {
 	pipelineTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
 	pipelineTwo.SetFlavor("large")
 	pipelineTwo.SetPlatform("docker")
-	pipelineTwo.SetRef("refs/heads/master")
+	pipelineTwo.SetRef("refs/heads/main")
 	pipelineTwo.SetType("yaml")
 	pipelineTwo.SetVersion("1")
 	pipelineTwo.SetExternalSecrets(false)
@@ -1449,7 +1449,7 @@ func newResources() *Resources {
 	repoTwo.SetFullName("github/octokitty")
 	repoTwo.SetLink("https://github.com/github/octokitty")
 	repoTwo.SetClone("https://github.com/github/octokitty.git")
-	repoTwo.SetBranch("master")
+	repoTwo.SetBranch("main")
 	repoTwo.SetTopics([]string{"cloud", "security"})
 	repoTwo.SetBuildLimit(10)
 	repoTwo.SetTimeout(30)
