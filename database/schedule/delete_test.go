@@ -5,7 +5,7 @@
 package schedule
 
 import (
-	context "context"
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
