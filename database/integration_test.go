@@ -290,6 +290,16 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// clean the builds
+	count, err = db.CleanBuilds("integration testing", 1563474090)
+	if err != nil {
+		t.Errorf("unable to clean builds: %v", err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
+	}
+	counter++
+
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
 		repo := resources.Repos[build.GetRepoID()-1]
@@ -321,16 +331,6 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	counter++
-	counter++
-
-	// clean the builds
-	count, err = db.CleanBuilds("integration testing", 1563474090)
-	if err != nil {
-		t.Errorf("unable to clean builds: %v", err)
-	}
-	if int(count) != len(resources.Builds) {
-		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
-	}
 	counter++
 
 	// delete the builds
@@ -898,8 +898,8 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
-	if !reflect.DeepEqual(list, resources.Schedules) {
-		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, resources.Schedules)
+	if !reflect.DeepEqual(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}) {
+		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
 	counter++
 
@@ -1029,8 +1029,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != 1 {
 		t.Errorf("ListSecretsForOrg() is %v, want %v", count, 1)
 	}
-	if !reflect.DeepEqual(list, resources.Secrets) {
-		t.Errorf("ListSecretsForOrg() is %v, want %v", list, resources.Secrets)
+	if !reflect.DeepEqual(list, []*library.Secret{resources.Secrets[0]}) {
+		t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*library.Secret{resources.Secrets[0]})
 	}
 	counter++
 
@@ -1042,8 +1042,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != 1 {
 		t.Errorf("ListSecretsForRepo() is %v, want %v", count, 1)
 	}
-	if !reflect.DeepEqual(list, resources.Secrets) {
-		t.Errorf("ListSecretsForRepo() is %v, want %v", list, resources.Secrets)
+	if !reflect.DeepEqual(list, []*library.Secret{resources.Secrets[1]}) {
+		t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*library.Secret{resources.Secrets[1]})
 	}
 	counter++
 
@@ -1055,23 +1055,41 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != 1 {
 		t.Errorf("ListSecretsForTeam() is %v, want %v", count, 1)
 	}
-	if !reflect.DeepEqual(list, resources.Secrets) {
-		t.Errorf("ListSecretsForTeam() is %v, want %v", list, resources.Secrets)
+	if !reflect.DeepEqual(list, []*library.Secret{resources.Secrets[2]}) {
+		t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*library.Secret{resources.Secrets[2]})
 	}
 	counter++
 
 	// list the secrets for a list of teams
 	// TODO:
 
-	// lookup the secrets by name
-	for _, secret := range resources.Secrets {
-		got, err := db.GetSecretForRepo(secret.GetName(), resources.Repos[0])
-		if err != nil {
-			t.Errorf("unable to get secret %d for repo %d: %v", secret.GetID(), resources.Repos[0].GetID(), err)
-		}
-		if !reflect.DeepEqual(got, secret) {
-			t.Errorf("GetSecretForRepo() is %v, want %v", got, secret)
-		}
+	// lookup the secret by org
+	got, err := db.GetSecretForOrg(resources.Secrets[0].GetOrg(), resources.Secrets[0].GetName())
+	if err != nil {
+		t.Errorf("unable to get secret %d for org %s: %v", resources.Secrets[0].GetID(), resources.Secrets[0].GetOrg(), err)
+	}
+	if !reflect.DeepEqual(got, resources.Secrets[0]) {
+		t.Errorf("GetSecretForOrg() is %v, want %v", got, resources.Secrets[0])
+	}
+	counter++
+
+	// lookup the secret by repo
+	got, err = db.GetSecretForRepo(resources.Secrets[1].GetName(), resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to get secret %d for repo %d: %v", resources.Secrets[1].GetID(), resources.Repos[0].GetID(), err)
+	}
+	if !reflect.DeepEqual(got, resources.Secrets[1]) {
+		t.Errorf("GetSecretForRepo() is %v, want %v", got, resources.Secrets[1])
+	}
+	counter++
+
+	// lookup the secret by team
+	got, err = db.GetSecretForTeam(resources.Secrets[2].GetOrg(), resources.Secrets[2].GetTeam(), resources.Secrets[2].GetName())
+	if err != nil {
+		t.Errorf("unable to get secret %d for team %d: %v", resources.Secrets[2].GetID(), resources.Secrets[2].GetTeam(), err)
+	}
+	if !reflect.DeepEqual(got, resources.Secrets[2]) {
+		t.Errorf("GetSecretForTeam() is %v, want %v", got, resources.Secrets[2])
 	}
 	counter++
 
