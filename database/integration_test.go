@@ -1055,7 +1055,6 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	liteOne.SetToken("")
 	liteOne.SetRefreshToken("")
 	liteOne.SetHash("")
-	liteOne.SetFavorites([]string{})
 	liteOne.SetActive(false)
 	liteOne.SetAdmin(false)
 
@@ -1065,7 +1064,6 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	liteTwo.SetToken("")
 	liteTwo.SetRefreshToken("")
 	liteTwo.SetHash("")
-	liteTwo.SetFavorites([]string{})
 	liteTwo.SetActive(false)
 	liteTwo.SetAdmin(false)
 
