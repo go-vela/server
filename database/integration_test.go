@@ -29,17 +29,18 @@ import (
 )
 
 type Resources struct {
-	Builds    []*library.Build
-	Hooks     []*library.Hook
-	Logs      []*library.Log
-	Pipelines []*library.Pipeline
-	Repos     []*library.Repo
-	Schedules []*library.Schedule
-	Secrets   []*library.Secret
-	Services  []*library.Service
-	Steps     []*library.Step
-	Users     []*library.User
-	Workers   []*library.Worker
+	Builds      []*library.Build
+	Deployments []*library.Deployment
+	Hooks       []*library.Hook
+	Logs        []*library.Log
+	Pipelines   []*library.Pipeline
+	Repos       []*library.Repo
+	Schedules   []*library.Schedule
+	Secrets     []*library.Secret
+	Services    []*library.Service
+	Steps       []*library.Step
+	Users       []*library.User
+	Workers     []*library.Worker
 }
 
 func TestDatabase_Integration(t *testing.T) {
@@ -139,6 +140,20 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// since those are already called when the database engine starts
 	counter := 2
 
+	buildOne := new(library.BuildQueue)
+	buildOne.SetCreated(1563474076)
+	buildOne.SetFullName("github/octokitty")
+	buildOne.SetNumber(1)
+	buildOne.SetStatus("running")
+
+	buildTwo := new(library.BuildQueue)
+	buildTwo.SetCreated(1563474076)
+	buildTwo.SetFullName("github/octokitty")
+	buildTwo.SetNumber(2)
+	buildTwo.SetStatus("running")
+
+	queueBuilds := []*library.BuildQueue{buildOne, buildTwo}
+
 	// create the builds
 	for _, build := range resources.Builds {
 		_, err := db.CreateBuild(build)
@@ -158,6 +173,26 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the builds for a deployment
+	count, err = db.CountBuildsForDeployment(resources.Deployments[0], nil)
+	if err != nil {
+		t.Errorf("unable to count builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
+	}
+	counter++
+
+	// count the builds for an org
+	count, err = db.CountBuildsForOrg(resources.Repos[0].GetOrg(), nil)
+	if err != nil {
+		t.Errorf("unable to count builds for org %s: %v", resources.Repos[0].GetOrg(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountBuildsForOrg() is %v, want %v", count, len(resources.Builds))
+	}
+	counter++
+
 	// count the builds for a repo
 	count, err = db.CountBuildsForRepo(resources.Repos[0], nil)
 	if err != nil {
@@ -165,6 +200,16 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	counter++
+
+	// count the builds for a status
+	count, err = db.CountBuildsForStatus("running", nil)
+	if err != nil {
+		t.Errorf("unable to count builds for status %s: %v", "running", err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountBuildsForStatus() is %v, want %v", count, len(resources.Builds))
 	}
 	counter++
 
@@ -178,13 +223,52 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// list the builds for a deployment
+	list, count, err = db.ListBuildsForDeployment(resources.Deployments[0], nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
+	}
+	if !reflect.DeepEqual(list, resources.Builds) {
+		t.Errorf("ListBuildsForDeployment() is %v, want %v", list, resources.Builds)
+	}
+	counter++
+
+	// list the builds for an org
+	list, count, err = db.ListBuildsForOrg(resources.Repos[0].GetOrg(), nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListBuildsForOrg() is %v, want %v", count, len(resources.Builds))
+	}
+	if !reflect.DeepEqual(list, resources.Builds) {
+		t.Errorf("ListBuildsForOrg() is %v, want %v", list, resources.Builds)
+	}
+	counter++
+
 	// list the builds for a repo
 	list, count, err = db.ListBuildsForRepo(resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
 	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
+	}
+	counter++
+
+	// list the pending and running builds
+	queueList, err := db.ListPendingAndRunningBuilds("0")
+	if err != nil {
+		t.Errorf("unable to list pending and running builds: %v", err)
+	}
+	if !reflect.DeepEqual(queueList, queueBuilds) {
+		t.Errorf("ListPendingAndRunningBuilds() is %v, want %v", queueList, queueBuilds)
 	}
 	counter++
 
@@ -1049,25 +1133,25 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// since those are already called when the database engine starts
 	counter := 2
 
-	liteOne := new(library.User)
-	liteOne.SetID(1)
-	liteOne.SetName("octocat")
-	liteOne.SetToken("")
-	liteOne.SetRefreshToken("")
-	liteOne.SetHash("")
-	liteOne.SetActive(false)
-	liteOne.SetAdmin(false)
+	userOne := new(library.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("")
+	userOne.SetRefreshToken("")
+	userOne.SetHash("")
+	userOne.SetActive(false)
+	userOne.SetAdmin(false)
 
-	liteTwo := new(library.User)
-	liteTwo.SetID(2)
-	liteTwo.SetName("octokitty")
-	liteTwo.SetToken("")
-	liteTwo.SetRefreshToken("")
-	liteTwo.SetHash("")
-	liteTwo.SetActive(false)
-	liteTwo.SetAdmin(false)
+	userTwo := new(library.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("")
+	userTwo.SetRefreshToken("")
+	userTwo.SetHash("")
+	userTwo.SetActive(false)
+	userTwo.SetAdmin(false)
 
-	liteUsers := []*library.User{liteOne, liteTwo}
+	liteUsers := []*library.User{userOne, userTwo}
 
 	// create the users
 	for _, user := range resources.Users {
@@ -1265,7 +1349,7 @@ func newResources() *Resources {
 	buildOne.SetDeploy("")
 	buildOne.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
 	buildOne.SetClone("https://github.com/github/octocat.git")
-	buildOne.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135163")
+	buildOne.SetSource("https://github.com/github/octocat/deployments/1")
 	buildOne.SetTitle("push received from https://github.com/github/octocat")
 	buildOne.SetMessage("First commit...")
 	buildOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
@@ -1298,7 +1382,7 @@ func newResources() *Resources {
 	buildTwo.SetDeploy("")
 	buildTwo.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
 	buildTwo.SetClone("https://github.com/github/octocat.git")
-	buildTwo.SetSource("https://github.com/github/octocat/48afb5bdc41ad69bf22588491333f7cf71135164")
+	buildTwo.SetSource("https://github.com/github/octocat/deployments/1")
 	buildTwo.SetTitle("pull_request received from https://github.com/github/octocat")
 	buildTwo.SetMessage("Second commit...")
 	buildTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
@@ -1313,6 +1397,30 @@ func newResources() *Resources {
 	buildTwo.SetHost("example.company.com")
 	buildTwo.SetRuntime("docker")
 	buildTwo.SetDistribution("linux")
+
+	deploymentOne := new(library.Deployment)
+	deploymentOne.SetID(1)
+	deploymentOne.SetRepoID(1)
+	deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
+	deploymentOne.SetUser("octocat")
+	deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	deploymentOne.SetRef("refs/heads/master")
+	deploymentOne.SetTask("vela-deploy")
+	deploymentOne.SetTarget("production")
+	deploymentOne.SetDescription("Deployment request from Vela")
+	deploymentOne.SetPayload(map[string]string{"foo": "test1"})
+
+	deploymentTwo := new(library.Deployment)
+	deploymentTwo.SetID(1)
+	deploymentTwo.SetRepoID(1)
+	deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
+	deploymentTwo.SetUser("octocat")
+	deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
+	deploymentTwo.SetRef("refs/heads/master")
+	deploymentTwo.SetTask("vela-deploy")
+	deploymentTwo.SetTarget("production")
+	deploymentTwo.SetDescription("Deployment request from Vela")
+	deploymentTwo.SetPayload(map[string]string{"foo": "test1"})
 
 	hookOne := new(library.Hook)
 	hookOne.SetID(1)
@@ -1639,16 +1747,17 @@ func newResources() *Resources {
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{
-		Builds:    []*library.Build{buildOne, buildTwo},
-		Hooks:     []*library.Hook{hookOne, hookTwo},
-		Logs:      []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
-		Pipelines: []*library.Pipeline{pipelineOne, pipelineTwo},
-		Repos:     []*library.Repo{repoOne, repoTwo},
-		Schedules: []*library.Schedule{scheduleOne, scheduleTwo},
-		Secrets:   []*library.Secret{secretOne, secretTwo},
-		Services:  []*library.Service{serviceOne, serviceTwo},
-		Steps:     []*library.Step{stepOne, stepTwo},
-		Users:     []*library.User{userOne, userTwo},
-		Workers:   []*library.Worker{workerOne, workerTwo},
+		Builds:      []*library.Build{buildOne, buildTwo},
+		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
+		Hooks:       []*library.Hook{hookOne, hookTwo},
+		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
+		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
+		Repos:       []*library.Repo{repoOne, repoTwo},
+		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
+		Secrets:     []*library.Secret{secretOne, secretTwo},
+		Services:    []*library.Service{serviceOne, serviceTwo},
+		Steps:       []*library.Step{stepOne, stepTwo},
+		Users:       []*library.User{userOne, userTwo},
+		Workers:     []*library.Worker{workerOne, workerTwo},
 	}
 }
