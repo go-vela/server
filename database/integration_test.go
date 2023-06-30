@@ -140,6 +140,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// since those are already called when the database engine starts
 	counter := 2
 
+	// create the repos for build related functions
+	for _, repo := range resources.Repos {
+		err := db.CreateRepo(repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
+
 	buildOne := new(library.BuildQueue)
 	buildOne.SetCreated(1563474076)
 	buildOne.SetFullName("github/octokitty")
@@ -231,8 +239,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
 	}
-	if !reflect.DeepEqual(list, resources.Builds) {
-		t.Errorf("ListBuildsForDeployment() is %v, want %v", list, resources.Builds)
+	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
+		t.Errorf("ListBuildsForDeployment() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
 	counter++
 
@@ -315,6 +323,16 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	counter++
 	counter++
 
+	// clean the builds
+	count, err = db.CleanBuilds("msg", time.Now().UTC().Unix())
+	if err != nil {
+		t.Errorf("unable to clean builds: %v", err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
+	}
+	counter++
+
 	// delete the builds
 	for _, build := range resources.Builds {
 		err = db.DeleteBuild(build)
@@ -323,6 +341,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	counter++
+
+	// delete the repos for build related functions
+	for _, repo := range resources.Repos {
+		err := db.DeleteRepo(repo)
+		if err != nil {
+			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
+		}
+	}
 
 	// ensure we called all the functions we should have
 	methods := reflect.TypeOf(new(build.BuildInterface)).Elem().NumMethod()
