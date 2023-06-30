@@ -286,7 +286,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to get last build for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
 	if !reflect.DeepEqual(got, resources.Builds[1]) {
-		t.Errorf("GetBuildForRepo() is %v, want %v", got, resources.Builds[1])
+		t.Errorf("LastBuildForRepo() is %v, want %v", got, resources.Builds[1])
 	}
 	counter++
 
@@ -383,6 +383,16 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the hooks for a repo
+	count, err = db.CountHooksForRepo(resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to count hooks for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountHooksForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	counter++
+
 	// list the hooks
 	list, err := db.ListHooks()
 	if err != nil {
@@ -390,6 +400,29 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	}
 	if !reflect.DeepEqual(list, resources.Hooks) {
 		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
+	}
+	counter++
+
+	// list the hooks for a repo
+	list, count, err = db.ListHooksForRepo(resources.Repos[0], 1, 10)
+	if err != nil {
+		t.Errorf("unable to list hooks for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Hooks) {
+		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
+	}
+	if !reflect.DeepEqual(list, resources.Hooks) {
+		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
+	}
+	counter++
+
+	// lookup the last build by repo
+	got, err := db.LastHookForRepo(resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if !reflect.DeepEqual(got, resources.Hooks[1]) {
+		t.Errorf("LastHookForRepo() is %v, want %v", got, resources.Hooks[1])
 	}
 	counter++
 
@@ -468,6 +501,16 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the logs for a build
+	count, err = db.CountLogsForBuild(resources.Builds[0])
+	if err != nil {
+		t.Errorf("unable to count logs for build %d: %v", resources.Builds[0].GetID(), err)
+	}
+	if int(count) != len(resources.Logs) {
+		t.Errorf("CountLogs() is %v, want %v", count, len(resources.Logs))
+	}
+	counter++
+
 	// list the logs
 	list, err := db.ListLogs()
 	if err != nil {
@@ -475,6 +518,19 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	}
 	if !reflect.DeepEqual(list, resources.Logs) {
 		t.Errorf("ListLogs() is %v, want %v", list, resources.Logs)
+	}
+	counter++
+
+	// list the logs for a build
+	list, count, err = db.ListLogsForBuild(resources.Builds[0], 1, 10)
+	if err != nil {
+		t.Errorf("unable to list logs for build %d: %v", resources.Builds[0].GetID(), err)
+	}
+	if int(count) != len(resources.Logs) {
+		t.Errorf("ListLogsForBuild() is %v, want %v", count, len(resources.Logs))
+	}
+	if !reflect.DeepEqual(list, resources.Logs) {
+		t.Errorf("ListLogsForBuild() is %v, want %v", list, resources.Logs)
 	}
 	counter++
 
@@ -566,10 +622,33 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the pipelines for a repo
+	count, err = db.CountPipelinesForRepo(resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to count pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Pipelines) {
+		t.Errorf("CountPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
+	}
+	counter++
+
 	// list the pipelines
 	list, err := db.ListPipelines()
 	if err != nil {
 		t.Errorf("unable to list pipelines: %v", err)
+	}
+	if !reflect.DeepEqual(list, resources.Pipelines) {
+		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
+	}
+	counter++
+
+	// list the pipelines for a repo
+	list, count, err = db.ListPipelinesForRepo(resources.Repos[0], 1, 10)
+	if err != nil {
+		t.Errorf("unable to list pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Pipelines) {
+		t.Errorf("ListPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
 	}
 	if !reflect.DeepEqual(list, resources.Pipelines) {
 		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
@@ -651,6 +730,26 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the repos for an org
+	count, err = db.CountReposForOrg(resources.Repos[0].GetOrg(), nil)
+	if err != nil {
+		t.Errorf("unable to count repos for org %s: %v", resources.Repos[0].GetOrg(), err)
+	}
+	if int(count) != len(resources.Repos) {
+		t.Errorf("CountReposForOrg() is %v, want %v", count, len(resources.Repos))
+	}
+	counter++
+
+	// count the repos for a user
+	count, err = db.CountReposForUser(resources.Users[0], nil)
+	if err != nil {
+		t.Errorf("unable to count repos for user %d: %v", resources.Users[0].GetID(), err)
+	}
+	if int(count) != len(resources.Repos) {
+		t.Errorf("CountReposForUser() is %v, want %v", count, len(resources.Repos))
+	}
+	counter++
+
 	// list the repos
 	list, err := db.ListRepos()
 	if err != nil {
@@ -658,6 +757,32 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	}
 	if !reflect.DeepEqual(list, resources.Repos) {
 		t.Errorf("ListRepos() is %v, want %v", list, resources.Repos)
+	}
+	counter++
+
+	// list the repos for an org
+	list, count, err = db.ListReposForOrg(resources.Repos[0].GetOrg(), "name", nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list repos for org %s: %v", resources.Repos[0].GetOrg(), err)
+	}
+	if int(count) != len(resources.Repos) {
+		t.Errorf("ListReposForOrg() is %v, want %v", count, len(resources.Repos))
+	}
+	if !reflect.DeepEqual(list, resources.Repos) {
+		t.Errorf("ListReposForOrg() is %v, want %v", list, resources.Repos)
+	}
+	counter++
+
+	// list the repos for a user
+	list, count, err = db.ListReposForUser(resources.Users[0], "name", nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list repos for user %d: %v", resources.Users[0].GetID(), err)
+	}
+	if int(count) != len(resources.Repos) {
+		t.Errorf("ListReposForUser() is %v, want %v", count, len(resources.Repos))
+	}
+	if !reflect.DeepEqual(list, resources.Repos) {
+		t.Errorf("ListReposForUser() is %v, want %v", list, resources.Repos)
 	}
 	counter++
 
