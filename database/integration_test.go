@@ -150,13 +150,13 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	buildOne := new(library.BuildQueue)
 	buildOne.SetCreated(1563474076)
-	buildOne.SetFullName("github/octokitty")
+	buildOne.SetFullName("github/octocat")
 	buildOne.SetNumber(1)
 	buildOne.SetStatus("running")
 
 	buildTwo := new(library.BuildQueue)
 	buildTwo.SetCreated(1563474076)
-	buildTwo.SetFullName("github/octokitty")
+	buildTwo.SetFullName("github/octocat")
 	buildTwo.SetNumber(2)
 	buildTwo.SetStatus("running")
 
@@ -411,8 +411,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Hooks) {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
-	if !reflect.DeepEqual(list, resources.Hooks) {
-		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
+	if !reflect.DeepEqual(list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]}) {
+		t.Errorf("ListHooksForRepo() is %v, want %v", list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]})
 	}
 	counter++
 
@@ -529,8 +529,8 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Logs) {
 		t.Errorf("ListLogsForBuild() is %v, want %v", count, len(resources.Logs))
 	}
-	if !reflect.DeepEqual(list, resources.Logs) {
-		t.Errorf("ListLogsForBuild() is %v, want %v", list, resources.Logs)
+	if !reflect.DeepEqual(list, []*library.Log{resources.Logs[2], resources.Logs[3], resources.Logs[0], resources.Logs[1]}) {
+		t.Errorf("ListLogsForBuild() is %v, want %v", list, []*library.Log{resources.Logs[2], resources.Logs[3], resources.Logs[0], resources.Logs[1]})
 	}
 	counter++
 
@@ -897,6 +897,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get schedule %d by ID: %v", schedule.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, schedule) {
+			pretty.Ldiff(t, got, schedule)
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
 		}
 	}
@@ -945,6 +946,39 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
+	// count the secrets for an org
+	count, err = db.CountSecretsForOrg(resources.Secrets[0].GetOrg(), nil)
+	if err != nil {
+		t.Errorf("unable to count secrets for org %s: %v", resources.Secrets[0].GetOrg(), err)
+	}
+	if int(count) != 1 {
+		t.Errorf("CountSecretsForOrg() is %v, want %v", count, 1)
+	}
+	counter++
+
+	// count the secrets for a repo
+	count, err = db.CountSecretsForRepo(resources.Repos[0], nil)
+	if err != nil {
+		t.Errorf("unable to count secrets for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != 1 {
+		t.Errorf("CountSecretsForRepo() is %v, want %v", count, 1)
+	}
+	counter++
+
+	// count the secrets for a team
+	count, err = db.CountSecretsForTeam(resources.Secrets[2].GetOrg(), resources.Secrets[2].GetTeam(), nil)
+	if err != nil {
+		t.Errorf("unable to count secrets for team %s: %v", resources.Secrets[2].GetTeam(), err)
+	}
+	if int(count) != 1 {
+		t.Errorf("CountSecretsForTeam() is %v, want %v", count, 1)
+	}
+	counter++
+
+	// count the secrets for a list of teams
+	// TODO:
+
 	// list the secrets
 	list, err := db.ListSecrets()
 	if err != nil {
@@ -954,6 +988,48 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("ListSecrets() is %v, want %v", list, resources.Secrets)
 	}
 	counter++
+
+	// list the secrets for an org
+	list, count, err = db.ListSecretsForOrg(resources.Secrets[0].GetOrg(), nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list secrets for org %s: %v", resources.Secrets[0].GetOrg(), err)
+	}
+	if int(count) != 1 {
+		t.Errorf("ListSecretsForOrg() is %v, want %v", count, 1)
+	}
+	if !reflect.DeepEqual(list, resources.Secrets) {
+		t.Errorf("ListSecretsForOrg() is %v, want %v", list, resources.Secrets)
+	}
+	counter++
+
+	// list the secrets for a repo
+	list, count, err = db.ListSecretsForRepo(resources.Repos[0], nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list secrets for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != 1 {
+		t.Errorf("ListSecretsForRepo() is %v, want %v", count, 1)
+	}
+	if !reflect.DeepEqual(list, resources.Secrets) {
+		t.Errorf("ListSecretsForRepo() is %v, want %v", list, resources.Secrets)
+	}
+	counter++
+
+	// list the secrets for a team
+	list, count, err = db.ListSecretsForTeam(resources.Secrets[2].GetOrg(), resources.Secrets[2].GetTeam(), nil, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list secrets for team %s: %v", resources.Secrets[2].GetTeam(), err)
+	}
+	if int(count) != 1 {
+		t.Errorf("ListSecretsForTeam() is %v, want %v", count, 1)
+	}
+	if !reflect.DeepEqual(list, resources.Secrets) {
+		t.Errorf("ListSecretsForTeam() is %v, want %v", list, resources.Secrets)
+	}
+	counter++
+
+	// list the secrets for a list of teams
+	// TODO:
 
 	// lookup the secrets by name
 	for _, secret := range resources.Secrets {
@@ -1290,6 +1366,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	userOne.SetToken("")
 	userOne.SetRefreshToken("")
 	userOne.SetHash("")
+	userOne.SetFavorites(nil)
 	userOne.SetActive(false)
 	userOne.SetAdmin(false)
 
@@ -1299,6 +1376,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	userTwo.SetToken("")
 	userTwo.SetRefreshToken("")
 	userTwo.SetHash("")
+	userTwo.SetFavorites(nil)
 	userTwo.SetActive(false)
 	userTwo.SetAdmin(false)
 
@@ -1747,37 +1825,53 @@ func newResources() *Resources {
 	scheduleTwo.SetUpdatedBy("octokitty")
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 
-	secretOne := new(library.Secret)
-	secretOne.SetID(1)
-	secretOne.SetOrg("github")
-	secretOne.SetRepo("octocat")
-	secretOne.SetTeam("")
-	secretOne.SetName("foo")
-	secretOne.SetValue("bar")
-	secretOne.SetType("repo")
-	secretOne.SetImages([]string{"alpine"})
-	secretOne.SetEvents([]string{"push", "tag", "deployment"})
-	secretOne.SetAllowCommand(true)
-	secretOne.SetCreatedAt(time.Now().UTC().Unix())
-	secretOne.SetCreatedBy("octocat")
-	secretOne.SetUpdatedAt(time.Now().UTC().Unix())
-	secretOne.SetUpdatedBy("octokitty")
+	secretOrg := new(library.Secret)
+	secretOrg.SetID(1)
+	secretOrg.SetOrg("github")
+	secretOrg.SetRepo("")
+	secretOrg.SetTeam("")
+	secretOrg.SetName("foo")
+	secretOrg.SetValue("bar")
+	secretOrg.SetType("org")
+	secretOrg.SetImages([]string{"alpine"})
+	secretOrg.SetEvents([]string{"push", "tag", "deployment"})
+	secretOrg.SetAllowCommand(true)
+	secretOrg.SetCreatedAt(time.Now().UTC().Unix())
+	secretOrg.SetCreatedBy("octocat")
+	secretOrg.SetUpdatedAt(time.Now().UTC().Unix())
+	secretOrg.SetUpdatedBy("octokitty")
 
-	secretTwo := new(library.Secret)
-	secretTwo.SetID(2)
-	secretTwo.SetOrg("github")
-	secretTwo.SetRepo("octocat")
-	secretTwo.SetTeam("")
-	secretTwo.SetName("bar")
-	secretTwo.SetValue("baz")
-	secretTwo.SetType("repo")
-	secretTwo.SetImages([]string{"alpine"})
-	secretTwo.SetEvents([]string{"push", "tag", "deployment"})
-	secretTwo.SetAllowCommand(true)
-	secretTwo.SetCreatedAt(time.Now().UTC().Unix())
-	secretTwo.SetCreatedBy("octocat")
-	secretTwo.SetUpdatedAt(time.Now().UTC().Unix())
-	secretTwo.SetUpdatedBy("octokitty")
+	secretRepo := new(library.Secret)
+	secretRepo.SetID(2)
+	secretRepo.SetOrg("github")
+	secretRepo.SetRepo("octocat")
+	secretRepo.SetTeam("")
+	secretRepo.SetName("foo")
+	secretRepo.SetValue("bar")
+	secretRepo.SetType("repo")
+	secretRepo.SetImages([]string{"alpine"})
+	secretRepo.SetEvents([]string{"push", "tag", "deployment"})
+	secretRepo.SetAllowCommand(true)
+	secretRepo.SetCreatedAt(time.Now().UTC().Unix())
+	secretRepo.SetCreatedBy("octocat")
+	secretRepo.SetUpdatedAt(time.Now().UTC().Unix())
+	secretRepo.SetUpdatedBy("octokitty")
+
+	secretShared := new(library.Secret)
+	secretShared.SetID(3)
+	secretShared.SetOrg("github")
+	secretShared.SetRepo("")
+	secretShared.SetTeam("octocat")
+	secretShared.SetName("foo")
+	secretShared.SetValue("bar")
+	secretShared.SetType("shared")
+	secretShared.SetImages([]string{"alpine"})
+	secretShared.SetEvents([]string{"push", "tag", "deployment"})
+	secretShared.SetAllowCommand(true)
+	secretShared.SetCreatedAt(time.Now().UTC().Unix())
+	secretShared.SetCreatedBy("octocat")
+	secretShared.SetUpdatedAt(time.Now().UTC().Unix())
+	secretShared.SetUpdatedBy("octokitty")
 
 	serviceOne := new(library.Service)
 	serviceOne.SetID(1)
@@ -1905,7 +1999,7 @@ func newResources() *Resources {
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*library.Repo{repoOne, repoTwo},
 		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
-		Secrets:     []*library.Secret{secretOne, secretTwo},
+		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},
 		Users:       []*library.User{userOne, userTwo},
