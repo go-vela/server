@@ -28,6 +28,9 @@ jobs:
         ports:
           - 5432:5432
 
+    env:
+      POSTGRES_ADDR: postgres://vela:notARealPassword12345@localhost:5432/vela
+
     steps:
       - name: clone
         uses: actions/checkout@v3

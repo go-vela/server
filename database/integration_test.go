@@ -59,7 +59,7 @@ func TestDatabase_Integration(t *testing.T) {
 			name: "success with postgres",
 			config: &config{
 				Driver:           "postgres",
-				Address:          "postgres://vela:notARealPassword12345@localhost:5432/vela",
+				Address:          os.Getenv("POSTGRES_ADDR"),
 				CompressionLevel: 3,
 				ConnectionLife:   10 * time.Second,
 				ConnectionIdle:   5,
@@ -915,8 +915,8 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// update the schedules
 	for _, schedule := range resources.Schedules {
-		schedule.SetScheduledAt(time.Now().UTC().Unix())
-		err = db.UpdateSchedule(schedule, false)
+		schedule.SetUpdatedAt(time.Now().UTC().Unix())
+		err = db.UpdateSchedule(schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1130,7 +1130,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 
 	// update the secrets
 	for _, secret := range resources.Secrets {
-		secret.SetAllowCommand(false)
+		secret.SetUpdatedAt(time.Now().UTC().Unix())
 		err = db.UpdateSecret(secret)
 		if err != nil {
 			t.Errorf("unable to update secret %d: %v", secret.GetID(), err)
