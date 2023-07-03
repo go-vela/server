@@ -88,7 +88,7 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 		// check if we should wait to trigger a build for the schedule
 		//
 		// The interval for the schedule (multiplied by 2 as a buffer) subtracted from
-		// the current must be after the previous occurrence of the schedule.
+		// the current time must be after the previous occurrence of the schedule.
 		if !prevTime.After(time.Now().Add(-(2 * interval))) {
 			logrus.Tracef("waiting to schedule build for %s", s.GetName())
 
