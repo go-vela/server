@@ -11,8 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -24,6 +22,7 @@ import (
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 )
@@ -53,13 +52,11 @@ func TestDatabase_Integration(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		failure bool
-		name    string
-		config  *config
+		name   string
+		config *config
 	}{
 		{
-			name:    "success with postgres",
-			failure: false,
+			name: "success with postgres",
 			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://vela:notARealPassword12345@localhost:5432/vela",
@@ -1922,7 +1919,7 @@ func newResources() *Resources {
 	secretOrg.SetAllowCommand(true)
 	secretOrg.SetCreatedAt(time.Now().UTC().Unix())
 	secretOrg.SetCreatedBy("octocat")
-	secretOrg.SetUpdatedAt(time.Now().UTC().Unix())
+	secretOrg.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretOrg.SetUpdatedBy("octokitty")
 
 	secretRepo := new(library.Secret)
@@ -1938,7 +1935,7 @@ func newResources() *Resources {
 	secretRepo.SetAllowCommand(true)
 	secretRepo.SetCreatedAt(time.Now().UTC().Unix())
 	secretRepo.SetCreatedBy("octocat")
-	secretRepo.SetUpdatedAt(time.Now().UTC().Unix())
+	secretRepo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretRepo.SetUpdatedBy("octokitty")
 
 	secretShared := new(library.Secret)
@@ -1954,7 +1951,7 @@ func newResources() *Resources {
 	secretShared.SetAllowCommand(true)
 	secretShared.SetCreatedAt(time.Now().UTC().Unix())
 	secretShared.SetCreatedBy("octocat")
-	secretShared.SetUpdatedAt(time.Now().UTC().Unix())
+	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	secretShared.SetUpdatedBy("octokitty")
 
 	serviceOne := new(library.Service)
