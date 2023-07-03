@@ -30,7 +30,7 @@ jobs:
 
     env:
       POSTGRES_ADDR: postgres://vela:notARealPassword12345@localhost:5432/vela
-      SQLITE_ADDR: file::memory:?cache=shared
+      SQLITE_ADDR: vela.db
 
     steps:
       - name: clone
