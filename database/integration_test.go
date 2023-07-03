@@ -26,7 +26,6 @@ import (
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-cmp/cmp"
 	"github.com/kr/pretty"
 )
 
@@ -310,6 +309,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, build) {
+			pretty.Ldiff(t, got, build)
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
 		}
 	}
@@ -1507,10 +1507,6 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to list lite users: %v", err)
 	}
 	if !reflect.DeepEqual(list, liteUsers) {
-		pretty.Ldiff(t, list, liteUsers)
-		if diff := cmp.Diff(liteUsers, list); diff != "" {
-			t.Errorf("ListLiteUsers() mismatch (-want +got):\n%s", diff)
-		}
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
 	if int(count) != len(liteUsers) {
