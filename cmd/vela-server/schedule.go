@@ -87,9 +87,9 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 
 		// check if we should wait to trigger a build for the schedule
 		//
-		// The current time minus the schedule interval (with jitter as a buffer)
-		// must be after the previous occurrence of the schedule.
-		if !prevTime.After(time.Now().Add(-wait.Jitter(interval, 0.5))) {
+		// The interval for the schedule (multiplied by 2 as a buffer) subtracted from
+		// the current time must be after the previous occurrence of the schedule.
+		if !prevTime.After(time.Now().Add(-(2 * interval))) {
 			logrus.Tracef("waiting to schedule build for %s", s.GetName())
 
 			continue
@@ -113,8 +113,8 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	//
 	// This should prevent multiple servers from processing a schedule at the same time by
 	// leveraging a base duration along with a standard deviation of randomness a.k.a.
-	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 3.0.
-	time.Sleep(wait.Jitter(time.Second, 3.0))
+	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 2.0.
+	time.Sleep(wait.Jitter(time.Second, 2.0))
 
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
