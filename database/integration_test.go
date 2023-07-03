@@ -56,10 +56,23 @@ func TestDatabase_Integration(t *testing.T) {
 		config *config
 	}{
 		{
-			name: "success with postgres",
+			name: "postgres",
 			config: &config{
 				Driver:           "postgres",
 				Address:          os.Getenv("POSTGRES_ADDR"),
+				CompressionLevel: 3,
+				ConnectionLife:   10 * time.Second,
+				ConnectionIdle:   5,
+				ConnectionOpen:   20,
+				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+				SkipCreation:     false,
+			},
+		},
+		{
+			name: "sqlite3",
+			config: &config{
+				Driver:           "sqlite3",
+				Address:          os.Getenv("SQLITE_ADDR"),
 				CompressionLevel: 3,
 				ConnectionLife:   10 * time.Second,
 				ConnectionIdle:   5,
