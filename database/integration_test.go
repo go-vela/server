@@ -26,7 +26,6 @@ import (
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/kr/pretty"
 )
 
 type Resources struct {
@@ -291,16 +290,6 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	counter++
 
-	// clean the builds
-	count, err = db.CleanBuilds("integration testing", 1563474090)
-	if err != nil {
-		t.Errorf("unable to clean builds: %v", err)
-	}
-	if int(count) != len(resources.Builds) {
-		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
-	}
-	counter++
-
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
 		repo := resources.Repos[build.GetRepoID()-1]
@@ -309,9 +298,18 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
 		if !reflect.DeepEqual(got, build) {
-			pretty.Ldiff(t, got, build)
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
 		}
+	}
+	counter++
+
+	// clean the builds
+	count, err = db.CleanBuilds("integration testing", 1563474090)
+	if err != nil {
+		t.Errorf("unable to clean builds: %v", err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
 	}
 	counter++
 
