@@ -181,6 +181,11 @@ func server(c *cli.Context) error {
 			// as the base duration to determine how long to sleep for.
 			interval := c.Duration("schedule-interval")
 
+			// mark when this iteration of the loop began
+			//
+			// used for calculating if a schedule is due
+			start := time.Now().UTC()
+
 			// This should prevent multiple servers from processing schedules at the same time by
 			// leveraging a base duration along with a standard deviation of randomness a.k.a.
 			// "jitter". To create the jitter, we use the configured schedule interval duration
@@ -191,7 +196,7 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(interval, compiler, database, metadata, queue, scm)
+			err = processSchedules(start, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

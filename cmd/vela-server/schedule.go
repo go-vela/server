@@ -25,7 +25,7 @@ import (
 
 const baseErr = "unable to schedule build"
 
-func processSchedules(interval time.Duration, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
@@ -53,6 +53,52 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 			continue
 		}
 
+		// ignore triggering a build if the schedule is no longer active
+		if !schedule.GetActive() {
+			logrus.Tracef("ignoring to schedule build for %s", schedule.GetName())
+
+			continue
+		}
+
+		// capture the previous occurrence of the entry for the schedule rounded to the nearest whole interval
+		//
+		// i.e. if it's 4:02 on five minute intervals, this will be 4:00
+		prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
+
+		// capture the next occurrence of the entry after the last schedule rounded to the nearest whole interval
+		//
+		// i.e. if it's 4:02 on five minute intervals, this will be 4:05
+		nextTime, err := gronx.NextTickAfter(schedule.GetEntry(), time.Unix(schedule.GetScheduledAt(), 0).UTC(), true)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
+
+		// check if we should wait to trigger a build for the schedule
+		//
+		// The current time must be after the next occurrence of the schedule.
+		if !time.Now().After(nextTime) {
+			logrus.Tracef("waiting to schedule build for %s", schedule.GetName())
+
+			continue
+		}
+
+		// check if we should wait to trigger a build for the schedule
+		//
+		// The current time minus the schedule interval (with max jitter as a buffer)
+		// must be after the previous occurrence of the schedule.
+		if !prevTime.After(start) {
+			logrus.Tracef("waiting to schedule build for %s", schedule.GetName())
+
+			continue
+		}
+
 		if strings.EqualFold(schedule.GetUpdatedBy(), "hey I am working") {
 			logrus.Tracef("this is being worked on, continuing...")
 			continue
@@ -63,52 +109,6 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 		err = database.UpdateSchedule(schedule, true)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
-
-			continue
-		}
-
-		// ignore triggering a build if the schedule is no longer active
-		if !schedule.GetActive() {
-			logrus.Tracef("ignoring to schedule build for %s", s.GetName())
-
-			continue
-		}
-
-		// capture the previous occurrence of the entry for the schedule rounded to the nearest whole interval
-		//
-		// i.e. if it's 4:02 on five minute intervals, this will be 4:00
-		prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
-		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, s.GetName())
-
-			continue
-		}
-
-		// capture the next occurrence of the entry after the last schedule rounded to the nearest whole interval
-		//
-		// i.e. if it's 4:02 on five minute intervals, this will be 4:05
-		nextTime, err := gronx.NextTickAfter(s.GetEntry(), time.Unix(s.GetScheduledAt(), 0).UTC(), true)
-		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, s.GetName())
-
-			continue
-		}
-
-		// check if we should wait to trigger a build for the schedule
-		//
-		// The current time must be after the next occurrence of the schedule.
-		if !time.Now().After(nextTime) {
-			logrus.Tracef("waiting to schedule build for %s", s.GetName())
-
-			continue
-		}
-
-		// check if we should wait to trigger a build for the schedule
-		//
-		// The current time minus the schedule interval (with max jitter as a buffer)
-		// must be after the previous occurrence of the schedule.
-		if !prevTime.After(time.Now().Add(-(8 * interval))) {
-			logrus.Tracef("waiting to schedule build for %s", s.GetName())
 
 			continue
 		}
