@@ -29,9 +29,9 @@ func TestSchedule_Engine_CreateSchedule(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "schedules"
-("repo_id","active","name","entry","created_at","created_by","updated_at","updated_by","scheduled_at","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
-		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, 1).
+("repo_id","active","name","entry","created_at","created_by","updated_at","updated_by","scheduled_at","processing","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING "id"`).
+		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, false, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

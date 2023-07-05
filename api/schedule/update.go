@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/schedule"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
@@ -73,6 +74,7 @@ func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
 	s := schedule.Retrieve(c)
+	u := user.Retrieve(c)
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
@@ -121,6 +123,9 @@ func UpdateSchedule(c *gin.Context) {
 		// update entry if defined
 		s.SetEntry(input.GetEntry())
 	}
+
+	// set updated_by using user retrieved from middleware
+	s.SetUpdatedBy(u.GetName())
 
 	// update the schedule within the database
 	err = database.FromContext(c).UpdateSchedule(s, true)

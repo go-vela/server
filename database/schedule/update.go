@@ -33,7 +33,8 @@ func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
 	if fields {
 		err = e.client.Table(constants.TableSchedule).Save(schedule).Error
 	} else {
-		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
+		err = e.client.Table(constants.TableSchedule).Model(schedule).
+			UpdateColumns(database.Schedule{ScheduledAt: schedule.ScheduledAt, Processing: schedule.Processing}).Error
 	}
 
 	return err

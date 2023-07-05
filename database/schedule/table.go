@@ -24,6 +24,7 @@ schedules (
 	updated_at   INTEGER,
 	updated_by   VARCHAR(250),
 	scheduled_at INTEGER,
+	processing   BOOLEAN,
 	UNIQUE(repo_id, name)
 );
 `
@@ -43,6 +44,7 @@ schedules (
 	updated_at   INTEGER,
 	updated_by   TEXT,
 	scheduled_at INTEGER,
+	processing   BOOLEAN,
 	UNIQUE(repo_id, name)
 );
 `

@@ -44,7 +44,7 @@ services:
       VELA_REPO_ALLOWLIST: '*'
       VELA_SCHEDULE_ALLOWLIST: '*'
       VELA_SCHEDULE_INTERVAL: '30s'
-      VELA_SCHEDULE_MINIMUM_FREQUENCY: '30m'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: '3m'
     env_file:
       - .env
     restart: always
