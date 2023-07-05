@@ -20,7 +20,6 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
-
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
@@ -35,6 +34,11 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 		return err
 	}
 
+	// rand.Seed(time.Now().UnixNano())
+	// rand.Shuffle(len(schedules), func(i, j int) { schedules[i], schedules[j] = schedules[j], schedules[i] })
+
+	// fmt.Printf("FIRST THREE ELEMENTS OF LIST: %d, %d, %d\n", schedules[0].GetID(), schedules[1].GetID(), schedules[2].GetID())
+
 	// iterate through the list of active schedules
 	for _, s := range schedules {
 		// send API call to capture the schedule
@@ -43,6 +47,20 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 		// all schedules once and iterate through that list which can take a significant
 		// amount of time to get to the end of the list.
 		schedule, err := database.GetSchedule(s.GetID())
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
+
+		if strings.EqualFold(schedule.GetUpdatedBy(), "hey I am working") {
+			logrus.Tracef("this is being worked on, continuing...")
+			continue
+		}
+
+		schedule.SetUpdatedBy("hey I am working")
+
+		err = database.UpdateSchedule(schedule, true)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
 
@@ -87,9 +105,9 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 
 		// check if we should wait to trigger a build for the schedule
 		//
-		// The interval for the schedule (multiplied by 2 as a buffer) subtracted from
-		// the current time must be after the previous occurrence of the schedule.
-		if !prevTime.After(time.Now().Add(-(2 * interval))) {
+		// The current time minus the schedule interval (with max jitter as a buffer)
+		// must be after the previous occurrence of the schedule.
+		if !prevTime.After(time.Now().Add(-(8 * interval))) {
 			logrus.Tracef("waiting to schedule build for %s", s.GetName())
 
 			continue
@@ -97,6 +115,15 @@ func processSchedules(interval time.Duration, compiler compiler.Engine, database
 
 		// process the schedule and trigger a new build
 		err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+
+			continue
+		}
+
+		schedule.SetUpdatedBy("")
+
+		err = database.UpdateSchedule(schedule, true)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
 
@@ -113,7 +140,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	//
 	// This should prevent multiple servers from processing a schedule at the same time by
 	// leveraging a base duration along with a standard deviation of randomness a.k.a.
-	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 2.0.
+	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 3.0.
 	time.Sleep(wait.Jitter(time.Second, 2.0))
 
 	// send API call to capture the repo for the schedule

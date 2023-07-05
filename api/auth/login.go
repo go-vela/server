@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,7 +39,7 @@ import (
 // process a user logging in to Vela.
 func Login(c *gin.Context) {
 	// load the metadata
-	m := c.MustGet("metadata").(*types.Metadata)
+	// m := c.MustGet("metadata").(*types.Metadata)
 
 	// capture query params
 	t := util.FormParameter(c, "type")
@@ -55,13 +54,13 @@ func Login(c *gin.Context) {
 	// handle web and cli logins
 	switch t {
 	case "web":
-		r = fmt.Sprintf("%s/authenticate/%s", m.Vela.Address, t)
+		r = fmt.Sprintf("%s/authenticate/%s", "http://localhost:4000", t)
 
 		logrus.Debugf("web login request, setting redirect to: %s", r)
 	case "cli":
 		// port must be supplied
 		if len(p) > 0 {
-			r = fmt.Sprintf("%s/authenticate/%s/%s", m.Vela.Address, t, p)
+			r = fmt.Sprintf("%s/authenticate/%s/%s", "http://localhost:4000", t, p)
 
 			logrus.Debugf("cli login request, setting redirect to: %s", r)
 		}

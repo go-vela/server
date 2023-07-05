@@ -17,7 +17,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: server
     image: server:local
     networks:
       - vela
@@ -44,15 +43,29 @@ services:
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_REPO_ALLOWLIST: '*'
       VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_INTERVAL: '30s'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: '30m'
     env_file:
       - .env
     restart: always
-    ports:
-      - '8080:8080'
+    expose:
+      - "8080"
     depends_on:
       - postgres
       - redis
       - vault
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - server
+    networks:
+      - vela
+    ports:
+      - "4000:4000"
+
 
   # The `worker` compose service hosts the Vela build daemon.
   #
@@ -74,7 +87,7 @@ services:
       VELA_LOG_LEVEL: trace
       VELA_RUNTIME_DRIVER: docker
       VELA_RUNTIME_PRIVILEGED_IMAGES: 'target/vela-docker'
-      VELA_SERVER_ADDR: 'http://server:8080'
+      VELA_SERVER_ADDR: 'http://nginx:4000'
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
       WORKER_CHECK_IN: 5m
@@ -100,7 +113,7 @@ services:
     env_file:
       - .env
     environment:
-      VELA_API: http://localhost:8080
+      VELA_API: http://nginx:4000
     restart: always
     ports:
       - '8888:80'
