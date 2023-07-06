@@ -39,12 +39,12 @@ import (
 //   description: Filter by build event
 //   type: string
 //   enum:
-//   - push
-//   - pull_request
-//   - tag
-//   - deployment
 //   - comment
+//   - deployment
+//   - pull_request
+//   - push
 //   - schedule
+//   - tag
 // - in: query
 //   name: branch
 //   description: Filter builds by branch
