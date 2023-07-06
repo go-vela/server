@@ -1,0 +1,302 @@
+# NOTE: This file was originally copied from the './docker-compose.yml'.
+#
+# It should be removed before https://github.com/go-vela/server/pull/893 is merged.
+#
+# It contains 5 'server' Docker services to enable testing the processing of schedules with multiple servers.
+
+version: '3'
+
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server
+    image: server:local
+    networks:
+      - vela
+    environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
+      DATABASE_COMPRESSION_LEVEL: 3
+      DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
+      QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
+      SCM_DRIVER: github
+      SCM_CONTEXT: 'continuous-integration/vela'
+      SECRET_VAULT: 'true'
+      SECRET_VAULT_ADDR: 'http://vault:8200'
+      SECRET_VAULT_TOKEN: vela
+      VELA_ADDR: 'http://localhost:8080'
+      VELA_WEBUI_ADDR: 'http://localhost:8888'
+      VELA_LOG_LEVEL: trace
+      VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
+      VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
+      VELA_ENABLE_SECURE_COOKIE: 'false'
+      VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_INTERVAL: '1m'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: 1m
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+      - redis
+      - vault
+
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server1
+    image: server:local
+    networks:
+      - vela
+    environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
+      DATABASE_COMPRESSION_LEVEL: 3
+      DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
+      QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
+      SCM_DRIVER: github
+      SCM_CONTEXT: 'continuous-integration/vela'
+      SECRET_VAULT: 'true'
+      SECRET_VAULT_ADDR: 'http://vault:8200'
+      SECRET_VAULT_TOKEN: vela
+      VELA_ADDR: 'http://localhost:8080'
+      VELA_WEBUI_ADDR: 'http://localhost:8888'
+      VELA_LOG_LEVEL: trace
+      VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
+      VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
+      VELA_ENABLE_SECURE_COOKIE: 'false'
+      VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_INTERVAL: '1m'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: 1m
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '8082:8080'
+    depends_on:
+      - postgres
+      - redis
+      - vault
+
+  server2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server2
+    image: server:local
+    networks:
+      - vela
+    environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
+      DATABASE_COMPRESSION_LEVEL: 3
+      DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
+      QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
+      SCM_DRIVER: github
+      SCM_CONTEXT: 'continuous-integration/vela'
+      SECRET_VAULT: 'true'
+      SECRET_VAULT_ADDR: 'http://vault:8200'
+      SECRET_VAULT_TOKEN: vela
+      VELA_ADDR: 'http://localhost:8080'
+      VELA_WEBUI_ADDR: 'http://localhost:8888'
+      VELA_LOG_LEVEL: trace
+      VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
+      VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
+      VELA_ENABLE_SECURE_COOKIE: 'false'
+      VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_INTERVAL: '1m'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: 1m
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '8083:8080'
+    depends_on:
+      - postgres
+      - redis
+      - vault
+
+  server3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server3
+    image: server:local
+    networks:
+      - vela
+    environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
+      DATABASE_COMPRESSION_LEVEL: 3
+      DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
+      QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
+      SCM_DRIVER: github
+      SCM_CONTEXT: 'continuous-integration/vela'
+      SECRET_VAULT: 'true'
+      SECRET_VAULT_ADDR: 'http://vault:8200'
+      SECRET_VAULT_TOKEN: vela
+      VELA_ADDR: 'http://localhost:8080'
+      VELA_WEBUI_ADDR: 'http://localhost:8888'
+      VELA_LOG_LEVEL: trace
+      VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
+      VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
+      VELA_ENABLE_SECURE_COOKIE: 'false'
+      VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_INTERVAL: '1m'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: 1m
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '8084:8080'
+    depends_on:
+      - postgres
+      - redis
+      - vault
+
+  server4:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server4
+    image: server:local
+    networks:
+      - vela
+    environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
+      DATABASE_COMPRESSION_LEVEL: 3
+      DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
+      QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
+      SCM_DRIVER: github
+      SCM_CONTEXT: 'continuous-integration/vela'
+      SECRET_VAULT: 'true'
+      SECRET_VAULT_ADDR: 'http://vault:8200'
+      SECRET_VAULT_TOKEN: vela
+      VELA_ADDR: 'http://localhost:8080'
+      VELA_WEBUI_ADDR: 'http://localhost:8888'
+      VELA_LOG_LEVEL: trace
+      VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
+      VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
+      VELA_ENABLE_SECURE_COOKIE: 'false'
+      VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
+      VELA_SCHEDULE_INTERVAL: '1m'
+      VELA_SCHEDULE_MINIMUM_FREQUENCY: 1m
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '8085:8080'
+    depends_on:
+      - postgres
+      - redis
+      - vault
+
+  worker:
+    container_name: worker
+    image: target/vela-worker:latest
+    networks:
+      - vela
+    environment:
+      EXECUTOR_DRIVER: linux
+      QUEUE_DRIVER: redis
+      QUEUE_ADDR: 'redis://redis:6379'
+      VELA_BUILD_LIMIT: 1
+      VELA_BUILD_TIMEOUT: 30m
+      VELA_LOG_LEVEL: trace
+      VELA_RUNTIME_DRIVER: docker
+      VELA_RUNTIME_PRIVILEGED_IMAGES: 'target/vela-docker'
+      VELA_SERVER_ADDR: 'http://server:8080'
+      VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      WORKER_ADDR: 'http://worker:8080'
+      WORKER_CHECK_IN: 5m
+    restart: always
+    ports:
+      - '8081:8080'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    depends_on:
+      - server
+
+  ui:
+    container_name: ui
+    image: target/vela-ui:latest
+    networks:
+      - vela
+    env_file:
+      - .env
+    environment:
+      VELA_API: http://localhost:8080
+    restart: always
+    ports:
+      - '8888:80'
+    depends_on:
+      - server
+
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    networks:
+      - vela
+    ports:
+      - '6379:6379'
+
+  postgres:
+    container_name: postgres
+    image: postgres:15-alpine
+    networks:
+      - vela
+    environment:
+      POSTGRES_DB: vela
+      POSTGRES_PASSWORD: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      POSTGRES_USER: vela
+    ports:
+      - '5432:5432'
+
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    command: server -dev
+    networks:
+      - vela
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: vela
+    ports:
+      - '8200:8200'
+    cap_add:
+      - IPC_LOCK
+
+networks:
+  vela:
