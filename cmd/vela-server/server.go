@@ -176,6 +176,14 @@ func server(c *cli.Context) error {
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
 		for {
+			// track the starting time for when the server begins processing schedules
+			//
+			// This will be used to control which schedules will have a build triggered based
+			// off the configured entry and last time a build was triggered for the schedule.
+			start := time.Now().UTC()
+
+			// capture the interval of time to wait before processing schedules
+			//
 			// We need to sleep for some amount of time before we attempt to process schedules
 			// setup in the database. Since the schedule interval is configurable, we use that
 			// as the base duration to determine how long to sleep for.
@@ -191,7 +199,7 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(interval, compiler, database, metadata, queue, scm)
+			err = processSchedules(start, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {
