@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 const baseErr = "unable to schedule build"
@@ -31,6 +33,12 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 	schedules, err := database.ListActiveSchedules()
 	if err != nil {
 		return err
+	}
+
+	// shuffle schedule to limit collisions
+	for i := range schedules {
+		j := rand.Intn(i + 1)
+		schedules[i], schedules[j] = schedules[j], schedules[i]
 	}
 
 	// iterate through the list of active schedules
@@ -94,7 +102,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		}
 
 		if schedule.GetProcessing() {
-			logrus.Tracef("this is being worked on, continuing...")
+			logrus.Tracef("schedule %s is already being worked on, continuing...", schedule.GetName())
 			continue
 		}
 
@@ -108,18 +116,19 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		}
 
 		// process the schedule and trigger a new build
-		err = processSchedule(schedule, compiler, database, metadata, queue, scm)
-		if err != nil {
+		processErr := processSchedule(schedule, compiler, database, metadata, queue, scm)
+
+		schedule.SetProcessing(false)
+
+		updateErr := database.UpdateSchedule(schedule, false)
+		if updateErr != nil {
 			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
 
 			continue
 		}
 
-		schedule.SetProcessing(false)
-
-		err = database.UpdateSchedule(schedule, false)
-		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+		if processErr != nil {
+			logrus.WithError(err).Warnf("%s for %s: %v", baseErr, schedule.GetName(), processErr)
 
 			continue
 		}
@@ -130,6 +139,13 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 
 //nolint:funlen // ignore function length and number of statements
 func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+	// sleep for 1s - 3s before processing the schedule
+	//
+	// This should prevent multiple servers from processing a schedule at the same time by
+	// leveraging a base duration along with a standard deviation of randomness a.k.a.
+	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 3.0.
+	time.Sleep(wait.Jitter(time.Second, 0.5))
+
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
 	if err != nil {
