@@ -9,8 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/apimachinery/pkg/util/wait"
-
 	"github.com/adhocore/gronx"
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/compiler"
@@ -22,6 +20,8 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
+
+	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 const (
@@ -104,6 +104,20 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		// The previous occurrence of the schedule must be after the starting time of processing schedules.
 		if !prevTime.After(start) {
 			logrus.Tracef("%s %s: previous occurence not after starting point", scheduleWait, schedule.GetName())
+
+			continue
+		}
+
+		// update the scheduled_at field with the current timestamp
+		//
+		// This should help prevent multiple servers from processing a schedule at the same time
+		// by updating the schedule with a new timestamp to reflect the current state.
+		schedule.SetScheduledAt(time.Now().UTC().Unix())
+
+		// send API call to update schedule for ensuring scheduled_at field is set
+		err = database.UpdateSchedule(schedule, false)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
 			continue
 		}
@@ -354,8 +368,6 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			return err
 		}
 
-		s.SetScheduledAt(time.Now().UTC().Unix())
-
 		// break the loop because everything was successful
 		break
 	} // end of retry loop
@@ -364,12 +376,6 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	err = database.UpdateRepo(r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
-	}
-
-	// send API call to update schedule for ensuring scheduled_at field is set
-	err = database.UpdateSchedule(s, false)
-	if err != nil {
-		return fmt.Errorf("unable to update schedule %s/%s: %w", r.GetFullName(), s.GetName(), err)
 	}
 
 	// send API call to capture the triggered build
