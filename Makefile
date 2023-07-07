@@ -235,7 +235,7 @@ pull:
 compose-up:
 	@echo
 	@echo "### Creating containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml up -d --build --scale server=3
+	@docker-compose -f test-docker-compose.yml up -d --build
 
 # The `compose-down` target is intended to destroy
 # all containers for the local Docker compose stack.
@@ -245,7 +245,7 @@ compose-up:
 compose-down:
 	@echo
 	@echo "### Destroying containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml down
+	@docker-compose -f test-docker-compose.yml down
 
 # The `spec-install` target is intended to install the
 # the needed dependencies to generate the api spec.

@@ -21,7 +21,6 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
-	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 const baseErr = "unable to schedule build"
@@ -144,7 +143,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	// This should prevent multiple servers from processing a schedule at the same time by
 	// leveraging a base duration along with a standard deviation of randomness a.k.a.
 	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 3.0.
-	time.Sleep(wait.Jitter(time.Second, 0.5))
+	// time.Sleep(wait.Jitter(time.Second, 0.5))
 
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
