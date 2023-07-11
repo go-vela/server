@@ -539,8 +539,8 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Logs) {
 		t.Errorf("ListLogsForBuild() is %v, want %v", count, len(resources.Logs))
 	}
-	if !reflect.DeepEqual(list, []*library.Log{resources.Logs[2], resources.Logs[3], resources.Logs[0], resources.Logs[1]}) {
-		t.Errorf("ListLogsForBuild() is %v, want %v", list, []*library.Log{resources.Logs[2], resources.Logs[3], resources.Logs[0], resources.Logs[1]})
+	if !reflect.DeepEqual(list, resources.Logs) {
+		t.Errorf("ListLogsForBuild() is %v, want %v", list, resources.Logs)
 	}
 	counter++
 
