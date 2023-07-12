@@ -6,7 +6,6 @@ package secret
 
 import (
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
@@ -57,21 +56,21 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"events"=$8,"allow_command"=$9,"created_at"=$10,"created_by"=$11,"updated_at"=$12,"updated_by"=$13
 WHERE "id" = $14`).
-		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", nil, nil, false, 1, "user", time.Now().UTC().Unix(), "user2", 1).
+		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", nil, nil, false, 1, "user", AnyArgument{}, "user2", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the org query
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"events"=$8,"allow_command"=$9,"created_at"=$10,"created_by"=$11,"updated_at"=$12,"updated_by"=$13
 WHERE "id" = $14`).
-		WithArgs("foo", "*", nil, "bar", AnyArgument{}, "org", nil, nil, false, 1, "user", time.Now().UTC().Unix(), "user2", 2).
+		WithArgs("foo", "*", nil, "bar", AnyArgument{}, "org", nil, nil, false, 1, "user", AnyArgument{}, "user2", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the shared query
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"events"=$8,"allow_command"=$9,"created_at"=$10,"created_by"=$11,"updated_at"=$12,"updated_by"=$13
 WHERE "id" = $14`).
-		WithArgs("foo", nil, "bar", "baz", AnyArgument{}, "shared", nil, nil, false, 1, "user", time.Now().UTC().Unix(), "user2", 3).
+		WithArgs("foo", nil, "bar", "baz", AnyArgument{}, "shared", nil, nil, false, 1, "user", NowTimestamp{}, "user2", 3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
