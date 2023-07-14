@@ -10,8 +10,6 @@ import (
 )
 
 const (
-	// default image for clone process.
-	cloneImage = "target/vela-git:v0.5.1"
 	// default name for clone stage.
 	cloneStageName = "clone"
 	// default name for clone step.
@@ -34,7 +32,7 @@ func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Detach:     false,
-				Image:      cloneImage,
+				Image:      c.CloneImage,
 				Name:       cloneStepName,
 				Privileged: false,
 				Pull:       constants.PullNotPresent,
@@ -67,7 +65,7 @@ func (c *client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 	// create new clone step
 	clone := &yaml.Step{
 		Detach:     false,
-		Image:      cloneImage,
+		Image:      c.CloneImage,
 		Name:       cloneStepName,
 		Privileged: false,
 		Pull:       constants.PullNotPresent,

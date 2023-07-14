@@ -14,7 +14,6 @@ import (
 
 func TestRedis_Push(t *testing.T) {
 	// setup types
-
 	// use global variables in redis_test.go
 	_item := &types.Item{
 		Build:    _build,
@@ -24,7 +23,7 @@ func TestRedis_Push(t *testing.T) {
 	}
 
 	// setup queue item
-	bytes, err := json.Marshal(_item)
+	_bytes, err := json.Marshal(_item)
 	if err != nil {
 		t.Errorf("unable to marshal queue item: %v", err)
 	}
@@ -35,20 +34,33 @@ func TestRedis_Push(t *testing.T) {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
+	// setup redis mock
+	badItem, err := NewTest("vela")
+	if err != nil {
+		t.Errorf("unable to create queue service: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure bool
 		redis   *client
+		bytes   []byte
 	}{
 		{
 			failure: false,
 			redis:   _redis,
+			bytes:   _bytes,
+		},
+		{
+			failure: true,
+			redis:   badItem,
+			bytes:   nil,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		err := _redis.Push(context.Background(), "vela", bytes)
+		err := test.redis.Push(context.Background(), "vela", test.bytes)
 
 		if test.failure {
 			if err == nil {

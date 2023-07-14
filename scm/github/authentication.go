@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-vela/server/random"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v53/github"
 )
 
 // Authorize uses the given access token to authorize the user.
@@ -38,8 +38,6 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 	c.Logger.Trace("processing login request")
 
 	// generate a random string for creating the OAuth state
-	//
-	// nolint: gomnd // ignore magic number
 	oAuthState, err := random.GenerateRandomString(32)
 	if err != nil {
 		return "", err
@@ -59,8 +57,6 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
 	c.Logger.Trace("authenticating user")
 
@@ -136,7 +132,8 @@ func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 	// check if the provided token was created by Vela
 	_, resp, err := client.Authorizations.Check(context.Background(), c.config.ClientID, token)
 	// check if the error is of type ErrorResponse
-	if gerr, ok := err.(*github.ErrorResponse); ok {
+	var gerr *github.ErrorResponse
+	if errors.As(err, &gerr) {
 		// check the status code
 		switch gerr.Response.StatusCode {
 		// 404 is expected when non vela token is used

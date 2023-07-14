@@ -16,7 +16,7 @@ import (
 )
 
 // SubstituteStages replaces every declared environment
-// variable with it's corresponding value for each step
+// variable with its corresponding value for each step
 // in every stage in a yaml configuration.
 func (c *client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) {
 	// iterate through all stages
@@ -34,7 +34,7 @@ func (c *client) SubstituteStages(s types.StageSlice) (types.StageSlice, error) 
 }
 
 // SubstituteSteps replaces every declared environment
-// variable with it's corresponding value for each step
+// variable with its corresponding value for each step
 // in a yaml configuration.
 func (c *client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
 	// iterate through all steps
@@ -42,7 +42,7 @@ func (c *client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
 		// marshal step configuration
 		body, err := yaml.Marshal(step)
 		if err != nil {
-			return nil, fmt.Errorf("unable to marshal configuration: %v", err)
+			return nil, fmt.Errorf("unable to marshal configuration: %w", err)
 		}
 
 		// create substitute function
@@ -67,13 +67,13 @@ func (c *client) SubstituteSteps(s types.StepSlice) (types.StepSlice, error) {
 		// substitute the environment variables
 		subStep, err := envsubst.Eval(string(body), subFunc)
 		if err != nil {
-			return nil, fmt.Errorf("unable to substitute environment variables: %v", err)
+			return nil, fmt.Errorf("unable to substitute environment variables: %w", err)
 		}
 
 		// unmarshal step configuration
 		err = yaml.Unmarshal([]byte(subStep), step)
 		if err != nil {
-			return nil, fmt.Errorf("unable to unmarshal configuration: %v", err)
+			return nil, fmt.Errorf("unable to unmarshal configuration: %w", err)
 		}
 	}
 

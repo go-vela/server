@@ -11,12 +11,10 @@ import (
 
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v53/github"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
@@ -34,6 +32,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 	}
 
 	var payload *raw.StringSliceMap
+
 	err = json.Unmarshal(deployment.Payload, &payload)
 	if err != nil {
 		c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
@@ -96,8 +95,6 @@ func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, er
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
@@ -128,6 +125,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 	// iterate through all API results
 	for _, deployment := range d {
 		var payload *raw.StringSliceMap
+
 		err := json.Unmarshal(deployment.Payload, &payload)
 		if err != nil {
 			c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)

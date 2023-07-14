@@ -7,13 +7,12 @@ package api
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-
+	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -47,7 +46,7 @@ func GetBadge(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	branch := c.DefaultQuery("branch", r.GetBranch())
+	branch := util.QueryParameter(c, "branch", r.GetBranch())
 
 	// update engine logger with API metadata
 	//
@@ -58,7 +57,7 @@ func GetBadge(c *gin.Context) {
 	}).Infof("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
 
 	// send API call to capture the last build for the repo and branch
-	b, err := database.FromContext(c).GetLastBuildByBranch(r, branch)
+	b, err := database.FromContext(c).LastBuildForRepo(r, branch)
 	if err != nil {
 		c.String(http.StatusOK, constants.BadgeUnknown)
 		return

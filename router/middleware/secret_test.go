@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/secret/native"
 
@@ -51,13 +51,16 @@ func TestMiddleware_Secret(t *testing.T) {
 
 func TestMiddleware_Secrets(t *testing.T) {
 	// setup types
-	d, _ := sqlite.NewTest()
-	defer func() { _sql, _ := d.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	var got secret.Service
 
 	want, _ := native.New(
-		native.WithDatabase(d),
+		native.WithDatabase(db),
 	)
 	s := map[string]secret.Service{"native": want}
 

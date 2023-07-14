@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -9,9 +9,10 @@ import (
 	"strings"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/token"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -26,20 +27,11 @@ func Retrieve(c *gin.Context) *library.User {
 // Establish sets the user in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// get the access token from the request
-		at, err := token.RetrieveAccessToken(c.Request)
-		if err != nil {
-			util.HandleError(c, http.StatusUnauthorized, err)
-			return
-		}
+		cl := claims.Retrieve(c)
 
-		// special handling for workers
-		secret := c.MustGet("secret").(string)
-		if strings.EqualFold(at, secret) {
+		// if token is not a user token or claims were not retrieved, establish empty user to better handle nil checks
+		if cl == nil || !strings.EqualFold(cl.TokenType, constants.UserAccessTokenType) {
 			u := new(library.User)
-			u.SetName("vela-worker")
-			u.SetActive(true)
-			u.SetAdmin(true)
 
 			ToContext(c, u)
 			c.Next()
@@ -49,8 +41,8 @@ func Establish() gin.HandlerFunc {
 
 		logrus.Debugf("parsing user access token")
 
-		// parse and validate the token and return the associated the user
-		u, err := token.Parse(at, database.FromContext(c))
+		// lookup user in claims subject in the database
+		u, err := database.FromContext(c).GetUserForName(cl.Subject)
 		if err != nil {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return

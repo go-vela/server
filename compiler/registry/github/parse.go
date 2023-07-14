@@ -34,13 +34,10 @@ func (c *client) Parse(path string) (*registry.Source, error) {
 	// this will handle multiple cases for the path:
 	// * <org>/<repo>/<filename>
 	// * <org>/<repo>/<path>/<to>/<filename>
-	// nolint: gomnd // ignore magic number
 	parts := strings.SplitN(u.Path, "/", 3)
 
 	// ensure org, repo and filename parts exist
-	// nolint: gomnd // ignore magic number
 	if len(parts) < 3 {
-		// nolint: lll // ignore long line length due to error message
 		return &registry.Source{}, fmt.Errorf("invalid template source %s, must contain org/repo/path_to_template", path)
 	}
 

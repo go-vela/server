@@ -6,47 +6,46 @@ package native
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // Create creates a new secret.
 func (c *client) Create(sType, org, name string, s *library.Secret) error {
-	// create log fields from secret metadata
-	fields := logrus.Fields{
-		"org":    org,
-		"repo":   name,
-		"secret": s.GetName(),
-		"type":   sType,
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(sType, constants.SecretShared) {
-		// update log fields from secret metadata
-		fields = logrus.Fields{
-			"org":    org,
-			"team":   name,
-			"secret": s.GetName(),
-			"type":   sType,
-		}
-	}
-
-	// nolint: lll // ignore long line length due to parameters
-	c.Logger.WithFields(fields).Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
-
-	// create the secret for the native service
+	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:
-		fallthrough
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"secret": s.GetName(),
+			"type":   sType,
+		}).Tracef("creating native %s secret %s for %s", sType, s.GetName(), org)
+
+		// create the org secret in the native service
+		return c.Database.CreateSecret(s)
 	case constants.SecretRepo:
-		fallthrough
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"repo":   name,
+			"secret": s.GetName(),
+			"type":   sType,
+		}).Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
+
+		// create the repo secret in the native service
+		return c.Database.CreateSecret(s)
 	case constants.SecretShared:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"secret": s.GetName(),
+			"team":   name,
+			"type":   sType,
+		}).Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
+
+		// create the shared secret in the native service
 		return c.Database.CreateSecret(s)
 	default:
-		return fmt.Errorf("invalid secret type: %v", sType)
+		return fmt.Errorf("invalid secret type: %s", sType)
 	}
 }

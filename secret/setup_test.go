@@ -8,20 +8,20 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 )
 
 func TestSecret_Setup_Native(t *testing.T) {
 	// setup types
-	_database, err := sqlite.NewTest()
+	db, err := database.NewTest()
 	if err != nil {
-		t.Errorf("unable to create database service: %v", err)
+		t.Errorf("unable to create test database engine: %v", err)
 	}
-	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+	defer db.Close()
 
 	_setup := &Setup{
 		Driver:   "native",
-		Database: _database,
+		Database: db,
 	}
 
 	_native, err := _setup.Native()
@@ -125,11 +125,11 @@ func TestSecret_Setup_Vault(t *testing.T) {
 
 func TestSecret_Setup_Validate(t *testing.T) {
 	// setup types
-	_database, err := sqlite.NewTest()
+	db, err := database.NewTest()
 	if err != nil {
-		t.Errorf("unable to create database service: %v", err)
+		t.Errorf("unable to create test database engine: %v", err)
 	}
-	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+	defer db.Close()
 
 	// setup tests
 	tests := []struct {
@@ -140,7 +140,7 @@ func TestSecret_Setup_Validate(t *testing.T) {
 			failure: false,
 			setup: &Setup{
 				Driver:   "native",
-				Database: _database,
+				Database: db,
 			},
 		},
 		{

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,7 +38,7 @@ type client struct {
 // New returns a Queue implementation that
 // integrates with a Redis queue instance.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new Redis client
 	c := new(client)
@@ -97,22 +97,22 @@ func New(opts ...ClientOpt) (*client, error) {
 // the failover options from the parse options.
 func failoverFromOptions(source *redis.Options) *redis.FailoverOptions {
 	target := &redis.FailoverOptions{
-		OnConnect:          source.OnConnect,
-		Password:           source.Password,
-		DB:                 source.DB,
-		MaxRetries:         source.MaxRetries,
-		MinRetryBackoff:    source.MinRetryBackoff,
-		MaxRetryBackoff:    source.MaxRetryBackoff,
-		DialTimeout:        source.DialTimeout,
-		ReadTimeout:        source.ReadTimeout,
-		WriteTimeout:       source.WriteTimeout,
-		PoolSize:           source.PoolSize,
-		MinIdleConns:       source.MinIdleConns,
-		MaxConnAge:         source.MaxConnAge,
-		PoolTimeout:        source.PoolTimeout,
-		IdleTimeout:        source.IdleTimeout,
-		IdleCheckFrequency: source.IdleCheckFrequency,
-		TLSConfig:          source.TLSConfig,
+		OnConnect:       source.OnConnect,
+		Password:        source.Password,
+		DB:              source.DB,
+		MaxRetries:      source.MaxRetries,
+		MinRetryBackoff: source.MinRetryBackoff,
+		MaxRetryBackoff: source.MaxRetryBackoff,
+		DialTimeout:     source.DialTimeout,
+		ReadTimeout:     source.ReadTimeout,
+		WriteTimeout:    source.WriteTimeout,
+		PoolSize:        source.PoolSize,
+		MinIdleConns:    source.MinIdleConns,
+		MaxIdleConns:    source.MaxIdleConns,
+		ConnMaxLifetime: source.ConnMaxLifetime,
+		PoolTimeout:     source.PoolTimeout,
+		ConnMaxIdleTime: source.ConnMaxIdleTime,
+		TLSConfig:       source.TLSConfig,
 	}
 
 	// trim auto appended :6379 from address
@@ -172,7 +172,7 @@ func pingQueue(c *client) error {
 //
 // This function is intended for running tests only.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func NewTest(channels ...string) (*client, error) {
 	// create a local fake redis instance
 	//

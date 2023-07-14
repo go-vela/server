@@ -20,7 +20,12 @@ type Engine interface {
 	// Compile defines a function that produces an executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	Compile(interface{}) (*pipeline.Build, error)
+	Compile(interface{}) (*pipeline.Build, *library.Pipeline, error)
+
+	// CompileLite defines a function that produces an light executable
+	// representation of a pipeline from an object. This calls
+	// Parse internally to convert the object to a yaml configuration.
+	CompileLite(interface{}, bool, bool, []string) (*yaml.Build, *library.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
@@ -28,7 +33,7 @@ type Engine interface {
 
 	// Parse defines a function that converts
 	// an object to a yaml configuration.
-	Parse(interface{}) (*yaml.Build, error)
+	Parse(interface{}, string, *yaml.Template) (*yaml.Build, []byte, error)
 
 	// ParseRaw defines a function that converts
 	// an object to a string.
@@ -66,12 +71,10 @@ type Engine interface {
 
 	// ExpandStages defines a function that injects the template
 	// for each templated step in every stage in a yaml configuration.
-	// nolint: lll // ignore long line length due to return args
-	ExpandStages(*yaml.Build, map[string]*yaml.Template) (yaml.StageSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error)
+	ExpandStages(*yaml.Build, map[string]*yaml.Template, *pipeline.RuleData) (*yaml.Build, error)
 	// ExpandSteps defines a function that injects the template
-	// for each templated step in a yaml configuration.
-	// nolint: lll // ignore long line length due to return args
-	ExpandSteps(*yaml.Build, map[string]*yaml.Template) (yaml.StepSlice, yaml.SecretSlice, yaml.ServiceSlice, raw.StringSliceMap, error)
+	// for each templated step in a yaml configuration with the provided template depth.
+	ExpandSteps(*yaml.Build, map[string]*yaml.Template, *pipeline.RuleData, int) (*yaml.Build, error)
 
 	// Init Compiler Interface Functions
 
@@ -118,6 +121,9 @@ type Engine interface {
 	// WithComment defines a function that sets
 	// the comment in the Engine.
 	WithComment(string) Engine
+	// WithCommit defines a function that sets
+	// the commit in the Engine.
+	WithCommit(string) Engine
 	// WithFiles defines a function that sets
 	// the changeset files in the Engine.
 	WithFiles([]string) Engine

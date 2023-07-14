@@ -9,15 +9,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,15 +32,17 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", c.Param("org"), c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", util.PathParameter(c, "org"), util.PathParameter(c, "repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
-		bParam := c.Param("build")
+		bParam := util.PathParameter(c, "build")
 		if len(bParam) == 0 {
 			retErr := fmt.Errorf("no build parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -50,6 +50,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("invalid build parameter provided: %s", bParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -63,10 +64,11 @@ func Establish() gin.HandlerFunc {
 			"user":  u.GetName(),
 		}).Debugf("reading build %s/%d", r.GetFullName(), number)
 
-		b, err := database.FromContext(c).GetBuild(number, r)
+		b, err := database.FromContext(c).GetBuildForRepo(r, number)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read build %s/%d: %v", r.GetFullName(), number, err)
+			retErr := fmt.Errorf("unable to read build %s/%d: %w", r.GetFullName(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

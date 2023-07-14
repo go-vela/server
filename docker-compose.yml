@@ -12,7 +12,7 @@ services:
   # managing resources in the database and publishing
   # builds to the FIFO queue.
   #
-  # https://go-vela.github.io/docs/concepts/infrastructure/server/
+  # https://go-vela.github.io/docs/administration/server/
   server:
     build:
       context: .
@@ -37,10 +37,13 @@ services:
       VELA_WEBUI_ADDR: 'http://localhost:8888'
       VELA_LOG_LEVEL: trace
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      VELA_REFRESH_TOKEN_DURATION: 90m
-      VELA_ACCESS_TOKEN_DURATION: 60m
+      VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
+      VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
     env_file:
       - .env
     restart: always
@@ -56,23 +59,25 @@ services:
   # This component is used for pulling builds from the FIFO
   # queue and executing them based off their configuration.
   #
-  # https://go-vela.github.io/docs/concepts/infrastructure/worker/
+  # https://go-vela.github.io/docs/administration/worker/
   worker:
     container_name: worker
     image: target/vela-worker:latest
     networks:
       - vela
     environment:
+      EXECUTOR_DRIVER: linux
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace
       VELA_RUNTIME_DRIVER: docker
+      VELA_RUNTIME_PRIVILEGED_IMAGES: 'target/vela-docker'
       VELA_SERVER_ADDR: 'http://server:8080'
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
-      WORKER_CHECK_IN: 15m
+      WORKER_CHECK_IN: 5m
     restart: always
     ports:
       - '8081:8080'
@@ -86,7 +91,7 @@ services:
   # This component is used for providing a user-friendly
   # interface for triggering actions in the Vela system.
   #
-  # https://go-vela.github.io/docs/concepts/infrastructure/ui/
+  # https://go-vela.github.io/docs/administration/ui/
   ui:
     container_name: ui
     image: target/vela-ui:latest
@@ -109,7 +114,7 @@ services:
   # https://redis.io/
   redis:
     container_name: redis
-    image: redis:6-alpine
+    image: redis:7-alpine
     networks:
       - vela
     ports:
@@ -122,7 +127,7 @@ services:
   # https://www.postgresql.org/
   postgres:
     container_name: postgres
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     networks:
       - vela
     environment:
@@ -138,7 +143,7 @@ services:
   #
   # https://www.vaultproject.io/
   vault:
-    image: vault:latest
+    image: hashicorp/vault:latest
     container_name: vault
     command: server -dev
     networks:

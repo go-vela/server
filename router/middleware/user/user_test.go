@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -12,16 +12,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
-	"github.com/go-vela/server/router/middleware/token"
+	"github.com/go-vela/server/internal/token"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestUser_Retrieve(t *testing.T) {
@@ -47,6 +46,13 @@ func TestUser_Establish(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	want := new(library.User)
 	want.SetID(1)
 	want.SetName("foo")
@@ -65,7 +71,13 @@ func TestUser_Establish(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
 
-	at, _ := token.CreateAccessToken(want, time.Minute*5)
+	mto := &token.MintTokenOpts{
+		User:          want,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	at, _ := tm.MintToken(mto)
 
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", at))
 	context.Request.AddCookie(&http.Cookie{
@@ -74,12 +86,14 @@ func TestUser_Establish(t *testing.T) {
 	})
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteUser(want)
+		db.Close()
 	}()
 
 	_ = db.CreateUser(want)
@@ -100,8 +114,10 @@ func TestUser_Establish(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(claims.Establish())
 	engine.Use(Establish())
 	engine.GET("/users/:user", func(c *gin.Context) {
 		got = Retrieve(c)
@@ -125,9 +141,20 @@ func TestUser_Establish(t *testing.T) {
 }
 
 func TestUser_Establish_NoToken(t *testing.T) {
+	// setup types
+	secret := "superSecret"
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -137,7 +164,10 @@ func TestUser_Establish_NoToken(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo", nil)
 
 	// setup mock server
+	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(claims.Establish())
 	engine.Use(Establish())
 
 	// run test
@@ -148,14 +178,18 @@ func TestUser_Establish_NoToken(t *testing.T) {
 	}
 }
 
-func TestUser_Establish_SecretValid(t *testing.T) {
+func TestUser_Establish_DiffTokenType(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	want := new(library.User)
-	want.SetName("vela-worker")
-	want.SetActive(true)
-	want.SetAdmin(true)
 
 	got := new(library.User)
 
@@ -169,6 +203,8 @@ func TestUser_Establish_SecretValid(t *testing.T) {
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(claims.Establish())
 	engine.Use(Establish())
 	engine.GET("/users/:user", func(c *gin.Context) {
 		got = Retrieve(c)
@@ -195,9 +231,19 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	// setup database
 	secret := "superSecret"
 
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -213,6 +259,8 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(claims.Establish())
 	engine.Use(Establish())
 
 	// run test
@@ -225,12 +273,26 @@ func TestUser_Establish_NoAuthorizeUser(t *testing.T) {
 
 func TestUser_Establish_NoUser(t *testing.T) {
 	// setup types
-	secret := "superSecret"
-	got := new(library.User)
+	tm := &token.Manager{
+		PrivateKey:               "123abc",
+		SignMethod:               jwt.SigningMethodHS256,
+		UserAccessTokenDuration:  time.Minute * 5,
+		UserRefreshTokenDuration: time.Minute * 30,
+	}
+
+	u := new(library.User)
+	u.SetID(1)
+	u.SetName("foo")
 
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	secret := "superSecret"
+
+	// setup database
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -239,40 +301,36 @@ func TestUser_Establish_NoUser(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/users/foo?access_token=bar", nil)
 
-	// setup github mock server
-	engine.GET("/api/v3/user", func(c *gin.Context) {
-		c.String(http.StatusOK, userPayload)
+	mto := &token.MintTokenOpts{
+		User:          u,
+		TokenDuration: tm.UserAccessTokenDuration,
+		TokenType:     constants.UserAccessTokenType,
+	}
+
+	at, _ := tm.MintToken(mto)
+
+	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", at))
+	context.Request.AddCookie(&http.Cookie{
+		Name:  constants.RefreshTokenName,
+		Value: "fresh",
 	})
 
-	s := httptest.NewServer(engine)
-	defer s.Close()
-
 	// setup client
-	client, _ := github.NewTest(s.URL)
+	client, _ := github.NewTest("")
 
 	// setup vela mock server
 	engine.Use(func(c *gin.Context) { c.Set("secret", secret) })
 	engine.Use(func(c *gin.Context) { database.ToContext(c, db) })
 	engine.Use(func(c *gin.Context) { scm.ToContext(c, client) })
+	engine.Use(func(c *gin.Context) { c.Set("token-manager", tm) })
+	engine.Use(claims.Establish())
 	engine.Use(Establish())
-	engine.GET("/users/:user", func(c *gin.Context) {
-		got = Retrieve(c)
-
-		c.Status(http.StatusOK)
-	})
-
-	s1 := httptest.NewServer(engine)
-	defer s1.Close()
 
 	// run test
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusUnauthorized {
 		t.Errorf("Establish returned %v, want %v", resp.Code, http.StatusUnauthorized)
-	}
-
-	if got.GetID() != 0 {
-		t.Errorf("Establish is %v, want 0", got)
 	}
 }
 

@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
 	"github.com/google/go-cmp/cmp"
@@ -27,10 +29,12 @@ func TestNative_ExpandStages(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -41,12 +45,13 @@ func TestNative_ExpandStages(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tmpls := map[string]*yaml.Template{
 		"gradle": {
 			Name:   "gradle",
-			Source: "github.example.com/foo/bar/template.yml",
+			Source: "github.example.com/foo/bar/long_template.yml",
 			Type:   "github",
 		},
 	}
@@ -144,23 +149,24 @@ func TestNative_ExpandStages(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	stages, secrets, services, environment, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData))
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(stages, wantStages); diff != "" {
+	if diff := cmp.Diff(build.Stages, wantStages); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
+
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandStages() mismatch (-want +got):\n%s", diff)
 	}
 }
@@ -173,10 +179,12 @@ func TestNative_ExpandSteps(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -187,13 +195,38 @@ func TestNative_ExpandSteps(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	tmpls := map[string]*yaml.Template{
-		"gradle": {
-			Name:   "gradle",
-			Source: "github.example.com/foo/bar/template.yml",
-			Type:   "github",
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "GitHub",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "github.example.com/foo/bar/long_template.yml",
+					Type:   "github",
+				},
+			},
+		},
+		{
+			name: "File",
+			tmpls: map[string]*yaml.Template{
+				"gradle": {
+					Name:   "gradle",
+					Source: "long_template.yml",
+					Type:   "file",
+				},
+			},
 		},
 	}
 
@@ -286,25 +319,31 @@ func TestNative_ExpandSteps(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	steps, secrets, services, environment, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, tmpls)
-	if err != nil {
-		t.Errorf("ExpandSteps returned err: %v", err)
-	}
+	compiler.WithCommit("123abc456def").WithRepo(testRepo)
 
-	if diff := cmp.Diff(steps, wantSteps); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+			if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
-	}
+			if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
-		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(build.Services, wantServices); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
 	}
 }
 
@@ -316,15 +355,12 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-gradle.json")
-	})
-	engine.GET("/api/v3/repos/bar/foo/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-maven.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -335,6 +371,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tmpls := map[string]*yaml.Template{
@@ -346,6 +383,11 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		"maven": {
 			Name:   "maven",
 			Source: "github.example.com/bar/foo/maven.yml",
+			Type:   "github",
+		},
+		"npm": {
+			Name:   "npm",
+			Source: "github.example.com/foo/bar/gradle.yml",
 			Type:   "github",
 		},
 	}
@@ -370,6 +412,27 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"image":       "openjdk:latest",
 					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
 					"pull_policy": "pull: true",
+				},
+			},
+			Ruleset: yaml.Ruleset{
+				If: yaml.Rules{
+					Branch: []string{"main"},
+				},
+			},
+		},
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "npm",
+				Variables: map[string]interface{}{
+					"image":       "openjdk:latest",
+					"environment": "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }",
+					"pull_policy": "pull: true",
+				},
+			},
+			Ruleset: yaml.Ruleset{
+				If: yaml.Rules{
+					Branch: []string{"dev"},
 				},
 			},
 		},
@@ -476,7 +539,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{string("path"): string("docker"), string("source"): string("secret/docker")},
+						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -497,7 +560,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 					"auth_method": "token",
 					"username":    "octocat",
 					"items": []interface{}{
-						map[interface{}]interface{}{string("path"): string("docker"), string("source"): string("secret/docker")},
+						map[interface{}]interface{}{"path": "docker", "source": "secret/docker"},
 					},
 				},
 			},
@@ -520,24 +583,27 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	steps, secrets, services, environment, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	ruledata := new(pipeline.RuleData)
+	ruledata.Branch = "main"
+
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, ruledata, compiler.TemplateDepth)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(steps, wantSteps); diff != "" {
+	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 }
@@ -550,10 +616,12 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/template-starlark.json")
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
 	})
 
 	s := httptest.NewServer(engine)
@@ -564,6 +632,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tmpls := map[string]*yaml.Template{
@@ -607,25 +676,363 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	steps, secrets, services, environment, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls)
+	build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Secrets: yaml.SecretSlice{}, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
 	if err != nil {
 		t.Errorf("ExpandSteps returned err: %v", err)
 	}
 
-	if diff := cmp.Diff(steps, wantSteps); diff != "" {
+	if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(secrets, wantSecrets); diff != "" {
+	if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(services, wantServices); diff != "" {
+	if diff := cmp.Diff(build.Services, wantServices); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
 	}
 
-	if diff := cmp.Diff(environment, wantEnvironment); diff != "" {
+	if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
 		t.Errorf("ExpandSteps() mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testBuild := new(library.Build)
+
+	testBuild.SetID(1)
+	testBuild.SetCommit("123abc456def")
+
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "Test 1",
+			tmpls: map[string]*yaml.Template{
+				"chain": {
+					Name:   "chain",
+					Source: "github.example.com/faz/baz/template_calls_template.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	steps := yaml.StepSlice{
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "chain",
+			},
+		},
+	}
+
+	globalEnvironment := raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	}
+
+	wantSteps := yaml.StepSlice{
+		&yaml.Step{
+			Commands: []string{"./gradlew downloadDependencies"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample_call template_install",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew check"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample_call template_test",
+			Pull:  "always",
+		},
+		&yaml.Step{
+			Commands: []string{"./gradlew build"},
+			Environment: raw.StringSliceMap{
+				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+				"GRADLE_USER_HOME": ".gradle",
+			},
+			Image: "openjdk:latest",
+			Name:  "sample_call template_build",
+			Pull:  "always",
+		},
+	}
+
+	wantSecrets := yaml.SecretSlice{
+		&yaml.Secret{
+			Name:   "docker_username",
+			Key:    "org/repo/foo/bar",
+			Engine: "native",
+			Type:   "repo",
+			Origin: yaml.Origin{},
+		},
+		&yaml.Secret{
+			Name:   "foo_password",
+			Key:    "org/repo/foo/password",
+			Engine: "vault",
+			Type:   "repo",
+			Origin: yaml.Origin{},
+		},
+	}
+
+	wantServices := yaml.ServiceSlice{
+		&yaml.Service{
+			Image: "postgres:12",
+			Name:  "postgres",
+			Pull:  "not_present",
+		},
+	}
+
+	wantEnvironment := raw.StringSliceMap{
+		"foo":  "test1",
+		"bar":  "test2",
+		"star": "test3",
+	}
+
+	// run test
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithBuild(testBuild).WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
+			if err != nil {
+				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
+			}
+
+			if diff := cmp.Diff(build.Steps, wantSteps); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Secrets, wantSecrets); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Services, wantServices); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+
+			if diff := cmp.Diff(build.Environment, wantEnvironment); diff != "" {
+				t.Errorf("ExpandSteps()_Type%s mismatch (-want +got):\n%s", test.name, diff)
+			}
+		})
+	}
+}
+
+func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testBuild := new(library.Build)
+
+	testBuild.SetID(1)
+	testBuild.SetCommit("123abc456def")
+
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "Test 1",
+			tmpls: map[string]*yaml.Template{
+				"circle": {
+					Name:   "circle",
+					Source: "github.example.com/bad/design/template_calls_itself.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	steps := yaml.StepSlice{
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "circle",
+			},
+		},
+	}
+
+	globalEnvironment := raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	}
+
+	// run test
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithBuild(testBuild).WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
+			if err == nil {
+				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
+			}
+		})
+	}
+}
+
+func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contents/:path", func(c *gin.Context) {
+		body, err := convertFileToGithubResponse(c.Param("path"))
+		if err != nil {
+			t.Error(err)
+		}
+		c.JSON(http.StatusOK, body)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	set.Bool("github-driver", true, "doc")
+	set.String("github-url", s.URL, "doc")
+	set.String("github-token", "", "doc")
+	set.Int("max-template-depth", 5, "doc")
+	c := cli.NewContext(nil, set, nil)
+
+	testBuild := new(library.Build)
+
+	testBuild.SetID(1)
+	testBuild.SetCommit("123abc456def")
+
+	testRepo := new(library.Repo)
+
+	testRepo.SetID(1)
+	testRepo.SetOrg("foo")
+	testRepo.SetName("bar")
+
+	tests := []struct {
+		name  string
+		tmpls map[string]*yaml.Template
+	}{
+		{
+			name: "Test 1",
+			tmpls: map[string]*yaml.Template{
+				"render_inline": {
+					Name:   "render_inline",
+					Source: "github.example.com/github/octocat/nested.yml",
+					Type:   "github",
+				},
+			},
+		},
+	}
+
+	steps := yaml.StepSlice{
+		&yaml.Step{
+			Name: "sample",
+			Template: yaml.StepTemplate{
+				Name: "render_inline",
+			},
+		},
+	}
+
+	globalEnvironment := raw.StringSliceMap{
+		"foo": "test1",
+		"bar": "test2",
+	}
+
+	// run test
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	compiler.WithBuild(testBuild).WithRepo(testRepo)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
+			if err == nil {
+				t.Errorf("ExpandSteps_Type%s should have returned an error", test.name)
+			}
+		})
 	}
 }
 

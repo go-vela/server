@@ -5,6 +5,7 @@
 package scm
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-vela/types"
@@ -97,19 +98,31 @@ type Service interface {
 	Disable(*library.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(*library.User, string, string, string) (string, error)
+	Enable(*library.User, *library.Repo, *library.Hook) (*library.Hook, string, error)
+	// Update defines a function that updates
+	// a webhook for a specified repo.
+	Update(*library.User, *library.Repo, int64) error
 	// Status defines a function that sends the
 	// commit status for the given SHA from a repo.
 	Status(*library.User, *library.Build, string, string) error
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
 	ListUserRepos(*library.User) ([]*library.Repo, error)
+	// GetBranch defines a function that retrieves
+	// a branch for a repo.
+	GetBranch(*library.User, *library.Repo) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
 	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
 	GetRepo(*library.User, *library.Repo) (*library.Repo, error)
+	// GetOrgAndRepoName defines a function that retrieves
+	// the name of the org and repo in the SCM.
+	GetOrgAndRepoName(*library.User, string, string) (string, string, error)
+	// GetOrg defines a function that retrieves
+	// the name for an org in the SCM.
+	GetOrgName(*library.User, string) (string, error)
 	// GetHTMLURL defines a function that retrieves
 	// a repository file's html_url.
 	GetHTMLURL(*library.User, string, string, string, string) (string, error)
@@ -122,6 +135,9 @@ type Service interface {
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
 	VerifyWebhook(*http.Request, *library.Repo) error
+	// RedeliverWebhook defines a function that
+	// redelivers the webhook from the SCM.
+	RedeliverWebhook(context.Context, *library.User, *library.Repo, *library.Hook) error
 
 	// TODO: Add convert functions to interface?
 }

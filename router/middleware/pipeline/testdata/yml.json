@@ -1,0 +1,18 @@
+{
+  "type": "file",
+  "encoding": "base64",
+  "size": 5362,
+  "name": ".vela.yml",
+  "path": ".vela.yml",
+  "content": "LS0tCnZlcnNpb246ICIxIgoKbWV0YWRhdGE6CiAgb3M6IGxpbnV4CgpzdGVwczoKICAtIG5hbWU6IGJ1aWxkCiAgICBpbWFnZTogb3BlbmpkazpsYXRlc3QKICAgIHB1bGw6IHRydWUKICAgIGVudmlyb25tZW50OgogICAgICBHUkFETEVfVVNFUl9IT01FOiAuZ3JhZGxlCiAgICAgIEdSQURMRV9PUFRTOiAtRG9yZy5ncmFkbGUuZGFlbW9uPWZhbHNlIC1Eb3JnLmdyYWRsZS53b3JrZXJzLm1heD0xIC1Eb3JnLmdyYWRsZS5wYXJhbGxlbD1mYWxzZQogICAgY29tbWFuZHM6CiAgICAgIC0gLi9ncmFkbGV3IGJ1aWxkIGRpc3RUYXIK",
+  "sha": "3d21ec53a331a6f037a91c368710b99387d012c1",
+  "url": "https://api.github.com/repos/octokit/octokit.rb/contents/.vela.yml",
+  "git_url": "https://api.github.com/repos/octokit/octokit.rb/git/blobs/3d21ec53a331a6f037a91c368710b99387d012c1",
+  "html_url": "https://github.com/octokit/octokit.rb/blob/master/.vela.yml",
+  "download_url": "https://raw.githubusercontent.com/octokit/octokit.rb/master/.vela.yml",
+  "_links": {
+    "git": "https://api.github.com/repos/octokit/octokit.rb/git/blobs/3d21ec53a331a6f037a91c368710b99387d012c1",
+    "self": "https://api.github.com/repos/octokit/octokit.rb/contents/.vela.yml",
+    "html": "https://github.com/octokit/octokit.rb/blob/master/.vela.yml"
+  }
+}

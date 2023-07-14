@@ -5,7 +5,7 @@
 package native
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -14,59 +14,70 @@ import (
 
 // Update updates an existing secret.
 func (c *client) Update(sType, org, name string, s *library.Secret) error {
-	// create log fields from secret metadata
-	fields := logrus.Fields{
-		"org":    org,
-		"repo":   name,
-		"secret": s.GetName(),
-		"type":   sType,
-	}
-
-	// check if secret is a shared secret
-	if strings.EqualFold(sType, constants.SecretShared) {
-		// update log fields from secret metadata
-		fields = logrus.Fields{
-			"org":    org,
-			"team":   name,
-			"secret": s.GetName(),
-			"type":   sType,
-		}
-	}
-
-	// nolint: lll // ignore long line length due to parameters
-	c.Logger.WithFields(fields).Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
-
 	// capture the secret from the native service
-	sec, err := c.Database.GetSecret(sType, org, name, s.GetName())
+	secret, err := c.Get(sType, org, name, s.GetName())
 	if err != nil {
 		return err
 	}
 
 	// update the events if set
 	if len(s.GetEvents()) > 0 {
-		sec.SetEvents(s.GetEvents())
+		secret.SetEvents(s.GetEvents())
 	}
 
 	// update the images if set
 	if s.Images != nil {
-		sec.SetImages(s.GetImages())
+		secret.SetImages(s.GetImages())
 	}
 
 	// update the value if set
 	if len(s.GetValue()) > 0 {
-		sec.SetValue(s.GetValue())
+		secret.SetValue(s.GetValue())
 	}
 
 	// update allow_command if set
 	if s.AllowCommand != nil {
-		sec.SetAllowCommand(s.GetAllowCommand())
+		secret.SetAllowCommand(s.GetAllowCommand())
 	}
 
 	// update updated_at if set
-	sec.SetUpdatedAt(s.GetUpdatedAt())
+	secret.SetUpdatedAt(s.GetUpdatedAt())
 
 	// update updated_by if set
-	sec.SetUpdatedBy(s.GetUpdatedBy())
+	secret.SetUpdatedBy(s.GetUpdatedBy())
 
-	return c.Database.UpdateSecret(sec)
+	// handle the secret based off the type
+	switch sType {
+	case constants.SecretOrg:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"secret": s.GetName(),
+			"type":   sType,
+		}).Tracef("updating native %s secret %s for %s", sType, s.GetName(), org)
+
+		// update the org secret in the native service
+		return c.Database.UpdateSecret(secret)
+	case constants.SecretRepo:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"repo":   name,
+			"secret": s.GetName(),
+			"type":   sType,
+		}).Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
+
+		// update the repo secret in the native service
+		return c.Database.UpdateSecret(secret)
+	case constants.SecretShared:
+		c.Logger.WithFields(logrus.Fields{
+			"org":    org,
+			"team":   name,
+			"secret": s.GetName(),
+			"type":   sType,
+		}).Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
+
+		// update the shared secret in the native service
+		return c.Database.UpdateSecret(secret)
+	default:
+		return fmt.Errorf("invalid secret type: %s", sType)
+	}
 }

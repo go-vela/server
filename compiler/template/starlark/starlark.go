@@ -33,7 +33,7 @@ var (
 //
 // https://github.com/wonderix/shalm/blob/899b8f7787883d40619eefcc39bd12f42a09b5e7/pkg/shalm/convert.go#L14-L85
 //
-// nolint: gocyclo,funlen,lll // ignore above line length and function length due to comments
+//nolint:gocyclo // ignore complexity
 func toStarlark(value interface{}) (starlark.Value, error) {
 	logrus.Tracef("converting %v to starlark type", value)
 
@@ -78,6 +78,7 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			a = append(a, val)
 		}
 
@@ -90,11 +91,11 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 
 		return val, nil
 	case reflect.Map:
-		// nolint: gomnd // ignore magic number
 		d := starlark.NewDict(16)
 
 		for _, key := range v.MapKeys() {
 			strct := v.MapIndex(key)
+
 			keyValue, err := toStarlark(key.Interface())
 			if err != nil {
 				return nil, err
@@ -137,7 +138,7 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("%s: %v", ErrUnableToConvertStarlark, value)
+	return nil, fmt.Errorf("%w: %v", ErrUnableToConvertStarlark, value)
 }
 
 // writeJSON takes an starlark input and return the valid JSON
@@ -151,7 +152,7 @@ func toStarlark(value interface{}) (starlark.Value, error) {
 // if/when we try to return values it breaks the recursion. Panics were swapped to error
 // returns from implementation.
 //
-// nolint: gocyclo,funlen // ignore cyclomatic complexity and function length
+//nolint:gocyclo // ignore cyclomatic complexity
 func writeJSON(out *bytes.Buffer, v starlark.Value) error {
 	logrus.Tracef("converting %v to JSON", v)
 
@@ -268,7 +269,7 @@ func writeJSON(out *bytes.Buffer, v starlark.Value) error {
 			logrus.Error(err)
 		}
 	default:
-		return fmt.Errorf("%s: %v", ErrUnableToConvertJSON, v)
+		return fmt.Errorf("%w: %v", ErrUnableToConvertJSON, v)
 	}
 
 	return nil
@@ -286,5 +287,6 @@ func goQuoteIsSafe(s string) bool {
 			return false
 		}
 	}
+
 	return true
 }

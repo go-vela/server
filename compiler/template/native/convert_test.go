@@ -1,3 +1,7 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package native
 
 import (
@@ -15,6 +19,14 @@ func Test_convertPlatformVars(t *testing.T) {
 		want         raw.StringSliceMap
 	}{
 		{
+			name: "with all deployment parameter prefixed vars",
+			slice: raw.StringSliceMap{
+				"DEPLOYMENT_PARAMETER_IMAGE": "alpine:3.14",
+			},
+			templateName: "foo",
+			want:         raw.StringSliceMap{"deployment_parameter_image": "alpine:3.14", "template_name": "foo"},
+		},
+		{
 			name: "with all vela prefixed vars",
 			slice: raw.StringSliceMap{
 				"VELA_BUILD_AUTHOR":   "octocat",
@@ -26,17 +38,21 @@ func Test_convertPlatformVars(t *testing.T) {
 			want:         raw.StringSliceMap{"build_author": "octocat", "repo_full_name": "go-vela/hello-world", "user_admin": "true", "workspace": "/vela/src/github.com/go-vela/hello-world", "template_name": "foo"},
 		},
 		{
-			name: "with combination of vela and user vars",
+			name: "with combination of deployment parameter, vela, and user vars",
 			slice: raw.StringSliceMap{
-				"VELA_BUILD_AUTHOR":   "octocat",
-				"VELA_REPO_FULL_NAME": "go-vela/hello-world",
-				"FOO_VAR1":            "test1",
-				"BAR_VAR1":            "test2",
+				"DEPLOYMENT_PARAMETER_IMAGE": "alpine:3.14",
+				"VELA_BUILD_AUTHOR":          "octocat",
+				"VELA_REPO_FULL_NAME":        "go-vela/hello-world",
+				"VELA_USER_ADMIN":            "true",
+				"VELA_WORKSPACE":             "/vela/src/github.com/go-vela/hello-world",
+				"FOO_VAR1":                   "test1",
+				"BAR_VAR1":                   "test2",
 			},
 			templateName: "foo",
-			want:         raw.StringSliceMap{"build_author": "octocat", "repo_full_name": "go-vela/hello-world", "template_name": "foo"},
+			want:         raw.StringSliceMap{"deployment_parameter_image": "alpine:3.14", "build_author": "octocat", "repo_full_name": "go-vela/hello-world", "user_admin": "true", "workspace": "/vela/src/github.com/go-vela/hello-world", "template_name": "foo"},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := convertPlatformVars(tt.slice, tt.templateName); !reflect.DeepEqual(got, tt.want) {
@@ -50,15 +66,57 @@ func Test_funcHandler_returnPlatformVar(t *testing.T) {
 	type fields struct {
 		envs raw.StringSliceMap
 	}
+
 	type args struct {
 		input string
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
 		want   string
 	}{
+		{
+			name: "existing deployment parameter without prefix (lowercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "image"},
+			want: "alpine",
+		},
+		{
+			name: "existing deployment parameter without prefix (uppercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "IMAGE"},
+			want: "alpine",
+		},
+		{
+			name: "existing deployment parameter with prefix (lowercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "deployment_parameter_image"},
+			want: "alpine",
+		},
+		{
+			name: "existing deployment parameter with prefix (uppercase)",
+			fields: fields{
+				envs: raw.StringSliceMap{
+					"image": "alpine",
+				},
+			},
+			args: args{input: "DEPLOYMENT_PARAMETER_IMAGE"},
+			want: "alpine",
+		},
 		{
 			name: "existing platform var without prefix (lowercase)",
 			fields: fields{
@@ -110,6 +168,7 @@ func Test_funcHandler_returnPlatformVar(t *testing.T) {
 			want: "",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := funcHandler{

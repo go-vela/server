@@ -5,20 +5,20 @@
 package executors
 
 import (
+	"context"
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"io"
+	"net/http"
 	"time"
 
-	"github.com/go-vela/types/library"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/util"
-
-	"fmt"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the executors in the given context.
@@ -31,11 +31,21 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		e := new([]library.Executor)
 		b := build.Retrieve(c)
+
+		// if build has no host, we cannot establish executors
+		if len(b.GetHost()) == 0 {
+			ToContext(c, *e)
+			c.Next()
+
+			return
+		}
+
 		// retrieve the worker
-		w, err := database.FromContext(c).GetWorker(b.GetHost())
+		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get worker: %w", err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
@@ -43,15 +53,35 @@ func Establish() gin.HandlerFunc {
 		client := http.DefaultClient
 		client.Timeout = 30 * time.Second
 		endpoint := fmt.Sprintf("%s/api/v1/executors", w.GetAddress())
-		req, err := http.NewRequest("GET", endpoint, nil)
+
+		req, err := http.NewRequestWithContext(context.Background(), "GET", endpoint, nil)
 		if err != nil {
 			retErr := fmt.Errorf("unable to form request to %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
-		// add the token to authenticate to the worker as a header
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.MustGet("secret").(string)))
+		tm := c.MustGet("token-manager").(*token.Manager)
+
+		// set mint token options
+		mto := &token.MintTokenOpts{
+			Hostname:      "vela-server",
+			TokenType:     constants.WorkerAuthTokenType,
+			TokenDuration: time.Minute * 1,
+		}
+
+		// mint token
+		tkn, err := tm.MintToken(mto)
+		if err != nil {
+			retErr := fmt.Errorf("unable to generate auth token: %w", err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// add the token to authenticate to the worker
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tkn))
 
 		// make the request to the worker and check the response
 		resp, err := client.Do(req)
@@ -64,10 +94,11 @@ func Establish() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// Read Response Body
-		respBody, err := ioutil.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read response from %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -76,6 +107,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("unable to parse response from %s: %w", endpoint, err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 

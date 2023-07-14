@@ -70,7 +70,6 @@ func (p *Pagination) SetHeaderLink(c *gin.Context) {
 		l = append(l, ls)
 	}
 
-	// nolint: gomnd // ignore magic number
 	c.Header("X-Total-Count", strconv.FormatInt(p.Total, 10))
 	c.Header("Link", strings.Join(l, ", "))
 }
@@ -121,7 +120,7 @@ func (p *Pagination) TotalPages() int {
 // resolveScheme is a helper to determine the protocol scheme
 // c.Request.URL.Scheme does not seem to reliably provide this.
 //
-// nolint: goconst // ignore making constant for https
+//nolint:goconst // ignore making constant for https
 func resolveScheme(r *http.Request) string {
 	switch {
 	case r.Header.Get("X-Forwarded-Proto") == "https":

@@ -2,60 +2,19 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// nolint: dupl // ignore similar code
+//nolint:dupl // ignore similar code
 package admin
 
 import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
-
-// swagger:operation GET /api/v1/admin/hooks admin AdminAllHooks
-//
-// Get all of the webhooks stored in the database
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully retrieved all hooks from the database
-//     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Webhook"
-//   '500':
-//     description: Unable to retrieve all hooks
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// AllHooks represents the API handler to
-// captures all hooks stored in the database.
-func AllHooks(c *gin.Context) {
-	logrus.Info("Admin: reading all hooks")
-
-	// send API call to capture all hooks
-	r, err := database.FromContext(c).GetHookList()
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture all hooks: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, r)
-}
 
 // swagger:operation PUT /api/v1/admin/hook admin AdminUpdateHook
 //
@@ -105,7 +64,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to update the hook
-	err = database.FromContext(c).UpdateHook(input)
+	h, err := database.FromContext(c).UpdateHook(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update hook %d: %w", input.GetID(), err)
 
@@ -114,5 +73,5 @@ func UpdateHook(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, input)
+	c.JSON(http.StatusOK, h)
 }

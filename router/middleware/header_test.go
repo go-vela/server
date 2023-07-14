@@ -267,7 +267,7 @@ func TestMiddleware_Secure_TLS(t *testing.T) {
 	wantFrameOptions := "DENY"
 	wantContentTypeOptions := "nosniff"
 	wantProtection := "1; mode=block"
-	wantSecurity := "max-age=31536000"
+	wantSecurity := "max-age=63072000; includeSubDomains; preload"
 
 	// setup context
 	gin.SetMode(gin.TestMode)

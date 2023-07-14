@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v53/github"
 )
 
 // OrgAccess captures the user's access level for an org.
@@ -20,9 +20,14 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 		"user": u.GetName(),
 	}).Tracef("capturing %s access level to org %s", u.GetName(), org)
 
-	// if user is accessing personal org
-	if strings.EqualFold(org, *u.Name) {
-		// nolint: goconst // ignore making constant
+	// check if user is accessing personal org
+	if strings.EqualFold(org, u.GetName()) {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"user": u.GetName(),
+		}).Debugf("skipping access level check for user %s with org %s", u.GetName(), org)
+
+		//nolint:goconst // ignore making constant
 		return "admin", nil
 	}
 
@@ -51,6 +56,17 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 		"user": u.GetName(),
 	}).Tracef("capturing %s access level to repo %s/%s", u.GetName(), org, repo)
 
+	// check if user is accessing repo in personal org
+	if strings.EqualFold(org, u.GetName()) {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"repo": repo,
+			"user": u.GetName(),
+		}).Debugf("skipping access level check for user %s with repo %s/%s", u.GetName(), org, repo)
+
+		return "admin", nil
+	}
+
 	// create github oauth client with the given token
 	client := c.newClientToken(token)
 
@@ -70,6 +86,17 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 		"team": team,
 		"user": u.GetName(),
 	}).Tracef("capturing %s access level to team %s/%s", u.GetName(), org, team)
+
+	// check if user is accessing team in personal org
+	if strings.EqualFold(org, u.GetName()) {
+		c.Logger.WithFields(logrus.Fields{
+			"org":  org,
+			"team": team,
+			"user": u.GetName(),
+		}).Debugf("skipping access level check for user %s with team %s/%s", u.GetName(), org, team)
+
+		return "admin", nil
+	}
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())

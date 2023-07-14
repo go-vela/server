@@ -10,11 +10,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/router/middleware/org"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/types/library"
 )
@@ -52,9 +50,11 @@ func TestBuild_Establish(t *testing.T) {
 	want := new(library.Build)
 	want.SetID(1)
 	want.SetRepoID(1)
+	want.SetPipelineID(0)
 	want.SetNumber(1)
 	want.SetParent(1)
 	want.SetEvent("")
+	want.SetEventAction("")
 	want.SetStatus("")
 	want.SetError("")
 	want.SetEnqueued(0)
@@ -83,17 +83,19 @@ func TestBuild_Establish(t *testing.T) {
 	got := new(library.Build)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from builds;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteBuild(want)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreateBuild(want)
+	_, _ = db.CreateBuild(want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -127,8 +129,11 @@ func TestBuild_Establish(t *testing.T) {
 
 func TestBuild_Establish_NoRepo(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -161,12 +166,14 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -207,12 +214,14 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -253,12 +262,14 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)

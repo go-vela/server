@@ -5,7 +5,7 @@
 package router
 
 import (
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/secret"
 	"github.com/go-vela/server/router/middleware/perm"
 
 	"github.com/gin-gonic/gin"
@@ -23,10 +23,10 @@ func SecretHandlers(base *gin.RouterGroup) {
 	// Secrets endpoints
 	secrets := base.Group("/secrets/:engine/:type/:org/:name", perm.MustSecretAdmin())
 	{
-		secrets.POST("", api.CreateSecret)
-		secrets.GET("", api.GetSecrets)
-		secrets.GET("/*secret", api.GetSecret)
-		secrets.PUT("/*secret", api.UpdateSecret)
-		secrets.DELETE("/*secret", api.DeleteSecret)
+		secrets.POST("", secret.CreateSecret)
+		secrets.GET("", secret.ListSecrets)
+		secrets.GET("/*secret", secret.GetSecret)
+		secrets.PUT("/*secret", secret.UpdateSecret)
+		secrets.DELETE("/*secret", secret.DeleteSecret)
 	} // end of secrets endpoints
 }

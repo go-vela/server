@@ -5,15 +5,13 @@
 package worker
 
 import (
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
-
-	"github.com/go-vela/server/util"
-
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,18 +23,21 @@ func Retrieve(c *gin.Context) *library.Worker {
 // Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		wParam := c.Param("worker")
+		wParam := util.PathParameter(c, "worker")
 		if len(wParam) == 0 {
 			retErr := fmt.Errorf("no worker parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
 		logrus.Debugf("Reading worker %s", wParam)
-		w, err := database.FromContext(c).GetWorker(wParam)
+
+		w, err := database.FromContext(c).GetWorkerForHostname(wParam)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read worker %s: %v", wParam, err)
+			retErr := fmt.Errorf("unable to read worker %s: %w", wParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

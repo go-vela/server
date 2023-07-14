@@ -5,18 +5,16 @@
 package repo
 
 import (
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/util"
-
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
+	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the repo in the given context.
@@ -30,10 +28,11 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		u := user.Retrieve(c)
 
-		rParam := c.Param("repo")
+		rParam := util.PathParameter(c, "repo")
 		if len(rParam) == 0 {
 			retErr := fmt.Errorf("no repo parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -46,10 +45,11 @@ func Establish() gin.HandlerFunc {
 			"user": u.GetName(),
 		}).Debugf("reading repo %s/%s", o, rParam)
 
-		r, err := database.FromContext(c).GetRepo(o, rParam)
+		r, err := database.FromContext(c).GetRepoForOrg(o, rParam)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read repo %s/%s: %v", o, rParam, err)
+			retErr := fmt.Errorf("unable to read repo %s/%s: %w", o, rParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

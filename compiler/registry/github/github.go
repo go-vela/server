@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v53/github"
 	"golang.org/x/oauth2"
 )
 
@@ -27,7 +27,7 @@ type client struct {
 // New returns a Registry implementation that integrates
 // with GitHub or a GitHub Enterprise instance.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(address, token string) (*client, error) {
 	// create the client object
 	c := &client{
@@ -84,5 +84,6 @@ func (c *client) newClientToken(token string) *github.Client {
 
 	// ensure the proper URL is set
 	github.BaseURL, _ = url.Parse(c.API)
+
 	return github
 }

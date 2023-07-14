@@ -16,7 +16,6 @@ import (
 
 func TestRedis_Pop(t *testing.T) {
 	// setup types
-
 	// use global variables in redis_test.go
 	_item := &types.Item{
 		Build:    _build,
@@ -59,20 +58,8 @@ func TestRedis_Pop(t *testing.T) {
 	// overwrite channel to be invalid
 	badChannel.config.Channels = nil
 
-	// push nothing to queue
-	err = badChannel.Redis.RPush(context.Background(), "vela", nil).Err()
-	if err != nil {
-		t.Errorf("unable to push item to queue: %v", err)
-	}
-
-	// setup badItem redis mock
-	badItem, err := NewTest("vela")
-	if err != nil {
-		t.Errorf("unable to create queue service: %v", err)
-	}
-
-	// push nothing to queue
-	err = badItem.Redis.RPush(context.Background(), "vela", nil).Err()
+	// push something to badChannel queue
+	err = badChannel.Redis.RPush(context.Background(), "vela", bytes).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
@@ -96,11 +83,6 @@ func TestRedis_Pop(t *testing.T) {
 		{
 			failure: true,
 			redis:   badChannel,
-			want:    nil,
-		},
-		{
-			failure: true,
-			redis:   badItem,
 			want:    nil,
 		},
 	}

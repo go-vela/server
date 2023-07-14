@@ -18,7 +18,6 @@ import (
 
 // EnvironmentStages injects environment variables
 // for each stage in a yaml configuration.
-// nolint:lll // ignore function line length
 func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceMap) (yaml.StageSlice, error) {
 	// iterate through all stages
 	for _, stage := range s {
@@ -33,7 +32,6 @@ func (c *client) EnvironmentStages(s yaml.StageSlice, globalEnv raw.StringSliceM
 
 // EnvironmentStage injects environment variables
 // for each stage in a yaml configuration.
-// nolint:lll // ignore function line length
 func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (*yaml.Stage, error) {
 	// make empty map of environment variables
 	env := make(map[string]string)
@@ -74,7 +72,6 @@ func (c *client) EnvironmentStage(s *yaml.Stage, globalEnv raw.StringSliceMap) (
 
 // EnvironmentSteps injects environment variables
 // for each step in a stage for the yaml configuration.
-// nolint:lll // ignore function line length
 func (c *client) EnvironmentSteps(s yaml.StepSlice, stageEnv raw.StringSliceMap) (yaml.StepSlice, error) {
 	// iterate through all steps
 	for _, step := range s {
@@ -101,7 +98,6 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 		// capture all environment variables from the local environment
 		for _, e := range os.Environ() {
 			// split the environment variable on = into a key value pair
-			// nolint: gomnd // ignore magic number
 			parts := strings.SplitN(e, "=", 2)
 
 			env[parts[0]] = parts[1]
@@ -150,7 +146,6 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 
 // EnvironmentServices injects environment variables
 // for each service in a yaml configuration.
-// nolint:lll // ignore function line length
 func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSliceMap) (yaml.ServiceSlice, error) {
 	// iterate through all services
 	for _, service := range s {
@@ -186,7 +181,6 @@ func (c *client) EnvironmentServices(s yaml.ServiceSlice, globalEnv raw.StringSl
 
 // EnvironmentSecrets injects environment variables
 // for each secret plugin in a yaml configuration.
-// nolint:lll // ignore function line length
 func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSliceMap) (yaml.SecretSlice, error) {
 	// iterate through all secrets
 	for _, secret := range s {
@@ -205,7 +199,6 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 			// capture all environment variables from the local environment
 			for _, e := range os.Environ() {
 				// split the environment variable on = into a key value pair
-				// nolint: gomnd // ignore magic number
 				parts := strings.SplitN(e, "=", 2)
 
 				env[parts[0]] = parts[1]
@@ -264,7 +257,6 @@ func (c *client) EnvironmentBuild() map[string]string {
 		// capture all environment variables from the local environment
 		for _, e := range os.Environ() {
 			// split the environment variable on = into a key value pair
-			// nolint: gomnd // ignore magic number
 			parts := strings.SplitN(e, "=", 2)
 
 			env[parts[0]] = parts[1]
@@ -292,8 +284,6 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-//
-// nolint: lll // ignore line length due to number of parameters provided
 func environment(b *library.Build, m *types.Metadata, r *library.Repo, u *library.User) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
@@ -316,7 +306,7 @@ func environment(b *library.Build, m *types.Metadata, r *library.Repo, u *librar
 	env["VELA_RUNTIME"] = notImplemented
 	env["VELA_SOURCE"] = notImplemented
 	env["VELA_VERSION"] = notImplemented
-	env["CI"] = "vela"
+	env["CI"] = "true"
 
 	// populate environment variables from metadata
 	if m != nil {

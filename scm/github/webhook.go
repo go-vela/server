@@ -5,9 +5,13 @@
 package github
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"mime"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,16 +20,25 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/v53/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
+//
+//nolint:nilerr // ignore webhook returning nil
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
+
+	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
+	if err != nil {
+		return nil, fmt.Errorf("unable to convert hook id to int64: %w", err)
+	}
+
+	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
@@ -35,7 +48,13 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
 	}
 
-	payload, err := github.ValidatePayload(request, nil)
+	// get content type
+	contentType, _, err := mime.ParseMediaType(request.Header.Get("Content-Type"))
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := github.ValidatePayloadFromBody(contentType, request.Body, "", nil)
 	if err != nil {
 		return &types.Webhook{Hook: h}, nil
 	}
@@ -79,9 +98,36 @@ func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
 	return nil
 }
 
+// RedeliverWebhook redelivers webhooks from GitHub.
+func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
+	// create GitHub OAuth client with user's token
+	//nolint:contextcheck // do not need to pass context in this instance
+	client := c.newClientToken(*u.Token)
+
+	// capture the delivery ID of the hook using GitHub API
+	deliveryID, err := c.getDeliveryID(ctx, client, r, h)
+	if err != nil {
+		return err
+	}
+
+	// redeliver the webhook
+	_, _, err = client.Repositories.RedeliverHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
+
+	if err != nil {
+		var acceptedError *github.AcceptedError
+		// Persist if the status received is a 202 Accepted. This
+		// means the job was added to the queue for GitHub.
+		if errors.As(err, &acceptedError) {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
+}
+
 // processPushEvent is a helper function to process the push event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -99,6 +145,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -159,8 +206,6 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 }
 
 // processPREvent is a helper function to process the pull_request event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -179,7 +224,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened or synchronize
+	// skip if the pull request action is not opened, synchronize
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") {
 		return &types.Webhook{Hook: h}, nil
@@ -197,10 +242,12 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventPull)
+	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.GetPullRequest().GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPull, repo.GetHTMLURL()))
@@ -244,8 +291,6 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -264,6 +309,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
@@ -287,8 +333,6 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	//
 	// sending an API request to GitHub with no
 	// payload provided yields a default of `{}`.
-	//
-	// nolint: gomnd // ignore magic number
 	if len(payload.GetDeployment().Payload) > 2 {
 		deployPayload := make(map[string]string)
 		// unmarshal the payload into the expected map[string]string format
@@ -334,8 +378,6 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 }
 
 // processIssueCommentEvent is a helper function to process the issue comment event.
-//
-// nolint: lll // ignore long line length due to variable names
 func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.IssueCommentEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
@@ -369,10 +411,12 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventComment)
+	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.Issue.GetHTMLURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventComment, repo.GetHTMLURL()))
@@ -402,7 +446,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 }
 
 // processRepositoryEvent is a helper function to process the repository event.
-// nolint: lll // ignore long line length due to error message
+
 func (c *client) processRepositoryEvent(h *library.Hook, payload *github.RepositoryEvent) (*types.Webhook, error) {
 	logrus.Tracef("processing repository event GitHub webhook for %s", payload.GetRepo().GetFullName())
 
@@ -417,16 +461,27 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetClone(repo.GetCloneURL())
 	r.SetBranch(repo.GetDefaultBranch())
 	r.SetPrivate(repo.GetPrivate())
+	r.SetActive(!repo.GetArchived())
+	r.SetTopics(repo.Topics)
 
 	// if action is renamed, then get the previous name from payload
-	if payload.GetAction() == "renamed" {
-		r.SetPreviousName(payload.GetChanges().GetRepo().GetName().GetFrom())
-		// update hook object event type
-		h.SetEvent(constants.EventRepositoryRename)
-	} else {
-		h.SetEvent(constants.EventRepository)
+	if payload.GetAction() == constants.ActionRenamed {
+		r.SetPreviousName(repo.GetOwner().GetLogin() + "/" + payload.GetChanges().GetRepo().GetName().GetFrom())
 	}
 
+	// if action is transferred, then get the previous owner from payload
+	// could be a user or an org, but both are User structs
+	if payload.GetAction() == constants.ActionTransferred {
+		org := payload.GetChanges().GetOwner().GetOwnerInfo().GetOrg()
+		if org == nil {
+			org = payload.GetChanges().GetOwner().GetOwnerInfo().GetUser()
+		}
+
+		r.SetPreviousName(org.GetLogin() + "/" + repo.GetName())
+	}
+
+	h.SetEvent(constants.EventRepository)
+	h.SetEventAction(payload.GetAction())
 	h.SetBranch(r.GetBranch())
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
@@ -437,4 +492,41 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 		Hook:    h,
 		Repo:    r,
 	}, nil
+}
+
+// getDeliveryID gets the last 100 webhook deliveries for a repo and
+// finds the matching delivery id with the source id in the hook.
+func (c *client) getDeliveryID(ctx context.Context, ghClient *github.Client, r *library.Repo, h *library.Hook) (int64, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+	}).Tracef("searching for delivery id for hook: %s", h.GetSourceID())
+
+	// set per page to 100 to retrieve last 100 hook summaries
+	opt := &github.ListCursorOptions{PerPage: 100}
+
+	// send API call to capture delivery summaries that contain Delivery ID value
+	deliveries, resp, err := ghClient.Repositories.ListHookDeliveries(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), opt)
+
+	// version check: if GitHub API is older than version 3.2, this call will not work
+	if resp.StatusCode == 415 {
+		err = fmt.Errorf("requires GitHub version 3.2 or later")
+		return 0, err
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	// cycle through delivery summaries and match Source ID/GUID. Capture Delivery ID
+	for _, delivery := range deliveries {
+		if delivery.GetGUID() == h.GetSourceID() {
+			return delivery.GetID(), nil
+		}
+	}
+
+	// if not found, webhook was not recent enough for GitHub
+	err = fmt.Errorf("webhook no longer available to be redelivered")
+
+	return 0, err
 }

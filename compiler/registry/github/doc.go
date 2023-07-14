@@ -8,5 +8,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/compiler/registry/github"
+//	import "github.com/go-vela/server/compiler/registry/github"
 package github

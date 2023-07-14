@@ -12,20 +12,20 @@ import (
 // client represents a struct to hold native secret setup.
 type client struct {
 	// client to interact with database for secret operations
-	Database database.Service
+	Database database.Interface
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
 
 // New returns a Secret implementation that integrates with a Native secrets engine.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(opts ...ClientOpt) (*client, error) {
 	// create new native client
 	c := new(client)
 
 	// create new fields
-	c.Database = *new(database.Service)
+	c.Database = *new(database.Interface)
 
 	// create new logger for the client
 	//

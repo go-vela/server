@@ -7,15 +7,16 @@ package middleware
 import (
 	"time"
 
-	"github.com/go-vela/server/router/middleware/org"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,36 +26,34 @@ import (
 // Requests without errors are logged using logrus.Info().
 //
 // It receives:
-//   1. A time package format string (e.g. time.RFC3339).
-//   2. A boolean stating whether to use UTC time zone or local.
-func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc {
+//  1. A time package format string (e.g. time.RFC3339).
+func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		// some evil middlewares modify this values
-		path := c.Request.URL.Path
+		path := util.EscapeValue(c.Request.URL.Path)
 
 		c.Next()
 
 		end := time.Now()
+
 		latency := end.Sub(start)
-		if utc {
-			end = end.UTC()
-		}
 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {
 			fields := logrus.Fields{
-				"ip":         c.ClientIP(),
+				"ip":         util.EscapeValue(c.ClientIP()),
 				"latency":    latency,
 				"method":     c.Request.Method,
 				"path":       path,
 				"status":     c.Writer.Status(),
-				"user-agent": c.Request.UserAgent(),
-				"version":    c.GetHeader("X-Vela-Version"),
+				"user-agent": util.EscapeValue(c.Request.UserAgent()),
+				"version":    util.EscapeValue(c.GetHeader("X-Vela-Version")),
 			}
 
 			body := c.Value("payload")
 			if body != nil {
+				body = sanitize(body)
 				fields["body"] = body
 			}
 
@@ -103,4 +102,15 @@ func Logger(logger *logrus.Logger, timeFormat string, utc bool) gin.HandlerFunc 
 			}
 		}
 	}
+}
+
+func sanitize(body interface{}) interface{} {
+	if m, ok := body.(map[string]interface{}); ok {
+		if _, ok = m["email"]; ok {
+			m["email"] = constants.SecretMask
+			body = m
+		}
+	}
+
+	return body
 }

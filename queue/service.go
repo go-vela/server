@@ -20,6 +20,10 @@ type Service interface {
 	// the configured queue driver.
 	Driver() string
 
+	// Length defines a function that outputs
+	// the length of a queue channel
+	Length(context.Context) (int64, error)
+
 	// Pop defines a function that grabs an
 	// item off the queue.
 	Pop(context.Context) (*types.Item, error)

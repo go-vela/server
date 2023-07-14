@@ -14,7 +14,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/types/library"
 )
 
@@ -48,6 +47,7 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetLink("")
 	want.SetClone("")
 	want.SetBranch("")
+	want.SetTopics([]string{})
 	want.SetBuildLimit(0)
 	want.SetTimeout(0)
 	want.SetCounter(0)
@@ -66,12 +66,14 @@ func TestRepo_Establish(t *testing.T) {
 	got := new(library.Repo)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(want)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(want)
@@ -107,8 +109,11 @@ func TestRepo_Establish(t *testing.T) {
 
 func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -134,8 +139,11 @@ func TestRepo_Establish_NoOrgParameter(t *testing.T) {
 
 func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -161,8 +169,11 @@ func TestRepo_Establish_NoRepoParameter(t *testing.T) {
 
 func TestRepo_Establish_NoRepo(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)

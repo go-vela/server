@@ -9,16 +9,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/user"
-
+	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
-
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,21 +35,24 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 
 		if r == nil {
-			retErr := fmt.Errorf("repo %s/%s not found", o, c.Param("repo"))
+			retErr := fmt.Errorf("repo %s/%s not found", o, util.PathParameter(c, "repo"))
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
 		if b == nil {
-			retErr := fmt.Errorf("build %s not found for repo %s", c.Param("build"), r.GetFullName())
+			retErr := fmt.Errorf("build %s not found for repo %s", util.PathParameter(c, "build"), r.GetFullName())
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 
-		sParam := c.Param("step")
+		sParam := util.PathParameter(c, "step")
 		if len(sParam) == 0 {
 			retErr := fmt.Errorf("no step parameter provided")
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -59,6 +60,7 @@ func Establish() gin.HandlerFunc {
 		if err != nil {
 			retErr := fmt.Errorf("malformed step parameter provided: %s", sParam)
 			util.HandleError(c, http.StatusBadRequest, retErr)
+
 			return
 		}
 
@@ -73,11 +75,11 @@ func Establish() gin.HandlerFunc {
 			"user":  u.GetName(),
 		}).Debugf("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 
-		s, err := database.FromContext(c).GetStep(number, b)
+		s, err := database.FromContext(c).GetStepForBuild(b, number)
 		if err != nil {
-			// nolint: lll // ignore long line length due to error message
-			retErr := fmt.Errorf("unable to read step %s/%d/%d: %v", r.GetFullName(), b.GetNumber(), number, err)
+			retErr := fmt.Errorf("unable to read step %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
+
 			return
 		}
 

@@ -7,7 +7,7 @@ package native
 import (
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/library"
 )
 
@@ -24,14 +24,18 @@ func TestNative_Delete(t *testing.T) {
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
+	sec.SetCreatedAt(1)
+	sec.SetUpdatedAt(1)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(sec)
+		db.Close()
 	}()
 
 	_ = db.CreateSecret(sec)
@@ -52,8 +56,11 @@ func TestNative_Delete(t *testing.T) {
 
 func TestNative_Delete_Invalid(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// run test
 	s, err := New(

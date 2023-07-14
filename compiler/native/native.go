@@ -31,9 +31,12 @@ type client struct {
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
+	CloneImage          string
+	TemplateDepth       int
 
 	build    *library.Build
 	comment  string
+	commit   string
 	files    []string
 	local    bool
 	metadata *types.Metadata
@@ -43,9 +46,10 @@ type client struct {
 
 // New returns a Pipeline implementation that integrates with the supported registries.
 //
-// nolint: revive // ignore returning unexported client
+//nolint:revive // ignore returning unexported client
 func New(ctx *cli.Context) (*client, error) {
 	logrus.Debug("Creating registry clients from CLI configuration")
+
 	c := new(client)
 
 	if ctx.String("modification-addr") != "" {
@@ -64,6 +68,11 @@ func New(ctx *cli.Context) (*client, error) {
 	}
 
 	c.Github = github
+
+	// set the clone image to use for the injected clone step
+	c.CloneImage = ctx.String("clone-image")
+
+	c.TemplateDepth = ctx.Int("max-template-depth")
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
@@ -103,6 +112,8 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.PrivateGithub = c.PrivateGithub
 	cc.UsePrivateGithub = c.UsePrivateGithub
 	cc.ModificationService = c.ModificationService
+	cc.CloneImage = c.CloneImage
+	cc.TemplateDepth = c.TemplateDepth
 
 	return cc
 }
@@ -120,6 +131,15 @@ func (c *client) WithBuild(b *library.Build) compiler.Engine {
 func (c *client) WithComment(cmt string) compiler.Engine {
 	if cmt != "" {
 		c.comment = cmt
+	}
+
+	return c
+}
+
+// WithCommit sets the comment in the Engine.
+func (c *client) WithCommit(cmt string) compiler.Engine {
+	if cmt != "" {
+		c.commit = cmt
 	}
 
 	return c

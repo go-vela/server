@@ -7,5 +7,5 @@
 //
 // Usage:
 //
-// 	import "github.com/go-vela/server/secret/native"
+//	import "github.com/go-vela/server/secret/native"
 package native

@@ -5,9 +5,9 @@
 package github
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 
@@ -21,6 +21,7 @@ import (
 func TestGithub_Template(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -30,7 +31,9 @@ func TestGithub_Template(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/template.json")
 	})
+
 	s := httptest.NewServer(engine)
+
 	defer s.Close()
 
 	// setup types
@@ -46,7 +49,7 @@ func TestGithub_Template(t *testing.T) {
 		Name: "template.yml",
 	}
 
-	want, err := ioutil.ReadFile("testdata/template.yml")
+	want, err := os.ReadFile("testdata/template.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -75,6 +78,7 @@ func TestGithub_Template(t *testing.T) {
 func TestGithub_TemplateSourceRef(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -88,7 +92,9 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/template.json")
 	})
+
 	s := httptest.NewServer(engine)
+
 	defer s.Close()
 
 	// setup types
@@ -105,7 +111,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 		Ref:  "main",
 	}
 
-	want, err := ioutil.ReadFile("testdata/template.yml")
+	want, err := os.ReadFile("testdata/template.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -138,6 +144,7 @@ func TestGithub_TemplateSourceRef(t *testing.T) {
 func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -151,7 +158,9 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 		c.Status(http.StatusOK)
 		c.File("testdata/template.json")
 	})
+
 	s := httptest.NewServer(engine)
+
 	defer s.Close()
 
 	// setup types
@@ -167,7 +176,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 		Name: "template.yml",
 	}
 
-	want, err := ioutil.ReadFile("testdata/template.yml")
+	want, err := os.ReadFile("testdata/template.yml")
 	if err != nil {
 		t.Errorf("Reading file returned err: %v", err)
 	}
@@ -200,6 +209,7 @@ func TestGithub_TemplateEmptySourceRef(t *testing.T) {
 func TestGithub_Template_BadRequest(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -207,7 +217,9 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 	})
+
 	s := httptest.NewServer(engine)
+
 	defer s.Close()
 
 	// setup types
@@ -247,6 +259,7 @@ func TestGithub_Template_BadRequest(t *testing.T) {
 func TestGithub_Template_NotFound(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
+
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
@@ -254,7 +267,9 @@ func TestGithub_Template_NotFound(t *testing.T) {
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
+
 	s := httptest.NewServer(engine)
+
 	defer s.Close()
 
 	// setup types

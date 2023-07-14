@@ -1,11 +1,15 @@
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+//
+// Use of this source code is governed by the LICENSE file in this repository.
+
 package vault
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -41,7 +45,7 @@ func Test_client_initialize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				data, err := ioutil.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
+				data, err := os.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
 				if err != nil {
 					t.Error(err)
 				}
@@ -197,7 +201,7 @@ func Test_client_getAwsToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(*testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				data, err := ioutil.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
+				data, err := os.ReadFile(fmt.Sprintf("testdata/refresh/%s", tt.responseFile))
 				if err != nil {
 					t.Error(err)
 				}

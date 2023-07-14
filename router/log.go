@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -6,7 +6,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/log"
 	"github.com/go-vela/server/router/middleware/perm"
 )
 
@@ -21,10 +21,10 @@ func LogServiceHandlers(base *gin.RouterGroup) {
 	// Logs endpoints
 	logs := base.Group("/logs")
 	{
-		logs.POST("", perm.MustAdmin(), api.CreateServiceLog)
-		logs.GET("", perm.MustRead(), api.GetServiceLog)
-		logs.PUT("", perm.MustWrite(), api.UpdateServiceLog)
-		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteServiceLog)
+		logs.POST("", perm.MustAdmin(), log.CreateServiceLog)
+		logs.GET("", perm.MustRead(), log.GetServiceLog)
+		logs.PUT("", perm.MustBuildAccess(), log.UpdateServiceLog)
+		logs.DELETE("", perm.MustPlatformAdmin(), log.DeleteServiceLog)
 	} // end of logs endpoints
 }
 
@@ -39,9 +39,9 @@ func LogStepHandlers(base *gin.RouterGroup) {
 	// Logs endpoints
 	logs := base.Group("/logs")
 	{
-		logs.POST("", perm.MustAdmin(), api.CreateStepLog)
-		logs.GET("", perm.MustRead(), api.GetStepLog)
-		logs.PUT("", perm.MustWrite(), api.UpdateStepLog)
-		logs.DELETE("", perm.MustPlatformAdmin(), api.DeleteStepLog)
+		logs.POST("", perm.MustAdmin(), log.CreateStepLog)
+		logs.GET("", perm.MustRead(), log.GetStepLog)
+		logs.PUT("", perm.MustBuildAccess(), log.UpdateStepLog)
+		logs.DELETE("", perm.MustPlatformAdmin(), log.DeleteStepLog)
 	} // end of logs endpoints
 }
