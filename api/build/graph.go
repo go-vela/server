@@ -38,15 +38,17 @@ type graph struct {
 
 // node represents is a pipeline stage and its relevant steps.
 type node struct {
-	Name  string          `json:"name"`
-	Stage *pipeline.Stage `json:"stage"`
-	Steps []*library.Step `json:"steps"`
-	ID    int             `json:"id"`
+	Name   string          `json:"name"`
+	Stage  *pipeline.Stage `json:"stage"`
+	Steps  []*library.Step `json:"steps"`
+	ID     int             `json:"id"`
+	Status string          `json:"status"`
 }
 
 type edge struct {
-	Source      int `json:"source"`
-	Destination int `json:"destination"`
+	Source      int    `json:"source"`
+	Destination int    `json:"destination"`
+	Status      string `json:"status"`
 }
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
@@ -106,7 +108,7 @@ func GetBuildGraph(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("getting all steps for build %s", entry)
+	}).Infof("getting constructing graph for build %s", entry)
 
 	// retrieve the steps for the build from the step table
 	steps := []*library.Step{}
@@ -171,6 +173,8 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
+	// todo: get pipeline from db instead?
+
 	logrus.Info("compiling pipeline")
 	// parse and compile the pipeline configuration file
 	p, _, err := compiler.FromContext(c).
@@ -201,30 +205,76 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
-	logrus.Info("creating dag using 'needs'")
+	logrus.Info("generating build graph")
+
+	type stg struct {
+		steps []*library.Step
+		// used for tracking stage status
+		success int
+		running int
+		failure int
+	}
 
 	// group library steps by stage name
-	stages := map[string][]*library.Step{}
+	stages := map[string]*stg{}
 	for _, _step := range steps {
 		if _, ok := stages[_step.GetStage()]; !ok {
-			stages[_step.GetStage()] = []*library.Step{}
+			stages[_step.GetStage()] = &stg{
+				steps:   []*library.Step{},
+				success: 0,
+				running: 0,
+				failure: 0,
+			}
 		}
-		stages[_step.GetStage()] = append(stages[_step.GetStage()], _step)
+		switch _step.GetStatus() {
+		case constants.StatusRunning:
+			stages[_step.GetStage()].running++
+		case constants.StatusSuccess:
+			stages[_step.GetStage()].success++
+		case constants.StatusFailure:
+			// check if ruleset has 'continue' ?
+			stages[_step.GetStage()].failure++
+		default:
+		}
+		stages[_step.GetStage()].steps = append(stages[_step.GetStage()].steps, _step)
 	}
 
 	// create nodes from pipeline stages
 	nodes := make(map[int]*node)
 	for _, stage := range p.Stages {
-		// scrub the environment
 		for _, step := range stage.Steps {
+			// scrub the environment
 			step.Environment = nil
 		}
+
+		// determine the "status" for a stage based on the steps within it.
+		// this could potentially get complicated with ruleset logic (continue/detach)
+		status := constants.StatusPending
+		if stages[stage.Name].running > 0 {
+			status = constants.StatusRunning
+		} else if stages[stage.Name].failure > 0 {
+			status = constants.StatusFailure
+		} else if stages[stage.Name].success > 0 {
+			status = constants.StatusSuccess
+		}
+
 		nodeID := len(nodes)
+
+		// override the id for built-in nodes
+		// this allows for better layout control
+		if stage.Name == "init" {
+			nodeID = -3
+		}
+		if stage.Name == "clone" {
+			nodeID = -2
+		}
+
 		node := node{
-			Name:  stage.Name,
-			Stage: stage,
-			Steps: stages[stage.Name],
-			ID:    nodeID,
+			Name:   stage.Name,
+			Stage:  stage,
+			Steps:  stages[stage.Name].steps,
+			ID:     nodeID,
+			Status: status,
 		}
 		nodes[nodeID] = &node
 	}
@@ -237,6 +287,20 @@ func GetBuildGraph(c *gin.Context) {
 	for _, destinationNode := range nodes {
 		// compare all nodes against all nodes
 		for _, sourceNode := range nodes {
+			if sourceNode.ID < 0 && destinationNode.ID < 0 && sourceNode.ID < destinationNode.ID && destinationNode.ID-sourceNode.ID == 1 {
+				edge := &edge{
+					Source:      sourceNode.ID,
+					Destination: destinationNode.ID,
+					Status:      sourceNode.Status,
+				}
+				edges = append(edges, edge)
+			}
+
+			// skip normal processing for built-in nodes
+			if destinationNode.ID < 0 || sourceNode.ID < 0 {
+				continue
+			}
+
 			// dont compare the same node
 			if destinationNode.ID != sourceNode.ID {
 				// check destination node needs
@@ -246,6 +310,7 @@ func GetBuildGraph(c *gin.Context) {
 						edge := &edge{
 							Source:      sourceNode.ID,
 							Destination: destinationNode.ID,
+							Status:      sourceNode.Status,
 						}
 						edges = append(edges, edge)
 					}
@@ -255,7 +320,6 @@ func GetBuildGraph(c *gin.Context) {
 	}
 
 	// for loop over edges, and collapse same parent edge
-
 	if len(nodes) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many nodes on this graph")
 	}
