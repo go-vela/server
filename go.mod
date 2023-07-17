@@ -31,7 +31,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.9.5
 	github.com/urfave/cli/v2 v2.25.7
-	go.starlark.net v0.0.0-20230612165344-9532f5667272
+	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/oauth2 v0.9.0
 	golang.org/x/sync v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
