@@ -100,6 +100,15 @@ func MustWorkerAuthToken() gin.HandlerFunc {
 			"worker": cl.Subject,
 		}).Debugf("verifying worker %s has a valid auth token", cl.Subject)
 
+		// global permissions bypass
+		if cl.IsAdmin {
+			logrus.WithFields(logrus.Fields{
+				"user": cl.Subject,
+			}).Debugf("user %s has platform admin permissions", cl.Subject)
+
+			return
+		}
+
 		switch cl.TokenType {
 		case constants.WorkerAuthTokenType, constants.WorkerRegisterTokenType:
 			return
@@ -212,14 +221,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 
 		// if caller is worker with build token, verify it has access to requested secret
 		if strings.EqualFold(cl.TokenType, constants.WorkerBuildTokenType) {
-			// split repo full name into org and repo
-			repoSlice := strings.Split(cl.Repo, "/")
-			if len(repoSlice) != 2 {
-				logger.Errorf("unable to parse repo claim in build token")
-			}
-
-			org := repoSlice[0]
-			repo := repoSlice[1]
+			org, repo := util.SplitFullName(cl.Repo)
 
 			switch t {
 			case constants.SecretShared:

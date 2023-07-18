@@ -21,12 +21,12 @@ func TestDatabase_New(t *testing.T) {
 	tests := []struct {
 		failure bool
 		name    string
-		config  *Config
+		config  *config
 	}{
 		{
 			name:    "failure with postgres",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "postgres://foo:bar@localhost:5432/vela",
 				CompressionLevel: 3,
@@ -40,7 +40,7 @@ func TestDatabase_New(t *testing.T) {
 		{
 			name:    "success with sqlite3",
 			failure: false,
-			config: &Config{
+			config: &config{
 				Driver:           "sqlite3",
 				Address:          "file::memory:?cache=shared",
 				CompressionLevel: 3,
@@ -54,7 +54,7 @@ func TestDatabase_New(t *testing.T) {
 		{
 			name:    "failure with invalid config",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "postgres",
 				Address:          "",
 				CompressionLevel: 3,
@@ -68,7 +68,7 @@ func TestDatabase_New(t *testing.T) {
 		{
 			name:    "failure with invalid driver",
 			failure: true,
-			config: &Config{
+			config: &config{
 				Driver:           "mysql",
 				Address:          "foo:bar@tcp(localhost:3306)/vela?charset=utf8mb4&parseTime=True&loc=Local",
 				CompressionLevel: 3,
@@ -84,7 +84,16 @@ func TestDatabase_New(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := New(test.config)
+			_, err := New(
+				WithAddress(test.config.Address),
+				WithCompressionLevel(test.config.CompressionLevel),
+				WithConnectionLife(test.config.ConnectionLife),
+				WithConnectionIdle(test.config.ConnectionIdle),
+				WithConnectionOpen(test.config.ConnectionOpen),
+				WithDriver(test.config.Driver),
+				WithEncryptionKey(test.config.EncryptionKey),
+				WithSkipCreation(test.config.SkipCreation),
+			)
 
 			if test.failure {
 				if err == nil {
@@ -105,7 +114,7 @@ func TestDatabase_New(t *testing.T) {
 func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	// create the engine with test configuration
 	_engine := &engine{
-		Config: &Config{
+		config: &config{
 			CompressionLevel: 3,
 			ConnectionLife:   30 * time.Minute,
 			ConnectionIdle:   2,
@@ -114,7 +123,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 			EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			SkipCreation:     false,
 		},
-		Logger: logrus.NewEntry(logrus.StandardLogger()),
+		logger: logrus.NewEntry(logrus.StandardLogger()),
 	}
 
 	// create the new mock sql database
@@ -129,7 +138,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	_mock.ExpectPing()
 
 	// create the new mock Postgres database client
-	_engine.Database, err = gorm.Open(
+	_engine.client, err = gorm.Open(
 		postgres.New(postgres.Config{Conn: _sql}),
 		&gorm.Config{SkipDefaultTransaction: true},
 	)
@@ -146,7 +155,7 @@ func testSqlite(t *testing.T) *engine {
 
 	// create the engine with test configuration
 	_engine := &engine{
-		Config: &Config{
+		config: &config{
 			Address:          "file::memory:?cache=shared",
 			CompressionLevel: 3,
 			ConnectionLife:   30 * time.Minute,
@@ -156,12 +165,12 @@ func testSqlite(t *testing.T) *engine {
 			EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			SkipCreation:     false,
 		},
-		Logger: logrus.NewEntry(logrus.StandardLogger()),
+		logger: logrus.NewEntry(logrus.StandardLogger()),
 	}
 
 	// create the new mock Sqlite database client
-	_engine.Database, err = gorm.Open(
-		sqlite.Open(_engine.Config.Address),
+	_engine.client, err = gorm.Open(
+		sqlite.Open(_engine.config.Address),
 		&gorm.Config{SkipDefaultTransaction: true},
 	)
 	if err != nil {

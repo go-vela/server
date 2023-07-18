@@ -143,7 +143,7 @@ services:
   #
   # https://www.vaultproject.io/
   vault:
-    image: vault:latest
+    image: hashicorp/vault:latest
     container_name: vault
     command: server -dev
     networks:
