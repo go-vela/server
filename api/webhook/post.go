@@ -759,7 +759,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 		}
 
 		// update repo object in the database after applying edits
-		err = database.FromContext(c).UpdateRepo(dbRepo)
+		dbRepo, err = database.FromContext(c).UpdateRepo(dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -891,7 +891,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	dbR.SetPreviousName(r.GetPreviousName())
 
 	// update the repo in the database
-	err = database.FromContext(c).UpdateRepo(dbR)
+	dbR, err = database.FromContext(c).UpdateRepo(dbR)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, prevOrg, prevRepo)
 		util.HandleError(c, http.StatusBadRequest, retErr)
