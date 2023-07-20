@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the RepoService interface.
+	// config represents the settings required to create the engine that implements the RepoInterface interface.
 	config struct {
 		// specifies the encryption key to use for the Repo engine
 		EncryptionKey string
@@ -22,7 +22,7 @@ type (
 		SkipCreation bool
 	}
 
-	// engine represents the repo functionality that implements the RepoService interface.
+	// engine represents the repo functionality that implements the RepoInterface interface.
 	engine struct {
 		// engine configuration settings used in repo functions
 		config *config

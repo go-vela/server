@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v52/github"
+	"github.com/google/go-github/v53/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -536,4 +536,23 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 	}
 
 	return "", fmt.Errorf("no valid repository contents found")
+}
+
+// GetBranch defines a function that retrieves a branch for a repo.
+func (c *client) GetBranch(u *library.User, r *library.Repo) (string, string, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  r.GetOrg(),
+		"repo": r.GetName(),
+		"user": u.GetName(),
+	}).Tracef("retrieving branch %s for repo %s", r.GetBranch(), r.GetFullName())
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(u.GetToken())
+
+	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), r.GetBranch(), true)
+	if err != nil {
+		return "", "", err
+	}
+
+	return data.GetName(), data.GetCommit().GetSHA(), nil
 }

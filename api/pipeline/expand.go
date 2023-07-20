@@ -95,7 +95,7 @@ func ExpandPipeline(c *gin.Context) {
 	r.SetPipelineType(p.GetType())
 
 	// create the compiler object
-	compiler := compiler.FromContext(c).Duplicate().WithMetadata(m).WithRepo(r).WithUser(u)
+	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	// expand the templates in the pipeline
 	pipeline, _, err := compiler.CompileLite(p.GetData(), true, false, nil)

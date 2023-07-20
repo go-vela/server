@@ -75,7 +75,7 @@ func Establish() gin.HandlerFunc {
 			"user":    u.GetName(),
 		}).Debugf("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 
-		s, err := database.FromContext(c).GetService(number, b)
+		s, err := database.FromContext(c).GetServiceForBuild(b, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

@@ -20,7 +20,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v52/github"
+	"github.com/google/go-github/v53/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -465,8 +465,19 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetTopics(repo.Topics)
 
 	// if action is renamed, then get the previous name from payload
-	if payload.GetAction() == "renamed" {
-		r.SetPreviousName(payload.GetChanges().GetRepo().GetName().GetFrom())
+	if payload.GetAction() == constants.ActionRenamed {
+		r.SetPreviousName(repo.GetOwner().GetLogin() + "/" + payload.GetChanges().GetRepo().GetName().GetFrom())
+	}
+
+	// if action is transferred, then get the previous owner from payload
+	// could be a user or an org, but both are User structs
+	if payload.GetAction() == constants.ActionTransferred {
+		org := payload.GetChanges().GetOwner().GetOwnerInfo().GetOrg()
+		if org == nil {
+			org = payload.GetChanges().GetOwner().GetOwnerInfo().GetUser()
+		}
+
+		r.SetPreviousName(org.GetLogin() + "/" + repo.GetName())
 	}
 
 	h.SetEvent(constants.EventRepository)

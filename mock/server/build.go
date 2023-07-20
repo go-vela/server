@@ -156,6 +156,9 @@ const (
     "build_id": 1,
     "data": "eyAKICAgICJpZCI6ICJzdGVwX25hbWUiLAogICAgInZlcnNpb24iOiAiMSIsCiAgICAibWV0YWRhdGEiOnsKICAgICAgICAiY2xvbmUiOnRydWUsCiAgICAgICAgImVudmlyb25tZW50IjpbInN0ZXBzIiwic2VydmljZXMiLCJzZWNyZXRzIl19LAogICAgIndvcmtlciI6e30sCiAgICAic3RlcHMiOlsKICAgICAgICB7CiAgICAgICAgICAgICJpZCI6InN0ZXBfZ2l0aHViX29jdG9jYXRfMV9pbml0IiwKICAgICAgICAgICAgImRpcmVjdG9yeSI6Ii92ZWxhL3NyYy9naXRodWIuY29tL2dpdGh1Yi9vY3RvY2F0IiwKICAgICAgICAgICAgImVudmlyb25tZW50IjogeyJCVUlMRF9BVVRIT1IiOiJPY3RvY2F0In0KICAgICAgICB9CiAgICBdCn0KCg=="
   }`
+
+	// CleanResourcesResp represents a string return for cleaning resources as an admin.
+	CleanResourcesResp = "42 builds cleaned. 42 services cleaned. 42 steps cleaned."
 )
 
 // getBuilds returns mock JSON for a http GET.
@@ -355,8 +358,6 @@ func buildExecutable(c *gin.Context) {
 		msg := fmt.Sprintf("unable to get build executable for build %s", b)
 
 		c.AbortWithStatusJSON(http.StatusInternalServerError, types.Error{Message: &msg})
-
-		return
 	}
 
 	data := []byte(BuildExecutableResp)
@@ -365,4 +366,24 @@ func buildExecutable(c *gin.Context) {
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
+}
+
+// cleanResources has a query param :before returns mock JSON for a http PUT
+//
+// Pass "1" to :before to test receiving a http 500 response. Pass "2" to :before
+// to test receiving a http 401 response.
+func cleanResoures(c *gin.Context) {
+	before := c.Query("before")
+
+	if strings.EqualFold(before, "1") {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "")
+
+		return
+	}
+
+	if strings.EqualFold(before, "2") {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, "")
+	}
+
+	c.JSON(http.StatusOK, CleanResourcesResp)
 }

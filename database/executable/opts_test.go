@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -211,55 +210,6 @@ func TestExecutable_EngineOpt_WithSkipCreation(t *testing.T) {
 
 			if !reflect.DeepEqual(e.config.SkipCreation, test.want) {
 				t.Errorf("WithSkipCreation is %v, want %v", e.config.SkipCreation, test.want)
-			}
-		})
-	}
-}
-
-func TestExecutable_EngineOpt_WithDriver(t *testing.T) {
-	// setup types
-	e := &engine{config: new(config)}
-
-	// setup tests
-	tests := []struct {
-		failure bool
-		name    string
-		driver  string
-		want    string
-	}{
-		{
-			failure: false,
-			name:    "postgres",
-			driver:  constants.DriverPostgres,
-			want:    constants.DriverPostgres,
-		},
-		{
-			failure: false,
-			name:    "sqlite",
-			driver:  constants.DriverSqlite,
-			want:    constants.DriverSqlite,
-		},
-	}
-
-	// run tests
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			err := WithDriver(test.driver)(e)
-
-			if test.failure {
-				if err == nil {
-					t.Errorf("WithDriver for %s should have returned err", test.name)
-				}
-
-				return
-			}
-
-			if err != nil {
-				t.Errorf("WithDriver returned err: %v", err)
-			}
-
-			if !reflect.DeepEqual(e.config.CompressionLevel, test.want) {
-				t.Errorf("WithDriver is %v, want %v", e.config.CompressionLevel, test.want)
 			}
 		})
 	}

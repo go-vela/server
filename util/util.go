@@ -8,6 +8,8 @@ import (
 	"html"
 	"strings"
 
+	"github.com/go-vela/types/library"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 )
@@ -62,6 +64,20 @@ func PathParameter(c *gin.Context, parameter string) string {
 	return EscapeValue(c.Param(parameter))
 }
 
+// SplitFullName safely splits the repo.FullName field into an org and name.
+func SplitFullName(value string) (string, string) {
+	// split repo full name into org and repo
+	repoSlice := strings.Split(value, "/")
+	if len(repoSlice) != 2 {
+		return "", ""
+	}
+
+	org := repoSlice[0]
+	repo := repoSlice[1]
+
+	return org, repo
+}
+
 // EscapeValue safely escapes any string by removing any new lines and HTML escaping it.
 func EscapeValue(value string) string {
 	// replace all new lines in the value
@@ -69,4 +85,48 @@ func EscapeValue(value string) string {
 
 	// HTML escape the new line escaped value
 	return html.EscapeString(escaped)
+}
+
+// Unique is a helper function that takes a slice and
+// validates that there are no duplicate entries.
+func Unique(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+
+			list = append(list, entry)
+		}
+	}
+
+	return list
+}
+
+// CheckAllowlist is a helper function to ensure only repos in the
+// allowlist are specified.
+//
+// a single entry of '*' allows any repo to be enabled.
+func CheckAllowlist(r *library.Repo, allowlist []string) bool {
+	// check if all repos are allowed to be enabled
+	if len(allowlist) == 1 && allowlist[0] == "*" {
+		return true
+	}
+
+	for _, repo := range allowlist {
+		// allow all repos in org
+		if strings.Contains(repo, "/*") {
+			if strings.HasPrefix(repo, r.GetOrg()) {
+				return true
+			}
+		}
+
+		// allow specific repo within org
+		if repo == r.GetFullName() {
+			return true
+		}
+	}
+
+	return false
 }

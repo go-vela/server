@@ -38,11 +38,12 @@ services:
       VELA_LOG_LEVEL: trace
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
-      VELA_REFRESH_TOKEN_DURATION: 90m
-      VELA_ACCESS_TOKEN_DURATION: 60m
+      VELA_USER_REFRESH_TOKEN_DURATION: 90m
+      VELA_USER_ACCESS_TOKEN_DURATION: 60m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
     env_file:
       - .env
     restart: always
@@ -142,7 +143,7 @@ services:
   #
   # https://www.vaultproject.io/
   vault:
-    image: vault:latest
+    image: hashicorp/vault:latest
     container_name: vault
     command: server -dev
     networks:

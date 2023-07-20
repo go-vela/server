@@ -17,7 +17,6 @@ import (
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/database/sqlite"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
@@ -97,17 +96,19 @@ func TestPipeline_Establish(t *testing.T) {
 	got := new(library.Pipeline)
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from pipelines;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeletePipeline(want)
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
-	_ = db.CreatePipeline(want)
+	_, _ = db.CreatePipeline(want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -141,8 +142,11 @@ func TestPipeline_Establish(t *testing.T) {
 
 func TestPipeline_Establish_NoRepo(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -175,12 +179,14 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	r.SetVisibility("public")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)
@@ -276,13 +282,15 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	}
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
 
 	defer func() {
-		db.Sqlite.Exec("delete from repos;")
-		db.Sqlite.Exec("delete from users;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteRepo(r)
+		db.DeleteUser(u)
+		db.Close()
 	}()
 
 	_ = db.CreateRepo(r)

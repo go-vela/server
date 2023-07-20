@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/types/constants"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -56,6 +57,18 @@ type MetricsQueryParameters struct {
 	ActiveWorkerCount bool `form:"active_worker_count"`
 	// InactiveWorkerCount represents total number of inactive workers
 	InactiveWorkerCount bool `form:"inactive_worker_count"`
+
+	// IdleWorkerCount represents total number of workers with a status of idle
+	// where worker RunningBuildIDs.length = 0
+	IdleWorkerCount bool `form:"idle_worker_count"`
+	// AvailableWorkerCount represents total number of workers with a status of available,
+	// where worker RunningBuildIDs.length > 0 and < worker BuildLimit
+	AvailableWorkerCount bool `form:"available_worker_count"`
+	// BusyWorkerCount represents total number of workers with a status of busy,
+	// where worker BuildLimit == worker RunningBuildIDs.length
+	BusyWorkerCount bool `form:"busy_worker_count"`
+	// ErrorWorkerCount represents total number of workers with a status of error
+	ErrorWorkerCount bool `form:"error_worker_count"`
 }
 
 // predefine Prometheus metrics else they will be regenerated
@@ -180,6 +193,26 @@ var (
 //   description: Indicates a request for inactive worker count
 //   type: boolean
 //   default: false
+// - in: query
+//   name: idle_worker_count
+//   description: Indicates a request for idle worker count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: available_worker_count
+//   description: Indicates a request for available worker count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: busy_worker_count
+//   description: Indicates a request for busy worker count
+//   type: boolean
+//   default: false
+// - in: query
+//   name: error_worker_count
+//   description: Indicates a request for error worker count
+//   type: boolean
+//   default: false
 // responses:
 //   '200':
 //     description: Successfully retrieved the Vela metrics
@@ -236,7 +269,7 @@ func recordGauges(c *gin.Context) {
 	// build_count
 	if q.BuildCount {
 		// send API call to capture the total number of builds
-		b, err := database.FromContext(c).GetBuildCount()
+		b, err := database.FromContext(c).CountBuilds()
 		if err != nil {
 			logrus.Errorf("unable to get count of all builds: %v", err)
 		}
@@ -247,7 +280,7 @@ func recordGauges(c *gin.Context) {
 	// running_build_count
 	if q.RunningBuildCount {
 		// send API call to capture the total number of running builds
-		bRun, err := database.FromContext(c).GetBuildCountByStatus("running")
+		bRun, err := database.FromContext(c).CountBuildsForStatus("running", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all running builds: %v", err)
 		}
@@ -258,7 +291,7 @@ func recordGauges(c *gin.Context) {
 	// pending_build_count
 	if q.PendingBuildCount {
 		// send API call to capture the total number of pending builds
-		bPen, err := database.FromContext(c).GetBuildCountByStatus("pending")
+		bPen, err := database.FromContext(c).CountBuildsForStatus("pending", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all pending builds: %v", err)
 		}
@@ -280,7 +313,7 @@ func recordGauges(c *gin.Context) {
 	// failure_build_count
 	if q.FailureBuildCount {
 		// send API call to capture the total number of failure builds
-		bFail, err := database.FromContext(c).GetBuildCountByStatus("failure")
+		bFail, err := database.FromContext(c).CountBuildsForStatus("failure", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all failure builds: %v", err)
 		}
@@ -291,7 +324,7 @@ func recordGauges(c *gin.Context) {
 	// killed_build_count
 	if q.KilledBuildCount {
 		// send API call to capture the total number of killed builds
-		bKill, err := database.FromContext(c).GetBuildCountByStatus("killed")
+		bKill, err := database.FromContext(c).CountBuildsForStatus("killed", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all killed builds: %v", err)
 		}
@@ -302,7 +335,7 @@ func recordGauges(c *gin.Context) {
 	// success_build_count
 	if q.SuccessBuildCount {
 		// send API call to capture the total number of success builds
-		bSucc, err := database.FromContext(c).GetBuildCountByStatus("success")
+		bSucc, err := database.FromContext(c).CountBuildsForStatus("success", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all success builds: %v", err)
 		}
@@ -313,7 +346,7 @@ func recordGauges(c *gin.Context) {
 	// error_build_count
 	if q.ErrorBuildCount {
 		// send API call to capture the total number of error builds
-		bErr, err := database.FromContext(c).GetBuildCountByStatus("error")
+		bErr, err := database.FromContext(c).CountBuildsForStatus("error", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all error builds: %v", err)
 		}
@@ -350,7 +383,7 @@ func recordGauges(c *gin.Context) {
 	// service_image_count
 	if q.ServiceImageCount {
 		// send API call to capture the total number of service images
-		serviceImageMap, err := database.FromContext(c).GetServiceImageCount()
+		serviceImageMap, err := database.FromContext(c).ListServiceImageCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all service images: %v", err)
 		}
@@ -363,7 +396,7 @@ func recordGauges(c *gin.Context) {
 	// service_status_count
 	if q.ServiceStatusCount {
 		// send API call to capture the total number of service statuses
-		serviceStatusMap, err := database.FromContext(c).GetServiceStatusCount()
+		serviceStatusMap, err := database.FromContext(c).ListServiceStatusCount()
 		if err != nil {
 			logrus.Errorf("unable to get count of all service statuses: %v", err)
 		}
@@ -375,14 +408,18 @@ func recordGauges(c *gin.Context) {
 
 	// add worker metrics
 	var (
-		buildLimit      int64
-		activeWorkers   int64
-		inactiveWorkers int64
+		buildLimit       int64
+		activeWorkers    int64
+		inactiveWorkers  int64
+		idleWorkers      int64
+		availableWorkers int64
+		busyWorkers      int64
+		errorWorkers     int64
 	)
 
 	// get worker metrics based on request query parameters
-	// worker_build_limit, active_worker_count, inactive_worker_count
-	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount {
+	// worker_build_limit, active_worker_count, inactive_worker_count, idle_worker_count, available_worker_count, busy_worker_count, error_worker_count
+	if q.WorkerBuildLimit || q.ActiveWorkerCount || q.InactiveWorkerCount || q.IdleWorkerCount || q.AvailableWorkerCount || q.BusyWorkerCount || q.ErrorWorkerCount {
 		// send API call to capture the workers
 		workers, err := database.FromContext(c).ListWorkers()
 		if err != nil {
@@ -391,6 +428,9 @@ func recordGauges(c *gin.Context) {
 
 		// get the unix time from worker_active_interval ago
 		before := time.Now().UTC().Add(-c.Value("worker_active_interval").(time.Duration)).Unix()
+
+		// active, inactive counts
+		// idle, available, busy, error counts
 		for _, worker := range workers {
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
@@ -398,6 +438,20 @@ func recordGauges(c *gin.Context) {
 				activeWorkers++
 			} else {
 				inactiveWorkers++
+			}
+			// check if the worker checked in within the last worker_active_interval
+			if worker.GetLastCheckedIn() >= before {
+
+				switch worker.GetStatus() {
+				case constants.WorkerStatusIdle:
+					idleWorkers++
+				case constants.WorkerStatusAvailable:
+					availableWorkers++
+				case constants.WorkerStatusBusy:
+					busyWorkers++
+				case constants.WorkerStatusError:
+					errorWorkers++
+				}
 			}
 		}
 
@@ -415,6 +469,26 @@ func recordGauges(c *gin.Context) {
 		// inactive_worker_count
 		if q.InactiveWorkerCount {
 			totals.WithLabelValues("worker", "count", "inactive").Set(float64(inactiveWorkers))
+		}
+
+		// idle_worker_count
+		if q.IdleWorkerCount {
+			totals.WithLabelValues("worker", "count", "idle").Set(float64(idleWorkers))
+		}
+
+		// available_worker_count
+		if q.AvailableWorkerCount {
+			totals.WithLabelValues("worker", "count", "available").Set(float64(availableWorkers))
+		}
+
+		// busy_worker_count
+		if q.BusyWorkerCount {
+			totals.WithLabelValues("worker", "count", "busy").Set(float64(busyWorkers))
+		}
+
+		// error_worker_count
+		if q.ErrorWorkerCount {
+			totals.WithLabelValues("worker", "count", "error").Set(float64(errorWorkers))
 		}
 	}
 }

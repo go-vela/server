@@ -170,19 +170,9 @@ func UpdatePipeline(c *gin.Context) {
 	}
 
 	// send API call to update the pipeline
-	err = database.FromContext(c).UpdatePipeline(p)
+	p, err = database.FromContext(c).UpdatePipeline(p)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update pipeline %s: %w", entry, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	// send API call to capture the updated pipeline
-	p, err = database.FromContext(c).GetPipelineForRepo(p.GetCommit(), r)
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture pipeline %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

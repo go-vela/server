@@ -982,7 +982,72 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Hello-Old-World")
+	wantRepo.SetPreviousName("Codertocat/Hello-Old-World")
+	wantRepo.SetTopics(nil)
+
+	want := &types.Webhook{
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+	}
+
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
+func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/repository_transferred.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "repository")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent(constants.EventRepository)
+	wantHook.SetEventAction(constants.ActionTransferred)
+	wantHook.SetBranch("master")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetActive(true)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
+	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("master")
+	wantRepo.SetPrivate(false)
+	wantRepo.SetPreviousName("Old-Codertocat/Hello-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
