@@ -149,6 +149,8 @@ const (
 	BuildTokenResp = `{
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJidWlsZF9pZCI6MSwicmVwbyI6ImZvby9iYXIiLCJzdWIiOiJPY3RvY2F0IiwiaWF0IjoxNTE2MjM5MDIyfQ.hD7gXpaf9acnLBdOBa4GOEa5KZxdzd0ZvK6fGwaN4bc"
   }`
+
+	CleanResourcesResp = "42 builds cleaned. 42 services cleaned. 42 steps cleaned."
 )
 
 // getBuilds returns mock JSON for a http GET.
@@ -336,4 +338,24 @@ func buildToken(c *gin.Context) {
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
+}
+
+// cleanResources has a query param :before returns mock JSON for a http PUT
+//
+// Pass "1" to :before to test receiving a http 500 response. Pass "2" to :before
+// to test receiving a http 401 response.
+func cleanResoures(c *gin.Context) {
+	before := c.Query("before")
+
+	if strings.EqualFold(before, "1") {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "")
+
+		return
+	}
+
+	if strings.EqualFold(before, "2") {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, "")
+	}
+
+	c.JSON(http.StatusOK, CleanResourcesResp)
 }

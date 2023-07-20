@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/library"
 )
 
@@ -31,12 +31,15 @@ func TestNative_Get(t *testing.T) {
 	want.SetUpdatedBy("user2")
 
 	// setup database
-	db, _ := sqlite.NewTest()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	defer func() {
-		db.Sqlite.Exec("delete from secrets;")
-		_sql, _ := db.Sqlite.DB()
-		_sql.Close()
+		db.DeleteSecret(want)
+		db.Close()
 	}()
 
 	// run test
@@ -61,9 +64,11 @@ func TestNative_Get(t *testing.T) {
 
 func TestNative_Get_Invalid(t *testing.T) {
 	// setup database
-	db, _ := sqlite.NewTest()
-
-	defer func() { _sql, _ := db.Sqlite.DB(); _sql.Close() }()
+	db, err := database.NewTest()
+	if err != nil {
+		t.Errorf("unable to create test database engine: %v", err)
+	}
+	defer db.Close()
 
 	// run test
 	s, err := New(

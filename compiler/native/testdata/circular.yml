@@ -1,0 +1,16 @@
+metadata:
+  render_inline: true
+  template: true
+
+templates:
+  - name: bad
+    source: github.example.com/github/octocat/inline_circular_template.yml
+    type: github
+
+stages:
+  test:
+    steps:
+      - name: test
+        image: alpine
+        commands:
+          - echo from inline

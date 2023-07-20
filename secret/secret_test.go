@@ -7,17 +7,16 @@ package secret
 import (
 	"testing"
 
-	"github.com/go-vela/server/database/sqlite"
+	"github.com/go-vela/server/database"
 )
 
 func TestSecret_New(t *testing.T) {
 	// setup types
-	_database, err := sqlite.NewTest()
+	db, err := database.NewTest()
 	if err != nil {
-		t.Errorf("unable to create database service: %v", err)
+		t.Errorf("unable to create test database engine: %v", err)
 	}
-
-	defer func() { _sql, _ := _database.Sqlite.DB(); _sql.Close() }()
+	defer db.Close()
 
 	// setup tests
 	tests := []struct {
@@ -28,7 +27,7 @@ func TestSecret_New(t *testing.T) {
 			failure: false,
 			setup: &Setup{
 				Driver:   "native",
-				Database: _database,
+				Database: db,
 			},
 		},
 		{

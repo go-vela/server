@@ -12,7 +12,7 @@ import (
 )
 
 // UpdatePipeline updates an existing pipeline in the database.
-func (e *engine) UpdatePipeline(p *library.Pipeline) error {
+func (e *engine) UpdatePipeline(p *library.Pipeline) (*library.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("updating pipeline %s in the database", p.GetCommit())
@@ -27,7 +27,7 @@ func (e *engine) UpdatePipeline(p *library.Pipeline) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Validate
 	err := pipeline.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// compress data for the pipeline
@@ -35,12 +35,20 @@ func (e *engine) UpdatePipeline(p *library.Pipeline) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Pipeline.Compress
 	err = pipeline.Compress(e.config.CompressionLevel)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TablePipeline).
-		Save(pipeline).
-		Error
+	err = e.client.Table(constants.TablePipeline).Save(pipeline).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// decompress pipeline to return
+	err = pipeline.Decompress()
+	if err != nil {
+		return nil, err
+	}
+
+	return pipeline.ToLibrary(), nil
 }

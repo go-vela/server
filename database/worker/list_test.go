@@ -37,9 +37,9 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "hostname", "address", "routes", "active", "last_checked_in", "build_limit"}).
-		AddRow(1, "worker_0", "localhost", nil, true, 0, 0).
-		AddRow(2, "worker_1", "localhost", nil, true, 0, 0)
+		[]string{"id", "hostname", "address", "routes", "active", "status", "last_status_update_at", "running_build_ids", "last_build_started_at", "last_build_finished_at", "last_checked_in", "build_limit"}).
+		AddRow(1, "worker_0", "localhost", nil, true, nil, 0, nil, 0, 0, 0, 0).
+		AddRow(2, "worker_1", "localhost", nil, true, nil, 0, nil, 0, 0, 0, 0)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "workers"`).WillReturnRows(_rows)

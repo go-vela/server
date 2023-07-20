@@ -84,7 +84,7 @@ func main() {
 			EnvVars: []string{"VELA_CLONE_IMAGE"},
 			Name:    "clone-image",
 			Usage:   "the clone image to use for the injected clone step",
-			Value:   "target/vela-git:v0.7.0@sha256:c2e8794556d6debceeaa2c82ff3cc9e8e6ed045b723419e3ff050409f25cc258",
+			Value:   "target/vela-git:v0.8.0@sha256:02de004ae9dbf184c70039cb9ce431c31d6e7580eb9e6ec64a97ebf108aa65cb",
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
@@ -197,11 +197,36 @@ func main() {
 			Usage:   "modification retries, used by compiler, number of http requires that the modification http request will fail after",
 			Value:   5,
 		},
+		&cli.IntFlag{
+			EnvVars: []string{"VELA_MAX_TEMPLATE_DEPTH", "MAX_TEMPLATE_DEPTH"},
+			Name:    "max-template-depth",
+			Usage:   "max template depth, used by compiler, maximum number of templates that can be called in a template chain",
+			Value:   3,
+		},
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_WORKER_ACTIVE_INTERVAL", "WORKER_ACTIVE_INTERVAL"},
 			Name:    "worker-active-interval",
 			Usage:   "interval at which workers will show as active within the /metrics endpoint",
 			Value:   5 * time.Minute,
+		},
+		// schedule flags
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_SCHEDULE_MINIMUM_FREQUENCY", "SCHEDULE_MINIMUM_FREQUENCY"},
+			Name:    "schedule-minimum-frequency",
+			Usage:   "minimum time allowed between each build triggered for a schedule",
+			Value:   1 * time.Hour,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_SCHEDULE_INTERVAL", "SCHEDULE_INTERVAL"},
+			Name:    "schedule-interval",
+			Usage:   "interval at which schedules will be processed by the server to trigger builds",
+			Value:   5 * time.Minute,
+		},
+		&cli.StringSliceFlag{
+			EnvVars: []string{"VELA_SCHEDULE_ALLOWLIST"},
+			Name:    "vela-schedule-allowlist",
+			Usage:   "limit which repos can be utilize the schedule feature within the system",
+			Value:   &cli.StringSlice{},
 		},
 	}
 	// Add Database Flags
