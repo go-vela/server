@@ -338,6 +338,8 @@ func buildToken(c *gin.Context) {
 
 	if strings.EqualFold(b, "2") {
 		c.AbortWithStatusJSON(http.StatusBadRequest, "")
+
+		return
 	}
 
 	data := []byte(BuildTokenResp)
@@ -358,6 +360,8 @@ func buildExecutable(c *gin.Context) {
 		msg := fmt.Sprintf("unable to get build executable for build %s", b)
 
 		c.AbortWithStatusJSON(http.StatusInternalServerError, types.Error{Message: &msg})
+
+		return
 	}
 
 	data := []byte(BuildExecutableResp)
