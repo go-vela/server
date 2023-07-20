@@ -54,12 +54,12 @@ var Flags = []cli.Flag{
 		EnvVars:  []string{"VELA_QUEUE_SIGNING_PRIVATE_KEY"},
 		FilePath: "/vela/signing.key",
 		Name:     "queue.signing.private-key",
-		Usage:    "set value of queue signing private key",
+		Usage:    "set value of base64 encoded queue signing private key",
 	},
 	&cli.StringFlag{
 		EnvVars:  []string{"VELA_QUEUE_SIGNING_PUBLIC_KEY"},
 		FilePath: "/vela/signing.pub",
 		Name:     "queue.signing.public-key",
-		Usage:    "set value of queue signing public key",
+		Usage:    "set value of base64 encoded queue signing public key",
 	},
 }
