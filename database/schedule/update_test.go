@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -40,7 +41,7 @@ WHERE "id" = $10`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_schedule)
+	_, err := _sqlite.CreateSchedule(_schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -66,7 +67,8 @@ WHERE "id" = $10`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule, true)
+			got, err := test.database.UpdateSchedule(_schedule, true)
+			_schedule.SetUpdatedAt(got.GetUpdatedAt())
 
 			if test.failure {
 				if err == nil {
@@ -78,6 +80,10 @@ WHERE "id" = $10`).
 
 			if err != nil {
 				t.Errorf("UpdateSchedule for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _schedule) {
+				t.Errorf("UpdateSchedule for %s returned %s, want %s", test.name, got, _schedule)
 			}
 		})
 	}
@@ -112,7 +118,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_schedule)
+	_, err := _sqlite.CreateSchedule(_schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -138,7 +144,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule, false)
+			got, err := test.database.UpdateSchedule(_schedule, false)
 
 			if test.failure {
 				if err == nil {
@@ -150,6 +156,10 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("UpdateSchedule for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _schedule) {
+				t.Errorf("CreateSchedule for %s returned %s, want %s", test.name, got, _schedule)
 			}
 		})
 	}

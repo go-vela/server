@@ -59,12 +59,12 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_scheduleOne)
+	_, err := _sqlite.CreateSchedule(_scheduleOne)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateSchedule(_scheduleTwo)
+	_, err = _sqlite.CreateSchedule(_scheduleTwo)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}

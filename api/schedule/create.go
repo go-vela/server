@@ -170,7 +170,7 @@ func CreateSchedule(c *gin.Context) {
 		dbSchedule.SetActive(true)
 
 		// send API call to update the schedule
-		err = database.FromContext(c).UpdateSchedule(dbSchedule, true)
+		s, err = database.FromContext(c).UpdateSchedule(dbSchedule, true)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set schedule %s to active: %w", dbSchedule.GetName(), err)
 
@@ -178,12 +178,9 @@ func CreateSchedule(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the updated schedule
-		s, _ = database.FromContext(c).GetScheduleForRepo(r, dbSchedule.GetName())
 	} else {
 		// send API call to create the schedule
-		err = database.FromContext(c).CreateSchedule(s)
+		s, err = database.FromContext(c).CreateSchedule(s)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new schedule %s: %w", r.GetName(), err)
 
@@ -191,9 +188,6 @@ func CreateSchedule(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the created schedule
-		s, _ = database.FromContext(c).GetScheduleForRepo(r, input.GetName())
 	}
 
 	c.JSON(http.StatusCreated, s)

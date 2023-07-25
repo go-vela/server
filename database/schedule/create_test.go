@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -58,7 +59,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateSchedule(_schedule)
+			got, err := test.database.CreateSchedule(_schedule)
 
 			if test.failure {
 				if err == nil {
@@ -70,6 +71,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("CreateSchedule for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _schedule) {
+				t.Errorf("CreateSchedule for %s returned %s, want %s", test.name, got, _schedule)
 			}
 		})
 	}

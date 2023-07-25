@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
+func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) (*library.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())
@@ -23,7 +23,7 @@ func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
 	// validate the necessary fields are populated
 	err := schedule.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// If "fields" is true, update entire record; otherwise, just update scheduled_at (part of processSchedule)
@@ -36,5 +36,5 @@ func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
 		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
 	}
 
-	return err
+	return schedule.ToLibrary(), err
 }

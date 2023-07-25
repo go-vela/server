@@ -31,7 +31,7 @@ type ScheduleInterface interface {
 	// CountSchedulesForRepo defines a function that gets the count of schedules by repo ID.
 	CountSchedulesForRepo(*library.Repo) (int64, error)
 	// CreateSchedule defines a function that creates a new schedule.
-	CreateSchedule(*library.Schedule) error
+	CreateSchedule(*library.Schedule) (*library.Schedule, error)
 	// DeleteSchedule defines a function that deletes an existing schedule.
 	DeleteSchedule(*library.Schedule) error
 	// GetSchedule defines a function that gets a schedule by ID.
@@ -45,5 +45,5 @@ type ScheduleInterface interface {
 	// ListSchedulesForRepo defines a function that gets a list of schedules by repo ID.
 	ListSchedulesForRepo(*library.Repo, int, int) ([]*library.Schedule, int64, error)
 	// UpdateSchedule defines a function that updates an existing schedule.
-	UpdateSchedule(*library.Schedule, bool) error
+	UpdateSchedule(*library.Schedule, bool) (*library.Schedule, error)
 }
