@@ -49,12 +49,12 @@ func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateRepo(_repoOne)
+	_, err := _sqlite.CreateRepo(_repoOne)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateRepo(_repoTwo)
+	_, err = _sqlite.CreateRepo(_repoTwo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
