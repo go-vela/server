@@ -206,14 +206,29 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 
 	switch {
 	case c.local:
-		a := &afero.Afero{
-			Fs: afero.NewOsFs(),
+		// iterate over locally provided templates
+		for _, t := range c.localTemplates {
+			parts := strings.Split(t, ":")
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("local templates must be provided in the form <name>:<path>, got %s", t)
+			}
+
+			if strings.EqualFold(tmpl.Name, parts[0]) {
+				a := &afero.Afero{
+					Fs: afero.NewOsFs(),
+				}
+
+				bytes, err = a.ReadFile(parts[1])
+				if err != nil {
+					return bytes, err
+				}
+
+				return bytes, nil
+			}
 		}
 
-		bytes, err = a.ReadFile(tmpl.Source)
-		if err != nil {
-			return bytes, err
-		}
+		// no template found in provided templates, exit with error
+		return nil, fmt.Errorf("unable to find template %s: not supplied in list %s", tmpl.Name, c.localTemplates)
 
 	case strings.EqualFold(tmpl.Type, "github"):
 		// parse source from template
