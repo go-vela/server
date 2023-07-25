@@ -152,7 +152,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
-		err := db.CreateRepo(repo)
+		_, err := db.CreateRepo(repo)
 		if err != nil {
 			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
@@ -723,7 +723,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos
 	for _, repo := range resources.Repos {
-		err := db.CreateRepo(repo)
+		_, err := db.CreateRepo(repo)
 		if err != nil {
 			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
@@ -811,7 +811,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	// update the repos
 	for _, repo := range resources.Repos {
 		repo.SetActive(false)
-		err = db.UpdateRepo(repo)
+		_, err = db.UpdateRepo(repo)
 		if err != nil {
 			t.Errorf("unable to update repo %d: %v", repo.GetID(), err)
 		}
