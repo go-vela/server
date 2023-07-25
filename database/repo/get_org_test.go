@@ -39,7 +39,7 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateRepo(_repo)
+	_, err := _sqlite.CreateRepo(_repo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}

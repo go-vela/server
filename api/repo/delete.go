@@ -88,7 +88,7 @@ func DeleteRepo(c *gin.Context) {
 	// Mark the repo as inactive
 	r.SetActive(false)
 
-	err = database.FromContext(c).UpdateRepo(r)
+	_, err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
 

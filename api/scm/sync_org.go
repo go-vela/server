@@ -113,7 +113,7 @@ func SyncReposForOrg(c *gin.Context) {
 		if err != nil {
 			repo.SetActive(false)
 
-			err := database.FromContext(c).UpdateRepo(repo)
+			_, err := database.FromContext(c).UpdateRepo(repo)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
