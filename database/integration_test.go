@@ -27,6 +27,7 @@ import (
 	"github.com/go-vela/types/raw"
 )
 
+// Resources represents the object containing test resources.
 type Resources struct {
 	Builds      []*library.Build
 	Deployments []*library.Deployment
