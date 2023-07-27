@@ -9,7 +9,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/adhocore/gronx v1.6.4
 	github.com/alicebob/miniredis/v2 v2.30.4
-	github.com/aws/aws-sdk-go v1.44.298
+	github.com/aws/aws-sdk-go v1.44.309
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
@@ -31,14 +31,14 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.9.5
 	github.com/urfave/cli/v2 v2.25.7
-	go.starlark.net v0.0.0-20230712173630-2226322290fc
+	go.starlark.net v0.0.0-20230725161458-0d7263928a74
 	golang.org/x/oauth2 v0.9.0
 	golang.org/x/sync v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.5.2
 	gorm.io/gorm v1.25.2
-	k8s.io/apimachinery v0.27.3
+	k8s.io/apimachinery v0.27.4
 )
 
 require (
