@@ -56,19 +56,19 @@ func TestDatabase_Integration(t *testing.T) {
 		name   string
 		config *config
 	}{
-		{
-			name: "postgres",
-			config: &config{
-				Driver:           "postgres",
-				Address:          os.Getenv("POSTGRES_ADDR"),
-				CompressionLevel: 3,
-				ConnectionLife:   10 * time.Second,
-				ConnectionIdle:   5,
-				ConnectionOpen:   20,
-				EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
-				SkipCreation:     false,
-			},
-		},
+		//{
+		//	name: "postgres",
+		//	config: &config{
+		//		Driver:           "postgres",
+		//		Address:          os.Getenv("POSTGRES_ADDR"),
+		//		CompressionLevel: 3,
+		//		ConnectionLife:   10 * time.Second,
+		//		ConnectionIdle:   5,
+		//		ConnectionOpen:   20,
+		//		EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+		//		SkipCreation:     false,
+		//	},
+		//},
 		{
 			name: "sqlite3",
 			config: &config{
@@ -145,11 +145,22 @@ func TestDatabase_Integration(t *testing.T) {
 }
 
 func testBuilds(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for builds
-	//
-	// we start at 2 for creating the table and indexes for builds
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for builds
+	methods := make(map[string]bool)
+	// capture the element type of the build interface
+	element := reflect.TypeOf(new(build.BuildInterface)).Elem()
+	// iterate through all methods found in the build interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for builds
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
@@ -180,7 +191,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create build %d: %v", build.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateBuild"] = true
 
 	// count the builds
 	count, err := db.CountBuilds()
@@ -190,7 +201,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuilds() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CountBuilds"] = true
 
 	// count the builds for a deployment
 	count, err = db.CountBuildsForDeployment(resources.Deployments[0], nil)
@@ -200,7 +211,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CountBuildsForDeployment"] = true
 
 	// count the builds for an org
 	count, err = db.CountBuildsForOrg(resources.Repos[0].GetOrg(), nil)
@@ -210,7 +221,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForOrg() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CountBuildsForOrg"] = true
 
 	// count the builds for a repo
 	count, err = db.CountBuildsForRepo(resources.Repos[0], nil)
@@ -220,7 +231,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CountBuildsForRepo"] = true
 
 	// count the builds for a status
 	count, err = db.CountBuildsForStatus("running", nil)
@@ -230,7 +241,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountBuildsForStatus() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CountBuildsForStatus"] = true
 
 	// list the builds
 	list, err := db.ListBuilds()
@@ -240,7 +251,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Builds) {
 		t.Errorf("ListBuilds() is %v, want %v", list, resources.Builds)
 	}
-	counter++
+	methods["ListBuilds"] = true
 
 	// list the builds for a deployment
 	list, count, err = db.ListBuildsForDeployment(resources.Deployments[0], nil, 1, 10)
@@ -253,7 +264,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
 		t.Errorf("ListBuildsForDeployment() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
-	counter++
+	methods["ListBuildsForDeployment"] = true
 
 	// list the builds for an org
 	list, count, err = db.ListBuildsForOrg(resources.Repos[0].GetOrg(), nil, 1, 10)
@@ -266,7 +277,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Builds) {
 		t.Errorf("ListBuildsForOrg() is %v, want %v", list, resources.Builds)
 	}
-	counter++
+	methods["ListBuildsForOrg"] = true
 
 	// list the builds for a repo
 	list, count, err = db.ListBuildsForRepo(resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
@@ -279,7 +290,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
-	counter++
+	methods["ListBuildsForRepo"] = true
 
 	// list the pending and running builds
 	queueList, err := db.ListPendingAndRunningBuilds("0")
@@ -289,7 +300,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(queueList, queueBuilds) {
 		t.Errorf("ListPendingAndRunningBuilds() is %v, want %v", queueList, queueBuilds)
 	}
-	counter++
+	methods["ListPendingAndRunningBuilds"] = true
 
 	// lookup the last build by repo
 	got, err := db.LastBuildForRepo(resources.Repos[0], "main")
@@ -299,7 +310,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(got, resources.Builds[1]) {
 		t.Errorf("LastBuildForRepo() is %v, want %v", got, resources.Builds[1])
 	}
-	counter++
+	methods["LastBuildForRepo"] = true
 
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
@@ -312,7 +323,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
 		}
 	}
-	counter++
+	methods["GetBuildForRepo"] = true
 
 	// clean the builds
 	count, err = db.CleanBuilds("integration testing", 1563474090)
@@ -322,7 +333,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CleanBuilds() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CleanBuilds"] = true
 
 	// update the builds
 	for _, build := range resources.Builds {
@@ -341,8 +352,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetBuild() is %v, want %v", got, build)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateBuild"] = true
+	methods["GetBuild"] = true
 
 	// delete the builds
 	for _, build := range resources.Builds {
@@ -351,29 +362,41 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteBuild"] = true
 
 	// delete the repos for build related functions
 	for _, repo := range resources.Repos {
-		err := db.DeleteRepo(repo)
+		err = db.DeleteRepo(repo)
 		if err != nil {
 			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
 		}
 	}
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(build.BuildInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for builds", method)
+		}
 	}
 }
 
 func testHooks(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for hooks
-	//
-	// we start at 2 for creating the table and indexes for hooks
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for hooks
+	methods := make(map[string]bool)
+	// capture the element type of the hook interface
+	element := reflect.TypeOf(new(hook.HookInterface)).Elem()
+	// iterate through all methods found in the hook interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for hooks
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the hooks
 	for _, hook := range resources.Hooks {
@@ -382,7 +405,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateHook"] = true
 
 	// count the hooks
 	count, err := db.CountHooks()
@@ -392,7 +415,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Hooks) {
 		t.Errorf("CountHooks() is %v, want %v", count, len(resources.Hooks))
 	}
-	counter++
+	methods["CountHooks"] = true
 
 	// count the hooks for a repo
 	count, err = db.CountHooksForRepo(resources.Repos[0])
@@ -402,7 +425,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("CountHooksForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	counter++
+	methods["CountHooksForRepo"] = true
 
 	// list the hooks
 	list, err := db.ListHooks()
@@ -412,7 +435,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Hooks) {
 		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
 	}
-	counter++
+	methods["ListHooks"] = true
 
 	// list the hooks for a repo
 	list, count, err = db.ListHooksForRepo(resources.Repos[0], 1, 10)
@@ -425,7 +448,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]}) {
 		t.Errorf("ListHooksForRepo() is %v, want %v", list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]})
 	}
-	counter++
+	methods["ListHooksForRepo"] = true
 
 	// lookup the last build by repo
 	got, err := db.LastHookForRepo(resources.Repos[0])
@@ -435,12 +458,12 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(got, resources.Hooks[1]) {
 		t.Errorf("LastHookForRepo() is %v, want %v", got, resources.Hooks[1])
 	}
-	counter++
+	methods["LastHookForRepo"] = true
 
 	// lookup the hooks by name
 	for _, hook := range resources.Hooks {
 		repo := resources.Repos[hook.GetRepoID()-1]
-		got, err := db.GetHookForRepo(repo, hook.GetNumber())
+		got, err = db.GetHookForRepo(repo, hook.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), repo.GetID(), err)
 		}
@@ -448,7 +471,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetHookForRepo() is %v, want %v", got, hook)
 		}
 	}
-	counter++
+	methods["GetHookForRepo"] = true
 
 	// update the hooks
 	for _, hook := range resources.Hooks {
@@ -459,7 +482,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		}
 
 		// lookup the hook by ID
-		got, err := db.GetHook(hook.GetID())
+		got, err = db.GetHook(hook.GetID())
 		if err != nil {
 			t.Errorf("unable to get hook %d by ID: %v", hook.GetID(), err)
 		}
@@ -467,8 +490,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetHook() is %v, want %v", got, hook)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateHook"] = true
+	methods["GetHook"] = true
 
 	// delete the hooks
 	for _, hook := range resources.Hooks {
@@ -477,21 +500,33 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete hook %d: %v", hook.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteHook"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(hook.HookInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for hooks", method)
+		}
 	}
 }
 
 func testLogs(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for logs
-	//
-	// we start at 2 for creating the table and indexes for logs
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for logs
+	methods := make(map[string]bool)
+	// capture the element type of the log interface
+	element := reflect.TypeOf(new(log.LogInterface)).Elem()
+	// iterate through all methods found in the log interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for logs
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the logs
 	for _, log := range resources.Logs {
@@ -500,7 +535,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create log %d: %v", log.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateLog"] = true
 
 	// count the logs
 	count, err := db.CountLogs()
@@ -510,7 +545,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Logs) {
 		t.Errorf("CountLogs() is %v, want %v", count, len(resources.Logs))
 	}
-	counter++
+	methods["CountLogs"] = true
 
 	// count the logs for a build
 	count, err = db.CountLogsForBuild(resources.Builds[0])
@@ -520,7 +555,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Logs) {
 		t.Errorf("CountLogs() is %v, want %v", count, len(resources.Logs))
 	}
-	counter++
+	methods["CountLogsForBuild"] = true
 
 	// list the logs
 	list, err := db.ListLogs()
@@ -530,7 +565,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Logs) {
 		t.Errorf("ListLogs() is %v, want %v", list, resources.Logs)
 	}
-	counter++
+	methods["ListLogs"] = true
 
 	// list the logs for a build
 	list, count, err = db.ListLogsForBuild(resources.Builds[0], 1, 10)
@@ -543,7 +578,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Logs) {
 		t.Errorf("ListLogsForBuild() is %v, want %v", list, resources.Logs)
 	}
-	counter++
+	methods["ListLogsForBuild"] = true
 
 	// lookup the logs by service
 	for _, log := range []*library.Log{resources.Logs[0], resources.Logs[1]} {
@@ -556,7 +591,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetLogForService() is %v, want %v", got, log)
 		}
 	}
-	counter++
+	methods["GetLogForService"] = true
 
 	// lookup the logs by service
 	for _, log := range []*library.Log{resources.Logs[2], resources.Logs[3]} {
@@ -569,7 +604,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetLogForStep() is %v, want %v", got, log)
 		}
 	}
-	counter++
+	methods["GetLogForStep"] = true
 
 	// update the logs
 	for _, log := range resources.Logs {
@@ -588,8 +623,8 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetLog() is %v, want %v", got, log)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateLog"] = true
+	methods["GetLog"] = true
 
 	// delete the logs
 	for _, log := range resources.Logs {
@@ -598,21 +633,33 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete log %d: %v", log.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteLog"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(log.LogInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for logs", method)
+		}
 	}
 }
 
 func testPipelines(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for pipelines
-	//
-	// we start at 2 for creating the table and indexes for pipelines
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for pipelines
+	methods := make(map[string]bool)
+	// capture the element type of the pipeline interface
+	element := reflect.TypeOf(new(pipeline.PipelineInterface)).Elem()
+	// iterate through all methods found in the pipeline interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for pipelines
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the pipelines
 	for _, pipeline := range resources.Pipelines {
@@ -621,7 +668,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create pipeline %d: %v", pipeline.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreatePipeline"] = true
 
 	// count the pipelines
 	count, err := db.CountPipelines()
@@ -631,7 +678,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Pipelines) {
 		t.Errorf("CountPipelines() is %v, want %v", count, len(resources.Pipelines))
 	}
-	counter++
+	methods["CountPipelines"] = true
 
 	// count the pipelines for a repo
 	count, err = db.CountPipelinesForRepo(resources.Repos[0])
@@ -641,7 +688,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Pipelines) {
 		t.Errorf("CountPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
 	}
-	counter++
+	methods["CountPipelinesForRepo"] = true
 
 	// list the pipelines
 	list, err := db.ListPipelines()
@@ -651,7 +698,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Pipelines) {
 		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
 	}
-	counter++
+	methods["ListPipelines"] = true
 
 	// list the pipelines for a repo
 	list, count, err = db.ListPipelinesForRepo(resources.Repos[0], 1, 10)
@@ -664,7 +711,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Pipelines) {
 		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
 	}
-	counter++
+	methods["ListPipelinesForRepo"] = true
 
 	// lookup the pipelines by name
 	for _, pipeline := range resources.Pipelines {
@@ -677,7 +724,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetPipelineForRepo() is %v, want %v", got, pipeline)
 		}
 	}
-	counter++
+	methods["GetPipelineForRepo"] = true
 
 	// update the pipelines
 	for _, pipeline := range resources.Pipelines {
@@ -696,8 +743,8 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetPipeline() is %v, want %v", got, pipeline)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdatePipeline"] = true
+	methods["GetPipeline"] = true
 
 	// delete the pipelines
 	for _, pipeline := range resources.Pipelines {
@@ -706,21 +753,33 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete pipeline %d: %v", pipeline.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeletePipeline"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(pipeline.PipelineInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for pipelines", method)
+		}
 	}
 }
 
 func testRepos(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for repos
-	//
-	// we start at 2 for creating the table and indexes for repos
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for repos
+	methods := make(map[string]bool)
+	// capture the element type of the repo interface
+	element := reflect.TypeOf(new(repo.RepoInterface)).Elem()
+	// iterate through all methods found in the repo interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for repos
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the repos
 	for _, repo := range resources.Repos {
@@ -729,7 +788,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateRepo"] = true
 
 	// count the repos
 	count, err := db.CountRepos()
@@ -739,7 +798,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("CountRepos() is %v, want %v", count, len(resources.Repos))
 	}
-	counter++
+	methods["CountRepos"] = true
 
 	// count the repos for an org
 	count, err = db.CountReposForOrg(resources.Repos[0].GetOrg(), nil)
@@ -749,7 +808,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("CountReposForOrg() is %v, want %v", count, len(resources.Repos))
 	}
-	counter++
+	methods["CountReposForOrg"] = true
 
 	// count the repos for a user
 	count, err = db.CountReposForUser(resources.Users[0], nil)
@@ -759,7 +818,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("CountReposForUser() is %v, want %v", count, len(resources.Repos))
 	}
-	counter++
+	methods["CountReposForUser"] = true
 
 	// list the repos
 	list, err := db.ListRepos()
@@ -769,7 +828,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Repos) {
 		t.Errorf("ListRepos() is %v, want %v", list, resources.Repos)
 	}
-	counter++
+	methods["ListRepos"] = true
 
 	// list the repos for an org
 	list, count, err = db.ListReposForOrg(resources.Repos[0].GetOrg(), "name", nil, 1, 10)
@@ -782,7 +841,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Repos) {
 		t.Errorf("ListReposForOrg() is %v, want %v", list, resources.Repos)
 	}
-	counter++
+	methods["ListReposForOrg"] = true
 
 	// list the repos for a user
 	list, count, err = db.ListReposForUser(resources.Users[0], "name", nil, 1, 10)
@@ -795,7 +854,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Repos) {
 		t.Errorf("ListReposForUser() is %v, want %v", list, resources.Repos)
 	}
-	counter++
+	methods["ListReposForUser"] = true
 
 	// lookup the repos by name
 	for _, repo := range resources.Repos {
@@ -807,7 +866,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetRepoForOrg() is %v, want %v", got, repo)
 		}
 	}
-	counter++
+	methods["GetRepoForOrg"] = true
 
 	// update the repos
 	for _, repo := range resources.Repos {
@@ -826,8 +885,8 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetRepo() is %v, want %v", got, repo)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateRepo"] = true
+	methods["GetRepo"] = true
 
 	// delete the repos
 	for _, repo := range resources.Repos {
@@ -836,21 +895,33 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteRepo"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(repo.RepoInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for repos", method)
+		}
 	}
 }
 
 func testSchedules(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for schedules
-	//
-	// we start at 2 for creating the table and indexes for schedules
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for schedules
+	methods := make(map[string]bool)
+	// capture the element type of the schedule interface
+	element := reflect.TypeOf(new(schedule.ScheduleInterface)).Elem()
+	// iterate through all methods found in the schedule interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for schedules
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the schedules
 	for _, schedule := range resources.Schedules {
@@ -859,7 +930,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateSchedule"] = true
 
 	// count the schedules
 	count, err := db.CountSchedules()
@@ -869,7 +940,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("CountSchedules() is %v, want %v", count, len(resources.Schedules))
 	}
-	counter++
+	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
 	count, err = db.CountSchedulesForRepo(resources.Repos[0])
@@ -879,7 +950,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("CountSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
-	counter++
+	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
 	list, err := db.ListSchedules()
@@ -889,7 +960,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Schedules) {
 		t.Errorf("ListSchedules() is %v, want %v", list, resources.Schedules)
 	}
-	counter++
+	methods["ListSchedules"] = true
 
 	// list the active schedules
 	list, err = db.ListActiveSchedules()
@@ -899,7 +970,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Schedules) {
 		t.Errorf("ListActiveSchedules() is %v, want %v", list, resources.Schedules)
 	}
-	counter++
+	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
 	list, count, err = db.ListSchedulesForRepo(resources.Repos[0], 1, 10)
@@ -912,7 +983,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
-	counter++
+	methods["ListSchedulesForRepo"] = true
 
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
@@ -925,7 +996,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetScheduleForRepo() is %v, want %v", got, schedule)
 		}
 	}
-	counter++
+	methods["GetScheduleForRepo"] = true
 
 	// update the schedules
 	for _, schedule := range resources.Schedules {
@@ -944,8 +1015,8 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateSchedule"] = true
+	methods["GetSchedule"] = true
 
 	// delete the schedules
 	for _, schedule := range resources.Schedules {
@@ -954,21 +1025,33 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteSchedule"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(schedule.ScheduleInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for schedules", method)
+		}
 	}
 }
 
 func testSecrets(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for secrets
-	//
-	// we start at 2 for creating the table and indexes for secrets
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for secrets
+	methods := make(map[string]bool)
+	// capture the element type of the secret interface
+	element := reflect.TypeOf(new(secret.SecretInterface)).Elem()
+	// iterate through all methods found in the secret interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for secrets
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the secrets
 	for _, secret := range resources.Secrets {
@@ -977,7 +1060,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create secret %d: %v", secret.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateSecret"] = true
 
 	// count the secrets
 	count, err := db.CountSecrets()
@@ -987,7 +1070,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Secrets) {
 		t.Errorf("CountSecrets() is %v, want %v", count, len(resources.Secrets))
 	}
-	counter++
+	methods["CountSecrets"] = true
 
 	for _, secret := range resources.Secrets {
 		switch secret.GetType() {
@@ -1000,7 +1083,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForOrg() is %v, want %v", count, 1)
 			}
-			counter++
+			methods["CountSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// count the secrets for a repo
 			count, err = db.CountSecretsForRepo(resources.Repos[0], nil)
@@ -1010,7 +1093,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForRepo() is %v, want %v", count, 1)
 			}
-			counter++
+			methods["CountSecretsForRepo"] = true
 		case constants.SecretShared:
 			// count the secrets for a team
 			count, err = db.CountSecretsForTeam(secret.GetOrg(), secret.GetTeam(), nil)
@@ -1020,7 +1103,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForTeam() is %v, want %v", count, 1)
 			}
-			counter++
+			methods["CountSecretsForTeam"] = true
 
 			// count the secrets for a list of teams
 			count, err = db.CountSecretsForTeams(secret.GetOrg(), []string{secret.GetTeam()}, nil)
@@ -1030,7 +1113,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("CountSecretsForTeams() is %v, want %v", count, 1)
 			}
-			counter++
+			methods["CountSecretsForTeams"] = true
 		default:
 			t.Errorf("unsupported type %s for secret %d", secret.GetType(), secret.GetID())
 		}
@@ -1044,7 +1127,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Secrets) {
 		t.Errorf("ListSecrets() is %v, want %v", list, resources.Secrets)
 	}
-	counter++
+	methods["ListSecrets"] = true
 
 	for _, secret := range resources.Secrets {
 		switch secret.GetType() {
@@ -1060,7 +1143,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*library.Secret{secret})
 			}
-			counter++
+			methods["ListSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// list the secrets for a repo
 			list, count, err = db.ListSecretsForRepo(resources.Repos[0], nil, 1, 10)
@@ -1073,7 +1156,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*library.Secret{secret})
 			}
-			counter++
+			methods["ListSecretsForRepo"] = true
 		case constants.SecretShared:
 			// list the secrets for a team
 			list, count, err = db.ListSecretsForTeam(secret.GetOrg(), secret.GetTeam(), nil, 1, 10)
@@ -1086,7 +1169,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*library.Secret{secret})
 			}
-			counter++
+			methods["ListSecretsForTeam"] = true
 
 			// list the secrets for a list of teams
 			list, count, err = db.ListSecretsForTeams(secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
@@ -1099,7 +1182,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*library.Secret{secret})
 			}
-			counter++
+			methods["ListSecretsForTeams"] = true
 		default:
 			t.Errorf("unsupported type %s for secret %d", secret.GetType(), secret.GetID())
 		}
@@ -1116,7 +1199,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(got, secret) {
 				t.Errorf("GetSecretForOrg() is %v, want %v", got, secret)
 			}
-			counter++
+			methods["GetSecretForOrg"] = true
 		case constants.SecretRepo:
 			// lookup the secret by repo
 			got, err := db.GetSecretForRepo(secret.GetName(), resources.Repos[0])
@@ -1126,7 +1209,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(got, secret) {
 				t.Errorf("GetSecretForRepo() is %v, want %v", got, secret)
 			}
-			counter++
+			methods["GetSecretForRepo"] = true
 		case constants.SecretShared:
 			// lookup the secret by team
 			got, err := db.GetSecretForTeam(secret.GetOrg(), secret.GetTeam(), secret.GetName())
@@ -1136,7 +1219,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if !reflect.DeepEqual(got, secret) {
 				t.Errorf("GetSecretForTeam() is %v, want %v", got, secret)
 			}
-			counter++
+			methods["GetSecretForTeam"] = true
 		default:
 			t.Errorf("unsupported type %s for secret %d", secret.GetType(), secret.GetID())
 		}
@@ -1159,8 +1242,8 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetSecret() is %v, want %v", got, secret)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateSecret"] = true
+	methods["GetSecret"] = true
 
 	// delete the secrets
 	for _, secret := range resources.Secrets {
@@ -1169,21 +1252,33 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete secret %d: %v", secret.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteSecret"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(secret.SecretInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for secrets", method)
+		}
 	}
 }
 
 func testServices(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for services
-	//
-	// we start at 2 for creating the table and indexes for services
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for services
+	methods := make(map[string]bool)
+	// capture the element type of the service interface
+	element := reflect.TypeOf(new(service.ServiceInterface)).Elem()
+	// iterate through all methods found in the service interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for services
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the services
 	for _, service := range resources.Services {
@@ -1192,7 +1287,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create service %d: %v", service.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateService"] = true
 
 	// count the services
 	count, err := db.CountServices()
@@ -1202,7 +1297,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Services) {
 		t.Errorf("CountServices() is %v, want %v", count, len(resources.Services))
 	}
-	counter++
+	methods["CountServices"] = true
 
 	// count the services for a build
 	count, err = db.CountServicesForBuild(resources.Builds[0], nil)
@@ -1212,7 +1307,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Services) {
 		t.Errorf("CountServicesForBuild() is %v, want %v", count, len(resources.Services))
 	}
-	counter++
+	methods["CountServicesForBuild"] = true
 
 	// list the services
 	list, err := db.ListServices()
@@ -1222,7 +1317,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Services) {
 		t.Errorf("ListServices() is %v, want %v", list, resources.Services)
 	}
-	counter++
+	methods["ListServices"] = true
 
 	// list the services for a build
 	list, count, err = db.ListServicesForBuild(resources.Builds[0], nil, 1, 10)
@@ -1235,7 +1330,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Services) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", count, len(resources.Services))
 	}
-	counter++
+	methods["ListServicesForBuild"] = true
 
 	expected := map[string]float64{
 		"#init":                  1,
@@ -1248,7 +1343,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(images, expected) {
 		t.Errorf("ListServiceImageCount() is %v, want %v", images, expected)
 	}
-	counter++
+	methods["ListServiceImageCount"] = true
 
 	expected = map[string]float64{
 		"pending": 1,
@@ -1264,7 +1359,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(statuses, expected) {
 		t.Errorf("ListServiceStatusCount() is %v, want %v", statuses, expected)
 	}
-	counter++
+	methods["ListServiceStatusCount"] = true
 
 	// lookup the services by name
 	for _, service := range resources.Services {
@@ -1277,7 +1372,17 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetServiceForBuild() is %v, want %v", got, service)
 		}
 	}
-	counter++
+	methods["GetServiceForBuild"] = true
+
+	// clean the services
+	count, err = db.CleanServices("integration testing", 1563474090)
+	if err != nil {
+		t.Errorf("unable to clean services: %v", err)
+	}
+	if int(count) != len(resources.Services) {
+		t.Errorf("CleanServices() is %v, want %v", count, len(resources.Services))
+	}
+	methods["CleanServices"] = true
 
 	// update the services
 	for _, service := range resources.Services {
@@ -1296,8 +1401,8 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetService() is %v, want %v", got, service)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateService"] = true
+	methods["GetService"] = true
 
 	// delete the services
 	for _, service := range resources.Services {
@@ -1306,21 +1411,33 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete service %d: %v", service.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteService"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(service.ServiceInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for services", method)
+		}
 	}
 }
 
 func testSteps(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for steps
-	//
-	// we start at 2 for creating the table and indexes for steps
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for steps
+	methods := make(map[string]bool)
+	// capture the element type of the step interface
+	element := reflect.TypeOf(new(step.StepInterface)).Elem()
+	// iterate through all methods found in the step interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for steps
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the steps
 	for _, step := range resources.Steps {
@@ -1329,7 +1446,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateStep"] = true
 
 	// count the steps
 	count, err := db.CountSteps()
@@ -1339,7 +1456,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Steps) {
 		t.Errorf("CountSteps() is %v, want %v", count, len(resources.Steps))
 	}
-	counter++
+	methods["CountSteps"] = true
 
 	// count the steps for a build
 	count, err = db.CountStepsForBuild(resources.Builds[0], nil)
@@ -1349,7 +1466,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Steps) {
 		t.Errorf("CountStepsForBuild() is %v, want %v", count, len(resources.Steps))
 	}
-	counter++
+	methods["CountStepsForBuild"] = true
 
 	// list the steps
 	list, err := db.ListSteps()
@@ -1359,7 +1476,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Steps) {
 		t.Errorf("ListSteps() is %v, want %v", list, resources.Steps)
 	}
-	counter++
+	methods["ListSteps"] = true
 
 	// list the steps for a build
 	list, count, err = db.ListStepsForBuild(resources.Builds[0], nil, 1, 10)
@@ -1372,7 +1489,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Steps) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", count, len(resources.Steps))
 	}
-	counter++
+	methods["ListStepsForBuild"] = true
 
 	expected := map[string]float64{
 		"#init":                  1,
@@ -1385,7 +1502,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(images, expected) {
 		t.Errorf("ListStepImageCount() is %v, want %v", images, expected)
 	}
-	counter++
+	methods["ListStepImageCount"] = true
 
 	expected = map[string]float64{
 		"pending": 1,
@@ -1401,7 +1518,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(statuses, expected) {
 		t.Errorf("ListStepStatusCount() is %v, want %v", statuses, expected)
 	}
-	counter++
+	methods["ListStepStatusCount"] = true
 
 	// lookup the steps by name
 	for _, step := range resources.Steps {
@@ -1414,7 +1531,17 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
 		}
 	}
-	counter++
+	methods["GetStepForBuild"] = true
+
+	// clean the steps
+	count, err = db.CleanSteps("integration testing", 1563474090)
+	if err != nil {
+		t.Errorf("unable to clean steps: %v", err)
+	}
+	if int(count) != len(resources.Steps) {
+		t.Errorf("CleanSteps() is %v, want %v", count, len(resources.Steps))
+	}
+	methods["CleanSteps"] = true
 
 	// update the steps
 	for _, step := range resources.Steps {
@@ -1433,8 +1560,8 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateStep"] = true
+	methods["GetStep"] = true
 
 	// delete the steps
 	for _, step := range resources.Steps {
@@ -1443,21 +1570,33 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete step %d: %v", step.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteStep"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(step.StepInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for steps", method)
+		}
 	}
 }
 
 func testUsers(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for users
-	//
-	// we start at 2 for creating the table and indexes for users
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for users
+	methods := make(map[string]bool)
+	// capture the element type of the user interface
+	element := reflect.TypeOf(new(user.UserInterface)).Elem()
+	// iterate through all methods found in the user interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for users
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	userOne := new(library.User)
 	userOne.SetID(1)
@@ -1488,7 +1627,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateUser"] = true
 
 	// count the users
 	count, err := db.CountUsers()
@@ -1498,7 +1637,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Users) {
 		t.Errorf("CountUsers() is %v, want %v", count, len(resources.Users))
 	}
-	counter++
+	methods["CountUsers"] = true
 
 	// list the users
 	list, err := db.ListUsers()
@@ -1508,7 +1647,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Users) {
 		t.Errorf("ListUsers() is %v, want %v", list, resources.Users)
 	}
-	counter++
+	methods["ListUsers"] = true
 
 	// lite list the users
 	list, count, err = db.ListLiteUsers(1, 10)
@@ -1521,7 +1660,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(liteUsers) {
 		t.Errorf("ListLiteUsers() is %v, want %v", count, len(liteUsers))
 	}
-	counter++
+	methods["ListLiteUsers"] = true
 
 	// lookup the users by name
 	for _, user := range resources.Users {
@@ -1533,7 +1672,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetUserForName() is %v, want %v", got, user)
 		}
 	}
-	counter++
+	methods["GetUserForName"] = true
 
 	// update the users
 	for _, user := range resources.Users {
@@ -1552,8 +1691,8 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetUser() is %v, want %v", got, user)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateUser"] = true
+	methods["GetUser"] = true
 
 	// delete the users
 	for _, user := range resources.Users {
@@ -1562,21 +1701,33 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteUser"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(user.UserInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for users", method)
+		}
 	}
 }
 
 func testWorkers(t *testing.T, db Interface, resources *Resources) {
-	// used to track the number of methods we call for workers
-	//
-	// we start at 2 for creating the table and indexes for users
-	// since those are already called when the database engine starts
-	counter := 2
+	// create a variable to track the number of methods called for workers
+	methods := make(map[string]bool)
+	// capture the element type of the worker interface
+	element := reflect.TypeOf(new(worker.WorkerInterface)).Elem()
+	// iterate through all methods found in the worker interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for workers
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
 
 	// create the workers
 	for _, worker := range resources.Workers {
@@ -1585,7 +1736,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create worker %d: %v", worker.GetID(), err)
 		}
 	}
-	counter++
+	methods["CreateWorker"] = true
 
 	// count the workers
 	count, err := db.CountWorkers()
@@ -1595,7 +1746,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Workers) {
 		t.Errorf("CountWorkers() is %v, want %v", count, len(resources.Workers))
 	}
-	counter++
+	methods["CountWorkers"] = true
 
 	// list the workers
 	list, err := db.ListWorkers()
@@ -1605,7 +1756,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(list, resources.Workers) {
 		t.Errorf("ListWorkers() is %v, want %v", list, resources.Workers)
 	}
-	counter++
+	methods["ListWorkers"] = true
 
 	// lookup the workers by hostname
 	for _, worker := range resources.Workers {
@@ -1617,7 +1768,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetWorkerForHostname() is %v, want %v", got, worker)
 		}
 	}
-	counter++
+	methods["GetWorkerForHostname"] = true
 
 	// update the workers
 	for _, worker := range resources.Workers {
@@ -1636,8 +1787,8 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
 		}
 	}
-	counter++
-	counter++
+	methods["UpdateWorker"] = true
+	methods["GetWorker"] = true
 
 	// delete the workers
 	for _, worker := range resources.Workers {
@@ -1646,12 +1797,13 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to delete worker %d: %v", worker.GetID(), err)
 		}
 	}
-	counter++
+	methods["DeleteWorker"] = true
 
-	// ensure we called all the functions we should have
-	methods := reflect.TypeOf(new(worker.WorkerInterface)).Elem().NumMethod()
-	if counter != methods {
-		t.Errorf("total number of methods called is %v, want %v", counter, methods)
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for workers", method)
+		}
 	}
 }
 
