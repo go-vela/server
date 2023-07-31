@@ -202,6 +202,26 @@ func TestNative_WithLocal(t *testing.T) {
 	}
 }
 
+func TestNative_WithLocalTemplates(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	c := cli.NewContext(nil, set, nil)
+
+	localTemplates := []string{"example:tmpl.yml", "exmpl:template.yml"}
+	want, _ := New(c)
+	want.localTemplates = []string{"example:tmpl.yml", "exmpl:template.yml"}
+
+	// run test
+	got, err := New(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	if !reflect.DeepEqual(got.WithLocalTemplates(localTemplates), want) {
+		t.Errorf("WithLocalTemplates is %v, want %v", got, want)
+	}
+}
+
 func TestNative_WithMetadata(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
