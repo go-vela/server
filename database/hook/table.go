@@ -51,7 +51,7 @@ hooks (
 	status       TEXT,
 	link         TEXT,
 	webhook_id   INTEGER,
-	UNIQUE(repo_id, build_id)
+	UNIQUE(repo_id, number)
 );
 `
 )

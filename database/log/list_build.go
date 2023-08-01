@@ -37,6 +37,7 @@ func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*libra
 	err = e.client.
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
+		Order("service_id ASC NULLS LAST").
 		Order("step_id ASC").
 		Limit(perPage).
 		Offset(offset).
