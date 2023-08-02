@@ -33,7 +33,7 @@ type RepoInterface interface {
 	// CountReposForUser defines a function that gets the count of repos by user ID.
 	CountReposForUser(*library.User, map[string]interface{}) (int64, error)
 	// CreateRepo defines a function that creates a new repo.
-	CreateRepo(*library.Repo) error
+	CreateRepo(*library.Repo) (*library.Repo, error)
 	// DeleteRepo defines a function that deletes an existing repo.
 	DeleteRepo(*library.Repo) error
 	// GetRepo defines a function that gets a repo by ID.
@@ -47,5 +47,5 @@ type RepoInterface interface {
 	// ListReposForUser defines a function that gets a list of repos by user ID.
 	ListReposForUser(*library.User, string, map[string]interface{}, int, int) ([]*library.Repo, int64, error)
 	// UpdateRepo defines a function that updates an existing repo.
-	UpdateRepo(*library.Repo) error
+	UpdateRepo(*library.Repo) (*library.Repo, error)
 }

@@ -285,7 +285,7 @@ func CreateRepo(c *gin.Context) {
 		dbRepo.SetActive(true)
 
 		// send API call to update the repo
-		err = database.FromContext(c).UpdateRepo(dbRepo)
+		r, err = database.FromContext(c).UpdateRepo(dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", dbRepo.GetFullName(), err)
 
@@ -293,12 +293,9 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the updated repo
-		r, _ = database.FromContext(c).GetRepoForOrg(dbRepo.GetOrg(), dbRepo.GetName())
 	} else {
 		// send API call to create the repo
-		err = database.FromContext(c).CreateRepo(r)
+		r, err = database.FromContext(c).CreateRepo(r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new repo %s: %w", r.GetFullName(), err)
 
@@ -306,9 +303,6 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the created repo
-		r, _ = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	}
 
 	// create init hook in the DB after repo has been added in order to capture its ID

@@ -49,7 +49,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 		AddRow(1, 1, 1, 1, 0, []byte{}).AddRow(2, 1, 1, 0, 1, []byte{})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY step_id ASC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY service_id ASC NULLS LAST,step_id ASC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

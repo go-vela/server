@@ -176,23 +176,30 @@ func server(c *cli.Context) error {
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
 		for {
-			// cut the configured minimum frequency duration for schedules in half
+			// track the starting time for when the server begins processing schedules
+			//
+			// This will be used to control which schedules will have a build triggered based
+			// off the configured entry and last time a build was triggered for the schedule.
+			start := time.Now().UTC()
+
+			// capture the interval of time to wait before processing schedules
 			//
 			// We need to sleep for some amount of time before we attempt to process schedules
-			// setup in the database. Since the minimum frequency is configurable, we cut it in
-			// half and use that as the base duration to determine how long to sleep for.
-			base := c.Duration("schedule-minimum-frequency") / 2
-			logrus.Infof("sleeping for %v before scheduling builds", base)
+			// setup in the database. Since the schedule interval is configurable, we use that
+			// as the base duration to determine how long to sleep for.
+			interval := c.Duration("schedule-interval")
 
-			// sleep for a duration of time before processing schedules
-			//
 			// This should prevent multiple servers from processing schedules at the same time by
 			// leveraging a base duration along with a standard deviation of randomness a.k.a.
-			// "jitter". To create the jitter, we use the configured minimum frequency duration
-			// along with a scale factor of 0.1.
-			time.Sleep(wait.Jitter(base, 0.1))
+			// "jitter". To create the jitter, we use the configured schedule interval duration
+			// along with a scale factor of 0.5.
+			jitter := wait.Jitter(interval, 0.5)
 
-			err = processSchedules(ctx, compiler, database, metadata, queue, scm)
+			logrus.Infof("sleeping for %v before scheduling builds", jitter)
+			// sleep for a duration of time before processing schedules
+			time.Sleep(jitter)
+
+			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

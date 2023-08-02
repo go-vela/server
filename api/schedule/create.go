@@ -210,21 +210,31 @@ func validateEntry(minimum time.Duration, entry string) error {
 		return fmt.Errorf("invalid entry of %s", entry)
 	}
 
-	// check the previous occurrence of the entry
-	prevTime, err := gronx.PrevTick(entry, true)
-	if err != nil {
-		return err
-	}
+	// iterate 5 times through ticks in an effort to catch scalene entries
+	tickForward := 5
 
-	// check the next occurrence of the entry
-	nextTime, err := gronx.NextTick(entry, true)
-	if err != nil {
-		return err
-	}
+	// start with now
+	t := time.Now().UTC()
 
-	// ensure the time between previous and next schedule exceeds the minimum duration
-	if nextTime.Sub(prevTime) < minimum {
-		return fmt.Errorf("entry needs to occur less frequently than every %s", minimum)
+	for i := 0; i < tickForward; i++ {
+		// check the previous occurrence of the entry
+		prevTime, err := gronx.PrevTickBefore(entry, t, true)
+		if err != nil {
+			return err
+		}
+
+		// check the next occurrence of the entry
+		nextTime, err := gronx.NextTickAfter(entry, t, false)
+		if err != nil {
+			return err
+		}
+
+		// ensure the time between previous and next schedule exceeds the minimum duration
+		if nextTime.Sub(prevTime) < minimum {
+			return fmt.Errorf("entry needs to occur less frequently than every %s", minimum)
+		}
+
+		t = nextTime
 	}
 
 	return nil

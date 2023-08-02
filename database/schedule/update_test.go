@@ -7,7 +7,6 @@ package schedule
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
@@ -36,7 +35,7 @@ func TestSchedule_Engine_UpdateSchedule_Config(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "schedules"
 SET "repo_id"=$1,"active"=$2,"name"=$3,"entry"=$4,"created_at"=$5,"created_by"=$6,"updated_at"=$7,"updated_by"=$8,"scheduled_at"=$9
 WHERE "id" = $10`).
-		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", time.Now().UTC().Unix(), "user2", nil, 1).
+		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", NowTimestamp{}, "user2", nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

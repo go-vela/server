@@ -25,9 +25,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-const baseErr = "unable to schedule build"
+const (
+	scheduleErr = "unable to trigger build for schedule"
 
-func processSchedules(ctx context.Context, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+	scheduleWait = "waiting to trigger build for schedule"
+)
+
+func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
@@ -38,6 +42,13 @@ func processSchedules(ctx context.Context, compiler compiler.Engine, database da
 
 	// iterate through the list of active schedules
 	for _, s := range schedules {
+		// sleep for 1s - 2s before processing the active schedule
+		//
+		// This should prevent multiple servers from processing a schedule at the same time by
+		// leveraging a base duration along with a standard deviation of randomness a.k.a.
+		// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 1.0.
+		time.Sleep(wait.Jitter(time.Second, 1.0))
+
 		// send API call to capture the schedule
 		//
 		// This is needed to ensure we are not dealing with a stale schedule since we fetch
@@ -45,52 +56,79 @@ func processSchedules(ctx context.Context, compiler compiler.Engine, database da
 		// amount of time to get to the end of the list.
 		schedule, err := database.GetSchedule(ctx, s.GetID())
 		if err != nil {
-			logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
 			continue
 		}
 
-		// create a variable to track if a build should be triggered based off the schedule
-		trigger := false
+		// ignore triggering a build if the schedule is no longer active
+		if !schedule.GetActive() {
+			logrus.Tracef("skipping to trigger build for inactive schedule %s", schedule.GetName())
 
-		// check if a build has already been triggered for the schedule
-		if schedule.GetScheduledAt() == 0 {
-			// trigger a build for the schedule since one has not already been scheduled
-			trigger = true
-		} else {
-			// parse the previous occurrence of the entry for the schedule
-			prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
-			if err != nil {
-				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
-
-				continue
-			}
-
-			// parse the next occurrence of the entry for the schedule
-			nextTime, err := gronx.NextTick(schedule.GetEntry(), true)
-			if err != nil {
-				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
-
-				continue
-			}
-
-			// parse the UNIX timestamp from when the last build was triggered for the schedule
-			t := time.Unix(schedule.GetScheduledAt(), 0).UTC()
-
-			// check if the time since the last triggered build is greater than the entry duration for the schedule
-			if time.Since(t) > nextTime.Sub(prevTime) {
-				// trigger a build for the schedule since it has not previously ran
-				trigger = true
-			}
+			continue
 		}
 
-		if trigger && schedule.GetActive() {
-			err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm)
-			if err != nil {
-				logrus.WithError(err).Warnf("%s for %s", baseErr, schedule.GetName())
+		// capture the last time a build was triggered for the schedule in UTC
+		scheduled := time.Unix(schedule.GetScheduledAt(), 0).UTC()
 
-				continue
-			}
+		// capture the previous occurrence of the entry rounded to the nearest whole interval
+		//
+		// i.e. if it's 4:02 on five minute intervals, this will be 4:00
+		prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
+
+			continue
+		}
+
+		// capture the next occurrence of the entry after the last schedule rounded to the nearest whole interval
+		//
+		// i.e. if it's 4:02 on five minute intervals, this will be 4:05
+		nextTime, err := gronx.NextTickAfter(schedule.GetEntry(), scheduled, true)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
+
+			continue
+		}
+
+		// check if we should wait to trigger a build for the schedule
+		//
+		// The current time must be after the next occurrence of the schedule.
+		if !time.Now().After(nextTime) {
+			logrus.Tracef("%s %s: current time not past next occurrence", scheduleWait, schedule.GetName())
+
+			continue
+		}
+
+		// check if we should wait to trigger a build for the schedule
+		//
+		// The previous occurrence of the schedule must be after the starting time of processing schedules.
+		if !prevTime.After(start) {
+			logrus.Tracef("%s %s: previous occurence not after starting point", scheduleWait, schedule.GetName())
+
+			continue
+		}
+
+		// update the scheduled_at field with the current timestamp
+		//
+		// This should help prevent multiple servers from processing a schedule at the same time
+		// by updating the schedule with a new timestamp to reflect the current state.
+		schedule.SetScheduledAt(time.Now().UTC().Unix())
+
+		// send API call to update schedule for ensuring scheduled_at field is set
+		err = database.UpdateSchedule(ctx, schedule, false)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
+
+			continue
+		}
+
+		// process the schedule and trigger a new build
+		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm)
+		if err != nil {
+			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
+
+			continue
 		}
 	}
 
@@ -99,13 +137,6 @@ func processSchedules(ctx context.Context, compiler compiler.Engine, database da
 
 //nolint:funlen // ignore function length and number of statements
 func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
-	// sleep for 1s - 3s before processing the schedule
-	//
-	// This should prevent multiple servers from processing a schedule at the same time by
-	// leveraging a base duration along with a standard deviation of randomness a.k.a.
-	// "jitter". To create the jitter, we use a base duration of 1s with a scale factor of 3.0.
-	time.Sleep(wait.Jitter(time.Second, 3.0))
-
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
 	if err != nil {
@@ -338,22 +369,14 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			return err
 		}
 
-		s.SetScheduledAt(time.Now().UTC().Unix())
-
 		// break the loop because everything was successful
 		break
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.UpdateRepo(r)
+	r, err = database.UpdateRepo(r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
-	}
-
-	// send API call to update schedule for ensuring scheduled_at field is set
-	err = database.UpdateSchedule(ctx, s, false)
-	if err != nil {
-		return fmt.Errorf("unable to update schedule %s/%s: %w", r.GetFullName(), s.GetName(), err)
 	}
 
 	// send API call to capture the triggered build
