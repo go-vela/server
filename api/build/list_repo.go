@@ -131,6 +131,7 @@ func ListBuildsForRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -238,7 +239,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).ListBuildsForRepo(r, filters, before, after, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for repo %s: %w", r.GetFullName(), err)
 

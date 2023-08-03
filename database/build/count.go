@@ -5,11 +5,13 @@
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountBuilds gets the count of all builds from the database.
-func (e *engine) CountBuilds() (int64, error) {
+func (e *engine) CountBuilds(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all builds from the database")
 
 	// variable to store query results

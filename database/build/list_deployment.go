@@ -5,6 +5,8 @@
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +16,7 @@ import (
 // ListBuildsForDeployment gets a list of builds by deployment url from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForDeployment(d *library.Deployment, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
+func (e *engine) ListBuildsForDeployment(ctx context.Context, d *library.Deployment, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetURL(),
 	}).Tracef("listing builds for deployment %s from the database", d.GetURL())
@@ -25,7 +27,7 @@ func (e *engine) ListBuildsForDeployment(d *library.Deployment, filters map[stri
 	builds := []*library.Build{}
 
 	// count the results
-	count, err := e.CountBuildsForDeployment(d, filters)
+	count, err := e.CountBuildsForDeployment(context.TODO(), d, filters)
 	if err != nil {
 		return builds, 0, err
 	}
