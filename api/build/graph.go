@@ -32,8 +32,9 @@ import (
 //	a node is a pipeline stage and its relevant steps.
 //	an edge is a relationship between nodes, defined by the 'needs' tag.
 type graph struct {
-	Nodes map[int]*node `json:"nodes"`
-	Edges []*edge       `json:"edges"`
+	BuildID int64         `json:"build_id"`
+	Nodes   map[int]*node `json:"nodes"`
+	Edges   []*edge       `json:"edges"`
 }
 
 // node represents is a pipeline stage and its relevant steps.
@@ -214,12 +215,15 @@ func GetBuildGraph(c *gin.Context) {
 		running int
 		failure int
 	}
-
 	// group library steps by stage name
 	stages := map[string]*stg{}
 	for _, _step := range steps {
-		if _, ok := stages[_step.GetStage()]; !ok {
-			stages[_step.GetStage()] = &stg{
+		name := _step.GetStage()
+		if len(name) == 0 {
+			name = _step.GetName()
+		}
+		if _, ok := stages[name]; !ok {
+			stages[name] = &stg{
 				steps:   []*library.Step{},
 				success: 0,
 				running: 0,
@@ -228,15 +232,15 @@ func GetBuildGraph(c *gin.Context) {
 		}
 		switch _step.GetStatus() {
 		case constants.StatusRunning:
-			stages[_step.GetStage()].running++
+			stages[name].running++
 		case constants.StatusSuccess:
-			stages[_step.GetStage()].success++
+			stages[name].success++
 		case constants.StatusFailure:
 			// check if ruleset has 'continue' ?
-			stages[_step.GetStage()].failure++
+			stages[name].failure++
 		default:
 		}
-		stages[_step.GetStage()].steps = append(stages[_step.GetStage()].steps, _step)
+		stages[name].steps = append(stages[name].steps, _step)
 	}
 
 	// create nodes from pipeline stages
@@ -279,6 +283,49 @@ func GetBuildGraph(c *gin.Context) {
 		nodes[nodeID] = &node
 	}
 
+	// no stages so use steps
+	if len(p.Stages) == 0 {
+		for _, step := range p.Steps {
+			// scrub the environment
+			step.Environment = nil
+
+			stage := &pipeline.Stage{
+				Name: step.Name,
+			}
+
+			// determine the "status" for a stage based on the steps within it.
+			// this could potentially get complicated with ruleset logic (continue/detach)
+			status := constants.StatusPending
+			if stages[stage.Name].running > 0 {
+				status = constants.StatusRunning
+			} else if stages[stage.Name].failure > 0 {
+				status = constants.StatusFailure
+			} else if stages[stage.Name].success > 0 {
+				status = constants.StatusSuccess
+			}
+
+			nodeID := len(nodes)
+
+			// override the id for built-in nodes
+			// this allows for better layout control
+			// if stage.Name == "init" {
+			// 	nodeID = -3
+			// }
+			// if stage.Name == "clone" {
+			// 	nodeID = -2
+			// }
+
+			node := node{
+				Name:   stage.Name,
+				Stage:  stage,
+				Steps:  stages[stage.Name].steps,
+				ID:     nodeID,
+				Status: status,
+			}
+			nodes[nodeID] = &node
+		}
+	}
+
 	// create edges from nodes
 	//   an edge is as a relationship between two nodes
 	//   that is defined by the 'needs' tag
@@ -303,17 +350,26 @@ func GetBuildGraph(c *gin.Context) {
 
 			// dont compare the same node
 			if destinationNode.ID != sourceNode.ID {
-				// check destination node needs
-				for _, need := range (*destinationNode.Stage).Needs {
-					// check if destination needs source stage
-					if sourceNode.Stage.Name == need && need != "clone" {
-						edge := &edge{
-							Source:      sourceNode.ID,
-							Destination: destinationNode.ID,
-							Status:      sourceNode.Status,
+				if len((*destinationNode.Stage).Needs) > 0 {
+					// check destination node needs
+					for _, need := range (*destinationNode.Stage).Needs {
+						// check if destination needs source stage
+						if sourceNode.Stage.Name == need && need != "clone" {
+							edge := &edge{
+								Source:      sourceNode.ID,
+								Destination: destinationNode.ID,
+								Status:      sourceNode.Status,
+							}
+							edges = append(edges, edge)
 						}
-						edges = append(edges, edge)
 					}
+				} else {
+					edge := &edge{
+						Source:      sourceNode.ID,
+						Destination: sourceNode.ID + 1,
+						Status:      sourceNode.Status,
+					}
+					edges = append(edges, edge)
 				}
 			}
 		}
@@ -329,8 +385,9 @@ func GetBuildGraph(c *gin.Context) {
 
 	// construct the response
 	graph := graph{
-		Nodes: nodes,
-		Edges: edges,
+		BuildID: b.GetID(),
+		Nodes:   nodes,
+		Edges:   edges,
 	}
 
 	c.JSON(http.StatusOK, graph)
