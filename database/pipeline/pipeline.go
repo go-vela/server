@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -26,6 +27,8 @@ type (
 	engine struct {
 		// engine configuration settings used in pipeline functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in pipeline functions
 		//
