@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -41,12 +42,12 @@ func TestPipeline_Engine_CountPipelines(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(_pipelineOne)
+	_, err := _sqlite.CreatePipeline(context.TODO(), _pipelineOne)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreatePipeline(_pipelineTwo)
+	_, err = _sqlite.CreatePipeline(context.TODO(), _pipelineTwo)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -75,7 +76,7 @@ func TestPipeline_Engine_CountPipelines(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountPipelines()
+			got, err := test.database.CountPipelines(context.TODO())
 
 			if test.failure {
 				if err == nil {

@@ -28,7 +28,7 @@ func (e *engine) ListPipelinesForRepo(ctx context.Context, r *library.Repo, page
 	pipelines := []*library.Pipeline{}
 
 	// count the results
-	count, err := e.CountPipelinesForRepo(r)
+	count, err := e.CountPipelinesForRepo(context.TODO(), r)
 	if err != nil {
 		return pipelines, 0, err
 	}

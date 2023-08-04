@@ -223,7 +223,7 @@ func RestartBuild(c *gin.Context) {
 	)
 
 	// send API call to attempt to capture the pipeline
-	pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), r)
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 		// send API call to capture the pipeline configuration file
 		config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
@@ -300,7 +300,7 @@ func RestartBuild(c *gin.Context) {
 		pipeline.SetRef(b.GetRef())
 
 		// send API call to create the pipeline
-		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create pipeline for %s: %w", r.GetFullName(), err)
 
