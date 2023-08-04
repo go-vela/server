@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -102,13 +103,13 @@ func TestPipeline_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeletePipeline(want)
+		db.DeletePipeline(context.TODO(), want)
 		db.DeleteRepo(r)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(r)
-	_, _ = db.CreatePipeline(want)
+	_, _ = db.CreatePipeline(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

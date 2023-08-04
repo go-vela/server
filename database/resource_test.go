@@ -5,6 +5,7 @@
 package database
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -94,7 +95,7 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.NewResources()
+			err := test.database.NewResources(context.TODO())
 
 			if test.failure {
 				if err == nil {
