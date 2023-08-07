@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -132,7 +132,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new postgres database: %v", err)
 	}
 
-	_engine, err := New(
+	_interface, err := New(
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
@@ -141,7 +141,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		t.Errorf("unable to create new postgres worker engine: %v", err)
 	}
 
-	return _engine, _mock
+	return _interface.(*engine), _mock
 }
 
 // testSqlite is a helper function to create a Sqlite engine for testing.
@@ -154,7 +154,7 @@ func testSqlite(t *testing.T) *engine {
 		t.Errorf("unable to create new sqlite database: %v", err)
 	}
 
-	_engine, err := New(
+	_interface, err := New(
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
@@ -163,7 +163,7 @@ func testSqlite(t *testing.T) *engine {
 		t.Errorf("unable to create new sqlite worker engine: %v", err)
 	}
 
-	return _engine
+	return _interface.(*engine)
 }
 
 // testWorker is a test helper function to create a library

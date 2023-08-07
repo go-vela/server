@@ -40,9 +40,7 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with secrets in the database.
-//
-//nolint:revive // ignore returning unexported engine
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (SecretInterface, error) {
 	// create new Secret engine
 	e := new(engine)
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -40,9 +40,7 @@ type (
 )
 
 // New creates and returns a Vela service for integrating with users in the database.
-//
-//nolint:revive // ignore returning unexported engine
-func New(opts ...EngineOpt) (*engine, error) {
+func New(opts ...EngineOpt) (UserInterface, error) {
 	// create new User engine
 	e := new(engine)
 
