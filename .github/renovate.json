@@ -2,5 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>go-vela/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [ "golang" ],
+      "matchPackageNames": [ "github.com/buildkite/yaml" ],
+      "enabled": false
+    }
   ]
 }
