@@ -373,7 +373,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.UpdateRepo(r)
+	r, err = database.UpdateRepo(r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 	}
