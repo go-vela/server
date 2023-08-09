@@ -5,7 +5,7 @@ steps:
     image: golang:latest
     pull: true
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   - name: sample_test
     commands:
@@ -13,7 +13,7 @@ steps:
     image: golang:latest
     pull: true
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   - name: sample_build
     commands:
@@ -24,4 +24,4 @@ steps:
     image: golang:latest
     pull: true
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]

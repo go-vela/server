@@ -69,17 +69,26 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
+		c.Logger.Tracef("push")
 		return c.processPushEvent(h, event)
 	case *github.PullRequestEvent:
+		c.Logger.Tracef("pull")
 		return c.processPREvent(h, event)
+	case *github.DeleteEvent:
+		c.Logger.Tracef("help me please dear lord")
+		return c.processDeleteEvent(h, event)
 	case *github.DeploymentEvent:
+		c.Logger.Tracef("deployment")
 		return c.processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
+		c.Logger.Tracef("issue comment")
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
+		c.Logger.Tracef("repository")
 		return c.processRepositoryEvent(h, event)
 	}
 
+	c.Logger.Tracef("help")
 	return &types.Webhook{Hook: h}, nil
 }
 
@@ -287,6 +296,49 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		Hook:     h,
 		Repo:     r,
 		Build:    b,
+	}, nil
+}
+
+func (c *client) processDeleteEvent(h *library.Hook, payload *github.DeleteEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing delete GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	// capture the repo from the payload
+	repo := payload.GetRepo()
+
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
+
+	// convert payload to library build
+	b := new(library.Build)
+	b.SetEvent(constants.EventDelete)
+	b.SetClone(repo.GetCloneURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
+	b.SetSender(payload.GetSender().GetLogin())
+	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
+	b.SetRef(payload.GetRef())
+
+	// update the hook object
+	h.SetBranch(b.GetBranch())
+	h.SetEvent(constants.EventDelete)
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	return &types.Webhook{
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 

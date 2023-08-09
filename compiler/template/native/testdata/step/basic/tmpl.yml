@@ -8,7 +8,7 @@ steps:
     image: {{ .image }}
     {{ .pull_policy }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   - name: test
     commands:
@@ -16,7 +16,7 @@ steps:
     image: {{ .image }}
     {{ .pull_policy }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   - name: build
     commands:
@@ -27,4 +27,4 @@ steps:
     image: {{ .image }}
     {{ .pull_policy }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]

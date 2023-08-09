@@ -22,6 +22,7 @@ const (
 	// events for repo webhooks.
 	eventPush         = "push"
 	eventPullRequest  = "pull_request"
+	eventDelete       = "delete"
 	eventDeployment   = "deployment"
 	eventIssueComment = "issue_comment"
 	eventRepository   = "repository"

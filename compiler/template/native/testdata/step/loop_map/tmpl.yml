@@ -12,7 +12,7 @@ steps:
     image: golang:latest
     {{ $pull }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   {{ range $key, $value := .images }}
 
@@ -22,7 +22,7 @@ steps:
     image: {{ $value }}
     {{ $pull }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   {{ end }}
 
@@ -35,4 +35,4 @@ steps:
     image: golang:latest
     {{ $pull }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]

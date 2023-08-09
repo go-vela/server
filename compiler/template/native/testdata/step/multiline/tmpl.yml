@@ -8,7 +8,7 @@ steps:
     image: golang:latest
     pull: true
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   {{ .test }}
 
@@ -21,4 +21,4 @@ steps:
     image: golang:latest
     pull: true
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]

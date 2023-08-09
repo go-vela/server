@@ -114,6 +114,9 @@ func PostWebhook(c *gin.Context) {
 	// process the webhook from the source control provider
 	// comment, number, h, r, b
 	webhook, err := scm.FromContext(c).ProcessWebhook(c.Request)
+
+	fmt.Println(webhook)
+
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %w", err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -258,6 +261,7 @@ func PostWebhook(c *gin.Context) {
 	// verify the build has a valid event and the repo allows that event type
 	if (b.GetEvent() == constants.EventPush && !repo.GetAllowPush()) ||
 		(b.GetEvent() == constants.EventPull && !repo.GetAllowPull()) ||
+		(b.GetEvent() == constants.EventDelete && !repo.GetAllowDelete()) ||
 		(b.GetEvent() == constants.EventComment && !repo.GetAllowComment()) ||
 		(b.GetEvent() == constants.EventTag && !repo.GetAllowTag()) ||
 		(b.GetEvent() == constants.EventDeploy && !repo.GetAllowDeploy()) {

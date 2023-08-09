@@ -4,5 +4,5 @@ steps:
       name: golang
       vars:
         ruleset:
-          event: [push, pull_request]
+          event: [push, pull_request, delete]
           branch: [master]

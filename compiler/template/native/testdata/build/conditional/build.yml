@@ -12,7 +12,7 @@ steps:
       - go get ./...
     image: {{ $image }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   {{ end }}
 
@@ -21,7 +21,7 @@ steps:
       - go test ./...
     image: {{ $image }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
 
   - name: build
     commands:
@@ -31,4 +31,4 @@ steps:
       GOOS: linux
     image: {{ $image }}
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]

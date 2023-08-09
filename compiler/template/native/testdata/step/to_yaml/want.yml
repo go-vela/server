@@ -4,5 +4,5 @@ steps:
       - test
     image: alpine
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]
       branch: [ master ]

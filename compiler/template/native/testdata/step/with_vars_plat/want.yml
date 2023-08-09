@@ -9,4 +9,4 @@ steps:
     image: alpine
     pull: true
     ruleset:
-      event: [ push, pull_request ]
+      event: [ push, pull_request, delete ]

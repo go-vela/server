@@ -176,6 +176,10 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 		events = append(events, eventPullRequest)
 	}
 
+	if r.GetAllowDelete() {
+		events = append(events, eventDelete)
+	}
+
 	if r.GetAllowPush() || r.GetAllowTag() {
 		events = append(events, eventPush)
 	}
@@ -240,6 +244,10 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 
 	if r.GetAllowPull() {
 		events = append(events, eventPullRequest)
+	}
+
+	if r.GetAllowDelete() {
+		events = append(events, eventDelete)
 	}
 
 	if r.GetAllowPush() || r.GetAllowTag() {
