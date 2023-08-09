@@ -4,6 +4,8 @@
 
 package schedule
 
+import "context"
+
 const (
 	// CreateRepoIDIndex represents a query to create an
 	// index on the schedules table for the repo_id column.
@@ -16,7 +18,7 @@ ON schedules (repo_id);
 )
 
 // CreateScheduleIndexes creates the indexes for the schedules table in the database.
-func (e *engine) CreateScheduleIndexes() error {
+func (e *engine) CreateScheduleIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for schedules table in the database")
 
 	// create the repo_id column index for the schedules table

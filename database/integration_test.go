@@ -5,6 +5,7 @@
 package database
 
 import (
+	"context"
 	"os"
 	"reflect"
 	"strings"
@@ -923,9 +924,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	ctx := context.TODO()
+
 	// create the schedules
 	for _, schedule := range resources.Schedules {
-		err := db.CreateSchedule(schedule)
+		err := db.CreateSchedule(ctx, schedule)
 		if err != nil {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
@@ -933,7 +936,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateSchedule"] = true
 
 	// count the schedules
-	count, err := db.CountSchedules()
+	count, err := db.CountSchedules(ctx)
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
@@ -943,7 +946,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
-	count, err = db.CountSchedulesForRepo(resources.Repos[0])
+	count, err = db.CountSchedulesForRepo(ctx, resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -953,7 +956,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
-	list, err := db.ListSchedules()
+	list, err := db.ListSchedules(ctx)
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -963,7 +966,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSchedules"] = true
 
 	// list the active schedules
-	list, err = db.ListActiveSchedules()
+	list, err = db.ListActiveSchedules(ctx)
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -973,7 +976,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
-	list, count, err = db.ListSchedulesForRepo(resources.Repos[0], 1, 10)
+	list, count, err = db.ListSchedulesForRepo(ctx, resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -988,7 +991,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
 		repo := resources.Repos[schedule.GetRepoID()-1]
-		got, err := db.GetScheduleForRepo(repo, schedule.GetName())
+		got, err := db.GetScheduleForRepo(ctx, repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
@@ -1001,13 +1004,13 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
-		err = db.UpdateSchedule(schedule, true)
+		err = db.UpdateSchedule(ctx, schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
 
 		// lookup the schedule by ID
-		got, err := db.GetSchedule(schedule.GetID())
+		got, err := db.GetSchedule(ctx, schedule.GetID())
 		if err != nil {
 			t.Errorf("unable to get schedule %d by ID: %v", schedule.GetID(), err)
 		}
@@ -1020,7 +1023,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the schedules
 	for _, schedule := range resources.Schedules {
-		err = db.DeleteSchedule(schedule)
+		err = db.DeleteSchedule(ctx, schedule)
 		if err != nil {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
