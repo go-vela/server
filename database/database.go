@@ -5,6 +5,7 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -55,6 +56,8 @@ type (
 		client *gorm.DB
 		// engine configuration settings used in database functions
 		config *config
+		// engine context used in database functions
+		ctx context.Context
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
 
@@ -87,6 +90,7 @@ func New(opts ...EngineOpt) (Interface, error) {
 	e.client = new(gorm.DB)
 	e.config = new(config)
 	e.logger = new(logrus.Entry)
+	e.ctx = context.TODO()
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -145,7 +149,7 @@ func New(opts ...EngineOpt) (Interface, error) {
 	}
 
 	// create database agnostic engines for resources
-	err = e.NewResources()
+	err = e.NewResources(e.ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -295,7 +295,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// send API call to update the repo
-	err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 
@@ -303,9 +303,6 @@ func UpdateRepo(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated repo
-	r, _ = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 
 	c.JSON(http.StatusOK, r)
 }

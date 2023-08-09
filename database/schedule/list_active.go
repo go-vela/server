@@ -5,13 +5,14 @@
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListActiveSchedules gets a list of all active schedules from the database.
-func (e *engine) ListActiveSchedules() ([]*library.Schedule, error) {
+func (e *engine) ListActiveSchedules(ctx context.Context) ([]*library.Schedule, error) {
 	e.logger.Trace("listing all active schedules from the database")
 
 	// variables to store query results and return value
@@ -20,7 +21,7 @@ func (e *engine) ListActiveSchedules() ([]*library.Schedule, error) {
 	schedules := []*library.Schedule{}
 
 	// count the results
-	count, err := e.CountActiveSchedules()
+	count, err := e.CountActiveSchedules(ctx)
 	if err != nil {
 		return nil, err
 	}

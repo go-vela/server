@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -24,6 +25,8 @@ type (
 	engine struct {
 		// engine configuration settings used in schedule functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in schedule functions
 		//
@@ -65,13 +68,13 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the schedules table
-	err := e.CreateScheduleTable(e.client.Config.Dialector.Name())
+	err := e.CreateScheduleTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableSchedule, err)
 	}
 
 	// create the indexes for the schedules table
-	err = e.CreateScheduleIndexes()
+	err = e.CreateScheduleIndexes(e.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableSchedule, err)
 	}

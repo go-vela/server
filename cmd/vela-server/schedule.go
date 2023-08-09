@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -30,11 +31,11 @@ const (
 	scheduleWait = "waiting to trigger build for schedule"
 )
 
-func processSchedules(start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
-	schedules, err := database.ListActiveSchedules()
+	schedules, err := database.ListActiveSchedules(ctx)
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		// This is needed to ensure we are not dealing with a stale schedule since we fetch
 		// all schedules once and iterate through that list which can take a significant
 		// amount of time to get to the end of the list.
-		schedule, err := database.GetSchedule(s.GetID())
+		schedule, err := database.GetSchedule(ctx, s.GetID())
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -115,7 +116,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		schedule.SetScheduledAt(time.Now().UTC().Unix())
 
 		// send API call to update schedule for ensuring scheduled_at field is set
-		err = database.UpdateSchedule(schedule, false)
+		err = database.UpdateSchedule(ctx, schedule, false)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -123,7 +124,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		}
 
 		// process the schedule and trigger a new build
-		err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -135,7 +136,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 }
 
 //nolint:funlen // ignore function length and number of statements
-func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(s.GetRepoID())
 	if err != nil {
@@ -373,7 +374,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.UpdateRepo(r)
+	r, err = database.UpdateRepo(r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 	}

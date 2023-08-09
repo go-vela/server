@@ -105,7 +105,7 @@ func ValidatePipeline(c *gin.Context) {
 	}
 
 	// validate the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), template, false, nil)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), template, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline %s: %w", entry, err)
 
