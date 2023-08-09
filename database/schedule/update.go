@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +13,7 @@ import (
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(s *library.Schedule, fields bool) error {
+func (e *engine) UpdateSchedule(ctx context.Context, s *library.Schedule, fields bool) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())

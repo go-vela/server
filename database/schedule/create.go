@@ -6,6 +6,7 @@
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -13,7 +14,7 @@ import (
 )
 
 // CreateSchedule creates a new schedule in the database.
-func (e *engine) CreateSchedule(s *library.Schedule) error {
+func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("creating schedule %s in the database", s.GetName())
