@@ -6,7 +6,6 @@ package database
 
 import (
 	"context"
-
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -80,6 +79,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for schedules
 	e.ScheduleInterface, err = schedule.New(
+		schedule.WithContext(e.ctx),
 		schedule.WithClient(e.client),
 		schedule.WithLogger(e.logger),
 		schedule.WithSkipCreation(e.config.SkipCreation),
