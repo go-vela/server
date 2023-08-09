@@ -29,13 +29,13 @@ func TestRedis_Push(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela")
+	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
 	// setup redis mock
-	badItem, err := NewTest("vela")
+	badItem, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}

@@ -20,7 +20,8 @@ func TestMiddleware_Queue(t *testing.T) {
 	// setup types
 	var got queue.Service
 
-	want, _ := redis.NewTest()
+	// signing keys are irrelevant here
+	want, _ := redis.NewTest("", "")
 
 	// setup context
 	gin.SetMode(gin.TestMode)

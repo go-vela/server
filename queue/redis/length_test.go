@@ -30,7 +30,7 @@ func TestRedis_Length(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela", "vela:second", "vela:third")
+	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "vela:second", "vela:third")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
