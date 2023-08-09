@@ -82,7 +82,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p, nil, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, c.TemplateDepth)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -105,7 +105,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, template, substitute bool, localTemplates []string) (*yaml.Build, *library.Pipeline, error) {
+func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -117,7 +117,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p, localTemplates, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, c.TemplateDepth)
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -133,24 +133,6 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 	if template {
 		// create map of templates for easy lookup
 		templates := mapFromTemplates(p.Templates)
-
-		if c.local {
-			for _, file := range localTemplates {
-				// local templates override format is <name>:<source>
-				//
-				// example: example:/path/to/template.yml
-				parts := strings.Split(file, ":")
-
-				// make sure the template was configured
-				_, ok := templates[parts[0]]
-				if !ok {
-					return nil, _pipeline, fmt.Errorf("template with name %s is not configured", parts[0])
-				}
-
-				// override the source for the given template
-				templates[parts[0]].Source = parts[1]
-			}
-		}
 
 		switch {
 		case len(p.Stages) > 0:
@@ -194,7 +176,7 @@ func (c *client) CompileLite(v interface{}, template, substitute bool, localTemp
 }
 
 // compileInline parses and expands out inline pipelines.
-func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int) (*yaml.Build, error) {
+func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 	newPipeline := *p
 	newPipeline.Templates = yaml.TemplateSlice{}
 
@@ -206,21 +188,6 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int
 	}
 
 	for _, template := range p.Templates {
-		if c.local {
-			for _, file := range localTemplates {
-				// local templates override format is <name>:<source>
-				//
-				// example: example:/path/to/template.yml
-				parts := strings.Split(file, ":")
-
-				// make sure we're referencing the proper template
-				if parts[0] == template.Name {
-					// override the source for the given template
-					template.Source = parts[1]
-				}
-			}
-		}
-
 		bytes, err := c.getTemplate(template, template.Name)
 		if err != nil {
 			return nil, err
@@ -240,7 +207,7 @@ func (c *client) compileInline(p *yaml.Build, localTemplates []string, depth int
 
 		// if template parsed contains a template reference, recurse with decremented depth
 		if len(parsed.Templates) > 0 && parsed.Metadata.RenderInline {
-			parsed, err = c.compileInline(parsed, localTemplates, depth-1)
+			parsed, err = c.compileInline(parsed, depth-1)
 			if err != nil {
 				return nil, err
 			}

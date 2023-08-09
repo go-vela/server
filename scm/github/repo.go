@@ -465,15 +465,24 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 
 // toLibraryRepo does a partial conversion of a github repo to a library repo.
 func toLibraryRepo(gr github.Repository) *library.Repo {
+	// setting the visbility to match the SCM visbility
+	var visibility string
+	if *gr.Private {
+		visibility = constants.VisibilityPrivate
+	} else {
+		visibility = constants.VisibilityPublic
+	}
+
 	return &library.Repo{
-		Org:      gr.GetOwner().Login,
-		Name:     gr.Name,
-		FullName: gr.FullName,
-		Link:     gr.HTMLURL,
-		Clone:    gr.CloneURL,
-		Branch:   gr.DefaultBranch,
-		Topics:   &gr.Topics,
-		Private:  gr.Private,
+		Org:        gr.GetOwner().Login,
+		Name:       gr.Name,
+		FullName:   gr.FullName,
+		Link:       gr.HTMLURL,
+		Clone:      gr.CloneURL,
+		Branch:     gr.DefaultBranch,
+		Topics:     &gr.Topics,
+		Private:    gr.Private,
+		Visibility: &visibility,
 	}
 }
 
