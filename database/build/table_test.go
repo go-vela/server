@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestBuild_Engine_CreateBuildTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateBuildTable(test.name)
+			err := test.database.CreateBuildTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

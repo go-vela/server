@@ -82,6 +82,7 @@ func ListDeployments(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -138,7 +139,7 @@ func ListDeployments(c *gin.Context) {
 	dWithBs := []*library.Deployment{}
 
 	for _, deployment := range d {
-		b, _, err := database.FromContext(c).ListBuildsForDeployment(deployment, nil, 1, 3)
+		b, _, err := database.FromContext(c).ListBuildsForDeployment(ctx, deployment, nil, 1, 3)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
 

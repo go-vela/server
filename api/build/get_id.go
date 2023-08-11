@@ -58,6 +58,7 @@ func GetBuildByID(c *gin.Context) {
 
 	// Capture user from middleware
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// Parse build ID from path
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -79,7 +80,7 @@ func GetBuildByID(c *gin.Context) {
 	}).Infof("reading build %d", id)
 
 	// Get build from database
-	b, err = database.FromContext(c).GetBuild(id)
+	b, err = database.FromContext(c).GetBuild(ctx, id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build: %w", err)
 

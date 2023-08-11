@@ -110,6 +110,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -199,7 +200,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).ListBuildsForOrg(o, filters, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)

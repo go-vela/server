@@ -19,13 +19,13 @@ import (
 
 // PublishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
-func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
+func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
 	byteExecutable, err := json.Marshal(p)
 	if err != nil {
 		logrus.Errorf("Failed to marshal compiled build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		CleanBuild(db, b, nil, nil, err)
+		CleanBuild(ctx, db, b, nil, nil, err)
 
 		return
 	}
@@ -39,7 +39,7 @@ func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Buil
 		logrus.Errorf("Failed to publish compiled build to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		CleanBuild(db, b, nil, nil, err)
+		CleanBuild(ctx, db, b, nil, nil, err)
 
 		return
 	}
@@ -53,7 +53,7 @@ func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Buil
 		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		CleanBuild(db, b, nil, nil, err)
+		CleanBuild(ctx, db, b, nil, nil, err)
 
 		return
 	}
@@ -65,7 +65,7 @@ func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Buil
 		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		CleanBuild(db, b, nil, nil, err)
+		CleanBuild(ctx, db, b, nil, nil, err)
 
 		return
 	}
@@ -81,7 +81,7 @@ func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Buil
 			logrus.Errorf("Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 			// error out the build
-			CleanBuild(db, b, nil, nil, err)
+			CleanBuild(ctx, db, b, nil, nil, err)
 
 			return
 		}
@@ -91,7 +91,7 @@ func PublishToQueue(queue queue.Service, db database.Interface, p *pipeline.Buil
 	b.SetEnqueued(time.Now().UTC().Unix())
 
 	// update the build in the db to reflect the time it was enqueued
-	_, err = db.UpdateBuild(b)
+	_, err = db.UpdateBuild(ctx, b)
 	if err != nil {
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}

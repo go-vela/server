@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -78,14 +79,14 @@ func TestService_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
+		db.DeleteBuild(context.TODO(), b)
 		db.DeleteRepo(r)
 		db.DeleteService(want)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(context.TODO(), b)
 	_ = db.CreateService(want)
 
 	// setup context
@@ -220,13 +221,13 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
+		db.DeleteBuild(context.TODO(), b)
 		db.DeleteRepo(r)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(context.TODO(), b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -276,13 +277,13 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
+		db.DeleteBuild(context.TODO(), b)
 		db.DeleteRepo(r)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(context.TODO(), b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -332,13 +333,13 @@ func TestService_Establish_NoService(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
+		db.DeleteBuild(context.TODO(), b)
 		db.DeleteRepo(r)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateBuild(context.TODO(), b)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
