@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestSchedule_Engine_CreateScheduleTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateScheduleTable(test.name)
+			err := test.database.CreateScheduleTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

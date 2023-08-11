@@ -140,10 +140,8 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set the visibility field based off the input provided
-	if len(input.GetVisibility()) == 0 {
-		// default visibility field to public
-		r.SetVisibility(constants.VisibilityPublic)
-	} else {
+	if len(input.GetVisibility()) > 0 {
+		// default visibility field to the input visibility
 		r.SetVisibility(input.GetVisibility())
 	}
 
