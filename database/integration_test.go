@@ -5,6 +5,7 @@
 package database
 
 import (
+	"context"
 	"os"
 	"reflect"
 	"strings"
@@ -186,7 +187,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// create the builds
 	for _, build := range resources.Builds {
-		_, err := db.CreateBuild(build)
+		_, err := db.CreateBuild(context.TODO(), build)
 		if err != nil {
 			t.Errorf("unable to create build %d: %v", build.GetID(), err)
 		}
@@ -194,7 +195,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateBuild"] = true
 
 	// count the builds
-	count, err := db.CountBuilds()
+	count, err := db.CountBuilds(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count builds: %v", err)
 	}
@@ -204,7 +205,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuilds"] = true
 
 	// count the builds for a deployment
-	count, err = db.CountBuildsForDeployment(resources.Deployments[0], nil)
+	count, err = db.CountBuildsForDeployment(context.TODO(), resources.Deployments[0], nil)
 	if err != nil {
 		t.Errorf("unable to count builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
 	}
@@ -214,7 +215,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForDeployment"] = true
 
 	// count the builds for an org
-	count, err = db.CountBuildsForOrg(resources.Repos[0].GetOrg(), nil)
+	count, err = db.CountBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil)
 	if err != nil {
 		t.Errorf("unable to count builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -224,7 +225,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForOrg"] = true
 
 	// count the builds for a repo
-	count, err = db.CountBuildsForRepo(resources.Repos[0], nil)
+	count, err = db.CountBuildsForRepo(context.TODO(), resources.Repos[0], nil)
 	if err != nil {
 		t.Errorf("unable to count builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -234,7 +235,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForRepo"] = true
 
 	// count the builds for a status
-	count, err = db.CountBuildsForStatus("running", nil)
+	count, err = db.CountBuildsForStatus(context.TODO(), "running", nil)
 	if err != nil {
 		t.Errorf("unable to count builds for status %s: %v", "running", err)
 	}
@@ -244,7 +245,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["CountBuildsForStatus"] = true
 
 	// list the builds
-	list, err := db.ListBuilds()
+	list, err := db.ListBuilds(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list builds: %v", err)
 	}
@@ -254,7 +255,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuilds"] = true
 
 	// list the builds for a deployment
-	list, count, err = db.ListBuildsForDeployment(resources.Deployments[0], nil, 1, 10)
+	list, count, err = db.ListBuildsForDeployment(context.TODO(), resources.Deployments[0], nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
 	}
@@ -267,7 +268,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuildsForDeployment"] = true
 
 	// list the builds for an org
-	list, count, err = db.ListBuildsForOrg(resources.Repos[0].GetOrg(), nil, 1, 10)
+	list, count, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -280,7 +281,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuildsForOrg"] = true
 
 	// list the builds for a repo
-	list, count, err = db.ListBuildsForRepo(resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
+	list, count, err = db.ListBuildsForRepo(context.TODO(), resources.Repos[0], nil, time.Now().UTC().Unix(), 0, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list builds for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -293,7 +294,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListBuildsForRepo"] = true
 
 	// list the pending and running builds
-	queueList, err := db.ListPendingAndRunningBuilds("0")
+	queueList, err := db.ListPendingAndRunningBuilds(context.TODO(), "0")
 	if err != nil {
 		t.Errorf("unable to list pending and running builds: %v", err)
 	}
@@ -303,7 +304,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["ListPendingAndRunningBuilds"] = true
 
 	// lookup the last build by repo
-	got, err := db.LastBuildForRepo(resources.Repos[0], "main")
+	got, err := db.LastBuildForRepo(context.TODO(), resources.Repos[0], "main")
 	if err != nil {
 		t.Errorf("unable to get last build for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -315,7 +316,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
 		repo := resources.Repos[build.GetRepoID()-1]
-		got, err = db.GetBuildForRepo(repo, build.GetNumber())
+		got, err = db.GetBuildForRepo(context.TODO(), repo, build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
@@ -326,7 +327,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	methods["GetBuildForRepo"] = true
 
 	// clean the builds
-	count, err = db.CleanBuilds("integration testing", 1563474090)
+	count, err = db.CleanBuilds(context.TODO(), "integration testing", 1563474090)
 	if err != nil {
 		t.Errorf("unable to clean builds: %v", err)
 	}
@@ -338,13 +339,13 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// update the builds
 	for _, build := range resources.Builds {
 		build.SetStatus("success")
-		_, err = db.UpdateBuild(build)
+		_, err = db.UpdateBuild(context.TODO(), build)
 		if err != nil {
 			t.Errorf("unable to update build %d: %v", build.GetID(), err)
 		}
 
 		// lookup the build by ID
-		got, err = db.GetBuild(build.GetID())
+		got, err = db.GetBuild(context.TODO(), build.GetID())
 		if err != nil {
 			t.Errorf("unable to get build %d by ID: %v", build.GetID(), err)
 		}
@@ -357,7 +358,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the builds
 	for _, build := range resources.Builds {
-		err = db.DeleteBuild(build)
+		err = db.DeleteBuild(context.TODO(), build)
 		if err != nil {
 			t.Errorf("unable to delete build %d: %v", build.GetID(), err)
 		}
@@ -923,9 +924,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	ctx := context.TODO()
+
 	// create the schedules
 	for _, schedule := range resources.Schedules {
-		_, err := db.CreateSchedule(schedule)
+		_, err := db.CreateSchedule(ctx, schedule)
 		if err != nil {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
@@ -933,7 +936,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateSchedule"] = true
 
 	// count the schedules
-	count, err := db.CountSchedules()
+	count, err := db.CountSchedules(ctx)
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
@@ -943,7 +946,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
-	count, err = db.CountSchedulesForRepo(resources.Repos[0])
+	count, err = db.CountSchedulesForRepo(ctx, resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -953,7 +956,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
-	list, err := db.ListSchedules()
+	list, err := db.ListSchedules(ctx)
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -963,7 +966,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSchedules"] = true
 
 	// list the active schedules
-	list, err = db.ListActiveSchedules()
+	list, err = db.ListActiveSchedules(ctx)
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -973,7 +976,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
-	list, count, err = db.ListSchedulesForRepo(resources.Repos[0], 1, 10)
+	list, count, err = db.ListSchedulesForRepo(ctx, resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -988,7 +991,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
 		repo := resources.Repos[schedule.GetRepoID()-1]
-		got, err := db.GetScheduleForRepo(repo, schedule.GetName())
+		got, err := db.GetScheduleForRepo(ctx, repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
@@ -1001,7 +1004,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
-		got, err := db.UpdateSchedule(schedule, true)
+		got, err := db.UpdateSchedule(ctx, schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1015,7 +1018,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the schedules
 	for _, schedule := range resources.Schedules {
-		err = db.DeleteSchedule(schedule)
+		err = db.DeleteSchedule(ctx, schedule)
 		if err != nil {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}

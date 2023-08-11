@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateSchedule(_schedule)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -66,7 +67,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetSchedule(1)
+			got, err := test.database.GetSchedule(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

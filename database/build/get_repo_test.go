@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -43,7 +44,7 @@ func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(_build)
+	_, err := _sqlite.CreateBuild(context.TODO(), _build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -72,7 +73,7 @@ func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetBuildForRepo(_repo, 1)
+			got, err := test.database.GetBuildForRepo(context.TODO(), _repo, 1)
 
 			if test.failure {
 				if err == nil {
