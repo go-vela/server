@@ -234,6 +234,9 @@ func CustomMetrics(c *gin.Context) {
 //
 //nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func recordGauges(c *gin.Context) {
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// variable to store query parameters
 	q := MetricsQueryParameters{}
 
@@ -269,7 +272,7 @@ func recordGauges(c *gin.Context) {
 	// build_count
 	if q.BuildCount {
 		// send API call to capture the total number of builds
-		b, err := database.FromContext(c).CountBuilds()
+		b, err := database.FromContext(c).CountBuilds(ctx)
 		if err != nil {
 			logrus.Errorf("unable to get count of all builds: %v", err)
 		}
@@ -280,7 +283,7 @@ func recordGauges(c *gin.Context) {
 	// running_build_count
 	if q.RunningBuildCount {
 		// send API call to capture the total number of running builds
-		bRun, err := database.FromContext(c).CountBuildsForStatus("running", nil)
+		bRun, err := database.FromContext(c).CountBuildsForStatus(ctx, "running", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all running builds: %v", err)
 		}
@@ -291,7 +294,7 @@ func recordGauges(c *gin.Context) {
 	// pending_build_count
 	if q.PendingBuildCount {
 		// send API call to capture the total number of pending builds
-		bPen, err := database.FromContext(c).CountBuildsForStatus("pending", nil)
+		bPen, err := database.FromContext(c).CountBuildsForStatus(ctx, "pending", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all pending builds: %v", err)
 		}
@@ -313,7 +316,7 @@ func recordGauges(c *gin.Context) {
 	// failure_build_count
 	if q.FailureBuildCount {
 		// send API call to capture the total number of failure builds
-		bFail, err := database.FromContext(c).CountBuildsForStatus("failure", nil)
+		bFail, err := database.FromContext(c).CountBuildsForStatus(ctx, "failure", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all failure builds: %v", err)
 		}
@@ -324,7 +327,7 @@ func recordGauges(c *gin.Context) {
 	// killed_build_count
 	if q.KilledBuildCount {
 		// send API call to capture the total number of killed builds
-		bKill, err := database.FromContext(c).CountBuildsForStatus("killed", nil)
+		bKill, err := database.FromContext(c).CountBuildsForStatus(ctx, "killed", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all killed builds: %v", err)
 		}
@@ -335,7 +338,7 @@ func recordGauges(c *gin.Context) {
 	// success_build_count
 	if q.SuccessBuildCount {
 		// send API call to capture the total number of success builds
-		bSucc, err := database.FromContext(c).CountBuildsForStatus("success", nil)
+		bSucc, err := database.FromContext(c).CountBuildsForStatus(ctx, "success", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all success builds: %v", err)
 		}
@@ -346,7 +349,7 @@ func recordGauges(c *gin.Context) {
 	// error_build_count
 	if q.ErrorBuildCount {
 		// send API call to capture the total number of error builds
-		bErr, err := database.FromContext(c).CountBuildsForStatus("error", nil)
+		bErr, err := database.FromContext(c).CountBuildsForStatus(ctx, "error", nil)
 		if err != nil {
 			logrus.Errorf("unable to get count of all error builds: %v", err)
 		}

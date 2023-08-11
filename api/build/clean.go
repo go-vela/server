@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -18,14 +19,14 @@ import (
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
-func CleanBuild(database database.Interface, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
+func CleanBuild(ctx context.Context, database database.Interface, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
 	b.SetStatus(constants.StatusError)
 	b.SetFinished(time.Now().UTC().Unix())
 
 	// send API call to update the build
-	b, err := database.UpdateBuild(b)
+	b, err := database.UpdateBuild(ctx, b)
 	if err != nil {
 		logrus.Errorf("unable to kill build %d: %v", b.GetNumber(), err)
 	}
