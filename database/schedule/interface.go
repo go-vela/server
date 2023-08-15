@@ -6,6 +6,7 @@ package schedule
 
 import (
 	"context"
+
 	"github.com/go-vela/types/library"
 )
 
@@ -32,7 +33,7 @@ type ScheduleInterface interface {
 	// CountSchedulesForRepo defines a function that gets the count of schedules by repo ID.
 	CountSchedulesForRepo(context.Context, *library.Repo) (int64, error)
 	// CreateSchedule defines a function that creates a new schedule.
-	CreateSchedule(context.Context, *library.Schedule) error
+	CreateSchedule(context.Context, *library.Schedule) (*library.Schedule, error)
 	// DeleteSchedule defines a function that deletes an existing schedule.
 	DeleteSchedule(context.Context, *library.Schedule) error
 	// GetSchedule defines a function that gets a schedule by ID.
@@ -46,5 +47,5 @@ type ScheduleInterface interface {
 	// ListSchedulesForRepo defines a function that gets a list of schedules by repo ID.
 	ListSchedulesForRepo(context.Context, *library.Repo, int, int) ([]*library.Schedule, int64, error)
 	// UpdateSchedule defines a function that updates an existing schedule.
-	UpdateSchedule(context.Context, *library.Schedule, bool) error
+	UpdateSchedule(context.Context, *library.Schedule, bool) (*library.Schedule, error)
 }

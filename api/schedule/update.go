@@ -129,7 +129,7 @@ func UpdateSchedule(c *gin.Context) {
 	s.SetUpdatedBy(u.GetName())
 
 	// update the schedule within the database
-	err = database.FromContext(c).UpdateSchedule(ctx, s, true)
+	s, err = database.FromContext(c).UpdateSchedule(ctx, s, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update scheduled %s: %w", scheduleName, err)
 
@@ -137,9 +137,6 @@ func UpdateSchedule(c *gin.Context) {
 
 		return
 	}
-
-	// capture the updated scheduled
-	s, _ = database.FromContext(c).GetScheduleForRepo(ctx, r, scheduleName)
 
 	c.JSON(http.StatusOK, s)
 }

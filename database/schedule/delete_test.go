@@ -33,7 +33,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(context.TODO(), _schedule)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
