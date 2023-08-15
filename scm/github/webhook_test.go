@@ -371,6 +371,78 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	}
 }
 
+func TestGithub_ProcessWebhook_Delete(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/delete.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "delete")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("delete")
+	wantHook.SetBranch("test")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics([]string{})
+
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("delete")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetTitle("delete received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetBranch("test")
+	wantBuild.SetRef("refs/heads/test")
+	wantBuild.SetMessage("Branch test deleted")
+
+	want := &types.Webhook{
+		Comment: "",
+		Hook:    wantHook,
+		Repo:    wantRepo,
+		Build:   wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Compile() mismatch (-want +got):\n%s", diff)
+	}
+}
+
 func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	// setup router
 	s := httptest.NewServer(http.NotFoundHandler())

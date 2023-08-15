@@ -34,6 +34,7 @@ const (
   "active": true,
   "allow_pr": false,
   "allow_push": true,
+  "allow_delete": true,
   "allow_deploy": false,
   "allow_tag": false
 }`
@@ -57,6 +58,7 @@ const (
     "active": true,
     "allow_pr": false,
     "allow_push": true,
+    "allow_delete": true,
     "allow_deploy": false,
     "allow_tag": false
   },
@@ -77,6 +79,7 @@ const (
     "active": true,
     "allow_pr": false,
     "allow_push": true,
+    "allow_delete": true,
     "allow_deploy": false,
     "allow_tag": false
   }

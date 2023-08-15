@@ -327,6 +327,7 @@ func (c *client) processDeleteEvent(h *library.Hook, payload *github.DeleteEvent
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
 	b.SetRef(payload.GetRef())
+	b.SetMessage(fmt.Sprintf("Branch %s deleted", b.GetBranch()))
 
 	// update the hook object
 	h.SetBranch(b.GetBranch())

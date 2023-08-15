@@ -51,6 +51,7 @@ func TestOrg_Establish(t *testing.T) {
 	r.SetActive(false)
 	r.SetAllowPull(false)
 	r.SetAllowPush(false)
+	r.SetAllowDelete(false)
 	r.SetAllowDeploy(false)
 	r.SetAllowTag(false)
 	r.SetAllowComment(false)

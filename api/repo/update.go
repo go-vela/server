@@ -180,6 +180,13 @@ func UpdateRepo(c *gin.Context) {
 		eventsChanged = true
 	}
 
+	if input.AllowDelete != nil {
+		// update allow_delete if set
+		r.SetAllowDelete(input.GetAllowDelete())
+
+		eventsChanged = true
+	}
+
 	if input.AllowDeploy != nil {
 		// update allow_deploy if set
 		r.SetAllowDeploy(input.GetAllowDeploy())
@@ -204,9 +211,10 @@ func UpdateRepo(c *gin.Context) {
 	// set default events if no events are enabled
 	if !r.GetAllowPull() && !r.GetAllowPush() &&
 		!r.GetAllowDeploy() && !r.GetAllowTag() &&
-		!r.GetAllowComment() {
+		!r.GetAllowComment() && !r.GetAllowDelete() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
+		r.SetAllowDelete(true)
 	}
 
 	if len(input.GetPipelineType()) != 0 {

@@ -250,6 +250,7 @@ func testRepo() *library.Repo {
 		Active:       new(bool),
 		AllowPull:    new(bool),
 		AllowPush:    new(bool),
+		AllowDelete:  new(bool),
 		AllowDeploy:  new(bool),
 		AllowTag:     new(bool),
 		AllowComment: new(bool),

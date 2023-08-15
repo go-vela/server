@@ -88,6 +88,7 @@ var (
 		Active:      Bool(true),
 		AllowPull:   Bool(false),
 		AllowPush:   Bool(true),
+		AllowDelete: Bool(true),
 		AllowDeploy: Bool(false),
 		AllowTag:    Bool(false),
 	}
