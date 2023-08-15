@@ -928,7 +928,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// create the schedules
 	for _, schedule := range resources.Schedules {
-		err := db.CreateSchedule(ctx, schedule)
+		_, err := db.CreateSchedule(ctx, schedule)
 		if err != nil {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1004,16 +1004,11 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
-		err = db.UpdateSchedule(ctx, schedule, true)
+		got, err := db.UpdateSchedule(ctx, schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
 
-		// lookup the schedule by ID
-		got, err := db.GetSchedule(ctx, schedule.GetID())
-		if err != nil {
-			t.Errorf("unable to get schedule %d by ID: %v", schedule.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, schedule) {
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
 		}
