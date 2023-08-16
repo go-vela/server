@@ -80,6 +80,7 @@ func CancelBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -190,7 +191,7 @@ func CancelBuild(c *gin.Context) {
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
 
-	b, err := database.FromContext(c).UpdateBuild(b)
+	b, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)

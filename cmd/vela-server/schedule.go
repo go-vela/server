@@ -116,7 +116,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		schedule.SetScheduledAt(time.Now().UTC().Unix())
 
 		// send API call to update schedule for ensuring scheduled_at field is set
-		err = database.UpdateSchedule(ctx, schedule, false)
+		_, err = database.UpdateSchedule(ctx, schedule, false)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -173,7 +173,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(r, filters)
+	builds, err := database.CountBuildsForRepo(context.TODO(), r, filters)
 	if err != nil {
 		return fmt.Errorf("unable to get count of builds for repo %s: %w", r.GetFullName(), err)
 	}
@@ -351,7 +351,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = build.PlanBuild(database, p, b, r)
+		err = build.PlanBuild(context.TODO(), database, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -380,13 +380,14 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.GetBuildForRepo(r, b.GetNumber())
+	b, err = database.GetBuildForRepo(context.TODO(), r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
 	go build.PublishToQueue(
+		context.TODO(),
 		queue,
 		database,
 		p,

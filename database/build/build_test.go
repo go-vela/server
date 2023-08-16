@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"database/sql/driver"
 	"reflect"
 	"testing"
@@ -67,6 +68,7 @@ func TestBuild_New(t *testing.T) {
 			want: &engine{
 				client: _postgres,
 				config: &config{SkipCreation: false},
+				ctx:    context.TODO(),
 				logger: logger,
 			},
 		},
@@ -79,6 +81,7 @@ func TestBuild_New(t *testing.T) {
 			want: &engine{
 				client: _sqlite,
 				config: &config{SkipCreation: false},
+				ctx:    context.TODO(),
 				logger: logger,
 			},
 		},
@@ -88,6 +91,7 @@ func TestBuild_New(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
+				WithContext(context.TODO()),
 				WithClient(test.client),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
@@ -140,6 +144,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_engine, err := New(
+		WithContext(context.TODO()),
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
@@ -162,6 +167,7 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	_engine, err := New(
+		WithContext(context.TODO()),
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),

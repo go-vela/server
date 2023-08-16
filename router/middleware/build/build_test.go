@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -89,13 +90,13 @@ func TestBuild_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(want)
+		db.DeleteBuild(context.TODO(), want)
 		db.DeleteRepo(r)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(want)
+	_, _ = db.CreateBuild(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

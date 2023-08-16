@@ -62,7 +62,10 @@ import (
 // CleanResources represents the API handler to
 // update any user stored in the database.
 func CleanResources(c *gin.Context) {
+	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
+
 	logrus.Infof("platform admin %s: updating pending resources in database", u.GetName())
 
 	// default error message
@@ -96,7 +99,7 @@ func CleanResources(c *gin.Context) {
 	}
 
 	// send API call to clean builds
-	builds, err := database.FromContext(c).CleanBuilds(msg, before)
+	builds, err := database.FromContext(c).CleanBuilds(ctx, msg, before)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update builds: %w", err)
 

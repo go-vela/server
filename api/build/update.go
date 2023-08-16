@@ -74,6 +74,7 @@ func UpdateBuild(c *gin.Context) {
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -151,7 +152,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to update the build
-	b, err = database.FromContext(c).UpdateBuild(b)
+	b, err = database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %s: %w", entry, err)
 

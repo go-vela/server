@@ -38,7 +38,7 @@ func TestNative_Delete(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateSecret(sec)
+	_, _ = db.CreateSecret(sec)
 
 	// run test
 	s, err := New(

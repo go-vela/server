@@ -6,7 +6,6 @@ package webhook
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -76,11 +75,12 @@ func PostWebhook(c *gin.Context) {
 
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
+	ctx := c.Request.Context()
 
 	// duplicate request so we can perform operations on the request body
 	//
 	// https://golang.org/pkg/net/http/#Request.Clone
-	dupRequest := c.Request.Clone(context.TODO())
+	dupRequest := c.Request.Clone(ctx)
 
 	// -------------------- Start of TODO: --------------------
 	//
@@ -313,7 +313,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).CountBuildsForRepo(repo, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(ctx, repo, filters)
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, repo.GetFullName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -591,7 +591,7 @@ func PostWebhook(c *gin.Context) {
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = build.PlanBuild(database.FromContext(c), p, b, repo)
+		err = build.PlanBuild(ctx, database.FromContext(c), p, b, repo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
@@ -655,7 +655,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.FromContext(c).GetBuildForRepo(repo, b.GetNumber())
+	b, err = database.FromContext(c).GetBuildForRepo(ctx, repo, b.GetNumber())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, repo.GetFullName(), b.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -679,6 +679,7 @@ func PostWebhook(c *gin.Context) {
 
 	// publish the build to the queue
 	go build.PublishToQueue(
+		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,
@@ -782,6 +783,10 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 // associated with that repo as well as build links for the UI.
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
+
+	// capture context from gin
+	ctx := c.Request.Context()
+
 	// get the old name of the repo
 	prevOrg, prevRepo := util.SplitFullName(r.GetPreviousName())
 
@@ -844,14 +849,14 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 		secret.SetOrg(r.GetOrg())
 		secret.SetRepo(r.GetName())
 
-		err = database.FromContext(c).UpdateSecret(secret)
+		_, err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", prevOrg, prevRepo, err)
 		}
 	}
 
 	// get total number of builds associated with repository
-	t, err = database.FromContext(c).CountBuildsForRepo(dbR, nil)
+	t, err = database.FromContext(c).CountBuildsForRepo(ctx, dbR, nil)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
 	}
@@ -860,7 +865,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	page = 1
 	// capture all builds belonging to repo in database
 	for build := int64(0); build < t; build += 100 {
-		b, _, err := database.FromContext(c).ListBuildsForRepo(dbR, nil, time.Now().Unix(), 0, page, 100)
+		b, _, err := database.FromContext(c).ListBuildsForRepo(ctx, dbR, nil, time.Now().Unix(), 0, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get build list for repo %s: %w", dbR.GetFullName(), err)
 		}
@@ -876,7 +881,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 			fmt.Sprintf("%s/%s/%d", m.Vela.WebAddress, r.GetFullName(), build.GetNumber()),
 		)
 
-		_, err = database.FromContext(c).UpdateBuild(build)
+		_, err = database.FromContext(c).UpdateBuild(ctx, build)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update build for repo %s: %w", dbR.GetFullName(), err)
 		}

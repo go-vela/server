@@ -86,6 +86,7 @@ func RestartBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -117,7 +118,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -312,7 +313,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = PlanBuild(database.FromContext(c), p, b, r)
+	err = PlanBuild(ctx, database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -329,7 +330,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the restarted build
-	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
+	b, _ = database.FromContext(c).GetBuildForRepo(ctx, r, b.GetNumber())
 
 	c.JSON(http.StatusCreated, b)
 
@@ -341,6 +342,7 @@ func RestartBuild(c *gin.Context) {
 
 	// publish the build to the queue
 	go PublishToQueue(
+		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,

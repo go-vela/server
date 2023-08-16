@@ -4,6 +4,8 @@
 
 package build
 
+import "context"
+
 const (
 	// CreateCreatedIndex represents a query to create an
 	// index on the builds table for the created column.
@@ -43,7 +45,7 @@ ON builds (status);
 )
 
 // CreateBuildIndexes creates the indexes for the builds table in the database.
-func (e *engine) CreateBuildIndexes() error {
+func (e *engine) CreateBuildIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for builds table in the database")
 
 	// create the created column index for the builds table
