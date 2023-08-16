@@ -66,7 +66,7 @@ func UpdateSecret(c *gin.Context) {
 	}
 
 	// send API call to update the secret
-	err = database.FromContext(c).UpdateSecret(input)
+	s, err := database.FromContext(c).UpdateSecret(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update secret %d: %w", input.GetID(), err)
 
@@ -75,5 +75,5 @@ func UpdateSecret(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, input)
+	c.JSON(http.StatusOK, s)
 }

@@ -1053,7 +1053,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 
 	// create the secrets
 	for _, secret := range resources.Secrets {
-		err := db.CreateSecret(secret)
+		_, err := db.CreateSecret(secret)
 		if err != nil {
 			t.Errorf("unable to create secret %d: %v", secret.GetID(), err)
 		}
@@ -1226,16 +1226,11 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	// update the secrets
 	for _, secret := range resources.Secrets {
 		secret.SetUpdatedAt(time.Now().UTC().Unix())
-		err = db.UpdateSecret(secret)
+		got, err := db.UpdateSecret(secret)
 		if err != nil {
 			t.Errorf("unable to update secret %d: %v", secret.GetID(), err)
 		}
 
-		// lookup the secret by ID
-		got, err := db.GetSecret(secret.GetID())
-		if err != nil {
-			t.Errorf("unable to get secret %d by ID: %v", secret.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, secret) {
 			t.Errorf("GetSecret() is %v, want %v", got, secret)
 		}
