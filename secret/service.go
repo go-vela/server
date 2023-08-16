@@ -22,9 +22,9 @@ type Service interface {
 	// Count defines a function that counts a list of secrets.
 	Count(string, string, string, []string) (int64, error)
 	// Create defines a function that creates a new secret.
-	Create(string, string, string, *library.Secret) error
+	Create(string, string, string, *library.Secret) (*library.Secret, error)
 	// Update defines a function that updates an existing secret.
-	Update(string, string, string, *library.Secret) error
+	Update(string, string, string, *library.Secret) (*library.Secret, error)
 	// Delete defines a function that deletes a secret.
 	Delete(string, string, string, string) error
 

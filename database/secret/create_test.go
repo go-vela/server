@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -127,7 +128,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateSecret(test.secret)
+			got, err := test.database.CreateSecret(test.secret)
 
 			if test.failure {
 				if err == nil {
@@ -139,6 +140,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("CreateSecret for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, test.secret) {
+				t.Errorf("CreateSecret is %s, want %s", got, test.secret)
 			}
 		})
 	}

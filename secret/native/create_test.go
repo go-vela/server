@@ -49,12 +49,10 @@ func TestNative_Create_Org(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("org", "foo", "*", want)
+	got, err := s.Create("org", "foo", "*", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
-
-	got, _ := s.Get("org", "foo", "*", "bar")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -98,12 +96,10 @@ func TestNative_Create_Repo(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("repo", "foo", "bar", want)
+	got, err := s.Create("repo", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
-
-	got, _ := s.Get("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -147,12 +143,10 @@ func TestNative_Create_Shared(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("shared", "foo", "bar", want)
+	got, err := s.Create("shared", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
-
-	got, _ := s.Get("shared", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -196,7 +190,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("invalid", "foo", "bar", sec)
+	_, err = s.Create("invalid", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Create should have returned err")
 	}
