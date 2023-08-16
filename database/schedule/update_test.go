@@ -6,8 +6,8 @@ package schedule
 
 import (
 	"context"
+	"reflect"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
@@ -36,15 +36,13 @@ func TestSchedule_Engine_UpdateSchedule_Config(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "schedules"
 SET "repo_id"=$1,"active"=$2,"name"=$3,"entry"=$4,"created_at"=$5,"created_by"=$6,"updated_at"=$7,"updated_by"=$8,"scheduled_at"=$9
 WHERE "id" = $10`).
-		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", time.Now().UTC().Unix(), "user2", nil, 1).
+		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", NowTimestamp{}, "user2", nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	ctx := context.TODO()
-
-	err := _sqlite.CreateSchedule(ctx, _schedule)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -70,7 +68,8 @@ WHERE "id" = $10`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule, true)
+			got, err := test.database.UpdateSchedule(context.TODO(), _schedule, true)
+			_schedule.SetUpdatedAt(got.GetUpdatedAt())
 
 			if test.failure {
 				if err == nil {
@@ -82,6 +81,10 @@ WHERE "id" = $10`).
 
 			if err != nil {
 				t.Errorf("UpdateSchedule for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _schedule) {
+				t.Errorf("UpdateSchedule for %s returned %s, want %s", test.name, got, _schedule)
 			}
 		})
 	}
@@ -116,9 +119,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	ctx := context.TODO()
-
-	err := _sqlite.CreateSchedule(ctx, _schedule)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -144,7 +145,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateSchedule(_schedule, false)
+			got, err := test.database.UpdateSchedule(context.TODO(), _schedule, false)
 
 			if test.failure {
 				if err == nil {
@@ -156,6 +157,10 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("UpdateSchedule for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _schedule) {
+				t.Errorf("CreateSchedule for %s returned %s, want %s", test.name, got, _schedule)
 			}
 		})
 	}

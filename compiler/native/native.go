@@ -34,14 +34,15 @@ type client struct {
 	CloneImage          string
 	TemplateDepth       int
 
-	build    *library.Build
-	comment  string
-	commit   string
-	files    []string
-	local    bool
-	metadata *types.Metadata
-	repo     *library.Repo
-	user     *library.User
+	build          *library.Build
+	comment        string
+	commit         string
+	files          []string
+	local          bool
+	localTemplates []string
+	metadata       *types.Metadata
+	repo           *library.Repo
+	user           *library.User
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -157,6 +158,13 @@ func (c *client) WithFiles(f []string) compiler.Engine {
 // WithLocal sets the compiler metadata type in the Engine.
 func (c *client) WithLocal(local bool) compiler.Engine {
 	c.local = local
+
+	return c
+}
+
+// WithLocalTemplates sets the compiler local templates in the Engine.
+func (c *client) WithLocalTemplates(templates []string) compiler.Engine {
+	c.localTemplates = templates
 
 	return c
 }

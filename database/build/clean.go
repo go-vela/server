@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-vela/types/constants"
@@ -14,7 +15,7 @@ import (
 )
 
 // CleanBuilds updates builds to an error with a provided message with a created timestamp prior to a defined moment.
-func (e *engine) CleanBuilds(msg string, before int64) (int64, error) {
+func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int64, error) {
 	logrus.Tracef("cleaning pending or running builds in the database created prior to %d", before)
 
 	b := new(library.Build)

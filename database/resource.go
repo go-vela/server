@@ -5,6 +5,7 @@
 package database
 
 import (
+	"context"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -19,11 +20,12 @@ import (
 )
 
 // NewResources creates and returns the database agnostic engines for resources.
-func (e *engine) NewResources() error {
+func (e *engine) NewResources(ctx context.Context) error {
 	var err error
 
 	// create the database agnostic engine for builds
 	e.BuildInterface, err = build.New(
+		build.WithContext(e.ctx),
 		build.WithClient(e.client),
 		build.WithLogger(e.logger),
 		build.WithSkipCreation(e.config.SkipCreation),
@@ -77,6 +79,7 @@ func (e *engine) NewResources() error {
 
 	// create the database agnostic engine for schedules
 	e.ScheduleInterface, err = schedule.New(
+		schedule.WithContext(e.ctx),
 		schedule.WithClient(e.client),
 		schedule.WithLogger(e.logger),
 		schedule.WithSkipCreation(e.config.SkipCreation),

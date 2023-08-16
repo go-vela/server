@@ -51,14 +51,12 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	ctx := context.TODO()
-
-	err := _sqlite.CreateSchedule(ctx, _scheduleOne)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _scheduleOne)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateSchedule(ctx, _scheduleTwo)
+	_, err = _sqlite.CreateSchedule(context.TODO(), _scheduleTwo)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -87,7 +85,7 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountSchedulesForRepo(_repo)
+			got, err := test.database.CountSchedulesForRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {

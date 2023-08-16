@@ -36,6 +36,14 @@ func Test_validateEntry(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "exceeds minimum frequency with scalene entry pattern",
+			args: args{
+				minimum: 30 * time.Minute,
+				entry:   "1,2,45 * * * *",
+			},
+			wantErr: true,
+		},
+		{
 			name: "meets minimum frequency",
 			args: args{
 				minimum: 30 * time.Second,
@@ -48,6 +56,14 @@ func Test_validateEntry(t *testing.T) {
 			args: args{
 				minimum: 30 * time.Second,
 				entry:   "@hourly",
+			},
+			wantErr: false,
+		},
+		{
+			name: "meets minimum frequency with comma entry pattern",
+			args: args{
+				minimum: 15 * time.Minute,
+				entry:   "0,15,30,45 * * * *",
 			},
 			wantErr: false,
 		},

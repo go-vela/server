@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +13,7 @@ import (
 )
 
 // DeleteSchedule deletes an existing schedule from the database.
-func (e *engine) DeleteSchedule(s *library.Schedule) error {
+func (e *engine) DeleteSchedule(ctx context.Context, s *library.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("deleting schedule %s in the database", s.GetName())

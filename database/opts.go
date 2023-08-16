@@ -7,6 +7,8 @@ package database
 import (
 	"time"
 
+	"context"
+
 	"github.com/go-vela/server/tracing"
 )
 
@@ -98,6 +100,15 @@ func WithTracingConfig(tracing *tracing.Config) EngineOpt {
 	return func(e *engine) error {
 		// set the tracing config
 		e.tracing = tracing
+
+		return nil
+	}
+}
+
+// WithContext sets the context in the database engine.
+func WithContext(ctx context.Context) EngineOpt {
+	return func(e *engine) error {
+		e.ctx = ctx
 
 		return nil
 	}

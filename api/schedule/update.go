@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/schedule"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
@@ -73,6 +74,8 @@ func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
 	s := schedule.Retrieve(c)
+	ctx := c.Request.Context()
+	u := user.Retrieve(c)
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
@@ -122,8 +125,11 @@ func UpdateSchedule(c *gin.Context) {
 		s.SetEntry(input.GetEntry())
 	}
 
+	// set the updated by field using claims
+	s.SetUpdatedBy(u.GetName())
+
 	// update the schedule within the database
-	err = database.FromContext(c).UpdateSchedule(s, true)
+	s, err = database.FromContext(c).UpdateSchedule(ctx, s, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update scheduled %s: %w", scheduleName, err)
 
@@ -131,9 +137,6 @@ func UpdateSchedule(c *gin.Context) {
 
 		return
 	}
-
-	// capture the updated scheduled
-	s, _ = database.FromContext(c).GetScheduleForRepo(r, scheduleName)
 
 	c.JSON(http.StatusOK, s)
 }

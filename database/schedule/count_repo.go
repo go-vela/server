@@ -5,13 +5,14 @@
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // CountSchedulesForRepo gets the count of schedules by repo ID from the database.
-func (e *engine) CountSchedulesForRepo(r *library.Repo) (int64, error) {
+func (e *engine) CountSchedulesForRepo(ctx context.Context, r *library.Repo) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

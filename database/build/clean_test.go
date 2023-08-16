@@ -5,9 +5,9 @@
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
@@ -48,28 +48,28 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 
 	// ensure the mock expects the name query
 	_mock.ExpectExec(`UPDATE "builds" SET "status"=$1,"error"=$2,"finished"=$3,"deploy_payload"=$4 WHERE created < $5 AND (status = 'running' OR status = 'pending')`).
-		WithArgs("error", "msg", time.Now().UTC().Unix(), AnyArgument{}, 3).
+		WithArgs("error", "msg", NowTimestamp{}, AnyArgument{}, 3).
 		WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(_buildOne)
+	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(_buildTwo)
+	_, err = _sqlite.CreateBuild(context.TODO(), _buildTwo)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(_buildThree)
+	_, err = _sqlite.CreateBuild(context.TODO(), _buildThree)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(_buildFour)
+	_, err = _sqlite.CreateBuild(context.TODO(), _buildFour)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -98,7 +98,7 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CleanBuilds("msg", 3)
+			got, err := test.database.CleanBuilds(context.TODO(), "msg", 3)
 
 			if test.failure {
 				if err == nil {

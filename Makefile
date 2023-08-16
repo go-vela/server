@@ -91,6 +91,13 @@ fix:
 	@echo "### Fixing Go Code"
 	@go fix ./...
 
+# The `integration-test` target is intended to run all integration tests for the Go source code.
+.PHONY: integration-test
+integration-test:
+	@echo
+	@echo "### Integration Testing"
+	INTEGRATION=1 go test -run TestDatabase_Integration ./...
+
 # The `test` target is intended to run
 # the tests for the Go source code.
 #
@@ -99,7 +106,7 @@ fix:
 test:
 	@echo
 	@echo "### Testing Go Code"
-	@go test -race ./...
+	@go test -race -covermode=atomic -coverprofile=coverage.out ./...
 
 # The `test-cover` target is intended to run
 # the tests for the Go source code and then
@@ -107,10 +114,7 @@ test:
 #
 # Usage: `make test-cover`
 .PHONY: test-cover
-test-cover:
-	@echo
-	@echo "### Creating test coverage report"
-	@go test -race -covermode=atomic -coverprofile=coverage.out ./...
+test-cover: test
 	@echo
 	@echo "### Opening test coverage report"
 	@go tool cover -html=coverage.out
