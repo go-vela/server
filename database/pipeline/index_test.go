@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestPipeline_Engine_CreatePipelineIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreatePipelineIndexes()
+			err := test.database.CreatePipelineIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {

@@ -58,6 +58,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for pipelines
 	e.PipelineInterface, err = pipeline.New(
+		pipeline.WithContext(e.ctx),
 		pipeline.WithClient(e.client),
 		pipeline.WithCompressionLevel(e.config.CompressionLevel),
 		pipeline.WithLogger(e.logger),
