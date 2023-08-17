@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -62,7 +63,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CreateRepo(_repo)
+			got, err := test.database.CreateRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {
