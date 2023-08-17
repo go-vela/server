@@ -5,6 +5,8 @@
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // GetRepoForOrg gets a repo by org and repo name from the database.
-func (e *engine) GetRepoForOrg(org, name string) (*library.Repo, error) {
+func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
