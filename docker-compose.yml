@@ -160,7 +160,7 @@ services:
      - IPC_LOCK
 
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.48
     container_name: jaeger
     networks:
       - vela

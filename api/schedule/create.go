@@ -17,6 +17,8 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // swagger:operation POST /api/v1/schedules/{org}/{repo} schedules CreateSchedule
@@ -190,6 +192,10 @@ func CreateSchedule(c *gin.Context) {
 			return
 		}
 	}
+
+	span := trace.SpanFromContext(ctx)
+
+	span.AddEvent("Compiling build information", trace.WithAttributes(attribute.Int("num_steps", 69)))
 
 	c.JSON(http.StatusCreated, s)
 }

@@ -25,6 +25,8 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var baseErr = "unable to process webhook"
@@ -527,6 +529,14 @@ func PostWebhook(c *gin.Context) {
 
 			return
 		}
+
+		// todo: create custom span
+		// todo: attach something from the compiled pipeline to the span
+		// todo: start with like... num_steps?
+
+		span := trace.SpanFromContext(ctx)
+
+		span.AddEvent("Compiling build information", trace.WithAttributes(attribute.Int("num_steps", len(p.Steps))))
 
 		// reset the pipeline type for the repo
 		//
