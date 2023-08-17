@@ -664,7 +664,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 
 	// create the pipelines
 	for _, pipeline := range resources.Pipelines {
-		_, err := db.CreatePipeline(pipeline)
+		_, err := db.CreatePipeline(context.TODO(), pipeline)
 		if err != nil {
 			t.Errorf("unable to create pipeline %d: %v", pipeline.GetID(), err)
 		}
@@ -672,7 +672,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	methods["CreatePipeline"] = true
 
 	// count the pipelines
-	count, err := db.CountPipelines()
+	count, err := db.CountPipelines(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count pipelines: %v", err)
 	}
@@ -682,7 +682,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	methods["CountPipelines"] = true
 
 	// count the pipelines for a repo
-	count, err = db.CountPipelinesForRepo(resources.Repos[0])
+	count, err = db.CountPipelinesForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -692,7 +692,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	methods["CountPipelinesForRepo"] = true
 
 	// list the pipelines
-	list, err := db.ListPipelines()
+	list, err := db.ListPipelines(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list pipelines: %v", err)
 	}
@@ -702,7 +702,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	methods["ListPipelines"] = true
 
 	// list the pipelines for a repo
-	list, count, err = db.ListPipelinesForRepo(resources.Repos[0], 1, 10)
+	list, count, err = db.ListPipelinesForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to list pipelines for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -717,7 +717,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	// lookup the pipelines by name
 	for _, pipeline := range resources.Pipelines {
 		repo := resources.Repos[pipeline.GetRepoID()-1]
-		got, err := db.GetPipelineForRepo(pipeline.GetCommit(), repo)
+		got, err := db.GetPipelineForRepo(context.TODO(), pipeline.GetCommit(), repo)
 		if err != nil {
 			t.Errorf("unable to get pipeline %d for repo %d: %v", pipeline.GetID(), repo.GetID(), err)
 		}
@@ -730,13 +730,13 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	// update the pipelines
 	for _, pipeline := range resources.Pipelines {
 		pipeline.SetVersion("2")
-		_, err = db.UpdatePipeline(pipeline)
+		_, err = db.UpdatePipeline(context.TODO(), pipeline)
 		if err != nil {
 			t.Errorf("unable to update pipeline %d: %v", pipeline.GetID(), err)
 		}
 
 		// lookup the pipeline by ID
-		got, err := db.GetPipeline(pipeline.GetID())
+		got, err := db.GetPipeline(context.TODO(), pipeline.GetID())
 		if err != nil {
 			t.Errorf("unable to get pipeline %d by ID: %v", pipeline.GetID(), err)
 		}
@@ -749,7 +749,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the pipelines
 	for _, pipeline := range resources.Pipelines {
-		err = db.DeletePipeline(pipeline)
+		err = db.DeletePipeline(context.TODO(), pipeline)
 		if err != nil {
 			t.Errorf("unable to delete pipeline %d: %v", pipeline.GetID(), err)
 		}

@@ -5,13 +5,15 @@
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetPipeline gets a pipeline by ID from the database.
-func (e *engine) GetPipeline(id int64) (*library.Pipeline, error) {
+func (e *engine) GetPipeline(ctx context.Context, id int64) (*library.Pipeline, error) {
 	e.logger.Tracef("getting pipeline %d from the database", id)
 
 	// variable to store query results

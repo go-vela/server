@@ -237,7 +237,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.GetPipelineForRepo(b.GetCommit(), r)
+		pipeline, err = database.GetPipelineForRepo(context.TODO(), b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
 			config, err = scm.ConfigBackoff(u, r, b.GetCommit())
@@ -326,7 +326,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.CreatePipeline(pipeline)
+			pipeline, err = database.CreatePipeline(context.TODO(), pipeline)
 			if err != nil {
 				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 

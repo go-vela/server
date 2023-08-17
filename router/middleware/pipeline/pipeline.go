@@ -32,6 +32,7 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		if r == nil {
 			retErr := fmt.Errorf("repo %s/%s not found", util.PathParameter(c, "org"), util.PathParameter(c, "repo"))
@@ -62,7 +63,7 @@ func Establish() gin.HandlerFunc {
 			"user":     u.GetName(),
 		}).Debugf("reading pipeline %s", entry)
 
-		pipeline, err := database.FromContext(c).GetPipelineForRepo(p, r)
+		pipeline, err := database.FromContext(c).GetPipelineForRepo(ctx, p, r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 			// send API call to capture the pipeline configuration file
 			config, err := scm.FromContext(c).ConfigBackoff(u, r, p)

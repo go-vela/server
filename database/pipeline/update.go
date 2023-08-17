@@ -5,6 +5,8 @@
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // UpdatePipeline updates an existing pipeline in the database.
-func (e *engine) UpdatePipeline(p *library.Pipeline) (*library.Pipeline, error) {
+func (e *engine) UpdatePipeline(ctx context.Context, p *library.Pipeline) (*library.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("updating pipeline %s in the database", p.GetCommit())

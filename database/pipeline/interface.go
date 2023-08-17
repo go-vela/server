@@ -5,6 +5,8 @@
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/library"
 )
 
@@ -18,30 +20,30 @@ type PipelineInterface interface {
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
 	// CreatePipelineIndexes defines a function that creates the indexes for the pipelines table.
-	CreatePipelineIndexes() error
+	CreatePipelineIndexes(context.Context) error
 	// CreatePipelineTable defines a function that creates the pipelines table.
-	CreatePipelineTable(string) error
+	CreatePipelineTable(context.Context, string) error
 
 	// Pipeline Data Manipulation Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CountPipelines defines a function that gets the count of all pipelines.
-	CountPipelines() (int64, error)
+	CountPipelines(context.Context) (int64, error)
 	// CountPipelinesForRepo defines a function that gets the count of pipelines by repo ID.
-	CountPipelinesForRepo(*library.Repo) (int64, error)
+	CountPipelinesForRepo(context.Context, *library.Repo) (int64, error)
 	// CreatePipeline defines a function that creates a new pipeline.
-	CreatePipeline(*library.Pipeline) (*library.Pipeline, error)
+	CreatePipeline(context.Context, *library.Pipeline) (*library.Pipeline, error)
 	// DeletePipeline defines a function that deletes an existing pipeline.
-	DeletePipeline(*library.Pipeline) error
+	DeletePipeline(context.Context, *library.Pipeline) error
 	// GetPipeline defines a function that gets a pipeline by ID.
-	GetPipeline(int64) (*library.Pipeline, error)
+	GetPipeline(context.Context, int64) (*library.Pipeline, error)
 	// GetPipelineForRepo defines a function that gets a pipeline by commit SHA and repo ID.
-	GetPipelineForRepo(string, *library.Repo) (*library.Pipeline, error)
+	GetPipelineForRepo(context.Context, string, *library.Repo) (*library.Pipeline, error)
 	// ListPipelines defines a function that gets a list of all pipelines.
-	ListPipelines() ([]*library.Pipeline, error)
+	ListPipelines(context.Context) ([]*library.Pipeline, error)
 	// ListPipelinesForRepo defines a function that gets a list of pipelines by repo ID.
-	ListPipelinesForRepo(*library.Repo, int, int) ([]*library.Pipeline, int64, error)
+	ListPipelinesForRepo(context.Context, *library.Repo, int, int) ([]*library.Pipeline, int64, error)
 	// UpdatePipeline defines a function that updates an existing pipeline.
-	UpdatePipeline(*library.Pipeline) (*library.Pipeline, error)
+	UpdatePipeline(context.Context, *library.Pipeline) (*library.Pipeline, error)
 }

@@ -5,13 +5,15 @@
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListPipelines gets a list of all pipelines from the database.
-func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
+func (e *engine) ListPipelines(ctx context.Context) ([]*library.Pipeline, error) {
 	e.logger.Trace("listing all pipelines from the database")
 
 	// variables to store query results and return value
@@ -20,7 +22,7 @@ func (e *engine) ListPipelines() ([]*library.Pipeline, error) {
 	pipelines := []*library.Pipeline{}
 
 	// count the results
-	count, err := e.CountPipelines()
+	count, err := e.CountPipelines(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -427,7 +427,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), repo)
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), repo)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
 			config, err = scm.FromContext(c).ConfigBackoff(u, repo, b.GetCommit())
@@ -562,7 +562,7 @@ func PostWebhook(c *gin.Context) {
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+			pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 

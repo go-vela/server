@@ -70,6 +70,7 @@ func CreatePipeline(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -98,7 +99,7 @@ func CreatePipeline(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the pipeline
-	p, err := database.FromContext(c).CreatePipeline(input)
+	p, err := database.FromContext(c).CreatePipeline(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create pipeline %s/%s: %w", r.GetFullName(), input.GetCommit(), err)
 

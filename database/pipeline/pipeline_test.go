@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"database/sql/driver"
 	"reflect"
 	"testing"
@@ -65,6 +66,7 @@ func TestPipeline_New(t *testing.T) {
 			want: &engine{
 				client: _postgres,
 				config: &config{CompressionLevel: 1, SkipCreation: false},
+				ctx:    context.TODO(),
 				logger: logger,
 			},
 		},
@@ -78,6 +80,7 @@ func TestPipeline_New(t *testing.T) {
 			want: &engine{
 				client: _sqlite,
 				config: &config{CompressionLevel: 1, SkipCreation: false},
+				ctx:    context.TODO(),
 				logger: logger,
 			},
 		},
@@ -87,6 +90,7 @@ func TestPipeline_New(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
+				WithContext(context.TODO()),
 				WithClient(test.client),
 				WithCompressionLevel(test.level),
 				WithLogger(test.logger),
