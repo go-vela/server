@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestRepo_Engine_CreateRepoTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateRepoTable(test.name)
+			err := test.database.CreateRepoTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

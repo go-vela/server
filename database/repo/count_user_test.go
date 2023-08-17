@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -49,12 +50,12 @@ func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateRepo(_repoOne)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repoOne)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateRepo(_repoTwo)
+	_, err = _sqlite.CreateRepo(context.TODO(), _repoTwo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -85,7 +86,7 @@ func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountReposForUser(_user, filters)
+			got, err := test.database.CountReposForUser(context.TODO(), _user, filters)
 
 			if test.failure {
 				if err == nil {

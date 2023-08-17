@@ -88,6 +88,7 @@ func ListReposForOrg(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -141,7 +142,7 @@ func ListReposForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the org
-	r, t, err := database.FromContext(c).ListReposForOrg(o, sortBy, filters, page, perPage)
+	r, t, err := database.FromContext(c).ListReposForOrg(ctx, o, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for org %s: %w", o, err)
 

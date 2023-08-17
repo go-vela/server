@@ -90,7 +90,7 @@ func GetBuildByID(c *gin.Context) {
 	}
 
 	// Get repo from database using repo ID field from build
-	r, err = database.FromContext(c).GetRepo(b.GetRepoID())
+	r, err = database.FromContext(c).GetRepo(ctx, b.GetRepoID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo: %w", err)
 
