@@ -116,7 +116,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		schedule.SetScheduledAt(time.Now().UTC().Unix())
 
 		// send API call to update schedule for ensuring scheduled_at field is set
-		err = database.UpdateSchedule(ctx, schedule, false)
+		_, err = database.UpdateSchedule(ctx, schedule, false)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 

@@ -15,7 +15,7 @@ import (
 )
 
 // CreateSecret creates a new secret in the database.
-func (e *engine) CreateSecret(s *library.Secret) error {
+func (e *engine) CreateSecret(s *library.Secret) (*library.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:
@@ -44,7 +44,7 @@ func (e *engine) CreateSecret(s *library.Secret) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Validate
 	err := secret.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// encrypt the fields for the secret
@@ -54,15 +54,29 @@ func (e *engine) CreateSecret(s *library.Secret) error {
 	if err != nil {
 		switch s.GetType() {
 		case constants.SecretShared:
-			return fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
+			return nil, fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
 		default:
-			return fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+			return nil, fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
 		}
 	}
 
-	// send query to the database
-	return e.client.
-		Table(constants.TableSecret).
-		Create(secret.Nullify()).
-		Error
+	// create secret record
+	result := e.client.Table(constants.TableSecret).Create(secret.Nullify())
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// decrypt the fields for the secret to return
+	err = secret.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		switch s.GetType() {
+		case constants.SecretShared:
+			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
+		default:
+			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+		}
+	}
+
+	return secret.ToLibrary(), nil
 }

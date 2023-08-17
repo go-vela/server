@@ -7,6 +7,7 @@ package vault
 import (
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/go-vela/types/library"
@@ -22,31 +23,37 @@ func TestVault_Update_Org(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
+	engine.PUT("/v1/secret/org/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v1/org.json")
+	})
 	engine.GET("/v1/secret/org/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v1/org.json")
 	})
-	engine.PUT("/v1/secret/org/foo/bar", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
+	engine.PUT("/v1/secret/data/org/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/org.json")
+	})
 	engine.GET("/v1/secret/data/org/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/org.json")
 	})
-	engine.PUT("/v1/secret/data/org/foo/bar", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
-	engine.GET("/v1/secret/data/prefix/org/foo/bar", func(c *gin.Context) {
+	engine.PUT("/v1/secret/data/prefix/org/foo/bar", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/org.json")
 	})
-	engine.PUT("/v1/secret/data/prefix/org/foo/bar", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
+	engine.GET("/v1/secret/data/prefix/org/foo/bar", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/org.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -56,13 +63,11 @@ func TestVault_Update_Org(t *testing.T) {
 	sec := new(library.Secret)
 	sec.SetOrg("foo")
 	sec.SetRepo("*")
-	sec.SetTeam("")
 	sec.SetName("bar")
 	sec.SetValue("baz")
 	sec.SetType("org")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
-	sec.SetAllowCommand(false)
 
 	type args struct {
 		version string
@@ -93,7 +98,7 @@ func TestVault_Update_Org(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("org", "foo", "*", sec)
+			got, err := s.Update("org", "foo", "*", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -101,6 +106,10 @@ func TestVault_Update_Org(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("Update returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, sec) {
+				t.Errorf("Update returned %s, want %s", got, sec)
 			}
 		})
 	}
@@ -114,31 +123,37 @@ func TestVault_Update_Repo(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
+	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v1/repo.json")
+	})
 	engine.GET("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v1/repo.json")
 	})
-	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
+	engine.PUT("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/repo.json")
+	})
 	engine.GET("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/repo.json")
 	})
-	engine.PUT("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
-	engine.GET("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
+	engine.PUT("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/repo.json")
 	})
-	engine.PUT("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
+	engine.GET("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/repo.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -153,7 +168,6 @@ func TestVault_Update_Repo(t *testing.T) {
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
-	sec.SetAllowCommand(false)
 
 	type args struct {
 		version string
@@ -184,7 +198,7 @@ func TestVault_Update_Repo(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("repo", "foo", "bar", sec)
+			got, err := s.Update("repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -192,6 +206,10 @@ func TestVault_Update_Repo(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("Update returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, sec) {
+				t.Errorf("Update returned %s, want %s", got, sec)
 			}
 		})
 	}
@@ -205,31 +223,37 @@ func TestVault_Update_Shared(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
+	engine.PUT("/v1/secret/shared/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v1/shared.json")
+	})
 	engine.GET("/v1/secret/shared/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v1/shared.json")
 	})
-	engine.PUT("/v1/secret/shared/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
+	engine.PUT("/v1/secret/data/shared/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/shared.json")
+	})
 	engine.GET("/v1/secret/data/shared/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/shared.json")
 	})
-	engine.PUT("/v1/secret/data/shared/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
-	engine.GET("/v1/secret/data/prefix/shared/foo/bar/baz", func(c *gin.Context) {
+	engine.PUT("/v1/secret/data/prefix/shared/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/shared.json")
 	})
-	engine.PUT("/v1/secret/data/prefix/shared/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
+	engine.GET("/v1/secret/data/prefix/shared/foo/bar/baz", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/shared.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -244,7 +268,6 @@ func TestVault_Update_Shared(t *testing.T) {
 	sec.SetType("shared")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
-	sec.SetAllowCommand(false)
 
 	type args struct {
 		version string
@@ -275,7 +298,7 @@ func TestVault_Update_Shared(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("shared", "foo", "bar", sec)
+			got, err := s.Update("shared", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -283,6 +306,10 @@ func TestVault_Update_Shared(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("Update returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, sec) {
+				t.Errorf("Update returned %s, want %s", got, sec)
 			}
 		})
 	}
@@ -296,31 +323,22 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
+	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v1/invalid_repo.json")
 	})
-	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
 
-	engine.GET("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/v2/invalid_repo.json")
-	})
 	engine.PUT("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
-	})
-
-	engine.GET("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/v2/invalid_repo.json")
 	})
+
 	engine.PUT("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
-		c.String(http.StatusNoContent, "")
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/v2/invalid_repo.json")
 	})
 
 	fake := httptest.NewServer(engine)
@@ -366,7 +384,7 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("repo", "foo", "bar", sec)
+			_, err = s.Update("repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -423,7 +441,7 @@ func TestVault_Update_InvalidType(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("invalid", "foo", "bar", sec)
+			_, err = s.Update("invalid", "foo", "bar", sec)
 			if err == nil {
 				t.Errorf("Update should have returned err")
 			}
@@ -475,7 +493,7 @@ func TestVault_Update_ClosedServer(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("repo", "foo", "bar", sec)
+			_, err = s.Update("repo", "foo", "bar", sec)
 			if err == nil {
 				t.Errorf("Update should have returned err")
 			}
@@ -491,29 +509,14 @@ func TestVault_Update_NoWrite(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/v1/repo.json")
-	})
 	engine.PUT("/v1/secret/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
 
-	engine.GET("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/v2/repo.json")
-	})
 	engine.PUT("/v1/secret/data/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
 
-	engine.GET("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/v2/repo.json")
-	})
 	engine.PUT("/v1/secret/data/prefix/repo/foo/bar/baz", func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
@@ -560,7 +563,7 @@ func TestVault_Update_NoWrite(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Update("repo", "foo", "bar", sec)
+			_, err = s.Update("repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)

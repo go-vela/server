@@ -849,7 +849,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 		secret.SetOrg(r.GetOrg())
 		secret.SetRepo(r.GetName())
 
-		err = database.FromContext(c).UpdateSecret(secret)
+		_, err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", prevOrg, prevRepo, err)
 		}
