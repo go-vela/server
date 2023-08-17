@@ -6,6 +6,7 @@
 package repo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // CreateRepo creates a new repo in the database.
-func (e *engine) CreateRepo(r *library.Repo) (*library.Repo, error) {
+func (e *engine) CreateRepo(ctx context.Context, r *library.Repo) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

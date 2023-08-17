@@ -5,6 +5,8 @@
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // DeleteRepo deletes an existing repo from the database.
-func (e *engine) DeleteRepo(r *library.Repo) error {
+func (e *engine) DeleteRepo(ctx context.Context, r *library.Repo) error {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

@@ -4,6 +4,8 @@
 
 package repo
 
+import "context"
+
 const (
 	// CreateOrgNameIndex represents a query to create an
 	// index on the repos table for the org and name columns.
@@ -16,7 +18,7 @@ ON repos (org, name);
 )
 
 // CreateRepoIndexes creates the indexes for the repos table in the database.
-func (e *engine) CreateRepoIndexes() error {
+func (e *engine) CreateRepoIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for repos table in the database")
 
 	// create the org and name columns index for the repos table
