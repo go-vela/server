@@ -321,7 +321,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)

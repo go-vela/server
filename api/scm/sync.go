@@ -59,6 +59,7 @@ func SyncRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -80,7 +81,7 @@ func SyncRepo(c *gin.Context) {
 		r.SetActive(false)
 
 		// update repo in database
-		_, err := database.FromContext(c).UpdateRepo(r)
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 

@@ -165,7 +165,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(repo)
+		_, err := db.CreateRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
@@ -367,7 +367,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the repos for build related functions
 	for _, repo := range resources.Repos {
-		err = db.DeleteRepo(repo)
+		err = db.DeleteRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
 		}
@@ -784,7 +784,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 
 	// create the repos
 	for _, repo := range resources.Repos {
-		_, err := db.CreateRepo(repo)
+		_, err := db.CreateRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
 		}
@@ -792,7 +792,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateRepo"] = true
 
 	// count the repos
-	count, err := db.CountRepos()
+	count, err := db.CountRepos(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count repos: %v", err)
 	}
@@ -802,7 +802,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["CountRepos"] = true
 
 	// count the repos for an org
-	count, err = db.CountReposForOrg(resources.Repos[0].GetOrg(), nil)
+	count, err = db.CountReposForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil)
 	if err != nil {
 		t.Errorf("unable to count repos for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -812,7 +812,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["CountReposForOrg"] = true
 
 	// count the repos for a user
-	count, err = db.CountReposForUser(resources.Users[0], nil)
+	count, err = db.CountReposForUser(context.TODO(), resources.Users[0], nil)
 	if err != nil {
 		t.Errorf("unable to count repos for user %d: %v", resources.Users[0].GetID(), err)
 	}
@@ -822,7 +822,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["CountReposForUser"] = true
 
 	// list the repos
-	list, err := db.ListRepos()
+	list, err := db.ListRepos(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list repos: %v", err)
 	}
@@ -832,7 +832,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["ListRepos"] = true
 
 	// list the repos for an org
-	list, count, err = db.ListReposForOrg(resources.Repos[0].GetOrg(), "name", nil, 1, 10)
+	list, count, err = db.ListReposForOrg(context.TODO(), resources.Repos[0].GetOrg(), "name", nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list repos for org %s: %v", resources.Repos[0].GetOrg(), err)
 	}
@@ -845,7 +845,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	methods["ListReposForOrg"] = true
 
 	// list the repos for a user
-	list, count, err = db.ListReposForUser(resources.Users[0], "name", nil, 1, 10)
+	list, count, err = db.ListReposForUser(context.TODO(), resources.Users[0], "name", nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list repos for user %d: %v", resources.Users[0].GetID(), err)
 	}
@@ -859,7 +859,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the repos by name
 	for _, repo := range resources.Repos {
-		got, err := db.GetRepoForOrg(repo.GetOrg(), repo.GetName())
+		got, err := db.GetRepoForOrg(context.TODO(), repo.GetOrg(), repo.GetName())
 		if err != nil {
 			t.Errorf("unable to get repo %d by org: %v", repo.GetID(), err)
 		}
@@ -872,13 +872,13 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	// update the repos
 	for _, repo := range resources.Repos {
 		repo.SetActive(false)
-		_, err = db.UpdateRepo(repo)
+		_, err = db.UpdateRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to update repo %d: %v", repo.GetID(), err)
 		}
 
 		// lookup the repo by ID
-		got, err := db.GetRepo(repo.GetID())
+		got, err := db.GetRepo(context.TODO(), repo.GetID())
 		if err != nil {
 			t.Errorf("unable to get repo %d by ID: %v", repo.GetID(), err)
 		}
@@ -891,7 +891,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the repos
 	for _, repo := range resources.Repos {
-		err = db.DeleteRepo(repo)
+		err = db.DeleteRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
 		}

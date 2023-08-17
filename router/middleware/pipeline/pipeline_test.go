@@ -104,11 +104,11 @@ func TestPipeline_Establish(t *testing.T) {
 
 	defer func() {
 		db.DeletePipeline(context.TODO(), want)
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreatePipeline(context.TODO(), want)
 
 	// setup context
@@ -186,11 +186,11 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -289,12 +289,12 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.DeleteUser(u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 	_ = db.CreateUser(u)
 
 	// setup context
