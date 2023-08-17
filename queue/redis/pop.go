@@ -45,6 +45,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	signed := []byte(result[1])
 
 	var opened []byte
+
 	var out []byte
 
 	// open the item using the public key generated using sign
@@ -57,6 +58,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 
 	// unmarshal result into queue item
 	item := new(types.Item)
+
 	err = json.Unmarshal(opened, item)
 	if err != nil {
 		return nil, err
