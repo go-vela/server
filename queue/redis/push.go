@@ -24,6 +24,7 @@ func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	}
 
 	var signed []byte
+
 	var out []byte
 
 	// this should already be validated on startup
