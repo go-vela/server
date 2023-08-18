@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(context.TODO(), _pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -66,7 +67,7 @@ func TestPipeline_Engine_GetPipeline(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetPipeline(1)
+			got, err := test.database.GetPipeline(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

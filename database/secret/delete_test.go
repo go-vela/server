@@ -70,17 +70,17 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSecret(_secretRepo)
+	_, err := _sqlite.CreateSecret(_secretRepo)
 	if err != nil {
 		t.Errorf("unable to create test repo secret for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateSecret(_secretOrg)
+	_, err = _sqlite.CreateSecret(_secretOrg)
 	if err != nil {
 		t.Errorf("unable to create test org secret for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateSecret(_secretShared)
+	_, err = _sqlite.CreateSecret(_secretShared)
 	if err != nil {
 		t.Errorf("unable to create test shared secret for sqlite: %v", err)
 	}

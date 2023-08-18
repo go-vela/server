@@ -68,9 +68,9 @@ func TestNative_List(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	_ = s.Create("repo", "foo", "bar", sOne)
+	_, _ = s.Create("repo", "foo", "bar", sOne)
 
-	_ = s.Create("repo", "foo", "bar", sTwo)
+	_, _ = s.Create("repo", "foo", "bar", sTwo)
 
 	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
 	if err != nil {

@@ -1028,6 +1028,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetBranch("master")
 	want.SetPrivate(false)
 	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
+	want.SetVisibility("public")
 
 	client, _ := NewTest(s.URL)
 
@@ -1191,6 +1192,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetBranch("master")
 	r.SetPrivate(false)
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
+	r.SetVisibility("public")
 
 	want := []*library.Repo{r}
 

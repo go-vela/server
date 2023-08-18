@@ -161,7 +161,7 @@ func UpdateSecret(c *gin.Context) {
 	}
 
 	// send API call to update the secret
-	err = secret.FromContext(c, e).Update(t, o, n, input)
+	secret, err := secret.FromContext(c, e).Update(t, o, n, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update secret %s for %s service: %w", entry, e, err)
 
@@ -169,9 +169,6 @@ func UpdateSecret(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated secret
-	secret, _ := secret.FromContext(c, e).Get(t, o, n, input.GetName())
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }

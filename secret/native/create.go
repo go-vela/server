@@ -13,7 +13,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(sType, org, name string, s *library.Secret) error {
+func (c *client) Create(sType, org, name string, s *library.Secret) (*library.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:
@@ -46,6 +46,6 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 		// create the shared secret in the native service
 		return c.Database.CreateSecret(s)
 	default:
-		return fmt.Errorf("invalid secret type: %s", sType)
+		return nil, fmt.Errorf("invalid secret type: %s", sType)
 	}
 }

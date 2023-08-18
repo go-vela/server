@@ -5,6 +5,8 @@
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // DeletePipeline deletes an existing pipeline from the database.
-func (e *engine) DeletePipeline(p *library.Pipeline) error {
+func (e *engine) DeletePipeline(ctx context.Context, p *library.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("deleting pipeline %s from the database", p.GetCommit())

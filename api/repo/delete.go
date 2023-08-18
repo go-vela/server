@@ -59,6 +59,7 @@ func DeleteRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -88,7 +89,7 @@ func DeleteRepo(c *gin.Context) {
 	// Mark the repo as inactive
 	r.SetActive(false)
 
-	_, err = database.FromContext(c).UpdateRepo(r)
+	_, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
 

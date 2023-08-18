@@ -42,7 +42,7 @@ func TestSecret_Engine_GetSecretForOrg(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSecret(_secret)
+	_, err := _sqlite.CreateSecret(_secret)
 	if err != nil {
 		t.Errorf("unable to create test secret for sqlite: %v", err)
 	}

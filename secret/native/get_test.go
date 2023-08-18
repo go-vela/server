@@ -50,7 +50,7 @@ func TestNative_Get(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	_ = s.Create("repo", "foo", "bar", want)
+	_, _ = s.Create("repo", "foo", "bar", want)
 
 	got, err := s.Get("repo", "foo", "bar", "baz")
 	if err != nil {
