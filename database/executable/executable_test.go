@@ -209,5 +209,9 @@ type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
 func (a AnyArgument) Match(v driver.Value) bool {
-	return true
+	if v != nil {
+		return true
+	}
+
+	return false
 }
