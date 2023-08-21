@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -39,7 +40,7 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateRepo(_repo)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -68,7 +69,7 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetRepo(1)
+			got, err := test.database.GetRepo(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

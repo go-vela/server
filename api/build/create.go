@@ -232,7 +232,7 @@ func CreateBuild(c *gin.Context) {
 	)
 
 	// send API call to attempt to capture the pipeline
-	pipeline, err = database.FromContext(c).GetPipelineForRepo(input.GetCommit(), r)
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, input.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet
 		// send API call to capture the pipeline configuration file
 		config, err = scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
@@ -309,7 +309,7 @@ func CreateBuild(c *gin.Context) {
 		pipeline.SetRef(input.GetRef())
 
 		// send API call to create the pipeline
-		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -330,7 +330,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: failed to update repo %s: %w", r.GetFullName(), err)
 

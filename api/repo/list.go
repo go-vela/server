@@ -66,6 +66,7 @@ import (
 func ListRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -108,7 +109,7 @@ func ListRepos(c *gin.Context) {
 	}
 
 	// send API call to capture the list of repos for the user
-	r, t, err := database.FromContext(c).ListReposForUser(u, sortBy, filters, page, perPage)
+	r, t, err := database.FromContext(c).ListReposForUser(ctx, u, sortBy, filters, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repos for user %s: %w", u.GetName(), err)
 

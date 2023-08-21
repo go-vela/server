@@ -55,6 +55,7 @@ func RepairRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -122,7 +123,7 @@ func RepairRepo(c *gin.Context) {
 		r.SetActive(true)
 
 		// send API call to update the repo
-		_, err := database.FromContext(c).UpdateRepo(r)
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
 
