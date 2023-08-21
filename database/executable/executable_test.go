@@ -51,6 +51,7 @@ func TestExecutable_New(t *testing.T) {
 		name         string
 		client       *gorm.DB
 		level        int
+		key          string
 		logger       *logrus.Entry
 		skipCreation bool
 		want         *engine
@@ -60,11 +61,17 @@ func TestExecutable_New(t *testing.T) {
 			name:         "postgres",
 			client:       _postgres,
 			level:        1,
+			key:          "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
 				client: _postgres,
-				config: &config{CompressionLevel: 1, SkipCreation: false, Driver: "postgres"},
+				config: &config{
+					CompressionLevel: 1,
+					EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+					SkipCreation:     false,
+					Driver:           "postgres",
+				},
 				logger: logger,
 			},
 		},
@@ -73,11 +80,17 @@ func TestExecutable_New(t *testing.T) {
 			name:         "sqlite3",
 			client:       _sqlite,
 			level:        1,
+			key:          "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
 				client: _sqlite,
-				config: &config{CompressionLevel: 1, SkipCreation: false, Driver: "sqlite3"},
+				config: &config{
+					CompressionLevel: 1,
+					EncryptionKey:    "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW",
+					SkipCreation:     false,
+					Driver:           "sqlite3",
+				},
 				logger: logger,
 			},
 		},
@@ -89,6 +102,7 @@ func TestExecutable_New(t *testing.T) {
 			got, err := New(
 				WithClient(test.client),
 				WithCompressionLevel(test.level),
+				WithEncryptionKey(test.key),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
 				WithDriver(test.name),
@@ -139,6 +153,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	_engine, err := New(
 		WithClient(_postgres),
 		WithCompressionLevel(0),
+		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 		WithDriver(constants.DriverPostgres),
@@ -163,6 +178,7 @@ func testSqlite(t *testing.T) *engine {
 	_engine, err := New(
 		WithClient(_sqlite),
 		WithCompressionLevel(0),
+		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 		WithDriver(constants.DriverSqlite),

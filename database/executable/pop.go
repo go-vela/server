@@ -55,10 +55,18 @@ func (e *engine) PopBuildExecutable(id int64) (*library.BuildExecutable, error) 
 		}
 	}
 
+	// decrypt the fields for the build executable
+	//
+	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
+	err := b.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		return nil, err
+	}
+
 	// decompress data for the build executable
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#BuildExecutable.Decompress
-	err := b.Decompress()
+	err = b.Decompress()
 	if err != nil {
 		return nil, err
 	}

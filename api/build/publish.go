@@ -22,7 +22,7 @@ import (
 func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
 	byteExecutable, err := json.Marshal(p)
 	if err != nil {
-		logrus.Errorf("Failed to marshal compiled build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		logrus.Errorf("Failed to marshal build executable %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
 		CleanBuild(ctx, db, b, nil, nil, err)
@@ -36,7 +36,7 @@ func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interf
 
 	err = db.CreateBuildExecutable(bExecutable)
 	if err != nil {
-		logrus.Errorf("Failed to publish compiled build to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		logrus.Errorf("Failed to publish build executable to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
 		CleanBuild(ctx, db, b, nil, nil, err)

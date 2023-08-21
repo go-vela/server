@@ -25,7 +25,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "build_id", "data"}).
-		AddRow(1, 1, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
+		AddRow(1, 1, "+//18dbf7mF+v7ZPK3Wo5h2TD6v4Zg95sCMUJYO2tpwY37DEgTxW5xdyt3Tey9w=")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`DELETE FROM "build_executables" WHERE build_id = $1 RETURNING *`).WithArgs(1).WillReturnRows(_rows)

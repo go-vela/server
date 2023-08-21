@@ -18,6 +18,8 @@ type (
 	config struct {
 		// specifies the level of compression to use for the BuildExecutable engine
 		CompressionLevel int
+		// specifies the encryption key to use for the BuildExecutable engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the BuildExecutable engine
 		SkipCreation bool
 		// specifies the driver for proper popping query
@@ -41,7 +43,7 @@ type (
 	}
 )
 
-// New creates and returns a Vela service for integrating with build itinerariies in the database.
+// New creates and returns a Vela service for integrating with build executables in the database.
 //
 //nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (*engine, error) {

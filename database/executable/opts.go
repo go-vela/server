@@ -33,6 +33,16 @@ func WithCompressionLevel(level int) EngineOpt {
 	}
 }
 
+// WithEncryptionKey sets the encryption key in the database engine for build executables.
+func WithEncryptionKey(key string) EngineOpt {
+	return func(e *engine) error {
+		// set the encryption key in the repo engine
+		e.config.EncryptionKey = key
+
+		return nil
+	}
+}
+
 // WithDriver sets the driver type in the database engine for build executables.
 func WithDriver(driver string) EngineOpt {
 	return func(e *engine) error {
