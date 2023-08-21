@@ -133,7 +133,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to update the service
-	err = database.FromContext(c).UpdateService(s)
+	s, err = database.FromContext(c).UpdateService(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %s: %w", entry, err)
 
@@ -141,9 +141,6 @@ func UpdateService(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated service
-	s, _ = database.FromContext(c).GetServiceForBuild(b, s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

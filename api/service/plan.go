@@ -34,15 +34,9 @@ func PlanServices(database database.Interface, p *pipeline.Build, b *library.Bui
 		s.SetCreated(time.Now().UTC().Unix())
 
 		// send API call to create the service
-		err := database.CreateService(s)
+		s, err := database.CreateService(s)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service %s: %w", s.GetName(), err)
-		}
-
-		// send API call to capture the created service
-		s, err = database.GetServiceForBuild(b, s.GetNumber())
-		if err != nil {
-			return services, fmt.Errorf("unable to get service %s: %w", s.GetName(), err)
 		}
 
 		// populate environment variables from service library

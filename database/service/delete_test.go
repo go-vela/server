@@ -31,7 +31,7 @@ func TestService_Engine_DeleteService(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateService(_service)
+	_, err := _sqlite.CreateService(_service)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
