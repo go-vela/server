@@ -14,9 +14,9 @@ type BuildExecutableInterface interface {
 	// https://en.wikipedia.org/wiki/Data_definition_language
 	CreateBuildExecutableTable(string) error
 
-	// // BuildExecutable Data Manipulation Language Functions
-	// //
-	// // https://en.wikipedia.org/wiki/Data_manipulation_language
+	// BuildExecutable Data Manipulation Language Functions
+	//
+	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CreateBuildExecutable defines a function that creates a build executable.
 	CreateBuildExecutable(*library.BuildExecutable) error
