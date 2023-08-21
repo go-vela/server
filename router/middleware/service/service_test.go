@@ -87,7 +87,7 @@ func TestService_Establish(t *testing.T) {
 
 	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreateBuild(context.TODO(), b)
-	_ = db.CreateService(want)
+	_, _ = db.CreateService(want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

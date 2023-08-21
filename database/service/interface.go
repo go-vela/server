@@ -31,7 +31,7 @@ type ServiceInterface interface {
 	// CountServicesForBuild defines a function that gets the count of services by build ID.
 	CountServicesForBuild(*library.Build, map[string]interface{}) (int64, error)
 	// CreateService defines a function that creates a new service.
-	CreateService(*library.Service) error
+	CreateService(*library.Service) (*library.Service, error)
 	// DeleteService defines a function that deletes an existing service.
 	DeleteService(*library.Service) error
 	// GetService defines a function that gets a service by ID.
@@ -47,5 +47,5 @@ type ServiceInterface interface {
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.
 	ListServiceStatusCount() (map[string]float64, error)
 	// UpdateService defines a function that updates an existing service.
-	UpdateService(*library.Service) error
+	UpdateService(*library.Service) (*library.Service, error)
 }

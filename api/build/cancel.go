@@ -272,7 +272,7 @@ func CancelBuild(c *gin.Context) {
 		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
 			service.SetStatus(constants.StatusCanceled)
 
-			err = database.FromContext(c).UpdateService(service)
+			_, err = database.FromContext(c).UpdateService(service)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
 					service.GetName(),

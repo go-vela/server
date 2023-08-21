@@ -51,12 +51,12 @@ func TestService_Engine_ListServices(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateService(_serviceOne)
+	_, err := _sqlite.CreateService(_serviceOne)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateService(_serviceTwo)
+	_, err = _sqlite.CreateService(_serviceTwo)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
