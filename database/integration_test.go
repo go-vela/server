@@ -1275,7 +1275,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 
 	// create the services
 	for _, service := range resources.Services {
-		err := db.CreateService(service)
+		_, err := db.CreateService(service)
 		if err != nil {
 			t.Errorf("unable to create service %d: %v", service.GetID(), err)
 		}
@@ -1380,18 +1380,13 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	// update the services
 	for _, service := range resources.Services {
 		service.SetStatus("success")
-		err = db.UpdateService(service)
+		got, err := db.UpdateService(service)
 		if err != nil {
 			t.Errorf("unable to update service %d: %v", service.GetID(), err)
 		}
 
-		// lookup the service by ID
-		got, err := db.GetService(service.GetID())
-		if err != nil {
-			t.Errorf("unable to get service %d by ID: %v", service.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, service) {
-			t.Errorf("GetService() is %v, want %v", got, service)
+			t.Errorf("UpdateService() is %v, want %v", got, service)
 		}
 	}
 	methods["UpdateService"] = true
