@@ -410,7 +410,7 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to create executable %d: %v", executable.GetID(), err)
 		}
 	}
-	methods["CreateExecutable"] = true
+	methods["CreateBuildExecutable"] = true
 
 	// pop executables for builds
 	for _, executable := range resources.Executables {
@@ -1916,12 +1916,12 @@ func newResources() *Resources {
 	executableOne := new(library.BuildExecutable)
 	executableOne.SetID(1)
 	executableOne.SetBuildID(1)
-	executableOne.SetData([]byte("version: 1"))
+	executableOne.SetData([]byte("foo"))
 
 	executableTwo := new(library.BuildExecutable)
 	executableTwo.SetID(2)
 	executableTwo.SetBuildID(2)
-	executableTwo.SetData([]byte("version: 2"))
+	executableTwo.SetData([]byte("foo"))
 
 	deploymentOne := new(library.Deployment)
 	deploymentOne.SetID(1)
