@@ -136,7 +136,12 @@ func CreateSchedule(c *gin.Context) {
 	s.SetCreatedAt(time.Now().UTC().Unix())
 	s.SetUpdatedAt(time.Now().UTC().Unix())
 	s.SetUpdatedBy(u.GetName())
-	s.SetBranch(input.GetBranch())
+
+	if input.GetBranch() == "" {
+		s.SetBranch(*r.Branch)
+	} else {
+		s.SetBranch(input.GetBranch())
+	}
 
 	// set the active field based off the input provided
 	if input.Active == nil {
