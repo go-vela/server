@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -32,6 +33,7 @@ import (
 type Resources struct {
 	Builds      []*library.Build
 	Deployments []*library.Deployment
+	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
@@ -116,6 +118,8 @@ func TestDatabase_Integration(t *testing.T) {
 			}
 
 			t.Run("test_builds", func(t *testing.T) { testBuilds(t, db, resources) })
+
+			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
 
 			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
 
@@ -377,6 +381,53 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for builds", method)
+		}
+	}
+}
+
+func testExecutables(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for pipelines
+	methods := make(map[string]bool)
+	// capture the element type of the pipeline interface
+	element := reflect.TypeOf(new(executable.BuildExecutableInterface)).Elem()
+	// iterate through all methods found in the pipeline interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for pipelines
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	// create the pipelines
+	for _, executable := range resources.Executables {
+		err := db.CreateBuildExecutable(executable)
+		if err != nil {
+			t.Errorf("unable to create executable %d: %v", executable.GetID(), err)
+		}
+	}
+	methods["CreateExecutable"] = true
+
+	// pop executables for builds
+	for _, executable := range resources.Executables {
+		got, err := db.PopBuildExecutable(executable.GetBuildID())
+		if err != nil {
+			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
+		}
+		if !reflect.DeepEqual(got, executable) {
+			t.Errorf("PopBuildExecutable() is %v, want %v", got, executable)
+		}
+	}
+	methods["PopBuildExecutable"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for pipelines", method)
 		}
 	}
 }
@@ -1862,6 +1913,16 @@ func newResources() *Resources {
 	buildTwo.SetRuntime("docker")
 	buildTwo.SetDistribution("linux")
 
+	executableOne := new(library.BuildExecutable)
+	executableOne.SetID(1)
+	executableOne.SetBuildID(1)
+	executableOne.SetData([]byte("version: 1"))
+
+	executableTwo := new(library.BuildExecutable)
+	executableTwo.SetID(2)
+	executableTwo.SetBuildID(2)
+	executableTwo.SetData([]byte("version: 2"))
+
 	deploymentOne := new(library.Deployment)
 	deploymentOne.SetID(1)
 	deploymentOne.SetRepoID(1)
@@ -2229,6 +2290,7 @@ func newResources() *Resources {
 	return &Resources{
 		Builds:      []*library.Build{buildOne, buildTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
+		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo},
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
