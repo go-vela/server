@@ -5,6 +5,8 @@
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // GetPipelineForRepo gets a pipeline by number and repo ID from the database.
-func (e *engine) GetPipelineForRepo(commit string, r *library.Repo) (*library.Pipeline, error) {
+func (e *engine) GetPipelineForRepo(ctx context.Context, commit string, r *library.Repo) (*library.Pipeline, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"pipeline": commit,

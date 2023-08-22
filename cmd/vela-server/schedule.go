@@ -138,7 +138,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 //nolint:funlen // ignore function length and number of statements
 func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the repo for the schedule
-	r, err := database.GetRepo(s.GetRepoID())
+	r, err := database.GetRepo(ctx, s.GetRepoID())
 	if err != nil {
 		return fmt.Errorf("unable to fetch repo: %w", err)
 	}
@@ -237,7 +237,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.GetPipelineForRepo(b.GetCommit(), r)
+		pipeline, err = database.GetPipelineForRepo(context.TODO(), b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
 			config, err = scm.ConfigBackoff(u, r, b.GetCommit())
@@ -249,7 +249,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		r, err = database.GetRepoForOrg(r.GetOrg(), r.GetName())
+		r, err = database.GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 		if err != nil {
 			err = fmt.Errorf("unable to get repo %s: %w", r.GetFullName(), err)
 
@@ -326,7 +326,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.CreatePipeline(pipeline)
+			pipeline, err = database.CreatePipeline(context.TODO(), pipeline)
 			if err != nil {
 				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -374,7 +374,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.UpdateRepo(r)
+	r, err = database.UpdateRepo(ctx, r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 	}

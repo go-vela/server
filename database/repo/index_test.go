@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestRepo_Engine_CreateRepoIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateRepoIndexes()
+			err := test.database.CreateRepoIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {

@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +32,7 @@ func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(context.TODO(), _pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -57,7 +58,7 @@ func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeletePipeline(_pipeline)
+			err = test.database.DeletePipeline(context.TODO(), _pipeline)
 
 			if test.failure {
 				if err == nil {

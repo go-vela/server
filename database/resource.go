@@ -6,6 +6,7 @@ package database
 
 import (
 	"context"
+
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -57,6 +58,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for pipelines
 	e.PipelineInterface, err = pipeline.New(
+		pipeline.WithContext(e.ctx),
 		pipeline.WithClient(e.client),
 		pipeline.WithCompressionLevel(e.config.CompressionLevel),
 		pipeline.WithLogger(e.logger),
@@ -68,6 +70,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for repos
 	e.RepoInterface, err = repo.New(
+		repo.WithContext(e.ctx),
 		repo.WithClient(e.client),
 		repo.WithEncryptionKey(e.config.EncryptionKey),
 		repo.WithLogger(e.logger),

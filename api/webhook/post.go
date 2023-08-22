@@ -6,6 +6,7 @@ package webhook
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -135,7 +136,7 @@ func PostWebhook(c *gin.Context) {
 
 	// if event is repository event, handle separately and return
 	if strings.EqualFold(h.GetEvent(), constants.EventRepository) {
-		r, err = handleRepositoryEvent(c, m, h, r)
+		r, err = handleRepositoryEvent(ctx, c, m, h, r)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 			return
@@ -184,7 +185,7 @@ func PostWebhook(c *gin.Context) {
 	}()
 
 	// send API call to capture parsed repo from webhook
-	repo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+	repo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -426,7 +427,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), repo)
+		pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), repo)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
 			config, err = scm.FromContext(c).ConfigBackoff(u, repo, b.GetCommit())
@@ -445,7 +446,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		repo, err = database.FromContext(c).GetRepoForOrg(repo.GetOrg(), repo.GetName())
+		repo, err = database.FromContext(c).GetRepoForOrg(ctx, repo.GetOrg(), repo.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -561,7 +562,7 @@ func PostWebhook(c *gin.Context) {
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+			pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 
@@ -621,7 +622,7 @@ func PostWebhook(c *gin.Context) {
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	repo, err = database.FromContext(c).UpdateRepo(repo)
+	repo, err = database.FromContext(c).UpdateRepo(ctx, repo)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -689,7 +690,7 @@ func PostWebhook(c *gin.Context) {
 	)
 }
 
-func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
+func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
 	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
@@ -703,7 +704,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 	switch h.GetEventAction() {
 	// if action is rename, go through rename routine
 	case constants.ActionRenamed, constants.ActionTransferred:
-		r, err := renameRepository(h, r, c, m)
+		r, err := renameRepository(ctx, h, r, c, m)
 		if err != nil {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(err.Error())
@@ -716,7 +717,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 	case "archived", "unarchived", constants.ActionEdited:
 		logrus.Debugf("repository action %s for %s", h.GetEventAction(), r.GetFullName())
 		// send call to get repository from database
-		dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+		dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -760,7 +761,7 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 		}
 
 		// update repo object in the database after applying edits
-		dbRepo, err = database.FromContext(c).UpdateRepo(dbRepo)
+		dbRepo, err = database.FromContext(c).UpdateRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, r.GetFullName(), err)
 
@@ -781,17 +782,14 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
-func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
+func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
-
-	// capture context from gin
-	ctx := c.Request.Context()
 
 	// get the old name of the repo
 	prevOrg, prevRepo := util.SplitFullName(r.GetPreviousName())
 
 	// get the repo from the database that matches the old name
-	dbR, err := database.FromContext(c).GetRepoForOrg(prevOrg, prevRepo)
+	dbR, err := database.FromContext(c).GetRepoForOrg(ctx, prevOrg, prevRepo)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, prevOrg, prevRepo)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -896,7 +894,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	dbR.SetPreviousName(r.GetPreviousName())
 
 	// update the repo in the database
-	dbR, err = database.FromContext(c).UpdateRepo(dbR)
+	dbR, err = database.FromContext(c).UpdateRepo(ctx, dbR)
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, prevOrg, prevRepo)
 		util.HandleError(c, http.StatusBadRequest, retErr)

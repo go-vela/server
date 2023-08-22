@@ -52,6 +52,7 @@ func SyncReposForOrg(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -79,7 +80,7 @@ func SyncReposForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the total number of repos for the org
-	t, err := database.FromContext(c).CountReposForOrg(o, map[string]interface{}{})
+	t, err := database.FromContext(c).CountReposForOrg(ctx, o, map[string]interface{}{})
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -92,7 +93,7 @@ func SyncReposForOrg(c *gin.Context) {
 	page := 0
 	// capture all repos belonging to a certain org in database
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
-		r, _, err := database.FromContext(c).ListReposForOrg(o, "name", map[string]interface{}{}, page, 100)
+		r, _, err := database.FromContext(c).ListReposForOrg(ctx, o, "name", map[string]interface{}{}, page, 100)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get repo count for org %s: %w", o, err)
 
@@ -113,7 +114,7 @@ func SyncReposForOrg(c *gin.Context) {
 		if err != nil {
 			repo.SetActive(false)
 
-			_, err := database.FromContext(c).UpdateRepo(repo)
+			_, err := database.FromContext(c).UpdateRepo(ctx, repo)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 

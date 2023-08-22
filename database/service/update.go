@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateService updates an existing service in the database.
-func (e *engine) UpdateService(s *library.Service) error {
+func (e *engine) UpdateService(s *library.Service) (*library.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("updating service %s in the database", s.GetName())
@@ -27,12 +27,11 @@ func (e *engine) UpdateService(s *library.Service) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Service.Validate
 	err := service.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableService).
-		Save(service).
-		Error
+	result := e.client.Table(constants.TableService).Save(service)
+
+	return service.ToLibrary(), result.Error
 }
