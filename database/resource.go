@@ -41,6 +41,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 		executable.WithClient(e.client),
 		executable.WithLogger(e.logger),
 		executable.WithSkipCreation(e.config.SkipCreation),
+		executable.WithEncryptionKey(e.config.EncryptionKey),
 		executable.WithDriver(e.config.Driver),
 	)
 	if err != nil {
