@@ -20,7 +20,7 @@ import (
 // PublishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
 func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	item := types.ToItem(p, b, r, u)
+	item := types.ToItem(b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
 

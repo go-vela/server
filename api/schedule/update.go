@@ -127,6 +127,7 @@ func UpdateSchedule(c *gin.Context) {
 
 	// set the updated by field using claims
 	s.SetUpdatedBy(u.GetName())
+	s.SetBranch(input.GetBranch())
 
 	// update the schedule within the database
 	s, err = database.FromContext(c).UpdateSchedule(ctx, s, true)
