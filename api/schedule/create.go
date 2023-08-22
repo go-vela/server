@@ -138,7 +138,7 @@ func CreateSchedule(c *gin.Context) {
 	s.SetUpdatedBy(u.GetName())
 
 	if input.GetBranch() == "" {
-		s.SetBranch(*r.Branch)
+		s.SetBranch(r.GetBranch())
 	} else {
 		s.SetBranch(input.GetBranch())
 	}
