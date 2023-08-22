@@ -1429,7 +1429,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 
 	// create the steps
 	for _, step := range resources.Steps {
-		err := db.CreateStep(step)
+		_, err := db.CreateStep(step)
 		if err != nil {
 			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
@@ -1534,16 +1534,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// update the steps
 	for _, step := range resources.Steps {
 		step.SetStatus("success")
-		err = db.UpdateStep(step)
+		got, err := db.UpdateStep(step)
 		if err != nil {
 			t.Errorf("unable to update step %d: %v", step.GetID(), err)
 		}
 
-		// lookup the step by ID
-		got, err := db.GetStep(step.GetID())
-		if err != nil {
-			t.Errorf("unable to get step %d by ID: %v", step.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, step) {
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}

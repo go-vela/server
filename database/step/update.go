@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateStep updates an existing step in the database.
-func (e *engine) UpdateStep(s *library.Step) error {
+func (e *engine) UpdateStep(s *library.Step) (*library.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("updating step %s in the database", s.GetName())
@@ -27,12 +27,11 @@ func (e *engine) UpdateStep(s *library.Step) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Step.Validate
 	err := step.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableStep).
-		Save(step).
-		Error
+	result := e.client.Table(constants.TableStep).Save(step)
+
+	return step.ToLibrary(), result.Error
 }
