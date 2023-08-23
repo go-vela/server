@@ -19,10 +19,9 @@ func TestRedis_Pop(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
 	_item := &types.Item{
-		Build:    _build,
-		Pipeline: _steps,
-		Repo:     _repo,
-		User:     _user,
+		Build: _build,
+		Repo:  _repo,
+		User:  _user,
 	}
 
 	var signed []byte

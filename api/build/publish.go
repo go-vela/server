@@ -20,7 +20,31 @@ import (
 // PublishToQueue is a helper function that creates
 // a build item and publishes it to the queue.
 func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	item := types.ToItem(p, b, r, u)
+	byteExecutable, err := json.Marshal(p)
+	if err != nil {
+		logrus.Errorf("Failed to marshal build executable %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, db, b, nil, nil, err)
+
+		return
+	}
+
+	bExecutable := new(library.BuildExecutable)
+	bExecutable.SetBuildID(b.GetID())
+	bExecutable.SetData(byteExecutable)
+
+	err = db.CreateBuildExecutable(bExecutable)
+	if err != nil {
+		logrus.Errorf("Failed to publish build executable to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, db, b, nil, nil, err)
+
+		return
+	}
+
+	item := types.ToItem(b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
 
