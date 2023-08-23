@@ -23,7 +23,7 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 		Cluster:    c.Bool("queue.cluster"),
 		Routes:     c.StringSlice("queue.routes"),
 		Timeout:    c.Duration("queue.pop.timeout"),
-		PrivateKey: c.String("queue.signing.private-key"),
+		PrivateKey: c.String("queue.private-key"),
 	}
 
 	// setup the queue

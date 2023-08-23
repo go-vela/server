@@ -12,7 +12,7 @@ import (
 // to sign items that are pushed to the queue.
 func QueueSigningPrivateKey(key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("queue.signing.private-key", key)
+		c.Set("queue.private-key", key)
 		c.Next()
 	}
 }
