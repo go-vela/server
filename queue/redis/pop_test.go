@@ -39,7 +39,7 @@ func TestRedis_Pop(t *testing.T) {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
-	signed = sign.Sign(out, bytes, _redis.config.SigningPrivateKey)
+	signed = sign.Sign(out, bytes, _redis.config.PrivateKey)
 
 	// push item to queue
 	err = _redis.Redis.RPush(context.Background(), "vela", signed).Err()
@@ -63,7 +63,7 @@ func TestRedis_Pop(t *testing.T) {
 	// overwrite channel to be invalid
 	badChannel.config.Channels = nil
 
-	signed = sign.Sign(out, bytes, badChannel.config.SigningPrivateKey)
+	signed = sign.Sign(out, bytes, badChannel.config.PrivateKey)
 
 	// push something to badChannel queue
 	err = badChannel.Redis.RPush(context.Background(), "vela", signed).Err()

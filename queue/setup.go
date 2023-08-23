@@ -30,10 +30,10 @@ type Setup struct {
 	Routes []string
 	// specifies the timeout for pop requests for the queue client
 	Timeout time.Duration
-	// encoded key used for signing items pushed to the queue
-	EncodedSigningPrivateKey string
-	// encoded key used for opening items popped from the queue
-	EncodedSigningPublicKey string
+	// private key in base64 used for signing items pushed to the queue
+	PrivateKey string
+	// public key in base64 used for opening items popped from the queue
+	PublicKey string
 }
 
 // Redis creates and returns a Vela service capable
@@ -49,8 +49,8 @@ func (s *Setup) Redis() (Service, error) {
 		redis.WithChannels(s.Routes...),
 		redis.WithCluster(s.Cluster),
 		redis.WithTimeout(s.Timeout),
-		redis.WithPrivateKey(s.EncodedSigningPrivateKey),
-		redis.WithPublicKey(s.EncodedSigningPublicKey),
+		redis.WithPrivateKey(s.PrivateKey),
+		redis.WithPublicKey(s.PublicKey),
 	)
 }
 

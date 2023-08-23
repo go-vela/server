@@ -75,32 +75,32 @@ func WithTimeout(timeout time.Duration) ClientOpt {
 // WithPrivateKey sets the private key in the queue client for Redis.
 //
 //nolint:dupl // ignore similar code
-func WithPrivateKey(privateKeyEncoded string) ClientOpt {
+func WithPrivateKey(key string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring private key in redis queue client")
 
-		if len(privateKeyEncoded) == 0 {
+		if len(key) == 0 {
 			c.Logger.Warn("unable to base64 decode private key, provided key is empty. queue service will be unable to sign items")
 			return nil
 		}
 
-		privateKeyDecoded, err := base64.StdEncoding.DecodeString(privateKeyEncoded)
+		decoded, err := base64.StdEncoding.DecodeString(key)
 		if err != nil {
 			return err
 		}
 
-		if len(privateKeyDecoded) == 0 {
+		if len(decoded) == 0 {
 			return errors.New("unable to base64 decode private key, decoded key is empty")
 		}
 
-		c.config.SigningPrivateKey = new([64]byte)
-		copy(c.config.SigningPrivateKey[:], privateKeyDecoded)
+		c.config.PrivateKey = new([64]byte)
+		copy(c.config.PrivateKey[:], decoded)
 
-		if c.config.SigningPrivateKey == nil {
+		if c.config.PrivateKey == nil {
 			return errors.New("unable to copy decoded queue signing private key, copied key is nil")
 		}
 
-		if len(c.config.SigningPrivateKey) == 0 {
+		if len(c.config.PrivateKey) == 0 {
 			return errors.New("unable to copy decoded queue signing private key, copied key is empty")
 		}
 
@@ -111,32 +111,32 @@ func WithPrivateKey(privateKeyEncoded string) ClientOpt {
 // WithPublicKey sets the public key in the queue client for Redis.
 //
 //nolint:dupl // ignore similar code
-func WithPublicKey(publicKeyEncoded string) ClientOpt {
+func WithPublicKey(key string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Tracef("configuring public key in redis queue client")
 
-		if len(publicKeyEncoded) == 0 {
+		if len(key) == 0 {
 			c.Logger.Warn("unable to base64 decode public key, provided key is empty. queue service will be unable to open items")
 			return nil
 		}
 
-		publicKeyDecoded, err := base64.StdEncoding.DecodeString(publicKeyEncoded)
+		decoded, err := base64.StdEncoding.DecodeString(key)
 		if err != nil {
 			return err
 		}
 
-		if len(publicKeyDecoded) == 0 {
+		if len(decoded) == 0 {
 			return errors.New("unable to base64 decode public key, decoded key is empty")
 		}
 
-		c.config.SigningPublicKey = new([32]byte)
-		copy(c.config.SigningPublicKey[:], publicKeyDecoded)
+		c.config.PublicKey = new([32]byte)
+		copy(c.config.PublicKey[:], decoded)
 
-		if c.config.SigningPublicKey == nil {
+		if c.config.PublicKey == nil {
 			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
 		}
 
-		if len(c.config.SigningPublicKey) == 0 {
+		if len(c.config.PublicKey) == 0 {
 			return errors.New("unable to copy decoded queue signing public key, copied key is empty")
 		}
 

@@ -28,7 +28,7 @@ func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	var out []byte
 
 	// this should already be validated on startup
-	if c.config.SigningPrivateKey == nil || len(*c.config.SigningPrivateKey) != 64 {
+	if c.config.PrivateKey == nil || len(*c.config.PrivateKey) != 64 {
 		return errors.New("no valid signing private key provided")
 	}
 
@@ -37,7 +37,7 @@ func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 	// sign the item using the private key generated using sign
 	//
 	// https://pkg.go.dev/golang.org/x/crypto@v0.1.0/nacl/sign
-	signed = sign.Sign(out, item, c.config.SigningPrivateKey)
+	signed = sign.Sign(out, item, c.config.PrivateKey)
 
 	// build a redis queue command to push an item to queue
 	//

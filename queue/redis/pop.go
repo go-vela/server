@@ -37,7 +37,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	}
 
 	// this should already be validated on startup
-	if c.config.SigningPublicKey == nil || len(*c.config.SigningPublicKey) != 32 {
+	if c.config.PublicKey == nil || len(*c.config.PublicKey) != 32 {
 		return nil, errors.New("no valid signing public key provided")
 	}
 
@@ -49,7 +49,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	// open the item using the public key generated using sign
 	//
 	// https://pkg.go.dev/golang.org/x/crypto@v0.1.0/nacl/sign
-	opened, ok := sign.Open(out, signed, c.config.SigningPublicKey)
+	opened, ok := sign.Open(out, signed, c.config.PublicKey)
 	if !ok {
 		return nil, errors.New("unable to open signed item")
 	}

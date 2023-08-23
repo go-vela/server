@@ -235,8 +235,8 @@ func TestRedis_ClientOpt_WithSigningPrivateKey(t *testing.T) {
 		}
 
 		got := ""
-		if _service.config.SigningPrivateKey != nil {
-			got = fmt.Sprintf("%s", *_service.config.SigningPrivateKey)
+		if _service.config.PrivateKey != nil {
+			got = fmt.Sprintf("%s", *_service.config.PrivateKey)
 		} else {
 			got = ""
 		}
@@ -303,8 +303,8 @@ func TestRedis_ClientOpt_WithSigningPublicKey(t *testing.T) {
 		}
 
 		got := ""
-		if _service.config.SigningPublicKey != nil {
-			got = fmt.Sprintf("%s", *_service.config.SigningPublicKey)
+		if _service.config.PublicKey != nil {
+			got = fmt.Sprintf("%s", *_service.config.PublicKey)
 		} else {
 			got = ""
 		}
