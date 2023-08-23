@@ -44,9 +44,7 @@ func (c *client) Pop(ctx context.Context) (*types.Item, error) {
 	// extract signed item from pop results
 	signed := []byte(result[1])
 
-	var opened []byte
-
-	var out []byte
+	var opened, out []byte
 
 	// open the item using the public key generated using sign
 	//
