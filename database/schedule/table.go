@@ -6,6 +6,7 @@ package schedule
 
 import (
 	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -25,6 +26,7 @@ schedules (
 	updated_at   INTEGER,
 	updated_by   VARCHAR(250),
 	scheduled_at INTEGER,
+	branch       VARCHAR(250),
 	UNIQUE(repo_id, name)
 );
 `
@@ -44,6 +46,7 @@ schedules (
 	updated_at   INTEGER,
 	updated_by   TEXT,
 	scheduled_at INTEGER,
+	branch       TEXT,
 	UNIQUE(repo_id, name)
 );
 `

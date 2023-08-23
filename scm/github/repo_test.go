@@ -1339,7 +1339,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(u, r)
+	gotBranch, gotCommit, err := client.GetBranch(u, r, "main")
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)

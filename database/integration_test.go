@@ -2108,6 +2108,7 @@ func newResources() *Resources {
 	scheduleOne.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	scheduleOne.SetUpdatedBy("octokitty")
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
+	scheduleOne.SetBranch("main")
 
 	scheduleTwo := new(library.Schedule)
 	scheduleTwo.SetID(2)
@@ -2120,6 +2121,7 @@ func newResources() *Resources {
 	scheduleTwo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	scheduleTwo.SetUpdatedBy("octokitty")
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
+	scheduleTwo.SetBranch("main")
 
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)
