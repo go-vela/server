@@ -231,7 +231,7 @@ func CancelBuild(c *gin.Context) {
 		if step.GetStatus() == constants.StatusRunning || step.GetStatus() == constants.StatusPending {
 			step.SetStatus(constants.StatusCanceled)
 
-			err = database.FromContext(c).UpdateStep(step)
+			_, err = database.FromContext(c).UpdateStep(step)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
 				util.HandleError(c, http.StatusNotFound, retErr)

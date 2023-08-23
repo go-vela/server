@@ -61,15 +61,9 @@ func planStep(database database.Interface, b *library.Build, c *pipeline.Contain
 	s.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the step
-	err := database.CreateStep(s)
+	s, err := database.CreateStep(s)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
-	}
-
-	// send API call to capture the created step
-	s, err = database.GetStepForBuild(b, s.GetNumber())
-	if err != nil {
-		return nil, fmt.Errorf("unable to get step %s: %w", s.GetName(), err)
 	}
 
 	// populate environment variables from step library

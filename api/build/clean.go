@@ -49,7 +49,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *library.Bui
 		s.SetFinished(time.Now().UTC().Unix())
 
 		// send API call to update the step
-		err := database.UpdateStep(s)
+		_, err := database.UpdateStep(s)
 		if err != nil {
 			logrus.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
