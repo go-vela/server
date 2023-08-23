@@ -1480,7 +1480,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 
 	// create the steps
 	for _, step := range resources.Steps {
-		err := db.CreateStep(step)
+		_, err := db.CreateStep(step)
 		if err != nil {
 			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
@@ -1585,16 +1585,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// update the steps
 	for _, step := range resources.Steps {
 		step.SetStatus("success")
-		err = db.UpdateStep(step)
+		got, err := db.UpdateStep(step)
 		if err != nil {
 			t.Errorf("unable to update step %d: %v", step.GetID(), err)
 		}
 
-		// lookup the step by ID
-		got, err := db.GetStep(step.GetID())
-		if err != nil {
-			t.Errorf("unable to get step %d by ID: %v", step.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, step) {
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}
@@ -2108,6 +2103,7 @@ func newResources() *Resources {
 	scheduleOne.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	scheduleOne.SetUpdatedBy("octokitty")
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
+	scheduleOne.SetBranch("main")
 
 	scheduleTwo := new(library.Schedule)
 	scheduleTwo.SetID(2)
@@ -2120,6 +2116,7 @@ func newResources() *Resources {
 	scheduleTwo.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
 	scheduleTwo.SetUpdatedBy("octokitty")
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
+	scheduleTwo.SetBranch("main")
 
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)

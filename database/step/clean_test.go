@@ -64,22 +64,22 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateStep(_stepOne)
+	_, err := _sqlite.CreateStep(_stepOne)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateStep(_stepTwo)
+	_, err = _sqlite.CreateStep(_stepTwo)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateStep(_stepThree)
+	_, err = _sqlite.CreateStep(_stepThree)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateStep(_stepFour)
+	_, err = _sqlite.CreateStep(_stepFour)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}

@@ -184,7 +184,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the commit sha for the branch
-	_, commit, err := scm.GetBranch(u, r)
+	_, commit, err := scm.GetBranch(u, r, s.GetBranch())
 	if err != nil {
 		return fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 	}
@@ -193,7 +193,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 
 	b := new(library.Build)
 	b.SetAuthor(s.GetCreatedBy())
-	b.SetBranch(r.GetBranch())
+	b.SetBranch(s.GetBranch())
 	b.SetClone(r.GetClone())
 	b.SetCommit(commit)
 	b.SetDeploy(s.GetName())

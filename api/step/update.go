@@ -147,7 +147,7 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	// send API call to update the step
-	err = database.FromContext(c).UpdateStep(s)
+	s, err = database.FromContext(c).UpdateStep(s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %s: %w", entry, err)
 
@@ -155,9 +155,6 @@ func UpdateStep(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated step
-	s, _ = database.FromContext(c).GetStepForBuild(b, s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

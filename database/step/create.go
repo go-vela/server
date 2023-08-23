@@ -12,7 +12,7 @@ import (
 )
 
 // CreateStep creates a new step in the database.
-func (e *engine) CreateStep(s *library.Step) error {
+func (e *engine) CreateStep(s *library.Step) (*library.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("creating step %s in the database", s.GetName())
@@ -27,12 +27,11 @@ func (e *engine) CreateStep(s *library.Step) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Step.Validate
 	err := step.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableStep).
-		Create(step).
-		Error
+	result := e.client.Table(constants.TableStep).Create(step)
+
+	return step.ToLibrary(), result.Error
 }

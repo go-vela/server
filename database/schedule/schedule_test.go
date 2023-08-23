@@ -187,6 +187,7 @@ func testSchedule() *library.Schedule {
 		UpdatedAt:   new(int64),
 		UpdatedBy:   new(string),
 		ScheduledAt: new(int64),
+		Branch:      new(string),
 	}
 }
 
