@@ -1656,7 +1656,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the users
 	for _, user := range resources.Users {
-		err := db.CreateUser(user)
+		_, err := db.CreateUser(user)
 		if err != nil {
 			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
@@ -1711,16 +1711,11 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// update the users
 	for _, user := range resources.Users {
 		user.SetActive(false)
-		err = db.UpdateUser(user)
+		got, err := db.UpdateUser(user)
 		if err != nil {
 			t.Errorf("unable to update user %d: %v", user.GetID(), err)
 		}
 
-		// lookup the user by ID
-		got, err := db.GetUser(user.GetID())
-		if err != nil {
-			t.Errorf("unable to get user %d by ID: %v", user.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, user) {
 			t.Errorf("GetUser() is %v, want %v", got, user)
 		}

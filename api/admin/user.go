@@ -66,7 +66,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// send API call to update the user
-	err = database.FromContext(c).UpdateUser(input)
+	u, err := database.FromContext(c).UpdateUser(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %d: %w", input.GetID(), err)
 
@@ -75,5 +75,5 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, input)
+	c.JSON(http.StatusOK, u)
 }
