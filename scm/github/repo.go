@@ -548,17 +548,17 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *client) GetBranch(u *library.User, r *library.Repo) (string, string, error) {
+func (c *client) GetBranch(u *library.User, r *library.Repo, branch string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Tracef("retrieving branch %s for repo %s", r.GetBranch(), r.GetFullName())
+	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 
-	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), r.GetBranch(), true)
+	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, true)
 	if err != nil {
 		return "", "", err
 	}
