@@ -44,7 +44,7 @@ func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interf
 		return
 	}
 
-  item := types.ToItem(b, r, u)
+	item := types.ToItem(b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
 
