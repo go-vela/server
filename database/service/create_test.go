@@ -5,6 +5,7 @@
 package service
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -57,7 +58,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateService(_service)
+			got, err := test.database.CreateService(_service)
 
 			if test.failure {
 				if err == nil {
@@ -69,6 +70,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("CreateService for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _service) {
+				t.Errorf("CreateService for %s returned %s, want %s", test.name, got, _service)
 			}
 		})
 	}
