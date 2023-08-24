@@ -470,19 +470,12 @@ func PostWebhook(c *gin.Context) {
 		repo.SetTopics(r.GetTopics())
 		repo.SetBranch(r.GetBranch())
 
-		// set the parent equal to the current repo counter
-		b.SetParent(repo.GetCounter())
-
-		// check if the parent is set to 0
-		if b.GetParent() == 0 {
-			// parent should be "1" if it's the first build ran
-			b.SetParent(1)
-		}
-
-		// update the build numbers based off repo counter
+		// parent and build number should stay synced and only diverge when a build
+		// is restarted, which is handled in the restart handler
 		inc := repo.GetCounter() + 1
 		repo.SetCounter(inc)
 		b.SetNumber(inc)
+		b.SetParent(inc)
 
 		// populate the build link if a web address is provided
 		if len(m.Vela.WebAddress) > 0 {
