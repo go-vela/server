@@ -362,6 +362,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		b.SetCommit(commit)
+		b.SetBranch(strings.ReplaceAll(branch, "refs/heads/", ""))
 		b.SetBaseRef(baseref)
 		b.SetHeadRef(headref)
 	}
