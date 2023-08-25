@@ -32,6 +32,7 @@ require (
 	github.com/spf13/afero v1.9.5
 	github.com/urfave/cli/v2 v2.25.7
 	go.starlark.net v0.0.0-20230725161458-0d7263928a74
+	golang.org/x/crypto v0.11.0
 	golang.org/x/oauth2 v0.9.0
 	golang.org/x/sync v0.3.0
 	gopkg.in/square/go-jose.v2 v2.6.0
@@ -116,7 +117,6 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yuin/gopher-lua v1.1.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
