@@ -467,8 +467,7 @@ func PostWebhook(c *gin.Context) {
 		repo.SetTopics(r.GetTopics())
 		repo.SetBranch(r.GetBranch())
 
-		// parent and build number should stay synced and only diverge when a build
-		// is restarted, which is handled in the restart handler
+		// update the build numbers based off repo counter
 		inc := repo.GetCounter() + 1
 		repo.SetCounter(inc)
 		b.SetNumber(inc)
