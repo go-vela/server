@@ -5,6 +5,7 @@
 package executable
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -30,6 +31,8 @@ type (
 	engine struct {
 		// engine configuration settings used in build executable functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in build executable functions
 		//
@@ -71,7 +74,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the build executables table
-	err := e.CreateBuildExecutableTable(e.client.Config.Dialector.Name())
+	err := e.CreateBuildExecutableTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableBuildExecutable, err)
 	}

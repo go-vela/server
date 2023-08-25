@@ -4,7 +4,11 @@
 
 package executable
 
-import "github.com/go-vela/types/constants"
+import (
+	"context"
+
+	"github.com/go-vela/types/constants"
+)
 
 const (
 	// CreatePostgresTable represents a query to create the Postgres build_executables table.
@@ -33,7 +37,7 @@ build_executables (
 )
 
 // CreateBuildExecutableTable creates the build executables table in the database.
-func (e *engine) CreateBuildExecutableTable(driver string) error {
+func (e *engine) CreateBuildExecutableTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating build_executables table in the database")
 
 	// handle the driver provided to create the table

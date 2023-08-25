@@ -5,6 +5,7 @@
 package executable
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -53,7 +54,7 @@ VALUES ($1,$2,$3) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateBuildExecutable(_bExecutable)
+			err := test.database.CreateBuildExecutable(context.TODO(), _bExecutable)
 
 			if test.failure {
 				if err == nil {

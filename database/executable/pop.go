@@ -5,6 +5,8 @@
 package executable
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // PopBuildExecutable pops a build executable by build_id from the database.
-func (e *engine) PopBuildExecutable(id int64) (*library.BuildExecutable, error) {
+func (e *engine) PopBuildExecutable(ctx context.Context, id int64) (*library.BuildExecutable, error) {
 	e.logger.Tracef("popping build executable for build %d from the database", id)
 
 	// variable to store query results
