@@ -50,6 +50,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for hooks
 	e.HookInterface, err = hook.New(
+		hook.WithContext(e.ctx),
 		hook.WithClient(e.client),
 		hook.WithLogger(e.logger),
 		hook.WithSkipCreation(e.config.SkipCreation),

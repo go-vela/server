@@ -5,6 +5,7 @@
 package hook
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -51,12 +52,12 @@ func TestHook_Engine_ListHooks(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateHook(_hookOne)
+	_, err := _sqlite.CreateHook(context.TODO(), _hookOne)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateHook(_hookTwo)
+	_, err = _sqlite.CreateHook(context.TODO(), _hookTwo)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
@@ -85,7 +86,7 @@ func TestHook_Engine_ListHooks(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListHooks()
+			got, err := test.database.ListHooks(context.TODO())
 
 			if test.failure {
 				if err == nil {

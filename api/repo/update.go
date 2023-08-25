@@ -255,7 +255,7 @@ func UpdateRepo(c *gin.Context) {
 	// if webhook validation is not set or events didn't change, skip webhook update
 	if c.Value("webhookvalidation").(bool) && eventsChanged {
 		// grab last hook from repo to fetch the webhook ID
-		lastHook, err := database.FromContext(c).LastHookForRepo(r)
+		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
 

@@ -178,7 +178,7 @@ func PostWebhook(c *gin.Context) {
 
 	defer func() {
 		// send API call to update the webhook
-		_, err = database.FromContext(c).UpdateHook(h)
+		_, err = database.FromContext(c).UpdateHook(ctx, h)
 		if err != nil {
 			logrus.Errorf("unable to update webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
@@ -201,7 +201,7 @@ func PostWebhook(c *gin.Context) {
 	h.SetRepoID(repo.GetID())
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(repo)
+	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, repo)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", repo.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -220,7 +220,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	h, err = database.FromContext(c).CreateHook(h)
+	h, err = database.FromContext(c).CreateHook(ctx, h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create webhook %s/%d: %w", repo.GetFullName(), h.GetNumber(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -695,7 +695,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 
 	defer func() {
 		// send API call to update the webhook
-		_, err := database.FromContext(c).CreateHook(h)
+		_, err := database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
 			logrus.Errorf("unable to create webhook %s/%d: %v", r.GetFullName(), h.GetNumber(), err)
 		}
@@ -728,7 +728,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 		}
 
 		// send API call to capture the last hook for the repo
-		lastHook, err := database.FromContext(c).LastHookForRepo(dbRepo)
+		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 
@@ -804,7 +804,7 @@ func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 	h.SetRepoID(r.GetID())
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(dbR)
+	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, dbR)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
