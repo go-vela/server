@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-vela/types"
+	"golang.org/x/crypto/nacl/sign"
 	"gopkg.in/square/go-jose.v2/json"
 )
 
@@ -23,6 +24,9 @@ func TestRedis_Pop(t *testing.T) {
 		User:  _user,
 	}
 
+	var signed []byte
+	var out []byte
+
 	// setup queue item
 	bytes, err := json.Marshal(_item)
 	if err != nil {
@@ -30,19 +34,21 @@ func TestRedis_Pop(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela")
+	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
+	signed = sign.Sign(out, bytes, _redis.config.PrivateKey)
+
 	// push item to queue
-	err = _redis.Redis.RPush(context.Background(), "vela", bytes).Err()
+	err = _redis.Redis.RPush(context.Background(), "vela", signed).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
 
 	// setup timeout redis mock
-	timeout, err := NewTest("vela")
+	timeout, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -50,15 +56,17 @@ func TestRedis_Pop(t *testing.T) {
 	timeout.config.Timeout = 1 * time.Second
 
 	// setup badChannel redis mock
-	badChannel, err := NewTest("vela")
+	badChannel, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 	// overwrite channel to be invalid
 	badChannel.config.Channels = nil
 
+	signed = sign.Sign(out, bytes, badChannel.config.PrivateKey)
+
 	// push something to badChannel queue
-	err = badChannel.Redis.RPush(context.Background(), "vela", bytes).Err()
+	err = badChannel.Redis.RPush(context.Background(), "vela", signed).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
