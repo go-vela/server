@@ -342,9 +342,6 @@ func PostWebhook(c *gin.Context) {
 	logrus.Debugf("updating build number to %d", repo.GetCounter())
 	b.SetNumber(repo.GetCounter())
 
-	logrus.Debugf("updating parent number to %d", b.GetNumber())
-	b.SetParent(b.GetNumber())
-
 	logrus.Debug("updating status to pending")
 	b.SetStatus(constants.StatusPending)
 
@@ -475,7 +472,6 @@ func PostWebhook(c *gin.Context) {
 		inc := repo.GetCounter() + 1
 		repo.SetCounter(inc)
 		b.SetNumber(inc)
-		b.SetParent(inc)
 
 		// populate the build link if a web address is provided
 		if len(m.Vela.WebAddress) > 0 {
