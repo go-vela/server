@@ -98,6 +98,7 @@ func server(c *cli.Context) error {
 		middleware.Secret(c.String("vela-secret")),
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
+		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),

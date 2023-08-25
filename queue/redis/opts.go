@@ -5,6 +5,8 @@
 package redis
 
 import (
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -65,6 +67,78 @@ func WithTimeout(timeout time.Duration) ClientOpt {
 
 		// set the queue timeout in the redis client
 		c.config.Timeout = timeout
+
+		return nil
+	}
+}
+
+// WithPrivateKey sets the private key in the queue client for Redis.
+//
+//nolint:dupl // ignore similar code
+func WithPrivateKey(key string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring private key in redis queue client")
+
+		if len(key) == 0 {
+			c.Logger.Warn("unable to base64 decode private key, provided key is empty. queue service will be unable to sign items")
+			return nil
+		}
+
+		decoded, err := base64.StdEncoding.DecodeString(key)
+		if err != nil {
+			return err
+		}
+
+		if len(decoded) == 0 {
+			return errors.New("unable to base64 decode private key, decoded key is empty")
+		}
+
+		c.config.PrivateKey = new([64]byte)
+		copy(c.config.PrivateKey[:], decoded)
+
+		if c.config.PrivateKey == nil {
+			return errors.New("unable to copy decoded queue signing private key, copied key is nil")
+		}
+
+		if len(c.config.PrivateKey) == 0 {
+			return errors.New("unable to copy decoded queue signing private key, copied key is empty")
+		}
+
+		return nil
+	}
+}
+
+// WithPublicKey sets the public key in the queue client for Redis.
+//
+//nolint:dupl // ignore similar code
+func WithPublicKey(key string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Tracef("configuring public key in redis queue client")
+
+		if len(key) == 0 {
+			c.Logger.Warn("unable to base64 decode public key, provided key is empty. queue service will be unable to open items")
+			return nil
+		}
+
+		decoded, err := base64.StdEncoding.DecodeString(key)
+		if err != nil {
+			return err
+		}
+
+		if len(decoded) == 0 {
+			return errors.New("unable to base64 decode public key, decoded key is empty")
+		}
+
+		c.config.PublicKey = new([32]byte)
+		copy(c.config.PublicKey[:], decoded)
+
+		if c.config.PublicKey == nil {
+			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
+		}
+
+		if len(c.config.PublicKey) == 0 {
+			return errors.New("unable to copy decoded queue signing public key, copied key is empty")
+		}
 
 		return nil
 	}
