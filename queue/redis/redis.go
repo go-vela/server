@@ -25,6 +25,10 @@ type config struct {
 	Cluster bool
 	// specifies the timeout to use for the Redis client
 	Timeout time.Duration
+	// key for signing items pushed to the Redis client
+	PrivateKey *[64]byte
+	// key for opening items popped from the Redis client
+	PublicKey *[32]byte
 }
 
 type client struct {
@@ -173,7 +177,7 @@ func pingQueue(c *client) error {
 // This function is intended for running tests only.
 //
 //nolint:revive // ignore returning unexported client
-func NewTest(channels ...string) (*client, error) {
+func NewTest(signingPrivateKey, signingPublicKey string, channels ...string) (*client, error) {
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
@@ -186,5 +190,7 @@ func NewTest(channels ...string) (*client, error) {
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
 		WithChannels(channels...),
 		WithCluster(false),
+		WithPrivateKey(signingPrivateKey),
+		WithPublicKey(signingPublicKey),
 	)
 }
