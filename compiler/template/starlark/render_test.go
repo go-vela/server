@@ -92,6 +92,8 @@ func TestStarlark_Render(t *testing.T) {
 }
 
 func TestNative_RenderBuild(t *testing.T) {
+	noWantFile := "none"
+
 	type args struct {
 		velaFile string
 	}
@@ -106,6 +108,7 @@ func TestNative_RenderBuild(t *testing.T) {
 		{"stages", args{velaFile: "testdata/build/basic_stages/build.star"}, "testdata/build/basic_stages/want.yml", false},
 		{"conditional match", args{velaFile: "testdata/build/conditional/build.star"}, "testdata/build/conditional/want.yml", false},
 		{"steps, with structs", args{velaFile: "testdata/build/with_struct/build.star"}, "testdata/build/with_struct/want.yml", false},
+		{"large build to stress execution steps", args{velaFile: "testdata/build/large/build.star"}, noWantFile, false},
 	}
 
 	for _, tt := range tests {
@@ -118,13 +121,14 @@ func TestNative_RenderBuild(t *testing.T) {
 			got, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "master",
+				"VELA_REPO_ORG":       "octocat",
 			}, map[string]interface{}{})
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
-			if tt.wantErr != true {
+			if tt.wantErr != true && tt.wantFile != noWantFile {
 				wFile, err := os.ReadFile(tt.wantFile)
 				if err != nil {
 					t.Error(err)
