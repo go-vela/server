@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -55,7 +56,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateWorker(_worker)
+			err := test.database.CreateWorker(context.TODO(), _worker)
 
 			if test.failure {
 				if err == nil {

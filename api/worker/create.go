@@ -57,6 +57,7 @@ func CreateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	cl := claims.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.Worker)
@@ -89,7 +90,7 @@ func CreateWorker(c *gin.Context) {
 		"worker": input.GetHostname(),
 	}).Infof("creating new worker %s", input.GetHostname())
 
-	err = database.FromContext(c).CreateWorker(input)
+	err = database.FromContext(c).CreateWorker(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create worker: %w", err)
 

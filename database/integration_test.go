@@ -1765,7 +1765,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the workers
 	for _, worker := range resources.Workers {
-		err := db.CreateWorker(worker)
+		err := db.CreateWorker(context.TODO(), worker)
 		if err != nil {
 			t.Errorf("unable to create worker %d: %v", worker.GetID(), err)
 		}
@@ -1773,7 +1773,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateWorker"] = true
 
 	// count the workers
-	count, err := db.CountWorkers()
+	count, err := db.CountWorkers(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count workers: %v", err)
 	}
@@ -1783,7 +1783,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	methods["CountWorkers"] = true
 
 	// list the workers
-	list, err := db.ListWorkers()
+	list, err := db.ListWorkers(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
@@ -1794,7 +1794,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the workers by hostname
 	for _, worker := range resources.Workers {
-		got, err := db.GetWorkerForHostname(worker.GetHostname())
+		got, err := db.GetWorkerForHostname(context.TODO(), worker.GetHostname())
 		if err != nil {
 			t.Errorf("unable to get worker %d by hostname: %v", worker.GetID(), err)
 		}
@@ -1807,13 +1807,13 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	// update the workers
 	for _, worker := range resources.Workers {
 		worker.SetActive(false)
-		err = db.UpdateWorker(worker)
+		err = db.UpdateWorker(context.TODO(), worker)
 		if err != nil {
 			t.Errorf("unable to update worker %d: %v", worker.GetID(), err)
 		}
 
 		// lookup the worker by ID
-		got, err := db.GetWorker(worker.GetID())
+		got, err := db.GetWorker(context.TODO(), worker.GetID())
 		if err != nil {
 			t.Errorf("unable to get worker %d by ID: %v", worker.GetID(), err)
 		}
@@ -1826,7 +1826,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the workers
 	for _, worker := range resources.Workers {
-		err = db.DeleteWorker(worker)
+		err = db.DeleteWorker(context.TODO(), worker)
 		if err != nil {
 			t.Errorf("unable to delete worker %d: %v", worker.GetID(), err)
 		}

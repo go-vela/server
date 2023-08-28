@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -58,11 +59,11 @@ func TestWorker_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteWorker(want)
+		db.DeleteWorker(context.TODO(), want)
 		db.Close()
 	}()
 
-	_ = db.CreateWorker(want)
+	_ = db.CreateWorker(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

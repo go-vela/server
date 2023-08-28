@@ -5,6 +5,8 @@
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // CreateWorker creates a new worker in the database.
-func (e *engine) CreateWorker(w *library.Worker) error {
+func (e *engine) CreateWorker(ctx context.Context, w *library.Worker) error {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("creating worker %s in the database", w.GetHostname())
