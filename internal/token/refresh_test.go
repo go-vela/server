@@ -6,6 +6,7 @@ package token
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -64,6 +65,8 @@ func TestTokenManager_Refresh(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(resp)
 	context.Set("database", db)
+	req, _ := http.NewRequestWithContext(context, "", "", nil)
+	context.Request = req
 
 	// run tests
 	got, err := tm.Refresh(context, rt)
@@ -123,6 +126,8 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(resp)
 	context.Set("database", db)
+	req, _ := http.NewRequestWithContext(context, "", "", nil)
+	context.Request = req
 
 	// run tests
 	_, err = tm.Refresh(context, rt)
