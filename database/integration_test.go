@@ -405,7 +405,7 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 
 	// create the pipelines
 	for _, executable := range resources.Executables {
-		err := db.CreateBuildExecutable(executable)
+		err := db.CreateBuildExecutable(context.TODO(), executable)
 		if err != nil {
 			t.Errorf("unable to create executable %d: %v", executable.GetID(), err)
 		}
@@ -414,7 +414,7 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 
 	// pop executables for builds
 	for _, executable := range resources.Executables {
-		got, err := db.PopBuildExecutable(executable.GetBuildID())
+		got, err := db.PopBuildExecutable(context.TODO(), executable.GetBuildID())
 		if err != nil {
 			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
 		}
