@@ -386,7 +386,7 @@ func recordGauges(c *gin.Context) {
 	// service_image_count
 	if q.ServiceImageCount {
 		// send API call to capture the total number of service images
-		serviceImageMap, err := database.FromContext(c).ListServiceImageCount()
+		serviceImageMap, err := database.FromContext(c).ListServiceImageCount(ctx)
 		if err != nil {
 			logrus.Errorf("unable to get count of all service images: %v", err)
 		}
@@ -399,7 +399,7 @@ func recordGauges(c *gin.Context) {
 	// service_status_count
 	if q.ServiceStatusCount {
 		// send API call to capture the total number of service statuses
-		serviceStatusMap, err := database.FromContext(c).ListServiceStatusCount()
+		serviceStatusMap, err := database.FromContext(c).ListServiceStatusCount(ctx)
 		if err != nil {
 			logrus.Errorf("unable to get count of all service statuses: %v", err)
 		}

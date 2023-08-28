@@ -5,6 +5,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // UpdateService updates an existing service in the database.
-func (e *engine) UpdateService(s *library.Service) (*library.Service, error) {
+func (e *engine) UpdateService(ctx context.Context, s *library.Service) (*library.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("updating service %s in the database", s.GetName())

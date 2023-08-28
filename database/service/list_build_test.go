@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -56,12 +57,12 @@ func TestService_Engine_ListServicesForBuild(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateService(_serviceOne)
+	_, err := _sqlite.CreateService(context.TODO(), _serviceOne)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateService(_serviceTwo)
+	_, err = _sqlite.CreateService(context.TODO(), _serviceTwo)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
@@ -92,7 +93,7 @@ func TestService_Engine_ListServicesForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListServicesForBuild(_build, filters, 1, 10)
+			got, _, err := test.database.ListServicesForBuild(context.TODO(), _build, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {
