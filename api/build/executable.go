@@ -70,6 +70,7 @@ func GetBuildExecutable(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	cl := claims.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -81,7 +82,7 @@ func GetBuildExecutable(c *gin.Context) {
 		"subject": cl.Subject,
 	}).Infof("reading build executable %s/%d", r.GetFullName(), b.GetNumber())
 
-	bExecutable, err := database.FromContext(c).PopBuildExecutable(b.GetID())
+	bExecutable, err := database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to pop build executable: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)

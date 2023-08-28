@@ -5,6 +5,7 @@
 package executable
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -33,7 +34,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateBuildExecutable(_bExecutable)
+	err := _sqlite.CreateBuildExecutable(context.TODO(), _bExecutable)
 	if err != nil {
 		t.Errorf("unable to create test build executable for sqlite: %v", err)
 	}
@@ -62,7 +63,7 @@ func TestExecutable_Engine_PopBuildExecutable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.PopBuildExecutable(1)
+			got, err := test.database.PopBuildExecutable(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {
