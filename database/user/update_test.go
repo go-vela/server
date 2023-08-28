@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +32,7 @@ WHERE "id" = $8`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_user)
+	err := _sqlite.CreateUser(context.TODO(), _user)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -57,7 +58,7 @@ WHERE "id" = $8`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateUser(_user)
+			err = test.database.UpdateUser(context.TODO(), _user)
 
 			if test.failure {
 				if err == nil {

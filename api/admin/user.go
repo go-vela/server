@@ -53,6 +53,9 @@ import (
 func UpdateUser(c *gin.Context) {
 	logrus.Info("Admin: updating user in database")
 
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// capture body from API request
 	input := new(library.User)
 
@@ -66,7 +69,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	// send API call to update the user
-	err = database.FromContext(c).UpdateUser(input)
+	err = database.FromContext(c).UpdateUser(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %d: %w", input.GetID(), err)
 

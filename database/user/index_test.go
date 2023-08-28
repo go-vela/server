@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestUser_Engine_CreateUserIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateUserIndexes()
+			err := test.database.CreateUserIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {

@@ -285,7 +285,7 @@ func PostWebhook(c *gin.Context) {
 	// send API call to capture repo owner
 	logrus.Debugf("capturing owner of repository %s", repo.GetFullName())
 
-	u, err := database.FromContext(c).GetUser(repo.GetUserID())
+	u, err := database.FromContext(c).GetUser(ctx, repo.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, repo.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)

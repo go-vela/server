@@ -55,6 +55,7 @@ import (
 func UpdateCurrentUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -82,7 +83,7 @@ func UpdateCurrentUser(c *gin.Context) {
 	}
 
 	// send API call to update the user
-	err = database.FromContext(c).UpdateUser(u)
+	err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 
@@ -92,7 +93,7 @@ func UpdateCurrentUser(c *gin.Context) {
 	}
 
 	// send API call to capture the updated user
-	u, err = database.FromContext(c).GetUserForName(u.GetName())
+	u, err = database.FromContext(c).GetUserForName(ctx, u.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get updated user %s: %w", u.GetName(), err)
 

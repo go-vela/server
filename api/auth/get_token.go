@@ -62,6 +62,8 @@ func GetAuthToken(c *gin.Context) {
 	var err error
 
 	tm := c.MustGet("token-manager").(*token.Manager)
+	// capture middleware values
+	ctx := c.Request.Context()
 
 	// capture the OAuth state if present
 	oAuthState := c.Request.FormValue("state")
@@ -97,7 +99,7 @@ func GetAuthToken(c *gin.Context) {
 	}
 
 	// send API call to capture the user logging in
-	u, err := database.FromContext(c).GetUserForName(newUser.GetName())
+	u, err := database.FromContext(c).GetUserForName(ctx, newUser.GetName())
 	// create a new user account
 	if len(u.GetName()) == 0 || err != nil {
 		// create the user account
@@ -121,7 +123,7 @@ func GetAuthToken(c *gin.Context) {
 		u.SetRefreshToken(rt)
 
 		// send API call to create the user in the database
-		err = database.FromContext(c).CreateUser(u)
+		err = database.FromContext(c).CreateUser(ctx, u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create user %s: %w", u.GetName(), err)
 
@@ -154,7 +156,7 @@ func GetAuthToken(c *gin.Context) {
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user in the database
-	err = database.FromContext(c).UpdateUser(u)
+	err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 

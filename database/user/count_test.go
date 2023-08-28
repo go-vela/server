@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -37,12 +38,12 @@ func TestUser_Engine_CountUsers(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_userOne)
+	err := _sqlite.CreateUser(context.TODO(), _userOne)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateUser(_userTwo)
+	err = _sqlite.CreateUser(context.TODO(), _userTwo)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -71,7 +72,7 @@ func TestUser_Engine_CountUsers(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountUsers()
+			got, err := test.database.CountUsers(context.TODO())
 
 			if test.failure {
 				if err == nil {

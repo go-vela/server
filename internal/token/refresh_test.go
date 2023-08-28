@@ -5,6 +5,7 @@
 package token
 
 import (
+	"context"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -51,11 +52,11 @@ func TestTokenManager_Refresh(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(u)
+		db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(u)
+	_ = db.CreateUser(context.TODO(), u)
 
 	// set up context
 	gin.SetMode(gin.TestMode)
@@ -110,11 +111,11 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(u)
+		db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(u)
+	_ = db.CreateUser(context.TODO(), u)
 
 	// set up context
 	gin.SetMode(gin.TestMode)
