@@ -38,6 +38,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for build_executables
 	e.BuildExecutableInterface, err = executable.New(
+		executable.WithContext(e.ctx),
 		executable.WithClient(e.client),
 		executable.WithLogger(e.logger),
 		executable.WithSkipCreation(e.config.SkipCreation),

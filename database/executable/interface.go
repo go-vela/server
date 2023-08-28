@@ -4,7 +4,11 @@
 
 package executable
 
-import "github.com/go-vela/types/library"
+import (
+	"context"
+
+	"github.com/go-vela/types/library"
+)
 
 // BuildExecutableInterface represents the Vela interface for build executable
 // functions with the supported Database backends.
@@ -12,14 +16,14 @@ type BuildExecutableInterface interface {
 	// BuildExecutable Data Definition Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_definition_language
-	CreateBuildExecutableTable(string) error
+	CreateBuildExecutableTable(context.Context, string) error
 
 	// BuildExecutable Data Manipulation Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CreateBuildExecutable defines a function that creates a build executable.
-	CreateBuildExecutable(*library.BuildExecutable) error
+	CreateBuildExecutable(context.Context, *library.BuildExecutable) error
 	// PopBuildExecutable defines a function that gets and deletes a build executable.
-	PopBuildExecutable(int64) (*library.BuildExecutable, error)
+	PopBuildExecutable(context.Context, int64) (*library.BuildExecutable, error)
 }

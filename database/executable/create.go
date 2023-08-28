@@ -5,6 +5,7 @@
 package executable
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -14,7 +15,7 @@ import (
 )
 
 // CreateBuildExecutable creates a new build executable in the database.
-func (e *engine) CreateBuildExecutable(b *library.BuildExecutable) error {
+func (e *engine) CreateBuildExecutable(ctx context.Context, b *library.BuildExecutable) error {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetBuildID(),
 	}).Tracef("creating build executable for build %d in the database", b.GetBuildID())
