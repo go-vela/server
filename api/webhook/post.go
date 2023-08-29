@@ -113,7 +113,8 @@ func PostWebhook(c *gin.Context) {
 	// -------------------- End of TODO: --------------------
 
 	// process the webhook from the source control provider
-	// comment, number, h, r, b
+	//
+	// populate build, hook, repo resources as well as PR Number / PR Comment if necessary
 	webhook, err := scm.FromContext(c).ProcessWebhook(c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse webhook: %w", err)
@@ -142,7 +143,7 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// if there were actual changes to the repo, return the repo object
+		// if there were actual changes to the repo (database call populated ID field), return the repo object
 		if r.GetID() != 0 {
 			c.JSON(http.StatusOK, r)
 			return
@@ -345,7 +346,8 @@ func PostWebhook(c *gin.Context) {
 	logrus.Debug("updating status to pending")
 	b.SetStatus(constants.StatusPending)
 
-	// if this is a comment on a pull_request event
+	// if the event is issue_comment and the issue is a pull request,
+	// call SCM for more data not provided in webhook payload
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
 		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(u, repo, webhook.PRNumber)
 		if err != nil {
@@ -366,6 +368,7 @@ func PostWebhook(c *gin.Context) {
 
 	// variable to store changeset files
 	var files []string
+
 	// check if the build event is not issue_comment or pull_request
 	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
 		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
@@ -423,7 +426,7 @@ func PostWebhook(c *gin.Context) {
 			time.Sleep(time.Duration(i) * time.Second)
 		}
 
-		// send API call to attempt to capture the pipeline
+		// send database call to attempt to capture the pipeline if we already processed it before
 		pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), repo)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
@@ -463,7 +466,7 @@ func PostWebhook(c *gin.Context) {
 			return
 		}
 
-		// update repo fields with any changes from SCM process
+		// update DB record of repo (repo) with any changes captured from webhook payload (r)
 		repo.SetTopics(r.GetTopics())
 		repo.SetBranch(r.GetBranch())
 
@@ -525,7 +528,7 @@ func PostWebhook(c *gin.Context) {
 		// before compiling. After we're done compiling, we reset the pipeline type.
 		repo.SetPipelineType(pipelineType)
 
-		// skip the build if only the init or clone steps are found
+		// skip the build if pipeline compiled to only the init and clone steps
 		skip := build.SkipEmptyBuild(p)
 		if skip != "" {
 			// set build to successful status
@@ -678,6 +681,8 @@ func PostWebhook(c *gin.Context) {
 	)
 }
 
+// handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
+// the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
 func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
 	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
@@ -690,7 +695,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 	}()
 
 	switch h.GetEventAction() {
-	// if action is rename, go through rename routine
+	// if action is renamed or transferred, go through rename routine
 	case constants.ActionRenamed, constants.ActionTransferred:
 		r, err := renameRepository(ctx, h, r, c, m)
 		if err != nil {
@@ -746,6 +751,34 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 
 		if !reflect.DeepEqual(dbRepo.GetTopics(), r.GetTopics()) {
 			dbRepo.SetTopics(r.GetTopics())
+		}
+
+		if c.Value("webhookvalidation").(bool) {
+			// capture repo owner in order to make updates to SCM webhook
+			u, err := database.FromContext(c).GetUser(dbRepo.GetUserID())
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to capture repo owner for %s: %w", baseErr, r.GetFullName(), err)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return nil, err
+			}
+
+			// if repo was unarchived, enable the webhook. If repo was archived, disable the webhook.
+			if dbRepo.GetActive() {
+				// send API call to create the webhook
+				h, _, err = scm.FromContext(c).Enable(u, dbRepo, h)
+				if err != nil {
+					return nil, fmt.Errorf("unable to create webhook for %s: %w", dbRepo.GetFullName(), err)
+				}
+			} else {
+				// send API call to remove the webhook
+				err = scm.FromContext(c).Disable(u, dbRepo.GetOrg(), dbRepo.GetName())
+				if err != nil {
+					return nil, fmt.Errorf("unable to delete webhook for %s: %w", dbRepo.GetFullName(), err)
+				}
+			}
 		}
 
 		// update repo object in the database after applying edits
