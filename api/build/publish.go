@@ -34,7 +34,7 @@ func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interf
 	bExecutable.SetBuildID(b.GetID())
 	bExecutable.SetData(byteExecutable)
 
-	err = db.CreateBuildExecutable(bExecutable)
+	err = db.CreateBuildExecutable(ctx, bExecutable)
 	if err != nil {
 		logrus.Errorf("Failed to publish build executable to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
 
