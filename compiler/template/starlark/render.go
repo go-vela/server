@@ -32,14 +32,14 @@ var (
 )
 
 // Render combines the template with the step in the yaml pipeline.
-func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}) (*types.Build, error) {
+func Render(tmpl string, name string, tName string, environment raw.StringSliceMap, variables map[string]interface{}, limit uint64) (*types.Build, error) {
 	config := new(types.Build)
 
 	thread := &starlark.Thread{Name: name}
 	// arbitrarily limiting the steps of the thread to 5000 to help prevent infinite loops
 	// may need to further investigate spawning a separate POSIX process if user input is problematic
 	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
-	thread.SetMaxExecutionSteps(GetStarlarkExecutionStepLimit())
+	thread.SetMaxExecutionSteps(limit)
 
 	predeclared := starlark.StringDict{"struct": starlark.NewBuiltin("struct", starlarkstruct.Make)}
 
