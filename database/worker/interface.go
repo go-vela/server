@@ -29,7 +29,7 @@ type WorkerInterface interface {
 	// CountWorkers defines a function that gets the count of all workers.
 	CountWorkers() (int64, error)
 	// CreateWorker defines a function that creates a new worker.
-	CreateWorker(*library.Worker) error
+	CreateWorker(*library.Worker) (*library.Worker, error)
 	// DeleteWorker defines a function that deletes an existing worker.
 	DeleteWorker(*library.Worker) error
 	// GetWorker defines a function that gets a worker by ID.
@@ -39,5 +39,5 @@ type WorkerInterface interface {
 	// ListWorkers defines a function that gets a list of all workers.
 	ListWorkers() ([]*library.Worker, error)
 	// UpdateWorker defines a function that updates an existing worker.
-	UpdateWorker(*library.Worker) error
+	UpdateWorker(*library.Worker) (*library.Worker, error)
 }
