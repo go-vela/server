@@ -22,7 +22,6 @@ services:
     networks:
       - vela
     environment:
-      COMPILER_STARLARK_EXEC_LIMIT: 7500
       DATABASE_DRIVER: postgres
       DATABASE_ADDR: 'postgres://vela:zB7mrKDTZqNeNTD8z47yG4DHywspAh@postgres:5432/vela?sslmode=disable'
       DATABASE_COMPRESSION_LEVEL: 3
