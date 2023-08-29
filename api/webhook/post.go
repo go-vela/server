@@ -753,34 +753,6 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 			dbRepo.SetTopics(r.GetTopics())
 		}
 
-		if c.Value("webhookvalidation").(bool) {
-			// capture repo owner in order to make updates to SCM webhook
-			u, err := database.FromContext(c).GetUser(dbRepo.GetUserID())
-			if err != nil {
-				retErr := fmt.Errorf("%s: failed to capture repo owner for %s: %w", baseErr, r.GetFullName(), err)
-
-				h.SetStatus(constants.StatusFailure)
-				h.SetError(retErr.Error())
-
-				return nil, err
-			}
-
-			// if repo was unarchived, enable the webhook. If repo was archived, disable the webhook.
-			if dbRepo.GetActive() {
-				// send API call to create the webhook
-				h, _, err = scm.FromContext(c).Enable(u, dbRepo, h)
-				if err != nil {
-					return nil, fmt.Errorf("unable to create webhook for %s: %w", dbRepo.GetFullName(), err)
-				}
-			} else {
-				// send API call to remove the webhook
-				err = scm.FromContext(c).Disable(u, dbRepo.GetOrg(), dbRepo.GetName())
-				if err != nil {
-					return nil, fmt.Errorf("unable to delete webhook for %s: %w", dbRepo.GetFullName(), err)
-				}
-			}
-		}
-
 		// update repo object in the database after applying edits
 		dbRepo, err = database.FromContext(c).UpdateRepo(ctx, dbRepo)
 		if err != nil {
