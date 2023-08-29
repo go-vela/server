@@ -6,7 +6,6 @@ package starlark
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	goyaml "github.com/buildkite/yaml"
@@ -140,58 +139,65 @@ func TestNative_RenderBuild(t *testing.T) {
 	}
 
 	tests := []struct {
-		name     string
-		args     args
-		wantFile string
-		wantErr  bool
+		name      string
+		args      args
+		wantFile  string
+		wantErr   bool
+		execLimit uint64
 	}{
 		{
 			name: "steps",
 			args: args{
 				velaFile: "testdata/build/basic/build.star",
 			},
-			wantFile: "testdata/build/basic/want.yml",
-			wantErr:  false,
+			wantFile:  "testdata/build/basic/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
 		},
 		{
 			name: "stages",
 			args: args{
 				velaFile: "testdata/build/basic_stages/build.star",
 			},
-			wantFile: "testdata/build/basic_stages/want.yml",
-			wantErr:  false,
+			wantFile:  "testdata/build/basic_stages/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
 		},
 		{
 			name: "conditional match",
 			args: args{
 				velaFile: "testdata/build/conditional/build.star",
 			},
-			wantFile: "testdata/build/conditional/want.yml",
-			wantErr:  false,
+			wantFile:  "testdata/build/conditional/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
 		},
 		{
 			name: "steps, with structs",
 			args: args{
 				velaFile: "testdata/build/with_struct/build.star",
 			},
-			wantFile: "testdata/build/with_struct/want.yml",
-			wantErr:  false,
+			wantFile:  "testdata/build/with_struct/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
 		},
 		{
 			name: "large build - exec step limit good",
 			args: args{
 				velaFile: "testdata/build/large/build.star",
 			},
-			wantFile: "testdata/build/large/want.yml",
-			wantErr:  false,
+			wantFile:  "testdata/build/large/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
 		},
 		{
 			name: "large build - exec step limit too low",
 			args: args{
 				velaFile: "testdata/build/large/build.star",
 			},
-			wantFile: "",
-			wantErr:  true,
+			wantFile:  "",
+			wantErr:   true,
+			execLimit: 5000,
 		},
 	}
 
@@ -202,20 +208,11 @@ func TestNative_RenderBuild(t *testing.T) {
 				t.Error(err)
 			}
 
-			// set execLimit based on test name
-			var execLimit uint64
-
-			if strings.EqualFold(tt.name, "large build - exec step limit too low") {
-				execLimit = 5000
-			} else {
-				execLimit = 7500
-			}
-
 			got, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "master",
 				"VELA_REPO_ORG":       "octocat",
-			}, map[string]interface{}{}, execLimit)
+			}, map[string]interface{}{}, tt.execLimit)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return
