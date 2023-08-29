@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	"github.com/go-vela/types/raw"
 	"go.starlark.net/starlarkstruct"
 
@@ -148,12 +149,14 @@ func GetStarlarkExecutionStepLimit() uint64 {
 // RenderBuild renders the templated build.
 //
 //nolint:lll // ignore function length due to input args
-func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}) (*types.Build, error) {
+func RenderBuild(tmpl string, b string, envs map[string]string, variables map[string]interface{}, limit uint64) (*types.Build, error) {
 	config := new(types.Build)
 
 	thread := &starlark.Thread{Name: "templated-base"}
-
-	thread.SetMaxExecutionSteps(GetStarlarkExecutionStepLimit())
+	// arbitrarily limiting the steps of the thread to 5000 to help prevent infinite loops
+	// may need to further investigate spawning a separate POSIX process if user input is problematic
+	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
+	thread.SetMaxExecutionSteps(limit)
 
 	predeclared := starlark.StringDict{"struct": starlark.NewBuiltin("struct", starlarkstruct.Make)}
 
