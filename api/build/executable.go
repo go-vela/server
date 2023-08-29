@@ -82,6 +82,7 @@ func GetBuildExecutable(c *gin.Context) {
 		"subject": cl.Subject,
 	}).Infof("reading build executable %s/%d", r.GetFullName(), b.GetNumber())
 
+	// send database call to pop the requested build executable from the table
 	bExecutable, err := database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to pop build executable: %w", err)
