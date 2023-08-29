@@ -35,7 +35,7 @@ func TestUser_Engine_GetUserForName(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_user)
+	_, err := _sqlite.CreateUser(_user)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}

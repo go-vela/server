@@ -75,7 +75,7 @@ func Logout(c *gin.Context) {
 	u.SetRefreshToken("")
 
 	// send API call to update the user in the database
-	err = database.FromContext(c).UpdateUser(u)
+	_, err = database.FromContext(c).UpdateUser(u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 
