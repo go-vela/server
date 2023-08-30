@@ -15,7 +15,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:15-alpine@sha256:8bc3c893342c766481df5fde58fab6f1a1115b94eb56778126163305243e9709
         env:
           POSTGRES_DB: vela
           POSTGRES_PASSWORD: notARealPassword12345
