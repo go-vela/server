@@ -15,7 +15,7 @@ import (
 )
 
 // CreateUser creates a new user in the database.
-func (e *engine) CreateUser(u *library.User) error {
+func (e *engine) CreateUser(u *library.User) (*library.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("creating user %s in the database", u.GetName())
@@ -30,7 +30,7 @@ func (e *engine) CreateUser(u *library.User) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#User.Validate
 	err := user.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// encrypt the fields for the user
@@ -38,12 +38,17 @@ func (e *engine) CreateUser(u *library.User) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#User.Encrypt
 	err = user.Encrypt(e.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt user %s: %w", u.GetName(), err)
+		return nil, fmt.Errorf("unable to encrypt user %s: %w", u.GetName(), err)
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableUser).
-		Create(user).
-		Error
+	result := e.client.Table(constants.TableUser).Create(user)
+
+	// decrypt fields to return user
+	err = user.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		return nil, fmt.Errorf("unable to decrypt user %s: %w", u.GetName(), err)
+	}
+
+	return user.ToLibrary(), result.Error
 }
