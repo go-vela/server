@@ -2,7 +2,7 @@
 #
 # Use of this source code is governed by the LICENSE file in this repository.
 
-FROM alpine:3.18.2@sha256:25fad2a32ad1f6f510e528448ae1ec69a28ef81916a004d3629874104f8a7f70 as certs
+FROM alpine:3.18.3@sha256:c5c5fda71656f28e49ac9c5416b3643eaa6a108a8093151d6d1afc9463be8e33 as certs
 
 RUN apk add --update --no-cache ca-certificates
 

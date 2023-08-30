@@ -12,7 +12,7 @@ import (
 )
 
 // CreateWorker creates a new worker in the database.
-func (e *engine) CreateWorker(w *library.Worker) error {
+func (e *engine) CreateWorker(w *library.Worker) (*library.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("creating worker %s in the database", w.GetHostname())
@@ -27,12 +27,11 @@ func (e *engine) CreateWorker(w *library.Worker) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Worker.Validate
 	err := worker.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableWorker).
-		Create(worker).
-		Error
+	result := e.client.Table(constants.TableWorker).Create(worker)
+
+	return worker.ToLibrary(), result.Error
 }
