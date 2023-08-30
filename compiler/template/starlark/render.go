@@ -137,15 +137,6 @@ func Render(tmpl string, name string, tName string, environment raw.StringSliceM
 	return &types.Build{Steps: config.Steps, Secrets: config.Secrets, Services: config.Services, Environment: config.Environment}, nil
 }
 
-// GetStarlarkExecutionStepLimit may eventually look up config or calculate it
-func GetStarlarkExecutionStepLimit() uint64 {
-	// arbitrarily limiting the steps of the thread to help prevent infinite loops
-	// may need to further investigate spawning a separate POSIX process if user input is problematic
-	// see https://github.com/google/starlark-go/issues/160#issuecomment-466794230 for further details
-	// This value was previously 5000 and that inhibited a four-dimensional build matrix from working.
-	return 7500
-}
-
 // RenderBuild renders the templated build.
 //
 //nolint:lll // ignore function length due to input args
