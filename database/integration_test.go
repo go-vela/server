@@ -1760,7 +1760,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the workers
 	for _, worker := range resources.Workers {
-		err := db.CreateWorker(worker)
+		_, err := db.CreateWorker(worker)
 		if err != nil {
 			t.Errorf("unable to create worker %d: %v", worker.GetID(), err)
 		}
@@ -1802,16 +1802,11 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	// update the workers
 	for _, worker := range resources.Workers {
 		worker.SetActive(false)
-		err = db.UpdateWorker(worker)
+		got, err := db.UpdateWorker(worker)
 		if err != nil {
 			t.Errorf("unable to update worker %d: %v", worker.GetID(), err)
 		}
 
-		// lookup the worker by ID
-		got, err := db.GetWorker(worker.GetID())
-		if err != nil {
-			t.Errorf("unable to get worker %d by ID: %v", worker.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, worker) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
 		}

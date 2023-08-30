@@ -29,7 +29,7 @@ func TestWorker_Engine_DeleteWorker(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateWorker(_worker)
+	_, err := _sqlite.CreateWorker(_worker)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}

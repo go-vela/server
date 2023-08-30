@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v54/github"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2"

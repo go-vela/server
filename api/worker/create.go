@@ -89,7 +89,7 @@ func CreateWorker(c *gin.Context) {
 		"worker": input.GetHostname(),
 	}).Infof("creating new worker %s", input.GetHostname())
 
-	err = database.FromContext(c).CreateWorker(input)
+	_, err = database.FromContext(c).CreateWorker(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create worker: %w", err)
 
