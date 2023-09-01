@@ -27,6 +27,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
+	"github.com/google/go-cmp/cmp"
 )
 
 // Resources represents the object containing test resources.
@@ -2302,7 +2303,7 @@ func ResourceEqual(a, b interface{}) bool {
 			x.SetUpdatedAt(0)
 			y.SetUpdatedAt(0)
 
-			return reflect.DeepEqual(x, y)
+			return cmp.Equal(x, y)
 		default:
 			return false
 		}
@@ -2316,7 +2317,7 @@ func ResourceEqual(a, b interface{}) bool {
 				s.SetUpdatedAt(0)
 			}
 
-			return reflect.DeepEqual(x, y)
+			return cmp.Equal(x, y)
 		}
 	case *library.Secret:
 		switch y := b.(type) {
@@ -2324,7 +2325,7 @@ func ResourceEqual(a, b interface{}) bool {
 			x.SetUpdatedAt(0)
 			y.SetUpdatedAt(0)
 
-			return reflect.DeepEqual(x, y)
+			return cmp.Equal(x, y)
 		default:
 			return false
 		}
@@ -2338,10 +2339,10 @@ func ResourceEqual(a, b interface{}) bool {
 				s.SetUpdatedAt(0)
 			}
 
-			return reflect.DeepEqual(x, y)
+			return cmp.Equal(x, y)
 		}
 	default:
-		return reflect.DeepEqual(a, b)
+		return cmp.Equal(a, b)
 	}
 
 	return false
