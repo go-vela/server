@@ -42,7 +42,7 @@ func PlanBuild(ctx context.Context, database database.Interface, p *pipeline.Bui
 	}
 
 	// plan all services for the build
-	services, err := service.PlanServices(database, p, b)
+	services, err := service.PlanServices(ctx, database, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		CleanBuild(ctx, database, b, services, nil, err)

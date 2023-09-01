@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-vela/types/constants"
@@ -14,7 +15,7 @@ import (
 )
 
 // CleanServices updates services to an error with a created timestamp prior to a defined moment.
-func (e *engine) CleanServices(msg string, before int64) (int64, error) {
+func (e *engine) CleanServices(ctx context.Context, msg string, before int64) (int64, error) {
 	logrus.Tracef("cleaning pending or running steps in the database created prior to %d", before)
 
 	s := new(library.Service)
