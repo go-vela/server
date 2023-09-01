@@ -253,7 +253,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list builds: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Builds) {
+	if !ResourceEqual(list, resources.Builds) {
 		t.Errorf("ListBuilds() is %v, want %v", list, resources.Builds)
 	}
 	methods["ListBuilds"] = true
@@ -266,7 +266,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
 	}
-	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
+	if !ResourceEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
 		t.Errorf("ListBuildsForDeployment() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
 	methods["ListBuildsForDeployment"] = true
@@ -279,7 +279,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForOrg() is %v, want %v", count, len(resources.Builds))
 	}
-	if !reflect.DeepEqual(list, resources.Builds) {
+	if !ResourceEqual(list, resources.Builds) {
 		t.Errorf("ListBuildsForOrg() is %v, want %v", list, resources.Builds)
 	}
 	methods["ListBuildsForOrg"] = true
@@ -292,7 +292,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if !reflect.DeepEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
+	if !ResourceEqual(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
 	methods["ListBuildsForRepo"] = true
@@ -302,7 +302,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pending and running builds: %v", err)
 	}
-	if !reflect.DeepEqual(queueList, queueBuilds) {
+	if !ResourceEqual(queueList, queueBuilds) {
 		t.Errorf("ListPendingAndRunningBuilds() is %v, want %v", queueList, queueBuilds)
 	}
 	methods["ListPendingAndRunningBuilds"] = true
@@ -312,7 +312,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last build for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(got, resources.Builds[1]) {
+	if !ResourceEqual(got, resources.Builds[1]) {
 		t.Errorf("LastBuildForRepo() is %v, want %v", got, resources.Builds[1])
 	}
 	methods["LastBuildForRepo"] = true
@@ -324,7 +324,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, build) {
+		if !ResourceEqual(got, build) {
 			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
 		}
 	}
@@ -353,7 +353,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get build %d by ID: %v", build.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, build) {
+		if !ResourceEqual(got, build) {
 			t.Errorf("GetBuild() is %v, want %v", got, build)
 		}
 	}
@@ -418,7 +418,7 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
 		}
-		if !reflect.DeepEqual(got, executable) {
+		if !ResourceEqual(got, executable) {
 			t.Errorf("PopBuildExecutable() is %v, want %v", got, executable)
 		}
 	}
@@ -484,7 +484,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list hooks: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Hooks) {
+	if !ResourceEqual(list, resources.Hooks) {
 		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
 	}
 	methods["ListHooks"] = true
@@ -497,7 +497,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Hooks) {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
-	if !reflect.DeepEqual(list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]}) {
+	if !ResourceEqual(list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]}) {
 		t.Errorf("ListHooksForRepo() is %v, want %v", list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]})
 	}
 	methods["ListHooksForRepo"] = true
@@ -507,7 +507,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(got, resources.Hooks[1]) {
+	if !ResourceEqual(got, resources.Hooks[1]) {
 		t.Errorf("LastHookForRepo() is %v, want %v", got, resources.Hooks[1])
 	}
 	methods["LastHookForRepo"] = true
@@ -519,7 +519,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, hook) {
+		if !ResourceEqual(got, hook) {
 			t.Errorf("GetHookForRepo() is %v, want %v", got, hook)
 		}
 	}
@@ -538,7 +538,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get hook %d by ID: %v", hook.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, hook) {
+		if !ResourceEqual(got, hook) {
 			t.Errorf("GetHook() is %v, want %v", got, hook)
 		}
 	}
@@ -614,7 +614,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list logs: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Logs) {
+	if !ResourceEqual(list, resources.Logs) {
 		t.Errorf("ListLogs() is %v, want %v", list, resources.Logs)
 	}
 	methods["ListLogs"] = true
@@ -627,7 +627,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Logs) {
 		t.Errorf("ListLogsForBuild() is %v, want %v", count, len(resources.Logs))
 	}
-	if !reflect.DeepEqual(list, resources.Logs) {
+	if !ResourceEqual(list, resources.Logs) {
 		t.Errorf("ListLogsForBuild() is %v, want %v", list, resources.Logs)
 	}
 	methods["ListLogsForBuild"] = true
@@ -639,7 +639,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), service.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, log) {
+		if !ResourceEqual(got, log) {
 			t.Errorf("GetLogForService() is %v, want %v", got, log)
 		}
 	}
@@ -652,7 +652,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), step.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, log) {
+		if !ResourceEqual(got, log) {
 			t.Errorf("GetLogForStep() is %v, want %v", got, log)
 		}
 	}
@@ -671,7 +671,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get log %d by ID: %v", log.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, log) {
+		if !ResourceEqual(got, log) {
 			t.Errorf("GetLog() is %v, want %v", got, log)
 		}
 	}
@@ -747,7 +747,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pipelines: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Pipelines) {
+	if !ResourceEqual(list, resources.Pipelines) {
 		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
 	}
 	methods["ListPipelines"] = true
@@ -760,7 +760,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Pipelines) {
 		t.Errorf("ListPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
 	}
-	if !reflect.DeepEqual(list, resources.Pipelines) {
+	if !ResourceEqual(list, resources.Pipelines) {
 		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
 	}
 	methods["ListPipelinesForRepo"] = true
@@ -772,7 +772,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get pipeline %d for repo %d: %v", pipeline.GetID(), repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, pipeline) {
+		if !ResourceEqual(got, pipeline) {
 			t.Errorf("GetPipelineForRepo() is %v, want %v", got, pipeline)
 		}
 	}
@@ -791,7 +791,7 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get pipeline %d by ID: %v", pipeline.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, pipeline) {
+		if !ResourceEqual(got, pipeline) {
 			t.Errorf("GetPipeline() is %v, want %v", got, pipeline)
 		}
 	}
@@ -877,7 +877,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list repos: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Repos) {
+	if !ResourceEqual(list, resources.Repos) {
 		t.Errorf("ListRepos() is %v, want %v", list, resources.Repos)
 	}
 	methods["ListRepos"] = true
@@ -890,7 +890,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("ListReposForOrg() is %v, want %v", count, len(resources.Repos))
 	}
-	if !reflect.DeepEqual(list, resources.Repos) {
+	if !ResourceEqual(list, resources.Repos) {
 		t.Errorf("ListReposForOrg() is %v, want %v", list, resources.Repos)
 	}
 	methods["ListReposForOrg"] = true
@@ -903,7 +903,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("ListReposForUser() is %v, want %v", count, len(resources.Repos))
 	}
-	if !reflect.DeepEqual(list, resources.Repos) {
+	if !ResourceEqual(list, resources.Repos) {
 		t.Errorf("ListReposForUser() is %v, want %v", list, resources.Repos)
 	}
 	methods["ListReposForUser"] = true
@@ -914,7 +914,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get repo %d by org: %v", repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, repo) {
+		if !ResourceEqual(got, repo) {
 			t.Errorf("GetRepoForOrg() is %v, want %v", got, repo)
 		}
 	}
@@ -933,7 +933,7 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get repo %d by ID: %v", repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, repo) {
+		if !ResourceEqual(got, repo) {
 			t.Errorf("GetRepo() is %v, want %v", got, repo)
 		}
 	}
@@ -1011,7 +1011,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Schedules) {
+	if !ResourceEqual(list, resources.Schedules) {
 		t.Errorf("ListSchedules() is %v, want %v", list, resources.Schedules)
 	}
 	methods["ListSchedules"] = true
@@ -1021,7 +1021,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Schedules) {
+	if !ResourceEqual(list, resources.Schedules) {
 		t.Errorf("ListActiveSchedules() is %v, want %v", list, resources.Schedules)
 	}
 	methods["ListActiveSchedules"] = true
@@ -1034,7 +1034,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
-	if !reflect.DeepEqual(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}) {
+	if !ResourceEqual(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
 	methods["ListSchedulesForRepo"] = true
@@ -1046,7 +1046,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, schedule) {
+		if !ResourceEqual(got, schedule) {
 			t.Errorf("GetScheduleForRepo() is %v, want %v", got, schedule)
 		}
 	}
@@ -1060,7 +1060,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
 
-		if !reflect.DeepEqual(got, schedule) {
+		if !ResourceEqual(got, schedule) {
 			t.Errorf("GetSchedule() is %v, want %v", got, schedule)
 		}
 	}
@@ -1173,7 +1173,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list secrets: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Secrets) {
+	if !ResourceEqual(list, resources.Secrets) {
 		t.Errorf("ListSecrets() is %v, want %v", list, resources.Secrets)
 	}
 	methods["ListSecrets"] = true
@@ -1189,7 +1189,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", count, 1)
 			}
-			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
+			if !ResourceEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForOrg() is %v, want %v", list, []*library.Secret{secret})
 			}
 			methods["ListSecretsForOrg"] = true
@@ -1202,7 +1202,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", count, 1)
 			}
-			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
+			if !ResourceEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForRepo() is %v, want %v", list, []*library.Secret{secret})
 			}
 			methods["ListSecretsForRepo"] = true
@@ -1215,7 +1215,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", count, 1)
 			}
-			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
+			if !ResourceEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForTeam() is %v, want %v", list, []*library.Secret{secret})
 			}
 			methods["ListSecretsForTeam"] = true
@@ -1228,7 +1228,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if int(count) != 1 {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", count, 1)
 			}
-			if !reflect.DeepEqual(list, []*library.Secret{secret}) {
+			if !ResourceEqual(list, []*library.Secret{secret}) {
 				t.Errorf("ListSecretsForTeams() is %v, want %v", list, []*library.Secret{secret})
 			}
 			methods["ListSecretsForTeams"] = true
@@ -1245,7 +1245,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to get secret %d for org %s: %v", secret.GetID(), secret.GetOrg(), err)
 			}
-			if !reflect.DeepEqual(got, secret) {
+			if !ResourceEqual(got, secret) {
 				t.Errorf("GetSecretForOrg() is %v, want %v", got, secret)
 			}
 			methods["GetSecretForOrg"] = true
@@ -1255,7 +1255,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to get secret %d for repo %d: %v", secret.GetID(), resources.Repos[0].GetID(), err)
 			}
-			if !reflect.DeepEqual(got, secret) {
+			if !ResourceEqual(got, secret) {
 				t.Errorf("GetSecretForRepo() is %v, want %v", got, secret)
 			}
 			methods["GetSecretForRepo"] = true
@@ -1265,7 +1265,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			if err != nil {
 				t.Errorf("unable to get secret %d for team %s: %v", secret.GetID(), secret.GetTeam(), err)
 			}
-			if !reflect.DeepEqual(got, secret) {
+			if !ResourceEqual(got, secret) {
 				t.Errorf("GetSecretForTeam() is %v, want %v", got, secret)
 			}
 			methods["GetSecretForTeam"] = true
@@ -1282,7 +1282,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update secret %d: %v", secret.GetID(), err)
 		}
 
-		if !reflect.DeepEqual(got, secret) {
+		if !ResourceEqual(got, secret) {
 			t.Errorf("GetSecret() is %v, want %v", got, secret)
 		}
 	}
@@ -1358,7 +1358,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list services: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Services) {
+	if !ResourceEqual(list, resources.Services) {
 		t.Errorf("ListServices() is %v, want %v", list, resources.Services)
 	}
 	methods["ListServices"] = true
@@ -1368,7 +1368,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Service{resources.Services[1], resources.Services[0]}) {
+	if !ResourceEqual(list, []*library.Service{resources.Services[1], resources.Services[0]}) {
 		t.Errorf("ListServicesForBuild() is %v, want %v", list, []*library.Service{resources.Services[1], resources.Services[0]})
 	}
 	if int(count) != len(resources.Services) {
@@ -1384,7 +1384,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list service image count: %v", err)
 	}
-	if !reflect.DeepEqual(images, expected) {
+	if !ResourceEqual(images, expected) {
 		t.Errorf("ListServiceImageCount() is %v, want %v", images, expected)
 	}
 	methods["ListServiceImageCount"] = true
@@ -1400,7 +1400,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list service status count: %v", err)
 	}
-	if !reflect.DeepEqual(statuses, expected) {
+	if !ResourceEqual(statuses, expected) {
 		t.Errorf("ListServiceStatusCount() is %v, want %v", statuses, expected)
 	}
 	methods["ListServiceStatusCount"] = true
@@ -1412,7 +1412,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get service %d for build %d: %v", service.GetID(), build.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, service) {
+		if !ResourceEqual(got, service) {
 			t.Errorf("GetServiceForBuild() is %v, want %v", got, service)
 		}
 	}
@@ -1436,7 +1436,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update service %d: %v", service.GetID(), err)
 		}
 
-		if !reflect.DeepEqual(got, service) {
+		if !ResourceEqual(got, service) {
 			t.Errorf("UpdateService() is %v, want %v", got, service)
 		}
 	}
@@ -1512,7 +1512,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list steps: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Steps) {
+	if !ResourceEqual(list, resources.Steps) {
 		t.Errorf("ListSteps() is %v, want %v", list, resources.Steps)
 	}
 	methods["ListSteps"] = true
@@ -1522,7 +1522,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(list, []*library.Step{resources.Steps[1], resources.Steps[0]}) {
+	if !ResourceEqual(list, []*library.Step{resources.Steps[1], resources.Steps[0]}) {
 		t.Errorf("ListStepsForBuild() is %v, want %v", list, []*library.Step{resources.Steps[1], resources.Steps[0]})
 	}
 	if int(count) != len(resources.Steps) {
@@ -1538,7 +1538,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list step image count: %v", err)
 	}
-	if !reflect.DeepEqual(images, expected) {
+	if !ResourceEqual(images, expected) {
 		t.Errorf("ListStepImageCount() is %v, want %v", images, expected)
 	}
 	methods["ListStepImageCount"] = true
@@ -1554,7 +1554,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list step status count: %v", err)
 	}
-	if !reflect.DeepEqual(statuses, expected) {
+	if !ResourceEqual(statuses, expected) {
 		t.Errorf("ListStepStatusCount() is %v, want %v", statuses, expected)
 	}
 	methods["ListStepStatusCount"] = true
@@ -1566,7 +1566,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get step %d for build %d: %v", step.GetID(), build.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, step) {
+		if !ResourceEqual(got, step) {
 			t.Errorf("GetStepForBuild() is %v, want %v", got, step)
 		}
 	}
@@ -1590,7 +1590,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update step %d: %v", step.GetID(), err)
 		}
 
-		if !reflect.DeepEqual(got, step) {
+		if !ResourceEqual(got, step) {
 			t.Errorf("GetStep() is %v, want %v", got, step)
 		}
 	}
@@ -1678,7 +1678,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list users: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Users) {
+	if !ResourceEqual(list, resources.Users) {
 		t.Errorf("ListUsers() is %v, want %v", list, resources.Users)
 	}
 	methods["ListUsers"] = true
@@ -1688,7 +1688,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
-	if !reflect.DeepEqual(list, liteUsers) {
+	if !ResourceEqual(list, liteUsers) {
 		t.Errorf("ListLiteUsers() is %v, want %v", list, liteUsers)
 	}
 	if int(count) != len(liteUsers) {
@@ -1702,7 +1702,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get user %d by name: %v", user.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, user) {
+		if !ResourceEqual(got, user) {
 			t.Errorf("GetUserForName() is %v, want %v", got, user)
 		}
 	}
@@ -1716,7 +1716,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update user %d: %v", user.GetID(), err)
 		}
 
-		if !reflect.DeepEqual(got, user) {
+		if !ResourceEqual(got, user) {
 			t.Errorf("GetUser() is %v, want %v", got, user)
 		}
 	}
@@ -1782,7 +1782,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Workers) {
+	if !ResourceEqual(list, resources.Workers) {
 		t.Errorf("ListWorkers() is %v, want %v", list, resources.Workers)
 	}
 	methods["ListWorkers"] = true
@@ -1793,7 +1793,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get worker %d by hostname: %v", worker.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, worker) {
+		if !ResourceEqual(got, worker) {
 			t.Errorf("GetWorkerForHostname() is %v, want %v", got, worker)
 		}
 	}
@@ -1807,7 +1807,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update worker %d: %v", worker.GetID(), err)
 		}
 
-		if !reflect.DeepEqual(got, worker) {
+		if !ResourceEqual(got, worker) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
 		}
 	}
@@ -2289,4 +2289,60 @@ func newResources() *Resources {
 		Users:       []*library.User{userOne, userTwo},
 		Workers:     []*library.Worker{workerOne, workerTwo},
 	}
+}
+
+// ResourceEqual is a helper function to bypass database time skew with the protected
+// updated_at field, which is automatically populated based on record updates, resulting
+// in miniscule differences in timestamps.
+func ResourceEqual(a, b interface{}) bool {
+	switch x := a.(type) {
+	case *library.Schedule:
+		switch y := b.(type) {
+		case *library.Schedule:
+			x.SetUpdatedAt(0)
+			y.SetUpdatedAt(0)
+
+			return reflect.DeepEqual(x, y)
+		default:
+			return false
+		}
+	case *[]library.Schedule:
+		switch y := b.(type) {
+		case *[]library.Schedule:
+			for _, s := range *x {
+				s.SetUpdatedAt(0)
+			}
+			for _, s := range *y {
+				s.SetUpdatedAt(0)
+			}
+
+			return reflect.DeepEqual(x, y)
+		}
+	case *library.Secret:
+		switch y := b.(type) {
+		case *library.Secret:
+			x.SetUpdatedAt(0)
+			y.SetUpdatedAt(0)
+
+			return reflect.DeepEqual(x, y)
+		default:
+			return false
+		}
+	case *[]library.Secret:
+		switch y := b.(type) {
+		case *[]library.Secret:
+			for _, s := range *x {
+				s.SetUpdatedAt(0)
+			}
+			for _, s := range *y {
+				s.SetUpdatedAt(0)
+			}
+
+			return reflect.DeepEqual(x, y)
+		}
+	default:
+		return reflect.DeepEqual(a, b)
+	}
+
+	return false
 }
