@@ -5,11 +5,13 @@
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountHooks gets the count of all hooks from the database.
-func (e *engine) CountHooks() (int64, error) {
+func (e *engine) CountHooks(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all hooks from the database")
 
 	// variable to store query results
