@@ -51,6 +51,7 @@ import (
 func CreateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.User)
@@ -72,7 +73,7 @@ func CreateUser(c *gin.Context) {
 	}).Infof("creating new user %s", input.GetName())
 
 	// send API call to create the user
-	user, err := database.FromContext(c).CreateUser(input)
+	user, err := database.FromContext(c).CreateUser(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create user: %w", err)
 

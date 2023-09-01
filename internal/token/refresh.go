@@ -14,6 +14,9 @@ import (
 
 // Refresh returns a new access token, if the provided refreshToken is valid.
 func (tm *Manager) Refresh(c *gin.Context, refreshToken string) (string, error) {
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// retrieve claims from token
 	claims, err := tm.ParseToken(refreshToken)
 	if err != nil {
@@ -21,7 +24,7 @@ func (tm *Manager) Refresh(c *gin.Context, refreshToken string) (string, error) 
 	}
 
 	// look up user in database given claims subject
-	u, err := database.FromContext(c).GetUserForName(claims.Subject)
+	u, err := database.FromContext(c).GetUserForName(ctx, claims.Subject)
 	if err != nil {
 		return "", fmt.Errorf("unable to retrieve user %s from database from claims subject: %w", claims.Subject, err)
 	}

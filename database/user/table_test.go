@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestUser_Engine_CreateUserTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateUserTable(test.name)
+			err := test.database.CreateUserTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

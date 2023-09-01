@@ -5,13 +5,15 @@
 package user
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetUser gets a user by ID from the database.
-func (e *engine) GetUser(id int64) (*library.User, error) {
+func (e *engine) GetUser(ctx context.Context, id int64) (*library.User, error) {
 	e.logger.Tracef("getting user %d from the database", id)
 
 	// variable to store query results
