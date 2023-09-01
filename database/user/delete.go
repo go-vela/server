@@ -5,6 +5,8 @@
 package user
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // DeleteUser deletes an existing user from the database.
-func (e *engine) DeleteUser(u *library.User) error {
+func (e *engine) DeleteUser(ctx context.Context, u *library.User) error {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("deleting user %s from the database", u.GetName())

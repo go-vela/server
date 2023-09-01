@@ -268,7 +268,7 @@ func UpdateRepo(c *gin.Context) {
 			// capture admin name for logging
 			admn := u.GetName()
 
-			u, err = database.FromContext(c).GetUser(r.GetUserID())
+			u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
 
