@@ -5,6 +5,8 @@
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // GetWorkerForHostname gets a worker by hostname from the database.
-func (e *engine) GetWorkerForHostname(hostname string) (*library.Worker, error) {
+func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*library.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": hostname,
 	}).Tracef("getting worker %s from the database", hostname)

@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -29,7 +30,7 @@ func TestWorker_Engine_DeleteWorker(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateWorker(_worker)
+	_, err := _sqlite.CreateWorker(context.TODO(), _worker)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}
@@ -55,7 +56,7 @@ func TestWorker_Engine_DeleteWorker(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteWorker(_worker)
+			err = test.database.DeleteWorker(context.TODO(), _worker)
 
 			if test.failure {
 				if err == nil {

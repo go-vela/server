@@ -29,6 +29,7 @@ import (
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
+	// create our own record of the hook and populate its fields
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))

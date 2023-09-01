@@ -97,7 +97,7 @@ func CancelBuild(c *gin.Context) {
 	switch b.GetStatus() {
 	case constants.StatusRunning:
 		// retrieve the worker info
-		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
+		w, err := database.FromContext(c).GetWorkerForHostname(ctx, b.GetHost())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
