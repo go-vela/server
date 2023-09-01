@@ -1656,7 +1656,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the users
 	for _, user := range resources.Users {
-		_, err := db.CreateUser(user)
+		_, err := db.CreateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
@@ -1664,7 +1664,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateUser"] = true
 
 	// count the users
-	count, err := db.CountUsers()
+	count, err := db.CountUsers(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count users: %v", err)
 	}
@@ -1674,7 +1674,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["CountUsers"] = true
 
 	// list the users
-	list, err := db.ListUsers()
+	list, err := db.ListUsers(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list users: %v", err)
 	}
@@ -1684,7 +1684,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["ListUsers"] = true
 
 	// lite list the users
-	list, count, err = db.ListLiteUsers(1, 10)
+	list, count, err = db.ListLiteUsers(context.TODO(), 1, 10)
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
@@ -1698,7 +1698,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the users by name
 	for _, user := range resources.Users {
-		got, err := db.GetUserForName(user.GetName())
+		got, err := db.GetUserForName(context.TODO(), user.GetName())
 		if err != nil {
 			t.Errorf("unable to get user %d by name: %v", user.GetID(), err)
 		}
@@ -1711,7 +1711,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// update the users
 	for _, user := range resources.Users {
 		user.SetActive(false)
-		got, err := db.UpdateUser(user)
+		got, err := db.UpdateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to update user %d: %v", user.GetID(), err)
 		}
@@ -1725,7 +1725,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the users
 	for _, user := range resources.Users {
-		err = db.DeleteUser(user)
+		err = db.DeleteUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
 		}

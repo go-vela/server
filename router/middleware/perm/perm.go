@@ -348,6 +348,7 @@ func MustAdmin() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		// update engine logger with API metadata
 		//
@@ -371,7 +372,7 @@ func MustAdmin() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			ro, err := database.FromContext(c).GetUser(r.GetUserID())
+			ro, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -406,6 +407,7 @@ func MustWrite() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		// update engine logger with API metadata
 		//
@@ -429,7 +431,7 @@ func MustWrite() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			ro, err := database.FromContext(c).GetUser(r.GetUserID())
+			ro, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -466,6 +468,7 @@ func MustRead() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		// update engine logger with API metadata
 		//
@@ -511,7 +514,7 @@ func MustRead() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			ro, err := database.FromContext(c).GetUser(r.GetUserID())
+			ro, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
