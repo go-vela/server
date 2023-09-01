@@ -582,7 +582,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 
 	// create the logs
 	for _, log := range resources.Logs {
-		err := db.CreateLog(log)
+		err := db.CreateLog(context.TODO(), log)
 		if err != nil {
 			t.Errorf("unable to create log %d: %v", log.GetID(), err)
 		}
@@ -590,7 +590,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateLog"] = true
 
 	// count the logs
-	count, err := db.CountLogs()
+	count, err := db.CountLogs(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count logs: %v", err)
 	}
@@ -600,7 +600,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["CountLogs"] = true
 
 	// count the logs for a build
-	count, err = db.CountLogsForBuild(resources.Builds[0])
+	count, err = db.CountLogsForBuild(context.TODO(), resources.Builds[0])
 	if err != nil {
 		t.Errorf("unable to count logs for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -610,7 +610,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["CountLogsForBuild"] = true
 
 	// list the logs
-	list, err := db.ListLogs()
+	list, err := db.ListLogs(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list logs: %v", err)
 	}
@@ -620,7 +620,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	methods["ListLogs"] = true
 
 	// list the logs for a build
-	list, count, err = db.ListLogsForBuild(resources.Builds[0], 1, 10)
+	list, count, err = db.ListLogsForBuild(context.TODO(), resources.Builds[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to list logs for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -635,7 +635,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// lookup the logs by service
 	for _, log := range []*library.Log{resources.Logs[0], resources.Logs[1]} {
 		service := resources.Services[log.GetServiceID()-1]
-		got, err := db.GetLogForService(service)
+		got, err := db.GetLogForService(context.TODO(), service)
 		if err != nil {
 			t.Errorf("unable to get log %d for service %d: %v", log.GetID(), service.GetID(), err)
 		}
@@ -648,7 +648,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// lookup the logs by service
 	for _, log := range []*library.Log{resources.Logs[2], resources.Logs[3]} {
 		step := resources.Steps[log.GetStepID()-1]
-		got, err := db.GetLogForStep(step)
+		got, err := db.GetLogForStep(context.TODO(), step)
 		if err != nil {
 			t.Errorf("unable to get log %d for step %d: %v", log.GetID(), step.GetID(), err)
 		}
@@ -661,13 +661,13 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	// update the logs
 	for _, log := range resources.Logs {
 		log.SetData([]byte("bar"))
-		err = db.UpdateLog(log)
+		err = db.UpdateLog(context.TODO(), log)
 		if err != nil {
 			t.Errorf("unable to update log %d: %v", log.GetID(), err)
 		}
 
 		// lookup the log by ID
-		got, err := db.GetLog(log.GetID())
+		got, err := db.GetLog(context.TODO(), log.GetID())
 		if err != nil {
 			t.Errorf("unable to get log %d by ID: %v", log.GetID(), err)
 		}
@@ -680,7 +680,7 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the logs
 	for _, log := range resources.Logs {
-		err = db.DeleteLog(log)
+		err = db.DeleteLog(context.TODO(), log)
 		if err != nil {
 			t.Errorf("unable to delete log %d: %v", log.GetID(), err)
 		}

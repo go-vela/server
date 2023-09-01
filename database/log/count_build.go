@@ -5,12 +5,14 @@
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
 // CountLogsForBuild gets the count of logs by build ID from the database.
-func (e *engine) CountLogsForBuild(b *library.Build) (int64, error) {
+func (e *engine) CountLogsForBuild(ctx context.Context, b *library.Build) (int64, error) {
 	e.logger.Tracef("getting count of logs for build %d from the database", b.GetID())
 
 	// variable to store query results
