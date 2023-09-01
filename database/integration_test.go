@@ -1326,7 +1326,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 
 	// create the services
 	for _, service := range resources.Services {
-		_, err := db.CreateService(service)
+		_, err := db.CreateService(context.TODO(), service)
 		if err != nil {
 			t.Errorf("unable to create service %d: %v", service.GetID(), err)
 		}
@@ -1334,7 +1334,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateService"] = true
 
 	// count the services
-	count, err := db.CountServices()
+	count, err := db.CountServices(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count services: %v", err)
 	}
@@ -1344,7 +1344,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["CountServices"] = true
 
 	// count the services for a build
-	count, err = db.CountServicesForBuild(resources.Builds[0], nil)
+	count, err = db.CountServicesForBuild(context.TODO(), resources.Builds[0], nil)
 	if err != nil {
 		t.Errorf("unable to count services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -1354,7 +1354,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["CountServicesForBuild"] = true
 
 	// list the services
-	list, err := db.ListServices()
+	list, err := db.ListServices(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list services: %v", err)
 	}
@@ -1364,7 +1364,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["ListServices"] = true
 
 	// list the services for a build
-	list, count, err = db.ListServicesForBuild(resources.Builds[0], nil, 1, 10)
+	list, count, err = db.ListServicesForBuild(context.TODO(), resources.Builds[0], nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list services for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -1380,7 +1380,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 		"#init":                  1,
 		"target/vela-git:v0.3.0": 1,
 	}
-	images, err := db.ListServiceImageCount()
+	images, err := db.ListServiceImageCount(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list service image count: %v", err)
 	}
@@ -1396,7 +1396,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 		"running": 1,
 		"success": 0,
 	}
-	statuses, err := db.ListServiceStatusCount()
+	statuses, err := db.ListServiceStatusCount(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list service status count: %v", err)
 	}
@@ -1408,7 +1408,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	// lookup the services by name
 	for _, service := range resources.Services {
 		build := resources.Builds[service.GetBuildID()-1]
-		got, err := db.GetServiceForBuild(build, service.GetNumber())
+		got, err := db.GetServiceForBuild(context.TODO(), build, service.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get service %d for build %d: %v", service.GetID(), build.GetID(), err)
 		}
@@ -1419,7 +1419,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	methods["GetServiceForBuild"] = true
 
 	// clean the services
-	count, err = db.CleanServices("integration testing", 1563474090)
+	count, err = db.CleanServices(context.TODO(), "integration testing", 1563474090)
 	if err != nil {
 		t.Errorf("unable to clean services: %v", err)
 	}
@@ -1431,7 +1431,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 	// update the services
 	for _, service := range resources.Services {
 		service.SetStatus("success")
-		got, err := db.UpdateService(service)
+		got, err := db.UpdateService(context.TODO(), service)
 		if err != nil {
 			t.Errorf("unable to update service %d: %v", service.GetID(), err)
 		}
@@ -1445,7 +1445,7 @@ func testServices(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the services
 	for _, service := range resources.Services {
-		err = db.DeleteService(service)
+		err = db.DeleteService(context.TODO(), service)
 		if err != nil {
 			t.Errorf("unable to delete service %d: %v", service.GetID(), err)
 		}
@@ -1656,7 +1656,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the users
 	for _, user := range resources.Users {
-		_, err := db.CreateUser(user)
+		_, err := db.CreateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
@@ -1664,7 +1664,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateUser"] = true
 
 	// count the users
-	count, err := db.CountUsers()
+	count, err := db.CountUsers(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count users: %v", err)
 	}
@@ -1674,7 +1674,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["CountUsers"] = true
 
 	// list the users
-	list, err := db.ListUsers()
+	list, err := db.ListUsers(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list users: %v", err)
 	}
@@ -1684,7 +1684,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	methods["ListUsers"] = true
 
 	// lite list the users
-	list, count, err = db.ListLiteUsers(1, 10)
+	list, count, err = db.ListLiteUsers(context.TODO(), 1, 10)
 	if err != nil {
 		t.Errorf("unable to list lite users: %v", err)
 	}
@@ -1698,7 +1698,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the users by name
 	for _, user := range resources.Users {
-		got, err := db.GetUserForName(user.GetName())
+		got, err := db.GetUserForName(context.TODO(), user.GetName())
 		if err != nil {
 			t.Errorf("unable to get user %d by name: %v", user.GetID(), err)
 		}
@@ -1711,7 +1711,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// update the users
 	for _, user := range resources.Users {
 		user.SetActive(false)
-		got, err := db.UpdateUser(user)
+		got, err := db.UpdateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to update user %d: %v", user.GetID(), err)
 		}
@@ -1725,7 +1725,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the users
 	for _, user := range resources.Users {
-		err = db.DeleteUser(user)
+		err = db.DeleteUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
 		}

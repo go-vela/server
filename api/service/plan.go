@@ -35,7 +35,7 @@ func PlanServices(ctx context.Context, database database.Interface, p *pipeline.
 		s.SetCreated(time.Now().UTC().Unix())
 
 		// send API call to create the service
-		s, err := database.CreateService(s)
+		s, err := database.CreateService(ctx, s)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service %s: %w", s.GetName(), err)
 		}

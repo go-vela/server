@@ -247,7 +247,7 @@ func CancelBuild(c *gin.Context) {
 
 	for page > 0 {
 		// retrieve build services (per page) from the database
-		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(b, map[string]interface{}{}, page, perPage)
+		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -272,7 +272,7 @@ func CancelBuild(c *gin.Context) {
 		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
 			service.SetStatus(constants.StatusCanceled)
 
-			_, err = database.FromContext(c).UpdateService(service)
+			_, err = database.FromContext(c).UpdateService(ctx, service)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
 					service.GetName(),

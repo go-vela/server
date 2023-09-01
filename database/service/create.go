@@ -5,6 +5,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // CreateService creates a new service in the database.
-func (e *engine) CreateService(s *library.Service) (*library.Service, error) {
+func (e *engine) CreateService(ctx context.Context, s *library.Service) (*library.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("creating service %s in the database", s.GetName())

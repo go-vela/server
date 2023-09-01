@@ -54,6 +54,9 @@ import (
 func UpdateService(c *gin.Context) {
 	logrus.Info("Admin: updating service in database")
 
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// capture body from API request
 	input := new(library.Service)
 
@@ -67,7 +70,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to update the service
-	s, err := database.FromContext(c).UpdateService(input)
+	s, err := database.FromContext(c).UpdateService(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %d: %w", input.GetID(), err)
 
