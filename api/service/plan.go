@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -17,7 +18,7 @@ import (
 // PlanServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build in the configured backend.
-func PlanServices(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
+func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}
 
@@ -55,7 +56,7 @@ func PlanServices(database database.Interface, p *pipeline.Build, b *library.Bui
 		l.SetData([]byte{})
 
 		// send API call to create the service logs
-		err = database.CreateLog(l)
+		err = database.CreateLog(ctx, l)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
 		}

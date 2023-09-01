@@ -61,6 +61,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(
+		log.WithContext(e.ctx),
 		log.WithClient(e.client),
 		log.WithCompressionLevel(e.config.CompressionLevel),
 		log.WithLogger(e.logger),
