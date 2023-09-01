@@ -123,7 +123,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the repo owner
-	u, err = database.FromContext(c).GetUser(r.GetUserID())
+	u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 

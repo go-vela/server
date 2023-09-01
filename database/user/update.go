@@ -6,6 +6,7 @@
 package user
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // UpdateUser updates an existing user in the database.
-func (e *engine) UpdateUser(u *library.User) (*library.User, error) {
+func (e *engine) UpdateUser(ctx context.Context, u *library.User) (*library.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("updating user %s in the database", u.GetName())

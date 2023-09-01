@@ -156,7 +156,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the owner for the repo
-	u, err := database.GetUser(r.GetUserID())
+	u, err := database.GetUser(ctx, r.GetUserID())
 	if err != nil {
 		return fmt.Errorf("unable to get owner for repo %s: %w", r.GetFullName(), err)
 	}

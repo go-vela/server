@@ -6,6 +6,7 @@
 package user
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // CreateUser creates a new user in the database.
-func (e *engine) CreateUser(u *library.User) (*library.User, error) {
+func (e *engine) CreateUser(ctx context.Context, u *library.User) (*library.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("creating user %s in the database", u.GetName())
