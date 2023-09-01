@@ -111,8 +111,9 @@ func SyncRepo(c *gin.Context) {
 		return
 	}
 
-	// if we have webhook validation, update the repo hook in the SCM
-	if c.Value("webhookvalidation").(bool) {
+	// if we have webhook validation and the repo is active in the database,
+	// update the repo hook in the SCM
+	if c.Value("webhookvalidation").(bool) && r.GetActive() {
 		// grab last hook from repo to fetch the webhook ID
 		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
