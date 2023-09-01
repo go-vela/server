@@ -295,7 +295,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(context.TODO(), r)
-	_ = db.CreateUser(context.TODO(), u)
+	_, _ = db.CreateUser(context.TODO(), u)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

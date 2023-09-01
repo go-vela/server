@@ -97,7 +97,7 @@ func TestUser_Establish(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(_context.TODO(), want)
+	_, _ = db.CreateUser(_context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

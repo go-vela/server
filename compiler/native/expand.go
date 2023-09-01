@@ -313,7 +313,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
 		//nolint:lll // ignore long line length due to return
-		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
+		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.StarlarkExecLimit)
 	default:
 		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)

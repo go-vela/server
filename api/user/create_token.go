@@ -66,7 +66,7 @@ func CreateToken(c *gin.Context) {
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user
-	err = database.FromContext(c).UpdateUser(ctx, u)
+	_, err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 

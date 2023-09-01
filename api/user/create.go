@@ -73,7 +73,7 @@ func CreateUser(c *gin.Context) {
 	}).Infof("creating new user %s", input.GetName())
 
 	// send API call to create the user
-	err = database.FromContext(c).CreateUser(ctx, input)
+	user, err := database.FromContext(c).CreateUser(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create user: %w", err)
 
@@ -81,9 +81,6 @@ func CreateUser(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created user
-	user, _ := database.FromContext(c).GetUserForName(ctx, input.GetName())
 
 	c.JSON(http.StatusCreated, user)
 }

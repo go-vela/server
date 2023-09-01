@@ -279,7 +279,7 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	mto := &token.MintTokenOpts{
 		User:          u,

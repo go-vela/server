@@ -50,12 +50,12 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(context.TODO(), _userOne)
+	_, err := _sqlite.CreateUser(context.TODO(), _userOne)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateUser(context.TODO(), _userTwo)
+	_, err = _sqlite.CreateUser(context.TODO(), _userTwo)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}

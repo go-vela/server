@@ -452,7 +452,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 
 	// create the hooks
 	for _, hook := range resources.Hooks {
-		_, err := db.CreateHook(hook)
+		_, err := db.CreateHook(context.TODO(), hook)
 		if err != nil {
 			t.Errorf("unable to create hook %d: %v", hook.GetID(), err)
 		}
@@ -460,7 +460,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateHook"] = true
 
 	// count the hooks
-	count, err := db.CountHooks()
+	count, err := db.CountHooks(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count hooks: %v", err)
 	}
@@ -470,7 +470,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["CountHooks"] = true
 
 	// count the hooks for a repo
-	count, err = db.CountHooksForRepo(resources.Repos[0])
+	count, err = db.CountHooksForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count hooks for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -480,7 +480,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["CountHooksForRepo"] = true
 
 	// list the hooks
-	list, err := db.ListHooks()
+	list, err := db.ListHooks(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list hooks: %v", err)
 	}
@@ -490,7 +490,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["ListHooks"] = true
 
 	// list the hooks for a repo
-	list, count, err = db.ListHooksForRepo(resources.Repos[0], 1, 10)
+	list, count, err = db.ListHooksForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to list hooks for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -503,7 +503,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["ListHooksForRepo"] = true
 
 	// lookup the last build by repo
-	got, err := db.LastHookForRepo(resources.Repos[0])
+	got, err := db.LastHookForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -515,7 +515,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	// lookup the hooks by name
 	for _, hook := range resources.Hooks {
 		repo := resources.Repos[hook.GetRepoID()-1]
-		got, err = db.GetHookForRepo(repo, hook.GetNumber())
+		got, err = db.GetHookForRepo(context.TODO(), repo, hook.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), repo.GetID(), err)
 		}
@@ -528,13 +528,13 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	// update the hooks
 	for _, hook := range resources.Hooks {
 		hook.SetStatus("success")
-		_, err = db.UpdateHook(hook)
+		_, err = db.UpdateHook(context.TODO(), hook)
 		if err != nil {
 			t.Errorf("unable to update hook %d: %v", hook.GetID(), err)
 		}
 
 		// lookup the hook by ID
-		got, err = db.GetHook(hook.GetID())
+		got, err = db.GetHook(context.TODO(), hook.GetID())
 		if err != nil {
 			t.Errorf("unable to get hook %d by ID: %v", hook.GetID(), err)
 		}
@@ -547,7 +547,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the hooks
 	for _, hook := range resources.Hooks {
-		err = db.DeleteHook(hook)
+		err = db.DeleteHook(context.TODO(), hook)
 		if err != nil {
 			t.Errorf("unable to delete hook %d: %v", hook.GetID(), err)
 		}
@@ -1656,7 +1656,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the users
 	for _, user := range resources.Users {
-		err := db.CreateUser(context.TODO(), user)
+		_, err := db.CreateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to create user %d: %v", user.GetID(), err)
 		}
@@ -1711,16 +1711,11 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	// update the users
 	for _, user := range resources.Users {
 		user.SetActive(false)
-		err = db.UpdateUser(context.TODO(), user)
+		got, err := db.UpdateUser(context.TODO(), user)
 		if err != nil {
 			t.Errorf("unable to update user %d: %v", user.GetID(), err)
 		}
 
-		// lookup the user by ID
-		got, err := db.GetUser(context.TODO(), user.GetID())
-		if err != nil {
-			t.Errorf("unable to get user %d by ID: %v", user.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, user) {
 			t.Errorf("GetUser() is %v, want %v", got, user)
 		}
@@ -1765,7 +1760,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 
 	// create the workers
 	for _, worker := range resources.Workers {
-		err := db.CreateWorker(worker)
+		_, err := db.CreateWorker(worker)
 		if err != nil {
 			t.Errorf("unable to create worker %d: %v", worker.GetID(), err)
 		}
@@ -1807,16 +1802,11 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	// update the workers
 	for _, worker := range resources.Workers {
 		worker.SetActive(false)
-		err = db.UpdateWorker(worker)
+		got, err := db.UpdateWorker(worker)
 		if err != nil {
 			t.Errorf("unable to update worker %d: %v", worker.GetID(), err)
 		}
 
-		// lookup the worker by ID
-		got, err := db.GetWorker(worker.GetID())
-		if err != nil {
-			t.Errorf("unable to get worker %d by ID: %v", worker.GetID(), err)
-		}
 		if !reflect.DeepEqual(got, worker) {
 			t.Errorf("GetWorker() is %v, want %v", got, worker)
 		}

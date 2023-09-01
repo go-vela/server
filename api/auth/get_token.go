@@ -123,7 +123,7 @@ func GetAuthToken(c *gin.Context) {
 		u.SetRefreshToken(rt)
 
 		// send API call to create the user in the database
-		err = database.FromContext(c).CreateUser(ctx, u)
+		_, err = database.FromContext(c).CreateUser(ctx, u)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create user %s: %w", u.GetName(), err)
 
@@ -156,7 +156,7 @@ func GetAuthToken(c *gin.Context) {
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user in the database
-	err = database.FromContext(c).UpdateUser(ctx, u)
+	_, err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 

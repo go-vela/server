@@ -57,7 +57,7 @@ func TestTokenManager_Refresh(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(context.TODO(), u)
+	_, _ = db.CreateUser(context.TODO(), u)
 
 	// set up context
 	gin.SetMode(gin.TestMode)
@@ -118,7 +118,7 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(context.TODO(), u)
+	_, _ = db.CreateUser(context.TODO(), u)
 
 	// set up context
 	gin.SetMode(gin.TestMode)

@@ -31,7 +31,7 @@ type UserInterface interface {
 	// CountUsers defines a function that gets the count of all users.
 	CountUsers(context.Context) (int64, error)
 	// CreateUser defines a function that creates a new user.
-	CreateUser(context.Context, *library.User) error
+	CreateUser(context.Context, *library.User) (*library.User, error)
 	// DeleteUser defines a function that deletes an existing user.
 	DeleteUser(context.Context, *library.User) error
 	// GetUser defines a function that gets a user by ID.
@@ -43,5 +43,5 @@ type UserInterface interface {
 	// ListLiteUsers defines a function that gets a lite list of users.
 	ListLiteUsers(context.Context, int, int) ([]*library.User, int64, error)
 	// UpdateUser defines a function that updates an existing user.
-	UpdateUser(context.Context, *library.User) error
+	UpdateUser(context.Context, *library.User) (*library.User, error)
 }

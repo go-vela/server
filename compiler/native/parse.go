@@ -73,7 +73,7 @@ func (c *client) Parse(v interface{}, pipelineType string, template *types.Templ
 		// capture the raw pipeline configuration
 		raw = []byte(parsedRaw)
 
-		p, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables)
+		p, err = starlark.RenderBuild(template.Name, parsedRaw, c.EnvironmentBuild(), template.Variables, c.StarlarkExecLimit)
 		if err != nil {
 			return nil, raw, err
 		}

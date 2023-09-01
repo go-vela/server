@@ -64,7 +64,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -152,7 +152,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -279,7 +279,7 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -544,7 +544,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
 	_, _ = db.CreateBuild(ctx, b)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -963,7 +963,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1061,7 +1061,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1159,7 +1159,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1257,7 +1257,7 @@ func TestPerm_MustWrite(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1355,7 +1355,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1453,7 +1453,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1551,7 +1551,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1649,7 +1649,7 @@ func TestPerm_MustRead(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1747,7 +1747,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1931,7 +1931,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -2029,7 +2029,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -2127,7 +2127,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -2225,7 +2225,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	}()
 
 	_, _ = db.CreateRepo(_context.TODO(), r)
-	_ = db.CreateUser(_context.TODO(), u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
