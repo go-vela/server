@@ -5,6 +5,8 @@
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -52,7 +54,7 @@ workers (
 )
 
 // CreateWorkerTable creates the workers table in the database.
-func (e *engine) CreateWorkerTable(driver string) error {
+func (e *engine) CreateWorkerTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating workers table in the database")
 
 	// handle the driver provided to create the table
