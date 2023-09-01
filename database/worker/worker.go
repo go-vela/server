@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -24,6 +25,8 @@ type (
 	engine struct {
 		// engine configuration settings used in worker functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in worker functions
 		//
@@ -65,13 +68,13 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the workers table
-	err := e.CreateWorkerTable(e.client.Config.Dialector.Name())
+	err := e.CreateWorkerTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableWorker, err)
 	}
 
 	// create the indexes for the workers table
-	err = e.CreateWorkerIndexes()
+	err = e.CreateWorkerIndexes(e.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableWorker, err)
 	}

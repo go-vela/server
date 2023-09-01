@@ -152,6 +152,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for workers
 	e.WorkerInterface, err = worker.New(
+		worker.WithContext(e.ctx),
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),
