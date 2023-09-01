@@ -5,6 +5,7 @@
 package log
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -29,7 +30,7 @@ func TestLog_Engine_DeleteLog(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_log)
+	err := _sqlite.CreateLog(context.TODO(), _log)
 	if err != nil {
 		t.Errorf("unable to create test log for sqlite: %v", err)
 	}
@@ -55,7 +56,7 @@ func TestLog_Engine_DeleteLog(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteLog(_log)
+			err = test.database.DeleteLog(context.TODO(), _log)
 
 			if test.failure {
 				if err == nil {

@@ -5,11 +5,13 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountServices gets the count of all services from the database.
-func (e *engine) CountServices() (int64, error) {
+func (e *engine) CountServices(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all services from the database")
 
 	// variable to store query results
