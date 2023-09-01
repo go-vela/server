@@ -41,6 +41,7 @@ import (
 func ListWorkers(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -49,7 +50,7 @@ func ListWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	w, err := database.FromContext(c).ListWorkers()
+	w, err := database.FromContext(c).ListWorkers(ctx)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 

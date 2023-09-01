@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -56,7 +57,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CreateWorker(_worker)
+			got, err := test.database.CreateWorker(context.TODO(), _worker)
 
 			if test.failure {
 				if err == nil {
