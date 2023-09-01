@@ -78,7 +78,7 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		hook, err := database.FromContext(c).LastHookForRepo(r)
+		hook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
 
@@ -108,7 +108,7 @@ func RepairRepo(c *gin.Context) {
 
 		hook.SetRepoID(r.GetID())
 
-		_, err = database.FromContext(c).CreateHook(hook)
+		_, err = database.FromContext(c).CreateHook(ctx, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
