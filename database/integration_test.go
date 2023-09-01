@@ -1104,7 +1104,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 
 	// create the secrets
 	for _, secret := range resources.Secrets {
-		_, err := db.CreateSecret(secret)
+		_, err := db.CreateSecret(context.TODO(), secret)
 		if err != nil {
 			t.Errorf("unable to create secret %d: %v", secret.GetID(), err)
 		}
@@ -1112,7 +1112,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateSecret"] = true
 
 	// count the secrets
-	count, err := db.CountSecrets()
+	count, err := db.CountSecrets(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count secrets: %v", err)
 	}
@@ -1125,7 +1125,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		switch secret.GetType() {
 		case constants.SecretOrg:
 			// count the secrets for an org
-			count, err = db.CountSecretsForOrg(secret.GetOrg(), nil)
+			count, err = db.CountSecretsForOrg(context.TODO(), secret.GetOrg(), nil)
 			if err != nil {
 				t.Errorf("unable to count secrets for org %s: %v", secret.GetOrg(), err)
 			}
@@ -1135,7 +1135,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["CountSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// count the secrets for a repo
-			count, err = db.CountSecretsForRepo(resources.Repos[0], nil)
+			count, err = db.CountSecretsForRepo(context.TODO(), resources.Repos[0], nil)
 			if err != nil {
 				t.Errorf("unable to count secrets for repo %d: %v", resources.Repos[0].GetID(), err)
 			}
@@ -1145,7 +1145,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["CountSecretsForRepo"] = true
 		case constants.SecretShared:
 			// count the secrets for a team
-			count, err = db.CountSecretsForTeam(secret.GetOrg(), secret.GetTeam(), nil)
+			count, err = db.CountSecretsForTeam(context.TODO(), secret.GetOrg(), secret.GetTeam(), nil)
 			if err != nil {
 				t.Errorf("unable to count secrets for team %s: %v", secret.GetTeam(), err)
 			}
@@ -1155,7 +1155,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["CountSecretsForTeam"] = true
 
 			// count the secrets for a list of teams
-			count, err = db.CountSecretsForTeams(secret.GetOrg(), []string{secret.GetTeam()}, nil)
+			count, err = db.CountSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil)
 			if err != nil {
 				t.Errorf("unable to count secrets for teams %s: %v", []string{secret.GetTeam()}, err)
 			}
@@ -1169,7 +1169,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	}
 
 	// list the secrets
-	list, err := db.ListSecrets()
+	list, err := db.ListSecrets(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list secrets: %v", err)
 	}
@@ -1182,7 +1182,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		switch secret.GetType() {
 		case constants.SecretOrg:
 			// list the secrets for an org
-			list, count, err = db.ListSecretsForOrg(secret.GetOrg(), nil, 1, 10)
+			list, count, err = db.ListSecretsForOrg(context.TODO(), secret.GetOrg(), nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for org %s: %v", secret.GetOrg(), err)
 			}
@@ -1195,7 +1195,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["ListSecretsForOrg"] = true
 		case constants.SecretRepo:
 			// list the secrets for a repo
-			list, count, err = db.ListSecretsForRepo(resources.Repos[0], nil, 1, 10)
+			list, count, err = db.ListSecretsForRepo(context.TODO(), resources.Repos[0], nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for repo %d: %v", resources.Repos[0].GetID(), err)
 			}
@@ -1208,7 +1208,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["ListSecretsForRepo"] = true
 		case constants.SecretShared:
 			// list the secrets for a team
-			list, count, err = db.ListSecretsForTeam(secret.GetOrg(), secret.GetTeam(), nil, 1, 10)
+			list, count, err = db.ListSecretsForTeam(context.TODO(), secret.GetOrg(), secret.GetTeam(), nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for team %s: %v", secret.GetTeam(), err)
 			}
@@ -1221,7 +1221,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["ListSecretsForTeam"] = true
 
 			// list the secrets for a list of teams
-			list, count, err = db.ListSecretsForTeams(secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
+			list, count, err = db.ListSecretsForTeams(context.TODO(), secret.GetOrg(), []string{secret.GetTeam()}, nil, 1, 10)
 			if err != nil {
 				t.Errorf("unable to list secrets for teams %s: %v", []string{secret.GetTeam()}, err)
 			}
@@ -1241,7 +1241,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 		switch secret.GetType() {
 		case constants.SecretOrg:
 			// lookup the secret by org
-			got, err := db.GetSecretForOrg(secret.GetOrg(), secret.GetName())
+			got, err := db.GetSecretForOrg(context.TODO(), secret.GetOrg(), secret.GetName())
 			if err != nil {
 				t.Errorf("unable to get secret %d for org %s: %v", secret.GetID(), secret.GetOrg(), err)
 			}
@@ -1251,7 +1251,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["GetSecretForOrg"] = true
 		case constants.SecretRepo:
 			// lookup the secret by repo
-			got, err := db.GetSecretForRepo(secret.GetName(), resources.Repos[0])
+			got, err := db.GetSecretForRepo(context.TODO(), secret.GetName(), resources.Repos[0])
 			if err != nil {
 				t.Errorf("unable to get secret %d for repo %d: %v", secret.GetID(), resources.Repos[0].GetID(), err)
 			}
@@ -1261,7 +1261,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 			methods["GetSecretForRepo"] = true
 		case constants.SecretShared:
 			// lookup the secret by team
-			got, err := db.GetSecretForTeam(secret.GetOrg(), secret.GetTeam(), secret.GetName())
+			got, err := db.GetSecretForTeam(context.TODO(), secret.GetOrg(), secret.GetTeam(), secret.GetName())
 			if err != nil {
 				t.Errorf("unable to get secret %d for team %s: %v", secret.GetID(), secret.GetTeam(), err)
 			}
@@ -1277,7 +1277,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 	// update the secrets
 	for _, secret := range resources.Secrets {
 		secret.SetUpdatedAt(time.Now().UTC().Unix())
-		got, err := db.UpdateSecret(secret)
+		got, err := db.UpdateSecret(context.TODO(), secret)
 		if err != nil {
 			t.Errorf("unable to update secret %d: %v", secret.GetID(), err)
 		}
@@ -1291,7 +1291,7 @@ func testSecrets(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the secrets
 	for _, secret := range resources.Secrets {
-		err = db.DeleteSecret(secret)
+		err = db.DeleteSecret(context.TODO(), secret)
 		if err != nil {
 			t.Errorf("unable to delete secret %d: %v", secret.GetID(), err)
 		}

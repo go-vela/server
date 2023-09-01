@@ -5,6 +5,8 @@
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +16,7 @@ import (
 // ListSecretsForRepo gets a list of secrets by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListSecretsForRepo(r *library.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
+func (e *engine) ListSecretsForRepo(ctx context.Context, r *library.Repo, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -27,7 +29,7 @@ func (e *engine) ListSecretsForRepo(r *library.Repo, filters map[string]interfac
 	secrets := []*library.Secret{}
 
 	// count the results
-	count, err := e.CountSecretsForRepo(r, filters)
+	count, err := e.CountSecretsForRepo(ctx, r, filters)
 	if err != nil {
 		return secrets, 0, err
 	}

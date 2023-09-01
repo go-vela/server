@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -70,17 +71,17 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateSecret(_secretRepo)
+	_, err := _sqlite.CreateSecret(context.TODO(), _secretRepo)
 	if err != nil {
 		t.Errorf("unable to create test repo secret for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateSecret(_secretOrg)
+	_, err = _sqlite.CreateSecret(context.TODO(), _secretOrg)
 	if err != nil {
 		t.Errorf("unable to create test org secret for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateSecret(_secretShared)
+	_, err = _sqlite.CreateSecret(context.TODO(), _secretShared)
 	if err != nil {
 		t.Errorf("unable to create test shared secret for sqlite: %v", err)
 	}
@@ -133,7 +134,7 @@ func TestSecret_Engine_DeleteSecret(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteSecret(test.secret)
+			err = test.database.DeleteSecret(context.TODO(), test.secret)
 
 			if test.failure {
 				if err == nil {

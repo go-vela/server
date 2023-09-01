@@ -5,6 +5,7 @@
 package native
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -13,9 +14,9 @@ import (
 )
 
 // Update updates an existing secret.
-func (c *client) Update(sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Update(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
 	// capture the secret from the native service
-	secret, err := c.Get(sType, org, name, s.GetName())
+	secret, err := c.Get(ctx, sType, org, name, s.GetName())
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +57,7 @@ func (c *client) Update(sType, org, name string, s *library.Secret) (*library.Se
 		}).Tracef("updating native %s secret %s for %s", sType, s.GetName(), org)
 
 		// update the org secret in the native service
-		return c.Database.UpdateSecret(secret)
+		return c.Database.UpdateSecret(ctx, secret)
 	case constants.SecretRepo:
 		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
@@ -66,7 +67,7 @@ func (c *client) Update(sType, org, name string, s *library.Secret) (*library.Se
 		}).Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 		// update the repo secret in the native service
-		return c.Database.UpdateSecret(secret)
+		return c.Database.UpdateSecret(ctx, secret)
 	case constants.SecretShared:
 		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
@@ -76,7 +77,7 @@ func (c *client) Update(sType, org, name string, s *library.Secret) (*library.Se
 		}).Tracef("updating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 		// update the shared secret in the native service
-		return c.Database.UpdateSecret(secret)
+		return c.Database.UpdateSecret(ctx, secret)
 	default:
 		return nil, fmt.Errorf("invalid secret type: %s", sType)
 	}

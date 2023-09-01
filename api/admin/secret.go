@@ -53,6 +53,9 @@ import (
 func UpdateSecret(c *gin.Context) {
 	logrus.Info("Admin: updating secret in database")
 
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// capture body from API request
 	input := new(library.Secret)
 
@@ -66,7 +69,7 @@ func UpdateSecret(c *gin.Context) {
 	}
 
 	// send API call to update the secret
-	s, err := database.FromContext(c).UpdateSecret(input)
+	s, err := database.FromContext(c).UpdateSecret(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update secret %d: %w", input.GetID(), err)
 

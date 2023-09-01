@@ -109,6 +109,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
 	e.SecretInterface, err = secret.New(
+		secret.WithContext(e.ctx),
 		secret.WithClient(e.client),
 		secret.WithEncryptionKey(e.config.EncryptionKey),
 		secret.WithLogger(e.logger),

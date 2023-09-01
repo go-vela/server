@@ -816,7 +816,7 @@ func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 	}
 
 	// get total number of secrets associated with repository
-	t, err := database.FromContext(c).CountSecretsForRepo(dbR, map[string]interface{}{})
+	t, err := database.FromContext(c).CountSecretsForRepo(ctx, dbR, map[string]interface{}{})
 	if err != nil {
 		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", prevOrg, prevRepo, err)
 	}
@@ -825,7 +825,7 @@ func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 	page := 1
 	// capture all secrets belonging to certain repo in database
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
-		s, _, err := database.FromContext(c).ListSecretsForRepo(dbR, map[string]interface{}{}, page, 100)
+		s, _, err := database.FromContext(c).ListSecretsForRepo(ctx, dbR, map[string]interface{}{}, page, 100)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", prevOrg, prevRepo, err)
 		}
@@ -840,7 +840,7 @@ func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 		secret.SetOrg(r.GetOrg())
 		secret.SetRepo(r.GetName())
 
-		_, err = database.FromContext(c).UpdateSecret(secret)
+		_, err = database.FromContext(c).UpdateSecret(ctx, secret)
 		if err != nil {
 			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", prevOrg, prevRepo, err)
 		}

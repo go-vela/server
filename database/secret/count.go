@@ -5,11 +5,13 @@
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountSecrets gets the count of all secrets from the database.
-func (e *engine) CountSecrets() (int64, error) {
+func (e *engine) CountSecrets(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all secrets from the database")
 
 	// variable to store query results
