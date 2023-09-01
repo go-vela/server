@@ -20,7 +20,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v54/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -29,6 +29,7 @@ import (
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
+	// create our own record of the hook and populate its fields
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))

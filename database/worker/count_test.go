@@ -38,12 +38,12 @@ func TestWorker_Engine_CountWorkers(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateWorker(context.TODO(), _workerOne)
+	_, err := _sqlite.CreateWorker(context.TODO(), _workerOne)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateWorker(context.TODO(), _workerTwo)
+	_, err = _sqlite.CreateWorker(context.TODO(), _workerTwo)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}

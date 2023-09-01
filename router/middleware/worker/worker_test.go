@@ -63,7 +63,7 @@ func TestWorker_Establish(t *testing.T) {
 		db.Close()
 	}()
 
-	_ = db.CreateWorker(context.TODO(), want)
+	_, _ = db.CreateWorker(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

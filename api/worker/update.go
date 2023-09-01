@@ -125,7 +125,7 @@ func UpdateWorker(c *gin.Context) {
 	}
 
 	// send API call to update the worker
-	err = database.FromContext(c).UpdateWorker(ctx, w)
+	w, err = database.FromContext(c).UpdateWorker(ctx, w)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
 
@@ -133,9 +133,6 @@ func UpdateWorker(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated worker
-	w, _ = database.FromContext(c).GetWorkerForHostname(ctx, w.GetHostname())
 
 	c.JSON(http.StatusOK, w)
 }

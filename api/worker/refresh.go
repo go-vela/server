@@ -80,7 +80,7 @@ func Refresh(c *gin.Context) {
 	w.SetLastCheckedIn(time.Now().Unix())
 
 	// send API call to update the worker
-	err := database.FromContext(c).UpdateWorker(ctx, w)
+	_, err := database.FromContext(c).UpdateWorker(ctx, w)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
 

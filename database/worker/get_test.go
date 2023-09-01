@@ -35,7 +35,7 @@ func TestWorker_Engine_GetWorker(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateWorker(context.TODO(), _worker)
+	_, err := _sqlite.CreateWorker(context.TODO(), _worker)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}

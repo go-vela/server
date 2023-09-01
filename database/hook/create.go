@@ -5,6 +5,8 @@
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // CreateHook creates a new hook in the database.
-func (e *engine) CreateHook(h *library.Hook) (*library.Hook, error) {
+func (e *engine) CreateHook(ctx context.Context, h *library.Hook) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("creating hook %d in the database", h.GetNumber())
