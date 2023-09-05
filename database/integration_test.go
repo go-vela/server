@@ -494,7 +494,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list hooks for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if int(count) != len(resources.Hooks) {
+	if int(count) != len(resources.Hooks)-1 {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
 	if !reflect.DeepEqual(list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]}) {
@@ -511,6 +511,16 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("LastHookForRepo() is %v, want %v", got, resources.Hooks[1])
 	}
 	methods["LastHookForRepo"] = true
+
+	// lookup a hook with matching webhook_id
+	got, err = db.GetHookByWebhook(context.TODO(), resources.Hooks[2].GetWebhookID())
+	if err != nil {
+		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if !reflect.DeepEqual(got, resources.Hooks[2]) {
+		t.Errorf("GetHookByWebhook() is %v, want %v", got, resources.Hooks[2])
+	}
+	methods["GetHookByWebhook"] = true
 
 	// lookup the hooks by name
 	for _, hook := range resources.Hooks {
@@ -1964,6 +1974,22 @@ func newResources() *Resources {
 	hookTwo.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookTwo.SetWebhookID(123456)
 
+	hookThree := new(library.Hook)
+	hookThree.SetID(3)
+	hookThree.SetRepoID(2)
+	hookThree.SetBuildID(5)
+	hookThree.SetNumber(1)
+	hookThree.SetSourceID("c8da1302-07d6-11ea-882f-6793bca275b8")
+	hookThree.SetCreated(time.Now().UTC().Unix())
+	hookThree.SetHost("github.com")
+	hookThree.SetEvent("push")
+	hookThree.SetEventAction("")
+	hookThree.SetBranch("main")
+	hookThree.SetError("")
+	hookThree.SetStatus("success")
+	hookThree.SetLink("https://github.com/github/octocat/settings/hooks/1")
+	hookThree.SetWebhookID(78910)
+
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
@@ -2278,7 +2304,7 @@ func newResources() *Resources {
 		Builds:      []*library.Build{buildOne, buildTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
-		Hooks:       []*library.Hook{hookOne, hookTwo},
+		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*library.Repo{repoOne, repoTwo},
