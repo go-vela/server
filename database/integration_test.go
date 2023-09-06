@@ -521,7 +521,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if !reflect.DeepEqual(got, resources.Hooks[2]) {
 		t.Errorf("GetHookByWebhookID() is %v, want %v", got, resources.Hooks[2])
 	}
-	methods["GetHookByWebhook"] = true
+	methods["GetHookByWebhookID"] = true
 
 	// lookup the hooks by name
 	for _, hook := range resources.Hooks {
