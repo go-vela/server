@@ -69,6 +69,7 @@ func DeleteStepLog(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -84,7 +85,7 @@ func DeleteStepLog(c *gin.Context) {
 	}).Infof("deleting logs for step %s", entry)
 
 	// send API call to capture the step logs
-	l, err := database.FromContext(c).GetLogForStep(s)
+	l, err := database.FromContext(c).GetLogForStep(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for step %s: %w", entry, err)
 
@@ -94,7 +95,7 @@ func DeleteStepLog(c *gin.Context) {
 	}
 
 	// send API call to remove the log
-	err = database.FromContext(c).DeleteLog(l)
+	err = database.FromContext(c).DeleteLog(ctx, l)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete logs for step %s: %w", entry, err)
 

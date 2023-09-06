@@ -5,13 +5,15 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListServices gets a list of all services from the database.
-func (e *engine) ListServices() ([]*library.Service, error) {
+func (e *engine) ListServices(ctx context.Context) ([]*library.Service, error) {
 	e.logger.Trace("listing all services from the database")
 
 	// variables to store query results and return value
@@ -20,7 +22,7 @@ func (e *engine) ListServices() ([]*library.Service, error) {
 	services := []*library.Service{}
 
 	// count the results
-	count, err := e.CountServices()
+	count, err := e.CountServices(ctx)
 	if err != nil {
 		return nil, err
 	}

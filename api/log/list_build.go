@@ -76,6 +76,7 @@ func ListLogsForBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -112,7 +113,7 @@ func ListLogsForBuild(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of logs for the build
-	l, t, err := database.FromContext(c).ListLogsForBuild(b, page, perPage)
+	l, t, err := database.FromContext(c).ListLogsForBuild(ctx, b, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list logs for build %s: %w", entry, err)
 

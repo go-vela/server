@@ -42,6 +42,7 @@ import (
 func CreateToken(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -65,7 +66,7 @@ func CreateToken(c *gin.Context) {
 	u.SetRefreshToken(rt)
 
 	// send API call to update the user
-	_, err = database.FromContext(c).UpdateUser(u)
+	_, err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 

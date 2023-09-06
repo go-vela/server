@@ -290,12 +290,12 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 
 	defer func() {
 		db.DeleteRepo(context.TODO(), r)
-		db.DeleteUser(u)
+		db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(context.TODO(), r)
-	_, _ = db.CreateUser(u)
+	_, _ = db.CreateUser(context.TODO(), u)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

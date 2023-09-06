@@ -51,6 +51,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for hooks
 	e.HookInterface, err = hook.New(
+		hook.WithContext(e.ctx),
 		hook.WithClient(e.client),
 		hook.WithLogger(e.logger),
 		hook.WithSkipCreation(e.config.SkipCreation),
@@ -61,6 +62,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(
+		log.WithContext(e.ctx),
 		log.WithClient(e.client),
 		log.WithCompressionLevel(e.config.CompressionLevel),
 		log.WithLogger(e.logger),
@@ -140,6 +142,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for users
 	e.UserInterface, err = user.New(
+		user.WithContext(e.ctx),
 		user.WithClient(e.client),
 		user.WithEncryptionKey(e.config.EncryptionKey),
 		user.WithLogger(e.logger),
@@ -151,6 +154,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for workers
 	e.WorkerInterface, err = worker.New(
+		worker.WithContext(e.ctx),
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),

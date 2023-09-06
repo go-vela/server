@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -56,7 +57,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CreateUser(_user)
+			got, err := test.database.CreateUser(context.TODO(), _user)
 
 			if test.failure {
 				if err == nil {

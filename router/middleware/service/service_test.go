@@ -81,13 +81,13 @@ func TestService_Establish(t *testing.T) {
 	defer func() {
 		db.DeleteBuild(context.TODO(), b)
 		db.DeleteRepo(context.TODO(), r)
-		db.DeleteService(want)
+		db.DeleteService(context.TODO(), want)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreateBuild(context.TODO(), b)
-	_, _ = db.CreateService(want)
+	_, _ = db.CreateService(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

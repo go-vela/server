@@ -5,6 +5,7 @@
 package log
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -54,12 +55,12 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_service)
+	err := _sqlite.CreateLog(context.TODO(), _service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateLog(_step)
+	err = _sqlite.CreateLog(context.TODO(), _step)
 	if err != nil {
 		t.Errorf("unable to create test step log for sqlite: %v", err)
 	}
@@ -88,7 +89,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListLogsForBuild(_build, 1, 10)
+			got, _, err := test.database.ListLogsForBuild(context.TODO(), _build, 1, 10)
 
 			if test.failure {
 				if err == nil {

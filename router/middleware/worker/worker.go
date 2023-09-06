@@ -23,6 +23,8 @@ func Retrieve(c *gin.Context) *library.Worker {
 // Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+
 		wParam := util.PathParameter(c, "worker")
 		if len(wParam) == 0 {
 			retErr := fmt.Errorf("no worker parameter provided")
@@ -33,7 +35,7 @@ func Establish() gin.HandlerFunc {
 
 		logrus.Debugf("Reading worker %s", wParam)
 
-		w, err := database.FromContext(c).GetWorkerForHostname(wParam)
+		w, err := database.FromContext(c).GetWorkerForHostname(ctx, wParam)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read worker %s: %w", wParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

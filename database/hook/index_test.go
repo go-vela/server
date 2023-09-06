@@ -5,6 +5,7 @@
 package hook
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestHook_Engine_CreateHookIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateHookIndexes()
+			err := test.database.CreateHookIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {
