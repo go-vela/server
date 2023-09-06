@@ -673,7 +673,7 @@ func TestGithub_Update(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Update(u, r, hookID)
+	_, err := client.Update(u, r, hookID)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)

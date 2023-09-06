@@ -217,7 +217,7 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 }
 
 // Update edits a repo webhook.
-func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
+func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -258,13 +258,20 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 	}
 
 	// send API call to update the webhook
-	_, _, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
+	_, resp, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
 
-	if err != nil {
-		return err
+	// track if webhook cannot be captured from GitHub (no longer found),
+	// indicating the webhook has been manually deleted from GitHub
+	isWebhookDel := false
+	if resp.StatusCode == http.StatusNotFound {
+		isWebhookDel = true
 	}
 
-	return nil
+	if err != nil {
+		return isWebhookDel, err
+	}
+
+	return isWebhookDel, nil
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.

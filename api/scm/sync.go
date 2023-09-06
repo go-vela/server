@@ -125,7 +125,7 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		_, err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
