@@ -5,11 +5,13 @@
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountLogs gets the count of all logs from the database.
-func (e *engine) CountLogs() (int64, error) {
+func (e *engine) CountLogs(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all logs from the database")
 
 	// variable to store query results

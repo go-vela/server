@@ -79,6 +79,7 @@ func CreateStepLog(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -111,7 +112,7 @@ func CreateStepLog(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
-	err = database.FromContext(c).CreateLog(input)
+	err = database.FromContext(c).CreateLog(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for step %s: %w", entry, err)
 
