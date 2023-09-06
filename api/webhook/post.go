@@ -779,7 +779,7 @@ func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
 	// get any matching hook with the repo's unique webhook ID in the SCM
-	hook, err := database.FromContext(c).GetHookByWebhook(ctx, h.GetWebhookID())
+	hook, err := database.FromContext(c).GetHookByWebhookID(ctx, h.GetWebhookID())
 	if err != nil {
 		return nil, fmt.Errorf("%s: failed to get hook with webhook ID %d from database", baseErr, h.GetWebhookID())
 	}

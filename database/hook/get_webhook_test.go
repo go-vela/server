@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestHook_Engine_GetHookByWebhook(t *testing.T) {
+func TestHook_Engine_GetHookByWebhookID(t *testing.T) {
 	// setup types
 	_hook := testHook()
 	_hook.SetID(1)
@@ -66,7 +66,7 @@ func TestHook_Engine_GetHookByWebhook(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetHookByWebhook(context.TODO(), 123456)
+			got, err := test.database.GetHookByWebhookID(context.TODO(), 123456)
 
 			if test.failure {
 				if err == nil {

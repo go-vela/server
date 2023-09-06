@@ -494,6 +494,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list hooks for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
+	// only 2 of 3 hooks belong to Repos[0] repo
 	if int(count) != len(resources.Hooks)-1 {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
@@ -513,12 +514,12 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	methods["LastHookForRepo"] = true
 
 	// lookup a hook with matching webhook_id
-	got, err = db.GetHookByWebhook(context.TODO(), resources.Hooks[2].GetWebhookID())
+	got, err = db.GetHookByWebhookID(context.TODO(), resources.Hooks[2].GetWebhookID())
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
 	if !reflect.DeepEqual(got, resources.Hooks[2]) {
-		t.Errorf("GetHookByWebhook() is %v, want %v", got, resources.Hooks[2])
+		t.Errorf("GetHookByWebhookID() is %v, want %v", got, resources.Hooks[2])
 	}
 	methods["GetHookByWebhook"] = true
 
