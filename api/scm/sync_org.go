@@ -144,10 +144,20 @@ func SyncReposForOrg(c *gin.Context) {
 
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				// if webhook has been manually deleted from GitHub),
+				// if webhook has been manually deleted from GitHub,
 				// set to inactive in database
 				if isWebhookDel {
+
 					repo.SetActive(false)
+
+					_, err := database.FromContext(c).UpdateRepo(ctx, repo)
+					if err != nil {
+						retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+						util.HandleError(c, http.StatusInternalServerError, retErr)
+
+						return
+					}
 				}
 
 				return
