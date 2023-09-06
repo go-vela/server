@@ -684,7 +684,7 @@ func TestGithub_Update(t *testing.T) {
 	}
 }
 
-func TestGithub_Update_NotFoundHook(t *testing.T) {
+func TestGithub_Update_isWebhookDel_False(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -694,8 +694,7 @@ func TestGithub_Update_NotFoundHook(t *testing.T) {
 	// setup mock server
 	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusNotFound)
-		// c.File("testdata/hook.json")
+		c.Status(http.StatusOK)
 	})
 
 	s := httptest.NewServer(engine)
@@ -707,27 +706,51 @@ func TestGithub_Update_NotFoundHook(t *testing.T) {
 	u.SetToken("bar")
 
 	r := new(library.Repo)
-	r.SetID(1)
-	r.SetName("bar")
-	r.SetOrg("foo")
-	r.SetHash("secret")
-	r.SetAllowPush(true)
-	r.SetAllowPull(true)
-	r.SetAllowDeploy(true)
-
-	hookID := int64(0)
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	isWebhookDel, err := client.Update(u, r, hookID)
+	isWebhookDel, err := client.Update(u, r, 0)
+
+	if isWebhookDel {
+		t.Errorf("Update returned %v, want %v", isWebhookDel, false)
+	}
+
+	if err != nil {
+		t.Errorf("Update returned err: %v", err)
+	}
+}
+
+func TestGithub_Update_isWebhookDel_True(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	isWebhookDel, err := client.Update(u, r, 0)
 
 	if !isWebhookDel {
 		t.Errorf("Update returned %v, want %v", isWebhookDel, true)
-	}
-
-	if resp.Code != http.StatusNotFound {
-		t.Errorf("Update returned %v, want %v", resp.Code, http.StatusNotFound)
 	}
 
 	if err == nil {
