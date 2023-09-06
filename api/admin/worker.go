@@ -68,13 +68,13 @@ func RegisterToken(c *gin.Context) {
 
 		return
 	}
-	// extract the register token channel that was packed into gin context
+	// extract the public key that was packed into gin context
 	k, ok := c.Get("public-key")
 	if !ok {
 		c.JSON(http.StatusInternalServerError, "no public-key in the context")
 		return
 	}
-
+	// extract the queue-address that was packed into gin context
 	a, ok := c.Get("queue-address")
 	if !ok {
 		c.JSON(http.StatusInternalServerError, "no queue-address in the context")
@@ -98,6 +98,5 @@ func RegisterToken(c *gin.Context) {
 		QueuePublicKey:    &pk,
 		QueueAddress:      &qa,
 	}
-	logrus.Infof("this is worker reg %v", wr)
 	c.JSON(http.StatusOK, wr)
 }
