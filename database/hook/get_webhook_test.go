@@ -70,18 +70,18 @@ func TestHook_Engine_GetHookByWebhookID(t *testing.T) {
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetHookByWebhook for %s should have returned err", test.name)
+					t.Errorf("GetHookByWebhookID for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetHookByWebhook for %s returned err: %v", test.name, err)
+				t.Errorf("GetHookByWebhookID for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetHookByWebhook for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("GetHookByWebhookID for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}
