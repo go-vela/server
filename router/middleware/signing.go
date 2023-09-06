@@ -16,3 +16,21 @@ func QueueSigningPrivateKey(key string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// QueueSigningPublicKey is a middleware function that attaches the public key used
+// to opened signed items that are pushed to the queue.
+func QueueSigningPublicKey(key string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("public-key", key)
+		c.Next()
+	}
+}
+
+// QueueAddress is a middleware function that attaches the queue address used
+// to open the connection to Redis queue.
+func QueueAddress(key string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("queue-address", key)
+		c.Next()
+	}
+}

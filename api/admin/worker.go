@@ -68,6 +68,36 @@ func RegisterToken(c *gin.Context) {
 
 		return
 	}
+	// extract the register token channel that was packed into gin context
+	k, ok := c.Get("public-key")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, "no public-key in the context")
+		return
+	}
 
-	c.JSON(http.StatusOK, library.Token{Token: &rt})
+	a, ok := c.Get("queue-address")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, "no queue-address in the context")
+		return
+	}
+
+	pk, ok := k.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, "public key in the context is the wrong type")
+		return
+	}
+
+	qa, ok := a.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, "queue address in the context is the wrong type")
+		return
+	}
+
+	wr := library.WorkerRegistration{
+		RegistrationToken: &rt,
+		QueuePublicKey:    &pk,
+		QueueAddress:      &qa,
+	}
+	logrus.Infof("this is worker reg %v", wr)
+	c.JSON(http.StatusOK, wr)
 }
