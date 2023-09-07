@@ -252,6 +252,7 @@ func RestartBuild(c *gin.Context) {
 	p, compiled, err = compiler.FromContext(c).
 		Duplicate().
 		WithBuild(b).
+		WithCommit(b.GetCommit()).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).
