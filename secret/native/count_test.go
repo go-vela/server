@@ -5,6 +5,7 @@
 package native
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-vela/server/database"
@@ -34,11 +35,11 @@ func TestNative_Count(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(sec)
+		db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 
-	_, _ = db.CreateSecret(sec)
+	_, _ = db.CreateSecret(context.TODO(), sec)
 
 	// run test
 	s, err := New(
@@ -48,7 +49,7 @@ func TestNative_Count(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Count("repo", "foo", "bar", []string{})
+	got, err := s.Count(context.TODO(), "repo", "foo", "bar", []string{})
 	if err != nil {
 		t.Errorf("Count returned err: %v", err)
 	}
@@ -74,7 +75,7 @@ func TestNative_Count_Empty(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Count("repo", "foo", "bar", []string{})
+	got, err := s.Count(context.TODO(), "repo", "foo", "bar", []string{})
 	if err != nil {
 		t.Errorf("Count returned err: %v", err)
 	}

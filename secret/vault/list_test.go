@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -99,7 +100,7 @@ func TestVault_List_Org(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.List("org", "foo", "*", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "org", "foo", "*", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -230,7 +231,7 @@ func TestVault_List_Repo(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -346,7 +347,7 @@ func TestVault_List_Shared(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.List("shared", "foo", "bar", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "shared", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -397,7 +398,7 @@ func TestVault_List_InvalidType(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.List("invalid", "foo", "bar", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "invalid", "foo", "bar", 1, 10, []string{})
 			if err == nil {
 				t.Errorf("List should have returned err")
 			}
@@ -428,7 +429,7 @@ func TestVault_List_ClosedServer(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+	got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 	if err == nil {
 		t.Errorf("List should have returned err")
 	}
@@ -496,7 +497,7 @@ func TestVault_List_EmptyList(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -571,7 +572,7 @@ func TestVault_List_InvalidList(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)
@@ -655,7 +656,7 @@ func TestVault_List_NoRead(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+			got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("List returned %v, want %v", resp.Code, http.StatusOK)

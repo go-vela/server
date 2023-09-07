@@ -982,7 +982,6 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Codertocat/Hello-Old-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
@@ -1047,7 +1046,6 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Old-Codertocat/Hello-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
