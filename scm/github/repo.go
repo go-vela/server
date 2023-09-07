@@ -262,16 +262,7 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, e
 
 	// track if webhook exists in GitHub; a missing webhook
 	// indicates the webhook has been manually deleted from GitHub
-	webhookExists := true
-	if resp.StatusCode == http.StatusNotFound {
-		webhookExists = false
-	}
-
-	if err != nil {
-		return webhookExists, err
-	}
-
-	return webhookExists, nil
+	return resp.StatusCode == http.StatusNotFound, err
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
