@@ -110,8 +110,9 @@ func SyncRepo(c *gin.Context) {
 		return
 	}
 
-	// if we have webhook validation, update the repo hook in the SCM
-	if c.Value("webhookvalidation").(bool) {
+	// if we have webhook validation and the repo is active in the database,
+	// update the repo hook in the SCM
+	if c.Value("webhookvalidation").(bool) && r.GetActive() {
 		// grab last hook from repo to fetch the webhook ID
 		lastHook, err := database.FromContext(c).LastHookForRepo(r)
 		if err != nil {
@@ -123,13 +124,36 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		webhookExists, err := scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
 		if err != nil {
-			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+			// if webhook has been manually deleted from GitHub,
+			// set to inactive in database
+			if !webhookExists {
 
-			return
+				r.SetActive(false)
+
+				err := database.FromContext(c).UpdateRepo(r)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
+				c.JSON(http.StatusOK, fmt.Sprintf("webhook not found, repo %s deactivated", r.GetFullName()))
+
+				return
+
+			} else {
+
+				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
 		}
 	}
 
