@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -16,7 +17,7 @@ import (
 )
 
 // Get captures a secret.
-func (c *client) Get(sType, org, name, path string) (s *library.Secret, err error) {
+func (c *client) Get(ctx context.Context, sType, org, name, path string) (s *library.Secret, err error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

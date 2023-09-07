@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -82,7 +83,7 @@ func TestVault_Create_Org(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.Create("org", "foo", "*", sec)
+			got, err := s.Create(context.TODO(), "org", "foo", "*", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -167,7 +168,7 @@ func TestVault_Create_Repo(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Create("repo", "foo", "bar", sec)
+			got, err := s.Create(context.TODO(), "repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -252,7 +253,7 @@ func TestVault_Create_Shared(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Create("shared", "foo", "bar", sec)
+			got, err := s.Create(context.TODO(), "shared", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -333,7 +334,7 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Create("repo", "foo", "bar", sec)
+			_, err = s.Create(context.TODO(), "repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Create returned %v, want %v", resp.Code, http.StatusOK)
@@ -392,7 +393,7 @@ func TestVault_Create_InvalidType(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Create("invalid", "foo", "bar", sec)
+			_, err = s.Create(context.TODO(), "invalid", "foo", "bar", sec)
 			if err == nil {
 				t.Errorf("Create should have returned err")
 			}
@@ -446,7 +447,7 @@ func TestVault_Create_ClosedServer(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Create("repo", "foo", "bar", sec)
+			_, err = s.Create(context.TODO(), "repo", "foo", "bar", sec)
 			if err == nil {
 				t.Errorf("Create should have returned err")
 			}

@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,7 +66,7 @@ func TestVault_Delete_Org(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Delete("org", "foo", "bar", "foob")
+			err = s.Delete(context.TODO(), "org", "foo", "bar", "foob")
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Delete returned %v, want %v", resp.Code, http.StatusOK)
@@ -130,7 +131,7 @@ func TestVault_Delete_Repo(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Delete("repo", "foo", "bar", "foob")
+			err = s.Delete(context.TODO(), "repo", "foo", "bar", "foob")
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Delete returned %v, want %v", resp.Code, http.StatusOK)
@@ -195,7 +196,7 @@ func TestVault_Delete_Shared(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Delete("shared", "foo", "bar", "foob")
+			err = s.Delete(context.TODO(), "shared", "foo", "bar", "foob")
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Delete returned %v, want %v", resp.Code, http.StatusOK)
@@ -242,7 +243,7 @@ func TestVault_Delete_InvalidType(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Delete("invalid", "foo", "bar", "foob")
+			err = s.Delete(context.TODO(), "invalid", "foo", "bar", "foob")
 			if err == nil {
 				t.Errorf("Delete should have returned err")
 			}
@@ -284,7 +285,7 @@ func TestVault_Delete_ClosedServer(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			err = s.Delete("repo", "foo", "bar", "foob")
+			err = s.Delete(context.TODO(), "repo", "foo", "bar", "foob")
 			if err == nil {
 				t.Errorf("Delete should have returned err")
 			}

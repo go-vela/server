@@ -5,6 +5,8 @@
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // GetSecretForRepo gets a secret by org and repo name from the database.
-func (e *engine) GetSecretForRepo(name string, r *library.Repo) (*library.Secret, error) {
+func (e *engine) GetSecretForRepo(ctx context.Context, name string, r *library.Repo) (*library.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    r.GetOrg(),
 		"repo":   r.GetName(),

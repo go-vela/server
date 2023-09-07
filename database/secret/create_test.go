@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -128,7 +129,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CreateSecret(test.secret)
+			got, err := test.database.CreateSecret(context.TODO(), test.secret)
 
 			if test.failure {
 				if err == nil {
