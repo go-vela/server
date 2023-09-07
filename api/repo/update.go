@@ -284,7 +284,7 @@ func UpdateRepo(c *gin.Context) {
 			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
 		}
 		// update webhook with new events
-		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		_, err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
