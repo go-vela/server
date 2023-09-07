@@ -261,7 +261,7 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, e
 	_, resp, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
 
 	// track if webhook exists in GitHub; a missing webhook
-	// indicates the webhook has been manually deleted from GitHu
+	// indicates the webhook has been manually deleted from GitHub
 	return resp.StatusCode != http.StatusNotFound, err
 }
 
