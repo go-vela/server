@@ -43,9 +43,9 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// RegisterToken represents the API handler to
+// WorkerRegistration represents the API handler to
 // generate a registration token for onboarding a worker.
-func RegisterToken(c *gin.Context) {
+func WorkerRegistration(c *gin.Context) {
 	// retrieve user from context
 	u := user.Retrieve(c)
 

@@ -23,7 +23,8 @@ import (
 // PUT    /api/v1/admin/secret
 // PUT    /api/v1/admin/service
 // PUT    /api/v1/admin/step
-// PUT    /api/v1/admin/user.
+// PUT    /api/v1/admin/user
+// POST   /workers/:worker/register.
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
@@ -59,6 +60,6 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.PUT("/user", admin.UpdateUser)
 
 		// Admin worker endpoint
-		_admin.POST("/workers/:worker/register-token", admin.RegisterToken)
+		_admin.POST("/workers/:worker/register", admin.WorkerRegistration)
 	} // end of admin endpoints
 }
