@@ -125,13 +125,27 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		_, err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		webhookExists, err := scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-			return
+			// if webhook has been manually deleted from GitHub,
+			// set to inactive in database
+			if !webhookExists {
+
+				r.SetActive(false)
+
+				_, err := database.FromContext(c).UpdateRepo(ctx, r)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+			}
 		}
 	}
 

@@ -260,18 +260,18 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, e
 	// send API call to update the webhook
 	_, resp, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
 
-	// track if webhook cannot be captured from GitHub (no longer found),
-	// indicating the webhook has been manually deleted from GitHub
-	isWebhookDel := false
+	// track if webhook exists in GitHub; a missing webhook
+	// indicates the webhook has been manually deleted from GitHub
+	webhookExists := true
 	if resp.StatusCode == http.StatusNotFound {
-		isWebhookDel = true
+		webhookExists = false
 	}
 
 	if err != nil {
-		return isWebhookDel, err
+		return webhookExists, err
 	}
 
-	return isWebhookDel, nil
+	return webhookExists, nil
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.

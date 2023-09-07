@@ -684,7 +684,7 @@ func TestGithub_Update(t *testing.T) {
 	}
 }
 
-func TestGithub_Update_isWebhookDel_False(t *testing.T) {
+func TestGithub_Update_webhookExists_True(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -710,10 +710,10 @@ func TestGithub_Update_isWebhookDel_False(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	isWebhookDel, err := client.Update(u, r, 0)
+	webhookExists, err := client.Update(u, r, 0)
 
-	if isWebhookDel {
-		t.Errorf("Update returned %v, want %v", isWebhookDel, false)
+	if !webhookExists {
+		t.Errorf("Update returned %v, want %v", webhookExists, true)
 	}
 
 	if err != nil {
@@ -721,7 +721,7 @@ func TestGithub_Update_isWebhookDel_False(t *testing.T) {
 	}
 }
 
-func TestGithub_Update_isWebhookDel_True(t *testing.T) {
+func TestGithub_Update_webhookExists_False(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
 
@@ -747,10 +747,10 @@ func TestGithub_Update_isWebhookDel_True(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	isWebhookDel, err := client.Update(u, r, 0)
+	webhookExists, err := client.Update(u, r, 0)
 
-	if !isWebhookDel {
-		t.Errorf("Update returned %v, want %v", isWebhookDel, true)
+	if webhookExists {
+		t.Errorf("Update returned %v, want %v", webhookExists, false)
 	}
 
 	if err == nil {

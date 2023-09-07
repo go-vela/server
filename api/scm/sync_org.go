@@ -138,7 +138,7 @@ func SyncReposForOrg(c *gin.Context) {
 			}
 
 			// update webhook
-			isWebhookDel, err := scm.FromContext(c).Update(u, repo, lastHook.GetWebhookID())
+			webhookExists, err := scm.FromContext(c).Update(u, repo, lastHook.GetWebhookID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", repo.GetFullName(), err)
 
@@ -146,7 +146,7 @@ func SyncReposForOrg(c *gin.Context) {
 
 				// if webhook has been manually deleted from GitHub,
 				// set to inactive in database
-				if isWebhookDel {
+				if !webhookExists {
 
 					repo.SetActive(false)
 
