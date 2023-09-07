@@ -93,6 +93,11 @@ func CreateDeployment(c *gin.Context) {
 		input.SetTask("deploy:vela")
 	}
 
+	// if ref isn't provided, use repo's default branch
+	if len(input.GetRef()) == 0 {
+		input.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
+	}
+
 	// send API call to create the deployment
 	err = scm.FromContext(c).CreateDeployment(u, r, input)
 	if err != nil {
