@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -20,7 +21,7 @@ import (
 // We drop page and perPage as we are always returning all results.
 // Vault API doesn't seem to support pagination. Might result in undesired
 // behavior for fetching Vault secrets in paginated manner.
-func (c *client) List(sType, org, name string, _, _ int, _ []string) ([]*library.Secret, error) {
+func (c *client) List(ctx context.Context, sType, org, name string, _, _ int, _ []string) ([]*library.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":  org,
@@ -77,7 +78,7 @@ func (c *client) List(sType, org, name string, _, _ int, _ []string) ([]*library
 		}
 
 		// capture the secret from the Vault service
-		sec, err := c.Get(sType, org, name, key)
+		sec, err := c.Get(ctx, sType, org, name, key)
 		if err != nil {
 			return nil, err
 		}

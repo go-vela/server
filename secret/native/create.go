@@ -5,6 +5,7 @@
 package native
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -13,7 +14,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Create(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:
@@ -24,7 +25,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) (*library.Se
 		}).Tracef("creating native %s secret %s for %s", sType, s.GetName(), org)
 
 		// create the org secret in the native service
-		return c.Database.CreateSecret(s)
+		return c.Database.CreateSecret(ctx, s)
 	case constants.SecretRepo:
 		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
@@ -34,7 +35,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) (*library.Se
 		}).Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 		// create the repo secret in the native service
-		return c.Database.CreateSecret(s)
+		return c.Database.CreateSecret(ctx, s)
 	case constants.SecretShared:
 		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
@@ -44,7 +45,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) (*library.Se
 		}).Tracef("creating native %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 		// create the shared secret in the native service
-		return c.Database.CreateSecret(s)
+		return c.Database.CreateSecret(ctx, s)
 	default:
 		return nil, fmt.Errorf("invalid secret type: %s", sType)
 	}

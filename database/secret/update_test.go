@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -77,17 +78,17 @@ WHERE "id" = $14`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateSecret(_secretRepo)
+	_, err := _sqlite.CreateSecret(context.TODO(), _secretRepo)
 	if err != nil {
 		t.Errorf("unable to create test repo secret for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateSecret(_secretOrg)
+	_, err = _sqlite.CreateSecret(context.TODO(), _secretOrg)
 	if err != nil {
 		t.Errorf("unable to create test org secret for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateSecret(_secretShared)
+	_, err = _sqlite.CreateSecret(context.TODO(), _secretShared)
 	if err != nil {
 		t.Errorf("unable to create test shared secret for sqlite: %v", err)
 	}
@@ -140,7 +141,7 @@ WHERE "id" = $14`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.UpdateSecret(test.secret)
+			got, err := test.database.UpdateSecret(context.TODO(), test.secret)
 			got.SetUpdatedAt(test.secret.GetUpdatedAt())
 
 			if test.failure {

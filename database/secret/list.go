@@ -5,13 +5,15 @@
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListSecrets gets a list of all secrets from the database.
-func (e *engine) ListSecrets() ([]*library.Secret, error) {
+func (e *engine) ListSecrets(ctx context.Context) ([]*library.Secret, error) {
 	e.logger.Trace("listing all secrets from the database")
 
 	// variables to store query results and return value
@@ -20,7 +22,7 @@ func (e *engine) ListSecrets() ([]*library.Secret, error) {
 	secrets := []*library.Secret{}
 
 	// count the results
-	count, err := e.CountSecrets()
+	count, err := e.CountSecrets(ctx)
 	if err != nil {
 		return nil, err
 	}

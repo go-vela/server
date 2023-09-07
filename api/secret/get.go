@@ -78,6 +78,7 @@ func GetSecret(c *gin.Context) {
 	o := util.PathParameter(c, "org")
 	n := util.PathParameter(c, "name")
 	s := strings.TrimPrefix(util.PathParameter(c, "secret"), "/")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
 
@@ -110,7 +111,7 @@ func GetSecret(c *gin.Context) {
 	logrus.WithFields(fields).Infof("reading secret %s from %s service", entry, e)
 
 	// send API call to capture the secret
-	secret, err := secret.FromContext(c, e).Get(t, o, n, s)
+	secret, err := secret.FromContext(c, e).Get(ctx, t, o, n, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secret %s from %s service: %w", entry, e, err)
 
