@@ -782,19 +782,17 @@ func handleRepositoryEvent(c *gin.Context, m *types.Metadata, h *library.Hook, r
 // associated with that repo as well as build links for the UI.
 func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
-	// get the old name of the repo
-	prevOrg, prevRepo := util.SplitFullName(r.GetPreviousName())
 
-	// get the repo from the database that matches the old name
-	dbR, err := database.FromContext(c).GetRepoForOrg(prevOrg, prevRepo)
+	// get any matching hook with the repo's unique webhook ID in the SCM
+	hook, err := database.FromContext(c).GetHookByWebhookID(h.GetWebhookID())
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get repo %s/%s from database", baseErr, prevOrg, prevRepo)
-		util.HandleError(c, http.StatusBadRequest, retErr)
+		return nil, fmt.Errorf("%s: failed to get hook with webhook ID %d from database", baseErr, h.GetWebhookID())
+	}
 
-		h.SetStatus(constants.StatusFailure)
-		h.SetError(retErr.Error())
-
-		return nil, retErr
+	// get the repo from the database using repo id of matching hook
+	dbR, err := database.FromContext(c).GetRepo(hook.GetRepoID())
+	if err != nil {
+		return nil, fmt.Errorf("%s: failed to get repo %d from database", baseErr, hook.GetRepoID())
 	}
 
 	// update hook object which will be added to DB upon reaching deferred function in PostWebhook
@@ -822,7 +820,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	// get total number of secrets associated with repository
 	t, err := database.FromContext(c).CountSecretsForRepo(dbR, map[string]interface{}{})
 	if err != nil {
-		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", prevOrg, prevRepo, err)
+		return nil, fmt.Errorf("unable to get secret count for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 	}
 
 	secrets := []*library.Secret{}
@@ -831,7 +829,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	for repoSecrets := int64(0); repoSecrets < t; repoSecrets += 100 {
 		s, _, err := database.FromContext(c).ListSecretsForRepo(dbR, map[string]interface{}{}, page, 100)
 		if err != nil {
-			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", prevOrg, prevRepo, err)
+			return nil, fmt.Errorf("unable to get secret list for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 		}
 
 		secrets = append(secrets, s...)
@@ -846,7 +844,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 
 		err = database.FromContext(c).UpdateSecret(secret)
 		if err != nil {
-			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", prevOrg, prevRepo, err)
+			return nil, fmt.Errorf("unable to update secret for repo %s/%s: %w", dbR.GetOrg(), dbR.GetName(), err)
 		}
 	}
 
@@ -893,7 +891,7 @@ func renameRepository(h *library.Hook, r *library.Repo, c *gin.Context, m *types
 	// update the repo in the database
 	err = database.FromContext(c).UpdateRepo(dbR)
 	if err != nil {
-		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, prevOrg, prevRepo)
+		retErr := fmt.Errorf("%s: failed to update repo %s/%s in database", baseErr, dbR.GetOrg(), dbR.GetName())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusFailure)
