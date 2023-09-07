@@ -5,12 +5,14 @@
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
 // CountSecretsForOrg gets the count of secrets by org name from the database.
-func (e *engine) CountSecretsForOrg(org string, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountSecretsForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,

@@ -6,6 +6,7 @@
 package secret
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // CreateSecret creates a new secret in the database.
-func (e *engine) CreateSecret(s *library.Secret) (*library.Secret, error) {
+func (e *engine) CreateSecret(ctx context.Context, s *library.Secret) (*library.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:

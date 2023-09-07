@@ -5,6 +5,7 @@
 package native
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -12,9 +13,9 @@ import (
 )
 
 // Delete deletes a secret.
-func (c *client) Delete(sType, org, name, path string) error {
+func (c *client) Delete(ctx context.Context, sType, org, name, path string) error {
 	// capture the secret from the native service
-	s, err := c.Get(sType, org, name, path)
+	s, err := c.Get(ctx, sType, org, name, path)
 	if err != nil {
 		return err
 	}
@@ -29,7 +30,7 @@ func (c *client) Delete(sType, org, name, path string) error {
 		}).Tracef("deleting native %s secret %s for %s", sType, path, org)
 
 		// delete the org secret from the native service
-		return c.Database.DeleteSecret(s)
+		return c.Database.DeleteSecret(ctx, s)
 	case constants.SecretRepo:
 		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
@@ -39,7 +40,7 @@ func (c *client) Delete(sType, org, name, path string) error {
 		}).Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
 
 		// delete the repo secret from the native service
-		return c.Database.DeleteSecret(s)
+		return c.Database.DeleteSecret(ctx, s)
 	case constants.SecretShared:
 		c.Logger.WithFields(logrus.Fields{
 			"org":    org,
@@ -49,7 +50,7 @@ func (c *client) Delete(sType, org, name, path string) error {
 		}).Tracef("deleting native %s secret %s for %s/%s", sType, path, org, name)
 
 		// delete the shared secret from the native service
-		return c.Database.DeleteSecret(s)
+		return c.Database.DeleteSecret(ctx, s)
 	default:
 		return fmt.Errorf("invalid secret type: %s", sType)
 	}

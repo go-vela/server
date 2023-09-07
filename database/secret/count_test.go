@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -49,12 +50,12 @@ func TestSecret_Engine_CountSecrets(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateSecret(_secretOne)
+	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateSecret(_secretTwo)
+	_, err = _sqlite.CreateSecret(context.TODO(), _secretTwo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -83,7 +84,7 @@ func TestSecret_Engine_CountSecrets(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountSecrets()
+			got, err := test.database.CountSecrets(context.TODO())
 
 			if test.failure {
 				if err == nil {
