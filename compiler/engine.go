@@ -25,7 +25,7 @@ type Engine interface {
 	// CompileLite defines a function that produces an light executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	CompileLite(interface{}, bool, bool, []string) (*yaml.Build, *library.Pipeline, error)
+	CompileLite(interface{}, bool, bool) (*yaml.Build, *library.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
@@ -130,6 +130,9 @@ type Engine interface {
 	// WithLocal defines a function that sets
 	// the compiler local field in the Engine.
 	WithLocal(bool) Engine
+	// WithLocalTemplates defines a function that sets
+	// the compiler local templates field in the Engine.
+	WithLocalTemplates([]string) Engine
 	// WithMetadata defines a function that sets
 	// the compiler Metadata type in the Engine.
 	WithMetadata(*types.Metadata) Engine
