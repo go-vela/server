@@ -27,7 +27,7 @@ func QueueSigningPublicKey(key string) gin.HandlerFunc {
 }
 
 // QueueAddress is a middleware function that attaches the queue address used
-// to open the connection to Redis queue.
+// to open the connection to the queue.
 func QueueAddress(key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("queue-address", key)
