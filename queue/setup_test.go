@@ -63,19 +63,23 @@ func TestQueue_Setup_Validate(t *testing.T) {
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:  "redis",
-				Address: "redis://redis.example.com",
-				Routes:  []string{"foo"},
-				Cluster: false,
+				Driver:     "redis",
+				Address:    "redis://redis.example.com",
+				Routes:     []string{"foo"},
+				Cluster:    false,
+				PrivateKey: "sdafhdsaohf",
+				PublicKey:  "adwfwo",
 			},
 		},
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:  "kafka",
-				Address: "kafka://kafka.example.com",
-				Routes:  []string{"foo"},
-				Cluster: false,
+				Driver:     "kafka",
+				Address:    "kafka://kafka.example.com",
+				Routes:     []string{"foo"},
+				Cluster:    false,
+				PrivateKey: "sdafhdsaohf",
+				PublicKey:  "adwfwo",
 			},
 		},
 		{
