@@ -2322,7 +2322,8 @@ func newResources() *Resources {
 // CmpOptApproxUpdatedAt is a custom comparator for cmp.Equal
 // to reduce flakiness in tests when comparing structs with UpdatedAt field.
 func CmpOptApproxUpdatedAt() cmp.Option {
-	// Custom Comparer
+	// Custom Comparer for *int64 fields typically used to store unix timestamps.
+	// Will consider time difference of 5s to be equal for sake of tests.
 	//
 	// https://pkg.go.dev/github.com/google/go-cmp/cmp#Comparer
 	cmpApproximateUnixTime := cmp.Comparer(func(x, y *int64) bool {
