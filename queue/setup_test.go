@@ -67,8 +67,8 @@ func TestQueue_Setup_Validate(t *testing.T) {
 				Address:    "redis://redis.example.com",
 				Routes:     []string{"foo"},
 				Cluster:    false,
-				PrivateKey: "sdafhdsaohf",
-				PublicKey:  "adwfwo",
+				PrivateKey: "bOiFT7Y9e0jpOqaapTa3NzUkAve3VdRvyowgsY/vtlcK5L4RADOh9uTe1UVLdu3l/a0hvhiIkkLidUwVBhASWA==",
+				PublicKey:  "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{
@@ -78,8 +78,8 @@ func TestQueue_Setup_Validate(t *testing.T) {
 				Address:    "kafka://kafka.example.com",
 				Routes:     []string{"foo"},
 				Cluster:    false,
-				PrivateKey: "sdafhdsaohf",
-				PublicKey:  "adwfwo",
+				PrivateKey: "bOiFT7Y9e0jpOqaapTa3NzUkAve3VdRvyowgsY/vtlcK5L4RADOh9uTe1UVLdu3l/a0hvhiIkkLidUwVBhASWA==",
+				PublicKey:  "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{
