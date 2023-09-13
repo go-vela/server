@@ -38,6 +38,8 @@ type HookInterface interface {
 	DeleteHook(context.Context, *library.Hook) error
 	// GetHook defines a function that gets a hook by ID.
 	GetHook(context.Context, int64) (*library.Hook, error)
+	// GetHookByWebhookID defines a function that gets any hook with a matching webhook_id.
+	GetHookByWebhookID(context.Context, int64) (*library.Hook, error)
 	// GetHookForRepo defines a function that gets a hook by repo ID and number.
 	GetHookForRepo(context.Context, *library.Repo, int) (*library.Hook, error)
 	// LastHookForRepo defines a function that gets the last hook by repo ID.

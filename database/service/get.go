@@ -5,13 +5,15 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetService gets a service by ID from the database.
-func (e *engine) GetService(id int64) (*library.Service, error) {
+func (e *engine) GetService(ctx context.Context, id int64) (*library.Service, error) {
 	e.logger.Tracef("getting service %d from the database", id)
 
 	// variable to store query results

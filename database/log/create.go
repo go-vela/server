@@ -6,6 +6,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -14,7 +15,7 @@ import (
 )
 
 // CreateLog creates a new log in the database.
-func (e *engine) CreateLog(l *library.Log) error {
+func (e *engine) CreateLog(ctx context.Context, l *library.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:

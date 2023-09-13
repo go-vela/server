@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -43,7 +44,7 @@ func TestSecret_Engine_CreateSecretIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateSecretIndexes()
+			err := test.database.CreateSecretIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {

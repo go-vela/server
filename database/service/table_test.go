@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestService_Engine_CreateServiceTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateServiceTable(test.name)
+			err := test.database.CreateServiceTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

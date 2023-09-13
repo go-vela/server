@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +32,7 @@ func TestService_Engine_DeleteService(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateService(_service)
+	_, err := _sqlite.CreateService(context.TODO(), _service)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
@@ -57,7 +58,7 @@ func TestService_Engine_DeleteService(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteService(_service)
+			err = test.database.DeleteService(context.TODO(), _service)
 
 			if test.failure {
 				if err == nil {
