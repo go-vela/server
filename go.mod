@@ -31,6 +31,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.9.5
 	github.com/urfave/cli/v2 v2.25.7
+	go.elastic.co/ecslogrus v1.0.0
 	go.starlark.net v0.0.0-20230829175125-68633c9954b0
 	golang.org/x/crypto v0.12.0
 	golang.org/x/oauth2 v0.11.0
@@ -92,6 +93,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/magefile/mage v1.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect

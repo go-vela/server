@@ -20,12 +20,25 @@ import (
 	"github.com/go-vela/server/router/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+	"go.elastic.co/ecslogrus"
 	"golang.org/x/sync/errgroup"
 
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 func server(c *cli.Context) error {
+	// set log formatter
+	switch c.String("log-formatter") {
+	case "json":
+		// set logrus to log in JSON format
+		logrus.SetFormatter(&logrus.JSONFormatter{})
+	case "ecs":
+		// set logrus to log in Elasticsearch Common Schema (ecs) format
+		logrus.SetFormatter(&ecslogrus.Formatter{
+			DataKey: "labels",
+		})
+	}
+
 	// validate all input
 	err := validate(c)
 	if err != nil {
