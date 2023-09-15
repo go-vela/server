@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -26,6 +27,8 @@ type (
 	engine struct {
 		// engine configuration settings used in repo functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in repo functions
 		//
@@ -67,13 +70,13 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the repos table
-	err := e.CreateRepoTable(e.client.Config.Dialector.Name())
+	err := e.CreateRepoTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableRepo, err)
 	}
 
 	// create the indexes for the repos table
-	err = e.CreateRepoIndexes()
+	err = e.CreateRepoIndexes(e.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableRepo, err)
 	}

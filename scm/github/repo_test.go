@@ -669,7 +669,7 @@ func TestGithub_Update(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Update(u, r, hookID)
+	_, err := client.Update(u, r, hookID)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -677,6 +677,80 @@ func TestGithub_Update(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Update returned err: %v", err)
+	}
+}
+
+func TestGithub_Update_webhookExists_True(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	webhookExists, err := client.Update(u, r, 0)
+
+	if !webhookExists {
+		t.Errorf("Update returned %v, want %v", webhookExists, true)
+	}
+
+	if err != nil {
+		t.Errorf("Update returned err: %v", err)
+	}
+}
+
+func TestGithub_Update_webhookExists_False(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	webhookExists, err := client.Update(u, r, 0)
+
+	if webhookExists {
+		t.Errorf("Update returned %v, want %v", webhookExists, false)
+	}
+
+	if err == nil {
+		t.Error("Update should return error")
 	}
 }
 
@@ -1024,6 +1098,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetBranch("master")
 	want.SetPrivate(false)
 	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
+	want.SetVisibility("public")
 
 	client, _ := NewTest(s.URL)
 
@@ -1187,6 +1262,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetBranch("master")
 	r.SetPrivate(false)
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
+	r.SetVisibility("public")
 
 	want := []*library.Repo{r}
 
@@ -1333,7 +1409,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(u, r)
+	gotBranch, gotCommit, err := client.GetBranch(u, r, "main")
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)

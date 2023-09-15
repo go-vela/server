@@ -33,15 +33,17 @@ type client struct {
 	ModificationService ModificationConfig
 	CloneImage          string
 	TemplateDepth       int
+	StarlarkExecLimit   uint64
 
-	build    *library.Build
-	comment  string
-	commit   string
-	files    []string
-	local    bool
-	metadata *types.Metadata
-	repo     *library.Repo
-	user     *library.User
+	build          *library.Build
+	comment        string
+	commit         string
+	files          []string
+	local          bool
+	localTemplates []string
+	metadata       *types.Metadata
+	repo           *library.Repo
+	user           *library.User
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -72,7 +74,11 @@ func New(ctx *cli.Context) (*client, error) {
 	// set the clone image to use for the injected clone step
 	c.CloneImage = ctx.String("clone-image")
 
+	// set the template depth to use for nested templates
 	c.TemplateDepth = ctx.Int("max-template-depth")
+
+	// set the starlark execution step limit for compiling starlark pipelines
+	c.StarlarkExecLimit = ctx.Uint64("compiler-starlark-exec-limit")
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
@@ -114,6 +120,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.ModificationService = c.ModificationService
 	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
+	cc.StarlarkExecLimit = c.StarlarkExecLimit
 
 	return cc
 }
@@ -157,6 +164,13 @@ func (c *client) WithFiles(f []string) compiler.Engine {
 // WithLocal sets the compiler metadata type in the Engine.
 func (c *client) WithLocal(local bool) compiler.Engine {
 	c.local = local
+
+	return c
+}
+
+// WithLocalTemplates sets the compiler local templates in the Engine.
+func (c *client) WithLocalTemplates(templates []string) compiler.Engine {
+	c.localTemplates = templates
 
 	return c
 }

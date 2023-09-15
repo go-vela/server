@@ -28,6 +28,7 @@ services:
       DATABASE_ENCRYPTION_KEY: 'C639A572E14D5075C526FDDD43E4ECF6'
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
+      QUEUE_PRIVATE_KEY: 'tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=='
       SCM_DRIVER: github
       SCM_CONTEXT: 'continuous-integration/vela'
       SECRET_VAULT: 'true'
@@ -69,6 +70,7 @@ services:
       EXECUTOR_DRIVER: linux
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
+      QUEUE_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace
@@ -143,7 +145,7 @@ services:
   #
   # https://www.vaultproject.io/
   vault:
-    image: vault:latest
+    image: hashicorp/vault:latest
     container_name: vault
     command: server -dev
     networks:

@@ -5,6 +5,7 @@
 package native
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -54,11 +55,11 @@ func TestNative_Update(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(original)
+		db.DeleteSecret(context.TODO(), original)
 		db.Close()
 	}()
 
-	_ = db.CreateSecret(original)
+	_, _ = db.CreateSecret(context.TODO(), original)
 
 	// run test
 	s, err := New(
@@ -68,12 +69,10 @@ func TestNative_Update(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Update("repo", "foo", "bar", want)
+	got, err := s.Update(context.TODO(), "repo", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Update returned err: %v", err)
 	}
-
-	got, _ := s.Get("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Update is %v, want %v", got, want)
@@ -101,7 +100,7 @@ func TestNative_Update_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Update("repo", "foo", "bar", sec)
+	_, err = s.Update(context.TODO(), "repo", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Update should have returned err")
 	}

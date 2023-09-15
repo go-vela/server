@@ -76,6 +76,7 @@ func UpdateHook(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	hook := util.PathParameter(c, "hook")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -111,7 +112,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(r, number)
+	h, err := database.FromContext(c).GetHookForRepo(ctx, r, number)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hook %s: %w", entry, err)
 
@@ -157,7 +158,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to update the webhook
-	h, err = database.FromContext(c).UpdateHook(h)
+	h, err = database.FromContext(c).UpdateHook(ctx, h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update hook %s: %w", entry, err)
 

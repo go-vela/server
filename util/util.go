@@ -65,6 +65,20 @@ func PathParameter(c *gin.Context, parameter string) string {
 	return EscapeValue(c.Param(parameter))
 }
 
+// SplitFullName safely splits the repo.FullName field into an org and name.
+func SplitFullName(value string) (string, string) {
+	// split repo full name into org and repo
+	repoSlice := strings.Split(value, "/")
+	if len(repoSlice) != 2 {
+		return "", ""
+	}
+
+	org := repoSlice[0]
+	repo := repoSlice[1]
+
+	return org, repo
+}
+
 // EscapeValue safely escapes any string by removing any new lines and HTML escaping it.
 func EscapeValue(value string) string {
 	// replace all new lines in the value
@@ -129,29 +143,21 @@ func EventAllowed(event, action string, r *library.Repo) (allowed bool) {
 
 	switch event {
 	case constants.EventPush:
-		allowed = r.GetAllowEvents().GetPush()
+		allowed = r.GetAllowEvents().GetPush().GetBranch()
 	case constants.EventPull + ":" + constants.ActionOpened:
 		allowed = r.GetAllowEvents().GetPullRequest().GetOpened()
 	case constants.EventPull + ":" + constants.ActionSynchronize:
 		allowed = r.GetAllowEvents().GetPullRequest().GetSynchronize()
 	case constants.EventPull + ":" + constants.ActionEdited:
 		allowed = r.GetAllowEvents().GetPullRequest().GetEdited()
-	case constants.EventPull + ":" + constants.ActionReviewRequested:
-		allowed = r.GetAllowEvents().GetPullRequest().GetReviewRequest()
 	case constants.EventTag:
-		allowed = r.GetAllowEvents().GetTag()
+		allowed = r.GetAllowEvents().GetPush().GetTag()
 	case constants.EventComment + ":" + constants.ActionCreated:
 		allowed = r.GetAllowEvents().GetComment().GetCreated()
 	case constants.EventComment + ":" + constants.ActionEdited:
 		allowed = r.GetAllowEvents().GetComment().GetEdited()
-	case constants.EventPullReview + ":" + constants.ActionSubmitted:
-		allowed = r.GetAllowEvents().GetPullReview().GetSubmitted()
-	case constants.EventPullReview + ":" + constants.ActionEdited:
-		allowed = r.GetAllowEvents().GetPullReview().GetEdited()
 	case constants.EventDeploy:
-		allowed = r.GetAllowEvents().GetDeployment()
-	case constants.EventSchedule:
-		allowed = r.GetAllowEvents().GetSchedule()
+		allowed = r.GetAllowEvents().GetDeployment().GetCreated()
 	}
 
 	return

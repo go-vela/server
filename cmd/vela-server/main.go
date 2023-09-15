@@ -175,6 +175,12 @@ func main() {
 			Name:    "github-token",
 			Usage:   "github token, used by compiler, for pulling registry templates",
 		},
+		&cli.Uint64Flag{
+			EnvVars: []string{"VELA_COMPILER_STARLARK_EXEC_LIMIT", "COMPILER_STARLARK_EXEC_LIMIT"},
+			Name:    "compiler-starlark-exec-limit",
+			Usage:   "set the starlark execution step limit for compiling starlark pipelines",
+			Value:   7500,
+		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",
@@ -213,8 +219,14 @@ func main() {
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_SCHEDULE_MINIMUM_FREQUENCY", "SCHEDULE_MINIMUM_FREQUENCY"},
 			Name:    "schedule-minimum-frequency",
-			Usage:   "minimum time between each schedule entry",
+			Usage:   "minimum time allowed between each build triggered for a schedule",
 			Value:   1 * time.Hour,
+		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_SCHEDULE_INTERVAL", "SCHEDULE_INTERVAL"},
+			Name:    "schedule-interval",
+			Usage:   "interval at which schedules will be processed by the server to trigger builds",
+			Value:   5 * time.Minute,
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_SCHEDULE_ALLOWLIST"},

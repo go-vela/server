@@ -13,7 +13,7 @@ import (
 )
 
 // Validate verifies the required fields from the provided configuration are populated correctly.
-func (c *Config) Validate() error {
+func (c *config) Validate() error {
 	logrus.Trace("validating database configuration for engine")
 
 	// verify a database driver was provided

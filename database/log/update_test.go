@@ -5,6 +5,7 @@
 package log
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -47,12 +48,12 @@ WHERE "id" = $6`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_service)
+	err := _sqlite.CreateLog(context.TODO(), _service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateLog(_step)
+	err = _sqlite.CreateLog(context.TODO(), _step)
 	if err != nil {
 		t.Errorf("unable to create test step log for sqlite: %v", err)
 	}
@@ -82,7 +83,7 @@ WHERE "id" = $6`).
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, log := range test.logs {
-				err = test.database.UpdateLog(log)
+				err = test.database.UpdateLog(context.TODO(), log)
 
 				if test.failure {
 					if err == nil {

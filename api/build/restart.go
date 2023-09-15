@@ -86,6 +86,7 @@ func RestartBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -102,7 +103,7 @@ func RestartBuild(c *gin.Context) {
 	logger.Infof("restarting build %s", entry)
 
 	// send API call to capture the repo owner
-	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -117,7 +118,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -222,7 +223,7 @@ func RestartBuild(c *gin.Context) {
 	)
 
 	// send API call to attempt to capture the pipeline
-	pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), r)
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 		// send API call to capture the pipeline configuration file
 		config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
@@ -252,6 +253,7 @@ func RestartBuild(c *gin.Context) {
 	p, compiled, err = compiler.FromContext(c).
 		Duplicate().
 		WithBuild(b).
+		WithCommit(b.GetCommit()).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).
@@ -299,7 +301,7 @@ func RestartBuild(c *gin.Context) {
 		pipeline.SetRef(b.GetRef())
 
 		// send API call to create the pipeline
-		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -312,7 +314,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = PlanBuild(database.FromContext(c), p, b, r)
+	err = PlanBuild(ctx, database.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -320,7 +322,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -329,7 +331,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the restarted build
-	b, _ = database.FromContext(c).GetBuildForRepo(r, b.GetNumber())
+	b, _ = database.FromContext(c).GetBuildForRepo(ctx, r, b.GetNumber())
 
 	c.JSON(http.StatusCreated, b)
 
@@ -341,6 +343,7 @@ func RestartBuild(c *gin.Context) {
 
 	// publish the build to the queue
 	go PublishToQueue(
+		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,

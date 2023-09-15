@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -35,7 +36,7 @@ WHERE "id" = $15`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(context.TODO(), _pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -61,7 +62,7 @@ WHERE "id" = $15`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.UpdatePipeline(_pipeline)
+			got, err := test.database.UpdatePipeline(context.TODO(), _pipeline)
 
 			if test.failure {
 				if err == nil {

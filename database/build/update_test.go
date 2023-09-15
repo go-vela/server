@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -32,7 +33,7 @@ WHERE "id" = $31`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(_build)
+	_, err := _sqlite.CreateBuild(context.TODO(), _build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -58,7 +59,7 @@ WHERE "id" = $31`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.UpdateBuild(_build)
+			got, err := test.database.UpdateBuild(context.TODO(), _build)
 
 			if test.failure {
 				if err == nil {

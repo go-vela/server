@@ -7,7 +7,6 @@ package step
 import (
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
@@ -59,28 +58,28 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 
 	// ensure the mock expects the name query
 	_mock.ExpectExec(`UPDATE "steps" SET "status"=$1,"error"=$2,"finished"=$3 WHERE created < $4 AND (status = 'running' OR status = 'pending')`).
-		WithArgs("error", "msg", time.Now().UTC().Unix(), 3).
+		WithArgs("error", "msg", NowTimestamp{}, 3).
 		WillReturnResult(sqlmock.NewResult(1, 2))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateStep(_stepOne)
+	_, err := _sqlite.CreateStep(_stepOne)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateStep(_stepTwo)
+	_, err = _sqlite.CreateStep(_stepTwo)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateStep(_stepThree)
+	_, err = _sqlite.CreateStep(_stepThree)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateStep(_stepFour)
+	_, err = _sqlite.CreateStep(_stepFour)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}

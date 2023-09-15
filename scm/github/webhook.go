@@ -20,7 +20,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v52/github"
+	"github.com/google/go-github/v54/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -29,6 +29,7 @@ import (
 func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
+	// create our own record of the hook and populate its fields
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
@@ -463,11 +464,6 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
 	r.SetTopics(repo.Topics)
-
-	// if action is renamed, then get the previous name from payload
-	if payload.GetAction() == "renamed" {
-		r.SetPreviousName(payload.GetChanges().GetRepo().GetName().GetFrom())
-	}
 
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())

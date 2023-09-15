@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -44,7 +45,7 @@ func TestBuild_Engine_CreateBuildIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateBuildIndexes()
+			err := test.database.CreateBuildIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {

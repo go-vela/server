@@ -112,7 +112,7 @@ func CreateStep(c *gin.Context) {
 	}
 
 	// send API call to create the step
-	err = database.FromContext(c).CreateStep(input)
+	s, err := database.FromContext(c).CreateStep(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create step for build %s: %w", entry, err)
 
@@ -120,9 +120,6 @@ func CreateStep(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created step
-	s, _ := database.FromContext(c).GetStepForBuild(b, input.GetNumber())
 
 	c.JSON(http.StatusCreated, s)
 }

@@ -65,6 +65,7 @@ func DeletePipeline(c *gin.Context) {
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
@@ -79,7 +80,7 @@ func DeletePipeline(c *gin.Context) {
 	}).Infof("deleting pipeline %s", entry)
 
 	// send API call to remove the build
-	err := database.FromContext(c).DeletePipeline(p)
+	err := database.FromContext(c).DeletePipeline(ctx, p)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete pipeline %s: %w", entry, err)
 

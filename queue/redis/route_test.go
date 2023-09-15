@@ -14,7 +14,7 @@ import (
 
 func TestRedis_Client_Route(t *testing.T) {
 	// setup
-	client, _ := NewTest("vela", "16cpu8gb", "16cpu8gb:gcp", "gcp")
+	client, _ := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "16cpu8gb", "16cpu8gb:gcp", "gcp")
 	tests := []struct {
 		success bool
 		want    string

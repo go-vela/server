@@ -50,6 +50,7 @@ func DeleteUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	user := util.PathParameter(c, "user")
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -59,7 +60,7 @@ func DeleteUser(c *gin.Context) {
 	}).Infof("deleting user %s", user)
 
 	// send API call to capture the user
-	u, err := database.FromContext(c).GetUserForName(user)
+	u, err := database.FromContext(c).GetUserForName(ctx, user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 
@@ -69,7 +70,7 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	// send API call to remove the user
-	err = database.FromContext(c).DeleteUser(u)
+	err = database.FromContext(c).DeleteUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete user %s: %w", u.GetName(), err)
 

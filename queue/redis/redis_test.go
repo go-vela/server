@@ -46,7 +46,9 @@ func Strings(v []string) *[]string { return &v }
 
 // setup global variables used for testing.
 var (
-	_build = &library.Build{
+	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
+	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
+	_build             = &library.Build{
 		ID:           Int64(1),
 		Number:       Int(1),
 		Parent:       Int(1),

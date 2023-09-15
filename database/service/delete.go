@@ -5,6 +5,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // DeleteService deletes an existing service from the database.
-func (e *engine) DeleteService(s *library.Service) error {
+func (e *engine) DeleteService(ctx context.Context, s *library.Service) error {
 	e.logger.WithFields(logrus.Fields{
 		"service": s.GetNumber(),
 	}).Tracef("deleting service %s from the database", s.GetName())

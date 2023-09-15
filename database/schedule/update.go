@@ -2,10 +2,11 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-//nolint:dupl // ignore similar code with create.go
 package schedule
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -13,7 +14,7 @@ import (
 )
 
 // UpdateSchedule updates an existing schedule in the database.
-func (e *engine) UpdateSchedule(s *library.Schedule) error {
+func (e *engine) UpdateSchedule(ctx context.Context, s *library.Schedule, fields bool) (*library.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())
@@ -24,12 +25,18 @@ func (e *engine) UpdateSchedule(s *library.Schedule) error {
 	// validate the necessary fields are populated
 	err := schedule.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// send query to the database
-	return e.client.
-		Table(constants.TableSchedule).
-		Save(schedule).
-		Error
+	// If "fields" is true, update entire record; otherwise, just update scheduled_at (part of processSchedule)
+	//
+	// we do this because Gorm will automatically set `updated_at` with the Save function
+	// and the `updated_at` field should reflect the last time a user updated the record, rather than the scheduler
+	if fields {
+		err = e.client.Table(constants.TableSchedule).Save(schedule).Error
+	} else {
+		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
+	}
+
+	return schedule.ToLibrary(), err
 }

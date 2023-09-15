@@ -5,11 +5,13 @@
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
 // CountWorkers gets the count of all workers from the database.
-func (e *engine) CountWorkers() (int64, error) {
+func (e *engine) CountWorkers(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all workers from the database")
 
 	// variable to store query results

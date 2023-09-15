@@ -5,6 +5,7 @@
 package hook
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -57,7 +58,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := test.database.CreateHook(_hook)
+			_, err := test.database.CreateHook(context.TODO(), _hook)
 
 			if test.failure {
 				if err == nil {

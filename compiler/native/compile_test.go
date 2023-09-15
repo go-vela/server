@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
-	"github.com/google/go-github/v52/github"
+	"github.com/google/go-github/v54/github"
 
 	"testing"
 	"time"
@@ -3422,7 +3422,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, _, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute, nil)
+			got, _, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return

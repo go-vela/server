@@ -5,13 +5,15 @@
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListLogsForBuild gets a list of logs by build ID from the database.
-func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*library.Log, int64, error) {
+func (e *engine) ListLogsForBuild(ctx context.Context, b *library.Build, page, perPage int) ([]*library.Log, int64, error) {
 	e.logger.Tracef("listing logs for build %d from the database", b.GetID())
 
 	// variables to store query results and return value
@@ -20,7 +22,7 @@ func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*libra
 	logs := []*library.Log{}
 
 	// count the results
-	count, err := e.CountLogsForBuild(b)
+	count, err := e.CountLogsForBuild(ctx, b)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -37,6 +39,7 @@ func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*libra
 	err = e.client.
 		Table(constants.TableLog).
 		Where("build_id = ?", b.GetID()).
+		Order("service_id ASC NULLS LAST").
 		Order("step_id ASC").
 		Limit(perPage).
 		Offset(offset).

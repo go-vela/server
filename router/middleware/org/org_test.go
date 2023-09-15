@@ -5,6 +5,7 @@
 package org
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -61,11 +62,11 @@ func TestOrg_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

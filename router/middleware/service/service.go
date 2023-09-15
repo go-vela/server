@@ -33,6 +33,7 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		if r == nil {
 			retErr := fmt.Errorf("repo %s/%s not found", o, util.PathParameter(c, "repo"))
@@ -75,7 +76,7 @@ func Establish() gin.HandlerFunc {
 			"user":    u.GetName(),
 		}).Debugf("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), number)
 
-		s, err := database.FromContext(c).GetServiceForBuild(b, number)
+		s, err := database.FromContext(c).GetServiceForBuild(ctx, b, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read service %s/%d/%d: %w", r.GetFullName(), b.GetNumber(), number, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

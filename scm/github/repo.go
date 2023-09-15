@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v52/github"
+	"github.com/google/go-github/v54/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -168,19 +168,17 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowEvents().GetDeployment() {
+	if r.GetAllowEvents().GetDeployment().GetCreated() {
 		events = append(events, eventDeployment)
 	}
 
 	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
 		r.GetAllowEvents().GetPullRequest().GetEdited() ||
-		r.GetAllowEvents().GetPullRequest().GetSynchronize() ||
-		r.GetAllowEvents().GetPullRequest().GetLabeled() ||
-		r.GetAllowEvents().GetPullRequest().GetReviewRequest() {
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowEvents().GetPush() || r.GetAllowEvents().GetTag() {
+	if r.GetAllowEvents().GetPush().GetBranch() || r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
 	}
 
@@ -221,7 +219,7 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 }
 
 // Update edits a repo webhook.
-func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
+func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -238,19 +236,17 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowEvents().GetDeployment() {
+	if r.GetAllowEvents().GetDeployment().GetCreated() {
 		events = append(events, eventDeployment)
 	}
 
 	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
 		r.GetAllowEvents().GetPullRequest().GetEdited() ||
-		r.GetAllowEvents().GetPullRequest().GetSynchronize() ||
-		r.GetAllowEvents().GetPullRequest().GetLabeled() ||
-		r.GetAllowEvents().GetPullRequest().GetReviewRequest() {
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowEvents().GetPush() || r.GetAllowEvents().GetTag() {
+	if r.GetAllowEvents().GetPush().GetBranch() || r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
 	}
 
@@ -266,13 +262,11 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) error {
 	}
 
 	// send API call to update the webhook
-	_, _, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
+	_, resp, err := client.Repositories.EditHook(ctx, r.GetOrg(), r.GetName(), hookID, hook)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// track if webhook exists in GitHub; a missing webhook
+	// indicates the webhook has been manually deleted from GitHub
+	return resp.StatusCode != http.StatusNotFound, err
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
@@ -473,15 +467,24 @@ func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
 
 // toLibraryRepo does a partial conversion of a github repo to a library repo.
 func toLibraryRepo(gr github.Repository) *library.Repo {
+	// setting the visbility to match the SCM visbility
+	var visibility string
+	if *gr.Private {
+		visibility = constants.VisibilityPrivate
+	} else {
+		visibility = constants.VisibilityPublic
+	}
+
 	return &library.Repo{
-		Org:      gr.GetOwner().Login,
-		Name:     gr.Name,
-		FullName: gr.FullName,
-		Link:     gr.HTMLURL,
-		Clone:    gr.CloneURL,
-		Branch:   gr.DefaultBranch,
-		Topics:   &gr.Topics,
-		Private:  gr.Private,
+		Org:        gr.GetOwner().Login,
+		Name:       gr.Name,
+		FullName:   gr.FullName,
+		Link:       gr.HTMLURL,
+		Clone:      gr.CloneURL,
+		Branch:     gr.DefaultBranch,
+		Topics:     &gr.Topics,
+		Private:    gr.Private,
+		Visibility: &visibility,
 	}
 }
 
@@ -547,17 +550,17 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *client) GetBranch(u *library.User, r *library.Repo) (string, string, error) {
+func (c *client) GetBranch(u *library.User, r *library.Repo, branch string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Tracef("retrieving branch %s for repo %s", r.GetBranch(), r.GetFullName())
+	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 
-	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), r.GetBranch(), true)
+	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, true)
 	if err != nil {
 		return "", "", err
 	}

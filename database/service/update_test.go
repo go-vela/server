@@ -5,6 +5,8 @@
 package service
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +33,7 @@ func TestService_Engine_UpdateService(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateService(_service)
+	_, err := _sqlite.CreateService(context.TODO(), _service)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
@@ -57,7 +59,7 @@ func TestService_Engine_UpdateService(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateService(_service)
+			got, err := test.database.UpdateService(context.TODO(), _service)
 
 			if test.failure {
 				if err == nil {
@@ -69,6 +71,10 @@ func TestService_Engine_UpdateService(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("UpdateService for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _service) {
+				t.Errorf("UpdateService for %s returned %s, want %s", test.name, got, _service)
 			}
 		})
 	}

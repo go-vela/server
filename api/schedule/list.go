@@ -76,6 +76,7 @@ import (
 func ListSchedules(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -109,7 +110,7 @@ func ListSchedules(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of schedules for the repo
-	s, t, err := database.FromContext(c).ListSchedulesForRepo(r, page, perPage)
+	s, t, err := database.FromContext(c).ListSchedulesForRepo(ctx, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get schedules for repo %s: %w", r.GetFullName(), err)
 

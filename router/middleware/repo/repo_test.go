@@ -5,6 +5,7 @@
 package repo
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -68,11 +69,11 @@ func TestRepo_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(want)
+		db.DeleteRepo(context.TODO(), want)
 		db.Close()
 	}()
 
-	_ = db.CreateRepo(want)
+	_, _ = db.CreateRepo(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

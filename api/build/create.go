@@ -85,6 +85,7 @@ func CreateBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -119,7 +120,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the repo owner
-	u, err = database.FromContext(c).GetUser(r.GetUserID())
+	u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -134,7 +135,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -228,7 +229,7 @@ func CreateBuild(c *gin.Context) {
 	)
 
 	// send API call to attempt to capture the pipeline
-	pipeline, err = database.FromContext(c).GetPipelineForRepo(input.GetCommit(), r)
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, input.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet
 		// send API call to capture the pipeline configuration file
 		config, err = scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
@@ -305,7 +306,7 @@ func CreateBuild(c *gin.Context) {
 		pipeline.SetRef(input.GetRef())
 
 		// send API call to create the pipeline
-		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -318,7 +319,7 @@ func CreateBuild(c *gin.Context) {
 	input.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = PlanBuild(database.FromContext(c), p, input, r)
+	err = PlanBuild(ctx, database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -326,7 +327,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to update repo for ensuring counter is incremented
-	err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: failed to update repo %s: %w", r.GetFullName(), err)
 
@@ -336,7 +337,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the created build
-	input, _ = database.FromContext(c).GetBuildForRepo(r, input.GetNumber())
+	input, _ = database.FromContext(c).GetBuildForRepo(ctx, r, input.GetNumber())
 
 	c.JSON(http.StatusCreated, input)
 
@@ -348,6 +349,7 @@ func CreateBuild(c *gin.Context) {
 
 	// publish the build to the queue
 	go PublishToQueue(
+		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,

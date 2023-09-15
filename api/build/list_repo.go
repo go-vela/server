@@ -45,11 +45,12 @@ import (
 //   description: Filter by build event
 //   type: string
 //   enum:
-//   - push
-//   - pull_request
-//   - tag
-//   - deployment
 //   - comment
+//   - deployment
+//   - pull_request
+//   - push
+//   - schedule
+//   - tag
 // - in: query
 //   name: commit
 //   description: Filter builds based on the commit hash
@@ -130,6 +131,7 @@ func ListBuildsForRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -159,7 +161,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		// verify the event provided is a valid event type
 		if event != constants.EventComment && event != constants.EventDeploy &&
 			event != constants.EventPush && event != constants.EventPull &&
-			event != constants.EventTag {
+			event != constants.EventTag && event != constants.EventSchedule {
 			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -237,7 +239,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).ListBuildsForRepo(r, filters, before, after, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for repo %s: %w", r.GetFullName(), err)
 

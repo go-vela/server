@@ -5,6 +5,7 @@
 package pipeline
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -102,13 +103,13 @@ func TestPipeline_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeletePipeline(want)
-		db.DeleteRepo(r)
+		db.DeletePipeline(context.TODO(), want)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_ = db.CreateRepo(r)
-	_, _ = db.CreatePipeline(want)
+	_, _ = db.CreateRepo(context.TODO(), r)
+	_, _ = db.CreatePipeline(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -185,11 +186,11 @@ func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -288,13 +289,13 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(context.TODO(), r)
+		db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(context.TODO(), r)
+	_, _ = db.CreateUser(context.TODO(), u)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

@@ -35,6 +35,33 @@ import (
 //   required: true
 //   type: string
 // - in: query
+//   name: event
+//   description: Filter by build event
+//   type: string
+//   enum:
+//   - comment
+//   - deployment
+//   - pull_request
+//   - push
+//   - schedule
+//   - tag
+// - in: query
+//   name: branch
+//   description: Filter builds by branch
+//   type: string
+// - in: query
+//   name: status
+//   description: Filter by build status
+//   type: string
+//   enum:
+//   - canceled
+//   - error
+//   - failure
+//   - killed
+//   - pending
+//   - running
+//   - success
+// - in: query
 //   name: page
 //   description: The page of results to retrieve
 //   type: integer
@@ -83,6 +110,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -109,7 +137,7 @@ func ListBuildsForOrg(c *gin.Context) {
 		// verify the event provided is a valid event type
 		if event != constants.EventComment && event != constants.EventDeploy &&
 			event != constants.EventPush && event != constants.EventPull &&
-			event != constants.EventTag {
+			event != constants.EventTag && event != constants.EventSchedule {
 			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -172,7 +200,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).ListBuildsForOrg(o, filters, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)

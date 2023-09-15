@@ -86,6 +86,7 @@ func CreateSecret(c *gin.Context) {
 	t := util.PathParameter(c, "type")
 	o := util.PathParameter(c, "org")
 	n := util.PathParameter(c, "name")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s/%s", t, o, n)
 
@@ -229,7 +230,7 @@ func CreateSecret(c *gin.Context) {
 	}
 
 	// send API call to create the secret
-	err = secret.FromContext(c, e).Create(t, o, n, input)
+	s, err := secret.FromContext(c, e).Create(ctx, t, o, n, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create secret %s for %s service: %w", entry, e, err)
 
@@ -237,8 +238,6 @@ func CreateSecret(c *gin.Context) {
 
 		return
 	}
-
-	s, _ := secret.FromContext(c, e).Get(t, o, n, input.GetName())
 
 	c.JSON(http.StatusOK, s.Sanitize())
 }

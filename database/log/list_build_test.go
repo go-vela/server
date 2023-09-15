@@ -5,6 +5,7 @@
 package log
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -49,17 +50,17 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 		AddRow(1, 1, 1, 1, 0, []byte{}).AddRow(2, 1, 1, 0, 1, []byte{})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY step_id ASC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "logs" WHERE build_id = $1 ORDER BY service_id ASC NULLS LAST,step_id ASC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_service)
+	err := _sqlite.CreateLog(context.TODO(), _service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateLog(_step)
+	err = _sqlite.CreateLog(context.TODO(), _step)
 	if err != nil {
 		t.Errorf("unable to create test step log for sqlite: %v", err)
 	}
@@ -88,7 +89,7 @@ func TestLog_Engine_ListLogsForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListLogsForBuild(_build, 1, 10)
+			got, _, err := test.database.ListLogsForBuild(context.TODO(), _build, 1, 10)
 
 			if test.failure {
 				if err == nil {

@@ -5,6 +5,8 @@
 package worker
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +33,7 @@ WHERE "id" = $12`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateWorker(_worker)
+	_, err := _sqlite.CreateWorker(context.TODO(), _worker)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}
@@ -57,7 +59,7 @@ WHERE "id" = $12`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateWorker(_worker)
+			got, err := test.database.UpdateWorker(context.TODO(), _worker)
 
 			if test.failure {
 				if err == nil {
@@ -69,6 +71,10 @@ WHERE "id" = $12`).
 
 			if err != nil {
 				t.Errorf("UpdateWorker for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _worker) {
+				t.Errorf("UpdateWorker for %s returned %s, want %s", test.name, got, _worker)
 			}
 		})
 	}

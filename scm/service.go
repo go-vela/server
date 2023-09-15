@@ -101,7 +101,7 @@ type Service interface {
 	Enable(*library.User, *library.Repo, *library.Hook) (*library.Hook, string, error)
 	// Update defines a function that updates
 	// a webhook for a specified repo.
-	Update(*library.User, *library.Repo, int64) error
+	Update(*library.User, *library.Repo, int64) (bool, error)
 	// Status defines a function that sends the
 	// commit status for the given SHA from a repo.
 	Status(*library.User, *library.Build, string, string) error
@@ -110,7 +110,7 @@ type Service interface {
 	ListUserRepos(*library.User) ([]*library.Repo, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
-	GetBranch(*library.User, *library.Repo) (string, string, error)
+	GetBranch(*library.User, *library.Repo, string) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
 	GetPullRequest(*library.User, *library.Repo, int) (string, string, string, string, error)

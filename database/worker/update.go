@@ -5,6 +5,8 @@
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // UpdateWorker updates an existing worker in the database.
-func (e *engine) UpdateWorker(w *library.Worker) error {
+func (e *engine) UpdateWorker(ctx context.Context, w *library.Worker) (*library.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("updating worker %s in the database", w.GetHostname())
@@ -27,12 +29,11 @@ func (e *engine) UpdateWorker(w *library.Worker) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Worker.Validate
 	err := worker.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableWorker).
-		Save(worker).
-		Error
+	result := e.client.Table(constants.TableWorker).Save(worker)
+
+	return worker.ToLibrary(), result.Error
 }

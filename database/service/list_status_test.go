@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -46,12 +47,12 @@ func TestService_Engine_ListServiceStatusCount(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateService(_serviceOne)
+	_, err := _sqlite.CreateService(context.TODO(), _serviceOne)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateService(_serviceTwo)
+	_, err = _sqlite.CreateService(context.TODO(), _serviceTwo)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
@@ -92,7 +93,7 @@ func TestService_Engine_ListServiceStatusCount(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListServiceStatusCount()
+			got, err := test.database.ListServiceStatusCount(context.TODO())
 
 			if test.failure {
 				if err == nil {

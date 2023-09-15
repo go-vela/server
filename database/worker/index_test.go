@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestWorker_Engine_CreateWorkerIndexes(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateWorkerIndexes()
+			err := test.database.CreateWorkerIndexes(context.TODO())
 
 			if test.failure {
 				if err == nil {

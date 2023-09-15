@@ -75,6 +75,7 @@ func CreateRepo(c *gin.Context) {
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -140,10 +141,8 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set the visibility field based off the input provided
-	if len(input.GetVisibility()) == 0 {
-		// default visibility field to public
-		r.SetVisibility(constants.VisibilityPublic)
-	} else {
+	if len(input.GetVisibility()) > 0 {
+		// default visibility field to the input visibility
 		r.SetVisibility(input.GetVisibility())
 	}
 
@@ -158,27 +157,33 @@ func CreateRepo(c *gin.Context) {
 	// set default events if no events are passed in
 	if input.GetAllowEvents() == nil {
 		events := new(library.Events)
+		pushActions := new(library.PushActions)
+		pullActions := new(library.PullActions)
+		deployActions := new(library.DeployActions)
+		commentActions := new(library.CommentActions)
 
 		for _, event := range defaultRepoEvents {
 			switch event {
 			case constants.EventPull:
-				prActions := new(library.PRActions)
-				prActions.SetOpened(true)
-				prActions.SetSynchronize(true)
-				events.SetPullRequest(prActions)
+				pullActions.SetOpened(true)
+				pullActions.SetSynchronize(true)
+				events.SetPullRequest(pullActions)
 			case constants.EventPush:
-				events.SetPush(true)
+				pushActions.SetBranch(true)
+				events.SetPush(pushActions)
 			case constants.EventDeploy:
-				events.SetDeployment(true)
+				deployActions.SetCreated(true)
+				events.SetDeployment(deployActions)
 			case constants.EventTag:
-				events.SetTag(true)
+				pushActions.SetTag(true)
+				events.SetPush(pushActions)
 			case constants.EventComment:
-				commentActions := new(library.CommentActions)
 				commentActions.SetCreated(true)
 				commentActions.SetEdited(true)
 				events.SetComment(commentActions)
 			}
 		}
+
 		r.SetAllowEvents(events)
 	} else {
 		r.SetAllowEvents(input.GetAllowEvents())
@@ -226,7 +231,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to capture the repo from the database
-	dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+	dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 	if err == nil && dbRepo.GetActive() {
 		retErr := fmt.Errorf("unable to activate repo: %s is already active", r.GetFullName())
 
@@ -245,7 +250,7 @@ func CreateRepo(c *gin.Context) {
 
 	// err being nil means we have a record of this repo (dbRepo)
 	if err == nil {
-		h, _ = database.FromContext(c).LastHookForRepo(dbRepo)
+		h, _ = database.FromContext(c).LastHookForRepo(ctx, dbRepo)
 
 		// make sure our record of the repo allowed events matches what we send to SCM
 		// what the dbRepo has should override default events on enable
@@ -284,7 +289,7 @@ func CreateRepo(c *gin.Context) {
 		dbRepo.SetActive(true)
 
 		// send API call to update the repo
-		err = database.FromContext(c).UpdateRepo(dbRepo)
+		r, err = database.FromContext(c).UpdateRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", dbRepo.GetFullName(), err)
 
@@ -292,12 +297,9 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the updated repo
-		r, _ = database.FromContext(c).GetRepoForOrg(dbRepo.GetOrg(), dbRepo.GetName())
 	} else {
 		// send API call to create the repo
-		err = database.FromContext(c).CreateRepo(r)
+		r, err = database.FromContext(c).CreateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new repo %s: %w", r.GetFullName(), err)
 
@@ -305,9 +307,6 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the created repo
-		r, _ = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 	}
 
 	// create init hook in the DB after repo has been added in order to capture its ID
@@ -315,7 +314,7 @@ func CreateRepo(c *gin.Context) {
 		// update initialization hook
 		h.SetRepoID(r.GetID())
 		// create first hook for repo in the database
-		_, err = database.FromContext(c).CreateHook(h)
+		_, err = database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 

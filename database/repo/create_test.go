@@ -5,6 +5,8 @@
 package repo
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -24,6 +26,7 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("oldName")
 	_repo.SetAllowEvents(library.NewEventsFromMask(1))
+	_repo.SetTopics([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -62,7 +65,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateRepo(_repo)
+			got, err := test.database.CreateRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {
@@ -74,6 +77,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) 
 
 			if err != nil {
 				t.Errorf("CreateRepo for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _repo) {
+				t.Errorf("CreateRepo for %s returned %s, want %s", test.name, got, _repo)
 			}
 		})
 	}
