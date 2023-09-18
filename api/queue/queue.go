@@ -14,19 +14,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation POST /api/v1/admin/queue-credentials admin QueueRegistration
+// swagger:operation POST /api/v1/admin/queue-registration admin QueueRegistration
 //
 // Get queue credentials
 //
 // ---
 // produces:
 // - application/json
-// parameters:
-// - in: path
-//   name: worker
-//   description: Hostname of the worker
-//   required: true
-//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -76,6 +70,6 @@ func QueueRegistration(c *gin.Context) {
 		QueuePublicKey: &pk,
 		QueueAddress:   &qa,
 	}
-	logrus.Infof("current creds %s: ", wr)
+
 	c.JSON(http.StatusOK, wr)
 }
