@@ -8,7 +8,6 @@ import (
 	"html"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
@@ -130,35 +129,4 @@ func CheckAllowlist(r *library.Repo, allowlist []string) bool {
 	}
 
 	return false
-}
-
-// ParseEventMask is a helper function to calculate the bit mask for
-// a given event.
-func EventAllowed(event, action string, r *library.Repo) (allowed bool) {
-	allowed = false
-
-	if len(action) > 0 {
-		event = event + ":" + action
-	}
-
-	switch event {
-	case constants.EventPush:
-		allowed = r.GetAllowEvents().GetPush().GetBranch()
-	case constants.EventPull + ":" + constants.ActionOpened:
-		allowed = r.GetAllowEvents().GetPullRequest().GetOpened()
-	case constants.EventPull + ":" + constants.ActionSynchronize:
-		allowed = r.GetAllowEvents().GetPullRequest().GetSynchronize()
-	case constants.EventPull + ":" + constants.ActionEdited:
-		allowed = r.GetAllowEvents().GetPullRequest().GetEdited()
-	case constants.EventTag:
-		allowed = r.GetAllowEvents().GetPush().GetTag()
-	case constants.EventComment + ":" + constants.ActionCreated:
-		allowed = r.GetAllowEvents().GetComment().GetCreated()
-	case constants.EventComment + ":" + constants.ActionEdited:
-		allowed = r.GetAllowEvents().GetComment().GetEdited()
-	case constants.EventDeploy:
-		allowed = r.GetAllowEvents().GetDeployment().GetCreated()
-	}
-
-	return
 }
