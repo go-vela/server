@@ -55,7 +55,7 @@ func GetSourceRepos(c *gin.Context) {
 	output := make(map[string][]library.Repo)
 
 	// send API call to capture the list of repos for the user
-	srcRepos, err := scm.FromContext(c).ListUserRepos(u)
+	srcRepos, err := scm.FromContext(c).ListUserRepos(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get SCM repos for user %s: %w", u.GetName(), err)
 

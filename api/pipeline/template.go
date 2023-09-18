@@ -146,7 +146,7 @@ func GetTemplates(c *gin.Context) {
 		}
 
 		// retrieve link to template file from github
-		link, err := scm.FromContext(c).GetHTMLURL(user, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(c).GetHTMLURL(ctx, user, src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to get html url for %s/%s/%s/@%s: %w", baseErr, src.Org, src.Repo, src.Name, src.Ref, err))
 

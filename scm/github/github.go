@@ -28,8 +28,6 @@ const (
 	eventInitialize   = "initialize"
 )
 
-var ctx = context.Background()
-
 type config struct {
 	// specifies the address to use for the GitHub client
 	Address string
