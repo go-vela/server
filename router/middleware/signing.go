@@ -18,7 +18,7 @@ func QueueSigningPrivateKey(key string) gin.HandlerFunc {
 }
 
 // QueueSigningPublicKey is a middleware function that attaches the public key used
-// to opened signed items that are pushed to the queue.
+// to open signed items that are pushed to the queue.
 func QueueSigningPublicKey(key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("public-key", key)
