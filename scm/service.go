@@ -34,9 +34,9 @@ type Service interface {
 	// the OAuth workflow for the session using PAT Token
 	AuthenticateToken(*http.Request) (*library.User, error)
 
-	// AuthenticateAccessToken defines a function that validates
+	// ValidateOAuthToken defines a function that validates
 	// an OAuth access token was created by Vela
-	AuthenticateAccessToken(*http.Request) error
+	ValidateOAuthToken(*http.Request) error
 
 	// Login defines a function that begins
 	// the OAuth workflow for the session.

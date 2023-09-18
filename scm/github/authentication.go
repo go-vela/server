@@ -106,49 +106,9 @@ func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 		return nil, errors.New("no token provided")
 	}
 
-	// create http client to connect to GitHub API
-	transport := github.BasicAuthTransport{
-		Username: c.config.ClientID,
-		Password: c.config.ClientSecret,
-	}
-	// create client to connect to GitHub API
-	client := github.NewClient(transport.Client())
-	// check if github url was set
-	if c.config.Address != "" && c.config.Address != "https://github.com" {
-		// check if address has trailing slash
-		if !strings.HasSuffix(c.config.Address, "/") {
-			// add trailing slash
-			c.config.Address = c.config.Address + "/api/v3/"
-		}
-		// parse the provided url into url type
-		enterpriseURL, err := url.Parse(c.config.Address)
-		if err != nil {
-			return nil, err
-		}
-		// set the base and upload url
-		client.BaseURL = enterpriseURL
-		client.UploadURL = enterpriseURL
-	}
-	// check if the provided token was created by Vela
-	_, resp, err := client.Authorizations.Check(context.Background(), c.config.ClientID, token)
-	// check if the error is of type ErrorResponse
-	var gerr *github.ErrorResponse
-	if errors.As(err, &gerr) {
-		// check the status code
-		switch gerr.Response.StatusCode {
-		// 404 is expected when non vela token is used
-		case http.StatusNotFound:
-			break
-		default:
-			return nil, err
-		}
-	} else if err != nil {
+	err := c.ValidateOAuthToken(token)
+	if err != nil {
 		return nil, err
-	}
-
-	// return error if the token was created by Vela
-	if resp.StatusCode != http.StatusNotFound {
-		return nil, errors.New("token must not be created by vela")
 	}
 
 	u, err := c.Authorize(token)
@@ -162,15 +122,7 @@ func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 	}, nil
 }
 
-// AuthenticateAccessToken
-func (c *client) AuthenticateAccessToken(r *http.Request) error {
-	c.Logger.Trace("validating oauth integration user access token")
-
-	token := r.Header.Get("Token")
-	if len(token) == 0 {
-		return errors.New("no token provided")
-	}
-
+func (c *client) ValidateOAuthToken(token string) error {
 	// create http client to connect to GitHub API
 	transport := github.BasicAuthTransport{
 		Username: c.config.ClientID,
@@ -211,8 +163,8 @@ func (c *client) AuthenticateAccessToken(r *http.Request) error {
 		return err
 	}
 
-	// return error if the token was created by Vela
-	if resp.StatusCode == http.StatusNotFound {
+	// return error if the token was not created by Vela
+	if resp.StatusCode != http.StatusOK {
 		return errors.New("token was not created by vela")
 	}
 
