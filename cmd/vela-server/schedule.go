@@ -173,7 +173,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(context.TODO(), r, filters)
+	builds, err := database.CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		return fmt.Errorf("unable to get count of builds for repo %s: %w", r.GetFullName(), err)
 	}
@@ -237,7 +237,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.GetPipelineForRepo(context.TODO(), b.GetCommit(), r)
+		pipeline, err = database.GetPipelineForRepo(ctx, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
 			config, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit())
@@ -326,7 +326,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.CreatePipeline(context.TODO(), pipeline)
+			pipeline, err = database.CreatePipeline(ctx, pipeline)
 			if err != nil {
 				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -351,7 +351,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = build.PlanBuild(context.TODO(), database, p, b, r)
+		err = build.PlanBuild(ctx, database, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -380,14 +380,14 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.GetBuildForRepo(context.TODO(), r, b.GetNumber())
+	b, err = database.GetBuildForRepo(ctx, r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
 	go build.PublishToQueue(
-		context.TODO(),
+		ctx,
 		queue,
 		database,
 		p,
