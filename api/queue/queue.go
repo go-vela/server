@@ -2,7 +2,7 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-package admin
+package queue
 
 import (
 	"net/http"

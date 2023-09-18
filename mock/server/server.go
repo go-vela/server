@@ -29,7 +29,7 @@ func FakeHandler() http.Handler {
 	e.PUT("/api/v1/admin/service", updateService)
 	e.PUT("/api/v1/admin/step", updateStep)
 	e.PUT("/api/v1/admin/user", updateUser)
-	e.POST("/api/v1/admin/workers/:worker/register", registerWorker)
+	e.POST("/api/v1/admin/workers/:worker/register", registerToken)
 	e.PUT("api/v1/admin/clean", cleanResoures)
 
 	// mock endpoints for build calls
@@ -136,6 +136,9 @@ func FakeHandler() http.Handler {
 	e.GET("/authenticate", getAuthenticate)
 	e.POST("/authenticate/token", getAuthenticateFromToken)
 	e.GET("/validate-token", validateToken)
+
+	// mock endpoint for queue credentials
+	e.POST("/api/v1/queue/queue-registration", getQueueCreds)
 
 	return e
 }

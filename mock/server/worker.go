@@ -69,6 +69,12 @@ const (
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJBdXRoIn0.qeULIimCJlrwsE0JykNpzBmMaHUbvfk0vkyAz2eEo38"
 	}`
 
+	// RegisterTokenResp represents a JSON return for an admin requesting a registration token.
+	// not actual credentials
+	RegisterTokenResp = `{
+		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJSZWdpc3RlciJ9.gEzKaZB-sDd_gFCVF5uGo2mcf3iy9CrXDTLPZ6PTsTc"
+	}`
+
 	// QueueRegistrationResp represents a JSON return for an admin requesting a queue registration info.
 	//
 	// not actual credentials
@@ -179,10 +185,10 @@ func removeWorker(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Worker %s removed", w))
 }
 
-// registerWorker has a param :worker returns mock JSON for a http POST.
+// registerToken has a param :worker returns mock JSON for a http POST.
 //
 // Pass "0" to :worker to test receiving a http 401 response.
-func registerWorker(c *gin.Context) {
+func registerToken(c *gin.Context) {
 	w := c.Param("worker")
 
 	if strings.EqualFold(w, "0") {
@@ -193,6 +199,16 @@ func registerWorker(c *gin.Context) {
 		return
 	}
 
+	data := []byte(RegisterTokenResp)
+
+	var body library.Token
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
+}
+
+// getQueueCreds returns mock JSON for a http POST.
+func getQueueCreds(c *gin.Context) {
 	data := []byte(QueueRegistrationResp)
 
 	var body library.QueueRegistration
