@@ -43,9 +43,9 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// WorkerRegistration represents the API handler to
+// RegisterToken represents the API handler to
 // generate a registration token for onboarding a worker.
-func WorkerRegistration(c *gin.Context) {
+func RegisterToken(c *gin.Context) {
 	// retrieve user from context
 	u := user.Retrieve(c)
 
@@ -68,35 +68,6 @@ func WorkerRegistration(c *gin.Context) {
 
 		return
 	}
-	// extract the public key that was packed into gin context
-	k, ok := c.Get("public-key")
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "no public-key in the context")
-		return
-	}
-	// extract the queue-address that was packed into gin context
-	a, ok := c.Get("queue-address")
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "no queue-address in the context")
-		return
-	}
 
-	pk, ok := k.(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "public key in the context is the wrong type")
-		return
-	}
-
-	qa, ok := a.(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "queue address in the context is the wrong type")
-		return
-	}
-
-	wr := library.WorkerRegistration{
-		RegistrationToken: &rt,
-		QueuePublicKey:    &pk,
-		QueueAddress:      &qa,
-	}
-	c.JSON(http.StatusOK, wr)
+	c.JSON(http.StatusOK, library.Token{Token: &rt})
 }

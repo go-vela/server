@@ -63,23 +63,21 @@ func TestQueue_Setup_Validate(t *testing.T) {
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:     "redis",
-				Address:    "redis://redis.example.com",
-				Routes:     []string{"foo"},
-				Cluster:    false,
-				PrivateKey: "bOiFT7Y9e0jpOqaapTa3NzUkAve3VdRvyowgsY/vtlcK5L4RADOh9uTe1UVLdu3l/a0hvhiIkkLidUwVBhASWA==",
-				PublicKey:  "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
+				Driver:    "redis",
+				Address:   "redis://redis.example.com",
+				Routes:    []string{"foo"},
+				Cluster:   false,
+				PublicKey: "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:     "kafka",
-				Address:    "kafka://kafka.example.com",
-				Routes:     []string{"foo"},
-				Cluster:    false,
-				PrivateKey: "bOiFT7Y9e0jpOqaapTa3NzUkAve3VdRvyowgsY/vtlcK5L4RADOh9uTe1UVLdu3l/a0hvhiIkkLidUwVBhASWA==",
-				PublicKey:  "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
+				Driver:    "kafka",
+				Address:   "kafka://kafka.example.com",
+				Routes:    []string{"foo"},
+				Cluster:   false,
+				PublicKey: "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{

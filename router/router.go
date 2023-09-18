@@ -137,6 +137,8 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		// Pipeline endpoints
 		PipelineHandlers(baseAPI)
 
+		// Queue endpoints
+		QueueHandlers(baseAPI)
 	} // end of api
 
 	return r

@@ -96,10 +96,6 @@ func (s *Setup) Validate() error {
 		return fmt.Errorf("no public key was provided")
 	}
 
-	if len(s.PrivateKey) == 0 {
-		return fmt.Errorf("no private key was provided")
-	}
-
 	// setup is valid
 	return nil
 }
