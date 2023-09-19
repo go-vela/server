@@ -255,11 +255,7 @@ func CreateRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-<<<<<<< HEAD
-		h, _, err = scm.FromContext(c).Enable(c.Request.Context(), u, r, h)
-=======
 		h, _, err = scm.FromContext(c).Enable(ctx, u, r, h)
->>>>>>> 4d424137707a23546b705ec866b51193dd048043
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
