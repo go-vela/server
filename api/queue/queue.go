@@ -44,26 +44,14 @@ func QueueRegistration(c *gin.Context) {
 	}).Info("requesting queue credentials with registration token")
 
 	// extract the public key that was packed into gin context
-	k := c.MustGet("public-key")
+	k := c.MustGet("public-key").(*string)
 
 	// extract the queue-address that was packed into gin context
-	a := c.MustGet("queue-address")
-
-	pk, ok := k.(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "public key in the context is the wrong type")
-		return
-	}
-
-	qa, ok := a.(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "queue address in the context is the wrong type")
-		return
-	}
+	a := c.MustGet("queue-address").(*string)
 
 	wr := library.QueueRegistration{
-		QueuePublicKey: &pk,
-		QueueAddress:   &qa,
+		QueuePublicKey: k,
+		QueueAddress:   a,
 	}
 
 	c.JSON(http.StatusOK, wr)
