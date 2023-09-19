@@ -27,7 +27,7 @@ func (e *engine) ListBuildsForDeployment(ctx context.Context, d *library.Deploym
 	builds := []*library.Build{}
 
 	// count the results
-	count, err := e.CountBuildsForDeployment(context.TODO(), d, filters)
+	count, err := e.CountBuildsForDeployment(ctx, d, filters)
 	if err != nil {
 		return builds, 0, err
 	}

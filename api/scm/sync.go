@@ -73,7 +73,7 @@ func SyncRepo(c *gin.Context) {
 	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
-	_, err := scm.FromContext(c).GetRepo(u, r)
+	_, err := scm.FromContext(c).GetRepo(ctx, u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
@@ -98,7 +98,7 @@ func SyncRepo(c *gin.Context) {
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), o, r.GetName())
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -125,7 +125,7 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		webhookExists, err := scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		webhookExists, err := scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())
 		if err != nil {
 
 			// if webhook has been manually deleted from GitHub,

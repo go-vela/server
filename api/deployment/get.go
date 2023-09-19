@@ -65,6 +65,7 @@ func GetDeployment(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	deployment := util.PathParameter(c, "deployment")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 
@@ -87,7 +88,7 @@ func GetDeployment(c *gin.Context) {
 	}
 
 	// send API call to capture the deployment
-	d, err := scm.FromContext(c).GetDeployment(u, r, int64(number))
+	d, err := scm.FromContext(c).GetDeployment(ctx, u, r, int64(number))
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment %s: %w", entry, err)
 

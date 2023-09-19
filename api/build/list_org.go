@@ -190,7 +190,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(u, o)
+	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}

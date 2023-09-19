@@ -187,7 +187,7 @@ func CreateBuild(c *gin.Context) {
 	if !strings.EqualFold(input.GetEvent(), constants.EventComment) &&
 		!strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
+		files, err = scm.FromContext(c).Changeset(ctx, u, r, input.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
@@ -210,7 +210,7 @@ func CreateBuild(c *gin.Context) {
 		}
 
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
+		files, err = scm.FromContext(c).ChangesetPR(ctx, u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
@@ -235,7 +235,7 @@ func CreateBuild(c *gin.Context) {
 	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, input.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet
 		// send API call to capture the pipeline configuration file
-		config, err = scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
+		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, input.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to get pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -289,7 +289,7 @@ func CreateBuild(c *gin.Context) {
 		input.SetStatus(constants.StatusSuccess)
 
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
 		if err != nil {
 			logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 		}
@@ -345,7 +345,7 @@ func CreateBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, input)
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
 	if err != nil {
 		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
