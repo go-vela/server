@@ -5,16 +5,16 @@
 package queue
 
 import (
+	"github.com/go-vela/server/router/middleware/claims"
 	"net/http"
 
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/types/library"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation POST /api/v1/admin/queue-registration admin QueueRegistration
+// swagger:operation POST /api/v1/queue/queue-registration admin QueueRegistration
 //
 // Get queue credentials
 //
@@ -36,23 +36,18 @@ import (
 // QueueRegistration represents the API handler to
 // provide queue credentials after worker onboarded with registration token.
 func QueueRegistration(c *gin.Context) {
+	cl := claims.Retrieve(c)
 	// retrieve user from context
-	u := user.Retrieve(c)
 
-	logrus.Infof("Platform admin %s: fetching queue creds", u.GetName())
+	logrus.WithFields(logrus.Fields{
+		"user": cl.Subject,
+	}).Info("requesting queue credentials with registration token")
 
 	// extract the public key that was packed into gin context
-	k, ok := c.Get("public-key")
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "no public-key in the context")
-		return
-	}
+	k := c.MustGet("public-key")
+
 	// extract the queue-address that was packed into gin context
-	a, ok := c.Get("queue-address")
-	if !ok {
-		c.JSON(http.StatusInternalServerError, "no queue-address in the context")
-		return
-	}
+	a := c.MustGet("queue-address")
 
 	pk, ok := k.(string)
 	if !ok {

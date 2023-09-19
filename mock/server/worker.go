@@ -209,6 +209,15 @@ func registerToken(c *gin.Context) {
 
 // getQueueCreds returns mock JSON for a http POST.
 func getQueueCreds(c *gin.Context) {
+	q := c.Param("queue")
+	if strings.Contains(q, "false") {
+		msg := fmt.Sprintf(" queue creds %s does not exist for secret", q)
+
+		c.AbortWithStatusJSON(http.StatusNotFound, types.Error{Message: &msg})
+
+		return
+	}
+
 	data := []byte(QueueRegistrationResp)
 
 	var body library.QueueRegistration
