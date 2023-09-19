@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -42,7 +43,7 @@ func TestGithub_GetOrgName(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetOrgName(u, "github")
+	got, err := client.GetOrgName(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetOrgName returned %v, want %v", resp.Code, http.StatusOK)
@@ -84,7 +85,7 @@ func TestGithub_GetOrgName_Personal(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetOrgName(u, "octocat")
+	got, err := client.GetOrgName(context.TODO(), u, "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetOrgName returned %v, want %v", resp.Code, http.StatusOK)
@@ -123,7 +124,7 @@ func TestGithub_GetOrgName_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetOrgName(u, "octocat")
+	_, err := client.GetOrgName(context.TODO(), u, "octocat")
 
 	if err == nil {
 		t.Error("GetOrgName should return error")

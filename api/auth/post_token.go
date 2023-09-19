@@ -53,7 +53,7 @@ func PostAuthToken(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// attempt to get user from source
-	u, err := scm.FromContext(c).AuthenticateToken(c.Request)
+	u, err := scm.FromContext(c).AuthenticateToken(ctx, c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 

@@ -118,7 +118,7 @@ func CreateSecret(c *gin.Context) {
 		// but Org/Repo != org/repo in Vela. So this check ensures that
 		// what a user inputs matches the casing we expect in Vela since
 		// the SCM will have the source of truth for casing.
-		org, err := scm.FromContext(c).GetOrgName(u, o)
+		org, err := scm.FromContext(c).GetOrgName(ctx, u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve organization %s", o)
 
@@ -141,7 +141,7 @@ func CreateSecret(c *gin.Context) {
 		// retrieve org and repo name from SCM
 		//
 		// same story as org secret. SCM has accurate casing.
-		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(u, o, n)
+		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(ctx, u, o, n)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
 

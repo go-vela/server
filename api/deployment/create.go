@@ -59,6 +59,7 @@ func CreateDeployment(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -99,7 +100,7 @@ func CreateDeployment(c *gin.Context) {
 	}
 
 	// send API call to create the deployment
-	err = scm.FromContext(c).CreateDeployment(u, r, input)
+	err = scm.FromContext(c).CreateDeployment(ctx, u, r, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
 
