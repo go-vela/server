@@ -92,7 +92,7 @@ func (s *Setup) Validate() error {
 		return fmt.Errorf("no queue routes provided")
 	}
 
-	if s.PublicKey == "" || len(s.PublicKey) != 32 {
+	if len(s.PublicKey) != 0 {
 		return fmt.Errorf("no public key was provided")
 	}
 
