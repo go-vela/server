@@ -87,6 +87,7 @@ func ListServices(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -124,7 +125,7 @@ func ListServices(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of services for the build
-	s, t, err := database.FromContext(c).ListServicesForBuild(b, map[string]interface{}{}, page, perPage)
+	s, t, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get services for build %s: %w", entry, err)
 

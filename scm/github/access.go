@@ -11,11 +11,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v54/github"
 )
 
 // OrgAccess captures the user's access level for an org.
-func (c *client) OrgAccess(u *library.User, org string) (string, error) {
+func (c *client) OrgAccess(ctx context.Context, u *library.User, org string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -50,7 +50,7 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, error) {
+func (c *client) RepoAccess(ctx context.Context, u *library.User, token, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -81,7 +81,7 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
+func (c *client) TeamAccess(ctx context.Context, u *library.User, org, team string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -143,7 +143,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 }
 
 // ListUsersTeamsForOrg captures the user's teams for an org.
-func (c *client) ListUsersTeamsForOrg(u *library.User, org string) ([]string, error) {
+func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *library.User, org string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),

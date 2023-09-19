@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-vela/types"
+	"golang.org/x/crypto/nacl/sign"
 	"gopkg.in/square/go-jose.v2/json"
 )
 
@@ -18,11 +19,13 @@ func TestRedis_Pop(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
 	_item := &types.Item{
-		Build:    _build,
-		Pipeline: _steps,
-		Repo:     _repo,
-		User:     _user,
+		Build: _build,
+		Repo:  _repo,
+		User:  _user,
 	}
+
+	var signed []byte
+	var out []byte
 
 	// setup queue item
 	bytes, err := json.Marshal(_item)
@@ -31,19 +34,27 @@ func TestRedis_Pop(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela")
+	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "custom")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
+	signed = sign.Sign(out, bytes, _redis.config.PrivateKey)
+
 	// push item to queue
-	err = _redis.Redis.RPush(context.Background(), "vela", bytes).Err()
+	err = _redis.Redis.RPush(context.Background(), "vela", signed).Err()
+	if err != nil {
+		t.Errorf("unable to push item to queue: %v", err)
+	}
+
+	// push item to queue with custom channel
+	err = _redis.Redis.RPush(context.Background(), "custom", signed).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
 
 	// setup timeout redis mock
-	timeout, err := NewTest("vela")
+	timeout, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
@@ -51,29 +62,38 @@ func TestRedis_Pop(t *testing.T) {
 	timeout.config.Timeout = 1 * time.Second
 
 	// setup badChannel redis mock
-	badChannel, err := NewTest("vela")
+	badChannel, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 	// overwrite channel to be invalid
 	badChannel.config.Channels = nil
 
+	signed = sign.Sign(out, bytes, badChannel.config.PrivateKey)
+
 	// push something to badChannel queue
-	err = badChannel.Redis.RPush(context.Background(), "vela", bytes).Err()
+	err = badChannel.Redis.RPush(context.Background(), "vela", signed).Err()
 	if err != nil {
 		t.Errorf("unable to push item to queue: %v", err)
 	}
 
 	// setup tests
 	tests := []struct {
-		failure bool
-		redis   *client
-		want    *types.Item
+		failure  bool
+		redis    *client
+		want     *types.Item
+		channels []string
 	}{
 		{
 			failure: false,
 			redis:   _redis,
 			want:    _item,
+		},
+		{
+			failure:  false,
+			redis:    _redis,
+			want:     _item,
+			channels: []string{"custom"},
 		},
 		{
 			failure: false,
@@ -89,7 +109,7 @@ func TestRedis_Pop(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.redis.Pop(context.Background())
+		got, err := test.redis.Pop(context.Background(), test.channels)
 
 		if test.failure {
 			if err == nil {

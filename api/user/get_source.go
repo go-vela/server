@@ -92,7 +92,7 @@ func GetSourceRepos(c *gin.Context) {
 
 		for page > 0 {
 			// send API call to capture the list of repos for the org
-			dbReposPart, _, err := database.FromContext(c).ListReposForOrg(org, "name", filters, page, 100)
+			dbReposPart, _, err := database.FromContext(c).ListReposForOrg(ctx, org, "name", filters, page, 100)
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 

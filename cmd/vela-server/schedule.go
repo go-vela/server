@@ -138,7 +138,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 //nolint:funlen // ignore function length and number of statements
 func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the repo for the schedule
-	r, err := database.GetRepo(s.GetRepoID())
+	r, err := database.GetRepo(ctx, s.GetRepoID())
 	if err != nil {
 		return fmt.Errorf("unable to fetch repo: %w", err)
 	}
@@ -156,13 +156,13 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the owner for the repo
-	u, err := database.GetUser(r.GetUserID())
+	u, err := database.GetUser(ctx, r.GetUserID())
 	if err != nil {
 		return fmt.Errorf("unable to get owner for repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to confirm repo owner has at least write access to repo
-	_, err = scm.RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+	_, err = scm.RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		return fmt.Errorf("%s does not have at least write access for repo %s", u.GetName(), r.GetFullName())
 	}
@@ -173,7 +173,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(context.TODO(), r, filters)
+	builds, err := database.CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		return fmt.Errorf("unable to get count of builds for repo %s: %w", r.GetFullName(), err)
 	}
@@ -184,7 +184,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to capture the commit sha for the branch
-	_, commit, err := scm.GetBranch(u, r)
+	_, commit, err := scm.GetBranch(ctx, u, r, s.GetBranch())
 	if err != nil {
 		return fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 	}
@@ -193,7 +193,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 
 	b := new(library.Build)
 	b.SetAuthor(s.GetCreatedBy())
-	b.SetBranch(r.GetBranch())
+	b.SetBranch(s.GetBranch())
 	b.SetClone(r.GetClone())
 	b.SetCommit(commit)
 	b.SetDeploy(s.GetName())
@@ -237,10 +237,10 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.GetPipelineForRepo(b.GetCommit(), r)
+		pipeline, err = database.GetPipelineForRepo(ctx, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			config, err = scm.ConfigBackoff(u, r, b.GetCommit())
+			config, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit())
 			if err != nil {
 				return fmt.Errorf("unable to get pipeline config for %s/%s: %w", r.GetFullName(), b.GetCommit(), err)
 			}
@@ -249,7 +249,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		r, err = database.GetRepoForOrg(r.GetOrg(), r.GetName())
+		r, err = database.GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 		if err != nil {
 			err = fmt.Errorf("unable to get repo %s: %w", r.GetFullName(), err)
 
@@ -326,7 +326,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.CreatePipeline(pipeline)
+			pipeline, err = database.CreatePipeline(ctx, pipeline)
 			if err != nil {
 				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -351,7 +351,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = build.PlanBuild(context.TODO(), database, p, b, r)
+		err = build.PlanBuild(ctx, database, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -374,20 +374,20 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.UpdateRepo(r)
+	r, err = database.UpdateRepo(ctx, r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.GetBuildForRepo(context.TODO(), r, b.GetNumber())
+	b, err = database.GetBuildForRepo(ctx, r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
 	go build.PublishToQueue(
-		context.TODO(),
+		ctx,
 		queue,
 		database,
 		p,

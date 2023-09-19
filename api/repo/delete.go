@@ -59,6 +59,7 @@ func DeleteRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -70,7 +71,7 @@ func DeleteRepo(c *gin.Context) {
 	}).Infof("deleting repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
-	err := scm.FromContext(c).Disable(c.Request.Context(), u, r.GetOrg(), r.GetName())
+	err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -88,7 +89,7 @@ func DeleteRepo(c *gin.Context) {
 	// Mark the repo as inactive
 	r.SetActive(false)
 
-	_, err = database.FromContext(c).UpdateRepo(r)
+	_, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
 

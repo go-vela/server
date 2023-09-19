@@ -176,6 +176,12 @@ func main() {
 			Name:    "github-token",
 			Usage:   "github token, used by compiler, for pulling registry templates",
 		},
+		&cli.Uint64Flag{
+			EnvVars: []string{"VELA_COMPILER_STARLARK_EXEC_LIMIT", "COMPILER_STARLARK_EXEC_LIMIT"},
+			Name:    "compiler-starlark-exec-limit",
+			Usage:   "set the starlark execution step limit for compiling starlark pipelines",
+			Value:   7500,
+		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_MODIFICATION_ADDR", "MODIFICATION_ADDR"},
 			Name:    "modification-addr",

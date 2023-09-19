@@ -5,6 +5,8 @@
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +16,7 @@ import (
 // ListReposForUser gets a list of repos by user ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListReposForUser(u *library.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
+func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing repos for user %s from the database", u.GetName())
@@ -25,7 +27,7 @@ func (e *engine) ListReposForUser(u *library.User, sortBy string, filters map[st
 	repos := []*library.Repo{}
 
 	// count the results
-	count, err := e.CountReposForUser(u, filters)
+	count, err := e.CountReposForUser(ctx, u, filters)
 	if err != nil {
 		return repos, 0, err
 	}

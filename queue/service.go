@@ -26,7 +26,7 @@ type Service interface {
 
 	// Pop defines a function that grabs an
 	// item off the queue.
-	Pop(context.Context) (*types.Item, error)
+	Pop(context.Context, []string) (*types.Item, error)
 
 	// Push defines a function that publishes an
 	// item to the specified route in the queue.

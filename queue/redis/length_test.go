@@ -17,10 +17,9 @@ func TestRedis_Length(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
 	_item := &types.Item{
-		Build:    _build,
-		Pipeline: _steps,
-		Repo:     _repo,
-		User:     _user,
+		Build: _build,
+		Repo:  _repo,
+		User:  _user,
 	}
 
 	// setup queue item
@@ -30,7 +29,7 @@ func TestRedis_Length(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela", "vela:second", "vela:third")
+	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "vela:second", "vela:third")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}

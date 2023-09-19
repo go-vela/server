@@ -46,6 +46,7 @@ func Logout(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -75,7 +76,7 @@ func Logout(c *gin.Context) {
 	u.SetRefreshToken("")
 
 	// send API call to update the user in the database
-	err = database.FromContext(c).UpdateUser(u)
+	_, err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
 

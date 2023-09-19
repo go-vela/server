@@ -91,11 +91,11 @@ func TestBuild_Establish(t *testing.T) {
 
 	defer func() {
 		db.DeleteBuild(context.TODO(), want)
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreateBuild(context.TODO(), want)
 
 	// setup context
@@ -173,11 +173,11 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -221,11 +221,11 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -269,11 +269,11 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

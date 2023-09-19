@@ -16,10 +16,9 @@ func TestRedis_Push(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
 	_item := &types.Item{
-		Build:    _build,
-		Pipeline: _steps,
-		Repo:     _repo,
-		User:     _user,
+		Build: _build,
+		Repo:  _repo,
+		User:  _user,
 	}
 
 	// setup queue item
@@ -29,13 +28,13 @@ func TestRedis_Push(t *testing.T) {
 	}
 
 	// setup redis mock
-	_redis, err := NewTest("vela")
+	_redis, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 
 	// setup redis mock
-	badItem, err := NewTest("vela")
+	badItem, err := NewTest(_signingPrivateKey, _signingPublicKey, "vela")
 	if err != nil {
 		t.Errorf("unable to create queue service: %v", err)
 	}

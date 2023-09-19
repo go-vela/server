@@ -103,7 +103,7 @@ func RestartBuild(c *gin.Context) {
 	logger.Infof("restarting build %s", entry)
 
 	// send API call to capture the repo owner
-	u, err := database.FromContext(c).GetUser(r.GetUserID())
+	u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -177,7 +177,7 @@ func RestartBuild(c *gin.Context) {
 	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
 		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
+		files, err = scm.FromContext(c).Changeset(ctx, u, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to restart build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
@@ -200,7 +200,7 @@ func RestartBuild(c *gin.Context) {
 		}
 
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
+		files, err = scm.FromContext(c).ChangesetPR(ctx, u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to restart build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
@@ -223,10 +223,10 @@ func RestartBuild(c *gin.Context) {
 	)
 
 	// send API call to attempt to capture the pipeline
-	pipeline, err = database.FromContext(c).GetPipelineForRepo(b.GetCommit(), r)
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 		// send API call to capture the pipeline configuration file
-		config, err = scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -253,6 +253,7 @@ func RestartBuild(c *gin.Context) {
 	p, compiled, err = compiler.FromContext(c).
 		Duplicate().
 		WithBuild(b).
+		WithCommit(b.GetCommit()).
 		WithFiles(files).
 		WithMetadata(m).
 		WithRepo(r).
@@ -280,7 +281,7 @@ func RestartBuild(c *gin.Context) {
 		b.SetStatus(constants.StatusSkipped)
 
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 		}
@@ -300,7 +301,7 @@ func RestartBuild(c *gin.Context) {
 		pipeline.SetRef(b.GetRef())
 
 		// send API call to create the pipeline
-		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -321,7 +322,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to restart build: failed to update repo %s: %w", r.GetFullName(), err)
 		util.HandleError(c, http.StatusBadRequest, retErr)
@@ -335,7 +336,7 @@ func RestartBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, b)
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logger.Errorf("unable to set commit status for build %s: %v", entry, err)
 	}

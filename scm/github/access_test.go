@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -42,7 +43,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -84,7 +85,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -114,7 +115,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if err == nil {
 		t.Errorf("OrgAccess should have returned err")
@@ -152,7 +153,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(u, "github")
+	got, err := client.OrgAccess(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("OrgAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -182,7 +183,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.OrgAccess(u, "foo")
+	got, err := client.OrgAccess(context.TODO(), u, "foo")
 
 	if err != nil {
 		t.Errorf("OrgAccess returned err: %v", err)
@@ -220,7 +221,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(u, u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), u, u.GetToken(), "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("RepoAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -250,7 +251,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.RepoAccess(u, u.GetToken(), "github", "octocat")
+	got, err := client.RepoAccess(context.TODO(), u, u.GetToken(), "github", "octocat")
 
 	if err == nil {
 		t.Errorf("RepoAccess should have returned err")
@@ -288,7 +289,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(u, "github", "octocat")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -330,7 +331,7 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(u, "github", "baz")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "baz")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)
@@ -360,7 +361,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.TeamAccess(u, "github", "octocat")
+	got, err := client.TeamAccess(context.TODO(), u, "github", "octocat")
 
 	if err == nil {
 		t.Errorf("TeamAccess should have returned err")
@@ -398,7 +399,7 @@ func TestGithub_TeamList(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUsersTeamsForOrg(u, "github")
+	got, err := client.ListUsersTeamsForOrg(context.TODO(), u, "github")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("TeamAccess returned %v, want %v", resp.Code, http.StatusOK)

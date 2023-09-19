@@ -5,6 +5,7 @@
 package hook
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestHook_Engine_CreateHookTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateHookTable(test.name)
+			err := test.database.CreateHookTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

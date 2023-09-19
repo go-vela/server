@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -98,7 +99,7 @@ func TestVault_Update_Org(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Update("org", "foo", "*", sec)
+			got, err := s.Update(context.TODO(), "org", "foo", "*", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -198,7 +199,7 @@ func TestVault_Update_Repo(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Update("repo", "foo", "bar", sec)
+			got, err := s.Update(context.TODO(), "repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -298,7 +299,7 @@ func TestVault_Update_Shared(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			got, err := s.Update("shared", "foo", "bar", sec)
+			got, err := s.Update(context.TODO(), "shared", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -384,7 +385,7 @@ func TestVault_Update_InvalidSecret(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Update("repo", "foo", "bar", sec)
+			_, err = s.Update(context.TODO(), "repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -441,7 +442,7 @@ func TestVault_Update_InvalidType(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Update("invalid", "foo", "bar", sec)
+			_, err = s.Update(context.TODO(), "invalid", "foo", "bar", sec)
 			if err == nil {
 				t.Errorf("Update should have returned err")
 			}
@@ -493,7 +494,7 @@ func TestVault_Update_ClosedServer(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Update("repo", "foo", "bar", sec)
+			_, err = s.Update(context.TODO(), "repo", "foo", "bar", sec)
 			if err == nil {
 				t.Errorf("Update should have returned err")
 			}
@@ -563,7 +564,7 @@ func TestVault_Update_NoWrite(t *testing.T) {
 				t.Errorf("New returned err: %v", err)
 			}
 
-			_, err = s.Update("repo", "foo", "bar", sec)
+			_, err = s.Update(context.TODO(), "repo", "foo", "bar", sec)
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)

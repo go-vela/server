@@ -5,6 +5,8 @@
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +14,7 @@ import (
 )
 
 // DeleteWorker deletes an existing worker from the database.
-func (e *engine) DeleteWorker(w *library.Worker) error {
+func (e *engine) DeleteWorker(ctx context.Context, w *library.Worker) error {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("deleting worker %s from the database", w.GetHostname())

@@ -4,6 +4,8 @@
 
 package secret
 
+import "context"
+
 const (
 	// CreateTypeOrgRepo represents a query to create an
 	// index on the secrets table for the type, org and repo columns.
@@ -32,7 +34,7 @@ ON secrets (type, org);
 )
 
 // CreateSecretIndexes creates the indexes for the secrets table in the database.
-func (e *engine) CreateSecretIndexes() error {
+func (e *engine) CreateSecretIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for secrets table in the database")
 
 	// create the type, org and repo columns index for the secrets table

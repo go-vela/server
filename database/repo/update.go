@@ -6,6 +6,7 @@
 package repo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // UpdateRepo updates an existing repo in the database.
-func (e *engine) UpdateRepo(r *library.Repo) (*library.Repo, error) {
+func (e *engine) UpdateRepo(ctx context.Context, r *library.Repo) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

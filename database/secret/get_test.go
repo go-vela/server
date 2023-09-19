@@ -5,6 +5,7 @@
 package secret
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -40,7 +41,7 @@ func TestSecret_Engine_GetSecret(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateSecret(_secret)
+	_, err := _sqlite.CreateSecret(context.TODO(), _secret)
 	if err != nil {
 		t.Errorf("unable to create test secret for sqlite: %v", err)
 	}
@@ -69,7 +70,7 @@ func TestSecret_Engine_GetSecret(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetSecret(1)
+			got, err := test.database.GetSecret(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

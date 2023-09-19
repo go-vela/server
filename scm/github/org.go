@@ -14,7 +14,7 @@ import (
 )
 
 // GetOrgName gets org name from Github.
-func (c *client) GetOrgName(u *library.User, o string) (string, error) {
+func (c *client) GetOrgName(ctx context.Context, u *library.User, o string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"user": u.GetName(),

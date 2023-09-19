@@ -14,11 +14,11 @@ import (
 
 	"github.com/go-vela/server/random"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v54/github"
 )
 
 // Authorize uses the given access token to authorize the user.
-func (c *client) Authorize(token string) (string, error) {
+func (c *client) Authorize(ctx context.Context, token string) (string, error) {
 	c.Logger.Trace("authorizing user with token")
 
 	// create GitHub OAuth client with user's token
@@ -34,7 +34,7 @@ func (c *client) Authorize(token string) (string, error) {
 }
 
 // Login begins the authentication workflow for the session.
-func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
+func (c *client) Login(ctx context.Context, w http.ResponseWriter, r *http.Request) (string, error) {
 	c.Logger.Trace("processing login request")
 
 	// generate a random string for creating the OAuth state
@@ -57,7 +57,7 @@ func (c *client) Login(w http.ResponseWriter, r *http.Request) (string, error) {
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
+func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
 	c.Logger.Trace("authenticating user")
 
 	// get the OAuth code
@@ -85,7 +85,7 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 	}
 
 	// authorize the user for the token
-	u, err := c.Authorize(token.AccessToken)
+	u, err := c.Authorize(ctx, token.AccessToken)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (c *client) Authenticate(w http.ResponseWriter, r *http.Request, oAuthState
 
 // AuthenticateToken completes the authentication workflow
 // for the session and returns the remote user details.
-func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
+func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*library.User, error) {
 	c.Logger.Trace("authenticating user via token")
 
 	token := r.Header.Get("Token")
@@ -151,7 +151,7 @@ func (c *client) AuthenticateToken(r *http.Request) (*library.User, error) {
 		return nil, errors.New("token must not be created by vela")
 	}
 
-	u, err := c.Authorize(token)
+	u, err := c.Authorize(ctx, token)
 	if err != nil {
 		return nil, err
 	}

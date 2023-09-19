@@ -5,6 +5,7 @@
 package hook
 
 import (
+	"context"
 	"errors"
 
 	"github.com/go-vela/types/constants"
@@ -16,7 +17,7 @@ import (
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
-func (e *engine) LastHookForRepo(r *library.Repo) (*library.Hook, error) {
+func (e *engine) LastHookForRepo(ctx context.Context, r *library.Repo) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

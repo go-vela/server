@@ -26,11 +26,51 @@ func TestStarlark_Render(t *testing.T) {
 		wantFile string
 		wantErr  bool
 	}{
-		{"basic", args{velaFile: "testdata/step/basic/step.yml", starlarkFile: "testdata/step/basic/template.py"}, "testdata/step/basic/want.yml", false},
-		{"with method", args{velaFile: "testdata/step/with_method/step.yml", starlarkFile: "testdata/step/with_method/template.star"}, "testdata/step/with_method/want.yml", false},
-		{"user vars", args{velaFile: "testdata/step/with_vars/step.yml", starlarkFile: "testdata/step/with_vars/template.star"}, "testdata/step/with_vars/want.yml", false},
-		{"platform vars", args{velaFile: "testdata/step/with_vars_plat/step.yml", starlarkFile: "testdata/step/with_vars_plat/template.star"}, "testdata/step/with_vars_plat/want.yml", false},
-		{"cancel due to complexity", args{velaFile: "testdata/step/cancel/step.yml", starlarkFile: "testdata/step/cancel/template.star"}, "", true},
+		{
+			name: "basic",
+			args: args{
+				velaFile:     "testdata/step/basic/step.yml",
+				starlarkFile: "testdata/step/basic/template.py",
+			},
+			wantFile: "testdata/step/basic/want.yml",
+			wantErr:  false,
+		},
+		{
+			name: "with method",
+			args: args{
+				velaFile:     "testdata/step/with_method/step.yml",
+				starlarkFile: "testdata/step/with_method/template.star",
+			},
+			wantFile: "testdata/step/with_method/want.yml",
+			wantErr:  false,
+		},
+		{
+			name: "user vars",
+			args: args{
+				velaFile:     "testdata/step/with_vars/step.yml",
+				starlarkFile: "testdata/step/with_vars/template.star",
+			},
+			wantFile: "testdata/step/with_vars/want.yml",
+			wantErr:  false,
+		},
+		{
+			name: "platform vars",
+			args: args{
+				velaFile:     "testdata/step/with_vars_plat/step.yml",
+				starlarkFile: "testdata/step/with_vars_plat/template.star",
+			},
+			wantFile: "testdata/step/with_vars_plat/want.yml",
+			wantErr:  false,
+		},
+		{
+			name: "cancel due to complexity",
+			args: args{
+				velaFile:     "testdata/step/cancel/step.yml",
+				starlarkFile: "testdata/step/cancel/template.star",
+			},
+			wantFile: "",
+			wantErr:  true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -53,7 +93,7 @@ func TestStarlark_Render(t *testing.T) {
 				t.Error(err)
 			}
 
-			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables)
+			tmplBuild, err := Render(string(tmpl), b.Steps[0].Name, b.Steps[0].Template.Name, b.Steps[0].Environment, b.Steps[0].Template.Variables, 7500)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -92,20 +132,73 @@ func TestStarlark_Render(t *testing.T) {
 }
 
 func TestNative_RenderBuild(t *testing.T) {
+	noWantFile := "none"
+
 	type args struct {
 		velaFile string
 	}
 
 	tests := []struct {
-		name     string
-		args     args
-		wantFile string
-		wantErr  bool
+		name      string
+		args      args
+		wantFile  string
+		wantErr   bool
+		execLimit uint64
 	}{
-		{"steps", args{velaFile: "testdata/build/basic/build.star"}, "testdata/build/basic/want.yml", false},
-		{"stages", args{velaFile: "testdata/build/basic_stages/build.star"}, "testdata/build/basic_stages/want.yml", false},
-		{"conditional match", args{velaFile: "testdata/build/conditional/build.star"}, "testdata/build/conditional/want.yml", false},
-		{"steps, with structs", args{velaFile: "testdata/build/with_struct/build.star"}, "testdata/build/with_struct/want.yml", false},
+		{
+			name: "steps",
+			args: args{
+				velaFile: "testdata/build/basic/build.star",
+			},
+			wantFile:  "testdata/build/basic/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
+		},
+		{
+			name: "stages",
+			args: args{
+				velaFile: "testdata/build/basic_stages/build.star",
+			},
+			wantFile:  "testdata/build/basic_stages/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
+		},
+		{
+			name: "conditional match",
+			args: args{
+				velaFile: "testdata/build/conditional/build.star",
+			},
+			wantFile:  "testdata/build/conditional/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
+		},
+		{
+			name: "steps, with structs",
+			args: args{
+				velaFile: "testdata/build/with_struct/build.star",
+			},
+			wantFile:  "testdata/build/with_struct/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
+		},
+		{
+			name: "large build - exec step limit good",
+			args: args{
+				velaFile: "testdata/build/large/build.star",
+			},
+			wantFile:  "testdata/build/large/want.yml",
+			wantErr:   false,
+			execLimit: 7500,
+		},
+		{
+			name: "large build - exec step limit too low",
+			args: args{
+				velaFile: "testdata/build/large/build.star",
+			},
+			wantFile:  "",
+			wantErr:   true,
+			execLimit: 5000,
+		},
 	}
 
 	for _, tt := range tests {
@@ -118,13 +211,14 @@ func TestNative_RenderBuild(t *testing.T) {
 			got, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
 				"VELA_BUILD_BRANCH":   "master",
-			}, map[string]interface{}{})
+				"VELA_REPO_ORG":       "octocat",
+			}, map[string]interface{}{}, tt.execLimit)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RenderBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
-			if tt.wantErr != true {
+			if tt.wantErr != true && tt.wantFile != noWantFile {
 				wFile, err := os.ReadFile(tt.wantFile)
 				if err != nil {
 					t.Error(err)

@@ -5,6 +5,7 @@
 package log
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestLog_Engine_GetLog(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_log)
+	err := _sqlite.CreateLog(context.TODO(), _log)
 	if err != nil {
 		t.Errorf("unable to create test log for sqlite: %v", err)
 	}
@@ -64,7 +65,7 @@ func TestLog_Engine_GetLog(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetLog(1)
+			got, err := test.database.GetLog(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

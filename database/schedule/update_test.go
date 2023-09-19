@@ -28,15 +28,16 @@ func TestSchedule_Engine_UpdateSchedule_Config(t *testing.T) {
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
+	_schedule.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "schedules"
-SET "repo_id"=$1,"active"=$2,"name"=$3,"entry"=$4,"created_at"=$5,"created_by"=$6,"updated_at"=$7,"updated_by"=$8,"scheduled_at"=$9
-WHERE "id" = $10`).
-		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", NowTimestamp{}, "user2", nil, 1).
+SET "repo_id"=$1,"active"=$2,"name"=$3,"entry"=$4,"created_at"=$5,"created_by"=$6,"updated_at"=$7,"updated_by"=$8,"scheduled_at"=$9,"branch"=$10
+WHERE "id" = $11`).
+		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", NowTimestamp{}, "user2", nil, "main", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
@@ -107,6 +108,7 @@ func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
 	_schedule.SetScheduledAt(1)
+	_schedule.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

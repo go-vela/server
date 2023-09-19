@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestUser_Engine_GetUserForName(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_user)
+	_, err := _sqlite.CreateUser(context.TODO(), _user)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -64,7 +65,7 @@ func TestUser_Engine_GetUserForName(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetUserForName("foo")
+			got, err := test.database.GetUserForName(context.TODO(), "foo")
 
 			if test.failure {
 				if err == nil {
