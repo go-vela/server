@@ -18,8 +18,10 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
+	"github.com/go-vela/server/tracing"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"golang.org/x/sync/errgroup"
 
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -62,7 +64,29 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	database, err := database.FromCLIContext(c)
+	// create the tracing config
+	tc, err := tracing.New(c)
+	if err != nil {
+		return err
+	}
+
+	// opt-in for telemetry
+	tracingMiddleware := func(ctx *gin.Context) {}
+	if tc.EnableTracing {
+		// initialize tracing middleware
+		tracingMiddleware = otelgin.Middleware(c.String("tracing.service.name"),
+			otelgin.WithTracerProvider(tc.TracerProvider))
+
+		// shutdown tracing when server closes
+		defer func() {
+			err := tc.TracerProvider.Shutdown(context.Background())
+			if err != nil {
+				logrus.Errorf("unable to shutdown tracer provider: %v", err)
+			}
+		}()
+	}
+
+	database, err := database.FromCLIContext(c, tc)
 	if err != nil {
 		return err
 	}
@@ -109,6 +133,9 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
+
+		// tracing middle, which is an empty handler when tracing is disabled
+		tracingMiddleware,
 	)
 
 	addr, err := url.Parse(c.String("server-addr"))

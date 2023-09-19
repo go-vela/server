@@ -74,7 +74,7 @@ func TestGithub_newClientToken(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got := client.newClientToken("foobar")
+	got := client.newClientToken(context.TODO(), "foobar")
 
 	//nolint:staticcheck // ignore false positive
 	if got == nil {

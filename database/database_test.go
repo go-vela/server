@@ -5,6 +5,7 @@
 package database
 
 import (
+	"github.com/go-vela/server/tracing"
 	"testing"
 	"time"
 
@@ -93,6 +94,7 @@ func TestDatabase_New(t *testing.T) {
 				WithDriver(test.config.Driver),
 				WithEncryptionKey(test.config.EncryptionKey),
 				WithSkipCreation(test.config.SkipCreation),
+				WithTracingConfig(&tracing.Config{EnableTracing: false}),
 			)
 
 			if test.failure {

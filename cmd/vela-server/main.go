@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
+	"github.com/go-vela/server/tracing"
 	"github.com/go-vela/server/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -246,6 +247,9 @@ func main() {
 
 	// Add Source Flags
 	app.Flags = append(app.Flags, scm.Flags...)
+
+	// Add Tracing Flags
+	app.Flags = append(app.Flags, tracing.Flags...)
 
 	// set logrus to log in JSON format
 	logrus.SetFormatter(&logrus.JSONFormatter{})

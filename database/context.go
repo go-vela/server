@@ -7,6 +7,7 @@ package database
 import (
 	"context"
 
+	"github.com/go-vela/server/tracing"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
@@ -30,6 +31,8 @@ func FromContext(c context.Context) Interface {
 		return nil
 	}
 
+	// assign as inflight property
+
 	return d
 }
 
@@ -40,7 +43,7 @@ func ToContext(c Setter, d Interface) {
 }
 
 // FromCLIContext creates and returns a database engine from the urfave/cli context.
-func FromCLIContext(c *cli.Context) (Interface, error) {
+func FromCLIContext(c *cli.Context, tc *tracing.Config) (Interface, error) {
 	logrus.Debug("creating database engine from CLI configuration")
 
 	return New(
@@ -52,5 +55,6 @@ func FromCLIContext(c *cli.Context) (Interface, error) {
 		WithDriver(c.String("database.driver")),
 		WithEncryptionKey(c.String("database.encryption.key")),
 		WithSkipCreation(c.Bool("database.skip_creation")),
+		WithTracingConfig(tc),
 	)
 }
