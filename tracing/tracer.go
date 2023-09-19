@@ -21,14 +21,15 @@ import (
 // initTracer returns the tracer provider supplied to the tracing config.
 func initTracer(c *cli.Context) (*sdktrace.TracerProvider, error) {
 	client := otlptracehttp.NewClient()
+	ctx := context.Background()
 
 	// TODO: inject actual context
-	exporter, err := otlp.New(context.TODO(), client)
+	exporter, err := otlp.New(ctx, client)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := resource.New(context.TODO(), resource.WithAttributes(
+	res, err := resource.New(ctx, resource.WithAttributes(
 		semconv.ServiceName(c.String("tracing.service.name")),
 	))
 	if err != nil {

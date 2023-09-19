@@ -94,7 +94,7 @@ func New(opts ...EngineOpt) (Interface, error) {
 	e.client = new(gorm.DB)
 	e.config = new(config)
 	e.logger = new(logrus.Entry)
-	e.ctx = context.TODO()
+	e.ctx = context.Background()
 
 	// apply all provided configuration options
 	for _, opt := range opts {

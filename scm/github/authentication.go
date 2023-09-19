@@ -22,7 +22,7 @@ func (c *client) Authorize(ctx context.Context, token string) (string, error) {
 	c.Logger.Trace("authorizing user with token")
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(context.TODO(), token)
+	client := c.newClientToken(ctx, token)
 
 	// send API call to capture the current user making the call
 	u, _, err := client.Users.Get(ctx, "")
