@@ -93,7 +93,7 @@ func (s *Setup) Validate() error {
 	}
 
 	if len(s.PublicKey) == 0 {
-		return fmt.Errorf("no public key was provided")
+		return fmt.Errorf("no queue public key was provided")
 	}
 
 	// setup is valid
