@@ -25,7 +25,7 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully generated registration token
+//     description: Successfully retrieved queue credentials
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '401':
