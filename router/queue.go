@@ -15,7 +15,7 @@ import (
 //
 // POST   /api/v1/queue/register.
 func QueueHandlers(base *gin.RouterGroup) {
-	// Workers endpoints
+	// Queue endpoints
 	_queue := base.Group("/queue")
 	{
 		_queue.GET("/register", perm.MustWorkerRegisterToken(), queue.Register)
