@@ -13,7 +13,7 @@ import (
 // QueueHandlers is a function that extends the provided base router group
 // with the API handlers for queue registration functionality.
 //
-// POST   /api/v1/queue/queue-registration.
+// POST   /api/v1/queue/register.
 func QueueHandlers(base *gin.RouterGroup) {
 	// Workers endpoints
 	_queue := base.Group("/queue")
