@@ -27,7 +27,7 @@ import (
 //   '200':
 //     description: Successfully retrieved queue credentials
 //     schema:
-//       "$ref": "#/definitions/Token"
+//       "$ref": "#/definitions/QueueRegistration"
 //   '401':
 //     description: Unauthorized
 //     schema:
