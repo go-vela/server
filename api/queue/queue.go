@@ -44,14 +44,14 @@ func Registration(c *gin.Context) {
 	}).Info("requesting queue credentials with registration token")
 
 	// extract the public key that was packed into gin context
-	k := c.MustGet("public-key").(*string)
+	k := c.MustGet("public-key").(string)
 
 	// extract the queue-address that was packed into gin context
-	a := c.MustGet("queue-address").(*string)
+	a := c.MustGet("queue-address").(string)
 
 	wr := library.QueueRegistration{
-		QueuePublicKey: k,
-		QueueAddress:   a,
+		QueuePublicKey: &k,
+		QueueAddress:   &a,
 	}
 
 	c.JSON(http.StatusOK, wr)
