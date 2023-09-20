@@ -33,9 +33,9 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// Registration represents the API handler to
-// provide queue credentials after worker onboarded with registration token.
-func Registration(c *gin.Context) {
+// Register represents the API handler to
+// retrieve queue credentials as part of worker onboarding.
+func Register(c *gin.Context) {
 	cl := claims.Retrieve(c)
 
 	logrus.WithFields(logrus.Fields{
