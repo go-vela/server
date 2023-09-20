@@ -37,7 +37,6 @@ import (
 // provide queue credentials after worker onboarded with registration token.
 func Registration(c *gin.Context) {
 	cl := claims.Retrieve(c)
-	// retrieve user from context
 
 	logrus.WithFields(logrus.Fields{
 		"user": cl.Subject,
