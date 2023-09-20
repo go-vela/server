@@ -5,12 +5,11 @@
 package queue
 
 import (
-	"github.com/go-vela/server/router/middleware/claims"
 	"net/http"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/router/middleware/claims"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
