@@ -97,7 +97,7 @@ func WithPrivateKey(key string) ClientOpt {
 		copy(c.config.PrivateKey[:], decoded)
 
 		if len(*c.config.PrivateKey) != 64 {
-			return errors.New("no valid signing private key provided")
+			return errors.New("no valid queue signing private key provided")
 		}
 
 		if c.config.PrivateKey == nil {
