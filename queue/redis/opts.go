@@ -73,8 +73,6 @@ func WithTimeout(timeout time.Duration) ClientOpt {
 }
 
 // WithPrivateKey sets the private key in the queue client for Redis.
-//
-//nolint:dupl // ignore similar code
 func WithPrivateKey(key string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring private key in redis queue client")
@@ -96,6 +94,10 @@ func WithPrivateKey(key string) ClientOpt {
 		c.config.PrivateKey = new([64]byte)
 		copy(c.config.PrivateKey[:], decoded)
 
+		// this should already be validated on startup
+		if c.config.PrivateKey == nil || len(*c.config.PrivateKey) != 64 {
+			return errors.New("no valid signing private key provided")
+		}
 		if c.config.PrivateKey == nil {
 			return errors.New("unable to copy decoded queue signing private key, copied key is nil")
 		}
@@ -109,8 +111,6 @@ func WithPrivateKey(key string) ClientOpt {
 }
 
 // WithPublicKey sets the public key in the queue client for Redis.
-//
-//nolint:dupl // ignore similar code
 func WithPublicKey(key string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Tracef("configuring public key in redis queue client")
@@ -131,6 +131,11 @@ func WithPublicKey(key string) ClientOpt {
 
 		c.config.PublicKey = new([32]byte)
 		copy(c.config.PublicKey[:], decoded)
+
+		// this should already be validated on startup
+		if c.config.PublicKey == nil || len(*c.config.PublicKey) != 32 {
+			return errors.New("no valid signing public key provided")
+		}
 
 		if c.config.PublicKey == nil {
 			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
