@@ -141,7 +141,7 @@ func WithPublicKey(key string) ClientOpt {
 		}
 
 		if c.config.PublicKey == nil {
-			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
+			return errors.New("unable to copy decoded queue public key, copied key is nil")
 		}
 
 		if len(c.config.PublicKey) == 0 {
