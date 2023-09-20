@@ -208,7 +208,19 @@ func registerToken(c *gin.Context) {
 }
 
 // getQueueCreds returns mock JSON for a http GET.
+//
+// Pass "" to Authorization header to test receiving a http 401 response.
 func getQueueCreds(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	// verify token if empty
+	if token == "" {
+		msg := "unable get queue credentials; invalid registration token"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+
+		return
+	}
+
 	data := []byte(QueueRegistrationResp)
 
 	var body library.QueueRegistration
