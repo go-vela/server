@@ -96,7 +96,7 @@ func WithPrivateKey(key string) ClientOpt {
 		c.config.PrivateKey = new([64]byte)
 		copy(c.config.PrivateKey[:], decoded)
 
-		if c.config.PrivateKey == nil || len(*c.config.PrivateKey) != 64 {
+		if len(*c.config.PrivateKey) != 64 {
 			return errors.New("no valid signing private key provided")
 		}
 
@@ -136,7 +136,7 @@ func WithPublicKey(key string) ClientOpt {
 		c.config.PublicKey = new([32]byte)
 		copy(c.config.PublicKey[:], decoded)
 
-		if c.config.PublicKey == nil || len(*c.config.PublicKey) != 32 {
+		if len(*c.config.PublicKey) != 32 {
 			return errors.New("no valid signing public key provided")
 		}
 
