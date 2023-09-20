@@ -137,7 +137,7 @@ func WithPublicKey(key string) ClientOpt {
 		copy(c.config.PublicKey[:], decoded)
 
 		if len(*c.config.PublicKey) != 32 {
-			return errors.New("no valid signing public key provided")
+			return errors.New("no valid queue public key provided")
 		}
 
 		if c.config.PublicKey == nil {
