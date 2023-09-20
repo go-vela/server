@@ -70,14 +70,15 @@ const (
 	}`
 
 	// RegisterTokenResp represents a JSON return for an admin requesting a registration token.
-	// not actual credentials.
+	//
+	//nolint:gosec // not actual credentials
 	RegisterTokenResp = `{
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJSZWdpc3RlciJ9.gEzKaZB-sDd_gFCVF5uGo2mcf3iy9CrXDTLPZ6PTsTc"
 	}`
 
 	// QueueRegistrationResp represents a JSON return for an admin requesting a queue registration info.
 	//
-	// not actual credentials.
+	//nolint:gosec // not actual credentials
 	QueueRegistrationResp = `{
 		"queue_public_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
 		"queue_address": "redis://redis:6000"
