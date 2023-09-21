@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation POST /api/v1/queue/register queue Registration
+// swagger:operation POST /api/v1/queue/register queue Register
 //
 // Get queue credentials
 //
