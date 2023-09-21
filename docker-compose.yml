@@ -50,6 +50,7 @@ services:
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_REPO_ALLOWLIST: '*'
+      VELA_SCHEDULE_ALLOWLIST: '*'
     env_file:
       - .env
     restart: always
