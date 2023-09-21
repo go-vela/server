@@ -78,7 +78,7 @@ const (
 
 	// QueueRegistrationResp represents a JSON return for an admin requesting a queue registration info.
 	//
-	//not actual credentials
+	//not actual credentials.
 	QueueRegistrationResp = `{
 		"queue_public_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
 		"queue_address": "redis://redis:6000"
