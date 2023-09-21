@@ -16,7 +16,7 @@ services:
   server:
     # comment the 5 lines below to use local server built image
     build:
-      context: ../server
+      context: .
       dockerfile: Dockerfile
     container_name: server
     image: server:local
@@ -70,7 +70,7 @@ services:
   worker:
 # comment the 5 lines below to use local server built image
 #    build:
-#      context: .
+#      context: ../worker
 #      dockerfile: Dockerfile
 #    container_name: worker
 #    image: worker:local
