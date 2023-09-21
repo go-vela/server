@@ -14,11 +14,14 @@ services:
   #
   # https://go-vela.github.io/docs/administration/server/
   server:
+    # comment the 5 lines below to use local server built image
     build:
-      context: .
+      context: ../server
       dockerfile: Dockerfile
     container_name: server
     image: server:local
+    #    container_name: server
+    #    image: target/vela-server:latest
     networks:
       - vela
     environment:
@@ -37,14 +40,16 @@ services:
       VELA_ADDR: 'http://localhost:8080'
       VELA_WEBUI_ADDR: 'http://localhost:8888'
       VELA_LOG_LEVEL: trace
+      # comment the line below to use registration flow
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
+      QUEUE_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
       VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
       VELA_USER_REFRESH_TOKEN_DURATION: 90m
       VELA_USER_ACCESS_TOKEN_DURATION: 60m
+      VELA_WORKER_AUTH_TOKEN_DURATION: 3m
       VELA_DISABLE_WEBHOOK_VALIDATION: 'true'
       VELA_ENABLE_SECURE_COOKIE: 'false'
       VELA_REPO_ALLOWLIST: '*'
-      VELA_SCHEDULE_ALLOWLIST: '*'
     env_file:
       - .env
     restart: always
@@ -55,6 +60,7 @@ services:
       - redis
       - vault
 
+
   # The `worker` compose service hosts the Vela build daemon.
   #
   # This component is used for pulling builds from the FIFO
@@ -62,6 +68,12 @@ services:
   #
   # https://go-vela.github.io/docs/administration/worker/
   worker:
+# comment the 5 lines below to use local server built image
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: worker
+#    image: worker:local
     container_name: worker
     image: target/vela-worker:latest
     networks:
@@ -69,22 +81,22 @@ services:
     environment:
       EXECUTOR_DRIVER: linux
       QUEUE_DRIVER: redis
-      QUEUE_ADDR: 'redis://redis:6379'
-      QUEUE_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
       VELA_BUILD_LIMIT: 1
       VELA_BUILD_TIMEOUT: 30m
       VELA_LOG_LEVEL: trace
       VELA_RUNTIME_DRIVER: docker
       VELA_RUNTIME_PRIVILEGED_IMAGES: 'target/vela-docker'
+      VELA_EXECUTOR_ENFORCE_TRUSTED_REPOS: 'true'
       VELA_SERVER_ADDR: 'http://server:8080'
+      # comment the 3 lines below to use registration flow
       VELA_SERVER_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
       WORKER_ADDR: 'http://worker:8080'
-      WORKER_CHECK_IN: 5m
+      WORKER_CHECK_IN: 2m
     restart: always
     ports:
-      - '8081:8080'
+      - "8081:8080"
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
+      - "/var/run/docker.sock:/var/run/docker.sock"
     depends_on:
       - server
 
