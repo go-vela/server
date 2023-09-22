@@ -10,10 +10,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 )
@@ -87,7 +87,7 @@ func GetDeployment(c *gin.Context) {
 	}
 
 	// send API call to capture the deployment
-	d, err := scm.FromContext(c).GetDeployment(u, r, int64(number))
+	d, err := database.FromContext(c).GetDeployment(c, int64(number))
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment %s: %w", entry, err)
 

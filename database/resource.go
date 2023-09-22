@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -31,6 +32,17 @@ func (e *engine) NewResources(ctx context.Context) error {
 		build.WithClient(e.client),
 		build.WithLogger(e.logger),
 		build.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for deployments
+	e.DeploymentInterface, err = deployment.New(
+		deployment.WithContext(e.ctx),
+		deployment.WithClient(e.client),
+		deployment.WithLogger(e.logger),
+		deployment.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

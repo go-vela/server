@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
@@ -81,6 +82,8 @@ func CreateDeployment(c *gin.Context) {
 		return
 	}
 
+	// create a record in db and create deployment through scm
+
 	// update fields in deployment object
 	input.SetRepoID(r.GetID())
 	input.SetUser(u.GetName())
@@ -91,6 +94,16 @@ func CreateDeployment(c *gin.Context) {
 
 	if len(input.GetTask()) == 0 {
 		input.SetTask("deploy:vela")
+	}
+
+	// send API call to create the deployment
+	_, err = database.FromContext(c).CreateDeployment(c, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
 	}
 
 	// send API call to create the deployment

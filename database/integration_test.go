@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -118,6 +119,8 @@ func TestDatabase_Integration(t *testing.T) {
 			}
 
 			t.Run("test_builds", func(t *testing.T) { testBuilds(t, db, resources) })
+
+			t.Run("test_deployments", func(t *testing.T) { testDeployments(t, db, resources) })
 
 			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
 
@@ -381,6 +384,125 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for builds", method)
+		}
+	}
+}
+
+func testDeployments(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for deployments
+	methods := make(map[string]bool)
+	// capture the element type of the deployment interface
+	element := reflect.TypeOf(new(deployment.DeploymentInterface)).Elem()
+	// iterate through all methods found in the deployment interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for deployments
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	// create the deploymentz
+	for _, deployment := range resources.Deployments {
+		_, err := db.CreateDeployment(context.TODO(), deployment)
+		if err != nil {
+			t.Errorf("unable to create hook %d: %v", deployment.GetID(), err)
+		}
+	}
+	methods["CreateDeployment"] = true
+
+	// count the deployments
+	count, err := db.CountDeployments(context.TODO())
+	if err != nil {
+		t.Errorf("unable to count deployment: %v", err)
+	}
+	if int(count) != len(resources.Deployments) {
+		t.Errorf("CountDeployments() is %v, want %v", count, len(resources.Deployments))
+	}
+	methods["CountDeployments"] = true
+
+	// count the deployments for a repo
+	count, err = db.CountDeploymentsForRepo(context.TODO(), resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to count deployments for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountDeploymentsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	methods["CountDeploymentsForRepo"] = true
+
+	// list the deployments
+	list, err := db.ListDeployments(context.TODO())
+	if err != nil {
+		t.Errorf("unable to list deployments: %v", err)
+	}
+	if !reflect.DeepEqual(list, resources.Deployments) {
+		t.Errorf("ListDeployments() is %v, want %v", list, resources.Deployments)
+	}
+	methods["ListDeployments"] = true
+
+	// list the deployments for a repo
+	list, err = db.ListDeploymentsForRepo(context.TODO(), resources.Repos[0], 1, 10)
+	if err != nil {
+		t.Errorf("unable to list deployments for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Deployments) {
+		t.Errorf("ListDeploymentssForRepo() is %v, want %v", count, len(resources.Deployments))
+	}
+	if !reflect.DeepEqual(list, []*library.Deployment{resources.Deployments[1], resources.Deployments[0]}) {
+		t.Errorf("ListDeploymentsForRepo() is %v, want %v", list, []*library.Deployment{resources.Deployments[1], resources.Deployments[0]})
+	}
+	methods["ListDeploymentsForRepo"] = true
+
+	// lookup the deployments by name
+	for _, deployment := range resources.Deployments {
+		repo := resources.Repos[deployment.GetRepoID()-1]
+		got, err := db.GetDeploymentForRepo(context.TODO(), repo, int(deployment.GetNumber()))
+		if err != nil {
+			t.Errorf("unable to get deployment %d for repo %d: %v", deployment.GetID(), repo.GetID(), err)
+		}
+		if !reflect.DeepEqual(got, deployment) {
+			t.Errorf("GetDeploymentForRepo() is %v, want %v", got, deployment)
+		}
+	}
+	methods["GetDeploymentForRepo"] = true
+
+	// update the deployments
+	for _, deployment := range resources.Deployments {
+		_, err = db.UpdateDeployment(context.TODO(), deployment)
+		if err != nil {
+			t.Errorf("unable to update deployment %d: %v", deployment.GetID(), err)
+		}
+
+		// lookup the deployment by ID
+		got, err := db.GetDeployment(context.TODO(), deployment.GetID())
+		if err != nil {
+			t.Errorf("unable to get deployment %d by ID: %v", deployment.GetID(), err)
+		}
+		if !reflect.DeepEqual(got, deployment) {
+			t.Errorf("GetDeployment() is %v, want %v", got, deployment)
+		}
+	}
+	methods["UpdateDeployment"] = true
+	methods["GetDeployment"] = true
+
+	// delete the deployments
+	for _, deployment := range resources.Deployments {
+		err = db.DeleteDeployment(context.TODO(), deployment)
+		if err != nil {
+			t.Errorf("unable to delete hook %d: %v", deployment.GetID(), err)
+		}
+	}
+	methods["DeleteDeployment"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for deployments", method)
 		}
 	}
 }

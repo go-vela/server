@@ -127,7 +127,7 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of deployments for the repo
-	d, err := scm.FromContext(c).GetDeploymentList(u, r, page, perPage)
+	d, err := database.FromContext(c).ListDeployments(c)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 
@@ -141,6 +141,7 @@ func ListDeployments(c *gin.Context) {
 	for _, deployment := range d {
 		b, _, err := database.FromContext(c).ListBuildsForDeployment(ctx, deployment, nil, 1, 3)
 		if err != nil {
+
 			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -153,7 +154,7 @@ func ListDeployments(c *gin.Context) {
 			builds = append(builds, *build)
 		}
 
-		deployment.SetBuilds(builds)
+		deployment.SetBuilds(&builds)
 
 		dWithBs = append(dWithBs, deployment)
 	}

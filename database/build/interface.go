@@ -48,6 +48,7 @@ type BuildInterface interface {
 	GetBuild(context.Context, int64) (*library.Build, error)
 	// GetBuildForRepo defines a function that gets a build by repo ID and number.
 	GetBuildForRepo(context.Context, *library.Repo, int) (*library.Build, error)
+
 	// LastBuildForRepo defines a function that gets the last build ran by repo ID and branch.
 	LastBuildForRepo(context.Context, *library.Repo, string) (*library.Build, error)
 	// ListBuilds defines a function that gets a list of all builds.
