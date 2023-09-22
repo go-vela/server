@@ -26,7 +26,7 @@ import (
 // ProcessWebhook parses the webhook from a repo.
 //
 //nolint:nilerr // ignore webhook returning nil
-func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
+func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
 	// create our own record of the hook and populate its fields
@@ -85,7 +85,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
+func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *library.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

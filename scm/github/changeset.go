@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -14,7 +15,7 @@ import (
 )
 
 // Changeset captures the list of files changed for a commit.
-func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]string, error) {
+func (c *client) Changeset(ctx context.Context, u *library.User, r *library.Repo, sha string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -43,7 +44,7 @@ func (c *client) Changeset(u *library.User, r *library.Repo, sha string) ([]stri
 }
 
 // ChangesetPR captures the list of files changed for a pull request.
-func (c *client) ChangesetPR(u *library.User, r *library.Repo, number int) ([]string, error) {
+func (c *client) ChangesetPR(ctx context.Context, u *library.User, r *library.Repo, number int) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

@@ -10,6 +10,8 @@ import (
 	"reflect"
 	"testing"
 
+	_context "context"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types/library"
 )
@@ -45,7 +47,7 @@ func TestGithub_Authenticate(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Authenticate(context.Writer, context.Request, "bar")
+	got, err := client.Authenticate(_context.TODO(), context.Writer, context.Request, "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -80,7 +82,7 @@ func TestGithub_Authenticate_NoCode(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Authenticate(context.Writer, context.Request, "bar")
+	got, err := client.Authenticate(_context.TODO(), context.Writer, context.Request, "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -115,7 +117,7 @@ func TestGithub_Authenticate_NoState(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Authenticate(context.Writer, context.Request, "bar")
+	got, err := client.Authenticate(_context.TODO(), context.Writer, context.Request, "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -150,7 +152,7 @@ func TestGithub_Authenticate_BadToken(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Authenticate(context.Writer, context.Request, "bar")
+	got, err := client.Authenticate(_context.TODO(), context.Writer, context.Request, "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -190,7 +192,7 @@ func TestGithub_Authenticate_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Authenticate(context.Writer, context.Request, "bar")
+	got, err := client.Authenticate(_context.TODO(), context.Writer, context.Request, "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -227,7 +229,7 @@ func TestGithub_Authorize(t *testing.T) {
 
 	// run test
 	want := "octocat"
-	got, err := client.Authorize("foobar")
+	got, err := client.Authorize(_context.TODO(), "foobar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authorize returned %v, want %v", resp.Code, http.StatusOK)
@@ -261,7 +263,7 @@ func TestGithub_Authorize_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Authorize("foobar")
+	got, err := client.Authorize(_context.TODO(), "foobar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authorize returned %v, want %v", resp.Code, http.StatusOK)
@@ -296,7 +298,7 @@ func TestGithub_Login(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.Login(context.Writer, context.Request)
+	_, err := client.Login(_context.TODO(), context.Writer, context.Request)
 
 	if resp.Code != http.StatusTemporaryRedirect {
 		t.Errorf("Login returned %v, want %v", resp.Code, http.StatusTemporaryRedirect)
@@ -333,7 +335,7 @@ func TestGithub_AuthenticateToken(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.AuthenticateToken(context.Request)
+	got, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -369,7 +371,7 @@ func TestGithub_AuthenticateToken_Invalid(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.AuthenticateToken(context.Request)
+	got, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
@@ -410,7 +412,7 @@ func TestGithub_AuthenticateToken_Vela_OAuth(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.AuthenticateToken(context.Request)
+	_, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("AuthenticateToken returned %v, want %v", resp.Code, http.StatusOK)
@@ -441,7 +443,7 @@ func TestGithub_LoginWCreds(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.Login(context.Writer, context.Request)
+	_, err := client.Login(_context.TODO(), context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
