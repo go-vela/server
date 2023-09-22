@@ -67,7 +67,9 @@ func TestMiddleware_Logger(t *testing.T) {
 
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
-	wantMessage := ""
+	// need to set latency
+	// to consistent message such as:
+	wantMessage := "200 0µs  POST /foobar"
 
 	logger, hook := test.NewNullLogger()
 	defer hook.Reset()
