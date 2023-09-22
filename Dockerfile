@@ -1,6 +1,4 @@
-# Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-#
-# Use of this source code is governed by the LICENSE file in this repository.
+# SPDX-License-Identifier: Apache-2.0
 
 FROM alpine:3.18.3@sha256:c5c5fda71656f28e49ac9c5416b3643eaa6a108a8093151d6d1afc9463be8e33 as certs
 
