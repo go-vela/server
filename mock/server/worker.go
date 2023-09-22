@@ -76,10 +76,10 @@ const (
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJSZWdpc3RlciJ9.gEzKaZB-sDd_gFCVF5uGo2mcf3iy9CrXDTLPZ6PTsTc"
 	}`
 
-	// QueueRegistrationResp represents a JSON return for an admin requesting a queue registration info.
+	// QueueInfoResp represents a JSON return for an admin requesting a queue registration info.
 	//
 	//not actual credentials.
-	QueueRegistrationResp = `{
+	QueueInfoResp = `{
 		"queue_public_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
 		"queue_address": "redis://redis:6000"
 	}`
@@ -222,9 +222,9 @@ func getQueueCreds(c *gin.Context) {
 		return
 	}
 
-	data := []byte(QueueRegistrationResp)
+	data := []byte(QueueInfoResp)
 
-	var body library.QueueRegistration
+	var body library.QueueInfo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)

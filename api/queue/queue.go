@@ -26,15 +26,15 @@ import (
 //   '200':
 //     description: Successfully retrieved queue credentials
 //     schema:
-//       "$ref": "#/definitions/QueueRegistration"
+//       "$ref": "#/definitions/QueueInfo"
 //   '401':
 //     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// Register represents the API handler to
+// Info represents the API handler to
 // retrieve queue credentials as part of worker onboarding.
-func Register(c *gin.Context) {
+func Info(c *gin.Context) {
 	cl := claims.Retrieve(c)
 
 	logrus.WithFields(logrus.Fields{
@@ -47,7 +47,7 @@ func Register(c *gin.Context) {
 	// extract the queue-address that was packed into gin context
 	a := c.MustGet("queue-address").(string)
 
-	wr := library.QueueRegistration{
+	wr := library.QueueInfo{
 		QueuePublicKey: &k,
 		QueueAddress:   &a,
 	}
