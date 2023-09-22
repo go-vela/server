@@ -18,6 +18,6 @@ func QueueHandlers(base *gin.RouterGroup) {
 	// Queue endpoints
 	_queue := base.Group("/queue")
 	{
-		_queue.GET("/register", perm.MustWorkerRegisterToken(), queue.Register)
+		_queue.GET("/info", perm.MustWorkerRegisterToken(), queue.Register)
 	} // end of queue endpoints
 }
