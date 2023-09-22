@@ -69,12 +69,6 @@ services:
   #
   # https://go-vela.github.io/docs/administration/worker/
   worker:
-# comment the 5 lines below to use local server built image
-#    build:
-#      context: ../worker
-#      dockerfile: Dockerfile
-#    container_name: worker
-#    image: worker:local
     container_name: worker
     image: target/vela-worker:latest
     networks:
