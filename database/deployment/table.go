@@ -37,7 +37,7 @@ IF NOT EXISTS
 deployments (
 	id           SERIAL PRIMARY KEY,
 	repo_id      INTEGER,
-	url     	 VARCHAR(500),
+	url     	 VARCHAR(1000),
 	user         VARCHAR(250),
 	commit       VARCHAR(500),
 	ref          VARCHAR(500),
