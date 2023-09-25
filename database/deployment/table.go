@@ -18,16 +18,18 @@ IF NOT EXISTS
 deployments (
 	id           SERIAL PRIMARY KEY,
 	repo_id      INTEGER,
-	url     	 VARCHAR(500),
-	user         VARCHAR(250),
+	number       INTEGER,
+	url          VARCHAR(500),
+	"user"       VARCHAR(250),
 	commit       VARCHAR(500),
 	ref          VARCHAR(500),
 	task         VARCHAR(500),
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
-	build        INTEGER,
-); 
+	build        VARCHAR(50),
+	UNIQUE(repo_id, number)
+);
 `
 
 	// CreateSqliteTable represents a query to create the Sqlite deployments table.
@@ -45,7 +47,7 @@ deployments (
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
-	build        INTEGER,
+	build        INTEGER
 );
 `
 )
