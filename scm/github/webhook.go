@@ -26,7 +26,7 @@ import (
 // ProcessWebhook parses the webhook from a repo.
 //
 //nolint:nilerr // ignore webhook returning nil
-func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
+func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
 	// create our own record of the hook and populate its fields
@@ -85,7 +85,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
+func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *library.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -464,22 +464,6 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetPrivate(repo.GetPrivate())
 	r.SetActive(!repo.GetArchived())
 	r.SetTopics(repo.Topics)
-
-	// if action is renamed, then get the previous name from payload
-	if payload.GetAction() == constants.ActionRenamed {
-		r.SetPreviousName(repo.GetOwner().GetLogin() + "/" + payload.GetChanges().GetRepo().GetName().GetFrom())
-	}
-
-	// if action is transferred, then get the previous owner from payload
-	// could be a user or an org, but both are User structs
-	if payload.GetAction() == constants.ActionTransferred {
-		org := payload.GetChanges().GetOwner().GetOwnerInfo().GetOrg()
-		if org == nil {
-			org = payload.GetChanges().GetOwner().GetOwnerInfo().GetUser()
-		}
-
-		r.SetPreviousName(org.GetLogin() + "/" + repo.GetName())
-	}
 
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())

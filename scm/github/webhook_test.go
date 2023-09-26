@@ -89,7 +89,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 		Build:   wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -168,7 +168,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 		Build:   wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -250,7 +250,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 		Build:    wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -305,7 +305,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 		Build:   nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -360,7 +360,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 		Build:   nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -457,7 +457,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 				Build:   tt.args.build,
 			}
 
-			got, err := client.ProcessWebhook(request)
+			got, err := client.ProcessWebhook(context.TODO(), request)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ProcessWebhook() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -538,7 +538,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 		Build:   wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -591,7 +591,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 		Build:   nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -644,7 +644,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 		Build:   nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -681,7 +681,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(request, new(library.Repo))
+	err = client.VerifyWebhook(context.TODO(), request, new(library.Repo))
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -722,7 +722,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(request, r)
+	err = client.VerifyWebhook(context.TODO(), request, r)
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -794,7 +794,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 		Build:    wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -871,7 +871,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 		Build:    wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -926,7 +926,7 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 		Build:    nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -982,7 +982,6 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Codertocat/Hello-Old-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
@@ -991,7 +990,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 		Repo:    wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1047,7 +1046,6 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
 	wantRepo.SetBranch("master")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Old-Codertocat/Hello-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
@@ -1056,7 +1054,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 		Repo:    wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1120,7 +1118,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 		Repo:    wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1184,7 +1182,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 		Repo:    wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1248,7 +1246,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 		Repo:    wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1302,7 +1300,7 @@ func TestGithub_Redeliver_Webhook(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.RedeliverWebhook(ctx, u, _repo, _hook)
+	err := client.RedeliverWebhook(context.TODO(), u, _repo, _hook)
 
 	if err != nil {
 		t.Errorf("RedeliverWebhook returned err: %v", err)
@@ -1350,7 +1348,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	ghClient := client.newClientToken(*u.Token)
 
 	// run test
-	got, err := client.getDeliveryID(ctx, ghClient, _repo, _hook)
+	got, err := client.getDeliveryID(context.TODO(), ghClient, _repo, _hook)
 
 	if err != nil {
 		t.Errorf("RedeliverWebhook returned err: %v", err)

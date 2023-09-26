@@ -65,7 +65,7 @@ func SyncReposForOrg(c *gin.Context) {
 	logger.Infof("syncing repos for org %s", o)
 
 	// see if the user is an org admin
-	perm, err := scm.FromContext(c).OrgAccess(u, o)
+	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -109,7 +109,7 @@ func SyncReposForOrg(c *gin.Context) {
 
 	// iterate through captured repos and check if they are in GitHub
 	for _, repo := range repos {
-		_, err := scm.FromContext(c).GetRepo(u, repo)
+		_, err := scm.FromContext(c).GetRepo(ctx, u, repo)
 		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
 			repo.SetActive(false)
@@ -124,8 +124,9 @@ func SyncReposForOrg(c *gin.Context) {
 			}
 		}
 
-		// if we have webhook validation, update the repo hook in the SCM
-		if c.Value("webhookvalidation").(bool) {
+		// if we have webhook validation and the repo is active in the database,
+		// update the repo hook in the SCM
+		if c.Value("webhookvalidation").(bool) && repo.GetActive() {
 			// grab last hook from repo to fetch the webhook ID
 			lastHook, err := database.FromContext(c).LastHookForRepo(ctx, repo)
 			if err != nil {
@@ -137,13 +138,34 @@ func SyncReposForOrg(c *gin.Context) {
 			}
 
 			// update webhook
-			err = scm.FromContext(c).Update(u, repo, lastHook.GetWebhookID())
+			webhookExists, err := scm.FromContext(c).Update(ctx, u, repo, lastHook.GetWebhookID())
 			if err != nil {
-				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", repo.GetFullName(), err)
 
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+				// if webhook has been manually deleted from GitHub,
+				// set to inactive in database
+				if !webhookExists {
 
-				return
+					repo.SetActive(false)
+
+					_, err := database.FromContext(c).UpdateRepo(ctx, repo)
+					if err != nil {
+						retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+						util.HandleError(c, http.StatusInternalServerError, retErr)
+
+						return
+					}
+
+					continue
+
+				} else {
+
+					retErr := fmt.Errorf("unable to update repo webhook for %s: %w", repo.GetFullName(), err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
 			}
 		}
 	}

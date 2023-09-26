@@ -5,6 +5,7 @@
 package step
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -17,7 +18,7 @@ import (
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-func PlanSteps(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
+func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
@@ -26,7 +27,7 @@ func PlanSteps(database database.Interface, p *pipeline.Build, b *library.Build)
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			s, err := planStep(database, b, step, stage.Name)
+			s, err := planStep(ctx, database, b, step, stage.Name)
 			if err != nil {
 				return steps, err
 			}
@@ -37,7 +38,7 @@ func PlanSteps(database database.Interface, p *pipeline.Build, b *library.Build)
 
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
-		s, err := planStep(database, b, step, "")
+		s, err := planStep(ctx, database, b, step, "")
 		if err != nil {
 			return steps, err
 		}
@@ -48,7 +49,7 @@ func PlanSteps(database database.Interface, p *pipeline.Build, b *library.Build)
 	return steps, nil
 }
 
-func planStep(database database.Interface, b *library.Build, c *pipeline.Container, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, b *library.Build, c *pipeline.Container, stage string) (*library.Step, error) {
 	// create the step object
 	s := new(library.Step)
 	s.SetBuildID(b.GetID())
@@ -82,7 +83,7 @@ func planStep(database database.Interface, b *library.Build, c *pipeline.Contain
 	l.SetData([]byte{})
 
 	// send API call to create the step logs
-	err = database.CreateLog(l)
+	err = database.CreateLog(ctx, l)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create logs for step %s: %w", s.GetName(), err)
 	}

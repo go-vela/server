@@ -5,6 +5,7 @@
 package log
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -41,7 +42,7 @@ func TestLog_Engine_CreateLogTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateLogTable(test.name)
+			err := test.database.CreateLogTable(context.TODO(), test.name)
 
 			if test.failure {
 				if err == nil {

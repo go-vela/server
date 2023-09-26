@@ -5,6 +5,7 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -14,7 +15,7 @@ import (
 )
 
 // Delete deletes a secret.
-func (c *client) Delete(sType, org, name, path string) error {
+func (c *client) Delete(ctx context.Context, sType, org, name, path string) error {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

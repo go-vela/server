@@ -117,7 +117,7 @@ func ListDeployments(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
-	t, err := scm.FromContext(c).GetDeploymentCount(u, r)
+	t, err := scm.FromContext(c).GetDeploymentCount(ctx, u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
 
@@ -127,7 +127,7 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of deployments for the repo
-	d, err := scm.FromContext(c).GetDeploymentList(u, r, page, perPage)
+	d, err := scm.FromContext(c).GetDeploymentList(ctx, u, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 

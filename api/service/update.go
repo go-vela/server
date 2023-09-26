@@ -80,6 +80,7 @@ func UpdateService(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -133,7 +134,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to update the service
-	s, err = database.FromContext(c).UpdateService(s)
+	s, err = database.FromContext(c).UpdateService(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %s: %w", entry, err)
 

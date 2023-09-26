@@ -5,6 +5,8 @@
 package log
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -48,6 +50,15 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
 		// set to skip creating tables and indexes in the log engine
 		e.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}
+
+// WithContext sets the context in the database engine for Logs.
+func WithContext(ctx context.Context) EngineOpt {
+	return func(e *engine) error {
+		e.ctx = ctx
 
 		return nil
 	}

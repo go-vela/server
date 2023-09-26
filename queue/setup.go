@@ -92,6 +92,10 @@ func (s *Setup) Validate() error {
 		return fmt.Errorf("no queue routes provided")
 	}
 
+	if len(s.PublicKey) == 0 {
+		return fmt.Errorf("no queue public key was provided")
+	}
+
 	// setup is valid
 	return nil
 }
