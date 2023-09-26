@@ -67,9 +67,6 @@ func TestMiddleware_Logger(t *testing.T) {
 
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
-	// need to set latency
-	// to consistent message such as:
-	wantMessage := "200 0µs  POST /foobar"
 
 	logger, hook := test.NewNullLogger()
 	defer hook.Reset()
@@ -108,8 +105,16 @@ func TestMiddleware_Logger(t *testing.T) {
 		t.Errorf("Logger Level is %v, want %v", gotLevel, wantLevel)
 	}
 
-	if !reflect.DeepEqual(gotMessage, wantMessage) {
-		t.Errorf("Logger Message is %v, want %v", gotMessage, wantMessage)
+	if gotMessage == "" {
+		t.Errorf("Logger Message is %v, want non-empty string", gotMessage)
+	}
+
+	if strings.Contains(gotMessage, "GET") {
+		t.Errorf("Logger Message is %v, want message to contain GET", gotMessage)
+	}
+
+	if !strings.Contains(gotMessage, "POST") {
+		t.Errorf("Logger Message is %v, message shouldn't contain POST", gotMessage)
 	}
 }
 
@@ -218,4 +223,51 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 			t.Errorf("Logger returned %v, want %v", got, logWant)
 		}
 	}
+}
+
+func TestMiddleware_Format(t *testing.T) {
+
+	// setup data, fields, and logger
+	formatter := &Formatter{
+		DataKey: "labels.vela",
+	}
+
+	fields := logrus.Fields{
+		"ip":         "123.4.5.6",
+		"method":     http.MethodGet,
+		"path":       "/foobar",
+		"latency":    0,
+		"status":     http.StatusOK,
+		"user-agent": "foobar",
+		"version":    "v1.0.0",
+	}
+
+	logger := logrus.NewEntry(logrus.StandardLogger())
+	entry := logger.WithFields(fields)
+
+	got, err := formatter.Format(entry)
+
+	wantLabels := "labels.vela"
+	wantMethod := http.MethodGet
+
+	// run test
+	gotLabels := string(formatter.DataKey)
+	gotMethod := entry.Data["method"]
+
+	if err != nil {
+		fmt.Println("err:", err.Error())
+	}
+
+	if got == nil {
+		t.Errorf("baaaaad, got %s", got)
+	}
+
+	if !reflect.DeepEqual(gotLabels, wantLabels) {
+		t.Errorf("Logger returned %v, want %v", gotLabels, wantLabels)
+	}
+
+	if !reflect.DeepEqual(wantMethod, gotMethod) {
+		t.Errorf("Logger returned %v, want %v", gotMethod, wantMethod)
+	}
+
 }

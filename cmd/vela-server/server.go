@@ -34,7 +34,7 @@ func server(c *cli.Context) error {
 	case "ecs":
 		// set logrus to log in Elasticsearch Common Schema (ecs) format
 		logrus.SetFormatter(&middleware.Formatter{
-			DataKey: "labels",
+			DataKey: "labels.vela",
 		})
 	}
 
