@@ -15,7 +15,7 @@ import (
 
 // swagger:operation POST /authenticate/token/validate authenticate ValidateOAuthToken
 //
-// Validate that a user access token was created by Vela
+// Validate that a user oauth token was created by Vela
 //
 // ---
 // produces:
@@ -29,11 +29,11 @@ import (
 //     OAuth integration user access token
 // responses:
 //   '200':
-//     description: Successfully authenticated
+//     description: Successfully validated
 //     schema:
 //       "$ref": "#/definitions/Token"
 //   '401':
-//     description: Unable to authenticate
+//     description: Unable to validate
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '503':
@@ -42,14 +42,14 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // ValidateOAuthToken represents the API handler to
-// validate a user oauth token was created by Vela.
+// validate that a user oauth token was created by Vela.
 func ValidateOAuthToken(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()
 
 	token := c.Request.Header.Get("Token")
 	if len(token) == 0 {
-		retErr := fmt.Errorf("unable to validate access token: no token provided in header")
+		retErr := fmt.Errorf("unable to validate oauth token: no token provided in header")
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
