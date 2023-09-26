@@ -227,9 +227,11 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 
 func TestMiddleware_Format(t *testing.T) {
 
+	wantLabels := "labels.vela"
+
 	// setup data, fields, and logger
 	formatter := &Formatter{
-		DataKey: "labels.vela",
+		DataKey: wantLabels,
 	}
 
 	fields := logrus.Fields{
@@ -248,37 +250,28 @@ func TestMiddleware_Format(t *testing.T) {
 
 	got, err := formatter.Format(entry)
 
-	wantLabels := "labels.vela"
-	wantMethod := http.MethodGet
-	wantOrg := "foo"
-
+	fmt.Println("got:", string(got))
 	// run test
 	gotLabels := string(formatter.DataKey)
-	gotMethod := entry.Data["method"]
-	gotOrg := entry.Data["org"]
 
 	if err != nil {
-		fmt.Println("err:", err.Error())
+		t.Errorf("Format returned err: %v", err)
 	}
 
 	if got == nil {
-		t.Errorf("Logger returned nothing, want a log")
+		t.Errorf("Format returned nothing, want a log")
 	}
 
 	if !reflect.DeepEqual(gotLabels, wantLabels) {
 		t.Errorf("Logger returned %v, want %v", gotLabels, wantLabels)
 	}
 
-	if !reflect.DeepEqual(wantMethod, gotMethod) {
-		t.Errorf("Logger returned %v, want %v", gotMethod, wantMethod)
+	if !strings.Contains(string(got), "GET") {
+		t.Errorf("Format returned %v, want to contain GET", string(got))
 	}
 
-	if !reflect.DeepEqual(wantMethod, gotMethod) {
-		t.Errorf("Logger returned %v, want %v", gotMethod, wantMethod)
-	}
-
-	if !reflect.DeepEqual(wantOrg, gotOrg) {
-		t.Errorf("Logger returned %v, want %v", gotOrg, wantOrg)
+	if !strings.Contains(string(got), "/foobar") {
+		t.Errorf("Format returned %v, want to contain GET", string(got))
 	}
 
 }
