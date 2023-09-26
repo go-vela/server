@@ -240,6 +240,7 @@ func TestMiddleware_Format(t *testing.T) {
 		"status":     http.StatusOK,
 		"user-agent": "foobar",
 		"version":    "v1.0.0",
+		"org":        "foo",
 	}
 
 	logger := logrus.NewEntry(logrus.StandardLogger())
@@ -249,10 +250,12 @@ func TestMiddleware_Format(t *testing.T) {
 
 	wantLabels := "labels.vela"
 	wantMethod := http.MethodGet
+	wantOrg := "foo"
 
 	// run test
 	gotLabels := string(formatter.DataKey)
 	gotMethod := entry.Data["method"]
+	gotOrg := entry.Data["org"]
 
 	if err != nil {
 		fmt.Println("err:", err.Error())
@@ -268,6 +271,14 @@ func TestMiddleware_Format(t *testing.T) {
 
 	if !reflect.DeepEqual(wantMethod, gotMethod) {
 		t.Errorf("Logger returned %v, want %v", gotMethod, wantMethod)
+	}
+
+	if !reflect.DeepEqual(wantMethod, gotMethod) {
+		t.Errorf("Logger returned %v, want %v", gotMethod, wantMethod)
+	}
+
+	if !reflect.DeepEqual(wantOrg, gotOrg) {
+		t.Errorf("Logger returned %v, want %v", gotOrg, wantOrg)
 	}
 
 }
