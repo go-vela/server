@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
 
     - name: install go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -23,7 +23,7 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@v2
+      uses: reviewdog/action-golangci-lint@24d4af2fc93f5b2b296229e8b0c0f658d25707af # v2
       with:
         github_token: ${{ secrets.github_token }}
         golangci_lint_flags: "--config=.golangci.yml"
@@ -39,7 +39,7 @@ jobs:
       uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
 
     - name: install go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -47,7 +47,7 @@ jobs:
         check-latest: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@v2
+      uses: reviewdog/action-golangci-lint@24d4af2fc93f5b2b296229e8b0c0f658d25707af # v2
       with:
         github_token: ${{ secrets.github_token }}
         golangci_lint_flags: "--config=.golangci.yml"
