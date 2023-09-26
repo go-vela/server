@@ -106,6 +106,7 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		return nil, errors.New("no token provided")
 	}
 
+	// validate that the token was not created by vela
 	ok, err := c.ValidateOAuthToken(ctx, token)
 	if err != nil {
 		return nil, fmt.Errorf("unable to validate oauth token: %w", err)
