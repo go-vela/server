@@ -105,7 +105,23 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 	if len(token) == 0 {
 		return nil, errors.New("no token provided")
 	}
+	err := c.ValidateOAuthToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
 
+	u, err := c.Authorize(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &library.User{
+		Name:  &u,
+		Token: &token,
+	}, nil
+}
+
+func (c *client) ValidateOAuthToken(ctx context.Context, token string) error {
 	// create http client to connect to GitHub API
 	transport := github.BasicAuthTransport{
 		Username: c.config.ClientID,
@@ -123,7 +139,7 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		// parse the provided url into url type
 		enterpriseURL, err := url.Parse(c.config.Address)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// set the base and upload url
 		client.BaseURL = enterpriseURL
@@ -140,24 +156,16 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		case http.StatusNotFound:
 			break
 		default:
-			return nil, err
+			return err
 		}
 	} else if err != nil {
-		return nil, err
+		return err
 	}
 
-	// return error if the token was created by Vela
-	if resp.StatusCode != http.StatusNotFound {
-		return nil, errors.New("token must not be created by vela")
+	// return error if the token was not created by Vela
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("token was not created by vela")
 	}
 
-	u, err := c.Authorize(ctx, token)
-	if err != nil {
-		return nil, err
-	}
-
-	return &library.User{
-		Name:  &u,
-		Token: &token,
-	}, nil
+	return nil
 }
