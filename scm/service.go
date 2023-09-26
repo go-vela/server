@@ -36,7 +36,7 @@ type Service interface {
 
 	// ValidateOAuthToken defines a function that validates
 	// an OAuth access token was created by Vela
-	ValidateOAuthToken(context.Context, string) error
+	ValidateOAuthToken(context.Context, string) (bool, error)
 
 	// Login defines a function that begins
 	// the OAuth workflow for the session.

@@ -57,9 +57,17 @@ func ValidateOAuthToken(c *gin.Context) {
 	}
 
 	// attempt to validate access token from source OAuth app
-	err := scm.FromContext(c).ValidateOAuthToken(ctx, token)
+	ok, err := scm.FromContext(c).ValidateOAuthToken(ctx, token)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate oauth token: %w", err)
+
+		util.HandleError(c, http.StatusUnauthorized, retErr)
+
+		return
+	}
+
+	if !ok {
+		retErr := fmt.Errorf("oauth token was not created by vela")
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 

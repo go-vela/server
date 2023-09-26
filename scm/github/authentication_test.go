@@ -338,15 +338,15 @@ func TestGithub_AuthenticateToken(t *testing.T) {
 	got, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("AuthenticateToken returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err != nil {
-		t.Errorf("Authenticate returned err: %v", err)
+		t.Errorf("AuthenticateToken returned err: %v", err)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Authenticate is %v, want %v", got, want)
+		t.Errorf("AuthenticateToken is %v, want %v", got, want)
 	}
 }
 
@@ -374,15 +374,15 @@ func TestGithub_AuthenticateToken_Invalid(t *testing.T) {
 	got, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("AuthenticateToken returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err == nil {
-		t.Errorf("Authenticate did not return err")
+		t.Errorf("AuthenticateToken did not return err")
 	}
 
 	if got != nil {
-		t.Errorf("Authenticate is %v, want nil", got)
+		t.Errorf("AuthenticateToken is %v, want nil", got)
 	}
 }
 
@@ -446,7 +446,7 @@ func TestGithub_LoginWCreds(t *testing.T) {
 	_, err := client.Login(_context.TODO(), context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("Login returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err != nil {
