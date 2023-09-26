@@ -262,7 +262,7 @@ func TestMiddleware_Format(t *testing.T) {
 	}
 
 	if got == nil {
-		t.Errorf("baaaaad, got %s", got)
+		t.Errorf("Logger returned nothing, want a log")
 	}
 
 	if !reflect.DeepEqual(gotLabels, wantLabels) {
