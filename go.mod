@@ -1,6 +1,6 @@
 module github.com/go-vela/server
 
-go 1.19
+go 1.21
 
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
@@ -14,7 +14,7 @@ require (
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.20.2-0.20230822144153-14b37585731d
+	github.com/go-vela/types v0.20.2-0.20230922185343-b83bcddfa60d
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/go-github/v54 v54.0.0
