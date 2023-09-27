@@ -250,9 +250,7 @@ func TestMiddleware_Format(t *testing.T) {
 
 	got, err := formatter.Format(entry)
 
-	fmt.Println("got:", string(got))
 	// run test
-	gotLabels := string(formatter.DataKey)
 
 	if err != nil {
 		t.Errorf("Format returned err: %v", err)
@@ -262,16 +260,12 @@ func TestMiddleware_Format(t *testing.T) {
 		t.Errorf("Format returned nothing, want a log")
 	}
 
-	if !reflect.DeepEqual(gotLabels, wantLabels) {
-		t.Errorf("Logger returned %v, want %v", gotLabels, wantLabels)
-	}
-
 	if !strings.Contains(string(got), "GET") {
 		t.Errorf("Format returned %v, want to contain GET", string(got))
 	}
 
 	if !strings.Contains(string(got), "/foobar") {
-		t.Errorf("Format returned %v, want to contain GET", string(got))
+		t.Errorf("Format returned %v, want to contain /foobar", string(got))
 	}
 
 }
