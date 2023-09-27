@@ -136,6 +136,7 @@ func FakeHandler() http.Handler {
 	e.GET("/authenticate", getAuthenticate)
 	e.POST("/authenticate/token", getAuthenticateFromToken)
 	e.GET("/validate-token", validateToken)
+	e.GET("/validate-oauth", validateOAuthToken)
 
 	// mock endpoint for queue credentials
 	e.GET("/api/v1/queue/info", getQueueCreds)

@@ -338,15 +338,15 @@ func TestGithub_AuthenticateToken(t *testing.T) {
 	got, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("AuthenticateToken returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err != nil {
-		t.Errorf("Authenticate returned err: %v", err)
+		t.Errorf("AuthenticateToken returned err: %v", err)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Authenticate is %v, want %v", got, want)
+		t.Errorf("AuthenticateToken is %v, want %v", got, want)
 	}
 }
 
@@ -374,15 +374,15 @@ func TestGithub_AuthenticateToken_Invalid(t *testing.T) {
 	got, err := client.AuthenticateToken(_context.TODO(), context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Authenticate returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("AuthenticateToken returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err == nil {
-		t.Errorf("Authenticate did not return err")
+		t.Errorf("AuthenticateToken did not return err")
 	}
 
 	if got != nil {
-		t.Errorf("Authenticate is %v, want nil", got)
+		t.Errorf("AuthenticateToken is %v, want nil", got)
 	}
 }
 
@@ -423,6 +423,109 @@ func TestGithub_AuthenticateToken_Vela_OAuth(t *testing.T) {
 	}
 }
 
+func TestGithub_ValidateOAuthToken_Valid(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+
+	token := "foobar"
+	want := true
+	scmResponseCode := http.StatusOK
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(scmResponseCode)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ValidateOAuthToken(_context.TODO(), token)
+
+	if got != want {
+		t.Errorf("ValidateOAuthToken returned %v, want %v", got, want)
+	}
+
+	if err != nil {
+		t.Errorf("ValidateOAuthToken returned err: %v", err)
+	}
+}
+
+func TestGithub_ValidateOAuthToken_Invalid(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+
+	token := "foobar"
+	want := false
+	// 404 from the mocked github server indicates an invalid oauth token
+	scmResponseCode := http.StatusNotFound
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(scmResponseCode)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ValidateOAuthToken(_context.TODO(), token)
+
+	if got != want {
+		t.Errorf("ValidateOAuthToken returned %v, want %v", got, want)
+	}
+
+	if err != nil {
+		t.Errorf("ValidateOAuthToken returned err: %v", err)
+	}
+}
+
+func TestGithub_ValidateOAuthToken_Error(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+
+	token := "foobar"
+	want := false
+	scmResponseCode := http.StatusInternalServerError
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(scmResponseCode)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ValidateOAuthToken(_context.TODO(), token)
+
+	if got != want {
+		t.Errorf("ValidateOAuthToken returned %v, want %v", got, want)
+	}
+
+	if err == nil {
+		t.Errorf("ValidateOAuthToken did not return err")
+	}
+}
+
 func TestGithub_LoginWCreds(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -446,7 +549,7 @@ func TestGithub_LoginWCreds(t *testing.T) {
 	_, err := client.Login(_context.TODO(), context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("Login returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err != nil {
