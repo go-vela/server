@@ -230,7 +230,7 @@ func TestMiddleware_Format(t *testing.T) {
 	wantLabels := "labels.vela"
 
 	// setup data, fields, and logger
-	formatter := &Formatter{
+	formatter := &ECSFormatter{
 		DataKey: wantLabels,
 	}
 
