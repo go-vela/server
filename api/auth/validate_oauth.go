@@ -36,10 +36,6 @@ import (
 //     description: Unable to validate
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '503':
-//     description: Service unavailable
-//     schema:
-//       "$ref": "#/definitions/Error"
 
 // ValidateOAuthToken represents the API handler to
 // validate that a user oauth token was created by Vela.
