@@ -29,16 +29,16 @@ const (
 	ecsVersion = "1.6.0"
 )
 
-var (
-	ecsFieldMap = logrus.FieldMap{
-		logrus.FieldKeyTime:  "@timestamp",
-		logrus.FieldKeyMsg:   "message",
-		logrus.FieldKeyLevel: "log.level",
-	}
-)
+// var (
+// 	ecsFieldMap = logrus.FieldMap{
+// 		logrus.FieldKeyTime:  "@timestamp",
+// 		logrus.FieldKeyMsg:   "message",
+// 		logrus.FieldKeyLevel: "log.level",
+// 	}
+// )
 
-// Formatter holds ECS parameter information for logging.
-type Formatter struct {
+// ECSFormatter holds ECS parameter information for logging.
+type ECSFormatter struct {
 	// DataKey allows users to put all the log entry parameters into a
 	// nested dictionary at a given key.
 	//
@@ -142,9 +142,9 @@ func sanitize(body interface{}) interface{} {
 	return body
 }
 
-// Format formats e as ECS-compliant JSON,
+// Format formats logrus.Entry as ECS-compliant JSON,
 // mapping our custom fields to ECS fields.
-func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
+func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	datahint := len(e.Data)
 	if f.DataKey != "" {
 		datahint = 2
@@ -183,6 +183,12 @@ func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
 	ecopy := *e
 	ecopy.Data = data
 	e = &ecopy
+
+	ecsFieldMap := logrus.FieldMap{
+		logrus.FieldKeyTime:  "@timestamp",
+		logrus.FieldKeyMsg:   "message",
+		logrus.FieldKeyLevel: "log.level",
+	}
 
 	jf := logrus.JSONFormatter{
 		TimestampFormat: "2006-01-02T15:04:05.000Z0700",
