@@ -26,6 +26,18 @@ import (
 )
 
 func server(c *cli.Context) error {
+	// set log formatter
+	switch c.String("log-formatter") {
+	case "json":
+		// set logrus to log in JSON format
+		logrus.SetFormatter(&logrus.JSONFormatter{})
+	case "ecs":
+		// set logrus to log in Elasticsearch Common Schema (ecs) format
+		logrus.SetFormatter(&middleware.ECSFormatter{
+			DataKey: "labels.vela",
+		})
+	}
+
 	// validate all input
 	err := validate(c)
 	if err != nil {
