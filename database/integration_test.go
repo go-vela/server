@@ -461,7 +461,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	// lookup the deployments by name
 	for _, deployment := range resources.Deployments {
 		repo := resources.Repos[deployment.GetRepoID()-1]
-		got, err := db.GetDeploymentForRepo(context.TODO(), repo, int(deployment.GetNumber()))
+		got, err := db.GetDeploymentForRepo(context.TODO(), repo, deployment.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get deployment %d for repo %d: %v", deployment.GetID(), repo.GetID(), err)
 		}

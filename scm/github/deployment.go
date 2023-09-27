@@ -183,7 +183,7 @@ func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.D
 		return err
 	}
 
-	d.SetID(deploy.GetID())
+	d.SetNumber(deploy.GetID())
 	d.SetRepoID(r.GetID())
 	d.SetURL(deploy.GetURL())
 	d.SetUser(deploy.GetCreator().GetLogin())

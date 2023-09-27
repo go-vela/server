@@ -15,7 +15,6 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
@@ -117,7 +116,7 @@ func ListDeployments(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
-	t, err := scm.FromContext(c).GetDeploymentCount(u, r)
+	t, err := database.FromContext(c).CountDeploymentsForRepo(c, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
 

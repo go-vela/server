@@ -317,6 +317,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetEvent(constants.EventDeploy)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
+	b.SetDeployNumber(payload.GetDeployment().GetID())
 	b.SetSource(payload.GetDeployment().GetURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDeploy, repo.GetHTMLURL()))
 	b.SetMessage(payload.GetDeployment().GetDescription())
@@ -369,6 +370,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
+	h.SetDeploymentID(payload.GetDeployment().GetID())
 
 	return &types.Webhook{
 		Comment: "",

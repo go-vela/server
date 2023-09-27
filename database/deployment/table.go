@@ -27,7 +27,7 @@ deployments (
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
-	build        VARCHAR(50),
+	builds       VARCHAR(50),
 	UNIQUE(repo_id, number)
 );
 `
@@ -39,15 +39,17 @@ IF NOT EXISTS
 deployments (
 	id           SERIAL PRIMARY KEY,
 	repo_id      INTEGER,
+	number       INTEGER,	
 	url     	 VARCHAR(1000),
-	user         VARCHAR(250),
-	commit       VARCHAR(500),
+	"user"       VARCHAR(250),
+	"commit"     VARCHAR(500),
 	ref          VARCHAR(500),
 	task         VARCHAR(500),
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
-	build        INTEGER
+	builds       VARCHAR(50),
+	UNIQUE(repo_id, number)
 );
 `
 )

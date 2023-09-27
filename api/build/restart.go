@@ -334,6 +334,14 @@ func RestartBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, b)
 
+	d, _ := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
+
+	build := new([]library.Build)
+	*build = append(*d.Builds, *b)
+
+	d.SetBuilds(build)
+	database.FromContext(c).UpdateDeployment(c, d)
+
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
 	if err != nil {

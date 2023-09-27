@@ -82,8 +82,6 @@ func CreateDeployment(c *gin.Context) {
 		return
 	}
 
-	// create a record in db and create deployment through scm
-
 	// update fields in deployment object
 	input.SetRepoID(r.GetID())
 	input.SetUser(u.GetName())
@@ -97,16 +95,6 @@ func CreateDeployment(c *gin.Context) {
 	}
 
 	// send API call to create the deployment
-	_, err = database.FromContext(c).CreateDeployment(c, input)
-	if err != nil {
-		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	// send API call to create the deployment
 	err = scm.FromContext(c).CreateDeployment(u, r, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
@@ -116,5 +104,15 @@ func CreateDeployment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, input)
+	// send API call to create the deployment
+	d, err := database.FromContext(c).CreateDeployment(c, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, d)
 }

@@ -661,6 +661,15 @@ func PostWebhook(c *gin.Context) {
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
 
+	if b.GetEvent() == constants.EventDeploy {
+		d, _ := database.FromContext(c).GetDeploymentForRepo(c, repo, h.GetDeploymentID())
+		builds := new([]library.Build)
+		*builds = append(*builds, *b)
+		d.SetBuilds(builds)
+		logrus.Debugf("PINEAPPLE %d ", h.GetDeploymentID())
+		database.FromContext(c).UpdateDeployment(c, d)
+	}
+
 	c.JSON(http.StatusOK, b)
 
 	// send API call to set the status on the commit

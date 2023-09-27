@@ -39,7 +39,7 @@ type DeploymentInterface interface {
 	// GetDeployment defines a function that gets a deployment by ID.
 	GetDeployment(context.Context, int64) (*library.Deployment, error)
 	// GetDeploymentForRepo defines a function that gets a deployment by repo ID and number.
-	GetDeploymentForRepo(context.Context, *library.Repo, int) (*library.Deployment, error)
+	GetDeploymentForRepo(context.Context, *library.Repo, int64) (*library.Deployment, error)
 	// ListDeployments defines a function that gets a list of all deployments.
 	ListDeployments(context.Context) ([]*library.Deployment, error)
 	// ListDeploymentsForRepo defines a function that gets a list of deployments by repo ID.
