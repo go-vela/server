@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-vela/types/library"
 
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v55/github"
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.
