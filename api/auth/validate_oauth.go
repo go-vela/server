@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation POST /authenticate/token/validate authenticate ValidateOAuthToken
+// swagger:operation GET /validate-oauth authenticate ValidateOAuthToken
 //
 // Validate that a user oauth token was created by Vela
 //

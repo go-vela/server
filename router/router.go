@@ -81,6 +81,9 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Validate Server Token endpoint
 	r.GET("/validate-token", claims.Establish(), auth.ValidateServerToken)
 
+	// Validate OAuth Token endpoint
+	r.GET("/validate-oauth", claims.Establish(), auth.ValidateOAuthToken)
+
 	// Version endpoint
 	r.GET("/version", api.Version)
 
@@ -94,7 +97,6 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		authenticate.GET("/:type", auth.GetAuthRedirect)
 		authenticate.GET("/:type/:port", auth.GetAuthRedirect)
 		authenticate.POST("/token", auth.PostAuthToken)
-		authenticate.POST("/token/validate", auth.ValidateOAuthToken)
 	}
 
 	// API endpoints

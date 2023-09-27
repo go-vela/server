@@ -129,6 +129,8 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 
 // ValidateOAuthToken takes a user oauth integration token and
 // validates that it was created by the Vela OAuth app.
+// In essence, the function expects either a 200 or 404 from the GitHub API and returns
+// error in any other failure case.
 func (c *client) ValidateOAuthToken(ctx context.Context, token string) (bool, error) {
 	// create http client to connect to GitHub API
 	transport := github.BasicAuthTransport{

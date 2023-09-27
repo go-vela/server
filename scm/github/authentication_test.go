@@ -423,6 +423,109 @@ func TestGithub_AuthenticateToken_Vela_OAuth(t *testing.T) {
 	}
 }
 
+func TestGithub_ValidateOAuthToken_Valid(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+
+	token := "foobar"
+	want := true
+	scmResponseCode := http.StatusOK
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(scmResponseCode)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ValidateOAuthToken(_context.TODO(), token)
+
+	if got != want {
+		t.Errorf("ValidateOAuthToken returned %v, want %v", got, want)
+	}
+
+	if err != nil {
+		t.Errorf("ValidateOAuthToken returned err: %v", err)
+	}
+}
+
+func TestGithub_ValidateOAuthToken_Invalid(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+
+	token := "foobar"
+	want := false
+	// 404 from the mocked github server indicates an invalid oauth token
+	scmResponseCode := http.StatusNotFound
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(scmResponseCode)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ValidateOAuthToken(_context.TODO(), token)
+
+	if got != want {
+		t.Errorf("ValidateOAuthToken returned %v, want %v", got, want)
+	}
+
+	if err != nil {
+		t.Errorf("ValidateOAuthToken returned err: %v", err)
+	}
+}
+
+func TestGithub_ValidateOAuthToken_Error(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	context, engine := gin.CreateTestContext(resp)
+	context.Request, _ = http.NewRequest(http.MethodGet, "/validate-oauth", nil)
+
+	token := "foobar"
+	want := false
+	scmResponseCode := http.StatusInternalServerError
+
+	engine.POST("/api/v3/applications/foo/token", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(scmResponseCode)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.ValidateOAuthToken(_context.TODO(), token)
+
+	if got != want {
+		t.Errorf("ValidateOAuthToken returned %v, want %v", got, want)
+	}
+
+	if err == nil {
+		t.Errorf("ValidateOAuthToken did not return err")
+	}
+}
+
 func TestGithub_LoginWCreds(t *testing.T) {
 	// setup context
 	gin.SetMode(gin.TestMode)
