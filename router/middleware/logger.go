@@ -24,19 +24,6 @@ import (
 // https://github.com/elastic/ecs-logging-go-logrus/blob/v1.0.0/formatter.go
 // to handle our custom fields in Format().
 
-const (
-	// ecsVersion holds the version of ECS with which the formatter is compatible.
-	ecsVersion = "1.6.0"
-)
-
-// var (
-// 	ecsFieldMap = logrus.FieldMap{
-// 		logrus.FieldKeyTime:  "@timestamp",
-// 		logrus.FieldKeyMsg:   "message",
-// 		logrus.FieldKeyLevel: "log.level",
-// 	}
-// )
-
 // ECSFormatter holds ECS parameter information for logging.
 type ECSFormatter struct {
 	// DataKey allows users to put all the log entry parameters into a
@@ -179,7 +166,9 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 			data[f.DataKey] = extraData
 		}
 	}
-	data["ecs.version"] = ecsVersion
+
+	// ecsVersion holds the version of ECS with which the formatter is compatible.
+	data["ecs.version"] = "1.6.0"
 	ecopy := *e
 	ecopy.Data = data
 	e = &ecopy
