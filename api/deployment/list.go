@@ -16,7 +16,6 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -81,7 +80,6 @@ func ListDeployments(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -135,29 +133,6 @@ func ListDeployments(c *gin.Context) {
 		return
 	}
 
-	dWithBs := []*library.Deployment{}
-
-	for _, deployment := range d {
-		b, _, err := database.FromContext(c).ListBuildsForDeployment(ctx, deployment, nil, 1, 3)
-		if err != nil {
-
-			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		builds := []library.Build{}
-		for _, build := range b {
-			builds = append(builds, *build)
-		}
-
-		deployment.SetBuilds(&builds)
-
-		dWithBs = append(dWithBs, deployment)
-	}
-
 	// create pagination object
 	pagination := api.Pagination{
 		Page:    page,
@@ -167,5 +142,5 @@ func ListDeployments(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, dWithBs)
+	c.JSON(http.StatusOK, d)
 }

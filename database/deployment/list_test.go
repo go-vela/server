@@ -13,13 +13,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestDeployment_Engine_ListDeploymentsForRepo(t *testing.T) {
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-
+func TestDeployment_Engine_ListDeployments(t *testing.T) {
 	builds := new([]library.Build)
 
 	// setup types
@@ -57,22 +51,23 @@ func TestDeployment_Engine_ListDeploymentsForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "number", "url", "user", "commit", "ref", "task", "target", "description", "payload", "builds"}).
-		AddRow(1, 1, 1, "https://github.com/github/octocat/deployments/1", "octocat", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", "{}")
+		AddRow(1, 1, 1, "https://github.com/github/octocat/deployments/1", "octocat", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", "{}").
+		AddRow(2, 2, 2, "https://github.com/github/octocat/deployments/2", "octocat", "48afb5bdc41ad69bf22588491333f7cf71135164", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", "{}")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "deployments" WHERE repo_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "deployments"`).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
 	_, err := _sqlite.CreateDeployment(context.TODO(), _deploymentOne)
 	if err != nil {
-		t.Errorf("unable to create test schedule for sqlite: %v", err)
+		t.Errorf("unable to create test deployment for sqlite: %v", err)
 	}
 
 	_, err = _sqlite.CreateDeployment(context.TODO(), _deploymentTwo)
 	if err != nil {
-		t.Errorf("unable to create test deployments for sqlite: %v", err)
+		t.Errorf("unable to create test deployment for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -86,35 +81,35 @@ func TestDeployment_Engine_ListDeploymentsForRepo(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Deployment{_deploymentOne},
+			want:     []*library.Deployment{_deploymentOne, _deploymentTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Deployment{_deploymentOne},
+			want:     []*library.Deployment{_deploymentOne, _deploymentTwo},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListDeploymentsForRepo(context.TODO(), _repo, 1, 10)
+			got, err := test.database.ListDeployments(context.TODO())
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("ListDeploymentssForRepo for %s should have returned err", test.name)
+					t.Errorf("ListDeploymentss for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("ListDeploymentsForRepo for %s returned err: %v", test.name, err)
+				t.Errorf("ListDeployments for %s returned err: %v", test.name, err)
 			}
 
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListDeploymentsForRepo for %s is %v, want %v", test.name, got, test.want)
+				t.Errorf("ListDeployments for %s is %v, want %v", test.name, got, test.want)
 			}
 		})
 	}

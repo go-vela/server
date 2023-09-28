@@ -13,6 +13,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -197,6 +198,7 @@ func testBuild() *library.Build {
 		Started:      new(int64),
 		Finished:     new(int64),
 		Deploy:       new(string),
+		DeployNumber: new(int64),
 		Clone:        new(string),
 		Source:       new(string),
 		Title:        new(string),
@@ -222,6 +224,7 @@ func testDeployment() *library.Deployment {
 	return &library.Deployment{
 		ID:          new(int64),
 		RepoID:      new(int64),
+		Number:      new(int64),
 		URL:         new(string),
 		User:        new(string),
 		Commit:      new(string),
@@ -229,6 +232,8 @@ func testDeployment() *library.Deployment {
 		Task:        new(string),
 		Target:      new(string),
 		Description: new(string),
+		Payload:     new(raw.StringSliceMap),
+		Builds:      new([]library.Build),
 	}
 }
 

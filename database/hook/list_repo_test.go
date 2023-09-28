@@ -22,6 +22,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookOne.SetWebhookID(1)
+	_hookOne.SetDeploymentID(0)
 
 	_hookTwo := testHook()
 	_hookTwo.SetID(2)
@@ -30,6 +31,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookTwo.SetWebhookID(1)
+	_hookTwo.SetDeploymentID(0)
 
 	_repo := testRepo()
 	_repo.SetID(1)
