@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-vela/server/random"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v55/github"
 )
 
 // Authorize uses the given access token to authorize the user.
@@ -104,6 +104,32 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		return nil, errors.New("no token provided")
 	}
 
+	// validate that the token was not created by vela
+	ok, err := c.ValidateOAuthToken(ctx, token)
+	if err != nil {
+		return nil, fmt.Errorf("unable to validate oauth token: %w", err)
+	}
+
+	if ok {
+		return nil, errors.New("token must not be created by vela")
+	}
+
+	u, err := c.Authorize(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &library.User{
+		Name:  &u,
+		Token: &token,
+	}, nil
+}
+
+// ValidateOAuthToken takes a user oauth integration token and
+// validates that it was created by the Vela OAuth app.
+// In essence, the function expects either a 200 or 404 from the GitHub API and returns
+// error in any other failure case.
+func (c *client) ValidateOAuthToken(ctx context.Context, token string) (bool, error) {
 	// create http client to connect to GitHub API
 	transport := github.BasicAuthTransport{
 		Username: c.config.ClientID,
@@ -121,7 +147,7 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		// parse the provided url into url type
 		enterpriseURL, err := url.Parse(c.config.Address)
 		if err != nil {
-			return nil, err
+			return false, err
 		}
 		// set the base and upload url
 		client.BaseURL = enterpriseURL
@@ -138,24 +164,11 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		case http.StatusNotFound:
 			break
 		default:
-			return nil, err
+			return false, err
 		}
 	} else if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	// return error if the token was created by Vela
-	if resp.StatusCode != http.StatusNotFound {
-		return nil, errors.New("token must not be created by vela")
-	}
-
-	u, err := c.Authorize(ctx, token)
-	if err != nil {
-		return nil, err
-	}
-
-	return &library.User{
-		Name:  &u,
-		Token: &token,
-	}, nil
+	return resp.StatusCode == http.StatusOK, nil
 }

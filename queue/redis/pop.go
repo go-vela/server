@@ -44,11 +44,6 @@ func (c *client) Pop(ctx context.Context, routes []string) (*types.Item, error) 
 		return nil, err
 	}
 
-	// this should already be validated on startup
-	if c.config.PublicKey == nil || len(*c.config.PublicKey) != 32 {
-		return nil, errors.New("no valid signing public key provided")
-	}
-
 	// extract signed item from pop results
 	signed := []byte(result[1])
 

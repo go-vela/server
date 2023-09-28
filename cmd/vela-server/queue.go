@@ -22,6 +22,7 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 		Routes:     c.StringSlice("queue.routes"),
 		Timeout:    c.Duration("queue.pop.timeout"),
 		PrivateKey: c.String("queue.private-key"),
+		PublicKey:  c.String("queue.public-key"),
 	}
 
 	// setup the queue

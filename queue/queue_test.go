@@ -28,10 +28,12 @@ func TestQueue_New(t *testing.T) {
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:  "redis",
-				Address: fmt.Sprintf("redis://%s", _redis.Addr()),
-				Routes:  []string{"foo"},
-				Cluster: false,
+				Driver:     "redis",
+				Address:    fmt.Sprintf("redis://%s", _redis.Addr()),
+				Routes:     []string{"foo"},
+				Cluster:    false,
+				PrivateKey: "bOiFT7Y9e0jpOqaapTa3NzUkAve3VdRvyowgsY/vtlcK5L4RADOh9uTe1UVLdu3l/a0hvhiIkkLidUwVBhASWA==",
+				PublicKey:  "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{

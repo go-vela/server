@@ -25,11 +25,6 @@ func (c *client) Push(ctx context.Context, channel string, item []byte) error {
 
 	var out []byte
 
-	// this should already be validated on startup
-	if c.config.PrivateKey == nil || len(*c.config.PrivateKey) != 64 {
-		return errors.New("no valid signing private key provided")
-	}
-
 	c.Logger.Tracef("signing item for queue %s", channel)
 
 	// sign the item using the private key generated using sign

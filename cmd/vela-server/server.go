@@ -24,6 +24,18 @@ import (
 )
 
 func server(c *cli.Context) error {
+	// set log formatter
+	switch c.String("log-formatter") {
+	case "json":
+		// set logrus to log in JSON format
+		logrus.SetFormatter(&logrus.JSONFormatter{})
+	case "ecs":
+		// set logrus to log in Elasticsearch Common Schema (ecs) format
+		logrus.SetFormatter(&middleware.ECSFormatter{
+			DataKey: "labels.vela",
+		})
+	}
+
 	// validate all input
 	err := validate(c)
 	if err != nil {
@@ -97,6 +109,8 @@ func server(c *cli.Context) error {
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
+		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
+		middleware.QueueAddress(c.String("queue.addr")),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),

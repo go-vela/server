@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v55/github"
 )
 
 // OrgAccess captures the user's access level for an org.
