@@ -98,6 +98,7 @@ func GetBuildGraph(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	m := c.MustGet("metadata").(*types.Metadata)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -148,7 +149,7 @@ func GetBuildGraph(c *gin.Context) {
 	baseErr := "unable to generate build graph"
 
 	// send API call to capture the pipeline configuration file
-	config, err := scm.FromContext(c).ConfigBackoff(u, r, b.GetCommit())
+	config, err := scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
 		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
@@ -164,7 +165,7 @@ func GetBuildGraph(c *gin.Context) {
 		// check if the build event is not pull_request
 		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 			// send API call to capture list of files changed for the commit
-			files, err = scm.FromContext(c).Changeset(u, r, b.GetCommit())
+			files, err = scm.FromContext(c).Changeset(ctx, u, r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
