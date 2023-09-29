@@ -197,6 +197,15 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
+	// remove build executable for clean up
+	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to pop build %s from executables table: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// retrieve the steps for the build from the step table
 	steps := []*library.Step{}
 	page := 1
