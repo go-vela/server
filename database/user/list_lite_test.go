@@ -5,6 +5,7 @@
 package user
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -49,12 +50,12 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_userOne)
+	_, err := _sqlite.CreateUser(context.TODO(), _userOne)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateUser(_userTwo)
+	_, err = _sqlite.CreateUser(context.TODO(), _userTwo)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -94,7 +95,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListLiteUsers(1, 10)
+			got, _, err := test.database.ListLiteUsers(context.TODO(), 1, 10)
 
 			if test.failure {
 				if err == nil {

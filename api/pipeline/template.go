@@ -82,6 +82,7 @@ func GetTemplates(c *gin.Context) {
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
@@ -107,7 +108,7 @@ func GetTemplates(c *gin.Context) {
 	}
 
 	// send API call to capture the repo owner
-	user, err := database.FromContext(c).GetUser(r.GetUserID())
+	user, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err))
 
@@ -145,7 +146,7 @@ func GetTemplates(c *gin.Context) {
 		}
 
 		// retrieve link to template file from github
-		link, err := scm.FromContext(c).GetHTMLURL(user, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(c).GetHTMLURL(ctx, user, src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to get html url for %s/%s/%s/@%s: %w", baseErr, src.Org, src.Repo, src.Name, src.Ref, err))
 

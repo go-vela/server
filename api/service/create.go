@@ -74,6 +74,7 @@ func CreateService(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -112,7 +113,7 @@ func CreateService(c *gin.Context) {
 	}
 
 	// send API call to create the service
-	err = database.FromContext(c).CreateService(input)
+	s, err := database.FromContext(c).CreateService(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create service for build %s: %w", entry, err)
 
@@ -120,9 +121,6 @@ func CreateService(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created service
-	s, _ := database.FromContext(c).GetServiceForBuild(b, input.GetNumber())
 
 	c.JSON(http.StatusCreated, s)
 }

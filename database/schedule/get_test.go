@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -22,14 +23,15 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
+	_schedule.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at"},
-	).AddRow(1, 1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil)
+		[]string{"id", "repo_id", "active", "name", "entry", "created_at", "created_by", "updated_at", "updated_by", "scheduled_at", "branch"},
+	).AddRow(1, 1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, "main")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
@@ -37,7 +39,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_schedule)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -66,7 +68,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetSchedule(1)
+			got, err := test.database.GetSchedule(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

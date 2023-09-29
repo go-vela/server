@@ -5,13 +5,15 @@
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListRepos gets a list of all repos from the database.
-func (e *engine) ListRepos() ([]*library.Repo, error) {
+func (e *engine) ListRepos(ctx context.Context) ([]*library.Repo, error) {
 	e.logger.Trace("listing all repos from the database")
 
 	// variables to store query results and return value
@@ -20,7 +22,7 @@ func (e *engine) ListRepos() ([]*library.Repo, error) {
 	repos := []*library.Repo{}
 
 	// count the results
-	count, err := e.CountRepos()
+	count, err := e.CountRepos(ctx)
 	if err != nil {
 		return nil, err
 	}

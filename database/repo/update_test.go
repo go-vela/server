@@ -5,6 +5,8 @@
 package repo
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -22,6 +24,7 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetPreviousName("oldName")
+	_repo.SetTopics([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -36,7 +39,7 @@ WHERE "id" = $24`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateRepo(_repo)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -62,7 +65,7 @@ WHERE "id" = $24`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateRepo(_repo)
+			got, err := test.database.UpdateRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {
@@ -74,6 +77,10 @@ WHERE "id" = $24`).
 
 			if err != nil {
 				t.Errorf("UpdateRepo for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _repo) {
+				t.Errorf("UpdateRepo for %s returned %s, want %s", test.name, got, _repo)
 			}
 		})
 	}

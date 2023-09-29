@@ -5,6 +5,8 @@
 package schedule
 
 import (
+	"context"
+
 	"github.com/go-vela/types/library"
 )
 
@@ -18,32 +20,32 @@ type ScheduleInterface interface {
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
 	// CreateScheduleIndexes defines a function that creates the indexes for the schedules table.
-	CreateScheduleIndexes() error
+	CreateScheduleIndexes(context.Context) error
 	// CreateScheduleTable defines a function that creates the schedules table.
-	CreateScheduleTable(string) error
+	CreateScheduleTable(context.Context, string) error
 
 	// Schedule Data Manipulation Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CountSchedules defines a function that gets the count of all schedules.
-	CountSchedules() (int64, error)
+	CountSchedules(context.Context) (int64, error)
 	// CountSchedulesForRepo defines a function that gets the count of schedules by repo ID.
-	CountSchedulesForRepo(*library.Repo) (int64, error)
+	CountSchedulesForRepo(context.Context, *library.Repo) (int64, error)
 	// CreateSchedule defines a function that creates a new schedule.
-	CreateSchedule(*library.Schedule) error
+	CreateSchedule(context.Context, *library.Schedule) (*library.Schedule, error)
 	// DeleteSchedule defines a function that deletes an existing schedule.
-	DeleteSchedule(*library.Schedule) error
+	DeleteSchedule(context.Context, *library.Schedule) error
 	// GetSchedule defines a function that gets a schedule by ID.
-	GetSchedule(int64) (*library.Schedule, error)
+	GetSchedule(context.Context, int64) (*library.Schedule, error)
 	// GetScheduleForRepo defines a function that gets a schedule by repo ID and name.
-	GetScheduleForRepo(*library.Repo, string) (*library.Schedule, error)
+	GetScheduleForRepo(context.Context, *library.Repo, string) (*library.Schedule, error)
 	// ListActiveSchedules defines a function that gets a list of all active schedules.
-	ListActiveSchedules() ([]*library.Schedule, error)
+	ListActiveSchedules(context.Context) ([]*library.Schedule, error)
 	// ListSchedules defines a function that gets a list of all schedules.
-	ListSchedules() ([]*library.Schedule, error)
+	ListSchedules(context.Context) ([]*library.Schedule, error)
 	// ListSchedulesForRepo defines a function that gets a list of schedules by repo ID.
-	ListSchedulesForRepo(*library.Repo, int, int) ([]*library.Schedule, int64, error)
+	ListSchedulesForRepo(context.Context, *library.Repo, int, int) ([]*library.Schedule, int64, error)
 	// UpdateSchedule defines a function that updates an existing schedule.
-	UpdateSchedule(*library.Schedule, bool) error
+	UpdateSchedule(context.Context, *library.Schedule, bool) (*library.Schedule, error)
 }

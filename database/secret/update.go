@@ -6,6 +6,7 @@
 package secret
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // UpdateSecret updates an existing secret in the database.
-func (e *engine) UpdateSecret(s *library.Secret) error {
+func (e *engine) UpdateSecret(ctx context.Context, s *library.Secret) (*library.Secret, error) {
 	// handle the secret based off the type
 	switch s.GetType() {
 	case constants.SecretShared:
@@ -44,7 +45,7 @@ func (e *engine) UpdateSecret(s *library.Secret) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Secret.Validate
 	err := secret.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// encrypt the fields for the secret
@@ -54,15 +55,26 @@ func (e *engine) UpdateSecret(s *library.Secret) error {
 	if err != nil {
 		switch s.GetType() {
 		case constants.SecretShared:
-			return fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
+			return nil, fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
 		default:
-			return fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+			return nil, fmt.Errorf("unable to encrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
 		}
 	}
 
-	// send query to the database
-	return e.client.
-		Table(constants.TableSecret).
-		Save(secret.Nullify()).
-		Error
+	err = e.client.Table(constants.TableSecret).Save(secret.Nullify()).Error
+	if err != nil {
+		return nil, err
+	}
+
+	err = secret.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		switch s.GetType() {
+		case constants.SecretShared:
+			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetTeam(), s.GetName(), err)
+		default:
+			return nil, fmt.Errorf("unable to decrypt secret %s/%s/%s/%s: %w", s.GetType(), s.GetOrg(), s.GetRepo(), s.GetName(), err)
+		}
+	}
+
+	return secret.ToLibrary(), nil
 }

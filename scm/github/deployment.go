@@ -5,17 +5,18 @@
 package github
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v55/github"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
+func (c *client) GetDeployment(ctx context.Context, u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -53,7 +54,7 @@ func (c *client) GetDeployment(u *library.User, r *library.Repo, id int64) (*lib
 }
 
 // GetDeploymentCount counts a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, error) {
+func (c *client) GetDeploymentCount(ctx context.Context, u *library.User, r *library.Repo) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -95,7 +96,7 @@ func (c *client) GetDeploymentCount(u *library.User, r *library.Repo) (int64, er
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
+func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -149,7 +150,7 @@ func (c *client) GetDeploymentList(u *library.User, r *library.Repo, page, perPa
 }
 
 // CreateDeployment creates a new deployment for the GitHub repo.
-func (c *client) CreateDeployment(u *library.User, r *library.Repo, d *library.Deployment) error {
+func (c *client) CreateDeployment(ctx context.Context, u *library.User, r *library.Repo, d *library.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

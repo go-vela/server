@@ -5,6 +5,7 @@
 package github
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -59,7 +60,7 @@ func TestGithub_CreateDeployment(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.CreateDeployment(u, r, d)
+	err := client.CreateDeployment(context.TODO(), u, r, d)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("CreateDeployment returned %v, want %v", resp.Code, http.StatusOK)
@@ -113,7 +114,7 @@ func TestGithub_GetDeployment(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	got, err := client.GetDeployment(u, r, 1)
+	got, err := client.GetDeployment(context.TODO(), u, r, 1)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetDeployment returned %v, want %v", resp.Code, http.StatusOK)
@@ -161,7 +162,7 @@ func TestGithub_GetDeploymentCount(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	got, err := client.GetDeploymentCount(u, r)
+	got, err := client.GetDeploymentCount(context.TODO(), u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetDeployment returned %v, want %v", resp.Code, http.StatusOK)
@@ -233,7 +234,7 @@ func TestGithub_GetDeploymentList(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	got, err := client.GetDeploymentList(u, r, 1, 100)
+	got, err := client.GetDeploymentList(context.TODO(), u, r, 1, 100)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetDeployment returned %v, want %v", resp.Code, http.StatusOK)

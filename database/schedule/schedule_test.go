@@ -5,6 +5,7 @@
 package schedule
 
 import (
+	"context"
 	"database/sql/driver"
 	"reflect"
 	"testing"
@@ -63,6 +64,7 @@ func TestSchedule_New(t *testing.T) {
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
+				ctx:    context.TODO(),
 				client: _postgres,
 				config: &config{SkipCreation: false},
 				logger: logger,
@@ -75,6 +77,7 @@ func TestSchedule_New(t *testing.T) {
 			logger:       logger,
 			skipCreation: false,
 			want: &engine{
+				ctx:    context.TODO(),
 				client: _sqlite,
 				config: &config{SkipCreation: false},
 				logger: logger,
@@ -86,6 +89,7 @@ func TestSchedule_New(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
+				WithContext(context.TODO()),
 				WithClient(test.client),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
@@ -135,6 +139,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_engine, err := New(
+		WithContext(context.TODO()),
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
@@ -157,6 +162,7 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	_engine, err := New(
+		WithContext(context.TODO()),
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
@@ -181,6 +187,7 @@ func testSchedule() *library.Schedule {
 		UpdatedAt:   new(int64),
 		UpdatedBy:   new(string),
 		ScheduledAt: new(int64),
+		Branch:      new(string),
 	}
 }
 

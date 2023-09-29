@@ -5,6 +5,7 @@
 package native
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -38,7 +39,7 @@ func TestNative_Get(t *testing.T) {
 	defer db.Close()
 
 	defer func() {
-		db.DeleteSecret(want)
+		db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -50,9 +51,9 @@ func TestNative_Get(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	_ = s.Create("repo", "foo", "bar", want)
+	_, _ = s.Create(context.TODO(), "repo", "foo", "bar", want)
 
-	got, err := s.Get("repo", "foo", "bar", "baz")
+	got, err := s.Get(context.TODO(), "repo", "foo", "bar", "baz")
 	if err != nil {
 		t.Errorf("Get returned err: %v", err)
 	}
@@ -78,7 +79,7 @@ func TestNative_Get_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Get("repo", "foo", "bar", "foob")
+	got, err := s.Get(context.TODO(), "repo", "foo", "bar", "foob")
 	if err == nil {
 		t.Errorf("Get should have returned err")
 	}

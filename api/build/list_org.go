@@ -110,6 +110,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -189,7 +190,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// See if the user is an org admin to bypass individual permission checks
-	perm, err := scm.FromContext(c).OrgAccess(u, o)
+	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -199,7 +200,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	}
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
-	b, t, err = database.FromContext(c).ListBuildsForOrg(o, filters, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
 
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)

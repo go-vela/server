@@ -6,6 +6,8 @@
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -13,7 +15,7 @@ import (
 )
 
 // CreateBuild creates a new build in the database.
-func (e *engine) CreateBuild(b *library.Build) (*library.Build, error) {
+func (e *engine) CreateBuild(ctx context.Context, b *library.Build) (*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("creating build %d in the database", b.GetNumber())

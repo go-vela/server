@@ -66,6 +66,7 @@ func CreateHook(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -89,7 +90,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// send API call to capture the last hook for the repo
-	lastHook, err := database.FromContext(c).LastHookForRepo(r)
+	lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get last hook for repo %s: %w", r.GetFullName(), err)
 
@@ -113,7 +114,7 @@ func CreateHook(c *gin.Context) {
 	}
 
 	// send API call to create the webhook
-	h, err := database.FromContext(c).CreateHook(input)
+	h, err := database.FromContext(c).CreateHook(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create hook for repo %s: %w", r.GetFullName(), err)
 

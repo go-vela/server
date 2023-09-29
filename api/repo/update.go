@@ -77,6 +77,7 @@ func UpdateRepo(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -254,7 +255,7 @@ func UpdateRepo(c *gin.Context) {
 	// if webhook validation is not set or events didn't change, skip webhook update
 	if c.Value("webhookvalidation").(bool) && eventsChanged {
 		// grab last hook from repo to fetch the webhook ID
-		lastHook, err := database.FromContext(c).LastHookForRepo(r)
+		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
 
@@ -267,7 +268,7 @@ func UpdateRepo(c *gin.Context) {
 			// capture admin name for logging
 			admn := u.GetName()
 
-			u, err = database.FromContext(c).GetUser(r.GetUserID())
+			u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
 
@@ -284,7 +285,7 @@ func UpdateRepo(c *gin.Context) {
 			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
 		}
 		// update webhook with new events
-		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		_, err = scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
@@ -295,7 +296,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// send API call to update the repo
-	err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 
@@ -303,9 +304,6 @@ func UpdateRepo(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated repo
-	r, _ = database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
 
 	c.JSON(http.StatusOK, r)
 }

@@ -77,6 +77,7 @@ func CreateSchedule(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	r := repo.Retrieve(c)
+	ctx := c.Request.Context()
 	allowlist := c.Value("allowlistschedule").([]string)
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
@@ -136,6 +137,12 @@ func CreateSchedule(c *gin.Context) {
 	s.SetUpdatedAt(time.Now().UTC().Unix())
 	s.SetUpdatedBy(u.GetName())
 
+	if input.GetBranch() == "" {
+		s.SetBranch(r.GetBranch())
+	} else {
+		s.SetBranch(input.GetBranch())
+	}
+
 	// set the active field based off the input provided
 	if input.Active == nil {
 		// default active field to true
@@ -145,7 +152,7 @@ func CreateSchedule(c *gin.Context) {
 	}
 
 	// send API call to capture the schedule from the database
-	dbSchedule, err := database.FromContext(c).GetScheduleForRepo(r, input.GetName())
+	dbSchedule, err := database.FromContext(c).GetScheduleForRepo(ctx, r, input.GetName())
 	if err == nil && dbSchedule.GetActive() {
 		retErr := fmt.Errorf("unable to create schedule: %s is already active", input.GetName())
 
@@ -170,7 +177,7 @@ func CreateSchedule(c *gin.Context) {
 		dbSchedule.SetActive(true)
 
 		// send API call to update the schedule
-		err = database.FromContext(c).UpdateSchedule(dbSchedule, true)
+		s, err = database.FromContext(c).UpdateSchedule(ctx, dbSchedule, true)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set schedule %s to active: %w", dbSchedule.GetName(), err)
 
@@ -178,12 +185,9 @@ func CreateSchedule(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the updated schedule
-		s, _ = database.FromContext(c).GetScheduleForRepo(r, dbSchedule.GetName())
 	} else {
 		// send API call to create the schedule
-		err = database.FromContext(c).CreateSchedule(s)
+		s, err = database.FromContext(c).CreateSchedule(ctx, s)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new schedule %s: %w", r.GetName(), err)
 
@@ -191,9 +195,6 @@ func CreateSchedule(c *gin.Context) {
 
 			return
 		}
-
-		// send API call to capture the created schedule
-		s, _ = database.FromContext(c).GetScheduleForRepo(r, input.GetName())
 	}
 
 	c.JSON(http.StatusCreated, s)

@@ -5,6 +5,7 @@
 package worker
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -34,7 +35,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateWorker(_worker)
+	_, err := _sqlite.CreateWorker(context.TODO(), _worker)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}
@@ -63,7 +64,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetWorkerForHostname("worker_0")
+			got, err := test.database.GetWorkerForHostname(context.TODO(), "worker_0")
 
 			if test.failure {
 				if err == nil {

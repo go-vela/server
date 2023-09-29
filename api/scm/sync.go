@@ -59,6 +59,7 @@ func SyncRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -72,7 +73,7 @@ func SyncRepo(c *gin.Context) {
 	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
-	_, err := scm.FromContext(c).GetRepo(u, r)
+	_, err := scm.FromContext(c).GetRepo(ctx, u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
@@ -80,7 +81,7 @@ func SyncRepo(c *gin.Context) {
 		r.SetActive(false)
 
 		// update repo in database
-		err := database.FromContext(c).UpdateRepo(r)
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
@@ -97,7 +98,7 @@ func SyncRepo(c *gin.Context) {
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), o, r.GetName())
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -110,10 +111,11 @@ func SyncRepo(c *gin.Context) {
 		return
 	}
 
-	// if we have webhook validation, update the repo hook in the SCM
-	if c.Value("webhookvalidation").(bool) {
+	// if we have webhook validation and the repo is active in the database,
+	// update the repo hook in the SCM
+	if c.Value("webhookvalidation").(bool) && r.GetActive() {
 		// grab last hook from repo to fetch the webhook ID
-		lastHook, err := database.FromContext(c).LastHookForRepo(r)
+		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
 
@@ -123,13 +125,36 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		webhookExists, err := scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())
 		if err != nil {
-			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+			// if webhook has been manually deleted from GitHub,
+			// set to inactive in database
+			if !webhookExists {
 
-			return
+				r.SetActive(false)
+
+				_, err := database.FromContext(c).UpdateRepo(ctx, r)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
+				c.JSON(http.StatusOK, fmt.Sprintf("webhook not found, repo %s deactivated", r.GetFullName()))
+
+				return
+
+			} else {
+
+				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
+
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
 		}
 	}
 

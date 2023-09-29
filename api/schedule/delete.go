@@ -65,6 +65,7 @@ func DeleteSchedule(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	s := schedule.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -75,7 +76,7 @@ func DeleteSchedule(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("deleting schedule %s", s.GetName())
 
-	err := database.FromContext(c).DeleteSchedule(s)
+	err := database.FromContext(c).DeleteSchedule(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete schedule %s: %w", s.GetName(), err)
 

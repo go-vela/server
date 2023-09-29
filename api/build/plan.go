@@ -5,6 +5,7 @@
 package build
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -20,13 +21,13 @@ import (
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
+func PlanBuild(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the build
 	// TODO: return created build and error instead of just error
-	b, err := database.CreateBuild(b)
+	b, err := database.CreateBuild(ctx, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		// TODO:
@@ -35,25 +36,25 @@ func PlanBuild(database database.Interface, p *pipeline.Build, b *library.Build,
 		//   of UPDATE-ing the existing build - which results in
 		//   a constraint error (repo_id, number)
 		// - do we want to update the build or just delete it?
-		CleanBuild(database, b, nil, nil, err)
+		CleanBuild(ctx, database, b, nil, nil, err)
 
 		return fmt.Errorf("unable to create new build for %s: %w", r.GetFullName(), err)
 	}
 
 	// plan all services for the build
-	services, err := service.PlanServices(database, p, b)
+	services, err := service.PlanServices(ctx, database, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
-		CleanBuild(database, b, services, nil, err)
+		CleanBuild(ctx, database, b, services, nil, err)
 
 		return err
 	}
 
 	// plan all steps for the build
-	steps, err := step.PlanSteps(database, p, b)
+	steps, err := step.PlanSteps(ctx, database, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
-		CleanBuild(database, b, services, steps, err)
+		CleanBuild(ctx, database, b, services, steps, err)
 
 		return err
 	}

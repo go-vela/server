@@ -46,6 +46,8 @@ func GetBadge(c *gin.Context) {
 	// capture middleware values
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	ctx := c.Request.Context()
+
 	branch := util.QueryParameter(c, "branch", r.GetBranch())
 
 	// update engine logger with API metadata
@@ -57,7 +59,7 @@ func GetBadge(c *gin.Context) {
 	}).Infof("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
 
 	// send API call to capture the last build for the repo and branch
-	b, err := database.FromContext(c).LastBuildForRepo(r, branch)
+	b, err := database.FromContext(c).LastBuildForRepo(ctx, r, branch)
 	if err != nil {
 		c.String(http.StatusOK, constants.BadgeUnknown)
 		return

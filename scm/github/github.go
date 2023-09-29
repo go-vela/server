@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2"
@@ -27,8 +27,6 @@ const (
 	eventRepository   = "repository"
 	eventInitialize   = "initialize"
 )
-
-var ctx = context.Background()
 
 type config struct {
 	// specifies the address to use for the GitHub client

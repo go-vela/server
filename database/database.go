@@ -5,10 +5,12 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -54,10 +56,13 @@ type (
 		client *gorm.DB
 		// engine configuration settings used in database functions
 		config *config
+		// engine context used in database functions
+		ctx context.Context
 		// sirupsen/logrus logger used in database functions
 		logger *logrus.Entry
 
 		build.BuildInterface
+		executable.BuildExecutableInterface
 		hook.HookInterface
 		log.LogInterface
 		pipeline.PipelineInterface
@@ -85,6 +90,7 @@ func New(opts ...EngineOpt) (Interface, error) {
 	e.client = new(gorm.DB)
 	e.config = new(config)
 	e.logger = new(logrus.Entry)
+	e.ctx = context.TODO()
 
 	// apply all provided configuration options
 	for _, opt := range opts {
@@ -143,7 +149,7 @@ func New(opts ...EngineOpt) (Interface, error) {
 	}
 
 	// create database agnostic engines for resources
-	err = e.NewResources()
+	err = e.NewResources(e.ctx)
 	if err != nil {
 		return nil, err
 	}

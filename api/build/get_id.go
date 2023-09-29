@@ -58,6 +58,7 @@ func GetBuildByID(c *gin.Context) {
 
 	// Capture user from middleware
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// Parse build ID from path
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -79,7 +80,7 @@ func GetBuildByID(c *gin.Context) {
 	}).Infof("reading build %d", id)
 
 	// Get build from database
-	b, err = database.FromContext(c).GetBuild(id)
+	b, err = database.FromContext(c).GetBuild(ctx, id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build: %w", err)
 
@@ -89,7 +90,7 @@ func GetBuildByID(c *gin.Context) {
 	}
 
 	// Get repo from database using repo ID field from build
-	r, err = database.FromContext(c).GetRepo(b.GetRepoID())
+	r, err = database.FromContext(c).GetRepo(ctx, b.GetRepoID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get repo: %w", err)
 
@@ -100,7 +101,7 @@ func GetBuildByID(c *gin.Context) {
 
 	// Capture user access from SCM. We do this in order to ensure user has access and is not
 	// just retrieving any build using a random id number.
-	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 	}

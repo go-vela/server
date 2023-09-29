@@ -5,6 +5,8 @@
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -51,13 +53,13 @@ hooks (
 	status       TEXT,
 	link         TEXT,
 	webhook_id   INTEGER,
-	UNIQUE(repo_id, build_id)
+	UNIQUE(repo_id, number)
 );
 `
 )
 
 // CreateHookTable creates the hooks table in the database.
-func (e *engine) CreateHookTable(driver string) error {
+func (e *engine) CreateHookTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating hooks table in the database")
 
 	// handle the driver provided to create the table

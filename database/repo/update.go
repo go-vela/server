@@ -6,6 +6,7 @@
 package repo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +16,7 @@ import (
 )
 
 // UpdateRepo updates an existing repo in the database.
-func (e *engine) UpdateRepo(r *library.Repo) error {
+func (e *engine) UpdateRepo(ctx context.Context, r *library.Repo) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -31,7 +32,7 @@ func (e *engine) UpdateRepo(r *library.Repo) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Validate
 	err := repo.Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// encrypt the fields for the repo
@@ -39,12 +40,23 @@ func (e *engine) UpdateRepo(r *library.Repo) error {
 	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Encrypt
 	err = repo.Encrypt(e.config.EncryptionKey)
 	if err != nil {
-		return fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
+		return nil, fmt.Errorf("unable to encrypt repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send query to the database
-	return e.client.
-		Table(constants.TableRepo).
-		Save(repo).
-		Error
+	err = e.client.Table(constants.TableRepo).Save(repo).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// decrypt the fields for the repo
+	err = repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		// only log to preserve backwards compatibility
+		e.logger.Errorf("unable to decrypt repo %d: %v", r.GetID(), err)
+
+		return repo.ToLibrary(), nil
+	}
+
+	return repo.ToLibrary(), nil
 }

@@ -1,0 +1,49 @@
+# name of the action
+name: integration-test
+
+# trigger on pull_request events that modify this file or any database files
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/integration-test.yml'
+      - 'database/**'
+
+# pipeline to execute
+jobs:
+  database:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine@sha256:8bc3c893342c766481df5fde58fab6f1a1115b94eb56778126163305243e9709
+        env:
+          POSTGRES_DB: vela
+          POSTGRES_PASSWORD: notARealPassword12345
+          POSTGRES_USER: vela
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      POSTGRES_ADDR: postgres://vela:notARealPassword12345@localhost:5432/vela
+      SQLITE_ADDR: vela.db
+
+    steps:
+      - name: clone
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+
+      - name: install go
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        with:
+          # use version from go.mod file
+          go-version-file: 'go.mod'
+          cache: true
+          check-latest: true
+
+      - name: test
+        run: |
+          make integration-test
