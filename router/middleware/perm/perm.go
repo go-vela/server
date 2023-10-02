@@ -278,7 +278,7 @@ func MustSecretAdmin() gin.HandlerFunc {
 		case constants.SecretRepo:
 			logger.Debugf("verifying user %s has 'admin' permissions for repo %s/%s", u.GetName(), o, n)
 
-			perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), o, n)
+			perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, n)
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s/%s: %v", u.GetName(), o, n, err)
 			}
@@ -367,7 +367,7 @@ func MustAdmin() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
@@ -382,7 +382,7 @@ func MustAdmin() gin.HandlerFunc {
 				return
 			}
 
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u, ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -426,7 +426,7 @@ func MustWrite() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
@@ -441,7 +441,7 @@ func MustWrite() gin.HandlerFunc {
 				return
 			}
 
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u, ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -509,7 +509,7 @@ func MustRead() gin.HandlerFunc {
 		}
 
 		// query source to determine requesters permissions for the repo using the requester's token
-		perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
+		perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 		if err != nil {
 			// requester may not have permissions to use the Github API endpoint (requires read access)
 			// try again using the repo owner token
@@ -524,7 +524,7 @@ func MustRead() gin.HandlerFunc {
 				return
 			}
 
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u, ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), ro.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}

@@ -50,20 +50,20 @@ func (c *client) OrgAccess(ctx context.Context, u *library.User, org string) (st
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *client) RepoAccess(ctx context.Context, u *library.User, token, org, repo string) (string, error) {
+func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
-		"user": u.GetName(),
-	}).Tracef("capturing %s access level to repo %s/%s", u.GetName(), org, repo)
+		"user": name,
+	}).Tracef("capturing %s access level to repo %s/%s", name, org, repo)
 
 	// check if user is accessing repo in personal org
-	if strings.EqualFold(org, u.GetName()) {
+	if strings.EqualFold(org, name) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"repo": repo,
-			"user": u.GetName(),
-		}).Debugf("skipping access level check for user %s with repo %s/%s", u.GetName(), org, repo)
+			"user": name,
+		}).Debugf("skipping access level check for user %s with repo %s/%s", name, org, repo)
 
 		return "admin", nil
 	}
@@ -72,7 +72,7 @@ func (c *client) RepoAccess(ctx context.Context, u *library.User, token, org, re
 	client := c.newClientToken(token)
 
 	// send API call to capture repo access level for user
-	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, u.GetName())
+	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
 	if err != nil {
 		return "", err
 	}

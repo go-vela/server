@@ -146,6 +146,14 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// set the fork policy field based off the input provided
+	if len(input.GetApproveForkBuild()) > 0 {
+		// default fork policy field to the input fork policy
+		r.SetApproveForkBuild(input.GetApproveForkBuild())
+	} else {
+		r.SetApproveForkBuild(constants.ApproveNever)
+	}
+
 	// fields restricted to platform admins
 	if u.GetAdmin() {
 		// trusted default is false

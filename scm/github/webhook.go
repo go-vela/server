@@ -288,6 +288,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		Hook:     h,
 		Repo:     r,
 		Build:    b,
+		PRFork:   payload.GetPullRequest().GetHead().GetRepo().GetFork(),
 	}, nil
 }
 

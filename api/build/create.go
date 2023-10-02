@@ -350,15 +350,37 @@ func CreateBuild(c *gin.Context) {
 		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
 
+	// determine queue route
+	route, err := queue.FromGinContext(c).Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", input.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, database.FromContext(c), input, nil, nil, err)
+
+		return
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	input.SetHost(route)
+
+	err = PublishBuildExecutable(ctx, database.FromContext(c), p, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// publish the build to the queue
 	go PublishToQueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		p,
 		input,
 		r,
 		u,
+		route,
 	)
 }
 

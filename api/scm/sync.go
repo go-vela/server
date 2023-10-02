@@ -98,7 +98,7 @@ func SyncRepo(c *gin.Context) {
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, r.GetName())
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
