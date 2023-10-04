@@ -25,7 +25,7 @@ const (
   "created": 1563475419,
   "host": "github.com",
   "event": "push",
-  "branch": "master",
+  "branch": "main",
   "error": "",
   "status": "success",
   "link": "https://github.com/github/octocat/settings/hooks/1"
@@ -42,7 +42,7 @@ const (
     "created": 1563475420,
     "host": "github.com",
     "event": "push",
-    "branch": "master",
+    "branch": "main",
     "error": "",
     "status": "success",
     "link": "https://github.com/github/octocat/settings/hooks/1"
@@ -56,7 +56,7 @@ const (
     "created": 1563475419,
     "host": "github.com",
     "event": "push",
-    "branch": "master",
+    "branch": "main",
     "error": "",
     "status": "success",
     "link": "https://github.com/github/octocat/settings/hooks/1"
