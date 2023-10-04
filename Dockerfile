@@ -1,8 +1,6 @@
-# Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-#
-# Use of this source code is governed by the LICENSE file in this repository.
+# SPDX-License-Identifier: Apache-2.0
 
-FROM alpine:3.18.3@sha256:7144f7bab3d4c2648d7e59409f15ec52a18006a128c733fcff20d3a4a54ba44a as certs
+FROM alpine:3.18.4@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 as certs
 
 RUN apk add --update --no-cache ca-certificates
 

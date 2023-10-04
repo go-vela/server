@@ -34,7 +34,7 @@ Please see our [support](SUPPORT.md) documentation for further instructions.
 ## Copyright and License
 
 ```
-Copyright (c) 2022 Target Brands, Inc.
+Copyright 2019 Target Brands, Inc.
 ```
 
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+[Apache License, Version 2.0](../LICENSE)
