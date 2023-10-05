@@ -174,7 +174,7 @@ func CancelBuild(c *gin.Context) {
 				return
 			}
 		}
-	case constants.StatusPending:
+	case constants.StatusPending, constants.StatusPendingApproval:
 		break
 
 	default:
