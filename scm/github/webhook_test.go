@@ -52,7 +52,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("push")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -62,7 +62,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
@@ -76,8 +76,8 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
@@ -131,7 +131,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("push")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -141,7 +141,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
@@ -155,8 +155,8 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
@@ -210,7 +210,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -220,7 +220,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -235,9 +235,9 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetBranch("master")
+	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/pull/1/head")
-	wantBuild.SetBaseRef("master")
+	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
 	want := &types.Webhook{
@@ -292,7 +292,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -347,7 +347,7 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -379,7 +379,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("deployment")
@@ -391,7 +391,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -406,8 +406,8 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 
 	type args struct {
 		file              string
@@ -499,7 +499,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("deployment")
@@ -511,7 +511,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -526,8 +526,8 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
 		Comment: "",
@@ -696,7 +696,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	r.SetFullName("Codertocat/Hello-World")
 	r.SetLink("https://github.com/Codertocat/Hello-World")
 	r.SetClone("https://github.com/Codertocat/Hello-World.git")
-	r.SetBranch("master")
+	r.SetBranch("main")
 	r.SetPrivate(false)
 
 	// setup request
@@ -768,7 +768,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -845,7 +845,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -859,7 +859,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
 		Comment:  "ok to test",
@@ -967,7 +967,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction(constants.ActionRenamed)
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -978,7 +978,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -1031,7 +1031,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction(constants.ActionTransferred)
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1042,7 +1042,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -1095,7 +1095,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction("archived")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1106,7 +1106,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -1223,7 +1223,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction("publicized")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1234,7 +1234,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 

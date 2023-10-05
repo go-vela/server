@@ -16,7 +16,7 @@ func TestPipeline_Engine_CountPipelines(t *testing.T) {
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipelineOne.SetRef("refs/heads/master")
+	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 
