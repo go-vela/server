@@ -90,18 +90,6 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
 
-	// check if the compiler is setup for a local pipeline
-	// and the step isn't setup to run in a detached state
-	if c.local && !s.Detach {
-		// capture all environment variables from the local environment
-		for _, e := range os.Environ() {
-			// split the environment variable on = into a key value pair
-			parts := strings.SplitN(e, "=", 2)
-
-			env[parts[0]] = parts[1]
-		}
-	}
-
 	// inject the declared stage environment
 	// WARNING: local env can override global + stage
 	env = appendMap(env, stageEnv)
@@ -118,6 +106,17 @@ func (c *client) EnvironmentStep(s *yaml.Step, stageEnv raw.StringSliceMap) (*ya
 	// to ensure the default env overrides any conflicts
 	for k, v := range defaultEnv {
 		env[k] = v
+	}
+
+	// check if the compiler is setup for a local pipeline
+	if c.local && !s.Detach {
+		// capture all environment variables from the local environment
+		for _, e := range os.Environ() {
+			// split the environment variable on = into a key value pair
+			parts := strings.SplitN(e, "=", 2)
+
+			env[parts[0]] = parts[1]
+		}
 	}
 
 	// inject the declared parameter
@@ -192,17 +191,6 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// gather set of default environment variables
 		defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
 
-		// check if the compiler is setup for a local pipeline
-		if c.local {
-			// capture all environment variables from the local environment
-			for _, e := range os.Environ() {
-				// split the environment variable on = into a key value pair
-				parts := strings.SplitN(e, "=", 2)
-
-				env[parts[0]] = parts[1]
-			}
-		}
-
 		// inject the declared global environment
 		// WARNING: local env can override global
 		env = appendMap(env, globalEnv)
@@ -219,6 +207,17 @@ func (c *client) EnvironmentSecrets(s yaml.SecretSlice, globalEnv raw.StringSlic
 		// to ensure the default env overrides any conflicts
 		for k, v := range defaultEnv {
 			env[k] = v
+		}
+
+		// check if the compiler is setup for a local pipeline
+		if c.local {
+			// capture all environment variables from the local environment
+			for _, e := range os.Environ() {
+				// split the environment variable on = into a key value pair
+				parts := strings.SplitN(e, "=", 2)
+
+				env[parts[0]] = parts[1]
+			}
 		}
 
 		// inject the declared parameter
@@ -250,6 +249,14 @@ func (c *client) EnvironmentBuild() map[string]string {
 	// gather set of default environment variables
 	defaultEnv := environment(c.build, c.metadata, c.repo, c.user)
 
+	// inject the default environment
+	// variables to the build
+	// we do this after injecting the declared environment
+	// to ensure the default env overrides any conflicts
+	for k, v := range defaultEnv {
+		env[k] = v
+	}
+
 	// check if the compiler is setup for a local pipeline
 	if c.local {
 		// capture all environment variables from the local environment
@@ -259,14 +266,6 @@ func (c *client) EnvironmentBuild() map[string]string {
 
 			env[parts[0]] = parts[1]
 		}
-	}
-
-	// inject the default environment
-	// variables to the build secret
-	// we do this after injecting the declared environment
-	// to ensure the default env overrides any conflicts
-	for k, v := range defaultEnv {
-		env[k] = v
 	}
 
 	return env
