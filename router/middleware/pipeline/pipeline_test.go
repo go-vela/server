@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -83,7 +81,7 @@ func TestPipeline_Establish(t *testing.T) {
 	want.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	want.SetFlavor("")
 	want.SetPlatform("")
-	want.SetRef("refs/heads/master")
+	want.SetRef("refs/heads/main")
 	want.SetType("yaml")
 	want.SetVersion("1")
 	want.SetExternalSecrets(false)

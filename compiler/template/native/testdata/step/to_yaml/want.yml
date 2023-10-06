@@ -5,4 +5,4 @@ steps:
     image: alpine
     ruleset:
       event: [ push, pull_request ]
-      branch: [ master ]
+      branch: [ main ]

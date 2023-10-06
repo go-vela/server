@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -1926,7 +1924,7 @@ func newResources() *Resources {
 	deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
 	deploymentOne.SetUser("octocat")
 	deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	deploymentOne.SetRef("refs/heads/master")
+	deploymentOne.SetRef("refs/heads/main")
 	deploymentOne.SetTask("vela-deploy")
 	deploymentOne.SetTarget("production")
 	deploymentOne.SetDescription("Deployment request from Vela")
@@ -1938,7 +1936,7 @@ func newResources() *Resources {
 	deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
 	deploymentTwo.SetUser("octocat")
 	deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
-	deploymentTwo.SetRef("refs/heads/master")
+	deploymentTwo.SetRef("refs/heads/main")
 	deploymentTwo.SetTask("vela-deploy")
 	deploymentTwo.SetTarget("production")
 	deploymentTwo.SetDescription("Deployment request from Vela")

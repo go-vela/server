@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -194,6 +192,15 @@ func CancelBuild(c *gin.Context) {
 	b, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// remove build executable for clean up
+	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to pop build %s from executables table: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return

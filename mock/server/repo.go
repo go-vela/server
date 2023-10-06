@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -25,7 +23,7 @@ const (
   "full_name": "github/octocat",
   "link": "https://github.com/github/octocat",
   "clone": "https://github.com/github/octocat",
-  "branch": "master",
+  "branch": "main",
   "build_limit": 10,
   "timeout": 60,
   "visibility": "public",
@@ -48,7 +46,7 @@ const (
     "full_name": "github/octocat",
     "link": "https://github.com/github/octocat",
     "clone": "https://github.com/github/octocat",
-    "branch": "master",
+    "branch": "main",
     "build_limit": 10,
     "timeout": 60,
     "visibility": "public",
@@ -68,7 +66,7 @@ const (
     "full_name": "github/octokitty",
     "link": "https://github.com/github/octokitty",
     "clone": "https://github.com/github/octokitty",
-    "branch": "master",
+    "branch": "main",
     "build_limit": 10,
     "timeout": 60,
     "visibility": "public",
