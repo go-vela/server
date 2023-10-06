@@ -29,6 +29,7 @@ services:
       QUEUE_DRIVER: redis
       QUEUE_ADDR: 'redis://redis:6379'
       QUEUE_PRIVATE_KEY: 'tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=='
+      QUEUE_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
       SCM_DRIVER: github
       SCM_CONTEXT: 'continuous-integration/vela'
       SECRET_VAULT: 'true'
@@ -39,7 +40,6 @@ services:
       VELA_LOG_LEVEL: trace
       # comment the line below to use registration flow
       VELA_SECRET: 'zB7mrKDTZqNeNTD8z47yG4DHywspAh'
-      QUEUE_PUBLIC_KEY: 'DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko='
       VELA_SERVER_PRIVATE_KEY: 'F534FF2A080E45F38E05DC70752E6787'
       VELA_USER_REFRESH_TOKEN_DURATION: 90m
       VELA_USER_ACCESS_TOKEN_DURATION: 60m

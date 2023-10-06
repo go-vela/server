@@ -37,19 +37,22 @@ type graph struct {
 	Edges   []*edge       `json:"edges"`
 }
 
-// node represents is a pipeline stage and its relevant steps.
+// node represents a pipeline stage and its relevant steps.
 type node struct {
-	Name   string          `json:"name"`
-	Stage  *pipeline.Stage `json:"stage"`
-	Steps  []*library.Step `json:"steps"`
-	ID     int             `json:"id"`
-	Status string          `json:"status"`
+	Name    string           `json:"name"`
+	Stage   *pipeline.Stage  `json:"stage"`
+	Steps   []*library.Step  `json:"steps"`
+	ID      int              `json:"id"`
+	Status  string           `json:"status"`
+	Service *library.Service `json:"service"`
 }
 
+// an edge is a relationship between nodes, defined by the 'needs' tag.
 type edge struct {
 	Source      int    `json:"source"`
 	Destination int    `json:"destination"`
 	Status      string `json:"status"`
+	Service     bool   `json:"service"`
 }
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
@@ -144,11 +147,38 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
+	// retrieve the services for the build from the service table
+	services := []*library.Service{}
+	page = 1
+	perPage = 100
+	for page > 0 {
+		// retrieve build services (per page) from the database
+		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
+		if err != nil {
+			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
+			util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
+
+		// add page of services to list services
+		services = append(services, servicesPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		//
+		// nolint: gomnd // ignore magic number
+		if len(servicesPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
 	logrus.Info("retrieving pipeline configuration file")
 
 	baseErr := "unable to generate build graph"
 
 	// send API call to capture the pipeline configuration file
+	// todo: pipeline table
 	config, err := scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
 	if err != nil {
 		// nolint: lll // ignore long line length due to error message
@@ -246,6 +276,35 @@ func GetBuildGraph(c *gin.Context) {
 
 	// create nodes from pipeline stages
 	nodes := make(map[int]*node)
+
+	// create edges from nodes
+	//   an edge is as a relationship between two nodes
+	//   that is defined by the 'needs' tag
+	edges := []*edge{}
+
+	for _, service := range services {
+		// scrub the environment
+		nodeID := len(nodes)
+		node := node{
+			Name:    service.GetName(),
+			ID:      nodeID,
+			Status:  service.GetStatus(),
+			Service: service,
+		}
+		nodes[nodeID] = &node
+
+		// group services using invisible edges
+		if nodeID > 0 {
+			edge := &edge{
+				Source:      nodeID - 1,
+				Destination: nodeID,
+				Status:      service.GetStatus(),
+				Service:     true,
+			}
+			edges = append(edges, edge)
+		}
+	}
+
 	for _, stage := range p.Stages {
 		for _, step := range stage.Steps {
 			// scrub the environment
@@ -327,14 +386,16 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	// create edges from nodes
-	//   an edge is as a relationship between two nodes
-	//   that is defined by the 'needs' tag
-	edges := []*edge{}
 	// loop over nodes
 	for _, destinationNode := range nodes {
+		if destinationNode.Stage == nil {
+			continue
+		}
 		// compare all nodes against all nodes
 		for _, sourceNode := range nodes {
+			if sourceNode.Stage == nil {
+				continue
+			}
 			if sourceNode.ID < 0 && destinationNode.ID < 0 && sourceNode.ID < destinationNode.ID && destinationNode.ID-sourceNode.ID == 1 {
 				edge := &edge{
 					Source:      sourceNode.ID,
@@ -377,6 +438,7 @@ func GetBuildGraph(c *gin.Context) {
 	}
 
 	// for loop over edges, and collapse same parent edge
+	// todo: move this check above the processing ?
 	if len(nodes) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many nodes on this graph")
 	}
@@ -391,5 +453,6 @@ func GetBuildGraph(c *gin.Context) {
 		Edges:   edges,
 	}
 
+	// todo: cli to generate digraph? output in format that can be used in other visualizers?
 	c.JSON(http.StatusOK, graph)
 }
