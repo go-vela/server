@@ -296,6 +296,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListBuildsForRepo"] = true
 
+	// list the pending / running builds for a repo
+	list, err = db.ListPendingAndRunningBuildsForRepo(context.TODO(), resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to list pending and running builds for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	if !cmp.Equal(list, []*library.Build{resources.Builds[0], resources.Builds[1]}) {
+		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[0], resources.Builds[1]})
+	}
+	methods["ListPendingAndRunningBuildsForRepo"] = true
+
 	// list the pending and running builds
 	queueList, err := db.ListPendingAndRunningBuilds(context.TODO(), "0")
 	if err != nil {
