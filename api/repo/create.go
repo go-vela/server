@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -75,6 +73,7 @@ func CreateRepo(c *gin.Context) {
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.Repo)
@@ -98,7 +97,7 @@ func CreateRepo(c *gin.Context) {
 	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(u, input)
+	r, err := scm.FromContext(c).GetRepo(ctx, u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -221,7 +220,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// send API call to capture the repo from the database
-	dbRepo, err := database.FromContext(c).GetRepoForOrg(r.GetOrg(), r.GetName())
+	dbRepo, err := database.FromContext(c).GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 	if err == nil && dbRepo.GetActive() {
 		retErr := fmt.Errorf("unable to activate repo: %s is already active", r.GetFullName())
 
@@ -240,7 +239,7 @@ func CreateRepo(c *gin.Context) {
 
 	// err being nil means we have a record of this repo (dbRepo)
 	if err == nil {
-		h, _ = database.FromContext(c).LastHookForRepo(dbRepo)
+		h, _ = database.FromContext(c).LastHookForRepo(ctx, dbRepo)
 
 		// make sure our record of the repo allowed events matches what we send to SCM
 		// what the dbRepo has should override default events on enable
@@ -254,7 +253,7 @@ func CreateRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-		h, _, err = scm.FromContext(c).Enable(u, r, h)
+		h, _, err = scm.FromContext(c).Enable(ctx, u, r, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -283,7 +282,7 @@ func CreateRepo(c *gin.Context) {
 		dbRepo.SetActive(true)
 
 		// send API call to update the repo
-		r, err = database.FromContext(c).UpdateRepo(dbRepo)
+		r, err = database.FromContext(c).UpdateRepo(ctx, dbRepo)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", dbRepo.GetFullName(), err)
 
@@ -293,7 +292,7 @@ func CreateRepo(c *gin.Context) {
 		}
 	} else {
 		// send API call to create the repo
-		r, err = database.FromContext(c).CreateRepo(r)
+		r, err = database.FromContext(c).CreateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new repo %s: %w", r.GetFullName(), err)
 
@@ -308,7 +307,7 @@ func CreateRepo(c *gin.Context) {
 		// update initialization hook
 		h.SetRepoID(r.GetID())
 		// create first hook for repo in the database
-		_, err = database.FromContext(c).CreateHook(h)
+		_, err = database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 

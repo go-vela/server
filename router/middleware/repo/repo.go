@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -27,6 +25,7 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		o := org.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		rParam := util.PathParameter(c, "repo")
 		if len(rParam) == 0 {
@@ -45,7 +44,7 @@ func Establish() gin.HandlerFunc {
 			"user": u.GetName(),
 		}).Debugf("reading repo %s/%s", o, rParam)
 
-		r, err := database.FromContext(c).GetRepoForOrg(o, rParam)
+		r, err := database.FromContext(c).GetRepoForOrg(ctx, o, rParam)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read repo %s/%s: %w", o, rParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

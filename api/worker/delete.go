@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -47,6 +45,7 @@ func DeleteWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	w := worker.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -57,7 +56,7 @@ func DeleteWorker(c *gin.Context) {
 	}).Infof("deleting worker %s", w.GetHostname())
 
 	// send API call to remove the step
-	err := database.FromContext(c).DeleteWorker(w)
+	err := database.FromContext(c).DeleteWorker(ctx, w)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete worker %s: %w", w.GetHostname(), err)
 

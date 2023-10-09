@@ -1,8 +1,8 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
+
+import "context"
 
 const (
 	// CreateRepoIDIndex represents a query to create an
@@ -16,7 +16,7 @@ ON pipelines (repo_id);
 )
 
 // CreatePipelineIndexes creates the indexes for the pipelines table in the database.
-func (e *engine) CreatePipelineIndexes() error {
+func (e *engine) CreatePipelineIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for pipelines table in the database")
 
 	// create the repo_id column index for the pipelines table

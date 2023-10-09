@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +14,7 @@ import (
 // ListSecretsForOrg gets a list of secrets by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListSecretsForOrg(org string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
+func (e *engine) ListSecretsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"type": constants.SecretOrg,
@@ -26,7 +26,7 @@ func (e *engine) ListSecretsForOrg(org string, filters map[string]interface{}, p
 	secrets := []*library.Secret{}
 
 	// count the results
-	count, err := e.CountSecretsForOrg(org, filters)
+	count, err := e.CountSecretsForOrg(ctx, org, filters)
 	if err != nil {
 		return secrets, 0, err
 	}

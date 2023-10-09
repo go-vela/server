@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -29,7 +27,7 @@ func FakeHandler() http.Handler {
 	e.PUT("/api/v1/admin/service", updateService)
 	e.PUT("/api/v1/admin/step", updateStep)
 	e.PUT("/api/v1/admin/user", updateUser)
-	e.POST("/api/v1/admin/workers/:worker/register-token", registerToken)
+	e.POST("/api/v1/admin/workers/:worker/register", registerToken)
 	e.PUT("api/v1/admin/clean", cleanResoures)
 
 	// mock endpoints for build calls
@@ -42,6 +40,7 @@ func FakeHandler() http.Handler {
 	e.PUT("/api/v1/repos/:org/:repo/builds/:build", updateBuild)
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build", removeBuild)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/token", buildToken)
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/executable", buildExecutable)
 
 	// mock endpoints for deployment calls
 	e.GET("/api/v1/deployments/:org/:repo", getDeployments)
@@ -135,6 +134,10 @@ func FakeHandler() http.Handler {
 	e.GET("/authenticate", getAuthenticate)
 	e.POST("/authenticate/token", getAuthenticateFromToken)
 	e.GET("/validate-token", validateToken)
+	e.GET("/validate-oauth", validateOAuthToken)
+
+	// mock endpoint for queue credentials
+	e.GET("/api/v1/queue/info", getQueueCreds)
 
 	return e
 }

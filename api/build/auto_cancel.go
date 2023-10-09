@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -42,7 +40,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *libra
 				// pending build will be handled gracefully by worker once pulled off queue
 				rB.SetStatus(constants.StatusCanceled)
 
-				_, err := database.FromContext(c).UpdateBuild(rB)
+				_, err := database.FromContext(c).UpdateBuild(c, rB)
 				if err != nil {
 					return err
 				}
@@ -59,7 +57,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *libra
 			// set error message that references current build
 			rB.SetError(fmt.Sprintf("build was auto canceled in favor of build %d", b.GetNumber()))
 
-			_, err := database.FromContext(c).UpdateBuild(rB)
+			_, err := database.FromContext(c).UpdateBuild(c, rB)
 			if err != nil {
 				return err
 			}
@@ -74,7 +72,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *libra
 func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
 	e := new([]library.Executor)
 	// retrieve the worker
-	w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
+	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
 	if err != nil {
 		return err
 	}

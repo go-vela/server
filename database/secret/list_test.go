@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -59,12 +58,12 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSecret(_secretOne)
+	_, err := _sqlite.CreateSecret(context.TODO(), _secretOne)
 	if err != nil {
 		t.Errorf("unable to create test secret for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateSecret(_secretTwo)
+	_, err = _sqlite.CreateSecret(context.TODO(), _secretTwo)
 	if err != nil {
 		t.Errorf("unable to create test secret for sqlite: %v", err)
 	}
@@ -93,7 +92,7 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListSecrets()
+			got, err := test.database.ListSecrets(context.TODO())
 
 			if test.failure {
 				if err == nil {

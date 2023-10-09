@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
 import (
+	"encoding/base64"
 	"fmt"
 	"reflect"
 	"testing"
@@ -177,6 +176,142 @@ func TestRedis_ClientOpt_WithCluster(t *testing.T) {
 
 		if !reflect.DeepEqual(_service.config.Cluster, test.want) {
 			t.Errorf("WithCluster is %v, want %v", _service.config.Cluster, test.want)
+		}
+	}
+}
+
+func TestRedis_ClientOpt_WithSigningPrivateKey(t *testing.T) {
+	// setup tests
+	// create a local fake redis instance
+	//
+	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
+	_redis, err := miniredis.Run()
+	if err != nil {
+		t.Errorf("unable to create miniredis instance: %v", err)
+	}
+	defer _redis.Close()
+
+	tests := []struct {
+		failure bool
+		privKey string
+		want    string
+	}{
+		{ //valid key input
+			failure: false,
+			privKey: "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg==",
+			want:    "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg==",
+		},
+		{ //empty key input
+			failure: false,
+			privKey: "",
+			want:    "",
+		},
+		{ //invalid base64 encoded input
+			failure: true,
+			privKey: "abc123",
+			want:    "",
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(
+			WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
+			WithPrivateKey(test.privKey),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithPrivateKey should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithPrivateKey returned err: %v", err)
+		}
+
+		got := ""
+		if _service.config.PrivateKey != nil {
+			got = fmt.Sprintf("%s", *_service.config.PrivateKey)
+		} else {
+			got = ""
+		}
+
+		w, _ := base64.StdEncoding.DecodeString(test.want)
+
+		want := string(w)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("WithPrivateKey is %v, want %v", got, want)
+		}
+	}
+}
+
+func TestRedis_ClientOpt_WithSigningPublicKey(t *testing.T) {
+	// setup tests
+	// create a local fake redis instance
+	//
+	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
+	_redis, err := miniredis.Run()
+	if err != nil {
+		t.Errorf("unable to create miniredis instance: %v", err)
+	}
+	defer _redis.Close()
+
+	tests := []struct {
+		failure bool
+		pubKey  string
+		want    string
+	}{
+		{ //valid key input
+			failure: false,
+			pubKey:  "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko=",
+			want:    "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko=",
+		},
+		{ //empty key input
+			failure: false,
+			pubKey:  "",
+			want:    "",
+		},
+		{ //invalid base64 encoded input
+			failure: true,
+			pubKey:  "abc123",
+			want:    "",
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		_service, err := New(
+			WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
+			WithPublicKey(test.pubKey),
+		)
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("WithPublicKey should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("WithPublicKey returned err: %v", err)
+		}
+
+		got := ""
+		if _service.config.PublicKey != nil {
+			got = fmt.Sprintf("%s", *_service.config.PublicKey)
+		} else {
+			got = ""
+		}
+
+		w, _ := base64.StdEncoding.DecodeString(test.want)
+
+		want := string(w)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("SigningPublicKey is %v, want %v", got, want)
 		}
 	}
 }

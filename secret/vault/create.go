@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(sType, org, name string, s *library.Secret) error {
+func (c *client) Create(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -41,7 +40,7 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	// validate the secret
 	err := database.SecretFromLibrary(s).Validate()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// convert our secret to a Vault secret
@@ -56,31 +55,31 @@ func (c *client) Create(sType, org, name string, s *library.Secret) error {
 	case constants.SecretShared:
 		return c.createShared(org, name, s.GetName(), vault.Data)
 	default:
-		return fmt.Errorf("invalid secret type: %v", sType)
+		return nil, fmt.Errorf("invalid secret type: %v", sType)
 	}
 }
 
 // createOrg is a helper function to create
 // the org secret for the provided path.
-func (c *client) createOrg(org, path string, data map[string]interface{}) error {
+func (c *client) createOrg(org, path string, data map[string]interface{}) (*library.Secret, error) {
 	return c.create(fmt.Sprintf("%s/org/%s/%s", c.config.Prefix, org, path), data)
 }
 
 // createRepo is a helper function to create
 // the repo secret for the provided path.
-func (c *client) createRepo(org, repo, path string, data map[string]interface{}) error {
+func (c *client) createRepo(org, repo, path string, data map[string]interface{}) (*library.Secret, error) {
 	return c.create(fmt.Sprintf("%s/repo/%s/%s/%s", c.config.Prefix, org, repo, path), data)
 }
 
 // createShared is a helper function to create
 // the shared secret for the provided path.
-func (c *client) createShared(org, team, path string, data map[string]interface{}) error {
+func (c *client) createShared(org, team, path string, data map[string]interface{}) (*library.Secret, error) {
 	return c.create(fmt.Sprintf("%s/shared/%s/%s/%s", c.config.Prefix, org, team, path), data)
 }
 
 // create is a helper function to create
 // the secret for the provided path.
-func (c *client) create(path string, data map[string]interface{}) error {
+func (c *client) create(path string, data map[string]interface{}) (*library.Secret, error) {
 	if strings.HasPrefix("secret/data", c.config.Prefix) {
 		data = map[string]interface{}{
 			"data": data,
@@ -88,10 +87,10 @@ func (c *client) create(path string, data map[string]interface{}) error {
 	}
 
 	// send API call to create the secret
-	_, err := c.Vault.Logical().Write(path, data)
+	s, err := c.Vault.Logical().Write(path, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return secretFromVault(s), nil
 }

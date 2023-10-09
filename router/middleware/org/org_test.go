@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package org
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -65,11 +64,11 @@ func TestOrg_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

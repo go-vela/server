@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +14,7 @@ import (
 // ListBuildsForRepo gets a list of builds by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForRepo(r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
+func (e *engine) ListBuildsForRepo(ctx context.Context, r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -26,7 +26,7 @@ func (e *engine) ListBuildsForRepo(r *library.Repo, filters map[string]interface
 	builds := []*library.Build{}
 
 	// count the results
-	count, err := e.CountBuildsForRepo(r, filters)
+	count, err := e.CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		return builds, 0, err
 	}

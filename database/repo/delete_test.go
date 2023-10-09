@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -32,7 +31,7 @@ func TestRepo_Engine_DeleteRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateRepo(_repo)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -58,7 +57,7 @@ func TestRepo_Engine_DeleteRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteRepo(_repo)
+			err = test.database.DeleteRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {

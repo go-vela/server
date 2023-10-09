@@ -1,14 +1,14 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -31,6 +31,8 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_mock.ExpectExec(build.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(build.CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(build.CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the build executable queries
+	_mock.ExpectExec(executable.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -94,7 +96,7 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.NewResources()
+			err := test.database.NewResources(context.TODO())
 
 			if test.failure {
 				if err == nil {

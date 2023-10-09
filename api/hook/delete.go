@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -69,6 +67,7 @@ func DeleteHook(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	hook := util.PathParameter(c, "hook")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), hook)
 
@@ -92,7 +91,7 @@ func DeleteHook(c *gin.Context) {
 	}
 
 	// send API call to capture the webhook
-	h, err := database.FromContext(c).GetHookForRepo(r, number)
+	h, err := database.FromContext(c).GetHookForRepo(ctx, r, number)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hook %s: %w", hook, err)
 
@@ -102,7 +101,7 @@ func DeleteHook(c *gin.Context) {
 	}
 
 	// send API call to remove the webhook
-	err = database.FromContext(c).DeleteHook(h)
+	err = database.FromContext(c).DeleteHook(ctx, h)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete hook %s: %w", hook, err)
 

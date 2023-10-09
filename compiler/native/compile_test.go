@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -15,7 +13,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v55/github"
 
 	"testing"
 	"time"
@@ -112,6 +110,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Stages: pipeline.StageSlice{
 			&pipeline.Stage{
@@ -484,6 +483,10 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel: &pipeline.CancelOptions{
+				Running: true,
+				Pending: true,
+			},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -695,6 +698,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Stages: pipeline.StageSlice{
 			&pipeline.Stage{
@@ -962,6 +966,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1157,6 +1162,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1277,6 +1283,7 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1451,6 +1458,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			Clone:       false,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1481,6 +1489,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1520,6 +1529,7 @@ func TestNative_Compile_Clone(t *testing.T) {
 			Clone:       false,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1640,6 +1650,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1685,6 +1696,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -1730,6 +1742,7 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			Clone:       true,
 			Template:    false,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel:  &pipeline.CancelOptions{},
 		},
 		Steps: pipeline.ContainerSlice{
 			&pipeline.Container{
@@ -2234,6 +2247,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Stages: []*pipeline.Stage{
 					{
@@ -2389,6 +2403,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Stages: []*pipeline.Stage{
 					{
@@ -2562,6 +2577,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Steps: []*pipeline.Container{
 					{
@@ -2678,6 +2694,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Steps: []*pipeline.Container{
 					{
@@ -2775,6 +2792,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Steps: []*pipeline.Container{
 					{
@@ -2850,6 +2868,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Steps: []*pipeline.Container{
 					{
@@ -2894,6 +2913,7 @@ func Test_Compile_Inline(t *testing.T) {
 				Metadata: pipeline.Metadata{
 					Clone:       true,
 					Environment: []string{"steps", "services", "secrets"},
+					AutoCancel:  &pipeline.CancelOptions{},
 				},
 				Stages: []*pipeline.Stage{
 					{

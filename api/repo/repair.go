@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -55,6 +53,7 @@ func RepairRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -68,7 +67,7 @@ func RepairRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to remove the webhook
-		err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+		err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -77,7 +76,7 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		hook, err := database.FromContext(c).LastHookForRepo(r)
+		hook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
 
@@ -87,7 +86,7 @@ func RepairRepo(c *gin.Context) {
 		}
 
 		// send API call to create the webhook
-		hook, _, err = scm.FromContext(c).Enable(u, r, hook)
+		hook, _, err = scm.FromContext(c).Enable(ctx, u, r, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -107,7 +106,7 @@ func RepairRepo(c *gin.Context) {
 
 		hook.SetRepoID(r.GetID())
 
-		_, err = database.FromContext(c).CreateHook(hook)
+		_, err = database.FromContext(c).CreateHook(ctx, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
@@ -122,7 +121,7 @@ func RepairRepo(c *gin.Context) {
 		r.SetActive(true)
 
 		// send API call to update the repo
-		_, err := database.FromContext(c).UpdateRepo(r)
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
 

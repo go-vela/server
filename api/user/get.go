@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -46,6 +44,7 @@ func GetUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	user := util.PathParameter(c, "user")
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -55,7 +54,7 @@ func GetUser(c *gin.Context) {
 	}).Infof("reading user %s", user)
 
 	// send API call to capture the user
-	u, err := database.FromContext(c).GetUserForName(user)
+	u, err := database.FromContext(c).GetUserForName(ctx, user)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get user %s: %w", user, err)
 

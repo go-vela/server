@@ -1,17 +1,17 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // CountHooksForRepo gets the count of hooks by repo ID from the database.
-func (e *engine) CountHooksForRepo(r *library.Repo) (int64, error) {
+func (e *engine) CountHooksForRepo(ctx context.Context, r *library.Repo) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

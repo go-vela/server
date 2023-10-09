@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -38,7 +37,7 @@ WHERE "id" = $24`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateRepo(_repo)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -64,7 +63,7 @@ WHERE "id" = $24`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.UpdateRepo(_repo)
+			got, err := test.database.UpdateRepo(context.TODO(), _repo)
 
 			if test.failure {
 				if err == nil {

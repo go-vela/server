@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetRepoForOrg gets a repo by org and repo name from the database.
-func (e *engine) GetRepoForOrg(org, name string) (*library.Repo, error) {
+func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -32,6 +30,7 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		if r == nil {
 			retErr := fmt.Errorf("repo %s/%s not found", util.PathParameter(c, "org"), util.PathParameter(c, "repo"))
@@ -62,10 +61,10 @@ func Establish() gin.HandlerFunc {
 			"user":     u.GetName(),
 		}).Debugf("reading pipeline %s", entry)
 
-		pipeline, err := database.FromContext(c).GetPipelineForRepo(p, r)
+		pipeline, err := database.FromContext(c).GetPipelineForRepo(ctx, p, r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
 			// send API call to capture the pipeline configuration file
-			config, err := scm.FromContext(c).ConfigBackoff(u, r, p)
+			config, err := scm.FromContext(c).ConfigBackoff(ctx, u, r, p)
 			if err != nil {
 				retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", entry, err)
 

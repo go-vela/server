@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -59,7 +59,7 @@ services (
 )
 
 // CreateServiceTable creates the services table in the database.
-func (e *engine) CreateServiceTable(driver string) error {
+func (e *engine) CreateServiceTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating services table in the database")
 
 	// handle the driver provided to create the table

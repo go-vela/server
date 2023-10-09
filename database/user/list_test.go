@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -49,12 +48,12 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_userOne)
+	_, err := _sqlite.CreateUser(context.TODO(), _userOne)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateUser(_userTwo)
+	_, err = _sqlite.CreateUser(context.TODO(), _userTwo)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -83,7 +82,7 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListUsers()
+			got, err := test.database.ListUsers(context.TODO())
 
 			if test.failure {
 				if err == nil {

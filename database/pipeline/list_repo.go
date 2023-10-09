@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +14,7 @@ import (
 // ListPipelinesForRepo gets a list of pipelines by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*library.Pipeline, int64, error) {
+func (e *engine) ListPipelinesForRepo(ctx context.Context, r *library.Repo, page, perPage int) ([]*library.Pipeline, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -26,7 +26,7 @@ func (e *engine) ListPipelinesForRepo(r *library.Repo, page, perPage int) ([]*li
 	pipelines := []*library.Pipeline{}
 
 	// count the results
-	count, err := e.CountPipelinesForRepo(r)
+	count, err := e.CountPipelinesForRepo(ctx, r)
 	if err != nil {
 		return pipelines, 0, err
 	}

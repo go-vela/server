@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -20,6 +19,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
+	_schedule.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -32,7 +32,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_schedule)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _schedule)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteSchedule(_schedule)
+			err = test.database.DeleteSchedule(context.TODO(), _schedule)
 
 			if test.failure {
 				if err == nil {

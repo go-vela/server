@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -80,6 +78,7 @@ func UpdateService(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -133,7 +132,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to update the service
-	err = database.FromContext(c).UpdateService(s)
+	s, err = database.FromContext(c).UpdateService(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %s: %w", entry, err)
 
@@ -141,9 +140,6 @@ func UpdateService(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated service
-	s, _ = database.FromContext(c).GetServiceForBuild(b, s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

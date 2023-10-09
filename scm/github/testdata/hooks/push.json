@@ -1,5 +1,5 @@
 {
-  "ref": "refs/heads/master",
+  "ref": "refs/heads/main",
   "before": "d3d9188fc87a6977343e922c128f162a86018d76",
   "after": "9c93babf58917cd6f6f6772b5df2b098f507ff95",
   "created": false,
@@ -154,9 +154,9 @@
     "forks": 0,
     "open_issues": 2,
     "watchers": 0,
-    "default_branch": "master",
+    "default_branch": "main",
     "stargazers": 0,
-    "master_branch": "master",
+    "master_branch": "main",
     "topics": [
       "go",
       "vela"

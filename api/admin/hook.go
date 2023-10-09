@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code
 package admin
@@ -51,6 +49,9 @@ import (
 func UpdateHook(c *gin.Context) {
 	logrus.Info("Admin: updating hook in database")
 
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// capture body from API request
 	input := new(library.Hook)
 
@@ -64,7 +65,7 @@ func UpdateHook(c *gin.Context) {
 	}
 
 	// send API call to update the hook
-	h, err := database.FromContext(c).UpdateHook(input)
+	h, err := database.FromContext(c).UpdateHook(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update hook %d: %w", input.GetID(), err)
 

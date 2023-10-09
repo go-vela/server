@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -131,6 +129,7 @@ func ListBuildsForRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -238,7 +237,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		return
 	}
 
-	b, t, err = database.FromContext(c).ListBuildsForRepo(r, filters, before, after, page, perPage)
+	b, t, err = database.FromContext(c).ListBuildsForRepo(ctx, r, filters, before, after, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for repo %s: %w", r.GetFullName(), err)
 

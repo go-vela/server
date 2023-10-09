@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -17,7 +16,7 @@ func TestPipeline_Engine_CreatePipeline(t *testing.T) {
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipeline.SetRef("refs/heads/master")
+	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 	_pipeline.SetData([]byte{})
@@ -32,7 +31,7 @@ func TestPipeline_Engine_CreatePipeline(t *testing.T) {
 	_mock.ExpectQuery(`INSERT INTO "pipelines"
 ("repo_id","commit","flavor","platform","ref","type","version","external_secrets","internal_secrets","services","stages","steps","templates","data","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
-		WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163", nil, nil, "refs/heads/master", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
+		WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163", nil, nil, "refs/heads/main", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
@@ -59,7 +58,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CreatePipeline(_pipeline)
+			got, err := test.database.CreatePipeline(context.TODO(), _pipeline)
 
 			if test.failure {
 				if err == nil {

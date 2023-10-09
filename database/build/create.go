@@ -1,11 +1,11 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with update.go
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -13,7 +13,7 @@ import (
 )
 
 // CreateBuild creates a new build in the database.
-func (e *engine) CreateBuild(b *library.Build) (*library.Build, error) {
+func (e *engine) CreateBuild(ctx context.Context, b *library.Build) (*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("creating build %d in the database", b.GetNumber())

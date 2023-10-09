@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -155,6 +154,55 @@ func TestBuild_EngineOpt_WithSkipCreation(t *testing.T) {
 
 			if !reflect.DeepEqual(e.config.SkipCreation, test.want) {
 				t.Errorf("WithSkipCreation is %v, want %v", e.config.SkipCreation, test.want)
+			}
+		})
+	}
+}
+
+func TestBuild_EngineOpt_WithContext(t *testing.T) {
+	// setup types
+	e := &engine{config: new(config)}
+
+	// setup tests
+	tests := []struct {
+		failure bool
+		name    string
+		ctx     context.Context
+		want    context.Context
+	}{
+		{
+			failure: false,
+			name:    "context set to TODO",
+			ctx:     context.TODO(),
+			want:    context.TODO(),
+		},
+		{
+			failure: false,
+			name:    "context set to nil",
+			ctx:     nil,
+			want:    nil,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := WithContext(test.ctx)(e)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("WithContext for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WithContext returned err: %v", err)
+			}
+
+			if !reflect.DeepEqual(e.ctx, test.want) {
+				t.Errorf("WithContext is %v, want %v", e.ctx, test.want)
 			}
 		})
 	}

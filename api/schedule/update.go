@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -74,6 +72,7 @@ func UpdateSchedule(c *gin.Context) {
 	// capture middleware values
 	r := repo.Retrieve(c)
 	s := schedule.Retrieve(c)
+	ctx := c.Request.Context()
 	u := user.Retrieve(c)
 	scheduleName := util.PathParameter(c, "schedule")
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
@@ -126,9 +125,12 @@ func UpdateSchedule(c *gin.Context) {
 
 	// set the updated by field using claims
 	s.SetUpdatedBy(u.GetName())
+	if input.GetBranch() != "" {
+		s.SetBranch(input.GetBranch())
+	}
 
 	// update the schedule within the database
-	err = database.FromContext(c).UpdateSchedule(s, true)
+	s, err = database.FromContext(c).UpdateSchedule(ctx, s, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update scheduled %s: %w", scheduleName, err)
 
@@ -136,9 +138,6 @@ func UpdateSchedule(c *gin.Context) {
 
 		return
 	}
-
-	// capture the updated scheduled
-	s, _ = database.FromContext(c).GetScheduleForRepo(r, scheduleName)
 
 	c.JSON(http.StatusOK, s)
 }

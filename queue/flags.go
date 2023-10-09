@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package queue
 
@@ -49,5 +47,17 @@ var Flags = []cli.Flag{
 		Name:     "queue.pop.timeout",
 		Usage:    "timeout for requests that pop items off the queue",
 		Value:    60 * time.Second,
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_QUEUE_PRIVATE_KEY", "QUEUE_PRIVATE_KEY"},
+		FilePath: "/vela/signing.key",
+		Name:     "queue.private-key",
+		Usage:    "set value of base64 encoded queue signing private key",
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_QUEUE_PUBLIC_KEY", "QUEUE_PUBLIC_KEY"},
+		FilePath: "/vela/signing.pub",
+		Name:     "queue.public-key",
+		Usage:    "set value of base64 encoded queue signing public key",
 	},
 }

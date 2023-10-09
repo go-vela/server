@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -92,12 +91,12 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateRepo(_repoOne)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repoOne)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateRepo(_repoTwo)
+	_, err = _sqlite.CreateRepo(context.TODO(), _repoTwo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -160,7 +159,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListReposForUser(_user, test.sort, filters, 1, 10)
+			got, _, err := test.database.ListReposForUser(context.TODO(), _user, test.sort, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

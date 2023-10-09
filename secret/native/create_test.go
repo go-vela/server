@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -37,7 +36,7 @@ func TestNative_Create_Org(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(want)
+		db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -49,12 +48,10 @@ func TestNative_Create_Org(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("org", "foo", "*", want)
+	got, err := s.Create(context.TODO(), "org", "foo", "*", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
-
-	got, _ := s.Get("org", "foo", "*", "bar")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -86,7 +83,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(want)
+		db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -98,12 +95,10 @@ func TestNative_Create_Repo(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("repo", "foo", "bar", want)
+	got, err := s.Create(context.TODO(), "repo", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
-
-	got, _ := s.Get("repo", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -135,7 +130,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(want)
+		db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -147,12 +142,10 @@ func TestNative_Create_Shared(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("shared", "foo", "bar", want)
+	got, err := s.Create(context.TODO(), "shared", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Create returned err: %v", err)
 	}
-
-	got, _ := s.Get("shared", "foo", "bar", "baz")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Create is %v, want %v", got, want)
@@ -184,7 +177,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(sec)
+		db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 
@@ -196,7 +189,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Create("invalid", "foo", "bar", sec)
+	_, err = s.Create(context.TODO(), "invalid", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Create should have returned err")
 	}

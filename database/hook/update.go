@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateHook updates an existing hook in the database.
-func (e *engine) UpdateHook(h *library.Hook) (*library.Hook, error) {
+func (e *engine) UpdateHook(ctx context.Context, h *library.Hook) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"hook": h.GetNumber(),
 	}).Tracef("updating hook %d in the database", h.GetNumber())

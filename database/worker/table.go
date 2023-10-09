@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -52,7 +52,7 @@ workers (
 )
 
 // CreateWorkerTable creates the workers table in the database.
-func (e *engine) CreateWorkerTable(driver string) error {
+func (e *engine) CreateWorkerTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating workers table in the database")
 
 	// handle the driver provided to create the table

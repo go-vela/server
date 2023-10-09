@@ -1,10 +1,12 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
-import "github.com/go-vela/types/constants"
+import (
+	"context"
+
+	"github.com/go-vela/types/constants"
+)
 
 const (
 	// CreatePostgresTable represents a query to create the Postgres repos table.
@@ -75,7 +77,7 @@ repos (
 )
 
 // CreateRepoTable creates the repos table in the database.
-func (e *engine) CreateRepoTable(driver string) error {
+func (e *engine) CreateRepoTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating repos table in the database")
 
 	// handle the driver provided to create the table

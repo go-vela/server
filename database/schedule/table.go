@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -24,6 +24,7 @@ schedules (
 	updated_at   INTEGER,
 	updated_by   VARCHAR(250),
 	scheduled_at INTEGER,
+	branch       VARCHAR(250),
 	UNIQUE(repo_id, name)
 );
 `
@@ -43,13 +44,14 @@ schedules (
 	updated_at   INTEGER,
 	updated_by   TEXT,
 	scheduled_at INTEGER,
+	branch       TEXT,
 	UNIQUE(repo_id, name)
 );
 `
 )
 
 // CreateScheduleTable creates the schedules table in the database.
-func (e *engine) CreateScheduleTable(driver string) error {
+func (e *engine) CreateScheduleTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating schedules table in the database")
 
 	// handle the driver provided to create the table

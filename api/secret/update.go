@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -88,6 +86,7 @@ func UpdateSecret(c *gin.Context) {
 	o := util.PathParameter(c, "org")
 	n := util.PathParameter(c, "name")
 	s := strings.TrimPrefix(util.PathParameter(c, "secret"), "/")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s/%s/%s", t, o, n, s)
 
@@ -161,7 +160,7 @@ func UpdateSecret(c *gin.Context) {
 	}
 
 	// send API call to update the secret
-	err = secret.FromContext(c, e).Update(t, o, n, input)
+	secret, err := secret.FromContext(c, e).Update(ctx, t, o, n, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update secret %s for %s service: %w", entry, e, err)
 
@@ -169,9 +168,6 @@ func UpdateSecret(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the updated secret
-	secret, _ := secret.FromContext(c, e).Get(t, o, n, input.GetName())
 
 	c.JSON(http.StatusOK, secret.Sanitize())
 }

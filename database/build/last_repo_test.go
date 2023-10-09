@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -19,7 +18,7 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	_build.SetRepoID(1)
 	_build.SetNumber(1)
 	_build.SetDeployPayload(nil)
-	_build.SetBranch("master")
+	_build.SetBranch("main")
 
 	_repo := testRepo()
 	_repo.SetID(1)
@@ -36,15 +35,15 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "master", "", "", "", "", "", "", 0)
+		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch = $2 ORDER BY number DESC LIMIT 1`).WithArgs(1, "master").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch = $2 ORDER BY number DESC LIMIT 1`).WithArgs(1, "main").WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(_build)
+	_, err := _sqlite.CreateBuild(context.TODO(), _build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -73,7 +72,7 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.LastBuildForRepo(_repo, "master")
+			got, err := test.database.LastBuildForRepo(context.TODO(), _repo, "main")
 
 			if test.failure {
 				if err == nil {

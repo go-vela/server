@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -70,6 +68,7 @@ func CreatePipeline(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -98,7 +97,7 @@ func CreatePipeline(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the pipeline
-	p, err := database.FromContext(c).CreatePipeline(input)
+	p, err := database.FromContext(c).CreatePipeline(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create pipeline %s/%s: %w", r.GetFullName(), input.GetCommit(), err)
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -80,6 +78,7 @@ func ListPipelines(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -117,7 +116,7 @@ func ListPipelines(c *gin.Context) {
 	//nolint:gomnd // ignore magic number
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
-	p, t, err := database.FromContext(c).ListPipelinesForRepo(r, page, perPage)
+	p, t, err := database.FromContext(c).ListPipelinesForRepo(ctx, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list pipelines for repo %s: %w", r.GetFullName(), err)
 

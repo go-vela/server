@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // DeleteWorker deletes an existing worker from the database.
-func (e *engine) DeleteWorker(w *library.Worker) error {
+func (e *engine) DeleteWorker(ctx context.Context, w *library.Worker) error {
 	e.logger.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
 	}).Tracef("deleting worker %s from the database", w.GetHostname())

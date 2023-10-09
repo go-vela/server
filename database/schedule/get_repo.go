@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +11,7 @@ import (
 )
 
 // GetScheduleForRepo gets a schedule by repo ID and name from the database.
-func (e *engine) GetScheduleForRepo(r *library.Repo, name string) (*library.Schedule, error) {
+func (e *engine) GetScheduleForRepo(ctx context.Context, r *library.Repo, name string) (*library.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":      r.GetOrg(),
 		"repo":     r.GetName(),

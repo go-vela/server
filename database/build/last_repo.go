@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
 	"errors"
 
 	"github.com/go-vela/types/constants"
@@ -16,7 +15,7 @@ import (
 )
 
 // LastBuildForRepo gets the last build by repo ID and branch from the database.
-func (e *engine) LastBuildForRepo(r *library.Repo, branch string) (*library.Build, error) {
+func (e *engine) LastBuildForRepo(ctx context.Context, r *library.Repo, branch string) (*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

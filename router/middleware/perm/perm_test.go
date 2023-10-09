@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package perm
 
 import (
+	_context "context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -59,11 +58,11 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(u)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -147,11 +146,11 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(u)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/admin/users", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -274,11 +273,11 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(u)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -441,14 +440,16 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 		t.Errorf("unable to create test database engine: %v", err)
 	}
 
+	ctx := _context.TODO()
+
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -524,6 +525,8 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
+	ctx := _context.TODO()
+
 	// setup database
 	db, err := database.NewTest()
 	if err != nil {
@@ -531,15 +534,15 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -610,6 +613,8 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
+	ctx := _context.TODO()
+
 	// setup database
 	db, err := database.NewTest()
 	if err != nil {
@@ -617,13 +622,13 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -694,6 +699,8 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
+	ctx := _context.TODO()
+
 	// setup database
 	db, err := database.NewTest()
 	if err != nil {
@@ -701,13 +708,13 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/repo/foo/bar/baz", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -775,6 +782,8 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
+	ctx := _context.TODO()
+
 	// setup database
 	db, err := database.NewTest()
 	if err != nil {
@@ -782,13 +791,13 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/org/foo/*/baz", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -856,6 +865,8 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
+	ctx := _context.TODO()
+
 	// setup database
 	db, err := database.NewTest()
 	if err != nil {
@@ -863,13 +874,13 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(b)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateBuild(ctx, b)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/native/shared/foo/*/*", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -944,13 +955,13 @@ func TestPerm_MustAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1042,13 +1053,13 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1140,13 +1151,13 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1238,13 +1249,13 @@ func TestPerm_MustWrite(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1336,13 +1347,13 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1434,13 +1445,13 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1532,13 +1543,13 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1630,13 +1641,13 @@ func TestPerm_MustRead(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1728,13 +1739,13 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1819,6 +1830,8 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
 
+	ctx := _context.TODO()
+
 	// setup database
 	db, err := database.NewTest()
 	if err != nil {
@@ -1826,13 +1839,13 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(b)
-		db.DeleteRepo(r)
+		db.DeleteBuild(ctx, b)
+		db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateBuild(b)
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateBuild(ctx, b)
+	_, _ = db.CreateRepo(_context.TODO(), r)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar/builds/1", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -1910,13 +1923,13 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -2008,13 +2021,13 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -2106,13 +2119,13 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))
@@ -2204,13 +2217,13 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
-		db.DeleteUser(u)
+		db.DeleteRepo(_context.TODO(), r)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_ = db.CreateUser(u)
+	_, _ = db.CreateRepo(_context.TODO(), r)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	context.Request, _ = http.NewRequest(http.MethodGet, "/test/foo/bar", nil)
 	context.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tok))

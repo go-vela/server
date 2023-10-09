@@ -1,10 +1,11 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // EngineOpt represents a configuration option to initialize the database engine.
 type EngineOpt func(*engine) error
@@ -84,6 +85,15 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
 		// set to skip creating tables and indexes in the database engine
 		e.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}
+
+// WithContext sets the context in the database engine.
+func WithContext(ctx context.Context) EngineOpt {
+	return func(e *engine) error {
+		e.ctx = ctx
 
 		return nil
 	}

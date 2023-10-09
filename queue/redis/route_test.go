@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -14,7 +12,7 @@ import (
 
 func TestRedis_Client_Route(t *testing.T) {
 	// setup
-	client, _ := NewTest("vela", "16cpu8gb", "16cpu8gb:gcp", "gcp")
+	client, _ := NewTest(_signingPrivateKey, _signingPublicKey, "vela", "16cpu8gb", "16cpu8gb:gcp", "gcp")
 	tests := []struct {
 		success bool
 		want    string

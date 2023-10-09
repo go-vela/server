@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -41,6 +39,7 @@ import (
 func ListWorkers(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -49,7 +48,7 @@ func ListWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	w, err := database.FromContext(c).ListWorkers()
+	w, err := database.FromContext(c).ListWorkers(ctx)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 

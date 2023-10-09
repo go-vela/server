@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -65,6 +63,7 @@ func DeleteBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -79,7 +78,7 @@ func DeleteBuild(c *gin.Context) {
 	}).Infof("deleting build %s", entry)
 
 	// send API call to remove the build
-	err := database.FromContext(c).DeleteBuild(b)
+	err := database.FromContext(c).DeleteBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete build %s: %w", entry, err)
 

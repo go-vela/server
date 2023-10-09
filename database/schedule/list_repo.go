@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +11,7 @@ import (
 )
 
 // ListSchedulesForRepo gets a list of schedules by repo ID from the database.
-func (e *engine) ListSchedulesForRepo(r *library.Repo, page, perPage int) ([]*library.Schedule, int64, error) {
+func (e *engine) ListSchedulesForRepo(ctx context.Context, r *library.Repo, page, perPage int) ([]*library.Schedule, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -24,7 +23,7 @@ func (e *engine) ListSchedulesForRepo(r *library.Repo, page, perPage int) ([]*li
 	schedules := []*library.Schedule{}
 
 	// count the results
-	count, err := e.CountSchedulesForRepo(r)
+	count, err := e.CountSchedulesForRepo(ctx, r)
 	if err != nil {
 		return nil, 0, err
 	}

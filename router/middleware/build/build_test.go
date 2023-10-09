@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -89,13 +88,13 @@ func TestBuild_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(want)
-		db.DeleteRepo(r)
+		db.DeleteBuild(context.TODO(), want)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
-	_, _ = db.CreateBuild(want)
+	_, _ = db.CreateRepo(context.TODO(), r)
+	_, _ = db.CreateBuild(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -172,11 +171,11 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -220,11 +219,11 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -268,11 +267,11 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(r)
+		db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
-	_, _ = db.CreateRepo(r)
+	_, _ = db.CreateRepo(context.TODO(), r)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

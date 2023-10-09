@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -85,6 +83,7 @@ func CreateBuild(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -122,7 +121,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the repo owner
-	u, err = database.FromContext(c).GetUser(r.GetUserID())
+	u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -137,7 +136,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.FromContext(c).CountBuildsForRepo(r, filters)
+	builds, err := database.FromContext(c).CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: unable to get count of builds for repo %s", r.GetFullName())
 
@@ -186,7 +185,7 @@ func CreateBuild(c *gin.Context) {
 	if !strings.EqualFold(input.GetEvent(), constants.EventComment) &&
 		!strings.EqualFold(input.GetEvent(), constants.EventPull) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.FromContext(c).Changeset(u, r, input.GetCommit())
+		files, err = scm.FromContext(c).Changeset(ctx, u, r, input.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
@@ -209,7 +208,7 @@ func CreateBuild(c *gin.Context) {
 		}
 
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.FromContext(c).ChangesetPR(u, r, number)
+		files, err = scm.FromContext(c).ChangesetPR(ctx, u, r, number)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to get changeset for %s: %w", r.GetFullName(), err)
 
@@ -231,10 +230,10 @@ func CreateBuild(c *gin.Context) {
 	)
 
 	// send API call to attempt to capture the pipeline
-	pipeline, err = database.FromContext(c).GetPipelineForRepo(input.GetCommit(), r)
+	pipeline, err = database.FromContext(c).GetPipelineForRepo(ctx, input.GetCommit(), r)
 	if err != nil { // assume the pipeline doesn't exist in the database yet
 		// send API call to capture the pipeline configuration file
-		config, err = scm.FromContext(c).ConfigBackoff(u, r, input.GetCommit())
+		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, input.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to get pipeline configuration for %s: %w", r.GetFullName(), err)
 
@@ -288,7 +287,7 @@ func CreateBuild(c *gin.Context) {
 		input.SetStatus(constants.StatusSuccess)
 
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
 		if err != nil {
 			logger.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 		}
@@ -308,7 +307,7 @@ func CreateBuild(c *gin.Context) {
 		pipeline.SetRef(input.GetRef())
 
 		// send API call to create the pipeline
-		pipeline, err = database.FromContext(c).CreatePipeline(pipeline)
+		pipeline, err = database.FromContext(c).CreatePipeline(ctx, pipeline)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new build: failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -321,7 +320,7 @@ func CreateBuild(c *gin.Context) {
 	input.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = PlanBuild(database.FromContext(c), p, input, r)
+	err = PlanBuild(ctx, database.FromContext(c), p, input, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 
@@ -329,7 +328,7 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.FromContext(c).UpdateRepo(r)
+	r, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new build: failed to update repo %s: %w", r.GetFullName(), err)
 
@@ -339,18 +338,19 @@ func CreateBuild(c *gin.Context) {
 	}
 
 	// send API call to capture the created build
-	input, _ = database.FromContext(c).GetBuildForRepo(r, input.GetNumber())
+	input, _ = database.FromContext(c).GetBuildForRepo(ctx, r, input.GetNumber())
 
 	c.JSON(http.StatusCreated, input)
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(u, input, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
 	if err != nil {
 		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
 	}
 
 	// publish the build to the queue
 	go PublishToQueue(
+		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
 		p,

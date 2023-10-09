@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -26,6 +25,8 @@ type (
 	engine struct {
 		// engine configuration settings used in user functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in user functions
 		//
@@ -67,13 +68,13 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the users table
-	err := e.CreateUserTable(e.client.Config.Dialector.Name())
+	err := e.CreateUserTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableUser, err)
 	}
 
 	// create the indexes for the users table
-	err = e.CreateUserIndexes()
+	err = e.CreateUserIndexes(e.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableUser, err)
 	}

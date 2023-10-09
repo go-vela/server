@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -59,12 +58,12 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(_buildOne)
+	_, err := _sqlite.CreateBuild(context.TODO(), _buildOne)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateBuild(_buildTwo)
+	_, err = _sqlite.CreateBuild(context.TODO(), _buildTwo)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -95,7 +94,7 @@ func TestBuild_Engine_ListBuildsForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListBuildsForRepo(_repo, filters, time.Now().UTC().Unix(), 0, 1, 10)
+			got, _, err := test.database.ListBuildsForRepo(context.TODO(), _repo, filters, time.Now().UTC().Unix(), 0, 1, 10)
 
 			if test.failure {
 				if err == nil {

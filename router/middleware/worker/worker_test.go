@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -58,11 +57,11 @@ func TestWorker_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteWorker(want)
+		db.DeleteWorker(context.TODO(), want)
 		db.Close()
 	}()
 
-	_ = db.CreateWorker(want)
+	_, _ = db.CreateWorker(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

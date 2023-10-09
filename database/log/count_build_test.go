@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -43,12 +42,12 @@ func TestLog_Engine_CountLogsForBuild(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_service)
+	err := _sqlite.CreateLog(context.TODO(), _service)
 	if err != nil {
 		t.Errorf("unable to create test service log for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateLog(_step)
+	err = _sqlite.CreateLog(context.TODO(), _step)
 	if err != nil {
 		t.Errorf("unable to create test step log for sqlite: %v", err)
 	}
@@ -77,7 +76,7 @@ func TestLog_Engine_CountLogsForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountLogsForBuild(_build)
+			got, err := test.database.CountLogsForBuild(context.TODO(), _build)
 
 			if test.failure {
 				if err == nil {
