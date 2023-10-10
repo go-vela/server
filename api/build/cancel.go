@@ -169,9 +169,8 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
-				c.JSON(resp.StatusCode, b)
-
 				b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
+
 				b, err = database.FromContext(c).UpdateBuild(ctx, b)
 				if err != nil {
 					retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
@@ -179,6 +178,8 @@ func CancelBuild(c *gin.Context) {
 
 					return
 				}
+
+				c.JSON(resp.StatusCode, b)
 
 				return
 			}
