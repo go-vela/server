@@ -39,21 +39,47 @@ type graph struct {
 
 // node represents a pipeline stage and its relevant steps.
 type node struct {
-	Name    string           `json:"name"`
-	Stage   *pipeline.Stage  `json:"stage"`
-	Steps   []*library.Step  `json:"steps"`
-	ID      int              `json:"id"`
-	Status  string           `json:"status"`
-	Service *library.Service `json:"service"`
+	Cluster int    `json:"cluster"`
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+
+	// vela metadata
+	Status   string          `json:"status"`
+	Duration int             `json:"duration"`
+	Steps    []*library.Step `json:"steps"`
+
+	// unexported data used for building edges
+	Stage *pipeline.Stage `json:"-"`
 }
 
-// an edge is a relationship between nodes, defined by the 'needs' tag.
+// edge represents a relationship between nodes, primarily defined by a stage 'needs' tag.
 type edge struct {
-	Source      int    `json:"source"`
-	Destination int    `json:"destination"`
-	Status      string `json:"status"`
-	Service     bool   `json:"service"`
+	Cluster     int `json:"cluster"`
+	Source      int `json:"source"`
+	Destination int `json:"destination"`
+
+	// vela metadata
+	Status string `json:"status"`
 }
+
+// stg represents a stage's steps and some metadata for producing node/edge information
+type stg struct {
+	steps []*library.Step
+	// used for tracking stage status
+	success    int
+	running    int
+	failure    int
+	killed     int
+	startedAt  int
+	finishedAt int
+}
+
+const (
+	// clusters determine graph orientation
+	BuiltInCluster  = 2
+	PipelineCluster = 1
+	ServiceCluster  = 0
+)
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
 //
@@ -100,7 +126,9 @@ func GetBuildGraph(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+
 	m := c.MustGet("metadata").(*types.Metadata)
+
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
@@ -173,16 +201,29 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	logrus.Info("retrieving pipeline configuration file")
-
 	baseErr := "unable to generate build graph"
 
-	// send API call to capture the pipeline configuration file
-	// todo: pipeline table
-	config, err := scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
-	if err != nil {
-		// nolint: lll // ignore long line length due to error message
-		retErr := fmt.Errorf("%s: failed to get pipeline configuration for %s: %v", baseErr, r.GetFullName(), err)
+	logrus.Info("retrieving pipeline configuration")
+	var config []byte
+
+	lp, err := database.FromContext(c).GetPipelineForRepo(ctx, b.GetCommit(), r)
+	if err != nil { // assume the pipeline doesn't exist in the database yet (before pipeline support was added)
+		// send API call to capture the pipeline configuration file
+		config, err = scm.FromContext(c).ConfigBackoff(ctx, u, r, b.GetCommit())
+		if err != nil {
+			retErr := fmt.Errorf("unable to get pipeline configuration for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusNotFound, retErr)
+
+			return
+		}
+	} else {
+		config = lp.GetData()
+	}
+
+	if config == nil {
+		retErr := fmt.Errorf("unable to get pipeline configuration for %s: config is nil", r.GetFullName())
+
 		util.HandleError(c, http.StatusNotFound, retErr)
 
 		return
@@ -205,9 +246,8 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	// todo: get pipeline from db instead?
+	logrus.Info("compiling pipeline configuration")
 
-	logrus.Info("compiling pipeline")
 	// parse and compile the pipeline configuration file
 	p, _, err := compiler.FromContext(c).
 		Duplicate().
@@ -239,40 +279,7 @@ func GetBuildGraph(c *gin.Context) {
 
 	logrus.Info("generating build graph")
 
-	type stg struct {
-		steps []*library.Step
-		// used for tracking stage status
-		success int
-		running int
-		failure int
-	}
-	// group library steps by stage name
-	stages := map[string]*stg{}
-	for _, _step := range steps {
-		name := _step.GetStage()
-		if len(name) == 0 {
-			name = _step.GetName()
-		}
-		if _, ok := stages[name]; !ok {
-			stages[name] = &stg{
-				steps:   []*library.Step{},
-				success: 0,
-				running: 0,
-				failure: 0,
-			}
-		}
-		switch _step.GetStatus() {
-		case constants.StatusRunning:
-			stages[name].running++
-		case constants.StatusSuccess:
-			stages[name].success++
-		case constants.StatusFailure:
-			// check if ruleset has 'continue' ?
-			stages[name].failure++
-		default:
-		}
-		stages[name].steps = append(stages[name].steps, _step)
-	}
+	stages := p.Stages
 
 	// create nodes from pipeline stages
 	nodes := make(map[int]*node)
@@ -282,64 +289,94 @@ func GetBuildGraph(c *gin.Context) {
 	//   that is defined by the 'needs' tag
 	edges := []*edge{}
 
+	// initialize a map for grouping steps by stage name
+	//   and tracking stage information
+	stageMap := map[string]*stg{}
+	for _, _step := range steps {
+		name := _step.GetStage()
+		if len(name) == 0 {
+			name = _step.GetName()
+		}
+		if _, ok := stageMap[name]; !ok {
+			stageMap[name] = &stg{
+				steps:      []*library.Step{},
+				success:    0,
+				running:    0,
+				failure:    0,
+				killed:     0,
+				startedAt:  0,
+				finishedAt: 0,
+			}
+		}
+		stageMap[name].updateStgTracker(_step)
+		stageMap[name].steps = append(stageMap[name].steps, _step)
+	}
+
 	for _, service := range services {
-		// scrub the environment
 		nodeID := len(nodes)
 		node := node{
-			Name:    service.GetName(),
+			// set service cluster
+			Cluster: ServiceCluster,
 			ID:      nodeID,
-			Status:  service.GetStatus(),
-			Service: service,
+
+			Name:   service.GetName(),
+			Status: service.GetStatus(),
+			// todo: runtime
+			Duration: int(service.GetFinished() - service.GetStarted()),
+			// todo: is this right?
+			// Steps: []string{},
 		}
 		nodes[nodeID] = &node
 
 		// group services using invisible edges
 		if nodeID > 0 {
 			edge := &edge{
+				// set service cluster
+				Cluster: ServiceCluster,
+				// link them together for visual effect
 				Source:      nodeID - 1,
 				Destination: nodeID,
-				Status:      service.GetStatus(),
-				Service:     true,
+
+				Status: service.GetStatus(),
 			}
 			edges = append(edges, edge)
 		}
 	}
 
-	for _, stage := range p.Stages {
+	for _, stage := range stages {
 		for _, step := range stage.Steps {
 			// scrub the environment
 			step.Environment = nil
 		}
 
+		nodeID := len(nodes)
+
 		// determine the "status" for a stage based on the steps within it.
 		// this could potentially get complicated with ruleset logic (continue/detach)
-		status := constants.StatusPending
-		if stages[stage.Name].running > 0 {
-			status = constants.StatusRunning
-		} else if stages[stage.Name].failure > 0 {
-			status = constants.StatusFailure
-		} else if stages[stage.Name].success > 0 {
-			status = constants.StatusSuccess
-		}
+		status := stageStatus(stageMap[stage.Name])
 
-		nodeID := len(nodes)
+		node := node{
+			Cluster: PipelineCluster,
+			ID:      nodeID,
+
+			Name:     stage.Name,
+			Status:   status,
+			Duration: int(stageMap[stage.Name].finishedAt - stageMap[stage.Name].startedAt),
+			Steps:    stageMap[stage.Name].steps,
+
+			// used for edge creation
+			Stage: stage,
+		}
 
 		// override the id for built-in nodes
 		// this allows for better layout control
 		if stage.Name == "init" {
-			nodeID = -3
+			node.Cluster = BuiltInCluster
 		}
 		if stage.Name == "clone" {
-			nodeID = -2
+			node.Cluster = BuiltInCluster
 		}
 
-		node := node{
-			Name:   stage.Name,
-			Stage:  stage,
-			Steps:  stages[stage.Name].steps,
-			ID:     nodeID,
-			Status: status,
-		}
 		nodes[nodeID] = &node
 	}
 
@@ -349,55 +386,50 @@ func GetBuildGraph(c *gin.Context) {
 			// scrub the environment
 			step.Environment = nil
 
+			// mock stage for edge creation
 			stage := &pipeline.Stage{
 				Name: step.Name,
 			}
 
 			// determine the "status" for a stage based on the steps within it.
 			// this could potentially get complicated with ruleset logic (continue/detach)
-			status := constants.StatusPending
-			if stages[stage.Name].running > 0 {
-				status = constants.StatusRunning
-			} else if stages[stage.Name].failure > 0 {
-				status = constants.StatusFailure
-			} else if stages[stage.Name].success > 0 {
-				status = constants.StatusSuccess
-			}
+			status := stageStatus(stageMap[stage.Name])
 
 			nodeID := len(nodes)
 
-			// override the id for built-in nodes
-			// this allows for better layout control
-			// if stage.Name == "init" {
-			// 	nodeID = -3
-			// }
-			// if stage.Name == "clone" {
-			// 	nodeID = -2
-			// }
-
 			node := node{
-				Name:   stage.Name,
-				Stage:  stage,
-				Steps:  stages[stage.Name].steps,
-				ID:     nodeID,
-				Status: status,
+				Cluster: PipelineCluster,
+				ID:      nodeID,
+
+				Name:     stage.Name,
+				Status:   status,
+				Duration: int(stageMap[stage.Name].finishedAt - stageMap[stage.Name].startedAt),
+				Steps:    stageMap[stage.Name].steps,
+
+				// used for edge creation
+				Stage: stage,
 			}
 			nodes[nodeID] = &node
 		}
 	}
+	// done building nodes
 
-	// loop over nodes
+	// loop over nodes and create edges based on 'needs'
 	for _, destinationNode := range nodes {
+		// if theres no stage, skip because the edge is already created?
 		if destinationNode.Stage == nil {
 			continue
 		}
+
 		// compare all nodes against all nodes
 		for _, sourceNode := range nodes {
 			if sourceNode.Stage == nil {
 				continue
 			}
-			if sourceNode.ID < 0 && destinationNode.ID < 0 && sourceNode.ID < destinationNode.ID && destinationNode.ID-sourceNode.ID == 1 {
+
+			if sourceNode.Cluster == BuiltInCluster && destinationNode.Cluster == BuiltInCluster && sourceNode.ID < destinationNode.ID && destinationNode.ID-sourceNode.ID == 1 {
 				edge := &edge{
+					Cluster:     sourceNode.Cluster,
 					Source:      sourceNode.ID,
 					Destination: destinationNode.ID,
 					Status:      sourceNode.Status,
@@ -406,7 +438,7 @@ func GetBuildGraph(c *gin.Context) {
 			}
 
 			// skip normal processing for built-in nodes
-			if destinationNode.ID < 0 || sourceNode.ID < 0 {
+			if destinationNode.Cluster == BuiltInCluster || sourceNode.Cluster == BuiltInCluster {
 				continue
 			}
 
@@ -418,6 +450,7 @@ func GetBuildGraph(c *gin.Context) {
 						// check if destination needs source stage
 						if sourceNode.Stage.Name == need && need != "clone" {
 							edge := &edge{
+								Cluster:     sourceNode.Cluster,
 								Source:      sourceNode.ID,
 								Destination: destinationNode.ID,
 								Status:      sourceNode.Status,
@@ -427,6 +460,7 @@ func GetBuildGraph(c *gin.Context) {
 					}
 				} else {
 					edge := &edge{
+						Cluster:     sourceNode.Cluster,
 						Source:      sourceNode.ID,
 						Destination: sourceNode.ID + 1,
 						Status:      sourceNode.Status,
@@ -442,6 +476,7 @@ func GetBuildGraph(c *gin.Context) {
 	if len(nodes) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many nodes on this graph")
 	}
+
 	if len(edges) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many edges on this graph")
 	}
@@ -455,4 +490,40 @@ func GetBuildGraph(c *gin.Context) {
 
 	// todo: cli to generate digraph? output in format that can be used in other visualizers?
 	c.JSON(http.StatusOK, graph)
+}
+
+func (s *stg) updateStgTracker(step *library.Step) {
+	switch step.GetStatus() {
+	case constants.StatusRunning:
+		s.running++
+	case constants.StatusSuccess:
+		s.success++
+	case constants.StatusFailure:
+		// check if ruleset has 'continue' ?
+		s.failure++
+	case constants.StatusKilled:
+		s.killed++
+	default:
+	}
+
+	if s.finishedAt == 0 || s.finishedAt < int(step.GetFinished()) {
+		s.finishedAt = int(step.GetFinished())
+	}
+	if s.startedAt == 0 || s.startedAt > int(step.GetStarted()) {
+		s.startedAt = int(step.GetStarted())
+	}
+}
+
+func stageStatus(s *stg) string {
+	status := constants.StatusPending
+	if s.running > 0 {
+		status = constants.StatusRunning
+	} else if s.failure > 0 {
+		status = constants.StatusFailure
+	} else if s.success > 0 {
+		status = constants.StatusSuccess
+	} else if s.killed > 0 {
+		status = constants.StatusKilled
+	}
+	return status
 }
