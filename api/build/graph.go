@@ -368,7 +368,7 @@ func GetBuildGraph(c *gin.Context) {
 			Stage: stage,
 		}
 
-		// override the id for built-in nodes
+		// override the cluster id for built-in nodes
 		// this allows for better layout control
 		if stage.Name == "init" {
 			node.Cluster = BuiltInCluster
@@ -475,10 +475,12 @@ func GetBuildGraph(c *gin.Context) {
 	// todo: move this check above the processing ?
 	if len(nodes) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many nodes on this graph")
+		return
 	}
 
 	if len(edges) > 5000 {
 		c.JSON(http.StatusInternalServerError, "too many edges on this graph")
+		return
 	}
 
 	// construct the response
