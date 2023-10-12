@@ -16,11 +16,12 @@ import (
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 )
 
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
-func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *library.Repo, pending, running bool) error {
+func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *library.Repo, cancelOpts *pipeline.CancelOptions) error {
 	// iterate through pending and running builds
 	for _, rB := range rBs {
 		// if build is the current build, continue
@@ -28,7 +29,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *libra
 			continue
 		}
 
-		// ensure criteria is met before auto canceling
+		// ensure criteria is met before auto canceling (push to same branch, or pull with same action from same head_ref)
 		if (strings.EqualFold(rB.GetEvent(), constants.EventPush) &&
 			strings.EqualFold(b.GetEvent(), constants.EventPush) &&
 			strings.EqualFold(b.GetBranch(), rB.GetBranch())) ||
@@ -36,7 +37,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *libra
 				strings.EqualFold(b.GetEventAction(), rB.GetEventAction()) &&
 				strings.EqualFold(b.GetHeadRef(), rB.GetHeadRef())) {
 			switch {
-			case strings.EqualFold(rB.GetStatus(), constants.StatusPending) && pending:
+			case strings.EqualFold(rB.GetStatus(), constants.StatusPending) && cancelOpts.Pending:
 				// pending build will be handled gracefully by worker once pulled off queue
 				rB.SetStatus(constants.StatusCanceled)
 
@@ -44,7 +45,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *libra
 				if err != nil {
 					return err
 				}
-			case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && running:
+			case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && cancelOpts.Running:
 				// call cancelRunning routine for builds already running on worker
 				err := cancelRunning(c, rB, r)
 				if err != nil {

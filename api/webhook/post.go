@@ -688,7 +688,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		// call auto cancel routine
-		err = build.AutoCancel(c, b, rBs, repo, p.Metadata.AutoCancel.Pending, p.Metadata.AutoCancel.Running)
+		err = build.AutoCancel(c, b, rBs, repo, p.Metadata.AutoCancel)
 		if err != nil {
 			logrus.Errorf("unable to cancel running build: %v", err)
 		}
