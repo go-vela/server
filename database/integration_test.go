@@ -423,6 +423,30 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["PopBuildExecutable"] = true
 
+	resources.Builds[0].SetStatus(constants.StatusError)
+
+	_, err := db.UpdateBuild(context.TODO(), resources.Builds[0])
+	if err != nil {
+		t.Errorf("unable to update build for clean executables test")
+	}
+
+	err = db.CreateBuildExecutable(context.TODO(), resources.Executables[0])
+	if err != nil {
+		t.Errorf("unable to create executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	err = db.CleanBuildExecutables(context.TODO())
+	if err != nil {
+		t.Errorf("unable to clean executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	_, err = db.PopBuildExecutable(context.TODO(), resources.Builds[0].GetID())
+	if err == nil {
+		t.Errorf("build executable not cleaned")
+	}
+
+	methods["CleanBuildExecutables"] = true
+
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {
