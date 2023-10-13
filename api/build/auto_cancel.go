@@ -21,51 +21,49 @@ import (
 
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
-func AutoCancel(c *gin.Context, b *library.Build, rBs []*library.Build, r *library.Repo, cancelOpts *pipeline.CancelOptions) error {
-	// iterate through pending and running builds
-	for _, rB := range rBs {
-		// if build is the current build, continue
-		if rB.GetID() == b.GetID() {
-			continue
-		}
+func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.Repo, cancelOpts *pipeline.CancelOptions) (bool, error) {
+	// if build is the current build, continue
+	if rB.GetID() == b.GetID() {
+		return false, nil
+	}
 
-		// ensure criteria is met before auto canceling (push to same branch, or pull with same action from same head_ref)
-		if (strings.EqualFold(rB.GetEvent(), constants.EventPush) &&
-			strings.EqualFold(b.GetEvent(), constants.EventPush) &&
-			strings.EqualFold(b.GetBranch(), rB.GetBranch())) ||
-			(strings.EqualFold(rB.GetEvent(), constants.EventPull) &&
-				strings.EqualFold(b.GetEventAction(), rB.GetEventAction()) &&
-				strings.EqualFold(b.GetHeadRef(), rB.GetHeadRef())) {
-			switch {
-			case strings.EqualFold(rB.GetStatus(), constants.StatusPending) && cancelOpts.Pending:
-				// pending build will be handled gracefully by worker once pulled off queue
-				rB.SetStatus(constants.StatusCanceled)
-
-				_, err := database.FromContext(c).UpdateBuild(c, rB)
-				if err != nil {
-					return err
-				}
-			case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && cancelOpts.Running:
-				// call cancelRunning routine for builds already running on worker
-				err := cancelRunning(c, rB, r)
-				if err != nil {
-					return err
-				}
-			default:
-				continue
-			}
-
-			// set error message that references current build
-			rB.SetError(fmt.Sprintf("build was auto canceled in favor of build %d", b.GetNumber()))
+	// ensure criteria is met before auto canceling (push to same branch, or pull with same action from same head_ref)
+	if (strings.EqualFold(rB.GetEvent(), constants.EventPush) &&
+		strings.EqualFold(b.GetEvent(), constants.EventPush) &&
+		strings.EqualFold(b.GetBranch(), rB.GetBranch())) ||
+		(strings.EqualFold(rB.GetEvent(), constants.EventPull) &&
+			strings.EqualFold(b.GetEventAction(), rB.GetEventAction()) &&
+			strings.EqualFold(b.GetHeadRef(), rB.GetHeadRef())) {
+		switch {
+		case strings.EqualFold(rB.GetStatus(), constants.StatusPending) && cancelOpts.Pending:
+			// pending build will be handled gracefully by worker once pulled off queue
+			rB.SetStatus(constants.StatusCanceled)
 
 			_, err := database.FromContext(c).UpdateBuild(c, rB)
 			if err != nil {
-				return err
+				return false, err
 			}
+		case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && cancelOpts.Running:
+			// call cancelRunning routine for builds already running on worker
+			err := cancelRunning(c, rB, r)
+			if err != nil {
+				return false, err
+			}
+		default:
+			return false, nil
+		}
+
+		// set error message that references current build
+		rB.SetError(fmt.Sprintf("build was auto canceled in favor of build %d", b.GetNumber()))
+
+		_, err := database.FromContext(c).UpdateBuild(c, rB)
+		if err != nil {
+			// if this call fails, we still canceled the build, so return true
+			return true, err
 		}
 	}
 
-	return nil
+	return true, nil
 }
 
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call

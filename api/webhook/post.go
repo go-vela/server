@@ -667,6 +667,17 @@ func PostWebhook(c *gin.Context) {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
 
+	// publish the build to the queue
+	go build.PublishToQueue(
+		ctx,
+		queue.FromGinContext(c),
+		database.FromContext(c),
+		p,
+		b,
+		repo,
+		u,
+	)
+
 	// if anything is provided in the auto_cancel metadata, then we start with true
 	runAutoCancel := p.Metadata.AutoCancel.Running || p.Metadata.AutoCancel.Pending || p.Metadata.AutoCancel.DefaultBranch
 
@@ -687,23 +698,19 @@ func PostWebhook(c *gin.Context) {
 			logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
 		}
 
-		// call auto cancel routine
-		err = build.AutoCancel(c, b, rBs, repo, p.Metadata.AutoCancel)
-		if err != nil {
-			logrus.Errorf("unable to cancel running build: %v", err)
+		for _, rB := range rBs {
+			// call auto cancel routine
+			canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
+			if err != nil {
+				// continue cancel loop if error, but log based on type of error
+				if canceled {
+					logrus.Errorf("unable to update canceled build error message: %v", err)
+				} else {
+					logrus.Errorf("unable to cancel running build: %v", err)
+				}
+			}
 		}
 	}
-
-	// publish the build to the queue
-	go build.PublishToQueue(
-		ctx,
-		queue.FromGinContext(c),
-		database.FromContext(c),
-		p,
-		b,
-		repo,
-		u,
-	)
 }
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
