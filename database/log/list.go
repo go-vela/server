@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListLogs gets a list of all logs from the database.
-func (e *engine) ListLogs() ([]*library.Log, error) {
+func (e *engine) ListLogs(ctx context.Context) ([]*library.Log, error) {
 	e.logger.Trace("listing all logs from the database")
 
 	// variables to store query results and return value
@@ -20,7 +20,7 @@ func (e *engine) ListLogs() ([]*library.Log, error) {
 	logs := []*library.Log{}
 
 	// count the results
-	count, err := e.CountLogs()
+	count, err := e.CountLogs(ctx)
 	if err != nil {
 		return nil, err
 	}

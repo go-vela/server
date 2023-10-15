@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-vela/server/database"
@@ -34,11 +33,11 @@ func TestNative_Delete(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(sec)
+		db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 
-	_, _ = db.CreateSecret(sec)
+	_, _ = db.CreateSecret(context.TODO(), sec)
 
 	// run test
 	s, err := New(
@@ -48,7 +47,7 @@ func TestNative_Delete(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Delete("repo", "foo", "bar", "baz")
+	err = s.Delete(context.TODO(), "repo", "foo", "bar", "baz")
 	if err != nil {
 		t.Errorf("Delete returned err: %v", err)
 	}
@@ -70,7 +69,7 @@ func TestNative_Delete_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	err = s.Delete("repo", "foo", "bar", "foob")
+	err = s.Delete(context.TODO(), "repo", "foo", "bar", "foob")
 	if err == nil {
 		t.Errorf("Delete should have returned err")
 	}

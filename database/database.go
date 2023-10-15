@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -10,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -61,6 +60,7 @@ type (
 		logger *logrus.Entry
 
 		build.BuildInterface
+		executable.BuildExecutableInterface
 		hook.HookInterface
 		log.LogInterface
 		pipeline.PipelineInterface

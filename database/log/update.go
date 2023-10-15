@@ -1,11 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with update.go
 package log
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -14,7 +13,7 @@ import (
 )
 
 // UpdateLog updates an existing log in the database.
-func (e *engine) UpdateLog(l *library.Log) error {
+func (e *engine) UpdateLog(ctx context.Context, l *library.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -33,6 +31,7 @@ type client struct {
 	ModificationService ModificationConfig
 	CloneImage          string
 	TemplateDepth       int
+	StarlarkExecLimit   uint64
 
 	build          *library.Build
 	comment        string
@@ -73,7 +72,11 @@ func New(ctx *cli.Context) (*client, error) {
 	// set the clone image to use for the injected clone step
 	c.CloneImage = ctx.String("clone-image")
 
+	// set the template depth to use for nested templates
 	c.TemplateDepth = ctx.Int("max-template-depth")
+
+	// set the starlark execution step limit for compiling starlark pipelines
+	c.StarlarkExecLimit = ctx.Uint64("compiler-starlark-exec-limit")
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
@@ -115,6 +118,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.ModificationService = c.ModificationService
 	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
+	cc.StarlarkExecLimit = c.StarlarkExecLimit
 
 	return cc
 }

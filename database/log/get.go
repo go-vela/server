@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetLog gets a log by ID from the database.
-func (e *engine) GetLog(id int64) (*library.Log, error) {
+func (e *engine) GetLog(ctx context.Context, id int64) (*library.Log, error) {
 	e.logger.Tracef("getting log %d from the database", id)
 
 	// variable to store query results

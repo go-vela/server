@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -45,7 +45,7 @@ users (
 )
 
 // CreateUserTable creates the users table in the database.
-func (e *engine) CreateUserTable(driver string) error {
+func (e *engine) CreateUserTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating users table in the database")
 
 	// handle the driver provided to create the table

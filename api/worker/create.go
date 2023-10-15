@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -57,6 +55,7 @@ func CreateWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	cl := claims.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.Worker)
@@ -89,7 +88,7 @@ func CreateWorker(c *gin.Context) {
 		"worker": input.GetHostname(),
 	}).Infof("creating new worker %s", input.GetHostname())
 
-	err = database.FromContext(c).CreateWorker(input)
+	_, err = database.FromContext(c).CreateWorker(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create worker: %w", err)
 

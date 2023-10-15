@@ -1,8 +1,8 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
+
+import "context"
 
 const (
 	// CreateRepoIDIndex represents a query to create an
@@ -16,7 +16,7 @@ ON hooks (repo_id);
 )
 
 // CreateHookIndexes creates the indexes for the hooks table in the database.
-func (e *engine) CreateHookIndexes() error {
+func (e *engine) CreateHookIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for hooks table in the database")
 
 	// create the repo_id column index for the hooks table

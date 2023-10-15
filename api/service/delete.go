@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -69,6 +67,7 @@ func DeleteService(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -84,7 +83,7 @@ func DeleteService(c *gin.Context) {
 	}).Infof("deleting service %s", entry)
 
 	// send API call to remove the service
-	err := database.FromContext(c).DeleteService(s)
+	err := database.FromContext(c).DeleteService(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete service %s: %w", entry, err)
 

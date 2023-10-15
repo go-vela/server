@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -26,6 +25,8 @@ type (
 	engine struct {
 		// engine configuration settings used in secret functions
 		config *config
+
+		ctx context.Context
 
 		// gorm.io/gorm database client used in secret functions
 		//
@@ -67,13 +68,13 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	// create the secrets table
-	err := e.CreateSecretTable(e.client.Config.Dialector.Name())
+	err := e.CreateSecretTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableSecret, err)
 	}
 
 	// create the indexes for the secrets table
-	err = e.CreateSecretIndexes()
+	err = e.CreateSecretIndexes(e.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create indexes for %s table: %w", constants.TableSecret, err)
 	}

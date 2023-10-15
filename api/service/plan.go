@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -17,7 +16,7 @@ import (
 // PlanServices is a helper function to plan all services
 // in the build for execution. This creates the services
 // for the build in the configured backend.
-func PlanServices(database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
+func PlanServices(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Service, error) {
 	// variable to store planned services
 	services := []*library.Service{}
 
@@ -34,15 +33,9 @@ func PlanServices(database database.Interface, p *pipeline.Build, b *library.Bui
 		s.SetCreated(time.Now().UTC().Unix())
 
 		// send API call to create the service
-		err := database.CreateService(s)
+		s, err := database.CreateService(ctx, s)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service %s: %w", s.GetName(), err)
-		}
-
-		// send API call to capture the created service
-		s, err = database.GetServiceForBuild(b, s.GetNumber())
-		if err != nil {
-			return services, fmt.Errorf("unable to get service %s: %w", s.GetName(), err)
 		}
 
 		// populate environment variables from service library
@@ -61,7 +54,7 @@ func PlanServices(database database.Interface, p *pipeline.Build, b *library.Bui
 		l.SetData([]byte{})
 
 		// send API call to create the service logs
-		err = database.CreateLog(l)
+		err = database.CreateLog(ctx, l)
 		if err != nil {
 			return services, fmt.Errorf("unable to create service logs for service %s: %w", s.GetName(), err)
 		}

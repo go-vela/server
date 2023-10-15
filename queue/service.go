@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package queue
 
@@ -26,7 +24,7 @@ type Service interface {
 
 	// Pop defines a function that grabs an
 	// item off the queue.
-	Pop(context.Context) (*types.Item, error)
+	Pop(context.Context, []string) (*types.Item, error)
 
 	// Push defines a function that publishes an
 	// item to the specified route in the queue.

@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 )
 
 // Update updates a secret.
-func (c *client) Update(sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Update(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,
@@ -39,7 +38,7 @@ func (c *client) Update(sType, org, name string, s *library.Secret) (*library.Se
 	c.Logger.WithFields(fields).Tracef("updating vault %s secret %s for %s/%s", sType, s.GetName(), org, name)
 
 	// capture the secret from the Vault service
-	sec, err := c.Get(sType, org, name, s.GetName())
+	sec, err := c.Get(ctx, sType, org, name, s.GetName())
 	if err != nil {
 		return nil, err
 	}

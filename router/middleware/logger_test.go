@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -67,7 +65,6 @@ func TestMiddleware_Logger(t *testing.T) {
 
 	payload, _ := json.Marshal(`{"foo": "bar"}`)
 	wantLevel := logrus.InfoLevel
-	wantMessage := ""
 
 	logger, hook := test.NewNullLogger()
 	defer hook.Reset()
@@ -106,8 +103,16 @@ func TestMiddleware_Logger(t *testing.T) {
 		t.Errorf("Logger Level is %v, want %v", gotLevel, wantLevel)
 	}
 
-	if !reflect.DeepEqual(gotMessage, wantMessage) {
-		t.Errorf("Logger Message is %v, want %v", gotMessage, wantMessage)
+	if gotMessage == "" {
+		t.Errorf("Logger Message is %v, want non-empty string", gotMessage)
+	}
+
+	if strings.Contains(gotMessage, "GET") {
+		t.Errorf("Logger Message is %v, want message to contain GET", gotMessage)
+	}
+
+	if !strings.Contains(gotMessage, "POST") {
+		t.Errorf("Logger Message is %v, message shouldn't contain POST", gotMessage)
 	}
 }
 
@@ -216,4 +221,49 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 			t.Errorf("Logger returned %v, want %v", got, logWant)
 		}
 	}
+}
+
+func TestMiddleware_Format(t *testing.T) {
+
+	wantLabels := "labels.vela"
+
+	// setup data, fields, and logger
+	formatter := &ECSFormatter{
+		DataKey: wantLabels,
+	}
+
+	fields := logrus.Fields{
+		"ip":         "123.4.5.6",
+		"method":     http.MethodGet,
+		"path":       "/foobar",
+		"latency":    0,
+		"status":     http.StatusOK,
+		"user-agent": "foobar",
+		"version":    "v1.0.0",
+		"org":        "foo",
+	}
+
+	logger := logrus.NewEntry(logrus.StandardLogger())
+	entry := logger.WithFields(fields)
+
+	got, err := formatter.Format(entry)
+
+	// run test
+
+	if err != nil {
+		t.Errorf("Format returned err: %v", err)
+	}
+
+	if got == nil {
+		t.Errorf("Format returned nothing, want a log")
+	}
+
+	if !strings.Contains(string(got), "GET") {
+		t.Errorf("Format returned %v, want to contain GET", string(got))
+	}
+
+	if !strings.Contains(string(got), "/foobar") {
+		t.Errorf("Format returned %v, want to contain /foobar", string(got))
+	}
+
 }

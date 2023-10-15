@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	_context "context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -92,11 +91,11 @@ func TestUser_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(want)
+		db.DeleteUser(_context.TODO(), want)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(want)
+	_, _ = db.CreateUser(_context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -86,6 +84,7 @@ func CreateSecret(c *gin.Context) {
 	t := util.PathParameter(c, "type")
 	o := util.PathParameter(c, "org")
 	n := util.PathParameter(c, "name")
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s/%s", t, o, n)
 
@@ -117,7 +116,7 @@ func CreateSecret(c *gin.Context) {
 		// but Org/Repo != org/repo in Vela. So this check ensures that
 		// what a user inputs matches the casing we expect in Vela since
 		// the SCM will have the source of truth for casing.
-		org, err := scm.FromContext(c).GetOrgName(u, o)
+		org, err := scm.FromContext(c).GetOrgName(ctx, u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve organization %s", o)
 
@@ -140,7 +139,7 @@ func CreateSecret(c *gin.Context) {
 		// retrieve org and repo name from SCM
 		//
 		// same story as org secret. SCM has accurate casing.
-		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(u, o, n)
+		scmOrg, scmRepo, err := scm.FromContext(c).GetOrgAndRepoName(ctx, u, o, n)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve repository %s/%s", o, n)
 
@@ -229,7 +228,7 @@ func CreateSecret(c *gin.Context) {
 	}
 
 	// send API call to create the secret
-	s, err := secret.FromContext(c, e).Create(t, o, n, input)
+	s, err := secret.FromContext(c, e).Create(ctx, t, o, n, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create secret %s for %s service: %w", entry, e, err)
 

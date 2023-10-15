@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -53,7 +51,6 @@ func New(opts ...EngineOpt) (*engine, error) {
 	e.client = new(gorm.DB)
 	e.config = new(config)
 	e.logger = new(logrus.Entry)
-	e.ctx = context.TODO()
 
 	// apply all provided configuration options
 	for _, opt := range opts {

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -17,10 +15,38 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PublishToQueue is a helper function that creates
-// a build item and publishes it to the queue.
+// PublishToQueue is a helper function that pushes the build executable to the database
+// and publishes a queue item (build, repo, user) to the queue.
 func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo, u *library.User) {
-	item := types.ToItem(p, b, r, u)
+	// marshal pipeline build into byte data to add to the build executable object
+	byteExecutable, err := json.Marshal(p)
+	if err != nil {
+		logrus.Errorf("Failed to marshal build executable %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, db, b, nil, nil, err)
+
+		return
+	}
+
+	// create build executable to push to database
+	bExecutable := new(library.BuildExecutable)
+	bExecutable.SetBuildID(b.GetID())
+	bExecutable.SetData(byteExecutable)
+
+	// send database call to create a build executable
+	err = db.CreateBuildExecutable(ctx, bExecutable)
+	if err != nil {
+		logrus.Errorf("Failed to publish build executable to database %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, db, b, nil, nil, err)
+
+		return
+	}
+
+	// convert build, repo, and user into queue item
+	item := types.ToItem(b, r, u)
 
 	logrus.Infof("Converting queue item to json for build %d for %s", b.GetNumber(), r.GetFullName())
 
@@ -36,6 +62,7 @@ func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interf
 
 	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
 
+	// determine the route on which to publish the queue item
 	route, err := queue.Route(&p.Worker)
 	if err != nil {
 		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
@@ -48,6 +75,7 @@ func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interf
 
 	logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
 
+	// push item on to the queue
 	err = queue.Push(context.Background(), route, byteItem)
 	if err != nil {
 		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)

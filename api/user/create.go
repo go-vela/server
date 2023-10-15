@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -51,6 +49,7 @@ import (
 func CreateUser(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.User)
@@ -72,7 +71,7 @@ func CreateUser(c *gin.Context) {
 	}).Infof("creating new user %s", input.GetName())
 
 	// send API call to create the user
-	err = database.FromContext(c).CreateUser(input)
+	user, err := database.FromContext(c).CreateUser(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create user: %w", err)
 
@@ -80,9 +79,6 @@ func CreateUser(c *gin.Context) {
 
 		return
 	}
-
-	// send API call to capture the created user
-	user, _ := database.FromContext(c).GetUserForName(input.GetName())
 
 	c.JSON(http.StatusCreated, user)
 }

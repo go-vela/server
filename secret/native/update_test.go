@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -54,11 +53,11 @@ func TestNative_Update(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(original)
+		db.DeleteSecret(context.TODO(), original)
 		db.Close()
 	}()
 
-	_, _ = db.CreateSecret(original)
+	_, _ = db.CreateSecret(context.TODO(), original)
 
 	// run test
 	s, err := New(
@@ -68,7 +67,7 @@ func TestNative_Update(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.Update("repo", "foo", "bar", want)
+	got, err := s.Update(context.TODO(), "repo", "foo", "bar", want)
 	if err != nil {
 		t.Errorf("Update returned err: %v", err)
 	}
@@ -99,7 +98,7 @@ func TestNative_Update_Invalid(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	_, err = s.Update("repo", "foo", "bar", sec)
+	_, err = s.Update(context.TODO(), "repo", "foo", "bar", sec)
 	if err == nil {
 		t.Errorf("Update should have returned err")
 	}

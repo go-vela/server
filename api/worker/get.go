@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -47,6 +45,7 @@ func GetWorker(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
 	w := worker.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -56,7 +55,7 @@ func GetWorker(c *gin.Context) {
 		"worker": w.GetHostname(),
 	}).Infof("reading worker %s", w.GetHostname())
 
-	w, err := database.FromContext(c).GetWorkerForHostname(w.GetHostname())
+	w, err := database.FromContext(c).GetWorkerForHostname(ctx, w.GetHostname())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -99,7 +97,7 @@ func CreateRepo(c *gin.Context) {
 	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(u, input)
+	r, err := scm.FromContext(c).GetRepo(ctx, u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -241,7 +239,7 @@ func CreateRepo(c *gin.Context) {
 
 	// err being nil means we have a record of this repo (dbRepo)
 	if err == nil {
-		h, _ = database.FromContext(c).LastHookForRepo(dbRepo)
+		h, _ = database.FromContext(c).LastHookForRepo(ctx, dbRepo)
 
 		// make sure our record of the repo allowed events matches what we send to SCM
 		// what the dbRepo has should override default events on enable
@@ -255,7 +253,7 @@ func CreateRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-		h, _, err = scm.FromContext(c).Enable(u, r, h)
+		h, _, err = scm.FromContext(c).Enable(ctx, u, r, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -309,7 +307,7 @@ func CreateRepo(c *gin.Context) {
 		// update initialization hook
 		h.SetRepoID(r.GetID())
 		// create first hook for repo in the database
-		_, err = database.FromContext(c).CreateHook(h)
+		_, err = database.FromContext(c).CreateHook(ctx, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 

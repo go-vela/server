@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -37,7 +35,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *library.Bui
 		s.SetFinished(time.Now().UTC().Unix())
 
 		// send API call to update the service
-		err := database.UpdateService(s)
+		_, err := database.UpdateService(ctx, s)
 		if err != nil {
 			logrus.Errorf("unable to kill service %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}
@@ -49,7 +47,7 @@ func CleanBuild(ctx context.Context, database database.Interface, b *library.Bui
 		s.SetFinished(time.Now().UTC().Unix())
 
 		// send API call to update the step
-		err := database.UpdateStep(s)
+		_, err := database.UpdateStep(s)
 		if err != nil {
 			logrus.Errorf("unable to kill step %s for build %d: %v", s.GetName(), b.GetNumber(), err)
 		}

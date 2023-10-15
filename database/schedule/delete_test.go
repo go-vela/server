@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -21,6 +19,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
+	_schedule.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

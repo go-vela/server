@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -28,6 +26,7 @@ func Retrieve(c *gin.Context) *library.User {
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cl := claims.Retrieve(c)
+		ctx := c.Request.Context()
 
 		// if token is not a user token or claims were not retrieved, establish empty user to better handle nil checks
 		if cl == nil || !strings.EqualFold(cl.TokenType, constants.UserAccessTokenType) {
@@ -42,7 +41,7 @@ func Establish() gin.HandlerFunc {
 		logrus.Debugf("parsing user access token")
 
 		// lookup user in claims subject in the database
-		u, err := database.FromContext(c).GetUserForName(cl.Subject)
+		u, err := database.FromContext(c).GetUserForName(ctx, cl.Subject)
 		if err != nil {
 			util.HandleError(c, http.StatusUnauthorized, err)
 			return

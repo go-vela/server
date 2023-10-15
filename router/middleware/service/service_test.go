@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -81,13 +79,13 @@ func TestService_Establish(t *testing.T) {
 	defer func() {
 		db.DeleteBuild(context.TODO(), b)
 		db.DeleteRepo(context.TODO(), r)
-		db.DeleteService(want)
+		db.DeleteService(context.TODO(), want)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreateBuild(context.TODO(), b)
-	_ = db.CreateService(want)
+	_, _ = db.CreateService(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

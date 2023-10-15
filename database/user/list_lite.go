@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -13,7 +13,7 @@ import (
 // ListLiteUsers gets a lite (only: id, name) list of users from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListLiteUsers(page, perPage int) ([]*library.User, int64, error) {
+func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*library.User, int64, error) {
 	e.logger.Trace("listing lite users from the database")
 
 	// variables to store query results and return values
@@ -22,7 +22,7 @@ func (e *engine) ListLiteUsers(page, perPage int) ([]*library.User, int64, error
 	users := []*library.User{}
 
 	// count the results
-	count, err := e.CountUsers()
+	count, err := e.CountUsers(ctx)
 	if err != nil {
 		return users, 0, err
 	}

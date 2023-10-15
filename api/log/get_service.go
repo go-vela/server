@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with step
 package log
@@ -69,6 +67,7 @@ func GetServiceLog(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := service.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -84,7 +83,7 @@ func GetServiceLog(c *gin.Context) {
 	}).Infof("reading logs for service %s", entry)
 
 	// send API call to capture the service logs
-	l, err := database.FromContext(c).GetLogForService(s)
+	l, err := database.FromContext(c).GetLogForService(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get logs for service %s: %w", entry, err)
 

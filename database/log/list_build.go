@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListLogsForBuild gets a list of logs by build ID from the database.
-func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*library.Log, int64, error) {
+func (e *engine) ListLogsForBuild(ctx context.Context, b *library.Build, page, perPage int) ([]*library.Log, int64, error) {
 	e.logger.Tracef("listing logs for build %d from the database", b.GetID())
 
 	// variables to store query results and return value
@@ -20,7 +20,7 @@ func (e *engine) ListLogsForBuild(b *library.Build, page, perPage int) ([]*libra
 	logs := []*library.Log{}
 
 	// count the results
-	count, err := e.CountLogsForBuild(b)
+	count, err := e.CountLogsForBuild(ctx, b)
 	if err != nil {
 		return nil, 0, err
 	}

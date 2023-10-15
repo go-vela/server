@@ -13,13 +13,13 @@ jobs:
 
     steps:
     - name: clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
       with:
         # ensures we fetch tag history for the repository
         fetch-depth: 0
 
     - name: install go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
@@ -34,7 +34,7 @@ jobs:
         make build-static-ci
 
     - name: publish
-      uses: elgohr/Publish-Docker-Github-Action@v5
+      uses: elgohr/Publish-Docker-Github-Action@43dc228e327224b2eda11c8883232afd5b34943b # v5
       with:
         name: target/vela-server
         cache: true
@@ -42,7 +42,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: publish-alpine
-      uses: elgohr/Publish-Docker-Github-Action@v5
+      uses: elgohr/Publish-Docker-Github-Action@43dc228e327224b2eda11c8883232afd5b34943b # v5
       with:
         name: target/vela-server
         cache: true

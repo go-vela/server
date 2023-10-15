@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package claims
 
 import (
+	_context "context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -274,11 +273,11 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(u)
+		db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
-	_ = db.CreateUser(u)
+	_, _ = db.CreateUser(_context.TODO(), u)
 
 	mto := &token.MintTokenOpts{
 		User:          u,

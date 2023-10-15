@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
@@ -35,8 +36,22 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
+	// create the database agnostic engine for build_executables
+	e.BuildExecutableInterface, err = executable.New(
+		executable.WithContext(e.ctx),
+		executable.WithClient(e.client),
+		executable.WithLogger(e.logger),
+		executable.WithSkipCreation(e.config.SkipCreation),
+		executable.WithEncryptionKey(e.config.EncryptionKey),
+		executable.WithDriver(e.config.Driver),
+	)
+	if err != nil {
+		return err
+	}
+
 	// create the database agnostic engine for hooks
 	e.HookInterface, err = hook.New(
+		hook.WithContext(e.ctx),
 		hook.WithClient(e.client),
 		hook.WithLogger(e.logger),
 		hook.WithSkipCreation(e.config.SkipCreation),
@@ -47,6 +62,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(
+		log.WithContext(e.ctx),
 		log.WithClient(e.client),
 		log.WithCompressionLevel(e.config.CompressionLevel),
 		log.WithLogger(e.logger),
@@ -95,6 +111,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
 	e.SecretInterface, err = secret.New(
+		secret.WithContext(e.ctx),
 		secret.WithClient(e.client),
 		secret.WithEncryptionKey(e.config.EncryptionKey),
 		secret.WithLogger(e.logger),
@@ -126,6 +143,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for users
 	e.UserInterface, err = user.New(
+		user.WithContext(e.ctx),
 		user.WithClient(e.client),
 		user.WithEncryptionKey(e.config.EncryptionKey),
 		user.WithLogger(e.logger),
@@ -137,6 +155,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for workers
 	e.WorkerInterface, err = worker.New(
+		worker.WithContext(e.ctx),
 		worker.WithClient(e.client),
 		worker.WithLogger(e.logger),
 		worker.WithSkipCreation(e.config.SkipCreation),

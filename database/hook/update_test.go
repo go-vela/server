@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -33,7 +32,7 @@ WHERE "id" = $14`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateHook(_hook)
+	_, err := _sqlite.CreateHook(context.TODO(), _hook)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
@@ -59,7 +58,7 @@ WHERE "id" = $14`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err = test.database.UpdateHook(_hook)
+			_, err = test.database.UpdateHook(context.TODO(), _hook)
 
 			if test.failure {
 				if err == nil {

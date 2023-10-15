@@ -1,0 +1,946 @@
+version: "1"
+metadata:
+  environment:
+  - steps
+  - services
+  - secrets
+secrets:
+- name: artifactory_password
+  key: platform/vela-secrets/artifactory_password_for_ibuildallthings
+  engine: native
+  type: shared
+- name: slack_webhook
+  key: octocat/slack_webhook
+  engine: native
+  type: org
+stages:
+  linting:
+    needs: [clone]
+    steps:
+    - commands:
+      - time apk add --no-cache make
+      - time make check-docker
+      image: hadolint/hadolint:v2.12.0-alpine
+      name: check-docker
+      pull: not_present
+  python_3.8_alpine_3.17 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.8 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-alpine-3.17-1.6.1
+        - 3.8-alpine-3.17
+        - 3.8-alpine
+        username: ibuildallthings
+  python_3.8_alpine_3.17 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.8 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-alpine-3.17-1.6.1
+        - 3.8-alpine-3.17
+        - 3.8-alpine
+        username: ibuildallthings
+  python_3.8_alpine_3.18 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.8 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-alpine-3.18-1.6.1
+        - 3.8-alpine-3.18
+        - 3.8-alpine
+        username: ibuildallthings
+  python_3.8_alpine_3.18 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.8 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-alpine-3.18-1.6.1
+        - 3.8-alpine-3.18
+        - 3.8-alpine
+        username: ibuildallthings
+  python_3.8_debian_slim-bullseye push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.8 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-debian-slim-bullseye-1.6.1
+        - 3.8-debian-slim-bullseye
+        - 3.8-debian
+        username: ibuildallthings
+  python_3.8_debian_slim-bullseye pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.8 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-debian-slim-bullseye-1.6.1
+        - 3.8-debian-slim-bullseye
+        - 3.8-debian
+        username: ibuildallthings
+  python_3.8_debian_slim-bookworm push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.8 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-debian-slim-bookworm-1.6.1
+        - 3.8-debian-slim-bookworm
+        - 3.8-debian
+        username: ibuildallthings
+  python_3.8_debian_slim-bookworm pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.8 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.8
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.8-debian-slim-bookworm-1.6.1
+        - 3.8-debian-slim-bookworm
+        - 3.8-debian
+        username: ibuildallthings
+  python_3.9_alpine_3.17 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.9 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-alpine-3.17-1.6.1
+        - 3.9-alpine-3.17
+        - 3.9-alpine
+        username: ibuildallthings
+  python_3.9_alpine_3.17 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.9 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-alpine-3.17-1.6.1
+        - 3.9-alpine-3.17
+        - 3.9-alpine
+        username: ibuildallthings
+  python_3.9_alpine_3.18 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.9 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-alpine-3.18-1.6.1
+        - 3.9-alpine-3.18
+        - 3.9-alpine
+        username: ibuildallthings
+  python_3.9_alpine_3.18 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.9 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-alpine-3.18-1.6.1
+        - 3.9-alpine-3.18
+        - 3.9-alpine
+        username: ibuildallthings
+  python_3.9_debian_slim-bullseye push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.9 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-debian-slim-bullseye-1.6.1
+        - 3.9-debian-slim-bullseye
+        - 3.9-debian
+        username: ibuildallthings
+  python_3.9_debian_slim-bullseye pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.9 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-debian-slim-bullseye-1.6.1
+        - 3.9-debian-slim-bullseye
+        - 3.9-debian
+        username: ibuildallthings
+  python_3.9_debian_slim-bookworm push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.9 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-debian-slim-bookworm-1.6.1
+        - 3.9-debian-slim-bookworm
+        - 3.9-debian
+        username: ibuildallthings
+  python_3.9_debian_slim-bookworm pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.9 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.9
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.9-debian-slim-bookworm-1.6.1
+        - 3.9-debian-slim-bookworm
+        - 3.9-debian
+        username: ibuildallthings
+  python_3.10_alpine_3.17 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.10 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-alpine-3.17-1.6.1
+        - 3.10-alpine-3.17
+        - 3.10-alpine
+        username: ibuildallthings
+  python_3.10_alpine_3.17 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.10 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-alpine-3.17-1.6.1
+        - 3.10-alpine-3.17
+        - 3.10-alpine
+        username: ibuildallthings
+  python_3.10_alpine_3.18 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.10 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-alpine-3.18-1.6.1
+        - 3.10-alpine-3.18
+        - 3.10-alpine
+        username: ibuildallthings
+  python_3.10_alpine_3.18 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.10 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-alpine-3.18-1.6.1
+        - 3.10-alpine-3.18
+        - 3.10-alpine
+        username: ibuildallthings
+  python_3.10_debian_slim-bullseye push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.10 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-debian-slim-bullseye-1.6.1
+        - 3.10-debian-slim-bullseye
+        - 3.10-debian
+        username: ibuildallthings
+  python_3.10_debian_slim-bullseye pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.10 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-debian-slim-bullseye-1.6.1
+        - 3.10-debian-slim-bullseye
+        - 3.10-debian
+        username: ibuildallthings
+  python_3.10_debian_slim-bookworm push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.10 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-debian-slim-bookworm-1.6.1
+        - 3.10-debian-slim-bookworm
+        - 3.10-debian
+        username: ibuildallthings
+  python_3.10_debian_slim-bookworm pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.10 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.10
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.10-debian-slim-bookworm-1.6.1
+        - 3.10-debian-slim-bookworm
+        - 3.10-debian
+        username: ibuildallthings
+  python_3.11_alpine_3.17 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.11 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-alpine-3.17-1.6.1
+        - 3.11-alpine-3.17
+        - 3.11-alpine
+        username: ibuildallthings
+  python_3.11_alpine_3.17 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.11 alpine 3.17
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - ALPINE_VERSION=3.17
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-alpine-3.17-1.6.1
+        - 3.11-alpine-3.17
+        - 3.11-alpine
+        username: ibuildallthings
+  python_3.11_alpine_3.18 push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.11 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-alpine-3.18-1.6.1
+        - 3.11-alpine-3.18
+        - 3.11-alpine
+        username: ibuildallthings
+  python_3.11_alpine_3.18 pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.11 alpine 3.18
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - ALPINE_VERSION=3.18
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-alpine.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-alpine-3.18-1.6.1
+        - 3.11-alpine-3.18
+        - 3.11-alpine
+        username: ibuildallthings
+  python_3.11_debian_slim-bullseye push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.11 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-debian-slim-bullseye-1.6.1
+        - 3.11-debian-slim-bullseye
+        - 3.11-debian
+        username: ibuildallthings
+  python_3.11_debian_slim-bullseye pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.11 debian slim-bullseye
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - DEBIAN_VERSION=slim-bullseye
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-debian-slim-bullseye-1.6.1
+        - 3.11-debian-slim-bullseye
+        - 3.11-debian
+        username: ibuildallthings
+  python_3.11_debian_slim-bookworm push:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          branch: [main]
+          event: [push]
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: publish python-3.11 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-debian-slim-bookworm-1.6.1
+        - 3.11-debian-slim-bookworm
+        - 3.11-debian
+        username: ibuildallthings
+  python_3.11_debian_slim-bookworm pull_request:
+    needs: [clone]
+    steps:
+    - ruleset:
+        if:
+          event: ['pull_request:opened', 'pull_request:synchronize']
+        matcher: filepath
+        operator: and
+      secrets:
+      - source: artifactory_password
+        target: docker_password
+      image: target/vela-kaniko:latest
+      name: build python-3.11 debian slim-bookworm
+      pull: not_present
+      parameters:
+        build_args:
+        - PYTHON_VERSION=3.11
+        - DEBIAN_VERSION=slim-bookworm
+        - POETRY_VERSION=1.6.1
+        dockerfile: python-debian.Dockerfile
+        dry_run: true
+        registry: docker.example.com
+        repo: docker.example.com/app/multibuild
+        tags:
+        - 3.11-debian-slim-bookworm-1.6.1
+        - 3.11-debian-slim-bookworm
+        - 3.11-debian
+        username: ibuildallthings
+  slack:
+    needs: [python_3.8_alpine_3.17 push, python_3.8_alpine_3.17 pull_request, python_3.8_alpine_3.18
+        push, python_3.8_alpine_3.18 pull_request, python_3.8_debian_slim-bullseye
+        push, python_3.8_debian_slim-bullseye pull_request, python_3.8_debian_slim-bookworm
+        push, python_3.8_debian_slim-bookworm pull_request, python_3.9_alpine_3.17
+        push, python_3.9_alpine_3.17 pull_request, python_3.9_alpine_3.18 push, python_3.9_alpine_3.18
+        pull_request, python_3.9_debian_slim-bullseye push, python_3.9_debian_slim-bullseye
+        pull_request, python_3.9_debian_slim-bookworm push, python_3.9_debian_slim-bookworm
+        pull_request, python_3.10_alpine_3.17 push, python_3.10_alpine_3.17 pull_request,
+      python_3.10_alpine_3.18 push, python_3.10_alpine_3.18 pull_request, python_3.10_debian_slim-bullseye
+        push, python_3.10_debian_slim-bullseye pull_request, python_3.10_debian_slim-bookworm
+        push, python_3.10_debian_slim-bookworm pull_request, python_3.11_alpine_3.17
+        push, python_3.11_alpine_3.17 pull_request, python_3.11_alpine_3.18 push,
+      python_3.11_alpine_3.18 pull_request, python_3.11_debian_slim-bullseye push,
+      python_3.11_debian_slim-bullseye pull_request, python_3.11_debian_slim-bookworm
+        push, python_3.11_debian_slim-bookworm pull_request, clone]
+    steps:
+    - template:
+        name: slack
+      name: slack
+      pull: not_present
+templates:
+- name: slack
+  source: git.example.com/vela/vela-templates/slack/slack.yml
+  type: github

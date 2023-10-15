@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -127,6 +125,9 @@ func UpdateSchedule(c *gin.Context) {
 
 	// set the updated by field using claims
 	s.SetUpdatedBy(u.GetName())
+	if input.GetBranch() != "" {
+		s.SetBranch(input.GetBranch())
+	}
 
 	// update the schedule within the database
 	s, err = database.FromContext(c).UpdateSchedule(ctx, s, true)

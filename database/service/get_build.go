@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetServiceForBuild gets a service by number and build ID from the database.
-func (e *engine) GetServiceForBuild(b *library.Build, number int) (*library.Service, error) {
+func (e *engine) GetServiceForBuild(ctx context.Context, b *library.Build, number int) (*library.Service, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build":   b.GetNumber(),
 		"service": number,

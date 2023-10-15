@@ -4,7 +4,7 @@ def main(ctx):
   steps = []
 
   for name in stepNames:
-    if name == "foo" and ctx["vela"]["build"]["branch"] == "master":
+    if name == "foo" and ctx["vela"]["build"]["branch"] == "main":
       steps.append(step(name))
 
   return {

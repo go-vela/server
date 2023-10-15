@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package router
 
@@ -26,6 +24,7 @@ import (
 // DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/token
+// GET    /api/v1/repos/:org/:repo/builds/:build/executable
 // POST   /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
@@ -61,6 +60,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.DELETE("/cancel", executors.Establish(), perm.MustWrite(), build.CancelBuild)
 			b.GET("/logs", perm.MustRead(), log.ListLogsForBuild)
 			b.GET("/token", perm.MustWorkerAuthToken(), build.GetBuildToken)
+			b.GET("/executable", perm.MustBuildAccess(), build.GetBuildExecutable)
 
 			// Service endpoints
 			// * Log endpoints

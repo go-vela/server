@@ -1,12 +1,11 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
 	"flag"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/go-vela/types/raw"
@@ -210,13 +209,43 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 		},
 	}
 
-	// run test
+	// run test non-local
 	compiler, err := New(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
 
+	// run test local
+	compiler.WithLocal(true)
+
+	t.Setenv("VELA_BUILD_COMMIT", "123abc")
+
 	got, err := compiler.EnvironmentSteps(s, e)
+	if err != nil {
+		t.Errorf("EnvironmentSteps returned err: %v", err)
+	}
+
+	// cannot use complete diff since local compiler pulls from OS env
+	if !strings.EqualFold(got[0].Environment["VELA_BUILD_COMMIT"], "123abc") {
+		t.Errorf("EnvironmentSteps with local compiler should have set VELA_BUILD_COMMIT to 123abc, got %s", got[0].Environment["VELA_BUILD_COMMIT"])
+	}
+
+	// test without local
+	compiler.WithLocal(false)
+
+	// reset s
+	s = yaml.StepSlice{
+		&yaml.Step{
+			Image: "alpine",
+			Name:  str,
+			Pull:  "always",
+			Environment: raw.StringSliceMap{
+				"BUILD_CHANNEL": "foo",
+			},
+		},
+	}
+
+	got, err = compiler.EnvironmentSteps(s, e)
 	if err != nil {
 		t.Errorf("EnvironmentSteps returned err: %v", err)
 	}

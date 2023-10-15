@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetSecretForTeam gets a secret by org and team name from the database.
-func (e *engine) GetSecretForTeam(org, team, name string) (*library.Secret, error) {
+func (e *engine) GetSecretForTeam(ctx context.Context, org, team, name string) (*library.Secret, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":    org,
 		"team":   team,
