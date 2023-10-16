@@ -71,6 +71,8 @@ type stg struct {
 	running    int
 	failure    int
 	killed     int
+	canceled   int
+	skipped    int
 	startedAt  int
 	finishedAt int
 }
@@ -138,7 +140,7 @@ func GetBuildGraph(c *gin.Context) {
 		"user":  u.GetName(),
 	})
 
-	baseErr := "unable to construct graph"
+	baseErr := "unable to retrieve graph"
 
 	// update engine logger with API metadata
 	//
@@ -310,6 +312,8 @@ func GetBuildGraph(c *gin.Context) {
 				running:    0,
 				failure:    0,
 				killed:     0,
+				canceled:   0,
+				skipped:    0,
 				startedAt:  0,
 				finishedAt: 0,
 			}
@@ -328,6 +332,10 @@ func GetBuildGraph(c *gin.Context) {
 			s.failure++
 		case constants.StatusKilled:
 			s.killed++
+		case constants.StatusCanceled:
+			s.canceled++
+		case constants.StatusSkipped:
+			s.skipped++
 		default:
 		}
 
@@ -554,6 +562,14 @@ func (s *stg) GetOverallStatus() string {
 
 	if s.killed > 0 {
 		return constants.StatusKilled
+	}
+
+	if s.skipped > 0 {
+		return constants.StatusKilled
+	}
+
+	if s.canceled > 0 {
+		return constants.StatusFailure
 	}
 
 	return constants.StatusPending
