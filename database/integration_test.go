@@ -435,9 +435,13 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to create executable %d: %v", resources.Executables[0].GetID(), err)
 	}
 
-	err = db.CleanBuildExecutables(context.TODO())
+	count, err := db.CleanBuildExecutables(context.TODO())
 	if err != nil {
 		t.Errorf("unable to clean executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	if count != 1 {
+		t.Errorf("CleanBuildExecutables should have affected 1 row, affected %d", count)
 	}
 
 	_, err = db.PopBuildExecutable(context.TODO(), resources.Builds[0].GetID())
