@@ -109,7 +109,7 @@ func CleanResources(c *gin.Context) {
 	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
 
 	// clean executables
-	err = database.FromContext(c).CleanBuildExecutables(ctx)
+	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
 	if err != nil {
 		retErr := fmt.Errorf("%d builds cleaned. unable to clean build executables: %w", builds, err)
 
@@ -121,7 +121,7 @@ func CleanResources(c *gin.Context) {
 	// clean services
 	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
 	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. unable to update services: %w", builds, err)
+		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. unable to update services: %w", builds, executables, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -133,7 +133,7 @@ func CleanResources(c *gin.Context) {
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(msg, before)
 	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. %d services cleaned. unable to update steps: %w", builds, services, err)
+		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. %d services cleaned. unable to update steps: %w", builds, executables, services, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -142,5 +142,5 @@ func CleanResources(c *gin.Context) {
 
 	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
 
-	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d services cleaned. %d steps cleaned.", builds, services, steps))
+	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

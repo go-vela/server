@@ -98,7 +98,7 @@ func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CleanBuildExecutables(context.TODO())
+			got, err := test.database.CleanBuildExecutables(context.TODO())
 
 			if test.failure {
 				if err == nil {
@@ -110,6 +110,10 @@ func TestExecutable_Engine_CleanExecutables(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("CleanExecutables for %s returned err: %v", test.name, err)
+			}
+
+			if got != 1 {
+				t.Errorf("CleanExecutables for %s should have affected 1 row, affected %d", test.name, got)
 			}
 
 			_, err = test.database.PopBuildExecutable(context.TODO(), 2)
