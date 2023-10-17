@@ -348,6 +348,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 
 func TestNative_Parse_StepsPipeline(t *testing.T) {
 	// setup types
+	tBool := true
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
@@ -355,6 +356,9 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 			Template:    false,
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel: &yaml.CancelOptions{
+				Running: &tBool,
+			},
 		},
 		Environment: map[string]string{
 			"HELLO": "Hello, Global Environment",
