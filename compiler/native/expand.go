@@ -89,7 +89,10 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 				Steps: *check.ToPipeline(),
 			}
 
-			pipeline = pipeline.Purge(r)
+			pipeline, err := pipeline.Purge(r)
+			if err != nil {
+				return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+			}
 
 			// if step purged, do not proceed with expansion
 			if len(pipeline.Steps) == 0 {

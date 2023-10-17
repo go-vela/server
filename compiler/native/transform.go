@@ -113,7 +113,12 @@ func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 		secret.Origin.ID = pattern
 	}
 
-	return pipeline.Purge(r), nil
+	build, err := pipeline.Purge(r)
+	if err != nil {
+		return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+	}
+
+	return build, nil
 }
 
 // TransformSteps converts a yaml configuration with steps into an executable pipeline.
@@ -192,5 +197,10 @@ func (c *client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 		secret.Origin.ID = pattern
 	}
 
-	return pipeline.Purge(r), nil
+	build, err := pipeline.Purge(r)
+	if err != nil {
+		return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+	}
+
+	return build, nil
 }
