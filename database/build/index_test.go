@@ -18,6 +18,7 @@ func TestBuild_Engine_CreateBuildIndexes(t *testing.T) {
 	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(CreateSenderIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

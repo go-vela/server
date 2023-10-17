@@ -40,6 +40,15 @@ IF NOT EXISTS
 builds_status
 ON builds (status);
 `
+
+	// CreateSenderIndex represents a query to create an
+	// index on the builds table for the sender column.
+	CreateSenderIndex = `
+CREATE INDEX
+IF NOT EXISTS
+builds_sender
+ON builds (sender);
+`
 )
 
 // CreateBuildIndexes creates the indexes for the builds table in the database.
@@ -64,6 +73,11 @@ func (e *engine) CreateBuildIndexes(ctx context.Context) error {
 		return err
 	}
 
+	err = e.client.Exec(CreateStatusIndex).Error
+	if err != nil {
+		return err
+	}
+
 	// create the status column index for the builds table
-	return e.client.Exec(CreateStatusIndex).Error
+	return e.client.Exec(CreateSenderIndex).Error
 }

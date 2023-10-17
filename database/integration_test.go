@@ -237,6 +237,16 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["CountBuildsForRepo"] = true
 
+	// count the builds for sender
+	count, err = db.CountBuildsForSender(context.TODO(), resources.Builds[0].GetSender(), nil)
+	if err != nil {
+		t.Errorf("unable to count builds for sender %s: %v", resources.Builds[0].GetSender(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountBuildsForSender() is %v, want %v", count, len(resources.Builds))
+	}
+	methods["CountBuildsForSender"] = true
+
 	// count the builds for a status
 	count, err = db.CountBuildsForStatus(context.TODO(), "running", nil)
 	if err != nil {
@@ -295,6 +305,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
 	}
 	methods["ListBuildsForRepo"] = true
+
+	// list the builds for sender
+	list, count, err = db.ListBuildsForSender(context.TODO(), resources.Builds[0].GetSender(), nil, time.Now().UTC().Unix(), 0, 1, 10)
+	if err != nil {
+		t.Errorf("unable to list builds for sender %s: %v", resources.Builds[0].GetSender(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListBuildsForSender() is %v, want %v", count, len(resources.Builds))
+	}
+	if !cmp.Equal(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
+		t.Errorf("ListBuildsForSender() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
+	}
+	methods["ListBuildsForSender"] = true
 
 	// list the pending and running builds
 	queueList, err := db.ListPendingAndRunningBuilds(context.TODO(), "0")
