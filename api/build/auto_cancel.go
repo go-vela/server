@@ -43,6 +43,12 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 			if err != nil {
 				return false, err
 			}
+
+			// remove executable from table
+			_, err = database.FromContext(c).PopBuildExecutable(c, rB.GetID())
+			if err != nil {
+				return true, err
+			}
 		case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && cancelOpts.Running:
 			// call cancelRunning routine for builds already running on worker
 			err := cancelRunning(c, rB, r)
