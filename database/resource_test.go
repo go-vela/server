@@ -10,6 +10,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -35,6 +36,9 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_mock.ExpectExec(build.CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the build executable queries
 	_mock.ExpectExec(executable.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	// ensure the mock expects the deployment queries
+	_mock.ExpectExec(deployment.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
+	_mock.ExpectExec(deployment.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the hook queries
 	_mock.ExpectExec(hook.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(hook.CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
