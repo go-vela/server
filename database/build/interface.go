@@ -36,7 +36,7 @@ type BuildInterface interface {
 	CountBuildsForOrg(context.Context, string, map[string]interface{}) (int64, error)
 	// CountBuildsForRepo defines a function that gets the count of builds by repo ID.
 	CountBuildsForRepo(context.Context, *library.Repo, map[string]interface{}) (int64, error)
-	// CountBuildsForSender defines a function that gets the count  of builds by sender.
+	// CountBuildsForSender defines a function that gets the count of builds by sender.
 	CountBuildsForSender(context.Context, string, map[string]interface{}) (int64, error)
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
 	CountBuildsForStatus(context.Context, string, map[string]interface{}) (int64, error)
