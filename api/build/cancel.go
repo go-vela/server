@@ -77,7 +77,7 @@ func CancelBuild(c *gin.Context) {
 	e := executors.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	user := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
@@ -89,7 +89,7 @@ func CancelBuild(c *gin.Context) {
 		"build": b.GetNumber(),
 		"org":   o,
 		"repo":  r.GetName(),
-		"user":  u.GetName(),
+		"user":  user.GetName(),
 	}).Infof("canceling build %s", entry)
 
 	switch b.GetStatus() {
@@ -165,6 +165,16 @@ func CancelBuild(c *gin.Context) {
 				if err != nil {
 					retErr := fmt.Errorf("unable to parse response from %s: %w", u, err)
 					util.HandleError(c, http.StatusBadRequest, retErr)
+
+					return
+				}
+
+				b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
+
+				b, err = database.FromContext(c).UpdateBuild(ctx, b)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
 
 					return
 				}

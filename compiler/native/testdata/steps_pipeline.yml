@@ -3,6 +3,8 @@ version: "1"
 
 metadata:
   template: false
+  auto_cancel:
+    running: true
 
 environment:
   HELLO: "Hello, Global Environment"    
