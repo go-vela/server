@@ -231,6 +231,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Engine: "native",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 			&pipeline.Secret{
 				Name:   "docker_password",
@@ -238,6 +239,7 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 				Engine: "vault",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -567,6 +569,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Engine: "native",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 			&pipeline.Secret{
 				Name:   "docker_password",
@@ -574,6 +577,7 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 				Engine: "vault",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -805,6 +809,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Engine: "native",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 			&pipeline.Secret{
 				Name:   "docker_password",
@@ -812,6 +817,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Engine: "vault",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 			&pipeline.Secret{
 				Name:   "foo_password",
@@ -819,6 +825,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 				Engine: "vault",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 		},
 		Services: pipeline.ContainerSlice{
@@ -1047,6 +1054,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Engine: "native",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 			&pipeline.Secret{
 				Name:   "docker_password",
@@ -1054,6 +1062,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Engine: "vault",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 			&pipeline.Secret{
 				Name:   "foo_password",
@@ -1061,6 +1070,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 				Engine: "vault",
 				Type:   "repo",
 				Origin: &pipeline.Container{},
+				Pull:   "build_start",
 			},
 		},
 		Services: pipeline.ContainerSlice{
@@ -2734,6 +2744,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "native",
 						Type:   "repo",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 					&pipeline.Secret{
 						Name:   "docker_username",
@@ -2741,6 +2752,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "native",
 						Type:   "repo",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 					&pipeline.Secret{
 						Name:   "docker_password",
@@ -2748,6 +2760,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "vault",
 						Type:   "repo",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 					&pipeline.Secret{
 						Name:   "docker_username",
@@ -2755,6 +2768,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "native",
 						Type:   "org",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 					&pipeline.Secret{
 						Name:   "docker_password",
@@ -2762,6 +2776,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "vault",
 						Type:   "org",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 					&pipeline.Secret{
 						Name:   "docker_username",
@@ -2769,6 +2784,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "native",
 						Type:   "shared",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 					&pipeline.Secret{
 						Name:   "docker_password",
@@ -2776,6 +2792,7 @@ func Test_Compile_Inline(t *testing.T) {
 						Engine: "vault",
 						Type:   "shared",
 						Origin: &pipeline.Container{},
+						Pull:   "build_start",
 					},
 				},
 			},
