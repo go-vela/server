@@ -22,7 +22,7 @@ func Test_SkipEmptyBuild(t *testing.T) {
 			{
 				Name: "init",
 			},
-		}}}, "skipping build since only init stage found"},
+		}}}, "skipping build since only init stage found. It is likely no rulesets matched for the webhook payload."},
 		{"init and clone stages", args{p: &pipeline.Build{Stages: []*pipeline.Stage{
 			{
 				Name: "init",
@@ -30,7 +30,7 @@ func Test_SkipEmptyBuild(t *testing.T) {
 			{
 				Name: "clone",
 			},
-		}}}, "skipping build since only init and clone stages found"},
+		}}}, "skipping build since only init and clone stages found. It is likely no rulesets matched for the webhook payload."},
 		{"three stages", args{p: &pipeline.Build{Stages: []*pipeline.Stage{
 			{
 				Name: "init",
@@ -46,7 +46,7 @@ func Test_SkipEmptyBuild(t *testing.T) {
 			{
 				Name: "init",
 			},
-		}}}, "skipping build since only init step found"},
+		}}}, "skipping build since only init step found. It is likely no rulesets matched for the webhook payload."},
 		{"init and clone steps", args{p: &pipeline.Build{Steps: []*pipeline.Container{
 			{
 				Name: "init",
@@ -54,7 +54,7 @@ func Test_SkipEmptyBuild(t *testing.T) {
 			{
 				Name: "clone",
 			},
-		}}}, "skipping build since only init and clone steps found"},
+		}}}, "skipping build since only init and clone steps found. It is likely no rulesets matched for the webhook payload."},
 		{"three steps", args{p: &pipeline.Build{Steps: []*pipeline.Container{
 			{
 				Name: "init",
