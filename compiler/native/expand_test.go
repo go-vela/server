@@ -118,6 +118,7 @@ func TestNative_ExpandStages(t *testing.T) {
 			Engine: "native",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 		&yaml.Secret{
 			Name:   "foo_password",
@@ -125,6 +126,7 @@ func TestNative_ExpandStages(t *testing.T) {
 			Engine: "vault",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 	}
 
@@ -287,6 +289,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			Engine: "native",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 		&yaml.Secret{
 			Name:   "foo_password",
@@ -294,6 +297,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			Engine: "vault",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 	}
 
@@ -506,6 +510,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Engine: "native",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 		&yaml.Secret{
 			Name:   "foo_password",
@@ -513,6 +518,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Engine: "vault",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 		&yaml.Secret{
 			Name:   "vault_token",
@@ -520,6 +526,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 			Engine: "native",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 		&yaml.Secret{
 			Origin: yaml.Origin{
@@ -804,6 +811,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 			Engine: "native",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 		&yaml.Secret{
 			Name:   "foo_password",
@@ -811,6 +819,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 			Engine: "vault",
 			Type:   "repo",
 			Origin: yaml.Origin{},
+			Pull:   "build_start",
 		},
 	}
 
