@@ -83,8 +83,8 @@ func FakeHandler() http.Handler {
 	e.DELETE("/api/v1/repos/:org/:repo", removeRepo)
 	e.PATCH("/api/v1/repos/:org/:repo/repair", repairRepo)
 	e.PATCH("/api/v1/repos/:org/:repo/chown", chownRepo)
-	e.GET("/api/v1/scm/repos/:org/:repo/sync", syncRepo)
-	e.GET("/api/v1/scm/orgs/:org/sync", syncRepos)
+	e.PATCH("/api/v1/scm/repos/:org/:repo/sync", syncRepo)
+	e.PATCH("/api/v1/scm/orgs/:org/sync", syncRepos)
 
 	// mock endpoints for secret calls
 	e.GET("/api/v1/secrets/:engine/:type/:org/:name/:secret", getSecret)

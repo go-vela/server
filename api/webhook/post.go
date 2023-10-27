@@ -532,6 +532,10 @@ func PostWebhook(c *gin.Context) {
 			// set build to successful status
 			b.SetStatus(constants.StatusSkipped)
 
+			// set hook status and message
+			h.SetStatus(constants.StatusSkipped)
+			h.SetError(skip)
+
 			// send API call to set the status on the commit
 			err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
 			if err != nil {
