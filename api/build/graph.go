@@ -27,11 +27,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// graph contains nodes, and relationships between nodes, or edges.
+// Graph contains nodes, and relationships between nodes, or edges.
 //
 //	a node is a pipeline stage and its relevant steps.
 //	an edge is a relationship between nodes, defined by the 'needs' tag.
-type graph struct {
+//
+// swagger:model Graph
+type Graph struct {
 	BuildID int64         `json:"build_id"`
 	Nodes   map[int]*node `json:"nodes"`
 	Edges   []*edge       `json:"edges"`
@@ -509,7 +511,7 @@ func GetBuildGraph(c *gin.Context) {
 	}
 
 	// construct the response
-	graph := graph{
+	graph := Graph{
 		BuildID: b.GetID(),
 		Nodes:   nodes,
 		Edges:   edges,
