@@ -261,7 +261,7 @@ func GetBuildGraph(c *gin.Context) {
 		Duplicate().
 		WithBuild(b).
 		WithFiles(files).
-		WithCommit(b.GetCommit())
+		WithCommit(b.GetCommit()).
 		WithMetadata(m).
 		WithRepo(r).
 		WithUser(u).
