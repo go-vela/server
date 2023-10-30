@@ -104,6 +104,8 @@ func CreateSchedule(c *gin.Context) {
 	// ensure schedule name is defined
 	if input.GetName() == "" {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("schedule name must be set"))
+
+		return
 	}
 
 	// update engine logger with API metadata
