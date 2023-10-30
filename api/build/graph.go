@@ -456,11 +456,8 @@ func GetBuildGraph(c *gin.Context) {
 			}
 
 			// skip normal processing for built-in nodes
-			if destinationNode.Cluster == BuiltInCluster {
-				continue
-			}
-
-			if sourceNode.Cluster == BuiltInCluster {
+			if destinationNode.Cluster == BuiltInCluster ||
+				sourceNode.Cluster == BuiltInCluster {
 				continue
 			}
 
