@@ -79,9 +79,10 @@ type stg struct {
 
 const (
 	// clusters determine graph orientation
-	BuiltInCluster  = 2
-	PipelineCluster = 1
-	ServiceCluster  = 0
+	BuiltInCluster       = 2
+	PipelineCluster      = 1
+	ServiceCluster       = 0
+	GraphComplexityLimit = 1000
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
@@ -496,10 +497,8 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	// for loop over edges, and collapse same parent edge
-	// todo: move this check above the processing ?
-	if len(nodes) > 5000 {
-		c.JSON(http.StatusInternalServerError, "too many nodes on this graph")
+	if len(nodes) > GraphComplexityLimit || len(nodes) > GraphComplexityLimit {
+		c.JSON(http.StatusInternalServerError, "too many nodes or edges on this graph")
 		return
 	}
 
