@@ -82,7 +82,7 @@ const (
 	BuiltInCluster       = 2
 	PipelineCluster      = 1
 	ServiceCluster       = 0
-	GraphComplexityLimit = 1000
+	GraphComplexityLimit = 1000 // arbitrary value to limit render complexity
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
@@ -287,6 +287,14 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
+	// this is a simple check
+	// but it will save on processing a massive build that should not be rendered
+	complexity := len(steps) + len(p.Stages) + len(services)
+	if complexity > GraphComplexityLimit {
+		c.JSON(http.StatusInternalServerError, "build is too complex, too many resources")
+		return
+	}
+
 	logger.Info("generating build graph")
 
 	// create nodes from pipeline stages
@@ -422,7 +430,7 @@ func GetBuildGraph(c *gin.Context) {
 
 	// loop over all nodes and create edges based on 'needs'
 	for _, destinationNode := range nodes {
-		// if theres no stage, skip because the edge is already created?
+		// if theres no stage, skip because the edge is already created
 		if destinationNode.Stage == nil {
 			continue
 		}
@@ -497,13 +505,9 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	if len(nodes) > GraphComplexityLimit || len(nodes) > GraphComplexityLimit {
-		c.JSON(http.StatusInternalServerError, "too many nodes or edges on this graph")
-		return
-	}
-
-	if len(edges) > 5000 {
-		c.JSON(http.StatusInternalServerError, "too many edges on this graph")
+	// validate the generated graph's complexity is beneath the limit
+	if len(nodes)+len(edges) > GraphComplexityLimit {
+		c.JSON(http.StatusInternalServerError, "graph is too complex, too many nodes and edges")
 		return
 	}
 
