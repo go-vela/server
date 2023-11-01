@@ -2314,6 +2314,12 @@ func newResources() *Resources {
 	userTwo.SetActive(true)
 	userTwo.SetAdmin(false)
 
+	_bPartialOne := new(library.Build)
+	_bPartialOne.SetID(1)
+
+	_bPartialTwo := new(library.Build)
+	_bPartialTwo.SetID(2)
+
 	workerOne := new(api.Worker)
 	workerOne.SetID(1)
 	workerOne.SetHostname("worker-1.example.com")
@@ -2322,7 +2328,7 @@ func newResources() *Resources {
 	workerOne.SetActive(true)
 	workerOne.SetStatus("available")
 	workerOne.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerOne.SetRunningBuilds([]*library.Build{buildOne})
+	workerOne.SetRunningBuilds([]*library.Build{_bPartialOne})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerOne.SetLastCheckedIn(time.Now().UTC().Unix())
@@ -2336,7 +2342,7 @@ func newResources() *Resources {
 	workerTwo.SetActive(true)
 	workerTwo.SetStatus("available")
 	workerTwo.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerTwo.SetRunningBuilds([]*library.Build{buildTwo})
+	workerTwo.SetRunningBuilds([]*library.Build{_bPartialTwo})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix())
