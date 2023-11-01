@@ -185,7 +185,9 @@ func GetBuildGraph(c *gin.Context) {
 
 	if len(steps) == 0 {
 		retErr := fmt.Errorf("no steps found for build %s", entry)
+
 		util.HandleError(c, http.StatusNotFound, retErr)
+
 		return
 	}
 
