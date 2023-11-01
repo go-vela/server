@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,6 +23,12 @@ import (
 // - application/json
 // security:
 //   - ApiKeyAuth: []
+// parameters:
+// - in: query
+//   name: links
+//   description: Include links to builds currently running
+//   type: boolean
+//   default: false
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of workers
@@ -48,7 +55,15 @@ func ListWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	w, err := database.FromContext(c).ListWorkers(ctx)
+	var filters = map[string]interface{}{}
+
+	active := c.Query("active")
+
+	if len(active) > 0 {
+		filters["active"] = active
+	}
+
+	workers, err := database.FromContext(c).ListWorkers(ctx)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 
@@ -57,5 +72,23 @@ func ListWorkers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, w)
+	for _, w := range workers {
+		var rBs []*library.Build
+
+		for _, b := range w.GetRunningBuilds() {
+			build, err := database.FromContext(c).GetBuild(ctx, b.GetID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to read build %d: %w", b.GetID(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			rBs = append(rBs, build)
+		}
+
+		w.SetRunningBuilds(rBs)
+	}
+
+	c.JSON(http.StatusOK, workers)
 }

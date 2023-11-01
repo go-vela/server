@@ -5,19 +5,19 @@ package worker
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListWorkers gets a list of all workers from the database.
-func (e *engine) ListWorkers(ctx context.Context) ([]*library.Worker, error) {
+func (e *engine) ListWorkers(ctx context.Context) ([]*api.Worker, error) {
 	e.logger.Trace("listing all workers from the database")
 
 	// variables to store query results and return value
 	count := int64(0)
-	w := new([]database.Worker)
-	workers := []*library.Worker{}
+	w := new([]types.Worker)
+	workers := []*api.Worker{}
 
 	// count the results
 	count, err := e.CountWorkers(ctx)
@@ -47,7 +47,7 @@ func (e *engine) ListWorkers(ctx context.Context) ([]*library.Worker, error) {
 		// convert query result to library type
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/database#Worker.ToLibrary
-		workers = append(workers, tmp.ToLibrary())
+		workers = append(workers, tmp.ToAPI(convertToBuilds(tmp.RunningBuildIDs)))
 	}
 
 	return workers, nil

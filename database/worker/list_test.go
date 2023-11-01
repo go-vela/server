@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestWorker_Engine_ListWorkers(t *testing.T) {
@@ -18,12 +18,14 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	_workerOne.SetHostname("worker_0")
 	_workerOne.SetAddress("localhost")
 	_workerOne.SetActive(true)
+	_workerOne.SetRunningBuilds(nil)
 
 	_workerTwo := testWorker()
 	_workerTwo.SetID(2)
 	_workerTwo.SetHostname("worker_1")
 	_workerTwo.SetAddress("localhost")
 	_workerTwo.SetActive(true)
+	_workerTwo.SetRunningBuilds(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -61,19 +63,19 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Worker
+		want     []*api.Worker
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Worker{_workerOne, _workerTwo},
+			want:     []*api.Worker{_workerOne, _workerTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Worker{_workerOne, _workerTwo},
+			want:     []*api.Worker{_workerOne, _workerTwo},
 		},
 	}
 

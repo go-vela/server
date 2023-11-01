@@ -5,7 +5,7 @@ package worker
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	"github.com/go-vela/server/api/types"
 )
 
 // WorkerInterface represents the Vela interface for worker
@@ -29,15 +29,15 @@ type WorkerInterface interface {
 	// CountWorkers defines a function that gets the count of all workers.
 	CountWorkers(context.Context) (int64, error)
 	// CreateWorker defines a function that creates a new worker.
-	CreateWorker(context.Context, *library.Worker) (*library.Worker, error)
+	CreateWorker(context.Context, *types.Worker) (*types.Worker, error)
 	// DeleteWorker defines a function that deletes an existing worker.
-	DeleteWorker(context.Context, *library.Worker) error
+	DeleteWorker(context.Context, *types.Worker) error
 	// GetWorker defines a function that gets a worker by ID.
-	GetWorker(context.Context, int64) (*library.Worker, error)
+	GetWorker(context.Context, int64) (*types.Worker, error)
 	// GetWorkerForHostname defines a function that gets a worker by hostname.
-	GetWorkerForHostname(context.Context, string) (*library.Worker, error)
+	GetWorkerForHostname(context.Context, string) (*types.Worker, error)
 	// ListWorkers defines a function that gets a list of all workers.
-	ListWorkers(context.Context) ([]*library.Worker, error)
+	ListWorkers(context.Context) ([]*types.Worker, error)
 	// UpdateWorker defines a function that updates an existing worker.
-	UpdateWorker(context.Context, *library.Worker) (*library.Worker, error)
+	UpdateWorker(context.Context, *types.Worker) (*types.Worker, error)
 }

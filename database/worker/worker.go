@@ -5,8 +5,10 @@ package worker
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -78,4 +80,24 @@ func New(opts ...EngineOpt) (*engine, error) {
 	}
 
 	return e, nil
+}
+
+// convertToBuilds is a helper function that generates build objects with ID fields given a list of IDs.
+func convertToBuilds(ids []string) []*library.Build {
+	// create stripped build objects holding the IDs
+	var rBs []*library.Build
+
+	for _, b := range ids {
+		id, err := strconv.ParseInt(b, 10, 64)
+		if err != nil {
+			return nil
+		}
+
+		build := new(library.Build)
+		build.SetID(id)
+
+		rBs = append(rBs, build)
+	}
+
+	return rBs
 }

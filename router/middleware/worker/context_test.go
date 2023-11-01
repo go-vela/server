@@ -5,7 +5,7 @@ package worker
 import (
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +13,7 @@ import (
 func TestWorker_FromContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Worker{ID: &num}
+	want := &api.Worker{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -72,7 +72,7 @@ func TestWorker_FromContext_Empty(t *testing.T) {
 func TestWorker_ToContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Worker{ID: &num}
+	want := &api.Worker{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

@@ -11,6 +11,7 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -55,14 +56,20 @@ func GetWorker(c *gin.Context) {
 		"worker": w.GetHostname(),
 	}).Infof("reading worker %s", w.GetHostname())
 
-	w, err := database.FromContext(c).GetWorkerForHostname(ctx, w.GetHostname())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get workers: %w", err)
+	var rBs []*library.Build
+	for _, b := range w.GetRunningBuilds() {
+		build, err := database.FromContext(c).GetBuild(ctx, b.GetID())
+		if err != nil {
+			retErr := fmt.Errorf("unable to read build %d: %w", b.GetID(), err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+			return
+		}
 
-		return
+		rBs = append(rBs, build)
 	}
+
+	w.SetRunningBuilds(rBs)
 
 	c.JSON(http.StatusOK, w)
 }
