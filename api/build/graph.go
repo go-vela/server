@@ -155,7 +155,7 @@ func GetBuildGraph(c *gin.Context) {
 	perPage := 100
 	for page > 0 {
 		// retrieve build steps (per page) from the database
-		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(b, nil, page, perPage)
+		stepsPart, stepsCount, err := database.FromContext(c).ListStepsForBuild(b, nil, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 
@@ -168,9 +168,7 @@ func GetBuildGraph(c *gin.Context) {
 		steps = append(steps, stepsPart...)
 
 		// assume no more pages exist if under 100 results are returned
-		//
-		// nolint: gomnd // ignore magic number
-		if len(stepsPart) < 100 {
+		if stepsCount < 100 {
 			page = 0
 		} else {
 			page++
@@ -189,7 +187,7 @@ func GetBuildGraph(c *gin.Context) {
 	perPage = 100
 	for page > 0 {
 		// retrieve build services (per page) from the database
-		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
+		servicesPart, servicesCount, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 
@@ -202,9 +200,7 @@ func GetBuildGraph(c *gin.Context) {
 		services = append(services, servicesPart...)
 
 		// assume no more pages exist if under 100 results are returned
-		//
-		// nolint: gomnd // ignore magic number
-		if len(servicesPart) < 100 {
+		if servicesCount < 100 {
 			page = 0
 		} else {
 			page++
