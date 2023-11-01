@@ -1,6 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -63,7 +61,7 @@ type edge struct {
 	Status string `json:"status"`
 }
 
-// stg represents a stage's steps and some metadata for producing node/edge information
+// stg represents a stage's steps and some metadata for producing node/edge information.
 type stg struct {
 	steps []*library.Step
 	// used for tracking stage status
@@ -79,11 +77,11 @@ type stg struct {
 }
 
 const (
-	// clusters determine graph orientation
+	// clusters determine graph orientation.
 	BuiltInCluster       = 2
 	PipelineCluster      = 1
 	ServiceCluster       = 0
-	GraphComplexityLimit = 1000 // arbitrary value to limit render complexity
+	GraphComplexityLimit = 1000 // arbitrary value to limit render complexity.
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds/{build}/graph builds GetBuildGraph
@@ -133,6 +131,8 @@ const (
 
 // GetBuildGraph represents the API handler to capture a
 // directed a-cyclical graph for a build from the configured backend.
+//
+//nolint:funlen,goconst // ignore function length and constants
 func GetBuildGraph(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -161,6 +161,7 @@ func GetBuildGraph(c *gin.Context) {
 	steps := []*library.Step{}
 	page := 1
 	perPage := 100
+
 	for page > 0 {
 		// retrieve build steps (per page) from the database
 		stepsPart, stepsCount, err := database.FromContext(c).ListStepsForBuild(b, nil, page, perPage)
@@ -193,6 +194,7 @@ func GetBuildGraph(c *gin.Context) {
 	services := []*library.Service{}
 	page = 1
 	perPage = 100
+
 	for page > 0 {
 		// retrieve build services (per page) from the database
 		servicesPart, servicesCount, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
@@ -251,7 +253,7 @@ func GetBuildGraph(c *gin.Context) {
 			// send API call to capture list of files changed for the commit
 			files, err = scm.FromContext(c).Changeset(ctx, u, r, b.GetCommit())
 			if err != nil {
-				retErr := fmt.Errorf("%s: failed to get changeset for %s: %v", baseErr, r.GetFullName(), err)
+				retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
 				util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -274,11 +276,11 @@ func GetBuildGraph(c *gin.Context) {
 		Compile(config)
 	if err != nil {
 		// format the error message with extra information
-		err = fmt.Errorf("unable to compile pipeline configuration for %s: %v", r.GetFullName(), err)
+		err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
 
 		logger.Error(err.Error())
 
-		retErr := fmt.Errorf("%s: %v", baseErr, err)
+		retErr := fmt.Errorf("%s: %w", baseErr, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
@@ -313,6 +315,7 @@ func GetBuildGraph(c *gin.Context) {
 	// initialize a map for grouping steps by stage name
 	//   and tracking stage information
 	stageMap := map[string]*stg{}
+
 	for _, step := range steps {
 		name := step.GetStage()
 		if len(name) == 0 {
@@ -361,6 +364,7 @@ func GetBuildGraph(c *gin.Context) {
 		if s.finishedAt == 0 || s.finishedAt < int(step.GetFinished()) {
 			s.finishedAt = int(step.GetFinished())
 		}
+
 		if s.startedAt == 0 || s.startedAt > int(step.GetStarted()) {
 			s.startedAt = int(step.GetStarted())
 		}
@@ -535,8 +539,8 @@ func nodeFromStage(nodeID, cluster int, stage *pipeline.Stage, s *stg) *node {
 		Stage:      stage,
 		Steps:      s.steps,
 		Status:     s.GetOverallStatus(),
-		StartedAt:  int(s.startedAt),
-		FinishedAt: int(s.finishedAt),
+		StartedAt:  s.startedAt,
+		FinishedAt: s.finishedAt,
 	}
 }
 
