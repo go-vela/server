@@ -156,68 +156,6 @@ func GetBuildGraph(c *gin.Context) {
 
 	logger.Infof("constructing graph for build %s", entry)
 
-	// retrieve the steps for the build from the step table
-	steps := []*library.Step{}
-	page := 1
-	perPage := 100
-
-	for page > 0 {
-		// retrieve build steps (per page) from the database
-		stepsPart, stepsCount, err := database.FromContext(c).ListStepsForBuild(b, nil, page, perPage)
-		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
-
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		// add page of steps to list steps
-		steps = append(steps, stepsPart...)
-
-		// assume no more pages exist if under 100 results are returned
-		if int(stepsCount) < perPage {
-			page = 0
-		} else {
-			page++
-		}
-	}
-
-	if len(steps) == 0 {
-		retErr := fmt.Errorf("no steps found for build %s", entry)
-
-		util.HandleError(c, http.StatusNotFound, retErr)
-
-		return
-	}
-
-	// retrieve the services for the build from the service table
-	services := []*library.Service{}
-	page = 1
-	perPage = 100
-
-	for page > 0 {
-		// retrieve build services (per page) from the database
-		servicesPart, servicesCount, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
-		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
-
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		// add page of services to list services
-		services = append(services, servicesPart...)
-
-		// assume no more pages exist if under 100 results are returned
-		if int(servicesCount) < perPage {
-			page = 0
-		} else {
-			page++
-		}
-	}
-
 	logger.Info("retrieving pipeline configuration")
 
 	var config []byte
@@ -293,6 +231,74 @@ func GetBuildGraph(c *gin.Context) {
 	if skip != "" {
 		c.JSON(http.StatusOK, skip)
 		return
+	}
+
+	// retrieve the steps for the build from the step table
+	steps := []*library.Step{}
+	page := 1
+	perPage := 100
+
+	// only fetch steps when necessary
+	if len(p.Stages) > 0 || len(p.Steps) > 0 {
+		for page > 0 {
+			// retrieve build steps (per page) from the database
+			stepsPart, stepsCount, err := database.FromContext(c).ListStepsForBuild(b, nil, page, perPage)
+			if err != nil {
+				retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
+
+				util.HandleError(c, http.StatusNotFound, retErr)
+
+				return
+			}
+
+			// add page of steps to list steps
+			steps = append(steps, stepsPart...)
+
+			// assume no more pages exist if under 100 results are returned
+			if int(stepsCount) < perPage {
+				page = 0
+			} else {
+				page++
+			}
+		}
+	}
+
+	if len(steps) == 0 {
+		retErr := fmt.Errorf("no steps found for build %s", entry)
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
+	// retrieve the services for the build from the service table
+	services := []*library.Service{}
+	page = 1
+	perPage = 100
+
+	// only fetch services when necessary
+	if len(p.Services) > 0 {
+		for page > 0 {
+			// retrieve build services (per page) from the database
+			servicesPart, servicesCount, err := database.FromContext(c).ListServicesForBuild(ctx, b, nil, page, perPage)
+			if err != nil {
+				retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
+
+				util.HandleError(c, http.StatusNotFound, retErr)
+
+				return
+			}
+
+			// add page of services to list services
+			services = append(services, servicesPart...)
+
+			// assume no more pages exist if under 100 results are returned
+			if int(servicesCount) < perPage {
+				page = 0
+			} else {
+				page++
+			}
+		}
 	}
 
 	// this is a simple check
