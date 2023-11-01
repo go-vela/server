@@ -115,9 +115,17 @@ const (
 //   '200':
 //     description: Successfully retrieved graph for the build
 //     schema:
-//       type: array
+//       type: json
 //       items:
 //         "$ref": "#/definitions/Graph"
+//   '401':
+//     description: Unable to retrieve graph for the build — unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to retrieve graph for the build — not found
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to retrieve graph for the build
 //     schema:
