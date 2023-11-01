@@ -112,10 +112,9 @@ const (
 // responses:
 //   '200':
 //     description: Successfully retrieved graph for the build
+//     type: json
 //     schema:
-//       type: json
-//       items:
-//         "$ref": "#/definitions/Graph"
+//       "$ref": "#/definitions/Graph"
 //   '401':
 //     description: Unable to retrieve graph for the build — unauthorized
 //     schema:
