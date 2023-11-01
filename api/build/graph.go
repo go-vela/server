@@ -176,7 +176,7 @@ func GetBuildGraph(c *gin.Context) {
 		steps = append(steps, stepsPart...)
 
 		// assume no more pages exist if under 100 results are returned
-		if stepsCount < 100 {
+		if int(stepsCount) < perPage {
 			page = 0
 		} else {
 			page++
@@ -211,7 +211,7 @@ func GetBuildGraph(c *gin.Context) {
 		services = append(services, servicesPart...)
 
 		// assume no more pages exist if under 100 results are returned
-		if servicesCount < 100 {
+		if int(servicesCount) < perPage {
 			page = 0
 		} else {
 			page++
