@@ -134,6 +134,9 @@ func GetBuildGraph(c *gin.Context) {
 	m := c.MustGet("metadata").(*types.Metadata)
 	ctx := c.Request.Context()
 
+	// update engine logger with API metadata
+	//
+	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 	logger := logrus.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
@@ -144,9 +147,6 @@ func GetBuildGraph(c *gin.Context) {
 
 	baseErr := "unable to retrieve graph"
 
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logger.Infof("constructing graph for build %s", entry)
 
 	// retrieve the steps for the build from the step table
