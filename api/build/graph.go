@@ -73,6 +73,7 @@ type stg struct {
 	killed     int
 	canceled   int
 	skipped    int
+	errored    int
 	startedAt  int
 	finishedAt int
 }
@@ -324,6 +325,7 @@ func GetBuildGraph(c *gin.Context) {
 				killed:     0,
 				canceled:   0,
 				skipped:    0,
+				errored:    0,
 				startedAt:  0,
 				finishedAt: 0,
 			}
@@ -346,6 +348,8 @@ func GetBuildGraph(c *gin.Context) {
 			s.canceled++
 		case constants.StatusSkipped:
 			s.skipped++
+		case constants.StatusError:
+			s.errored++
 		default:
 		}
 
@@ -566,11 +570,15 @@ func (s *stg) GetOverallStatus() string {
 	}
 
 	if s.skipped > 0 {
-		return constants.StatusKilled
+		return constants.StatusSkipped
 	}
 
 	if s.canceled > 0 {
-		return constants.StatusFailure
+		return constants.StatusCanceled
+	}
+
+	if s.errored > 0 {
+		return constants.StatusError
 	}
 
 	return constants.StatusPending
