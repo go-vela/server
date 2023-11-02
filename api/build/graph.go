@@ -323,6 +323,19 @@ func GetBuildGraph(c *gin.Context) {
 	//   and tracking stage information
 	stageMap := map[string]*stg{}
 
+	// build a map for step_id to pipeline step
+	stepMap := map[int]*pipeline.Container{}
+
+	for _, pStep := range p.Steps {
+		stepMap[pStep.Number] = pStep
+	}
+
+	for _, pStage := range p.Stages {
+		for _, pStep := range pStage.Steps {
+			stepMap[pStep.Number] = pStep
+		}
+	}
+
 	for _, step := range steps {
 		name := step.GetStage()
 		if len(name) == 0 {
@@ -355,7 +368,12 @@ func GetBuildGraph(c *gin.Context) {
 		case constants.StatusSuccess:
 			s.success++
 		case constants.StatusFailure:
-			s.failure++
+			stp, ok := stepMap[step.GetNumber()]
+			if ok && stp.Ruleset.Continue {
+				s.success++
+			} else {
+				s.failure++
+			}
 		case constants.StatusKilled:
 			s.killed++
 		case constants.StatusCanceled:
@@ -576,11 +594,11 @@ func (s *stg) GetOverallStatus() string {
 		return constants.StatusFailure
 	}
 
-	if s.success > 0 {
-		return constants.StatusSuccess
+	if s.errored > 0 {
+		return constants.StatusError
 	}
 
-	if s.killed > 0 {
+	if s.killed >= len(s.steps) {
 		return constants.StatusKilled
 	}
 
@@ -588,12 +606,12 @@ func (s *stg) GetOverallStatus() string {
 		return constants.StatusSkipped
 	}
 
-	if s.canceled > 0 {
-		return constants.StatusCanceled
+	if s.success > 0 {
+		return constants.StatusSuccess
 	}
 
-	if s.errored > 0 {
-		return constants.StatusError
+	if s.canceled > 0 {
+		return constants.StatusCanceled
 	}
 
 	return constants.StatusPending
