@@ -345,16 +345,7 @@ func GetBuildGraph(c *gin.Context) {
 		// initialize a stage tracker
 		if _, ok := stageMap[name]; !ok {
 			stageMap[name] = &stg{
-				steps:      []*library.Step{},
-				success:    0,
-				running:    0,
-				failure:    0,
-				killed:     0,
-				canceled:   0,
-				skipped:    0,
-				errored:    0,
-				startedAt:  0,
-				finishedAt: 0,
+				steps: []*library.Step{},
 			}
 		}
 
