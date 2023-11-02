@@ -555,7 +555,7 @@ func GetBuildGraph(c *gin.Context) {
 	c.JSON(http.StatusOK, graph)
 }
 
-// nodeFromStage returns a new node from a stage
+// nodeFromStage returns a new node from a stage.
 func nodeFromStage(nodeID, cluster int, stage *pipeline.Stage, s *stg) *node {
 	return &node{
 		ID:         nodeID,
@@ -569,7 +569,7 @@ func nodeFromStage(nodeID, cluster int, stage *pipeline.Stage, s *stg) *node {
 	}
 }
 
-// nodeFromService returns a new node from a service
+// nodeFromService returns a new node from a service.
 func nodeFromService(nodeID int, service *library.Service) *node {
 	return &node{
 		ID:         nodeID,
@@ -584,7 +584,7 @@ func nodeFromService(nodeID int, service *library.Service) *node {
 }
 
 // GetOverallStatus determines the "status" for a stage based on the steps within it.
-// this could potentially get complicated with ruleset logic (continue/detach)
+// this could potentially get complicated with ruleset logic (continue/detach).
 func (s *stg) GetOverallStatus() string {
 	if s.running > 0 {
 		return constants.StatusRunning
