@@ -15,7 +15,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15-alpine@sha256:ff87187f2926e9b7c2f51aca88c248d98563b027930f766b19bbc21fb445c6dd
+        image: postgres:15-alpine@sha256:35ce2187f2f7fb75e8e79493e13743596c21eb3789ff41ece145ae04d06e93a5
         env:
           POSTGRES_DB: vela
           POSTGRES_PASSWORD: notARealPassword12345
@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: clone
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: install go
         uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
