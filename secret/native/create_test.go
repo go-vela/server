@@ -36,7 +36,7 @@ func TestNative_Create_Org(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -83,7 +83,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -130,7 +130,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -177,7 +177,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sec)
+		_ = db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 

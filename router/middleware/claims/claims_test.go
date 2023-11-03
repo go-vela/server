@@ -273,7 +273,7 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 

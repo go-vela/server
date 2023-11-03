@@ -79,9 +79,9 @@ func TestStep_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
-		db.DeleteStep(want)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteStep(want)
 		db.Close()
 	}()
 
@@ -168,7 +168,7 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -221,8 +221,8 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -277,8 +277,8 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -333,8 +333,8 @@ func TestStep_Establish_NoStep(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 

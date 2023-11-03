@@ -88,8 +88,8 @@ func TestBuild_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), want)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), want)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -171,7 +171,7 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -219,7 +219,7 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -267,7 +267,7 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
