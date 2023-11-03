@@ -71,7 +71,7 @@ func TestRepo_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), want)
+		_ = db.DeleteRepo(context.TODO(), want)
 		db.Close()
 	}()
 

@@ -134,12 +134,14 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 	if f.DataKey != "" {
 		datahint = 2
 	}
+
 	data := make(logrus.Fields, datahint)
 	if len(e.Data) > 0 {
 		extraData := data
 		if f.DataKey != "" {
 			extraData = make(logrus.Fields, len(e.Data))
 		}
+
 		for k, v := range e.Data {
 			switch k {
 			case "ip":
@@ -160,6 +162,7 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 				extraData[k] = v
 			}
 		}
+
 		if f.DataKey != "" && len(extraData) > 0 {
 			data[f.DataKey] = extraData
 		}

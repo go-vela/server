@@ -131,7 +131,7 @@ const (
 // GetBuildGraph represents the API handler to capture a
 // directed a-cyclical graph for a build from the configured backend.
 //
-//nolint:funlen,goconst // ignore function length and constants
+//nolint:funlen,goconst,gocyclo // ignore function length and constants
 func GetBuildGraph(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
@@ -425,6 +425,7 @@ func GetBuildGraph(c *gin.Context) {
 		if stage.Name == "init" {
 			cluster = BuiltInCluster
 		}
+
 		if stage.Name == "clone" {
 			cluster = BuiltInCluster
 		}

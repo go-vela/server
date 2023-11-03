@@ -54,8 +54,8 @@ func TestNative_List(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sOne)
-		db.DeleteSecret(context.TODO(), sTwo)
+		_ = db.DeleteSecret(context.TODO(), sOne)
+		_ = db.DeleteSecret(context.TODO(), sTwo)
 		db.Close()
 	}()
 

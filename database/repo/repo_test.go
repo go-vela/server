@@ -208,6 +208,6 @@ func testRepo() *library.Repo {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }

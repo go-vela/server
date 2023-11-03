@@ -53,7 +53,7 @@ func TestNative_Update(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), original)
+		_ = db.DeleteSecret(context.TODO(), original)
 		db.Close()
 	}()
 
