@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: clone
-      uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       with:
         # ensures we fetch tag history for the repository
         fetch-depth: 0
@@ -40,7 +40,7 @@ jobs:
         make build-static-ci
 
     - name: publish
-      uses: elgohr/Publish-Docker-Github-Action@43dc228e327224b2eda11c8883232afd5b34943b # v5
+      uses: elgohr/Publish-Docker-Github-Action@eb53b3ec07136a6ebaed78d8135806da64f7c7e2 # v5
       with:
         name: target/vela-server
         cache: true
@@ -49,7 +49,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: publish-alpine
-      uses: elgohr/Publish-Docker-Github-Action@43dc228e327224b2eda11c8883232afd5b34943b # v5
+      uses: elgohr/Publish-Docker-Github-Action@eb53b3ec07136a6ebaed78d8135806da64f7c7e2 # v5
       with:
         name: target/vela-server
         cache: true
