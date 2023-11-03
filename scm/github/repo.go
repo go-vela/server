@@ -556,7 +556,6 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 	client := c.newClientToken(u.GetToken())
 
 	maxRedirects := 3
-
 	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, maxRedirects)
 	if err != nil {
 		return "", "", err
