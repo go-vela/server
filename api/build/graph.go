@@ -30,9 +30,12 @@ import (
 //
 // swagger:model Graph
 type Graph struct {
-	BuildID int64         `json:"build_id"`
-	Nodes   map[int]*node `json:"nodes"`
-	Edges   []*edge       `json:"edges"`
+	BuildID     int64         `json:"build_id"`
+	BuildNumber int           `json:"build_number"`
+	Org         string        `json:"org"`
+	Repo        string        `json:"repo"`
+	Nodes       map[int]*node `json:"nodes"`
+	Edges       []*edge       `json:"edges"`
 }
 
 // node represents a pipeline stage and its relevant steps.
@@ -539,9 +542,12 @@ func GetBuildGraph(c *gin.Context) {
 
 	// construct the response
 	graph := Graph{
-		BuildID: b.GetID(),
-		Nodes:   nodes,
-		Edges:   edges,
+		BuildID:     b.GetID(),
+		BuildNumber: b.GetNumber(),
+		Org:         r.GetOrg(),
+		Repo:        r.GetName(),
+		Nodes:       nodes,
+		Edges:       edges,
 	}
 
 	c.JSON(http.StatusOK, graph)
