@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package scm
 
@@ -19,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
+// swagger:operation PATCH /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
 //
 // Sync up scm service and database in the context of a specific repo
 //
@@ -73,7 +71,7 @@ func SyncRepo(c *gin.Context) {
 	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
-	_, err := scm.FromContext(c).GetRepo(u, r)
+	_, err := scm.FromContext(c).GetRepo(ctx, u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
@@ -98,7 +96,7 @@ func SyncRepo(c *gin.Context) {
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u, u.GetToken(), o, r.GetName())
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -125,13 +123,11 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		webhookExists, err := scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		webhookExists, err := scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())
 		if err != nil {
-
 			// if webhook has been manually deleted from GitHub,
 			// set to inactive in database
 			if !webhookExists {
-
 				r.SetActive(false)
 
 				_, err := database.FromContext(c).UpdateRepo(ctx, r)
@@ -146,15 +142,13 @@ func SyncRepo(c *gin.Context) {
 				c.JSON(http.StatusOK, fmt.Sprintf("webhook not found, repo %s deactivated", r.GetFullName()))
 
 				return
-
-			} else {
-
-				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
 			}
+
+			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
 		}
 	}
 

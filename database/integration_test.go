@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -298,6 +296,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListBuildsForRepo"] = true
 
+	// list the pending / running builds for a repo
+	list, err = db.ListPendingAndRunningBuildsForRepo(context.TODO(), resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to list pending and running builds for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	if !cmp.Equal(list, []*library.Build{resources.Builds[0], resources.Builds[1]}) {
+		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[0], resources.Builds[1]})
+	}
+	methods["ListPendingAndRunningBuildsForRepo"] = true
+
 	// list the pending and running builds
 	queueList, err := db.ListPendingAndRunningBuilds(context.TODO(), "0")
 	if err != nil {
@@ -424,6 +435,34 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["PopBuildExecutable"] = true
+
+	resources.Builds[0].SetStatus(constants.StatusError)
+
+	_, err := db.UpdateBuild(context.TODO(), resources.Builds[0])
+	if err != nil {
+		t.Errorf("unable to update build for clean executables test")
+	}
+
+	err = db.CreateBuildExecutable(context.TODO(), resources.Executables[0])
+	if err != nil {
+		t.Errorf("unable to create executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	count, err := db.CleanBuildExecutables(context.TODO())
+	if err != nil {
+		t.Errorf("unable to clean executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	if count != 1 {
+		t.Errorf("CleanBuildExecutables should have affected 1 row, affected %d", count)
+	}
+
+	_, err = db.PopBuildExecutable(context.TODO(), resources.Builds[0].GetID())
+	if err == nil {
+		t.Errorf("build executable not cleaned")
+	}
+
+	methods["CleanBuildExecutables"] = true
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -1926,7 +1965,7 @@ func newResources() *Resources {
 	deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
 	deploymentOne.SetUser("octocat")
 	deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	deploymentOne.SetRef("refs/heads/master")
+	deploymentOne.SetRef("refs/heads/main")
 	deploymentOne.SetTask("vela-deploy")
 	deploymentOne.SetTarget("production")
 	deploymentOne.SetDescription("Deployment request from Vela")
@@ -1938,7 +1977,7 @@ func newResources() *Resources {
 	deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
 	deploymentTwo.SetUser("octocat")
 	deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
-	deploymentTwo.SetRef("refs/heads/master")
+	deploymentTwo.SetRef("refs/heads/main")
 	deploymentTwo.SetTask("vela-deploy")
 	deploymentTwo.SetTarget("production")
 	deploymentTwo.SetDescription("Deployment request from Vela")

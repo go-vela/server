@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -38,7 +36,7 @@ func TestNative_Create_Org(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -85,7 +83,7 @@ func TestNative_Create_Repo(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -132,7 +130,7 @@ func TestNative_Create_Shared(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -179,7 +177,7 @@ func TestNative_Create_Invalid(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sec)
+		_ = db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 

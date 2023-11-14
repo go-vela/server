@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -44,11 +42,6 @@ func (c *client) Pop(ctx context.Context, routes []string) (*types.Item, error) 
 		}
 
 		return nil, err
-	}
-
-	// this should already be validated on startup
-	if c.config.PublicKey == nil || len(*c.config.PublicKey) != 32 {
-		return nil, errors.New("no valid signing public key provided")
 	}
 
 	// extract signed item from pop results

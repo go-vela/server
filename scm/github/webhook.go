@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
@@ -20,13 +18,13 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v56/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
 //
 //nolint:nilerr // ignore webhook returning nil
-func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
+func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
 	// create our own record of the hook and populate its fields
@@ -85,7 +83,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
+func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *library.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -225,9 +223,10 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize
+	// skip if the pull request action is not opened, synchronize, or reopened
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
-		!strings.EqualFold(payload.GetAction(), "synchronize") {
+		!strings.EqualFold(payload.GetAction(), "synchronize") &&
+		!strings.EqualFold(payload.GetAction(), "reopened") {
 		return &types.Webhook{Hook: h}, nil
 	}
 

@@ -8,11 +8,11 @@
   "sha": "3d21ec53a331a6f037a91c368710b99387d012c1",
   "url": "https://api.github.com/repos/octokit/octokit.rb/contents/.vela.star",
   "git_url": "https://api.github.com/repos/octokit/octokit.rb/git/blobs/3d21ec53a331a6f037a91c368710b99387d012c1",
-  "html_url": "https://github.com/octokit/octokit.rb/blob/master/.vela.star",
-  "download_url": "https://raw.githubusercontent.com/octokit/octokit.rb/master/.vela.star",
+  "html_url": "https://github.com/octokit/octokit.rb/blob/main/.vela.star",
+  "download_url": "https://raw.githubusercontent.com/octokit/octokit.rb/main/.vela.star",
   "_links": {
     "git": "https://api.github.com/repos/octokit/octokit.rb/git/blobs/3d21ec53a331a6f037a91c368710b99387d012c1",
     "self": "https://api.github.com/repos/octokit/octokit.rb/contents/.vela.star",
-    "html": "https://github.com/octokit/octokit.rb/blob/master/.vela.star"
+    "html": "https://github.com/octokit/octokit.rb/blob/main/.vela.star"
   }
 }

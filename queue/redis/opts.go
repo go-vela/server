@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -96,6 +94,10 @@ func WithPrivateKey(key string) ClientOpt {
 		c.config.PrivateKey = new([64]byte)
 		copy(c.config.PrivateKey[:], decoded)
 
+		if len(*c.config.PrivateKey) != 64 {
+			return errors.New("no valid queue signing private key provided")
+		}
+
 		if c.config.PrivateKey == nil {
 			return errors.New("unable to copy decoded queue signing private key, copied key is nil")
 		}
@@ -132,8 +134,12 @@ func WithPublicKey(key string) ClientOpt {
 		c.config.PublicKey = new([32]byte)
 		copy(c.config.PublicKey[:], decoded)
 
+		if len(*c.config.PublicKey) != 32 {
+			return errors.New("no valid queue public key provided")
+		}
+
 		if c.config.PublicKey == nil {
-			return errors.New("unable to copy decoded queue signing public key, copied key is nil")
+			return errors.New("unable to copy decoded queue public key, copied key is nil")
 		}
 
 		if len(c.config.PublicKey) == 0 {

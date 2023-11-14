@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -106,6 +104,8 @@ func CreateSchedule(c *gin.Context) {
 	// ensure schedule name is defined
 	if input.GetName() == "" {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("schedule name must be set"))
+
+		return
 	}
 
 	// update engine logger with API metadata

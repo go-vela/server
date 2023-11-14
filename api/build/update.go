@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -176,7 +174,7 @@ func UpdateBuild(c *gin.Context) {
 		}
 
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}

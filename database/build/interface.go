@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -60,6 +58,8 @@ type BuildInterface interface {
 	ListBuildsForRepo(context.Context, *library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(context.Context, string) ([]*library.BuildQueue, error)
+	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.
+	ListPendingAndRunningBuildsForRepo(context.Context, *library.Repo) ([]*library.Build, error)
 	// UpdateBuild defines a function that updates an existing build.
 	UpdateBuild(context.Context, *library.Build) (*library.Build, error)
 }

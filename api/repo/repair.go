@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -69,7 +67,7 @@ func RepairRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to remove the webhook
-		err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+		err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -88,7 +86,7 @@ func RepairRepo(c *gin.Context) {
 		}
 
 		// send API call to create the webhook
-		hook, _, err = scm.FromContext(c).Enable(u, r, hook)
+		hook, _, err = scm.FromContext(c).Enable(ctx, u, r, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 

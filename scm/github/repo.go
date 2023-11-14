@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,19 +14,19 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v56/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (data []byte, err error) {
+func (c *client) ConfigBackoff(ctx context.Context, u *library.User, r *library.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
 	for i := 0; i < retryLimit; i++ {
 		logrus.Debugf("Fetching config file - Attempt %d", i+1)
 		// attempt to fetch the config
-		data, err = c.Config(u, r, ref)
+		data, err = c.Config(ctx, u, r, ref)
 
 		// return err if the last attempt returns error
 		if err != nil && i == retryLimit-1 {
@@ -48,7 +47,7 @@ func (c *client) ConfigBackoff(u *library.User, r *library.Repo, ref string) (da
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, error) {
+func (c *client) Config(ctx context.Context, u *library.User, r *library.Repo, ref string) ([]byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -93,7 +92,7 @@ func (c *client) Config(u *library.User, r *library.Repo, ref string) ([]byte, e
 }
 
 // Disable deactivates a repo by deleting the webhook.
-func (c *client) Disable(u *library.User, org, name string) error {
+func (c *client) Disable(ctx context.Context, u *library.User, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
@@ -151,7 +150,7 @@ func (c *client) Disable(u *library.User, org, name string) error {
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*library.Hook, string, error) {
+func (c *client) Enable(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) (*library.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -219,7 +218,7 @@ func (c *client) Enable(u *library.User, r *library.Repo, h *library.Hook) (*lib
 }
 
 // Update edits a repo webhook.
-func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, error) {
+func (c *client) Update(ctx context.Context, u *library.User, r *library.Repo, hookID int64) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -270,7 +269,7 @@ func (c *client) Update(u *library.User, r *library.Repo, hookID int64) (bool, e
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *client) Status(u *library.User, b *library.Build, org, name string) error {
+func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -372,7 +371,7 @@ func (c *client) Status(u *library.User, b *library.Build, org, name string) err
 }
 
 // GetRepo gets repo information from Github.
-func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error) {
+func (c *client) GetRepo(ctx context.Context, u *library.User, r *library.Repo) (*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -392,7 +391,7 @@ func (c *client) GetRepo(u *library.User, r *library.Repo) (*library.Repo, error
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
-func (c *client) GetOrgAndRepoName(u *library.User, o string, r string) (string, string, error) {
+func (c *client) GetOrgAndRepoName(ctx context.Context, u *library.User, o string, r string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"repo": r,
@@ -412,7 +411,7 @@ func (c *client) GetOrgAndRepoName(u *library.User, o string, r string) (string,
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *client) ListUserRepos(u *library.User) ([]*library.Repo, error) {
+func (c *client) ListUserRepos(ctx context.Context, u *library.User) ([]*library.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
@@ -490,7 +489,7 @@ func toLibraryRepo(gr github.Repository) *library.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
+func (c *client) GetPullRequest(ctx context.Context, u *library.User, r *library.Repo, number int) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -514,7 +513,7 @@ func (c *client) GetPullRequest(u *library.User, r *library.Repo, number int) (s
 }
 
 // GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
-func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (string, error) {
+func (c *client) GetHTMLURL(ctx context.Context, u *library.User, org, repo, name, ref string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
@@ -550,7 +549,7 @@ func (c *client) GetHTMLURL(u *library.User, org, repo, name, ref string) (strin
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *client) GetBranch(u *library.User, r *library.Repo, branch string) (string, string, error) {
+func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo, branch string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -560,7 +559,8 @@ func (c *client) GetBranch(u *library.User, r *library.Repo, branch string) (str
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 
-	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, true)
+	maxRedirects := 3
+	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, maxRedirects)
 	if err != nil {
 		return "", "", err
 	}

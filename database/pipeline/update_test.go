@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -18,7 +16,7 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipeline.SetRef("refs/heads/master")
+	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 	_pipeline.SetData([]byte{})
@@ -30,7 +28,7 @@ func TestPipeline_Engine_UpdatePipeline(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "pipelines"
 SET "repo_id"=$1,"commit"=$2,"flavor"=$3,"platform"=$4,"ref"=$5,"type"=$6,"version"=$7,"external_secrets"=$8,"internal_secrets"=$9,"services"=$10,"stages"=$11,"steps"=$12,"templates"=$13,"data"=$14
 WHERE "id" = $15`).
-		WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163", nil, nil, "refs/heads/master", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
+		WithArgs(1, "48afb5bdc41ad69bf22588491333f7cf71135163", nil, nil, "refs/heads/main", "yaml", "1", false, false, false, false, false, false, AnyArgument{}, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

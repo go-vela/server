@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
@@ -26,6 +24,18 @@ import (
 )
 
 func server(c *cli.Context) error {
+	// set log formatter
+	switch c.String("log-formatter") {
+	case "json":
+		// set logrus to log in JSON format
+		logrus.SetFormatter(&logrus.JSONFormatter{})
+	case "ecs":
+		// set logrus to log in Elasticsearch Common Schema (ecs) format
+		logrus.SetFormatter(&middleware.ECSFormatter{
+			DataKey: "labels.vela",
+		})
+	}
+
 	// validate all input
 	err := validate(c)
 	if err != nil {
@@ -99,6 +109,8 @@ func server(c *cli.Context) error {
 		middleware.Secrets(secrets),
 		middleware.Scm(scm),
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
+		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
+		middleware.QueueAddress(c.String("queue.addr")),
 		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
@@ -200,7 +212,7 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm)
+			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

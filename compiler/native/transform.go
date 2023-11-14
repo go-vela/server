@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -115,7 +113,12 @@ func (c *client) TransformStages(r *pipeline.RuleData, p *yaml.Build) (*pipeline
 		secret.Origin.ID = pattern
 	}
 
-	return pipeline.Purge(r), nil
+	build, err := pipeline.Purge(r)
+	if err != nil {
+		return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+	}
+
+	return build, nil
 }
 
 // TransformSteps converts a yaml configuration with steps into an executable pipeline.
@@ -194,5 +197,10 @@ func (c *client) TransformSteps(r *pipeline.RuleData, p *yaml.Build) (*pipeline.
 		secret.Origin.ID = pattern
 	}
 
-	return pipeline.Purge(r), nil
+	build, err := pipeline.Purge(r)
+	if err != nil {
+		return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+	}
+
+	return build, nil
 }

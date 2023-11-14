@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
@@ -9,7 +7,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/google/go-github/v54/github"
+	"github.com/google/go-github/v56/github"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2"
@@ -27,8 +25,6 @@ const (
 	eventRepository   = "repository"
 	eventInitialize   = "initialize"
 )
-
-var ctx = context.Background()
 
 type config struct {
 	// specifies the address to use for the GitHub client

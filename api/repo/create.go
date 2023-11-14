@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -17,6 +15,7 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -99,7 +98,7 @@ func CreateRepo(c *gin.Context) {
 	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(u, input)
+	r, err := scm.FromContext(c).GetRepo(ctx, u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -157,10 +156,10 @@ func CreateRepo(c *gin.Context) {
 	// set default events if no events are passed in
 	if input.GetAllowEvents() == nil {
 		events := new(library.Events)
-		pushActions := new(library.PushActions)
-		pullActions := new(library.PullActions)
-		deployActions := new(library.DeployActions)
-		commentActions := new(library.CommentActions)
+		pushActions := new(actions.Push)
+		pullActions := new(actions.Pull)
+		deployActions := new(actions.Deploy)
+		commentActions := new(actions.Comment)
 
 		for _, event := range defaultRepoEvents {
 			switch event {
@@ -260,7 +259,7 @@ func CreateRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to create the webhook
-		h, _, err = scm.FromContext(c).Enable(u, r, h)
+		h, _, err = scm.FromContext(c).Enable(ctx, u, r, h)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 

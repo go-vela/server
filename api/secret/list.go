@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -106,7 +104,7 @@ func ListSecrets(c *gin.Context) {
 	if t == constants.SecretShared && n == "*" {
 		var err error
 
-		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
+		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(ctx, u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to list users %s teams for org %s: %w", u.GetName(), o, err)
 
