@@ -229,6 +229,29 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
+	if err != nil {
+		// format the error message with extra information
+		err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
+
+		logger.Error(err.Error())
+
+		retErr := fmt.Errorf("%s: %w", baseErr, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	if p == nil {
+		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: pipeline is nil", r.GetFullName())
+
+		logger.Error(retErr)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// skip the build if only the init or clone steps are found
 	skip := SkipEmptyBuild(p)
 	if skip != "" {
@@ -340,6 +363,10 @@ func GetBuildGraph(c *gin.Context) {
 	}
 
 	for _, step := range steps {
+		if step == nil {
+			continue
+		}
+
 		name := step.GetStage()
 		if len(name) == 0 {
 			name = step.GetName()
@@ -354,6 +381,11 @@ func GetBuildGraph(c *gin.Context) {
 
 		// retrieve the stage to update
 		s := stageMap[name]
+
+		// this shouldnt happen
+		if s == nil {
+			continue
+		}
 
 		// count each step status
 		switch step.GetStatus() {
@@ -394,6 +426,10 @@ func GetBuildGraph(c *gin.Context) {
 	// construct services nodes separately
 	// services are grouped via cluster and manually-constructed edges
 	for _, service := range services {
+		if service == nil {
+			continue
+		}
+
 		// create the node
 		nodeID := len(nodes)
 		node := nodeFromService(nodeID, service)
@@ -413,6 +449,12 @@ func GetBuildGraph(c *gin.Context) {
 
 	// construct pipeline stages nodes when stages exist
 	for _, stage := range p.Stages {
+		// skip steps/stages that were not present in the build
+		s, ok := stageMap[stage.Name]
+		if !ok {
+			continue
+		}
+
 		// scrub the environment
 		for _, step := range stage.Steps {
 			step.Environment = nil
@@ -433,11 +475,8 @@ func GetBuildGraph(c *gin.Context) {
 			cluster = BuiltInCluster
 		}
 
-		s, ok := stageMap[stage.Name]
-		if ok {
-			node := nodeFromStage(nodeID, cluster, stage, s)
-			nodes[nodeID] = node
-		}
+		node := nodeFromStage(nodeID, cluster, stage, s)
+		nodes[nodeID] = node
 	}
 
 	// create single-step stages when no stages exist
@@ -452,22 +491,29 @@ func GetBuildGraph(c *gin.Context) {
 				Needs: []string{},
 			}
 
+			// skip steps/stages that were not present in the build
+			s, ok := stageMap[stage.Name]
+			if !ok {
+				continue
+			}
+
 			// create the node
 			nodeID := len(nodes)
 
 			// no built-in step separation for graphs without stages
 			cluster := PipelineCluster
 
-			s, ok := stageMap[stage.Name]
-			if ok {
-				node := nodeFromStage(nodeID, cluster, stage, s)
-				nodes[nodeID] = node
-			}
+			node := nodeFromStage(nodeID, cluster, stage, s)
+			nodes[nodeID] = node
 		}
 	}
 
 	// loop over all nodes and create edges based on 'needs'
 	for _, destinationNode := range nodes {
+		if destinationNode == nil {
+			continue
+		}
+
 		// if theres no stage, skip because the edge is already created
 		if destinationNode.Stage == nil {
 			continue
@@ -501,6 +547,10 @@ func GetBuildGraph(c *gin.Context) {
 
 			// dont compare the same node
 			if destinationNode.ID == sourceNode.ID {
+				continue
+			}
+
+			if destinationNode.Stage == nil {
 				continue
 			}
 
