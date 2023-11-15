@@ -127,6 +127,7 @@ build:
 	@echo "### Building release/vela-server binary"
 	GOOS=linux CGO_ENABLED=0 \
 		go build -a \
+		-gcflags "all=-N -l" \
 		-ldflags '${LD_FLAGS}' \
 		-o release/vela-server \
 		github.com/go-vela/server/cmd/vela-server

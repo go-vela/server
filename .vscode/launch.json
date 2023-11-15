@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Docker Container",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 4000,
+            "host": "127.0.0.1"
+        }
+    ]
+}

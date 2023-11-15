@@ -14,7 +14,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     container_name: server
     image: server:local
     networks:
@@ -51,6 +51,7 @@ services:
     restart: always
     ports:
       - '8080:8080'
+      - '4000:4000'
     depends_on:
       - postgres
       - redis

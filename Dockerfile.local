@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+
+FROM alpine:3.18.4@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 as certs
+
+RUN apk add --update --no-cache ca-certificates
+
+FROM golang:1.21-alpine as go
+
+RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+
+FROM scratch
+
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+COPY --from=go /go/bin/dlv /bin/dlv
+
+EXPOSE 8080
+
+ENV GODEBUG=netdns=go
+
+ADD release/vela-server /bin/
+
+CMD [ "/bin/dlv", "--listen=:4000", "--headless=true", "--log=true", "--accept-multiclient", "--api-version=2", "exec", "/bin/vela-server" ]
