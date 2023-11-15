@@ -435,6 +435,10 @@ func GetBuildGraph(c *gin.Context) {
 
 	// construct pipeline stages nodes when stages exist
 	for _, stage := range p.Stages {
+		if stage == nil {
+			continue
+		}
+
 		// skip steps/stages that were not present in the build
 		// this fixes the scenario where mutable templates are updated
 		s, ok := stageMap[stage.Name]
