@@ -433,8 +433,11 @@ func GetBuildGraph(c *gin.Context) {
 			cluster = BuiltInCluster
 		}
 
-		node := nodeFromStage(nodeID, cluster, stage, stageMap[stage.Name])
-		nodes[nodeID] = node
+		s, ok := stageMap[stage.Name]
+		if ok {
+			node := nodeFromStage(nodeID, cluster, stage, s)
+			nodes[nodeID] = node
+		}
 	}
 
 	// create single-step stages when no stages exist
@@ -455,8 +458,11 @@ func GetBuildGraph(c *gin.Context) {
 			// no built-in step separation for graphs without stages
 			cluster := PipelineCluster
 
-			node := nodeFromStage(nodeID, cluster, stage, stageMap[stage.Name])
-			nodes[nodeID] = node
+			s, ok := stageMap[stage.Name]
+			if ok {
+				node := nodeFromStage(nodeID, cluster, stage, s)
+				nodes[nodeID] = node
+			}
 		}
 	}
 
