@@ -5,6 +5,7 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -380,10 +381,8 @@ func GetBuildGraph(c *gin.Context) {
 		}
 
 		// retrieve the stage to update
-		s := stageMap[name]
-
-		// this shouldnt happen
-		if s == nil {
+		s, ok := stageMap[name]
+		if !ok {
 			continue
 		}
 
@@ -450,6 +449,7 @@ func GetBuildGraph(c *gin.Context) {
 	// construct pipeline stages nodes when stages exist
 	for _, stage := range p.Stages {
 		// skip steps/stages that were not present in the build
+		// this fixes the scenario where mutable templates are updated
 		s, ok := stageMap[stage.Name]
 		if !ok {
 			continue
@@ -481,13 +481,15 @@ func GetBuildGraph(c *gin.Context) {
 
 	// create single-step stages when no stages exist
 	if len(p.Stages) == 0 {
-		for _, step := range p.Steps {
-			// scrub the environment
-			step.Environment = nil
+		// sort them by number
+		sort.Slice(steps, func(i, j int) bool {
+			return steps[i].GetNumber() < steps[j].GetNumber()
+		})
 
+		for _, step := range steps {
 			// mock stage for edge creation
 			stage := &pipeline.Stage{
-				Name:  step.Name,
+				Name:  step.GetName(),
 				Needs: []string{},
 			}
 
