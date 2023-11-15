@@ -230,19 +230,6 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		// format the error message with extra information
-		err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", r.GetFullName(), err)
-
-		logger.Error(err.Error())
-
-		retErr := fmt.Errorf("%s: %w", baseErr, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	if p == nil {
 		retErr := fmt.Errorf("unable to compile pipeline configuration for %s: pipeline is nil", r.GetFullName())
 
@@ -481,7 +468,7 @@ func GetBuildGraph(c *gin.Context) {
 
 	// create single-step stages when no stages exist
 	if len(p.Stages) == 0 {
-		// sort them by number
+		// sort steps by number
 		sort.Slice(steps, func(i, j int) bool {
 			return steps[i].GetNumber() < steps[j].GetNumber()
 		})
@@ -493,7 +480,6 @@ func GetBuildGraph(c *gin.Context) {
 				Needs: []string{},
 			}
 
-			// skip steps/stages that were not present in the build
 			s, ok := stageMap[stage.Name]
 			if !ok {
 				continue
