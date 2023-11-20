@@ -319,7 +319,10 @@ func GetBuildGraph(c *gin.Context) {
 	// but it will save on processing a massive build that should not be rendered
 	complexity := len(steps) + len(p.Stages) + len(services)
 	if complexity > GraphComplexityLimit {
-		c.JSON(http.StatusInternalServerError, "build is too complex, too many resources")
+		retErr := fmt.Errorf("build is too complex, too many resources")
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
@@ -584,7 +587,10 @@ func GetBuildGraph(c *gin.Context) {
 
 	// validate the generated graph's complexity is beneath the limit
 	if len(nodes)+len(edges) > GraphComplexityLimit {
-		c.JSON(http.StatusInternalServerError, "graph is too complex, too many nodes and edges")
+		retErr := fmt.Errorf("build is too complex, too many resources")
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
 		return
 	}
 
