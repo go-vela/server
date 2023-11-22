@@ -116,6 +116,34 @@ func RepairRepo(c *gin.Context) {
 		}
 	}
 
+	// get repo information from the source
+	sourceRepo, err := scm.FromContext(c).GetRepo(ctx, u, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", sourceRepo.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+	// if repo has a name change, then update DB with new name
+	if sourceRepo.GetName() != r.GetName() {
+		r.SetPreviousName(r.GetName())
+		r.SetName(sourceRepo.GetName())
+		r.SetFullName(sourceRepo.GetFullName())
+		r.SetLink(sourceRepo.GetLink())
+		r.SetClone(sourceRepo.GetClone())
+
+		// send API call to update the repo
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to rename repo %s to %s: %w", r.GetFullName(), sourceRepo.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+	}
+
 	// if the repo was previously inactive, mark it as active
 	if !r.GetActive() {
 		r.SetActive(true)
