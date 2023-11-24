@@ -126,17 +126,18 @@ func RepairRepo(c *gin.Context) {
 		return
 	}
 	// if repo has a name change, then update DB with new name
-	if sourceRepo.GetName() != r.GetName() {
+	// if repo has a org change, update org as well
+	if sourceRepo.GetName() != r.GetName() || sourceRepo.GetOrg() != r.GetOrg() {
 		r.SetPreviousName(r.GetName())
 		r.SetName(sourceRepo.GetName())
 		r.SetFullName(sourceRepo.GetFullName())
 		r.SetLink(sourceRepo.GetLink())
 		r.SetClone(sourceRepo.GetClone())
-
+		r.SetOrg(sourceRepo.GetOrg())
 		// send API call to update the repo
 		_, err := database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
-			retErr := fmt.Errorf("unable to rename repo %s to %s: %w", r.GetFullName(), sourceRepo.GetFullName(), err)
+			retErr := fmt.Errorf("unable to rename repo %s to %s: %w", sourceRepo.GetFullName(), r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
