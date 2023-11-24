@@ -682,20 +682,7 @@ func PostWebhook(c *gin.Context) {
 		u,
 	)
 
-	// if anything is provided in the auto_cancel metadata, then we start with true
-	runAutoCancel := p.Metadata.AutoCancel.Running || p.Metadata.AutoCancel.Pending || p.Metadata.AutoCancel.DefaultBranch
-
-	// if the event is a push to the default branch and the AutoCancel.DefaultBranch value is false, bypass auto cancel
-	if strings.EqualFold(b.GetEvent(), constants.EventPush) && strings.EqualFold(b.GetBranch(), repo.GetBranch()) && !p.Metadata.AutoCancel.DefaultBranch {
-		runAutoCancel = false
-	}
-
-	// if event is push or pull_request:synchronize, there is a chance this build could be superceding a stale build
-	//
-	// fetch pending and running builds for this repo in order to validate their merit to continue running.
-	if runAutoCancel &&
-		((strings.EqualFold(b.GetEvent(), constants.EventPull) && strings.EqualFold(b.GetEventAction(), constants.ActionSynchronize)) ||
-			strings.EqualFold(b.GetEvent(), constants.EventPush)) {
+	if build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
 		// fetch pending and running builds
 		rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
 		if err != nil {
