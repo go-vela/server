@@ -38,6 +38,7 @@ repos (
 	allow_comment BOOLEAN,
 	pipeline_type TEXT,
 	previous_name VARCHAR(100),
+	approve_build VARCHAR(20),
 	UNIQUE(full_name)
 );
 `
@@ -71,6 +72,7 @@ repos (
 	allow_comment BOOLEAN,
 	pipeline_type TEXT,
 	previous_name TEXT,
+	approve_build TEXT,
 	UNIQUE(full_name)
 );
 `
