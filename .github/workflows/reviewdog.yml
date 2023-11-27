@@ -26,7 +26,7 @@ jobs:
       uses: reviewdog/action-golangci-lint@94d61e3205b61acf4ddabfeb13c5f8a13eb4167b # v2
       with:
         github_token: ${{ secrets.github_token }}
-        golangci_lint_flags: "--config=.golangci.yml"
+        golangci_lint_flags: "--config=.golangci.yml --timeout=5m"
         fail_on_error: true
         filter_mode: diff_context
         reporter: github-pr-review
@@ -50,6 +50,6 @@ jobs:
       uses: reviewdog/action-golangci-lint@94d61e3205b61acf4ddabfeb13c5f8a13eb4167b # v2
       with:
         github_token: ${{ secrets.github_token }}
-        golangci_lint_flags: "--config=.golangci.yml"
+        golangci_lint_flags: "--config=.golangci.yml --timeout=5m"
         fail_on_error: false
         filter_mode: nofilter
