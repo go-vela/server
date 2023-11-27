@@ -350,7 +350,6 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-
 		Hook:  wantHook,
 		Repo:  nil,
 		Build: nil,
