@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -107,6 +108,8 @@ func ApproveBuild(c *gin.Context) {
 	}
 
 	b.SetStatus(constants.StatusPending)
+	b.SetApprovedAt(time.Now().Unix())
+	b.SetApprovedBy(u.GetName())
 
 	// update the build in the db
 	_, err = database.FromContext(c).UpdateBuild(ctx, b)
