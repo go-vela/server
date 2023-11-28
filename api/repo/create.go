@@ -97,7 +97,7 @@ func CreateRepo(c *gin.Context) {
 	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(ctx, u, input)
+	r, _, err := scm.FromContext(c).GetRepo(ctx, u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
