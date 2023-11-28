@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -13,7 +11,7 @@ import (
 	"github.com/go-vela/types"
 )
 
-// syncRepo has a param :repo returns mock JSON for a http GET.
+// syncRepo has a param :repo returns mock JSON for a http PATCH.
 //
 // Pass "not-found" to :repo to test receiving a http 404 response.
 func syncRepo(c *gin.Context) {
@@ -29,7 +27,7 @@ func syncRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, fmt.Sprintf("Repo %s has been synced", r))
 }
 
-// syncRepos has a param :org returns mock JSON for a http GET.
+// syncRepos has a param :org returns mock JSON for a http PATCH.
 //
 // Pass "not-found" to :repo to test receiving a http 404 response.
 func syncRepos(c *gin.Context) {

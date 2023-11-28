@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -38,6 +36,8 @@ type HookInterface interface {
 	DeleteHook(context.Context, *library.Hook) error
 	// GetHook defines a function that gets a hook by ID.
 	GetHook(context.Context, int64) (*library.Hook, error)
+	// GetHookByWebhookID defines a function that gets any hook with a matching webhook_id.
+	GetHookByWebhookID(context.Context, int64) (*library.Hook, error)
 	// GetHookForRepo defines a function that gets a hook by repo ID and number.
 	GetHookForRepo(context.Context, *library.Repo, int) (*library.Hook, error)
 	// LastHookForRepo defines a function that gets the last hook by repo ID.

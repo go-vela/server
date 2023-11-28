@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package executable
 
@@ -22,6 +20,8 @@ type BuildExecutableInterface interface {
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
+	// CleanBuildExecutables defines a function that deletes errored builds' corresponding executables.
+	CleanBuildExecutables(context.Context) (int64, error)
 	// CreateBuildExecutable defines a function that creates a build executable.
 	CreateBuildExecutable(context.Context, *library.BuildExecutable) error
 	// PopBuildExecutable defines a function that gets and deletes a build executable.

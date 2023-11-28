@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -19,7 +17,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipelineOne.SetRef("refs/heads/master")
+	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -39,8 +37,8 @@ const (
   "author": "OctoKitty",
   "email": "octokitty@github.com",
   "link": "https://vela.example.company.com/github/octocat/1",
-  "branch": "master",
-  "ref": "refs/heads/master",
+  "branch": "main",
+  "ref": "refs/heads/main",
   "base_ref": "",
   "host": "example.company.com",
   "runtime": "docker",
@@ -71,8 +69,8 @@ const (
     "author": "OctoKitty",
     "email": "octokitty@github.com",
     "link": "https://vela.example.company.com/github/octocat/1",
-    "branch": "master",
-    "ref": "refs/heads/master",
+    "branch": "main",
+    "ref": "refs/heads/main",
     "base_ref": "",
     "host": "ed95dcc0687c",
     "runtime": "",
@@ -100,8 +98,8 @@ const (
     "author": "OctoKitty",
     "email": "octokitty@github.com",
     "link": "https://vela.example.company.com/github/octocat/1",
-    "branch": "master",
-    "ref": "refs/heads/master",
+    "branch": "main",
+    "ref": "refs/heads/main",
     "base_ref": "",
     "host": "82823eb770b0",
     "runtime": "",

@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -58,7 +57,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -112,7 +111,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -154,7 +153,7 @@ func TestGithub_Config_YML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -208,7 +207,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -263,7 +262,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -318,7 +317,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -365,7 +364,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -407,7 +406,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(u, r, "")
+	got, err := client.Config(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
@@ -450,7 +449,7 @@ func TestGithub_Disable(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -484,7 +483,7 @@ func TestGithub_Disable_NotFoundHooks(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -523,7 +522,7 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foos.ball.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Disable returned %v, want %v", resp.Code, http.StatusOK)
@@ -565,7 +564,7 @@ func TestGithub_Disable_MultipleHooks(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.Disable(u, "foo", "bar")
+	err := client.Disable(context.TODO(), u, "foo", "bar")
 
 	if count != wantCount {
 		t.Errorf("Count returned %d, want %d", count, wantCount)
@@ -622,7 +621,7 @@ func TestGithub_Enable(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, _, err := client.Enable(u, r, new(library.Hook))
+	got, _, err := client.Enable(context.TODO(), u, r, new(library.Hook))
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Enable returned %v, want %v", resp.Code, http.StatusOK)
@@ -673,7 +672,7 @@ func TestGithub_Update(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Update(u, r, hookID)
+	_, err := client.Update(context.TODO(), u, r, hookID)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Update returned %v, want %v", resp.Code, http.StatusOK)
@@ -681,6 +680,80 @@ func TestGithub_Update(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Update returned err: %v", err)
+	}
+}
+
+func TestGithub_Update_webhookExists_True(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	webhookExists, err := client.Update(context.TODO(), u, r, 0)
+
+	if !webhookExists {
+		t.Errorf("Update returned %v, want %v", webhookExists, true)
+	}
+
+	if err != nil {
+		t.Errorf("Update returned err: %v", err)
+	}
+}
+
+func TestGithub_Update_webhookExists_False(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.PATCH("/api/v3/repos/:org/:repo/hooks/:hook_id", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	webhookExists, err := client.Update(context.TODO(), u, r, 0)
+
+	if webhookExists {
+		t.Errorf("Update returned %v, want %v", webhookExists, false)
+	}
+
+	if err == nil {
+		t.Error("Update should return error")
 	}
 }
 
@@ -718,7 +791,7 @@ func TestGithub_Status_Deployment(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -762,7 +835,7 @@ func TestGithub_Status_Running(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -806,7 +879,7 @@ func TestGithub_Status_Success(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -850,7 +923,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -894,7 +967,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -938,7 +1011,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -982,7 +1055,7 @@ func TestGithub_Status_Error(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err := client.Status(u, b, "foo", "bar")
+	err := client.Status(context.TODO(), u, b, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1025,7 +1098,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetFullName("octocat/Hello-World")
 	want.SetLink("https://github.com/octocat/Hello-World")
 	want.SetClone("https://github.com/octocat/Hello-World.git")
-	want.SetBranch("master")
+	want.SetBranch("main")
 	want.SetPrivate(false)
 	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	want.SetVisibility("public")
@@ -1033,7 +1106,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetRepo(u, r)
+	got, err := client.GetRepo(context.TODO(), u, r)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetRepo returned %v, want %v", resp.Code, http.StatusOK)
@@ -1076,7 +1149,7 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetRepo(u, r)
+	_, err := client.GetRepo(context.TODO(), u, r)
 
 	if err == nil {
 		t.Error("GetRepo should return error")
@@ -1111,7 +1184,7 @@ func TestGithub_GetOrgAndRepoName(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotOrg, gotRepo, err := client.GetOrgAndRepoName(u, "octocat", "Hello-World")
+	gotOrg, gotRepo, err := client.GetOrgAndRepoName(context.TODO(), u, "octocat", "Hello-World")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("GetRepoName returned %v, want %v", resp.Code, http.StatusOK)
@@ -1154,7 +1227,7 @@ func TestGithub_GetOrgAndRepoName_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, _, err := client.GetOrgAndRepoName(u, "octocat", "Hello-World")
+	_, _, err := client.GetOrgAndRepoName(context.TODO(), u, "octocat", "Hello-World")
 
 	if err == nil {
 		t.Error("GetRepoName should return error")
@@ -1189,7 +1262,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetFullName("octocat/Hello-World")
 	r.SetLink("https://github.com/octocat/Hello-World")
 	r.SetClone("https://github.com/octocat/Hello-World.git")
-	r.SetBranch("master")
+	r.SetBranch("main")
 	r.SetPrivate(false)
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	r.SetVisibility("public")
@@ -1199,7 +1272,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUserRepos(u)
+	got, err := client.ListUserRepos(context.TODO(), u)
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
@@ -1237,7 +1310,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ListUserRepos(u)
+	got, err := client.ListUserRepos(context.TODO(), u)
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
@@ -1275,14 +1348,14 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	r.SetName("Hello-World")
 
 	wantCommit := "6dcb09b5b57875f334f61aebed695e2e4193db5e"
-	wantBranch := "master"
-	wantBaseRef := "master"
+	wantBranch := "main"
+	wantBaseRef := "main"
 	wantHeadRef := "new-topic"
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(u, r, 1)
+	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(context.TODO(), u, r, 1)
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
@@ -1339,7 +1412,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(u, r, "main")
+	gotBranch, gotCommit, err := client.GetBranch(context.TODO(), u, r, "main")
 
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package queue
 
@@ -90,6 +88,10 @@ func (s *Setup) Validate() error {
 	// verify queue routes were provided
 	if len(s.Routes) == 0 {
 		return fmt.Errorf("no queue routes provided")
+	}
+
+	if len(s.PublicKey) == 0 {
+		return fmt.Errorf("no queue public key was provided")
 	}
 
 	// setup is valid

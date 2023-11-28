@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
@@ -79,9 +77,9 @@ func TestService_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
-		db.DeleteService(context.TODO(), want)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteService(context.TODO(), want)
 		db.Close()
 	}()
 
@@ -168,7 +166,7 @@ func TestService_Establish_NoBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -221,8 +219,8 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -277,8 +275,8 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -333,8 +331,8 @@ func TestService_Establish_NoService(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), b)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), b)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 

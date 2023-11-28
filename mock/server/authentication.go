@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -86,4 +84,18 @@ func validateToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "vela-server")
+}
+
+// validateOAuthToken returns mock response for a http GET.
+//
+// Don't pass "Authorization" in header to receive an unauthorized error message.
+func validateOAuthToken(c *gin.Context) {
+	err := "error"
+
+	token := c.Request.Header.Get("Authorization")
+	if len(token) == 0 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &err})
+	}
+
+	c.JSON(http.StatusOK, "oauth token was created by vela")
 }

@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -55,8 +54,8 @@ func TestNative_List(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(sOne)
-		db.DeleteSecret(sTwo)
+		_ = db.DeleteSecret(context.TODO(), sOne)
+		_ = db.DeleteSecret(context.TODO(), sTwo)
 		db.Close()
 	}()
 
@@ -68,11 +67,11 @@ func TestNative_List(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	_, _ = s.Create("repo", "foo", "bar", sOne)
+	_, _ = s.Create(context.TODO(), "repo", "foo", "bar", sOne)
 
-	_, _ = s.Create("repo", "foo", "bar", sTwo)
+	_, _ = s.Create(context.TODO(), "repo", "foo", "bar", sTwo)
 
-	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+	got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 	if err != nil {
 		t.Errorf("List returned err: %v", err)
 	}
@@ -98,7 +97,7 @@ func TestNative_List_Empty(t *testing.T) {
 		t.Errorf("New returned err: %v", err)
 	}
 
-	got, err := s.List("repo", "foo", "bar", 1, 10, []string{})
+	got, err := s.List(context.TODO(), "repo", "foo", "bar", 1, 10, []string{})
 	if err != nil {
 		t.Errorf("List returned err: %v", err)
 	}

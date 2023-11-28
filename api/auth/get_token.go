@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -72,7 +70,7 @@ func GetAuthToken(c *gin.Context) {
 	code := c.Request.FormValue("code")
 	if len(code) == 0 {
 		// start the initial OAuth workflow
-		oAuthState, err = scm.FromContext(c).Login(c.Writer, c.Request)
+		oAuthState, err = scm.FromContext(c).Login(ctx, c.Writer, c.Request)
 		if err != nil {
 			retErr := fmt.Errorf("unable to login user: %w", err)
 
@@ -83,7 +81,7 @@ func GetAuthToken(c *gin.Context) {
 	}
 
 	// complete the OAuth workflow and authenticates the user
-	newUser, err := scm.FromContext(c).Authenticate(c.Writer, c.Request, oAuthState)
+	newUser, err := scm.FromContext(c).Authenticate(ctx, c.Writer, c.Request, oAuthState)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 

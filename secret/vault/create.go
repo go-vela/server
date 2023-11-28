@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 )
 
 // Create creates a new secret.
-func (c *client) Create(sType, org, name string, s *library.Secret) (*library.Secret, error) {
+func (c *client) Create(ctx context.Context, sType, org, name string, s *library.Secret) (*library.Secret, error) {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

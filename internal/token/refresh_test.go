@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package token
 
@@ -53,7 +51,7 @@ func TestTokenManager_Refresh(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(context.TODO(), u)
+		_ = db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
@@ -114,7 +112,7 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(context.TODO(), u)
+		_ = db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 

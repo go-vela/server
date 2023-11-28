@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -81,6 +79,8 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetRuntime("")
 	want.SetDistribution("")
 	want.SetDeployPayload(nil)
+	want.SetApprovedAt(0)
+	want.SetApprovedBy("")
 
 	got := new(library.Build)
 
@@ -91,8 +91,8 @@ func TestBuild_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(context.TODO(), want)
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteBuild(context.TODO(), want)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -174,7 +174,7 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -222,7 +222,7 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 
@@ -270,7 +270,7 @@ func TestBuild_Establish_NoBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), r)
+		_ = db.DeleteRepo(context.TODO(), r)
 		db.Close()
 	}()
 

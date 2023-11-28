@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -40,6 +38,7 @@ repos (
 	allow_comment BOOLEAN,
 	pipeline_type TEXT,
 	previous_name VARCHAR(100),
+	approve_build VARCHAR(20),
 	UNIQUE(full_name)
 );
 `
@@ -73,6 +72,7 @@ repos (
 	allow_comment BOOLEAN,
 	pipeline_type TEXT,
 	previous_name TEXT,
+	approve_build TEXT,
 	UNIQUE(full_name)
 );
 `

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -79,7 +77,7 @@ func CancelBuild(c *gin.Context) {
 	e := executors.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	user := user.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
@@ -91,7 +89,7 @@ func CancelBuild(c *gin.Context) {
 		"build": b.GetNumber(),
 		"org":   o,
 		"repo":  r.GetName(),
-		"user":  u.GetName(),
+		"user":  user.GetName(),
 	}).Infof("canceling build %s", entry)
 
 	switch b.GetStatus() {
@@ -171,6 +169,16 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
+				b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
+
+				b, err = database.FromContext(c).UpdateBuild(ctx, b)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
 				c.JSON(resp.StatusCode, b)
 
 				return
@@ -194,6 +202,15 @@ func CancelBuild(c *gin.Context) {
 	b, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// remove build executable for clean up
+	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to pop build %s from executables table: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return

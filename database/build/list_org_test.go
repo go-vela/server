@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -62,9 +60,9 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1`).WithArgs("foo").WillReturnRows(_rows)
 	// create expected query without filters result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
+		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
+		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 	// ensure the mock expects the query without filters
 	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 ORDER BY created DESC,id LIMIT 10`).WithArgs("foo").WillReturnRows(_rows)
 
@@ -74,9 +72,9 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2`).WithArgs("foo", "push").WillReturnRows(_rows)
 	// create expected query with event filter result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
+		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
+		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 	// ensure the mock expects the query with event filter
 	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "event" = $2 ORDER BY created DESC,id LIMIT 10`).WithArgs("foo", "push").WillReturnRows(_rows)
 
@@ -86,9 +84,9 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_mock.ExpectQuery(`SELECT count(*) FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2`).WithArgs("foo", "public").WillReturnRows(_rows)
 	// create expected query with visibility filter result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
+		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
+		AddRow(2, 2, nil, 2, 0, "push", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 	// ensure the mock expects the query with visibility filter
 	_mock.ExpectQuery(`SELECT builds.* FROM "builds" JOIN repos ON builds.repo_id = repos.id WHERE repos.org = $1 AND "visibility" = $2 ORDER BY created DESC,id LIMIT 10`).WithArgs("foo", "public").WillReturnRows(_rows)
 

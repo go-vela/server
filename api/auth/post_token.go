@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -53,7 +51,7 @@ func PostAuthToken(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// attempt to get user from source
-	u, err := scm.FromContext(c).AuthenticateToken(c.Request)
+	u, err := scm.FromContext(c).AuthenticateToken(ctx, c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 

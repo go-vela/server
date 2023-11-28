@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package api
 
@@ -444,7 +442,6 @@ func recordGauges(c *gin.Context) {
 			}
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
-
 				switch worker.GetStatus() {
 				case constants.WorkerStatusIdle:
 					idleWorkers++

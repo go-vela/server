@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -91,7 +89,10 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 				Steps: *check.ToPipeline(),
 			}
 
-			pipeline = pipeline.Purge(r)
+			pipeline, err := pipeline.Purge(r)
+			if err != nil {
+				return nil, fmt.Errorf("unable to purge pipeline: %w", err)
+			}
 
 			// if step purged, do not proceed with expansion
 			if len(pipeline.Steps) == 0 {
@@ -206,6 +207,10 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 
 	switch {
 	case c.local:
+		a := &afero.Afero{
+			Fs: afero.NewOsFs(),
+		}
+
 		// iterate over locally provided templates
 		for _, t := range c.localTemplates {
 			parts := strings.Split(t, ":")
@@ -213,11 +218,8 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				return nil, fmt.Errorf("local templates must be provided in the form <name>:<path>, got %s", t)
 			}
 
+			// if local template has a match, read file path provided
 			if strings.EqualFold(tmpl.Name, parts[0]) {
-				a := &afero.Afero{
-					Fs: afero.NewOsFs(),
-				}
-
 				bytes, err = a.ReadFile(parts[1])
 				if err != nil {
 					return bytes, err
@@ -227,8 +229,22 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 			}
 		}
 
-		// no template found in provided templates, exit with error
-		return nil, fmt.Errorf("unable to find template %s: not supplied in list %s", tmpl.Name, c.localTemplates)
+		// file type templates can be retrieved locally using `source`
+		if strings.EqualFold(tmpl.Type, "file") {
+			bytes, err = a.ReadFile(tmpl.Source)
+			if err != nil {
+				return nil, fmt.Errorf("unable to read file for template %s. `File` type templates must be located at `source` or supplied to local template files", tmpl.Name)
+			}
+
+			return bytes, nil
+		}
+
+		// local exec may still request remote templates
+		if !strings.EqualFold(tmpl.Type, "github") {
+			return nil, fmt.Errorf("unable to find template %s: not supplied in list %s", tmpl.Name, c.localTemplates)
+		}
+
+		fallthrough
 
 	case strings.EqualFold(tmpl.Type, "github"):
 		// parse source from template

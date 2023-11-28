@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -114,7 +112,8 @@ func TestNative_TransformStages(t *testing.T) {
 				ID:      "__0",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
@@ -169,7 +168,8 @@ func TestNative_TransformStages(t *testing.T) {
 				ID:      "localOrg_localRepo_1",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
@@ -341,7 +341,8 @@ func TestNative_TransformSteps(t *testing.T) {
 				ID:      "__0",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
@@ -391,7 +392,8 @@ func TestNative_TransformSteps(t *testing.T) {
 				ID:      "localOrg_localRepo_1",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{

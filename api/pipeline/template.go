@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -146,7 +144,7 @@ func GetTemplates(c *gin.Context) {
 		}
 
 		// retrieve link to template file from github
-		link, err := scm.FromContext(c).GetHTMLURL(user, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(c).GetHTMLURL(ctx, user, src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to get html url for %s/%s/%s/@%s: %w", baseErr, src.Org, src.Repo, src.Name, src.Ref, err))
 

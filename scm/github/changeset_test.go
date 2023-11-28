@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -46,7 +45,7 @@ func TestGithub_Changeset(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Changeset(u, r, "6dcb09b5b57875f334f61aebed695e2e4193db5e")
+	got, err := client.Changeset(context.TODO(), u, r, "6dcb09b5b57875f334f61aebed695e2e4193db5e")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Changeset returned %v, want %v", resp.Code, http.StatusOK)
@@ -92,7 +91,7 @@ func TestGithub_ChangesetPR(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ChangesetPR(u, r, 1)
+	got, err := client.ChangesetPR(context.TODO(), u, r, 1)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("ChangesetPR returned %v, want %v", resp.Code, http.StatusOK)

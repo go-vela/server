@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
@@ -24,6 +22,7 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 		Routes:     c.StringSlice("queue.routes"),
 		Timeout:    c.Duration("queue.pop.timeout"),
 		PrivateKey: c.String("queue.private-key"),
+		PublicKey:  c.String("queue.public-key"),
 	}
 
 	// setup the queue

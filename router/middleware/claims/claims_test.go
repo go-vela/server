@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package claims
 
@@ -275,7 +273,7 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 

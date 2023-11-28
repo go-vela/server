@@ -8,11 +8,11 @@
   "sha": "3d21ec53a331a6f037a91c368710b99387d012c1",
   "url": "https://api.github.com/repos/octokit/octokit.rb/contents/template.yml",
   "git_url": "https://api.github.com/repos/octokit/octokit.rb/git/blobs/3d21ec53a331a6f037a91c368710b99387d012c1",
-  "html_url": "https://github.com/octokit/octokit.rb/blob/master/template.yml",
-  "download_url": "https://raw.githubusercontent.com/octokit/octokit.rb/master/template.yml",
+  "html_url": "https://github.com/octokit/octokit.rb/blob/main/template.yml",
+  "download_url": "https://raw.githubusercontent.com/octokit/octokit.rb/main/template.yml",
   "_links": {
     "git": "https://api.github.com/repos/octokit/octokit.rb/git/blobs/3d21ec53a331a6f037a91c368710b99387d012c1",
     "self": "https://api.github.com/repos/octokit/octokit.rb/contents/template.yml",
-    "html": "https://github.com/octokit/octokit.rb/blob/master/template.yml"
+    "html": "https://github.com/octokit/octokit.rb/blob/main/template.yml"
   }
 }

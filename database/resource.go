@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Ine. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -123,6 +121,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/database/secret#New
 	e.SecretInterface, err = secret.New(
+		secret.WithContext(e.ctx),
 		secret.WithClient(e.client),
 		secret.WithEncryptionKey(e.config.EncryptionKey),
 		secret.WithLogger(e.logger),
