@@ -33,7 +33,9 @@ func Establish() gin.HandlerFunc {
 		ctx := c.Request.Context()
 
 		// if build is pending or pending approval, there is no host to establish executors
-		if strings.EqualFold(b.GetStatus(), constants.StatusPending) || strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
+		if strings.EqualFold(b.GetStatus(), constants.StatusPending) ||
+			strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) ||
+			len(b.GetHost()) == 0 {
 			ToContext(c, *e)
 			c.Next()
 
