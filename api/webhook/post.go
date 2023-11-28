@@ -346,8 +346,8 @@ func PostWebhook(c *gin.Context) {
 
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
-	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
-		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(ctx, u, repo, webhook.PRNumber)
+	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PullRequest.Number > 0 {
+		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(ctx, u, repo, webhook.PullRequest.Number)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -384,9 +384,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if the build event is a pull_request
-	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PullRequest.Number > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.FromContext(c).ChangesetPR(ctx, u, repo, webhook.PRNumber)
+		files, err = scm.FromContext(c).ChangesetPR(ctx, u, repo, webhook.PullRequest.Number)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -495,7 +495,7 @@ func PostWebhook(c *gin.Context) {
 		p, compiled, err = compiler.FromContext(c).
 			Duplicate().
 			WithBuild(b).
-			WithComment(webhook.Comment).
+			WithComment(webhook.PullRequest.Comment).
 			WithCommit(b.GetCommit()).
 			WithFiles(files).
 			WithMetadata(m).
@@ -531,6 +531,10 @@ func PostWebhook(c *gin.Context) {
 		if skip != "" {
 			// set build to successful status
 			b.SetStatus(constants.StatusSkipped)
+
+			// set hook status and message
+			h.SetStatus(constants.StatusSkipped)
+			h.SetError(skip)
 
 			// send API call to set the status on the commit
 			err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
@@ -685,16 +689,16 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
-	if webhook.PRFork {
-		switch repo.GetApproveForkBuild() {
-		case constants.ApproveAlways:
+	if webhook.PullRequest.IsFromFork {
+		switch repo.GetApproveBuild() {
+		case constants.ApproveForkAlways:
 			err = gatekeepBuild(c, b, repo, u)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
 
 			return
-		case constants.ApproveNoWrite:
+		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
 			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), u.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
@@ -730,6 +734,27 @@ func PostWebhook(c *gin.Context) {
 		u,
 		route,
 	)
+
+	if build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
+		// fetch pending and running builds
+		rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
+		if err != nil {
+			logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
+		}
+
+		for _, rB := range rBs {
+			// call auto cancel routine
+			canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
+			if err != nil {
+				// continue cancel loop if error, but log based on type of error
+				if canceled {
+					logrus.Errorf("unable to update canceled build error message: %v", err)
+				} else {
+					logrus.Errorf("unable to cancel running build: %v", err)
+				}
+			}
+		}
+	}
 }
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates

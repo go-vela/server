@@ -62,6 +62,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.DELETE("/cancel", executors.Establish(), perm.MustWrite(), build.CancelBuild)
 			b.GET("/logs", perm.MustRead(), log.ListLogsForBuild)
 			b.GET("/token", perm.MustWorkerAuthToken(), build.GetBuildToken)
+			b.GET("/graph", perm.MustRead(), build.GetBuildGraph)
 			b.GET("/executable", perm.MustBuildAccess(), build.GetBuildExecutable)
 
 			// Service endpoints

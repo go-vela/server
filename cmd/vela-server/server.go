@@ -212,7 +212,7 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm)
+			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

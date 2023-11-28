@@ -208,7 +208,7 @@ func TestNative_RenderBuild(t *testing.T) {
 
 			got, err := RenderBuild("build", string(sFile), map[string]string{
 				"VELA_REPO_FULL_NAME": "octocat/hello-world",
-				"VELA_BUILD_BRANCH":   "master",
+				"VELA_BUILD_BRANCH":   "main",
 				"VELA_REPO_ORG":       "octocat",
 			}, map[string]interface{}{}, tt.execLimit)
 			if (err != nil) != tt.wantErr {

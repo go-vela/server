@@ -56,7 +56,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -112,7 +112,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -168,7 +168,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -224,7 +224,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -280,7 +280,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -336,7 +336,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -392,7 +392,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -448,7 +448,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -504,7 +504,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -560,7 +560,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -616,7 +616,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -672,7 +672,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -728,7 +728,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -784,7 +784,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -840,7 +840,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:
@@ -896,7 +896,7 @@ stages:
     steps:
     - ruleset:
         if:
-          event: ['pull_request:opened', 'pull_request:synchronize']
+          event: ['pull_request:opened', 'pull_request:synchronize', 'pull_request:reopened']
         matcher: filepath
         operator: and
       secrets:

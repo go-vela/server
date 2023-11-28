@@ -80,6 +80,7 @@ type (
 //
 // * postgres
 // * sqlite3
+// .
 func New(opts ...EngineOpt) (Interface, error) {
 	// create new database engine
 	e := new(engine)

@@ -37,7 +37,7 @@ func TestNative_Get(t *testing.T) {
 	defer db.Close()
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 

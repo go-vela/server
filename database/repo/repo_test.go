@@ -189,6 +189,7 @@ func testRepo() *library.Repo {
 		Branch:       new(string),
 		Visibility:   new(string),
 		PreviousName: new(string),
+		ApproveBuild: new(string),
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
@@ -208,6 +209,6 @@ func testRepo() *library.Repo {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }

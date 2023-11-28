@@ -442,7 +442,6 @@ func recordGauges(c *gin.Context) {
 			}
 			// check if the worker checked in within the last worker_active_interval
 			if worker.GetLastCheckedIn() >= before {
-
 				switch worker.GetStatus() {
 				case constants.WorkerStatusIdle:
 					idleWorkers++

@@ -51,7 +51,7 @@ func TestTokenManager_Refresh(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(context.TODO(), u)
+		_ = db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 
@@ -112,7 +112,7 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(context.TODO(), u)
+		_ = db.DeleteUser(context.TODO(), u)
 		db.Close()
 	}()
 

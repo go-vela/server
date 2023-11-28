@@ -33,7 +33,7 @@ func TestNative_Count(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), sec)
+		_ = db.DeleteSecret(context.TODO(), sec)
 		db.Close()
 	}()
 

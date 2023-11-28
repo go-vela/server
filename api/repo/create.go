@@ -145,11 +145,10 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set the fork policy field based off the input provided
-	if len(input.GetApproveForkBuild()) > 0 {
-		// default fork policy field to the input fork policy
-		r.SetApproveForkBuild(input.GetApproveForkBuild())
+	if len(input.GetApproveBuild()) > 0 {
+		r.SetApproveBuild(input.GetApproveBuild())
 	} else {
-		r.SetApproveForkBuild(constants.ApproveNever)
+		r.SetApproveBuild(constants.ApproveForkAlways)
 	}
 
 	// fields restricted to platform admins

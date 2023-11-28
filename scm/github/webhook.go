@@ -18,7 +18,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -197,10 +197,9 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	}
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -223,9 +222,10 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize
+	// skip if the pull request action is not opened, synchronize, or reopened
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
-		!strings.EqualFold(payload.GetAction(), "synchronize") {
+		!strings.EqualFold(payload.GetAction(), "synchronize") &&
+		!strings.EqualFold(payload.GetAction(), "reopened") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -281,12 +281,13 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	}
 
 	return &types.Webhook{
-		Comment:  "",
-		PRNumber: payload.GetNumber(),
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
-		PRFork:   payload.GetPullRequest().GetHead().GetRepo().GetFork(),
+		PullRequest: types.PullRequest{
+			Number:     payload.GetNumber(),
+			IsFromFork: payload.GetPullRequest().GetHead().GetRepo().GetFork(),
+		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -370,10 +371,9 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	)
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -394,8 +394,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	if strings.EqualFold(payload.GetAction(), "deleted") {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
-			Comment: payload.GetComment().GetBody(),
-			Hook:    h,
+			Hook: h,
 		}, nil
 	}
 
@@ -437,11 +436,13 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	}
 
 	return &types.Webhook{
-		Comment:  payload.GetComment().GetBody(),
-		PRNumber: pr,
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		PullRequest: types.PullRequest{
+			Comment: payload.GetComment().GetBody(),
+			Number:  pr,
+		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -472,9 +473,8 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	)
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
+		Hook: h,
+		Repo: r,
 	}, nil
 }
 

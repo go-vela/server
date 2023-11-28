@@ -58,7 +58,7 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -146,7 +146,7 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -273,7 +273,7 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -443,8 +443,8 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	ctx := _context.TODO()
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
@@ -534,9 +534,9 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -622,8 +622,8 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
@@ -708,8 +708,8 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
@@ -791,8 +791,8 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
@@ -874,8 +874,8 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
@@ -955,8 +955,8 @@ func TestPerm_MustAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1053,8 +1053,8 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1151,8 +1151,8 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1249,8 +1249,8 @@ func TestPerm_MustWrite(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1347,8 +1347,8 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1445,8 +1445,8 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1543,8 +1543,8 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1641,8 +1641,8 @@ func TestPerm_MustRead(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1739,8 +1739,8 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -1839,8 +1839,8 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteBuild(ctx, b)
-		db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteBuild(ctx, b)
+		_ = db.DeleteRepo(_context.TODO(), r)
 		db.Close()
 	}()
 
@@ -1923,8 +1923,8 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -2021,8 +2021,8 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -2119,8 +2119,8 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 
@@ -2217,8 +2217,8 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(_context.TODO(), r)
-		db.DeleteUser(_context.TODO(), u)
+		_ = db.DeleteRepo(_context.TODO(), r)
+		_ = db.DeleteUser(_context.TODO(), u)
 		db.Close()
 	}()
 

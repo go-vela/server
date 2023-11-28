@@ -211,6 +211,8 @@ func testBuild() *library.Build {
 		Host:         new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
+		ApprovedAt:   new(int64),
+		ApprovedBy:   new(string),
 	}
 }
 
@@ -268,7 +270,7 @@ func testRepo() *library.Repo {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }
 

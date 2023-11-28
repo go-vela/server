@@ -1098,7 +1098,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	want.SetFullName("octocat/Hello-World")
 	want.SetLink("https://github.com/octocat/Hello-World")
 	want.SetClone("https://github.com/octocat/Hello-World.git")
-	want.SetBranch("master")
+	want.SetBranch("main")
 	want.SetPrivate(false)
 	want.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	want.SetVisibility("public")
@@ -1262,7 +1262,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetFullName("octocat/Hello-World")
 	r.SetLink("https://github.com/octocat/Hello-World")
 	r.SetClone("https://github.com/octocat/Hello-World.git")
-	r.SetBranch("master")
+	r.SetBranch("main")
 	r.SetPrivate(false)
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	r.SetVisibility("public")
@@ -1348,8 +1348,8 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	r.SetName("Hello-World")
 
 	wantCommit := "6dcb09b5b57875f334f61aebed695e2e4193db5e"
-	wantBranch := "master"
-	wantBaseRef := "master"
+	wantBranch := "main"
+	wantBaseRef := "main"
 	wantHeadRef := "new-topic"
 
 	client, _ := NewTest(s.URL)

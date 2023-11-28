@@ -17,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
+// swagger:operation PATCH /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
 //
 // Sync up scm service and database in the context of a specific repo
 //
@@ -125,11 +125,9 @@ func SyncRepo(c *gin.Context) {
 		// update webhook
 		webhookExists, err := scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())
 		if err != nil {
-
 			// if webhook has been manually deleted from GitHub,
 			// set to inactive in database
 			if !webhookExists {
-
 				r.SetActive(false)
 
 				_, err := database.FromContext(c).UpdateRepo(ctx, r)
@@ -144,15 +142,13 @@ func SyncRepo(c *gin.Context) {
 				c.JSON(http.StatusOK, fmt.Sprintf("webhook not found, repo %s deactivated", r.GetFullName()))
 
 				return
-
-			} else {
-
-				retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
 			}
+
+			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
 		}
 	}
 

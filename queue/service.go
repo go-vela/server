@@ -30,6 +30,10 @@ type Service interface {
 	// item to the specified route in the queue.
 	Push(context.Context, string, []byte) error
 
+	// Ping defines a function that checks the
+	// connection to the queue.
+	Ping(context.Context) error
+
 	// Route defines a function that decides which
 	// channel a build gets placed within the queue.
 	Route(*pipeline.Worker) (string, error)

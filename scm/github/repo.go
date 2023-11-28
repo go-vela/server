@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -558,7 +558,8 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(u.GetToken())
 
-	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, true)
+	maxRedirects := 3
+	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, maxRedirects)
 	if err != nil {
 		return "", "", err
 	}
