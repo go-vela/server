@@ -141,8 +141,12 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		// set sourceRepo PreviousName to old name
-		sourceRepo.SetPreviousName(r.GetName())
+		// set sourceRepo PreviousName to old name if name is changed
+		// ignore if repo is transferred and name is unchanged
+		if sourceRepo.GetName() != r.GetName() {
+			sourceRepo.SetPreviousName(r.GetName())
+		}
+
 		r, err = wh.RenameRepository(ctx, h, sourceRepo, c, m)
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
