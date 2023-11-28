@@ -78,6 +78,8 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetRuntime("")
 	want.SetDistribution("")
 	want.SetDeployPayload(nil)
+	want.SetApprovedAt(0)
+	want.SetApprovedBy("")
 
 	got := new(library.Build)
 

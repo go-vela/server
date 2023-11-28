@@ -189,6 +189,7 @@ func testRepo() *library.Repo {
 		Branch:       new(string),
 		Visibility:   new(string),
 		PreviousName: new(string),
+		ApproveBuild: new(string),
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
