@@ -67,6 +67,8 @@ func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 	}
 
 	// create github oauth client with the given token
+	//
+	//nolint:contextcheck // ignore context passing
 	client := c.newClientToken(token)
 
 	// send API call to capture repo access level for user
