@@ -42,6 +42,16 @@ import (
 //     description: Successfully synchronized repo
 //     schema:
 //       "$ref": "#/definitions/Repo"
+//   '204':
+//     description: Successful request resulting in no change
+//   '301':
+//     description: Repo has moved permanently
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '403':
+//     description: User has been forbidden access to repository
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to synchronize repo
 //     schema:
