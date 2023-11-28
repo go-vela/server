@@ -1106,9 +1106,9 @@ func TestGithub_GetRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetRepo(context.TODO(), u, r)
+	got, code, err := client.GetRepo(context.TODO(), u, r)
 
-	if resp.Code != http.StatusOK {
+	if code != http.StatusOK {
 		t.Errorf("GetRepo returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
@@ -1149,10 +1149,14 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetRepo(context.TODO(), u, r)
+	_, code, err := client.GetRepo(context.TODO(), u, r)
 
 	if err == nil {
 		t.Error("GetRepo should return error")
+	}
+
+	if code != http.StatusNotFound {
+		t.Errorf("GetRepo should have returned %d status, got %d", http.StatusNotFound, code)
 	}
 }
 

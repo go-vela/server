@@ -41,7 +41,17 @@ import (
 //   '200':
 //     description: Successfully synchronized repo
 //     schema:
-//     type: string
+//       "$ref": "#/definitions/Repo"
+//   '204':
+//     description: Successful request resulting in no change
+//   '301':
+//     description: Repo has moved permanently
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '403':
+//     description: User has been forbidden access to repository
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to synchronize repo
 //     schema:
@@ -71,25 +81,33 @@ func SyncRepo(c *gin.Context) {
 	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
-	_, err := scm.FromContext(c).GetRepo(ctx, u, r)
+	_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
-		// set repo to inactive - do not delete
-		r.SetActive(false)
+		if respCode == http.StatusNotFound {
+			// set repo to inactive - do not delete
+			r.SetActive(false)
 
-		// update repo in database
-		_, err := database.FromContext(c).UpdateRepo(ctx, r)
-		if err != nil {
-			retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+			// update repo in database
+			r, err = database.FromContext(c).UpdateRepo(ctx, r)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			// exit with success as hook sync will be unnecessary
+			c.JSON(http.StatusOK, r)
 
 			return
 		}
 
-		// exit with success as hook sync will be unnecessary
-		c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+		retErr := fmt.Errorf("error while retrieving repo %s from %s: %w", r.GetFullName(), scm.FromContext(c).Driver(), err)
+
+		util.HandleError(c, respCode, retErr)
 
 		return
 	}
@@ -130,7 +148,7 @@ func SyncRepo(c *gin.Context) {
 			if !webhookExists {
 				r.SetActive(false)
 
-				_, err := database.FromContext(c).UpdateRepo(ctx, r)
+				r, err = database.FromContext(c).UpdateRepo(ctx, r)
 				if err != nil {
 					retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
@@ -139,7 +157,7 @@ func SyncRepo(c *gin.Context) {
 					return
 				}
 
-				c.JSON(http.StatusOK, fmt.Sprintf("webhook not found, repo %s deactivated", r.GetFullName()))
+				c.JSON(http.StatusOK, r)
 
 				return
 			}
@@ -152,5 +170,5 @@ func SyncRepo(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+	c.Status(http.StatusNoContent)
 }
