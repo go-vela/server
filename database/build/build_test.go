@@ -211,6 +211,8 @@ func testBuild() *library.Build {
 		Host:         new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
+		ApprovedAt:   new(int64),
+		ApprovedBy:   new(string),
 	}
 }
 

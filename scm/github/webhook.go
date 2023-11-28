@@ -197,10 +197,9 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	}
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -282,11 +281,12 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	}
 
 	return &types.Webhook{
-		Comment:  "",
-		PRNumber: payload.GetNumber(),
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		PullRequest: types.PullRequest{
+			Number: payload.GetNumber(),
+		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -370,10 +370,9 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	)
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -394,8 +393,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	if strings.EqualFold(payload.GetAction(), "deleted") {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
-			Comment: payload.GetComment().GetBody(),
-			Hook:    h,
+			Hook: h,
 		}, nil
 	}
 
@@ -437,11 +435,13 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	}
 
 	return &types.Webhook{
-		Comment:  payload.GetComment().GetBody(),
-		PRNumber: pr,
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		PullRequest: types.PullRequest{
+			Comment: payload.GetComment().GetBody(),
+			Number:  pr,
+		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -472,9 +472,8 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	)
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
+		Hook: h,
+		Repo: r,
 	}, nil
 }
 
