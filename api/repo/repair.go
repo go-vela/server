@@ -4,16 +4,17 @@ package repo
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
@@ -54,6 +55,8 @@ func RepairRepo(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
 
 	// update engine logger with API metadata
 	//
@@ -125,22 +128,24 @@ func RepairRepo(c *gin.Context) {
 
 		return
 	}
+
 	// if repo has a name change, then update DB with new name
 	// if repo has a org change, update org as well
 	if sourceRepo.GetName() != r.GetName() || sourceRepo.GetOrg() != r.GetOrg() {
-		r.SetPreviousName(r.GetName())
-		r.SetName(sourceRepo.GetName())
-		r.SetFullName(sourceRepo.GetFullName())
-		r.SetLink(sourceRepo.GetLink())
-		r.SetClone(sourceRepo.GetClone())
-		r.SetOrg(sourceRepo.GetOrg())
-		// send API call to update the repo
-		_, err := database.FromContext(c).UpdateRepo(ctx, r)
+		h, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
-			retErr := fmt.Errorf("unable to rename repo %s to %s: %w", sourceRepo.GetFullName(), r.GetFullName(), err)
+			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			return
+		}
+
+		// set sourceRepo PreviousName to old name
+		sourceRepo.SetPreviousName(r.GetName())
+		r, err = wh.RenameRepository(ctx, h, sourceRepo, c, m)
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
 			return
 		}
 	}
