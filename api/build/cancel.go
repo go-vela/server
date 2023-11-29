@@ -185,6 +185,7 @@ func CancelBuild(c *gin.Context) {
 			}
 		}
 	case constants.StatusPending, constants.StatusPendingApproval:
+		b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
 		break
 
 	default:
