@@ -81,10 +81,9 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -160,10 +159,9 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -241,11 +239,12 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetHeadRef("changes")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: wantHook.GetNumber(),
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		PullRequest: types.PullRequest{
+			Number: wantHook.GetNumber(),
+		},
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -297,10 +296,9 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -352,10 +350,9 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -449,10 +446,9 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
 
 			want := &types.Webhook{
-				Comment: "",
-				Hook:    tt.args.hook,
-				Repo:    tt.args.repo,
-				Build:   tt.args.build,
+				Hook:  tt.args.hook,
+				Repo:  tt.args.repo,
+				Build: tt.args.build,
 			}
 
 			got, err := client.ProcessWebhook(context.TODO(), request)
@@ -530,10 +526,9 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -583,10 +578,9 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -636,10 +630,9 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -785,11 +778,13 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantBuild.SetRef("refs/pull/1/head")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: wantHook.GetNumber(),
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		PullRequest: types.PullRequest{
+			Comment: "ok to test",
+			Number:  wantHook.GetNumber(),
+		},
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -862,11 +857,13 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		PullRequest: types.PullRequest{
+			Comment: "ok to test",
+			Number:  0,
+		},
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -917,11 +914,7 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Hook: wantHook,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -983,9 +976,8 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -1047,9 +1039,8 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -1111,9 +1102,8 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -1175,9 +1165,8 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetPrivate(false)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -1239,9 +1228,8 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)

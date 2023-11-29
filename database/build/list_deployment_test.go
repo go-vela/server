@@ -43,9 +43,9 @@ func TestBuild_Engine_ListBuildsForDeployment(t *testing.T) {
 
 	// create expected query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
-		AddRow(2, 1, nil, 2, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "https://github.com/github/octocat/deployments/1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
-		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "https://github.com/github/octocat/deployments/1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
+		AddRow(2, 1, nil, 2, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "https://github.com/github/octocat/deployments/1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
+		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "https://github.com/github/octocat/deployments/1", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE source = $1 ORDER BY number DESC LIMIT 10`).WithArgs("https://github.com/github/octocat/deployments/1").WillReturnRows(_rows)

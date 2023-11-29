@@ -1915,6 +1915,8 @@ func newResources() *Resources {
 	buildOne.SetHost("example.company.com")
 	buildOne.SetRuntime("docker")
 	buildOne.SetDistribution("linux")
+	buildOne.SetApprovedAt(1563474078)
+	buildOne.SetApprovedBy("OctoCat")
 
 	buildTwo := new(library.Build)
 	buildTwo.SetID(2)
@@ -1948,6 +1950,8 @@ func newResources() *Resources {
 	buildTwo.SetHost("example.company.com")
 	buildTwo.SetRuntime("docker")
 	buildTwo.SetDistribution("linux")
+	buildTwo.SetApprovedAt(1563474078)
+	buildTwo.SetApprovedBy("OctoCat")
 
 	executableOne := new(library.BuildExecutable)
 	executableOne.SetID(1)
@@ -2122,6 +2126,7 @@ func newResources() *Resources {
 	repoOne.SetAllowComment(false)
 	repoOne.SetPipelineType("")
 	repoOne.SetPreviousName("")
+	repoOne.SetApproveBuild(constants.ApproveNever)
 
 	repoTwo := new(library.Repo)
 	repoTwo.SetID(2)
@@ -2148,6 +2153,7 @@ func newResources() *Resources {
 	repoTwo.SetAllowComment(false)
 	repoTwo.SetPipelineType("")
 	repoTwo.SetPreviousName("")
+	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
 
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)

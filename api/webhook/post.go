@@ -346,8 +346,8 @@ func PostWebhook(c *gin.Context) {
 
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
-	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PRNumber > 0 {
-		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(ctx, u, repo, webhook.PRNumber)
+	if strings.EqualFold(b.GetEvent(), constants.EventComment) && webhook.PullRequest.Number > 0 {
+		commit, branch, baseref, headref, err := scm.FromContext(c).GetPullRequest(ctx, u, repo, webhook.PullRequest.Number)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -384,9 +384,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// check if the build event is a pull_request
-	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PRNumber > 0 {
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) && webhook.PullRequest.Number > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.FromContext(c).ChangesetPR(ctx, u, repo, webhook.PRNumber)
+		files, err = scm.FromContext(c).ChangesetPR(ctx, u, repo, webhook.PullRequest.Number)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, repo.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -495,7 +495,7 @@ func PostWebhook(c *gin.Context) {
 		p, compiled, err = compiler.FromContext(c).
 			Duplicate().
 			WithBuild(b).
-			WithComment(webhook.Comment).
+			WithComment(webhook.PullRequest.Comment).
 			WithCommit(b.GetCommit()).
 			WithFiles(files).
 			WithMetadata(m).
@@ -682,20 +682,7 @@ func PostWebhook(c *gin.Context) {
 		u,
 	)
 
-	// if anything is provided in the auto_cancel metadata, then we start with true
-	runAutoCancel := p.Metadata.AutoCancel.Running || p.Metadata.AutoCancel.Pending || p.Metadata.AutoCancel.DefaultBranch
-
-	// if the event is a push to the default branch and the AutoCancel.DefaultBranch value is false, bypass auto cancel
-	if strings.EqualFold(b.GetEvent(), constants.EventPush) && strings.EqualFold(b.GetBranch(), repo.GetBranch()) && !p.Metadata.AutoCancel.DefaultBranch {
-		runAutoCancel = false
-	}
-
-	// if event is push or pull_request:synchronize, there is a chance this build could be superceding a stale build
-	//
-	// fetch pending and running builds for this repo in order to validate their merit to continue running.
-	if runAutoCancel &&
-		((strings.EqualFold(b.GetEvent(), constants.EventPull) && strings.EqualFold(b.GetEventAction(), constants.ActionSynchronize)) ||
-			strings.EqualFold(b.GetEvent(), constants.EventPush)) {
+	if build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
 		// fetch pending and running builds
 		rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
 		if err != nil {
