@@ -120,7 +120,7 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	// get repo information from the source
-	sourceRepo, err := scm.FromContext(c).GetRepo(ctx, u, r)
+	sourceRepo, _, err := scm.FromContext(c).GetRepo(ctx, u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", sourceRepo.GetFullName(), err)
 
