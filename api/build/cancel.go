@@ -185,7 +185,6 @@ func CancelBuild(c *gin.Context) {
 			}
 		}
 	case constants.StatusPending, constants.StatusPendingApproval:
-		b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
 		break
 
 	default:
@@ -199,6 +198,7 @@ func CancelBuild(c *gin.Context) {
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
+	b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
 
 	b, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
