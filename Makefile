@@ -89,12 +89,25 @@ fix:
 	@echo "### Fixing Go Code"
 	@go fix ./...
 
-# The `integration-test` target is intended to run all integration tests for the Go source code.
+# The `integration-test` target is intended to run all database integration
+# tests for the Go source code.
+#
+# Optionally target specific database drivers by passing a variable
+# named "DB_DRIVER" to the make command. This assumes that test names
+# coincide with database driver names.
+#
+# Example: "DB_DRIVER=postgres make integration-test"
+# will only run integration tests for the postgres driver.
 .PHONY: integration-test
 integration-test:
 	@echo
-	@echo "### Integration Testing"
-	INTEGRATION=1 go test -run TestDatabase_Integration ./...
+	@if [ -n "$(DB_DRIVER)" ]; then \
+		echo "### DB Integration Testing ($(DB_DRIVER))"; \
+		INTEGRATION=1 go test -run TestDatabase_Integration/$(DB_DRIVER) ./...; \
+	else \
+		echo "### DB Integration Testing"; \
+		INTEGRATION=1 go test -run TestDatabase_Integration ./...; \
+	fi
 
 # The `test` target is intended to run
 # the tests for the Go source code.
