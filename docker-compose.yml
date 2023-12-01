@@ -3,7 +3,6 @@
 version: '3'
 
 services:
-
   # The `server` compose service hosts the Vela server and API.
   #
   # This component is used for processing web requests and
@@ -16,7 +15,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: server
-    image: server:local
     networks:
       - vela
     environment:
@@ -52,10 +50,12 @@ services:
     ports:
       - '8080:8080'
     depends_on:
-      - postgres
-      - redis
-      - vault
-
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      vault:
+        condition: service_started
 
   # The `worker` compose service hosts the Vela build daemon.
   #
@@ -140,6 +140,11 @@ services:
       POSTGRES_USER: vela
     ports:
       - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # The `vault` compose service hosts the HashiCorp Vault instance.
   #
