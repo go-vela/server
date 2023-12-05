@@ -26,6 +26,7 @@ type BuildPartial struct {
 	Number   int    `json:"number,omitempty"`
 	Started  int64  `json:"started,omitempty"`
 	Finished int64  `json:"finished,omitempty"`
+	Sender   string `json:"sender,omitempty"`
 	Status   string `json:"status,omitempty"`
 }
 
@@ -109,6 +110,7 @@ func GetDashboard(c *gin.Context) {
 			bPartial.Status = build.GetStatus()
 			bPartial.Started = build.GetStarted()
 			bPartial.Finished = build.GetFinished()
+			bPartial.Sender = build.GetSender()
 
 			bPartials = append(bPartials, bPartial)
 		}

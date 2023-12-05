@@ -3,6 +3,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -122,30 +123,11 @@ func CreateDashboard(c *gin.Context) {
 
 	d.SetAdmins(admins)
 
-	// validate supplied repo list
-	for _, repo := range input.GetRepos() {
-		// verify format (org/repo)
-		parts := strings.Split(repo.GetName(), "/")
-		if len(parts) != 2 {
-			retErr := fmt.Errorf("unable to create dashboard: %s is not a valid repo", repo.GetName())
+	err = validateRepoSet(c, input.GetRepos())
+	if err != nil {
+		util.HandleError(c, http.StatusBadRequest, err)
 
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		// fetch repo from database
-		dbRepo, err := database.FromContext(c).GetRepoForOrg(c, parts[0], parts[1])
-		if err != nil {
-			retErr := fmt.Errorf("unable to create dashboard: could not get repo %s: %w", repo.GetName(), err)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		// override ID field if provided to match the database ID
-		repo.SetID(dbRepo.GetID())
+		return
 	}
 
 	d.SetRepos(input.GetRepos())
@@ -161,4 +143,25 @@ func CreateDashboard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, d)
+}
+
+func validateRepoSet(c context.Context, repos []*library.DashboardRepo) error {
+	for _, repo := range repos {
+		// verify format (org/repo)
+		parts := strings.Split(repo.GetName(), "/")
+		if len(parts) != 2 {
+			return fmt.Errorf("unable to create dashboard: %s is not a valid repo", repo.GetName())
+		}
+
+		// fetch repo from database
+		dbRepo, err := database.FromContext(c).GetRepoForOrg(c, parts[0], parts[1])
+		if err != nil {
+			return fmt.Errorf("unable to create dashboard: could not get repo %s: %w", repo.GetName(), err)
+		}
+
+		// override ID field if provided to match the database ID
+		repo.SetID(dbRepo.GetID())
+	}
+
+	return nil
 }
