@@ -28,6 +28,8 @@ type BuildPartial struct {
 	Finished int64  `json:"finished,omitempty"`
 	Sender   string `json:"sender,omitempty"`
 	Status   string `json:"status,omitempty"`
+	Event    string `json:"event,omitempty"`
+	Branch   string `json:"branch,omitempty"`
 }
 
 type DashCard struct {
@@ -105,12 +107,15 @@ func GetDashboard(c *gin.Context) {
 		bPartials := []BuildPartial{}
 
 		for _, build := range builds {
-			bPartial := BuildPartial{}
-			bPartial.Number = build.GetNumber()
-			bPartial.Status = build.GetStatus()
-			bPartial.Started = build.GetStarted()
-			bPartial.Finished = build.GetFinished()
-			bPartial.Sender = build.GetSender()
+			bPartial := BuildPartial{
+				Number:   build.GetNumber(),
+				Status:   build.GetStatus(),
+				Started:  build.GetStarted(),
+				Finished: build.GetFinished(),
+				Sender:   build.GetSender(),
+				Branch:   build.GetBranch(),
+				Event:    build.GetEvent(),
+			}
 
 			bPartials = append(bPartials, bPartial)
 		}

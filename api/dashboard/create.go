@@ -100,25 +100,11 @@ func CreateDashboard(c *gin.Context) {
 	d.SetUpdatedAt(time.Now().UTC().Unix())
 	d.SetUpdatedBy(u.GetName())
 
-	// add user creating the dashboard to admin list
-	admins := []string{u.GetName()}
+	admins, err := validateAdminSet(c, u, input.GetAdmins())
+	if err != nil {
+		util.HandleError(c, http.StatusBadRequest, err)
 
-	// validate supplied admins are actual users
-	for _, admin := range input.GetAdmins() {
-		if admin == u.GetName() {
-			continue
-		}
-
-		_, err := database.FromContext(c).GetUserForName(c, admin)
-		if err != nil {
-			retErr := fmt.Errorf("unable to create dashboard: %s is not an active user", admin)
-
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
-		}
-
-		admins = append(admins, admin)
+		return
 	}
 
 	d.SetAdmins(admins)
@@ -143,6 +129,27 @@ func CreateDashboard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, d)
+}
+
+func validateAdminSet(c context.Context, caller *library.User, users []string) ([]string, error) {
+	// add user creating the dashboard to admin list
+	admins := []string{caller.GetName()}
+
+	// validate supplied admins are actual users
+	for _, admin := range users {
+		if admin == caller.GetName() {
+			continue
+		}
+
+		_, err := database.FromContext(c).GetUserForName(c, admin)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", admin)
+		}
+
+		admins = append(admins, admin)
+	}
+
+	return admins, nil
 }
 
 func validateRepoSet(c context.Context, repos []*library.DashboardRepo) error {

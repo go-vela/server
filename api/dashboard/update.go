@@ -63,6 +63,7 @@ func UpdateDashboard(c *gin.Context) {
 	u := user.Retrieve(c)
 
 	admin := false
+
 	for _, a := range d.GetAdmins() {
 		if u.GetName() == a {
 			admin = true
@@ -100,6 +101,17 @@ func UpdateDashboard(c *gin.Context) {
 	if input.GetName() != "" {
 		// update name if defined
 		d.SetName(input.GetName())
+	}
+
+	if len(input.GetAdmins()) > 0 {
+		admins, err := validateAdminSet(c, u, input.GetAdmins())
+		if err != nil {
+			util.HandleError(c, http.StatusBadRequest, err)
+
+			return
+		}
+
+		d.SetAdmins(admins)
 	}
 
 	// set the updated by field using claims
