@@ -26,9 +26,9 @@ func TestUser_Engine_CreateUser(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "users"
-("name","refresh_token","token","hash","favorites","active","admin","id")
+("name","refresh_token","token","hash","favorites","active","admin","dashboards","id")
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, 1).
+		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, nil, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
