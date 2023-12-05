@@ -30,6 +30,7 @@ type BuildPartial struct {
 	Status   string `json:"status,omitempty"`
 	Event    string `json:"event,omitempty"`
 	Branch   string `json:"branch,omitempty"`
+	Link     string `json:"link,omitempty"`
 }
 
 type DashCard struct {
@@ -115,6 +116,7 @@ func GetDashboard(c *gin.Context) {
 				Sender:   build.GetSender(),
 				Branch:   build.GetBranch(),
 				Event:    build.GetEvent(),
+				Link:     build.GetLink(),
 			}
 
 			bPartials = append(bPartials, bPartial)
