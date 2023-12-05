@@ -22,7 +22,8 @@ const (
   "token": null,
   "favorites": ["github/octocat"],
   "active": true,
-  "admin": false
+  "admin": false,
+  "dashboards": []
 }`
 
 	// UsersResp represents a JSON return for one to many users.
@@ -33,7 +34,8 @@ const (
     "token": null,
     "favorites": ["github/octocat"],
     "active": true,
-    "admin": false
+    "admin": false,
+	"dashboards": []
   },
   {
     "id": 1,
@@ -41,7 +43,8 @@ const (
     "token": null,
     "favorites": ["github/octocat"],
     "active": true,
-    "admin": false
+    "admin": false,
+	"dashboards": []
   }
 ]`
 )

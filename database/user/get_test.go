@@ -25,8 +25,8 @@ func TestUser_Engine_GetUser(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin"}).
-		AddRow(1, "foo", "", "bar", "baz", "{}", false, false)
+		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin", "dashboards"}).
+		AddRow(1, "foo", "", "bar", "baz", "{}", false, false, nil)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)

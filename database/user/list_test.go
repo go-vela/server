@@ -38,9 +38,9 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin"}).
-		AddRow(1, "foo", "", "bar", "baz", "{}", false, false).
-		AddRow(2, "baz", "", "bar", "foo", "{}", false, false)
+		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin", "dashboards"}).
+		AddRow(1, "foo", "", "bar", "baz", "{}", false, false, nil).
+		AddRow(2, "baz", "", "bar", "foo", "{}", false, false, nil)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "users"`).WillReturnRows(_rows)
