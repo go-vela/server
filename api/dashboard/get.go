@@ -16,6 +16,7 @@ import (
 )
 
 type RepoPartial struct {
+	Org     string         `json:"org,omitempty"`
 	Name    string         `json:"name,omitempty"`
 	Counter int            `json:"counter,omitempty"`
 	Builds  []BuildPartial `json:"builds,omitempty"`
@@ -87,7 +88,8 @@ func GetDashboard(c *gin.Context) {
 			return
 		}
 
-		repo.Name = dbRepo.GetFullName()
+		repo.Org = dbRepo.GetOrg()
+		repo.Name = dbRepo.GetName()
 		repo.Counter = dbRepo.GetCounter()
 
 		builds, err := database.FromContext(c).ListBuildsForDashboardRepo(c, dbRepo, r.GetBranches(), r.GetEvents())
