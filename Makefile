@@ -227,7 +227,7 @@ bump-deps-full: check
 pull:
 	@echo
 	@echo "### Pulling images for docker-compose stack"
-	@docker-compose pull
+	@docker compose pull
 
 # The `compose-up` target is intended to build and create
 # all containers for the local Docker compose stack.
@@ -237,7 +237,7 @@ pull:
 compose-up:
 	@echo
 	@echo "### Creating containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml up -d --build
+	@docker compose -f docker-compose.yml up -d --build
 
 # The `compose-down` target is intended to destroy
 # all containers for the local Docker compose stack.
@@ -247,7 +247,7 @@ compose-up:
 compose-down:
 	@echo
 	@echo "### Destroying containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml down
+	@docker compose -f docker-compose.yml down
 
 # The `spec-install` target is intended to install the
 # the needed dependencies to generate the api spec.
