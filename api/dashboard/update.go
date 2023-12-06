@@ -59,7 +59,6 @@ import (
 func UpdateDashboard(c *gin.Context) {
 	// capture middleware values
 	d := dashboard.Retrieve(c)
-	ctx := c.Request.Context()
 	u := user.Retrieve(c)
 
 	admin := false
@@ -130,7 +129,7 @@ func UpdateDashboard(c *gin.Context) {
 	}
 
 	// update the dashboard within the database
-	d, err = database.FromContext(c).UpdateDashboard(ctx, d)
+	d, err = database.FromContext(c).UpdateDashboard(c, d)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update dashboard %s: %w", input.GetID(), err)
 
