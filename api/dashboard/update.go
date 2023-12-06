@@ -72,7 +72,7 @@ func UpdateDashboard(c *gin.Context) {
 	}
 
 	if !admin {
-		retErr := fmt.Errorf("unable to update dashboard %d: user is not an admin", d.GetID())
+		retErr := fmt.Errorf("unable to update dashboard %s: user is not an admin", d.GetID())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -84,14 +84,14 @@ func UpdateDashboard(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
-	}).Infof("updating dashboard %d", d.GetID())
+	}).Infof("updating dashboard %s", d.GetID())
 
 	// capture body from API request
 	input := new(library.Dashboard)
 
 	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for dashboard %d: %w", d.GetID(), err)
+		retErr := fmt.Errorf("unable to decode JSON for dashboard %s: %w", d.GetID(), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -132,7 +132,7 @@ func UpdateDashboard(c *gin.Context) {
 	// update the dashboard within the database
 	d, err = database.FromContext(c).UpdateDashboard(ctx, d)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update dashboard %d: %w", input.GetID(), err)
+		retErr := fmt.Errorf("unable to update dashboard %s: %w", input.GetID(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

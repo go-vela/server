@@ -128,6 +128,17 @@ func CreateDashboard(c *gin.Context) {
 		return
 	}
 
+	u.SetDashboards(append(u.GetDashboards(), d.GetID()))
+
+	_, err = database.FromContext(c).UpdateUser(c, u)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	c.JSON(http.StatusCreated, d)
 }
 

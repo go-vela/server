@@ -18,7 +18,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	_dashRepos := []*library.DashboardRepo{_dashRepo}
 
 	_dashboard := testDashboard()
-	_dashboard.SetID(1)
+	_dashboard.SetID("abc-123")
 	_dashboard.SetName("dash")
 	_dashboard.SetRepos(_dashRepos)
 
@@ -65,7 +65,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetDashboard(context.TODO(), 1)
+			got, err := test.database.GetDashboard(context.TODO(), "123-abc")
 
 			if test.failure {
 				if err == nil {

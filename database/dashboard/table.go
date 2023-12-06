@@ -14,7 +14,7 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 dashboards (
-	id            SERIAL PRIMARY KEY,
+	id            UUID PRIMARY KEY,
 	name          VARCHAR(250),
 	created_at    INTEGER,
 	created_by    VARCHAR(250),
@@ -30,7 +30,7 @@ dashboards (
 CREATE TABLE
 IF NOT EXISTS
 dashboards (
-	id            INTEGER PRIMARY KEY AUTOINCREMENT,
+	id            TEXT PRIMARY KEY,
 	name          TEXT,
 	created_at    INTEGER,
 	created_by	  TEXT,

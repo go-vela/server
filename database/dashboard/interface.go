@@ -27,7 +27,7 @@ type DashboardInterface interface {
 	// CreateDashboard defines a function that creates a dashboard.
 	CreateDashboard(context.Context, *library.Dashboard) (*library.Dashboard, error)
 	// GetDashboard defines a function that gets a dashboard by ID.
-	GetDashboard(context.Context, int64) (*library.Dashboard, error)
+	GetDashboard(context.Context, string) (*library.Dashboard, error)
 	// UpdateDashboard defines a function that updates a dashboard.
 	UpdateDashboard(context.Context, *library.Dashboard) (*library.Dashboard, error)
 }

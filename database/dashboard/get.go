@@ -11,8 +11,8 @@ import (
 )
 
 // GetDashboard gets a dashboard by ID from the database.
-func (e *engine) GetDashboard(ctx context.Context, id int64) (*library.Dashboard, error) {
-	e.logger.Tracef("getting dashboard %d from the database", id)
+func (e *engine) GetDashboard(ctx context.Context, id string) (*library.Dashboard, error) {
+	e.logger.Tracef("getting dashboard %s from the database", id)
 
 	// variable to store query results
 	r := new(database.Dashboard)

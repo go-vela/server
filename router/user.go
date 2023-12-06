@@ -4,6 +4,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/dashboard"
 	"github.com/go-vela/server/api/user"
 	"github.com/go-vela/server/router/middleware/perm"
 )
@@ -20,7 +21,8 @@ import (
 // PUT    /api/v1/user
 // GET    /api/v1/user/source/repos
 // POST   /api/v1/user/token
-// DELETE /api/v1/user/token .
+// DELETE /api/v1/user/token
+// GET    /api/v1/user/dashboards .
 func UserHandlers(base *gin.RouterGroup) {
 	// Users endpoints
 	_users := base.Group("/users")
@@ -40,5 +42,6 @@ func UserHandlers(base *gin.RouterGroup) {
 		_user.GET("/source/repos", user.GetSourceRepos)
 		_user.POST("/token", user.CreateToken)
 		_user.DELETE("/token", user.DeleteToken)
+		_user.GET("/dashboards", dashboard.ListUserDashboards)
 	} // end of user endpoints
 }

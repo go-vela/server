@@ -16,7 +16,7 @@ import (
 func (e *engine) UpdateDashboard(ctx context.Context, d *library.Dashboard) (*library.Dashboard, error) {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
-	}).Tracef("creating dashboard %d in the database", d.GetID())
+	}).Tracef("creating dashboard %s in the database", d.GetID())
 
 	// cast the library type to database type
 	//

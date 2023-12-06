@@ -5,7 +5,6 @@ package dashboard
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -26,20 +25,17 @@ func Establish() gin.HandlerFunc {
 		u := user.Retrieve(c)
 		ctx := c.Request.Context()
 
-		dashboard := util.PathParameter(c, "dashboard")
-		if len(dashboard) == 0 {
-			retErr := fmt.Errorf("no build parameter provided")
-			util.HandleError(c, http.StatusBadRequest, retErr)
+		id := util.PathParameter(c, "dashboard")
+		if len(id) == 0 {
+			userBoards := u.GetDashboards()
+			if len(userBoards) == 0 {
+				retErr := fmt.Errorf("no available dashboards for user %s", u.GetName())
+				util.HandleError(c, http.StatusBadRequest, retErr)
 
-			return
-		}
+				return
+			}
 
-		id, err := strconv.ParseInt(dashboard, 10, 64)
-		if err != nil {
-			retErr := fmt.Errorf("invalid dashboard id provided: %s", dashboard)
-			util.HandleError(c, http.StatusBadRequest, retErr)
-
-			return
+			id = userBoards[0]
 		}
 
 		// update engine logger with API metadata
@@ -48,11 +44,11 @@ func Establish() gin.HandlerFunc {
 		logrus.WithFields(logrus.Fields{
 			"dashboard": id,
 			"user":      u.GetName(),
-		}).Debugf("reading dashboard %d", id)
+		}).Debugf("reading dashboard %s", id)
 
 		d, err := database.FromContext(c).GetDashboard(ctx, id)
 		if err != nil {
-			retErr := fmt.Errorf("unable to read dashboard %d: %w", id, err)
+			retErr := fmt.Errorf("unable to read dashboard %s: %w", id, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
 
 			return

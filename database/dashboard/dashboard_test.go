@@ -170,7 +170,7 @@ func testSqlite(t *testing.T) *engine {
 // Dashboard type with all fields set to their zero values.
 func testDashboard() *library.Dashboard {
 	return &library.Dashboard{
-		ID:        new(int64),
+		ID:        new(string),
 		Name:      new(string),
 		CreatedAt: new(int64),
 		CreatedBy: new(string),

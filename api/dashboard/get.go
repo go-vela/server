@@ -3,6 +3,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -67,29 +68,38 @@ func GetDashboard(c *gin.Context) {
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
 
+	var err error
+
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
 		"user":      u.GetName(),
-	}).Infof("reading dashboard %d", d.GetID())
+	}).Infof("reading dashboard %s", d.GetID())
 
 	dashboard := new(DashCard)
 	dashboard.Dashboard = d
 
-	var repos []RepoPartial
+	dashboard.Repos, err = buildRepoPartials(c, d.Repos)
+	if err != nil {
+		util.HandleError(c, http.StatusInternalServerError, err)
 
-	for _, r := range d.Repos {
+		return
+	}
+
+	c.JSON(http.StatusOK, dashboard)
+}
+
+func buildRepoPartials(c context.Context, repos []*library.DashboardRepo) ([]RepoPartial, error) {
+	var result []RepoPartial
+
+	for _, r := range repos {
 		repo := RepoPartial{}
 
 		dbRepo, err := database.FromContext(c).GetRepo(c, r.GetID())
 		if err != nil {
-			retErr := fmt.Errorf("unable to get repo for dashboard %d: %w", d.GetID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
+			return nil, fmt.Errorf("unable to get repo %s for dashboard: %w", r.GetName(), err)
 		}
 
 		repo.Org = dbRepo.GetOrg()
@@ -98,11 +108,7 @@ func GetDashboard(c *gin.Context) {
 
 		builds, err := database.FromContext(c).ListBuildsForDashboardRepo(c, dbRepo, r.GetBranches(), r.GetEvents())
 		if err != nil {
-			retErr := fmt.Errorf("unable to list builds for repo %s in dashboard %d: %w", dbRepo.GetFullName(), d.GetID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
+			return nil, fmt.Errorf("unable to list builds for repo %s in dashboard: %w", dbRepo.GetFullName(), err)
 		}
 
 		bPartials := []BuildPartial{}
@@ -124,10 +130,8 @@ func GetDashboard(c *gin.Context) {
 
 		repo.Builds = bPartials
 
-		repos = append(repos, repo)
+		result = append(result, repo)
 	}
 
-	dashboard.Repos = repos
-
-	c.JSON(http.StatusOK, dashboard)
+	return result, nil
 }
