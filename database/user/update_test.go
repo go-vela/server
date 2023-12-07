@@ -25,7 +25,7 @@ func TestUser_Engine_UpdateUser(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "users"
 SET "name"=$1,"refresh_token"=$2,"token"=$3,"hash"=$4,"favorites"=$5,"active"=$6,"admin"=$7,"dashboards"=$8
 WHERE "id" = $9`).
-		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, nil, 1).
+		WithArgs("foo", AnyArgument{}, AnyArgument{}, AnyArgument{}, nil, false, false, AnyArgument{}, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

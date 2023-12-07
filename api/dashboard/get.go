@@ -16,6 +16,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// RepoPartial is an API type that holds all relevant information
+// for a repository attached to a dashboard.
 type RepoPartial struct {
 	Org     string         `json:"org,omitempty"`
 	Name    string         `json:"name,omitempty"`
@@ -23,6 +25,8 @@ type RepoPartial struct {
 	Builds  []BuildPartial `json:"builds,omitempty"`
 }
 
+// BuildPartial is an API type that holds all relevant information
+// for a build attached to a RepoPartial.
 type BuildPartial struct {
 	Number   int    `json:"number,omitempty"`
 	Started  int64  `json:"started,omitempty"`
@@ -34,6 +38,8 @@ type BuildPartial struct {
 	Link     string `json:"link,omitempty"`
 }
 
+// DashCard is an API type that holds the dashboard information as
+// well as a list of RepoPartials attached to the dashboard.
 type DashCard struct {
 	Dashboard *library.Dashboard `json:"dashboard,omitempty"`
 	Repos     []RepoPartial      `json:"repos,omitempty"`
@@ -51,7 +57,7 @@ type DashCard struct {
 //   name: dashboard
 //   description: Dashboard id to retrieve
 //   required: true
-//   type: integer
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -78,9 +84,11 @@ func GetDashboard(c *gin.Context) {
 		"user":      u.GetName(),
 	}).Infof("reading dashboard %s", d.GetID())
 
+	// initialize DashCard and set dashboard to the dashboard info pulled from database
 	dashboard := new(DashCard)
 	dashboard.Dashboard = d
 
+	// build RepoPartials referenced in the dashboard
 	dashboard.Repos, err = buildRepoPartials(c, d.Repos)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
@@ -91,21 +99,27 @@ func GetDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, dashboard)
 }
 
+// buildRepoPartials is a helper function which takes the dashboard repo list and builds
+// a list of RepoPartials with information about the associated repository and its latest
+// five builds.
 func buildRepoPartials(c context.Context, repos []*library.DashboardRepo) ([]RepoPartial, error) {
 	var result []RepoPartial
 
 	for _, r := range repos {
 		repo := RepoPartial{}
 
+		// fetch repo from database
 		dbRepo, err := database.FromContext(c).GetRepo(c, r.GetID())
 		if err != nil {
 			return nil, fmt.Errorf("unable to get repo %s for dashboard: %w", r.GetName(), err)
 		}
 
+		// set values for RepoPartial
 		repo.Org = dbRepo.GetOrg()
 		repo.Name = dbRepo.GetName()
 		repo.Counter = dbRepo.GetCounter()
 
+		// list last 5 builds for repo given the branch and event filters
 		builds, err := database.FromContext(c).ListBuildsForDashboardRepo(c, dbRepo, r.GetBranches(), r.GetEvents())
 		if err != nil {
 			return nil, fmt.Errorf("unable to list builds for repo %s in dashboard: %w", dbRepo.GetFullName(), err)
@@ -113,6 +127,7 @@ func buildRepoPartials(c context.Context, repos []*library.DashboardRepo) ([]Rep
 
 		bPartials := []BuildPartial{}
 
+		// populate BuildPartials with info from builds list
 		for _, build := range builds {
 			bPartial := BuildPartial{
 				Number:   build.GetNumber(),

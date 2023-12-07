@@ -37,7 +37,7 @@ dashboards (
 	updated_at    INTEGER,
 	updated_by    TEXT,
 	admins        TEXT,
-	repos         JSON DEFAULT NULL
+	repos         TEXT
 );
 `
 )

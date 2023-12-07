@@ -4,14 +4,14 @@ package dashboard
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-cmp/cmp"
 )
 
-func TestRepo_Engine_GetDashboard(t *testing.T) {
+func TestDashboard_Engine_CreateDashboard(t *testing.T) {
 	// setup types
 	_dashRepo := new(library.DashboardRepo)
 	_dashRepo.SetID(1)
@@ -29,67 +29,59 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	_dashboard.SetAdmins([]string{})
 	_dashboard.SetRepos(_dashRepos)
 
-	// uuid, _ := uuid.Parse("c8da1302-07d6-11ea-882f-4893bca275b8")
-
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows(
-		[]string{"id", "name", "created_at", "created_by", "updated_at", "updated_by", "admins", "repos"},
-	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", "dash", 1, "user1", 1, "user2", "{}", []byte(`[{"id":1,"branches":["main"],"events":["push"]}]`))
+	_rows := sqlmock.NewRows([]string{"id"}).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "dashboards" WHERE id = $1 LIMIT 1`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8").WillReturnRows(_rows)
+	_mock.ExpectQuery(`INSERT INTO "dashboards"
+("name","created_at","created_by","updated_at","updated_by","admins","repos","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "id"`).
+		WithArgs("dash", 1, "user1", 1, "user2", "{}", `[{"id":1,"branches":["main"],"events":["push"]}]`, "c8da1302-07d6-11ea-882f-4893bca275b8").
+		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
-
-	_, err := _sqlite.CreateDashboard(context.TODO(), _dashboard)
-	if err != nil {
-		t.Errorf("unable to create test repo for sqlite: %v", err)
-	}
 
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Dashboard
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     _dashboard,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     _dashboard,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetDashboard(context.TODO(), "c8da1302-07d6-11ea-882f-4893bca275b8")
+			got, err := test.database.CreateDashboard(context.TODO(), _dashboard)
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("GetDashboard for %s should have returned err", test.name)
+					t.Errorf("CreateDashboard for %s should have returned err", test.name)
 				}
 
 				return
 			}
 
 			if err != nil {
-				t.Errorf("GetDashboard for %s returned err: %v", test.name, err)
+				t.Errorf("CreateDashboard for %s returned err: %v", test.name, err)
 			}
 
-			if diff := cmp.Diff(got, test.want); diff != "" {
-				t.Errorf("GetDashboard mismatch (-want +got):\n%s", diff)
+			if !reflect.DeepEqual(got, _dashboard) {
+				t.Errorf("CreateDashboard for %s returned %s, want %s", test.name, got, _dashboard)
 			}
 		})
 	}

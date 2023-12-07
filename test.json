@@ -1,11 +1,10 @@
 {
   "name": "secondary",
-  "admins": ["DavidMay"],
   "repos": [
     {
       "name": "EastonCrupper/myvela",
       "branches": ["main"],
-      "events": ["push"]
+      "events": ["push", "deployment"]
     },
     {
       "name": "easton-second-org/testing-events",

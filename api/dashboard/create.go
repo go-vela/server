@@ -100,6 +100,7 @@ func CreateDashboard(c *gin.Context) {
 	d.SetUpdatedAt(time.Now().UTC().Unix())
 	d.SetUpdatedBy(u.GetName())
 
+	// validate admins to ensure they are all active users
 	admins, err := validateAdminSet(c, u, input.GetAdmins())
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, err)
@@ -109,6 +110,7 @@ func CreateDashboard(c *gin.Context) {
 
 	d.SetAdmins(admins)
 
+	// validate repos to ensure they are all enabled
 	err = validateRepoSet(c, input.GetRepos())
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, err)
@@ -128,6 +130,7 @@ func CreateDashboard(c *gin.Context) {
 		return
 	}
 
+	// add dashboard to claims user's dashboard set
 	u.SetDashboards(append(u.GetDashboards(), d.GetID()))
 
 	_, err = database.FromContext(c).UpdateUser(c, u)
@@ -152,8 +155,8 @@ func validateAdminSet(c context.Context, caller *library.User, users []string) (
 			continue
 		}
 
-		_, err := database.FromContext(c).GetUserForName(c, admin)
-		if err != nil {
+		u, err := database.FromContext(c).GetUserForName(c, admin)
+		if err != nil || !u.GetActive() {
 			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", admin)
 		}
 
@@ -173,7 +176,7 @@ func validateRepoSet(c context.Context, repos []*library.DashboardRepo) error {
 
 		// fetch repo from database
 		dbRepo, err := database.FromContext(c).GetRepoForOrg(c, parts[0], parts[1])
-		if err != nil {
+		if err != nil || !dbRepo.GetActive() {
 			return fmt.Errorf("unable to create dashboard: could not get repo %s: %w", repo.GetName(), err)
 		}
 

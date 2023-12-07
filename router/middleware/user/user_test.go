@@ -61,6 +61,7 @@ func TestUser_Establish(t *testing.T) {
 	want.SetActive(false)
 	want.SetAdmin(false)
 	want.SetFavorites([]string{})
+	want.SetDashboards([]string{})
 
 	got := new(library.User)
 

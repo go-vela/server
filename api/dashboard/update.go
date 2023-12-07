@@ -5,6 +5,7 @@ package dashboard
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -61,19 +62,11 @@ func UpdateDashboard(c *gin.Context) {
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
 
-	admin := false
-
-	for _, a := range d.GetAdmins() {
-		if u.GetName() == a {
-			admin = true
-			break
-		}
-	}
-
-	if !admin {
+	// deny dashboard update request from non-admins
+	if !isAdmin(u.GetName(), d.GetAdmins()) {
 		retErr := fmt.Errorf("unable to update dashboard %s: user is not an admin", d.GetID())
 
-		util.HandleError(c, http.StatusBadRequest, retErr)
+		util.HandleError(c, http.StatusUnauthorized, retErr)
 
 		return
 	}
@@ -102,6 +95,7 @@ func UpdateDashboard(c *gin.Context) {
 		d.SetName(input.GetName())
 	}
 
+	// validate admin set if supplied
 	if len(input.GetAdmins()) > 0 {
 		admins, err := validateAdminSet(c, u, input.GetAdmins())
 		if err != nil {
@@ -116,6 +110,7 @@ func UpdateDashboard(c *gin.Context) {
 	// set the updated by field using claims
 	d.SetUpdatedBy(u.GetName())
 
+	// validate repo set if supplied
 	if len(input.GetRepos()) > 0 {
 		// validate supplied repo list
 		err = validateRepoSet(c, input.GetRepos())
@@ -139,4 +134,18 @@ func UpdateDashboard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, d)
+}
+
+func isAdmin(u string, admins []string) bool {
+	admin := false
+
+	// determine if claims user is in the admin set
+	for _, a := range admins {
+		if strings.EqualFold(u, a) {
+			admin = true
+			break
+		}
+	}
+
+	return admin
 }

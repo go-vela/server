@@ -19,6 +19,7 @@ func TestUser_Engine_GetUser(t *testing.T) {
 	_user.SetToken("bar")
 	_user.SetHash("baz")
 	_user.SetFavorites([]string{})
+	_user.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -26,7 +27,7 @@ func TestUser_Engine_GetUser(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin", "dashboards"}).
-		AddRow(1, "foo", "", "bar", "baz", "{}", false, false, nil)
+		AddRow(1, "foo", "", "bar", "baz", "{}", false, false, "{}")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "users" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)

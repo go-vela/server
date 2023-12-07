@@ -22,6 +22,7 @@ func DashboardHandlers(base *gin.RouterGroup) {
 		{
 			d.GET("", dashboard.GetDashboard)
 			d.PUT("", dashboard.UpdateDashboard)
+			d.DELETE("", dashboard.DeleteDashboard)
 		}
 	} // end of search endpoints
 }

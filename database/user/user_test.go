@@ -182,6 +182,7 @@ func testUser() *library.User {
 		Favorites:    new([]string),
 		Active:       new(bool),
 		Admin:        new(bool),
+		Dashboards:   new([]string),
 	}
 }
 

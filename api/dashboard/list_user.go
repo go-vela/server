@@ -3,6 +3,7 @@
 package dashboard
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -10,7 +11,9 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // swagger:operation GET /api/v1/user/dashboards dashboards ListUserDashboards
@@ -53,11 +56,25 @@ func ListUserDashboards(c *gin.Context) {
 
 	var dashCards []DashCard
 
+	// iterate through user dashboards and build a list of DashCards
 	for _, dashboard := range u.GetDashboards() {
 		dashCard := DashCard{}
 
 		d, err := database.FromContext(c).GetDashboard(c, dashboard)
 		if err != nil {
+			// check if the query returned a record not found error
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				d = new(library.Dashboard)
+				d.SetID(dashboard)
+
+				dashCard.Dashboard = d
+				// if user dashboard has been deleted, append empty dashboard
+				// to set and continue
+				dashCards = append(dashCards, dashCard)
+
+				continue
+			}
+
 			retErr := fmt.Errorf("unable to get dashboard %s: %w", dashboard, err)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
