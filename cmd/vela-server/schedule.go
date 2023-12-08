@@ -166,7 +166,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to confirm repo owner has at least write access to repo
-	_, err = scm.RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
+	_, err = scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		return fmt.Errorf("%s does not have at least write access for repo %s", u.GetName(), r.GetFullName())
 	}
@@ -389,15 +389,36 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
+	// determine queue route
+	route, err := queue.Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		build.CleanBuild(ctx, database, b, nil, nil, err)
+
+		return err
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	b.SetHost(route)
+
+	err = build.PublishBuildExecutable(ctx, database, p, b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+		return retErr
+	}
+
 	// publish the build to the queue
 	go build.PublishToQueue(
 		ctx,
 		queue,
 		database,
-		p,
 		b,
 		r,
 		u,
+		route,
 	)
 
 	return nil
