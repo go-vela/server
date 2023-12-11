@@ -130,7 +130,7 @@ func RepairRepo(c *gin.Context) {
 	}
 
 	// if repo has a name change, then update DB with new name
-	// if repo has a org change, update org as well
+	// if repo has an org change, update org as well
 	if sourceRepo.GetName() != r.GetName() || sourceRepo.GetOrg() != r.GetOrg() {
 		h, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
