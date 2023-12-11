@@ -34,6 +34,7 @@ func FakeHandler() http.Handler {
 	e.GET("/api/v1/repos/:org/:repo/builds/:build", getBuild)
 	e.POST("/api/v1/repos/:org/:repo/builds/:build", restartBuild)
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build/cancel", cancelBuild)
+	e.POST("/api/v1/repos/:org/:repo/builds/:build/approve", approveBuild)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/logs", getLogs)
 	e.GET("/api/v1/repos/:org/:repo/builds", getBuilds)
 	e.POST("/api/v1/repos/:org/:repo/builds", addBuild)
