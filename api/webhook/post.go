@@ -256,15 +256,16 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// verify the build has a valid event and the repo allows that event type
-	if (b.GetEvent() == constants.EventPush && !repo.GetAllowPush()) ||
-		(b.GetEvent() == constants.EventPull && !repo.GetAllowPull()) ||
-		(b.GetEvent() == constants.EventComment && !repo.GetAllowComment()) ||
-		(b.GetEvent() == constants.EventTag && !repo.GetAllowTag()) ||
-		(b.GetEvent() == constants.EventDeploy && !repo.GetAllowDeploy()) {
-		retErr := fmt.Errorf("%s: %s does not have %s events enabled", baseErr, repo.GetFullName(), b.GetEvent())
+	if !repo.EventAllowed(b.GetEvent(), b.GetEventAction()) {
+		var actionErr string
+		if len(b.GetEventAction()) > 0 {
+			actionErr = ":" + b.GetEventAction()
+		}
+
+		retErr := fmt.Errorf("%s: %s does not have %s%s events enabled", baseErr, repo.GetFullName(), b.GetEvent(), actionErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
-		h.SetStatus(constants.StatusFailure)
+		h.SetStatus(constants.StatusSkipped)
 		h.SetError(retErr.Error())
 
 		return
