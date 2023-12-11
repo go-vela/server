@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -75,6 +76,8 @@ func UpdateRepo(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
 	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
@@ -165,6 +168,15 @@ func UpdateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
+	fmt.Printf("ALLOW EVENTS: %v", input.GetAllowEvents())
+
+	// set allow events based on input if given
+	if !reflect.DeepEqual(input.GetAllowEvents(), new(library.Events)) {
+		r.SetAllowEvents(input.GetAllowEvents())
+
+		eventsChanged = true
+	}
+
 	if input.AllowPull != nil {
 		// update allow_pull if set
 		r.SetAllowPull(input.GetAllowPull())
@@ -206,6 +218,11 @@ func UpdateRepo(c *gin.Context) {
 		!r.GetAllowComment() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
+	}
+
+	// set default events if no events are enabled
+	if reflect.DeepEqual(r.GetAllowEvents(), new(library.Events)) {
+		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
 	}
 
 	if len(input.GetPipelineType()) != 0 {

@@ -14,3 +14,12 @@ func DefaultRepoEvents(defaultRepoEvents []string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// DefaultRepoEventsMask is a middleware function that attaches the defaultRepoEventsMask
+// to enable the server to override the default repo events using a mask.
+func DefaultRepoEventsMask(defaultRepoEventsMask int64) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("defaultRepoEventsMask", defaultRepoEventsMask)
+		c.Next()
+	}
+}

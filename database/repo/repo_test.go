@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -198,6 +199,28 @@ func testRepo() *library.Repo {
 		AllowDeploy:  new(bool),
 		AllowTag:     new(bool),
 		AllowComment: new(bool),
+		AllowEvents:  testEvents(),
+	}
+}
+
+func testEvents() *library.Events {
+	return &library.Events{
+		Push: &actions.Push{
+			Branch: new(bool),
+			Tag:    new(bool),
+		},
+		PullRequest: &actions.Pull{
+			Opened:      new(bool),
+			Edited:      new(bool),
+			Synchronize: new(bool),
+		},
+		Deployment: &actions.Deploy{
+			Created: new(bool),
+		},
+		Comment: &actions.Comment{
+			Created: new(bool),
+			Edited:  new(bool),
+		},
 	}
 }
 

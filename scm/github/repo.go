@@ -163,19 +163,27 @@ func (c *client) Enable(ctx context.Context, u *library.User, r *library.Repo, h
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
 
-	if r.GetAllowComment() {
+	// subscribe to comment event if any comment action is allowed
+	if r.GetAllowEvents().GetComment().GetCreated() ||
+		r.GetAllowEvents().GetComment().GetEdited() {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowDeploy() {
+	// subscribe to deployment event if allowed
+	if r.GetAllowEvents().GetDeployment().GetCreated() {
 		events = append(events, eventDeployment)
 	}
 
-	if r.GetAllowPull() {
+	// subscribe to pull_request event if any PR action is allowed
+	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
+		r.GetAllowEvents().GetPullRequest().GetEdited() ||
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowPush() || r.GetAllowTag() {
+	// subscribe to push event if branch push or tag is allowed
+	if r.GetAllowEvents().GetPush().GetBranch() ||
+		r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
 	}
 
@@ -229,19 +237,27 @@ func (c *client) Update(ctx context.Context, u *library.User, r *library.Repo, h
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
 
-	if r.GetAllowComment() {
+	// subscribe to comment event if any comment action is allowed
+	if r.GetAllowEvents().GetComment().GetCreated() ||
+		r.GetAllowEvents().GetComment().GetEdited() {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowDeploy() {
+	// subscribe to deployment event if allowed
+	if r.GetAllowEvents().GetDeployment().GetCreated() {
 		events = append(events, eventDeployment)
 	}
 
-	if r.GetAllowPull() {
+	// subscribe to pull_request event if any PR action is allowed
+	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
+		r.GetAllowEvents().GetPullRequest().GetEdited() ||
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowPush() || r.GetAllowTag() {
+	// subscribe to push event if branch push or tag is allowed
+	if r.GetAllowEvents().GetPush().GetBranch() ||
+		r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
 	}
 
