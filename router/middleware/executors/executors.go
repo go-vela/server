@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -31,8 +32,10 @@ func Establish() gin.HandlerFunc {
 		b := build.Retrieve(c)
 		ctx := c.Request.Context()
 
-		// if build has no host, we cannot establish executors
-		if len(b.GetHost()) == 0 {
+		// if build is pending or pending approval, there is no host to establish executors
+		if strings.EqualFold(b.GetStatus(), constants.StatusPending) ||
+			strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) ||
+			len(b.GetHost()) == 0 {
 			ToContext(c, *e)
 			c.Next()
 
