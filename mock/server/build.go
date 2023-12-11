@@ -303,7 +303,7 @@ func cancelBuild(c *gin.Context) {
 
 // approveBuild has a param :build and returns mock JSON for a http POST.
 //
-// Pass "0" to :build to test receiving a http 403 response
+// Pass "0" to :build to test receiving a http 403 response.
 func approveBuild(c *gin.Context) {
 	b := c.Param("build")
 
