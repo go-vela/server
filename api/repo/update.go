@@ -168,8 +168,6 @@ func UpdateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
-	fmt.Printf("ALLOW EVENTS: %v", input.GetAllowEvents())
-
 	// set allow events based on input if given
 	if !reflect.DeepEqual(input.GetAllowEvents(), new(library.Events)) {
 		r.SetAllowEvents(input.GetAllowEvents())
@@ -177,6 +175,7 @@ func UpdateRepo(c *gin.Context) {
 		eventsChanged = true
 	}
 
+	// -- DEPRECATED SECTION --
 	if input.AllowPull != nil {
 		// update allow_pull if set
 		r.SetAllowPull(input.GetAllowPull())
@@ -219,9 +218,10 @@ func UpdateRepo(c *gin.Context) {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
 	}
+	// -- END DEPRECATED SECTION --
 
 	// set default events if no events are enabled
-	if reflect.DeepEqual(r.GetAllowEvents(), new(library.Events)) {
+	if r.GetAllowEvents().ToDatabase() == 0 {
 		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
 	}
 

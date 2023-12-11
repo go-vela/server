@@ -1,0 +1,21 @@
+{
+    "allow_events": {
+        "push": {
+            "branch": false,
+            "tag": false
+        },
+        "pull_request": {
+            "opened": false,
+            "reopened": false,
+            "synchronize": false,
+            "edited": false
+        },
+        "deployment": {
+            "created": false
+        },
+        "comment": {
+            "created": false,
+            "edited": false
+        }
+    }
+}

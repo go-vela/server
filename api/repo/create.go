@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -157,7 +156,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// set allow events based on input if given
-	if !reflect.DeepEqual(input.GetAllowEvents(), new(library.Events)) {
+	if input.GetAllowEvents().ToDatabase() != 0 {
 		r.SetAllowEvents(input.GetAllowEvents())
 	} else {
 		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
@@ -333,12 +332,16 @@ func CreateRepo(c *gin.Context) {
 	c.JSON(http.StatusCreated, r)
 }
 
+// defaultAllowedEvents is a helper function that generates an Events struct that results
+// from an admin-provided `sliceDefaults` or an admin-provided `maskDefaults`. If the admin
+// supplies a mask, that will be the default. Otherwise, it will be the legacy event list.
 func defaultAllowedEvents(sliceDefaults []string, maskDefaults int64) *library.Events {
 	if maskDefaults > 0 {
 		return library.NewEventsFromMask(maskDefaults)
 	}
 
 	events := new(library.Events)
+
 	for _, event := range sliceDefaults {
 		switch event {
 		case constants.EventPull:
