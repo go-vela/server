@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -174,7 +173,7 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	// set allow events based on input if given
-	if !reflect.DeepEqual(input.GetAllowEvents(), new(library.Events)) {
+	if input.AllowEvents != nil {
 		r.SetAllowEvents(input.GetAllowEvents())
 
 		eventsChanged = true
