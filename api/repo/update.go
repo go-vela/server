@@ -158,6 +158,11 @@ func UpdateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	if len(input.GetApproveBuild()) > 0 {
+		// update fork policy if set
+		r.SetApproveBuild(input.GetApproveBuild())
+	}
+
 	if input.Private != nil {
 		// update private if set
 		r.SetPrivate(input.GetPrivate())

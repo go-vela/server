@@ -21,6 +21,7 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build
 // PUT    /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build
+// POST   /api/v1/repos/:org/:repo/builds/:build/approve
 // DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/token
@@ -57,6 +58,7 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.GET("", perm.MustRead(), build.GetBuild)
 			b.PUT("", perm.MustBuildAccess(), middleware.Payload(), build.UpdateBuild)
 			b.DELETE("", perm.MustPlatformAdmin(), build.DeleteBuild)
+			b.POST("/approve", perm.MustAdmin(), build.ApproveBuild)
 			b.DELETE("/cancel", executors.Establish(), perm.MustWrite(), build.CancelBuild)
 			b.GET("/logs", perm.MustRead(), log.ListLogsForBuild)
 			b.GET("/token", perm.MustWorkerAuthToken(), build.GetBuildToken)

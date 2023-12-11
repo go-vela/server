@@ -306,6 +306,9 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 	case constants.StatusRunning, constants.StatusPending:
 		state = "pending"
 		description = fmt.Sprintf("the build is %s", b.GetStatus())
+	case constants.StatusPendingApproval:
+		state = "pending"
+		description = "build needs approval from repo admin to run"
 	case constants.StatusSuccess:
 		state = "success"
 		description = "the build was successful"

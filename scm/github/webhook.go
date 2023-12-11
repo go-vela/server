@@ -283,7 +283,8 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 
 	return &types.Webhook{
 		PullRequest: types.PullRequest{
-			Number: payload.GetNumber(),
+			Number:     payload.GetNumber(),
+			IsFromFork: payload.GetPullRequest().GetHead().GetRepo().GetFork(),
 		},
 		Hook:  h,
 		Repo:  r,
