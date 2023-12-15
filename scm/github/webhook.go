@@ -32,16 +32,22 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
 
+	logrus.Debugf("CUCUMBER")
+
 	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
 	if err != nil {
 		return nil, fmt.Errorf("unable to convert hook id to int64: %w", err)
 	}
+
+	logrus.Debugf("PUMPKIN")
 
 	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
 	h.SetStatus(constants.StatusSuccess)
+
+	logrus.Debugf("CARRORT")
 
 	if len(request.Header.Get("X-GitHub-Enterprise-Host")) > 0 {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
@@ -298,6 +304,8 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
 	}).Tracef("processing deployment GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	logrus.Debugf("PINEAPPLE")
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
