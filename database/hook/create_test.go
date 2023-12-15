@@ -18,7 +18,6 @@ func TestHook_Engine_CreateHook(t *testing.T) {
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)
-	_hook.SetDeploymentID(2)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

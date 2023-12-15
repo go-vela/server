@@ -12,7 +12,9 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -64,6 +66,10 @@ func GetDeployment(c *gin.Context) {
 	u := user.Retrieve(c)
 	deployment := util.PathParameter(c, "deployment")
 	ctx := c.Request.Context()
+	var (
+		dep *library.Deployment
+		err error
+	)
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 
@@ -85,15 +91,30 @@ func GetDeployment(c *gin.Context) {
 		return
 	}
 
-	// send API call to capture the deployment
+	// send API call to database to capture the deployment
 	d, err := database.FromContext(c).GetDeployment(c, int64(number))
 	if err != nil {
-		retErr := fmt.Errorf("unable to get deployment %s: %w", entry, err)
+		// send API call to SCM to capture the deployment
+		dep, err = scm.FromContext(c).GetDeployment(ctx, u, r, int64(number))
+		if err != nil {
+			retErr := fmt.Errorf("unable to get deployment %s: %w", entry, err)
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-		return
+			return
+		}
+
+		// send API call to create the deployment
+		_, err := database.FromContext(c).CreateDeployment(c, dep)
+		if err != nil {
+			retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+		}
+
+	} else {
+		dep = d
 	}
 
-	c.JSON(http.StatusOK, d)
+	c.JSON(http.StatusOK, dep)
 }

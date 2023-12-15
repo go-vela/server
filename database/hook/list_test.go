@@ -20,7 +20,6 @@ func TestHook_Engine_ListHooks(t *testing.T) {
 	_hookOne.SetNumber(1)
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookOne.SetWebhookID(1)
-	_hookOne.SetDeploymentID(1)
 
 	_hookTwo := testHook()
 	_hookTwo.SetID(2)
@@ -29,7 +28,6 @@ func TestHook_Engine_ListHooks(t *testing.T) {
 	_hookTwo.SetNumber(2)
 	_hookTwo.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookTwo.SetWebhookID(1)
-	_hookTwo.SetDeploymentID(1)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

@@ -664,11 +664,11 @@ func PostWebhook(c *gin.Context) {
 	h.SetBuildID(b.GetID())
 
 	if b.GetEvent() == constants.EventDeploy {
-		d, _ := database.FromContext(c).GetDeploymentForRepo(c, repo, h.GetDeploymentID())
+		d, _ := database.FromContext(c).GetDeploymentForRepo(c, repo, *webhook.DeploymentID)
 		builds := new([]library.Build)
 		*builds = append(*builds, *b)
 		d.SetBuilds(builds)
-		logrus.Debugf("PINEAPPLE %d ", h.GetDeploymentID())
+		logrus.Debugf("PINEAPPLE %d ", webhook.DeploymentID)
 		database.FromContext(c).UpdateDeployment(c, d)
 	}
 

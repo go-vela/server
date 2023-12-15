@@ -369,12 +369,12 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
-	h.SetDeploymentID(payload.GetDeployment().GetID())
 
 	return &types.Webhook{
-		Hook:  h,
-		Repo:  r,
-		Build: b,
+		Hook:         h,
+		Repo:         r,
+		Build:        b,
+		DeploymentID: payload.GetDeployment().ID,
 	}, nil
 }
 

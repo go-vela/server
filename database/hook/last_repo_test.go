@@ -20,7 +20,6 @@ func TestHook_Engine_LastHookForRepo(t *testing.T) {
 	_hook.SetNumber(1)
 	_hook.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hook.SetWebhookID(1)
-	_hook.SetDeploymentID(0)
 
 	_repo := testRepo()
 	_repo.SetID(1)

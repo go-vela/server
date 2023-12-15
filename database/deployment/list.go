@@ -21,6 +21,12 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, er
 	d := new([]database.Deployment)
 	deployments := []*library.Deployment{}
 
+	// COUNT DB
+
+	// COUNT GH
+
+	//
+
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableDeployment).
