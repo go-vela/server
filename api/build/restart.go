@@ -98,6 +98,14 @@ func RestartBuild(c *gin.Context) {
 		"user":  u.GetName(),
 	})
 
+	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
+		retErr := fmt.Errorf("unable to restart build %s/%d: cannot restart a build pending approval", r.GetFullName(), b.GetNumber())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	logger.Infof("restarting build %s", entry)
 
 	// send API call to capture the repo owner
@@ -347,14 +355,36 @@ func RestartBuild(c *gin.Context) {
 		logger.Errorf("unable to set commit status for build %s: %v", entry, err)
 	}
 
+	// determine queue route
+	route, err := queue.FromContext(c).Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, database.FromContext(c), b, nil, nil, err)
+
+		return
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	b.SetHost(route)
+
+	err = PublishBuildExecutable(ctx, database.FromContext(c), p, b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
 	// publish the build to the queue
 	go PublishToQueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		p,
 		b,
 		r,
 		u,
+		route,
 	)
 }

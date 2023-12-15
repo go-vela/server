@@ -132,6 +132,11 @@ func main() {
 			Usage:   "override default events for newly activated repositories",
 			Value:   cli.NewStringSlice(constants.EventPush),
 		},
+		&cli.Int64Flag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS_MASK"},
+			Name:    "default-repo-events-mask",
+			Usage:   "set default event mask for newly activated repositories",
+		},
 		// Token Manager Flags
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_USER_ACCESS_TOKEN_DURATION", "USER_ACCESS_TOKEN_DURATION"},

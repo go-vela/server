@@ -3,6 +3,8 @@
 package build
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -13,6 +15,8 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
 )
 
@@ -90,4 +94,37 @@ func GetBuildExecutable(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, bExecutable)
+}
+
+// PublishBuildExecutable marshals a pipeline.Build into bytes and pushes that data to the build_executables table to be
+// requested by a worker whenever the build has been picked up.
+func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipeline.Build, b *library.Build) error {
+	// marshal pipeline build into byte data to add to the build executable object
+	byteExecutable, err := json.Marshal(p)
+	if err != nil {
+		logrus.Errorf("Failed to marshal build executable: %v", err)
+
+		// error out the build
+		CleanBuild(ctx, db, b, nil, nil, err)
+
+		return err
+	}
+
+	// create build executable to push to database
+	bExecutable := new(library.BuildExecutable)
+	bExecutable.SetBuildID(b.GetID())
+	bExecutable.SetData(byteExecutable)
+
+	// send database call to create a build executable
+	err = db.CreateBuildExecutable(ctx, bExecutable)
+	if err != nil {
+		logrus.Errorf("Failed to publish build executable to database: %v", err)
+
+		// error out the build
+		CleanBuild(ctx, db, b, nil, nil, err)
+
+		return err
+	}
+
+	return nil
 }

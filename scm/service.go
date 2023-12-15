@@ -47,7 +47,7 @@ type Service interface {
 	OrgAccess(context.Context, *library.User, string) (string, error)
 	// RepoAccess defines a function that captures
 	// the user's access level for a repo.
-	RepoAccess(context.Context, *library.User, string, string, string) (string, error)
+	RepoAccess(context.Context, string, string, string, string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
 	TeamAccess(context.Context, *library.User, string, string) (string, error)
@@ -118,7 +118,7 @@ type Service interface {
 	GetPullRequest(context.Context, *library.User, *library.Repo, int) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
-	GetRepo(context.Context, *library.User, *library.Repo) (*library.Repo, error)
+	GetRepo(context.Context, *library.User, *library.Repo) (*library.Repo, int, error)
 	// GetOrgAndRepoName defines a function that retrieves
 	// the name of the org and repo in the SCM.
 	GetOrgAndRepoName(context.Context, *library.User, string, string) (string, string, error)

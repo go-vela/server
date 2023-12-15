@@ -163,19 +163,27 @@ func (c *client) Enable(ctx context.Context, u *library.User, r *library.Repo, h
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
 
-	if r.GetAllowComment() {
+	// subscribe to comment event if any comment action is allowed
+	if r.GetAllowEvents().GetComment().GetCreated() ||
+		r.GetAllowEvents().GetComment().GetEdited() {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowDeploy() {
+	// subscribe to deployment event if allowed
+	if r.GetAllowEvents().GetDeployment().GetCreated() {
 		events = append(events, eventDeployment)
 	}
 
-	if r.GetAllowPull() {
+	// subscribe to pull_request event if any PR action is allowed
+	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
+		r.GetAllowEvents().GetPullRequest().GetEdited() ||
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowPush() || r.GetAllowTag() {
+	// subscribe to push event if branch push or tag is allowed
+	if r.GetAllowEvents().GetPush().GetBranch() ||
+		r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
 	}
 
@@ -229,19 +237,27 @@ func (c *client) Update(ctx context.Context, u *library.User, r *library.Repo, h
 	// always listen to repository events in case of repo name change
 	events := []string{eventRepository}
 
-	if r.GetAllowComment() {
+	// subscribe to comment event if any comment action is allowed
+	if r.GetAllowEvents().GetComment().GetCreated() ||
+		r.GetAllowEvents().GetComment().GetEdited() {
 		events = append(events, eventIssueComment)
 	}
 
-	if r.GetAllowDeploy() {
+	// subscribe to deployment event if allowed
+	if r.GetAllowEvents().GetDeployment().GetCreated() {
 		events = append(events, eventDeployment)
 	}
 
-	if r.GetAllowPull() {
+	// subscribe to pull_request event if any PR action is allowed
+	if r.GetAllowEvents().GetPullRequest().GetOpened() ||
+		r.GetAllowEvents().GetPullRequest().GetEdited() ||
+		r.GetAllowEvents().GetPullRequest().GetSynchronize() {
 		events = append(events, eventPullRequest)
 	}
 
-	if r.GetAllowPush() || r.GetAllowTag() {
+	// subscribe to push event if branch push or tag is allowed
+	if r.GetAllowEvents().GetPush().GetBranch() ||
+		r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
 	}
 
@@ -290,6 +306,9 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 	case constants.StatusRunning, constants.StatusPending:
 		state = "pending"
 		description = fmt.Sprintf("the build is %s", b.GetStatus())
+	case constants.StatusPendingApproval:
+		state = "pending"
+		description = "build needs approval from repo admin to run"
 	case constants.StatusSuccess:
 		state = "success"
 		description = "the build was successful"
@@ -367,7 +386,7 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 }
 
 // GetRepo gets repo information from Github.
-func (c *client) GetRepo(ctx context.Context, u *library.User, r *library.Repo) (*library.Repo, error) {
+func (c *client) GetRepo(ctx context.Context, u *library.User, r *library.Repo) (*library.Repo, int, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -378,12 +397,12 @@ func (c *client) GetRepo(ctx context.Context, u *library.User, r *library.Repo) 
 	client := c.newClientToken(u.GetToken())
 
 	// send an API call to get the repo info
-	repo, _, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
+	repo, resp, err := client.Repositories.Get(ctx, r.GetOrg(), r.GetName())
 	if err != nil {
-		return nil, err
+		return nil, resp.StatusCode, err
 	}
 
-	return toLibraryRepo(*repo), nil
+	return toLibraryRepo(*repo), resp.StatusCode, nil
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
@@ -557,6 +576,7 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 
 	maxRedirects := 3
 	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, maxRedirects)
+
 	if err != nil {
 		return "", "", err
 	}

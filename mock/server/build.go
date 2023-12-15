@@ -301,6 +301,23 @@ func cancelBuild(c *gin.Context) {
 	c.JSON(http.StatusOK, BuildResp)
 }
 
+// approveBuild has a param :build and returns mock JSON for a http POST.
+//
+// Pass "0" to :build to test receiving a http 403 response.
+func approveBuild(c *gin.Context) {
+	b := c.Param("build")
+
+	if strings.EqualFold(b, "0") {
+		msg := "user does not have admin permissions for the repo"
+
+		c.AbortWithStatusJSON(http.StatusForbidden, types.Error{Message: &msg})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, fmt.Sprintf("Successfully approved build %s", b))
+}
+
 // buildQueue has a param :after returns mock JSON for a http GET.
 //
 // Pass "0" to :after to test receiving a http 200 response with no builds.

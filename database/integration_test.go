@@ -2249,6 +2249,7 @@ func newResources() *Resources {
 	repoOne.SetPipelineType("")
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
+	repoOne.SetAllowEvents(library.NewEventsFromMask(1))
 
 	repoTwo := new(library.Repo)
 	repoTwo.SetID(2)
@@ -2276,6 +2277,7 @@ func newResources() *Resources {
 	repoTwo.SetPipelineType("")
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
+	repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)

@@ -75,6 +75,8 @@ func UpdateRepo(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
+	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
 	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
@@ -155,6 +157,11 @@ func UpdateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	if len(input.GetApproveBuild()) > 0 {
+		// update fork policy if set
+		r.SetApproveBuild(input.GetApproveBuild())
+	}
+
 	if input.Private != nil {
 		// update private if set
 		r.SetPrivate(input.GetPrivate())
@@ -165,6 +172,14 @@ func UpdateRepo(c *gin.Context) {
 		r.SetActive(input.GetActive())
 	}
 
+	// set allow events based on input if given
+	if input.AllowEvents != nil {
+		r.SetAllowEvents(input.GetAllowEvents())
+
+		eventsChanged = true
+	}
+
+	// -- DEPRECATED SECTION --
 	if input.AllowPull != nil {
 		// update allow_pull if set
 		r.SetAllowPull(input.GetAllowPull())
@@ -206,6 +221,12 @@ func UpdateRepo(c *gin.Context) {
 		!r.GetAllowComment() {
 		r.SetAllowPull(true)
 		r.SetAllowPush(true)
+	}
+	// -- END DEPRECATED SECTION --
+
+	// set default events if no events are enabled
+	if r.GetAllowEvents().ToDatabase() == 0 {
+		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
 	}
 
 	if len(input.GetPipelineType()) != 0 {

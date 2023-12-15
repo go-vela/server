@@ -10,12 +10,19 @@ on:
 
 # pipeline to execute
 jobs:
-  database:
+  database_postgres:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # support should be n-1 here
+        postgres_version:
+          - postgres:15-alpine
+          - postgres:16-alpine
 
     services:
       postgres:
-        image: postgres:15-alpine@sha256:35ce2187f2f7fb75e8e79493e13743596c21eb3789ff41ece145ae04d06e93a5
+        image: ${{ matrix.postgres_version }}
         env:
           POSTGRES_DB: vela
           POSTGRES_PASSWORD: notARealPassword12345
@@ -30,6 +37,27 @@ jobs:
 
     env:
       POSTGRES_ADDR: postgres://vela:notARealPassword12345@localhost:5432/vela
+
+    steps:
+      - name: clone
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+
+      - name: install go
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        with:
+          # use version from go.mod file
+          go-version-file: 'go.mod'
+          cache: true
+          check-latest: true
+
+      - name: testing with ${{ matrix.postgres_version }}
+        run: |
+          DB_DRIVER=postgres make integration-test
+
+  database_sql:
+    runs-on: ubuntu-latest
+
+    env:
       SQLITE_ADDR: vela.db
 
     steps:
@@ -44,6 +72,6 @@ jobs:
           cache: true
           check-latest: true
 
-      - name: test
+      - name: testing with sqlite
         run: |
-          make integration-test
+          DB_DRIVER=sqlite make integration-test
