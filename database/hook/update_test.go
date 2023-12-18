@@ -24,9 +24,9 @@ func TestHook_Engine_UpdateHook(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "hooks"
-SET "repo_id"=$1,"build_id"=$2,"number"=$3,"source_id"=$4,"created"=$5,"host"=$6,"event"=$7,"event_action"=$8,"branch"=$9,"error"=$10,"status"=$11,"link"=$12,"webhook_id"=$13,"deployment_id"=$14
-WHERE "id" = $15`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, nil, 1, nil, 1).
+SET "repo_id"=$1,"build_id"=$2,"number"=$3,"source_id"=$4,"created"=$5,"host"=$6,"event"=$7,"event_action"=$8,"branch"=$9,"error"=$10,"status"=$11,"link"=$12,"webhook_id"=$13
+WHERE "id" = $14`).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, nil, 1, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

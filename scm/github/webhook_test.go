@@ -413,6 +413,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		repo              *library.Repo
 		build             *library.Build
 		deploymentPayload raw.StringSliceMap
+		deployNumber      *int64
 	}
 
 	tests := []struct {
@@ -420,7 +421,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"success", args{file: "deployment.json", hook: wantHook, repo: wantRepo, build: wantBuild, deploymentPayload: raw.StringSliceMap{"foo": "test1", "bar": "test2"}}, false},
+		{"success", args{file: "deployment.json", hook: wantHook, repo: wantRepo, build: wantBuild, deploymentPayload: raw.StringSliceMap{"foo": "test1", "bar": "test2"}, deployNumber: wantBuild.DeployNumber}, false},
 		{"unexpected json payload", args{file: "deployment_unexpected_json_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 		{"unexpected text payload", args{file: "deployment_unexpected_text_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 	}
@@ -447,9 +448,10 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
 
 			want := &types.Webhook{
-				Hook:  tt.args.hook,
-				Repo:  tt.args.repo,
-				Build: tt.args.build,
+				Hook:         tt.args.hook,
+				Repo:         tt.args.repo,
+				Build:        tt.args.build,
+				DeploymentID: tt.args.deployNumber,
 			}
 
 			got, err := client.ProcessWebhook(context.TODO(), request)
@@ -528,9 +530,10 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
-		Hook:  wantHook,
-		Repo:  wantRepo,
-		Build: wantBuild,
+		Hook:         wantHook,
+		Repo:         wantRepo,
+		Build:        wantBuild,
+		DeploymentID: wantBuild.DeployNumber,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)

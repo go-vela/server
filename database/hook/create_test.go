@@ -27,9 +27,9 @@ func TestHook_Engine_CreateHook(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "hooks"
-("repo_id","build_id","number","source_id","created","host","event","event_action","branch","error","status","link","webhook_id","deployment_id","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
-		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, nil, 1, 2, 1).
+("repo_id","build_id","number","source_id","created","host","event","event_action","branch","error","status","link","webhook_id","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
+		WithArgs(1, 1, 1, "c8da1302-07d6-11ea-882f-4893bca275b8", nil, nil, nil, nil, nil, nil, nil, nil, 1, 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
