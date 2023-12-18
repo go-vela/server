@@ -774,7 +774,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 	switch h.GetEventAction() {
 	// if action is renamed or transferred, go through rename routine
 	case constants.ActionRenamed, constants.ActionTransferred:
-		r, err := renameRepository(ctx, h, r, c, m)
+		r, err := RenameRepository(ctx, h, r, c, m)
 		if err != nil {
 			h.SetStatus(constants.StatusFailure)
 			h.SetError(err.Error())
@@ -848,11 +848,11 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 	}
 }
 
-// renameRepository is a helper function that takes the old name of the repo,
+// RenameRepository is a helper function that takes the old name of the repo,
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
-func renameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
+func RenameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
 	// get any matching hook with the repo's unique webhook ID in the SCM
