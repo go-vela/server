@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -60,6 +61,7 @@ type (
 		logger *logrus.Entry
 
 		build.BuildInterface
+		dashboard.DashboardInterface
 		executable.BuildExecutableInterface
 		hook.HookInterface
 		log.LogInterface

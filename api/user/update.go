@@ -106,6 +106,11 @@ func UpdateUser(c *gin.Context) {
 		u.SetFavorites(input.GetFavorites())
 	}
 
+	if input.Dashboards != nil {
+		// update dashboards if set
+		u.SetDashboards(input.GetDashboards())
+	}
+
 	// send API call to update the user
 	u, err = database.FromContext(c).UpdateUser(ctx, u)
 	if err != nil {

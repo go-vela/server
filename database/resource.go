@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -29,6 +30,16 @@ func (e *engine) NewResources(ctx context.Context) error {
 		build.WithClient(e.client),
 		build.WithLogger(e.logger),
 		build.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
+	e.DashboardInterface, err = dashboard.New(
+		dashboard.WithContext(e.ctx),
+		dashboard.WithClient(e.client),
+		dashboard.WithLogger(e.logger),
+		dashboard.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

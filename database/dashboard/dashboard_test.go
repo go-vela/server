@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package user
+package dashboard
 
 import (
 	"database/sql/driver"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
@@ -16,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestUser_New(t *testing.T) {
+func TestDashboard_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -27,7 +28,6 @@ func TestUser_New(t *testing.T) {
 	defer _sql.Close()
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
@@ -62,7 +62,7 @@ func TestUser_New(t *testing.T) {
 			skipCreation: false,
 			want: &engine{
 				client: _postgres,
-				config: &config{EncryptionKey: "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW", SkipCreation: false},
+				config: &config{SkipCreation: false},
 				logger: logger,
 			},
 		},
@@ -75,7 +75,7 @@ func TestUser_New(t *testing.T) {
 			skipCreation: false,
 			want: &engine{
 				client: _sqlite,
-				config: &config{EncryptionKey: "A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW", SkipCreation: false},
+				config: &config{SkipCreation: false},
 				logger: logger,
 			},
 		},
@@ -86,7 +86,6 @@ func TestUser_New(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
 				WithClient(test.client),
-				WithEncryptionKey(test.key),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
 			)
@@ -121,7 +120,6 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateUserRefreshIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -136,12 +134,11 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 
 	_engine, err := New(
 		WithClient(_postgres),
-		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new postgres user engine: %v", err)
+		t.Errorf("unable to create new postgres dashboard engine: %v", err)
 	}
 
 	return _engine, _mock
@@ -159,30 +156,35 @@ func testSqlite(t *testing.T) *engine {
 
 	_engine, err := New(
 		WithClient(_sqlite),
-		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new sqlite user engine: %v", err)
+		t.Errorf("unable to create new sqlite dashboard engine: %v", err)
 	}
 
 	return _engine
 }
 
-// testUser is a test helper function to create a library
-// User type with all fields set to their zero values.
-func testUser() *library.User {
-	return &library.User{
-		ID:           new(int64),
-		Name:         new(string),
-		RefreshToken: new(string),
-		Token:        new(string),
-		Hash:         new(string),
-		Favorites:    new([]string),
-		Active:       new(bool),
-		Admin:        new(bool),
-		Dashboards:   new([]string),
+// testDashboard is a test helper function to create a library
+// Dashboard type with all fields set to their zero values.
+func testDashboard() *library.Dashboard {
+	return &library.Dashboard{
+		ID:        new(string),
+		Name:      new(string),
+		CreatedAt: new(int64),
+		CreatedBy: new(string),
+		UpdatedAt: new(int64),
+		UpdatedBy: new(string),
+		Admins:    new([]string),
+	}
+}
+
+func testDashboardRepo() *library.DashboardRepo {
+	return &library.DashboardRepo{
+		ID:       new(int64),
+		Branches: new([]string),
+		Events:   new([]string),
 	}
 }
 
@@ -191,9 +193,15 @@ func testUser() *library.User {
 // before adding or updating them in the database.
 //
 // https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
-type AnyArgument struct{}
+type NowTimestamp struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(_ driver.Value) bool {
-	return true
+func (t NowTimestamp) Match(v driver.Value) bool {
+	ts, ok := v.(int64)
+	if !ok {
+		return false
+	}
+	now := time.Now().Unix()
+
+	return now-ts < 10
 }
