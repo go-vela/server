@@ -58,7 +58,7 @@ func DeleteDashboard(c *gin.Context) {
 		"user":      u.GetName(),
 	}).Infof("deleting dashboard %s", d.GetID())
 
-	if !isAdmin(u.GetName(), d.GetAdmins()) {
+	if !isAdmin(u.GetID(), d.GetAdmins()) {
 		retErr := fmt.Errorf("unable to delete dashboard %s: user is not an admin", d.GetName())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)

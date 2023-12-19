@@ -145,9 +145,11 @@ func CreateDashboard(c *gin.Context) {
 	c.JSON(http.StatusCreated, d)
 }
 
+// validateAdminSet takes a slice of user names and converts it into a slice of matching
+// user ids in order to preserve data integrity in case of name change.
 func validateAdminSet(c context.Context, caller *library.User, users []string) ([]string, error) {
 	// add user creating the dashboard to admin list
-	admins := []string{caller.GetName()}
+	admins := []string{fmt.Sprintf("%d", caller.GetID())}
 
 	// validate supplied admins are actual users
 	for _, admin := range users {
@@ -160,12 +162,14 @@ func validateAdminSet(c context.Context, caller *library.User, users []string) (
 			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", admin)
 		}
 
-		admins = append(admins, admin)
+		admins = append(admins, fmt.Sprintf("%d", u.GetID()))
 	}
 
 	return admins, nil
 }
 
+// validateRepoSet is a helper function that confirms all dashboard repos exist and are enabled
+// in the database while also confirming the IDs match when saving.
 func validateRepoSet(c context.Context, repos []*library.DashboardRepo) error {
 	for _, repo := range repos {
 		// verify format (org/repo)

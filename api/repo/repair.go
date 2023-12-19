@@ -4,16 +4,17 @@ package repo
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
@@ -54,6 +55,8 @@ func RepairRepo(c *gin.Context) {
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
 
 	// update engine logger with API metadata
 	//
@@ -112,6 +115,41 @@ func RepairRepo(c *gin.Context) {
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
 
+			return
+		}
+	}
+
+	// get repo information from the source
+	sourceRepo, _, err := scm.FromContext(c).GetRepo(ctx, u, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", sourceRepo.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// if repo has a name change, then update DB with new name
+	// if repo has an org change, update org as well
+	if sourceRepo.GetName() != r.GetName() || sourceRepo.GetOrg() != r.GetOrg() {
+		h, err := database.FromContext(c).LastHookForRepo(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// set sourceRepo PreviousName to old name if name is changed
+		// ignore if repo is transferred and name is unchanged
+		if sourceRepo.GetName() != r.GetName() {
+			sourceRepo.SetPreviousName(r.GetName())
+		}
+
+		r, err = wh.RenameRepository(ctx, h, sourceRepo, c, m)
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
 			return
 		}
 	}

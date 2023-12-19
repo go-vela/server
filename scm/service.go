@@ -47,7 +47,7 @@ type Service interface {
 	OrgAccess(context.Context, *library.User, string) (string, error)
 	// RepoAccess defines a function that captures
 	// the user's access level for a repo.
-	RepoAccess(context.Context, *library.User, string, string, string) (string, error)
+	RepoAccess(context.Context, string, string, string, string) (string, error)
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
 	TeamAccess(context.Context, *library.User, string, string) (string, error)

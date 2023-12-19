@@ -222,10 +222,11 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, or reopened
+	// skip if the pull request action is not opened, synchronize, reopened, or edited
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") &&
-		!strings.EqualFold(payload.GetAction(), "reopened") {
+		!strings.EqualFold(payload.GetAction(), "reopened") &&
+		!strings.EqualFold(payload.GetAction(), "edited") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -282,7 +283,8 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 
 	return &types.Webhook{
 		PullRequest: types.PullRequest{
-			Number: payload.GetNumber(),
+			Number:     payload.GetNumber(),
+			IsFromFork: payload.GetPullRequest().GetHead().GetRepo().GetFork(),
 		},
 		Hook:  h,
 		Repo:  r,

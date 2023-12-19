@@ -63,7 +63,7 @@ func UpdateDashboard(c *gin.Context) {
 	u := user.Retrieve(c)
 
 	// deny dashboard update request from non-admins
-	if !isAdmin(u.GetName(), d.GetAdmins()) {
+	if !isAdmin(u.GetID(), d.GetAdmins()) {
 		retErr := fmt.Errorf("unable to update dashboard %s: user is not an admin", d.GetID())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -136,12 +136,12 @@ func UpdateDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, d)
 }
 
-func isAdmin(u string, admins []string) bool {
+func isAdmin(u int64, admins []string) bool {
 	admin := false
 
 	// determine if claims user is in the admin set
 	for _, a := range admins {
-		if strings.EqualFold(u, a) {
+		if strings.EqualFold(fmt.Sprintf("%d", u), a) {
 			admin = true
 			break
 		}

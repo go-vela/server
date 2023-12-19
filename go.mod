@@ -16,7 +16,7 @@ require (
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.22.1-0.20231127165528-b43cd77e4d9a
+	github.com/go-vela/types v0.22.1-0.20231211143329-1eae2f5e371b
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v56 v56.0.0
