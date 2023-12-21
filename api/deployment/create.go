@@ -5,6 +5,7 @@ package deployment
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -83,7 +84,8 @@ func CreateDeployment(c *gin.Context) {
 
 	// update fields in deployment object
 	input.SetRepoID(r.GetID())
-	input.SetUser(u.GetName())
+	input.SetCreatedBy(u.GetName())
+	input.SetCreatedAt(time.Now().Unix())
 
 	if len(input.GetDescription()) == 0 {
 		input.SetDescription("Deployment request from Vela")

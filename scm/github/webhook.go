@@ -15,6 +15,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -32,22 +33,16 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
 
-	logrus.Debugf("CUCUMBER")
-
 	hookID, err := strconv.Atoi(request.Header.Get("X-GitHub-Hook-ID"))
 	if err != nil {
 		return nil, fmt.Errorf("unable to convert hook id to int64: %w", err)
 	}
-
-	logrus.Debugf("PUMPKIN")
 
 	h.SetWebhookID(int64(hookID))
 	h.SetCreated(time.Now().UTC().Unix())
 	h.SetHost("github.com")
 	h.SetEvent(request.Header.Get("X-GitHub-Event"))
 	h.SetStatus(constants.StatusSuccess)
-
-	logrus.Debugf("CARRORT")
 
 	if len(request.Header.Get("X-GitHub-Enterprise-Host")) > 0 {
 		h.SetHost(request.Header.Get("X-GitHub-Enterprise-Host"))
@@ -78,7 +73,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	case *github.PullRequestEvent:
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
-		return c.processDeploymentEvent(h, event)
+		return c.processDeploymentEvent(ctx, h, event, db)
 	case *github.IssueCommentEvent:
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
@@ -299,13 +294,11 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
+func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, payload *github.DeploymentEvent, db database.Interface) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
 	}).Tracef("processing deployment GitHub webhook for %s", payload.GetRepo().GetFullName())
-
-	logrus.Debugf("PINEAPPLE")
 
 	// capture the repo from the payload
 	repo := payload.GetRepo()
@@ -336,6 +329,18 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
 	b.SetBranch(payload.GetDeployment().GetRef())
 	b.SetRef(payload.GetDeployment().GetRef())
+
+	d := new(library.Deployment)
+
+	d.SetNumber(payload.GetDeployment().GetID())
+	d.SetURL(payload.GetDeployment().GetURL())
+	d.SetCommit(payload.GetDeployment().GetSHA())
+	d.SetRef(payload.GetDeployment().GetRef())
+	d.SetTask(payload.GetDeployment().GetTask())
+	d.SetTarget(payload.GetDeployment().GetEnvironment())
+	d.SetDescription(payload.GetDeployment().GetDescription())
+	d.SetCreatedAt(time.Now().Unix())
+	d.SetCreatedBy(payload.GetDeployment().GetCreator().GetLogin())
 
 	// check if payload is provided within request
 	//
@@ -381,10 +386,10 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	)
 
 	return &types.Webhook{
-		Hook:         h,
-		Repo:         r,
-		Build:        b,
-		DeploymentID: payload.GetDeployment().ID,
+		Hook:       h,
+		Repo:       r,
+		Build:      b,
+		Deployment: d,
 	}, nil
 }
 

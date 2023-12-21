@@ -41,7 +41,7 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, er
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := deployment
 
-		builds := new([]library.Build)
+		builds := []*library.Build{}
 
 		for _, a := range tmp.Builds {
 			bID, err := strconv.ParseInt(a, 10, 64)
@@ -60,7 +60,7 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, er
 			if err2 != nil {
 				return nil, err
 			}
-			*builds = append(*builds, *b.ToLibrary())
+			builds = append(builds, b.ToLibrary())
 		}
 
 		// convert query result to library type

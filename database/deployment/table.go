@@ -20,13 +20,14 @@ deployments (
 	repo_id      INTEGER,
 	number       INTEGER,
 	url          VARCHAR(500),
-	"user"       VARCHAR(250),
 	commit       VARCHAR(500),
 	ref          VARCHAR(500),
 	task         VARCHAR(500),
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
+	created_at   INTEGER,
+	created_by   VARCHAR(250),
 	builds       VARCHAR(50),
 	UNIQUE(repo_id, number)
 );
@@ -41,13 +42,14 @@ deployments (
 	repo_id      INTEGER,
 	number       INTEGER,	
 	url     	 VARCHAR(1000),
-	"user"       VARCHAR(250),
 	"commit"     VARCHAR(500),
 	ref          VARCHAR(500),
 	task         VARCHAR(500),
 	target       VARCHAR(500),
 	description  VARCHAR(2500),
 	payload      VARCHAR(2500),
+	created_at   INTEGER,
+	created_by   VARCHAR(250),
 	builds       VARCHAR(50),
 	UNIQUE(repo_id, number)
 );

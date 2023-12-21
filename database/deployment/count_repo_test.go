@@ -14,7 +14,7 @@ import (
 )
 
 func TestDeployment_Engine_CountDeploymentssForRepo(t *testing.T) {
-	builds := new([]library.Build)
+	builds := []*library.Build{}
 
 	// setup types
 	_deploymentOne := testDeployment()
@@ -22,13 +22,14 @@ func TestDeployment_Engine_CountDeploymentssForRepo(t *testing.T) {
 	_deploymentOne.SetRepoID(1)
 	_deploymentOne.SetNumber(1)
 	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
-	_deploymentOne.SetUser("octocat")
 	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_deploymentOne.SetRef("refs/heads/master")
 	_deploymentOne.SetTask("vela-deploy")
 	_deploymentOne.SetTarget("production")
 	_deploymentOne.SetDescription("Deployment request from Vela")
 	_deploymentOne.SetPayload(map[string]string{"foo": "test1"})
+	_deploymentOne.SetCreatedAt(1)
+	_deploymentOne.SetCreatedBy("octocat")
 	_deploymentOne.SetBuilds(builds)
 
 	_deploymentTwo := testDeployment()
@@ -36,13 +37,14 @@ func TestDeployment_Engine_CountDeploymentssForRepo(t *testing.T) {
 	_deploymentTwo.SetRepoID(2)
 	_deploymentTwo.SetNumber(2)
 	_deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
-	_deploymentTwo.SetUser("octocat")
 	_deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
 	_deploymentTwo.SetRef("refs/heads/master")
 	_deploymentTwo.SetTask("vela-deploy")
 	_deploymentTwo.SetTarget("production")
 	_deploymentTwo.SetDescription("Deployment request from Vela")
 	_deploymentTwo.SetPayload(map[string]string{"foo": "test1"})
+	_deploymentTwo.SetCreatedAt(1)
+	_deploymentTwo.SetCreatedBy("octocat")
 	_deploymentTwo.SetBuilds(builds)
 
 	_repo := testRepo()

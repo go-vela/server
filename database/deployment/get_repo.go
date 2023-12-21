@@ -36,7 +36,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *library.Repo, numb
 		return nil, err
 	}
 
-	builds := new([]library.Build)
+	builds := []*library.Build{}
 
 	for _, a := range d.Builds {
 		bID, err := strconv.ParseInt(a, 10, 64)
@@ -56,7 +56,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *library.Repo, numb
 			return nil, err
 		}
 
-		*builds = append(*builds, *b.ToLibrary())
+		builds = append(builds, b.ToLibrary())
 	}
 
 	return d.ToLibrary(builds), nil

@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeployment_Engine_CreateDeployment(t *testing.T) {
-	builds := new([]library.Build)
+	builds := []*library.Build{}
 
 	// setup types
 	_deploymentOne := testDeployment()
@@ -21,13 +21,14 @@ func TestDeployment_Engine_CreateDeployment(t *testing.T) {
 	_deploymentOne.SetRepoID(1)
 	_deploymentOne.SetNumber(1)
 	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
-	_deploymentOne.SetUser("octocat")
 	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_deploymentOne.SetRef("refs/heads/master")
 	_deploymentOne.SetTask("vela-deploy")
 	_deploymentOne.SetTarget("production")
 	_deploymentOne.SetDescription("Deployment request from Vela")
 	_deploymentOne.SetPayload(map[string]string{"foo": "test1"})
+	_deploymentOne.SetCreatedAt(1)
+	_deploymentOne.SetCreatedBy("octocat")
 	_deploymentOne.SetBuilds(builds)
 
 	_postgres, _mock := testPostgres(t)
@@ -38,9 +39,9 @@ func TestDeployment_Engine_CreateDeployment(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "deployments"
-("number","repo_id","url","user","commit","ref","task","target","description","payload","builds","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
-		WithArgs(1, 1, "https://github.com/github/octocat/deployments/1", "octocat", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", "{}", 1).
+("number","repo_id","url","commit","ref","task","target","description","payload","created_at","created_by","builds","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id"`).
+		WithArgs(1, 1, "https://github.com/github/octocat/deployments/1", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", 1, "octocat", "{}", 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

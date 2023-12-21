@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
-	builds := new([]library.Build)
+	builds := []*library.Build{}
 
 	// setup types
 	_deploymentOne := testDeployment()
@@ -21,13 +21,14 @@ func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
 	_deploymentOne.SetRepoID(1)
 	_deploymentOne.SetNumber(1)
 	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
-	_deploymentOne.SetUser("octocat")
 	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	_deploymentOne.SetRef("refs/heads/master")
 	_deploymentOne.SetTask("vela-deploy")
 	_deploymentOne.SetTarget("production")
 	_deploymentOne.SetDescription("Deployment request from Vela")
 	_deploymentOne.SetPayload(map[string]string{"foo": "test1"})
+	_deploymentOne.SetCreatedAt(1)
+	_deploymentOne.SetCreatedBy("octocat")
 	_deploymentOne.SetBuilds(builds)
 
 	_postgres, _mock := testPostgres(t)
