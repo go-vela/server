@@ -396,7 +396,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetEvent("deployment")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetDeploy("production")
-	wantBuild.SetDeployNumber(145988746)
+	wantBuild.SetDeploymentID(145988746)
 	wantBuild.SetSource("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
 	wantBuild.SetTitle("deployment received from https://github.com/Codertocat/Hello-World")
 	wantBuild.SetMessage("")
@@ -407,13 +407,24 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/heads/main")
 
+	wantDeployment := new(library.Deployment)
+	wantDeployment.SetNumber(145988746)
+	wantDeployment.SetURL("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
+	wantDeployment.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
+	wantDeployment.SetRef("refs/heads/main")
+	wantDeployment.SetTask("deploy")
+	wantDeployment.SetTarget("production")
+	wantDeployment.SetDescription("")
+	wantDeployment.SetCreatedAt(time.Now().UTC().Unix())
+	wantDeployment.SetCreatedBy("Codertocat")
+
 	type args struct {
 		file              string
 		hook              *library.Hook
 		repo              *library.Repo
 		build             *library.Build
 		deploymentPayload raw.StringSliceMap
-		deployNumber      *int64
+		deployment        *library.Deployment
 	}
 
 	tests := []struct {
@@ -421,7 +432,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"success", args{file: "deployment.json", hook: wantHook, repo: wantRepo, build: wantBuild, deploymentPayload: raw.StringSliceMap{"foo": "test1", "bar": "test2"}, deployNumber: wantBuild.DeployNumber}, false},
+		{"success", args{file: "deployment.json", hook: wantHook, repo: wantRepo, build: wantBuild, deploymentPayload: raw.StringSliceMap{"foo": "test1", "bar": "test2"}, deployment: wantDeployment}, false},
 		{"unexpected json payload", args{file: "deployment_unexpected_json_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 		{"unexpected text payload", args{file: "deployment_unexpected_text_payload.json", deploymentPayload: raw.StringSliceMap{}}, true},
 	}
@@ -448,10 +459,10 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
 
 			want := &types.Webhook{
-				Hook:         tt.args.hook,
-				Repo:         tt.args.repo,
-				Build:        tt.args.build,
-				DeploymentID: tt.args.deployNumber,
+				Hook:       tt.args.hook,
+				Repo:       tt.args.repo,
+				Build:      tt.args.build,
+				Deployment: tt.args.deployment,
 			}
 
 			got, err := client.ProcessWebhook(context.TODO(), request)
@@ -518,7 +529,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetEvent("deployment")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetDeploy("production")
-	wantBuild.SetDeployNumber(145988746)
+	wantBuild.SetDeploymentID(145988746)
 	wantBuild.SetSource("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
 	wantBuild.SetTitle("deployment received from https://github.com/Codertocat/Hello-World")
 	wantBuild.SetMessage("")
@@ -529,11 +540,23 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/heads/main")
 
+	wantDeployment := new(library.Deployment)
+	wantDeployment.SetNumber(145988746)
+	wantDeployment.SetURL("https://api.github.com/repos/Codertocat/Hello-World/deployments/145988746")
+	wantDeployment.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
+	wantDeployment.SetRef("refs/heads/main")
+	wantDeployment.SetTask("deploy")
+	wantDeployment.SetTarget("production")
+	wantDeployment.SetDescription("")
+	//wantDeployment.SetPayload(map[string]string{"foo": "test1"})
+	wantDeployment.SetCreatedAt(time.Now().UTC().Unix())
+	wantDeployment.SetCreatedBy("Codertocat")
+
 	want := &types.Webhook{
-		Hook:         wantHook,
-		Repo:         wantRepo,
-		Build:        wantBuild,
-		DeploymentID: wantBuild.DeployNumber,
+		Hook:       wantHook,
+		Repo:       wantRepo,
+		Build:      wantBuild,
+		Deployment: wantDeployment,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -583,9 +606,10 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Hook:  wantHook,
-		Repo:  nil,
-		Build: nil,
+		Hook:       wantHook,
+		Repo:       nil,
+		Build:      nil,
+		Deployment: nil,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
@@ -635,9 +659,10 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Hook:  wantHook,
-		Repo:  nil,
-		Build: nil,
+		Hook:       wantHook,
+		Repo:       nil,
+		Build:      nil,
+		Deployment: nil,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)

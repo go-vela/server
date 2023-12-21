@@ -196,7 +196,7 @@ func testBuild() *library.Build {
 		Started:      new(int64),
 		Finished:     new(int64),
 		Deploy:       new(string),
-		DeployNumber: new(int64),
+		DeploymentID: new(int64),
 		Clone:        new(string),
 		Source:       new(string),
 		Title:        new(string),
@@ -221,19 +221,21 @@ func testBuild() *library.Build {
 // testDeployment is a test helper function to create a library
 // Repo type with all fields set to their zero values.
 func testDeployment() *library.Deployment {
+	builds := []*library.Build{}
 	return &library.Deployment{
 		ID:          new(int64),
 		RepoID:      new(int64),
 		Number:      new(int64),
 		URL:         new(string),
-		User:        new(string),
 		Commit:      new(string),
 		Ref:         new(string),
 		Task:        new(string),
 		Target:      new(string),
 		Description: new(string),
 		Payload:     new(raw.StringSliceMap),
-		Builds:      new([]library.Build),
+		CreatedAt:   new(int64),
+		CreatedBy:   new(string),
+		Builds:      builds,
 	}
 }
 

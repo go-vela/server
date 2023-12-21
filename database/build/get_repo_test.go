@@ -17,7 +17,7 @@ func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 	_build.SetID(1)
 	_build.SetRepoID(1)
 	_build.SetNumber(1)
-	_build.SetDeployNumber(0)
+	_build.SetDeploymentID(0)
 	_build.SetDeployPayload(nil)
 
 	_repo := testRepo()
@@ -34,7 +34,7 @@ func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_number", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deployment_id", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
 		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", 0, nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 
 	// ensure the mock expects the query

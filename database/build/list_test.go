@@ -17,14 +17,14 @@ func TestBuild_Engine_ListBuilds(t *testing.T) {
 	_buildOne.SetID(1)
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
-	_buildOne.SetDeployNumber(0)
+	_buildOne.SetDeploymentID(0)
 	_buildOne.SetDeployPayload(nil)
 
 	_buildTwo := testBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(1)
 	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployNumber(0)
+	_buildTwo.SetDeploymentID(0)
 	_buildTwo.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
@@ -38,7 +38,7 @@ func TestBuild_Engine_ListBuilds(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_number", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deployment_id", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "timestamp"}).
 		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", 0, nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0).
 		AddRow(2, 1, nil, 2, 0, "", "", "", "", 0, 0, 0, 0, "", 0, nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0)
 

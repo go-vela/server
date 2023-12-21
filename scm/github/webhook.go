@@ -15,7 +15,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/database"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -73,7 +72,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	case *github.PullRequestEvent:
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
-		return c.processDeploymentEvent(ctx, h, event, db)
+		return c.processDeploymentEvent(ctx, h, event)
 	case *github.IssueCommentEvent:
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
@@ -294,7 +293,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, payload *github.DeploymentEvent, db database.Interface) (*types.Webhook, error) {
+func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -319,7 +318,7 @@ func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, pa
 	b.SetEvent(constants.EventDeploy)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
-	b.SetDeployNumber(payload.GetDeployment().GetID())
+	b.SetDeploymentID(payload.GetDeployment().GetID())
 	b.SetSource(payload.GetDeployment().GetURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDeploy, repo.GetHTMLURL()))
 	b.SetMessage(payload.GetDeployment().GetDescription())
@@ -335,7 +334,7 @@ func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, pa
 	d.SetNumber(payload.GetDeployment().GetID())
 	d.SetURL(payload.GetDeployment().GetURL())
 	d.SetCommit(payload.GetDeployment().GetSHA())
-	d.SetRef(payload.GetDeployment().GetRef())
+	d.SetRef(b.GetRef())
 	d.SetTask(payload.GetDeployment().GetTask())
 	d.SetTarget(payload.GetDeployment().GetEnvironment())
 	d.SetDescription(payload.GetDeployment().GetDescription())
@@ -384,6 +383,8 @@ func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, pa
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
+
+	d.SetRef(b.GetRef())
 
 	return &types.Webhook{
 		Hook:       h,
