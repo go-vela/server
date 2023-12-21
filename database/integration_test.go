@@ -2332,7 +2332,7 @@ func newResources() *Resources {
 	workerOne.SetRunningBuildIDs([]string{"12345"})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	workerOne.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerOne.SetBuildLimit(1)
 
 	workerTwo := new(library.Worker)
@@ -2346,7 +2346,7 @@ func newResources() *Resources {
 	workerTwo.SetRunningBuildIDs([]string{"12345"})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{
