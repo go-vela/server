@@ -1829,7 +1829,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	methods["CountWorkers"] = true
 
 	// list the workers
-	list, err := db.ListWorkers(context.TODO())
+	list, err := db.ListWorkers(context.TODO(), "all", time.Now().Unix(), 0)
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
