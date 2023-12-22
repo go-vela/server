@@ -339,9 +339,9 @@ func RestartBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, b)
 
-	d, err := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
-	if err != nil {
-		logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
+	d, err2 := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
+	if err2 != nil {
+		logger.Errorf("unable to set get deployment for build %s: %v", entry, err2)
 	}
 
 	build := append(d.Builds, b)
