@@ -346,7 +346,11 @@ func RestartBuild(c *gin.Context) {
 	build := append(d.Builds, b)
 
 	d.SetBuilds(build)
+
 	database.FromContext(c).UpdateDeployment(c, d)
+	if err != nil {
+		logger.Errorf("unable to set update deployment for build %s: %v", entry, err)
+	}
 
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
