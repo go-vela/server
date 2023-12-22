@@ -298,8 +298,6 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the pipeline did not already exist in the database
-	//
-	//nolint:dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
@@ -342,6 +340,9 @@ func RestartBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, b)
 
 	d, _ := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
+	if err != nil {
+		logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
+	}
 
 	build := append(d.Builds, b)
 
