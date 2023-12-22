@@ -28,7 +28,6 @@ hooks (
 	status       VARCHAR(250),
 	link         VARCHAR(1000),
 	webhook_id   INTEGER,
-	deployment_id   INTEGER,
 	UNIQUE(repo_id, number)
 );
 `
@@ -52,7 +51,6 @@ hooks (
 	status       TEXT,
 	link         TEXT,
 	webhook_id   INTEGER,
-	deployment_id   INTEGER,
 	UNIQUE(repo_id, number)
 );
 `

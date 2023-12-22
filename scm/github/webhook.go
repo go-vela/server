@@ -318,7 +318,7 @@ func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, pa
 	b.SetEvent(constants.EventDeploy)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
-	b.SetDeploymentID(payload.GetDeployment().GetID())
+	b.SetDeployNumber(payload.GetDeployment().GetID())
 	b.SetSource(payload.GetDeployment().GetURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDeploy, repo.GetHTMLURL()))
 	b.SetMessage(payload.GetDeployment().GetDescription())

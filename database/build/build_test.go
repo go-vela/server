@@ -196,7 +196,7 @@ func testBuild() *library.Build {
 		Started:      new(int64),
 		Finished:     new(int64),
 		Deploy:       new(string),
-		DeploymentID: new(int64),
+		DeployNumber: new(int64),
 		Clone:        new(string),
 		Source:       new(string),
 		Title:        new(string),

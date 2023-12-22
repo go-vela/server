@@ -341,10 +341,9 @@ func RestartBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, b)
 
-	d, _ := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeploymentID())
+	d, _ := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
 
 	build := append(d.Builds, b)
-	//build = append(d.Builds, b)
 
 	d.SetBuilds(build)
 	database.FromContext(c).UpdateDeployment(c, d)
