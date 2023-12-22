@@ -14,8 +14,6 @@ import (
 )
 
 // UpdateDeployment updates an existing deployment in the database.
-//
-//nolint:dupl // ignore similar code with create.go
 func (e *engine) UpdateDeployment(ctx context.Context, d *library.Deployment) (*library.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),

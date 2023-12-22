@@ -12,8 +12,6 @@ import (
 )
 
 // CreateDeployment creates a new deployment in the database.
-//
-//nolint:dupl // ignore similar code with update.go
 func (e *engine) CreateDeployment(ctx context.Context, d *library.Deployment) (*library.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
