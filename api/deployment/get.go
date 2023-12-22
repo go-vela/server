@@ -93,7 +93,7 @@ func GetDeployment(c *gin.Context) {
 	}
 
 	// send API call to database to capture the deployment
-	d, err := database.FromContext(c).GetDeployment(c, int64(number))
+	d, err := database.FromContext(c).GetDeployment(int64(number))
 	if err != nil {
 		// send API call to SCM to capture the deployment
 		dep, err = scm.FromContext(c).GetDeployment(ctx, u, r, int64(number))

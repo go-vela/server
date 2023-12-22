@@ -5,8 +5,6 @@
 package deployment
 
 import (
-	"context"
-
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +12,7 @@ import (
 )
 
 // UpdateDeployment updates an existing deployment in the database.
-func (e *engine) UpdateDeployment(ctx context.Context, d *library.Deployment) (*library.Deployment, error) {
+func (e *engine) UpdateDeployment(d *library.Deployment) (*library.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("updating deployment %d in the database", d.GetID())

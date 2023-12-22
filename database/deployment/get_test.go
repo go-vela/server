@@ -75,7 +75,7 @@ func TestDeployment_Engine_GetDeployment(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetDeployment(context.TODO(), 1)
+			got, err := test.database.GetDeployment(1)
 
 			if test.failure {
 				if err == nil {

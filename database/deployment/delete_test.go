@@ -68,7 +68,7 @@ func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteDeployment(context.TODO(), _deploymentOne)
+			err = test.database.DeleteDeployment(_deploymentOne)
 
 			if test.failure {
 				if err == nil {

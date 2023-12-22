@@ -1,11 +1,8 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package deployment
 
 import (
-	"context"
 	"strconv"
 
 	"github.com/go-vela/types/constants"
@@ -14,7 +11,7 @@ import (
 )
 
 // GetDeployment gets a deployment by ID from the database.
-func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployment, error) {
+func (e *engine) GetDeployment(id int64) (*library.Deployment, error) {
 	e.logger.Tracef("getting deployment %d from the database", id)
 
 	// variable to store query results

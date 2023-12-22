@@ -70,7 +70,7 @@ WHERE "id" = $13`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err = test.database.UpdateDeployment(context.TODO(), _deploymentOne)
+			_, err = test.database.UpdateDeployment(_deploymentOne)
 
 			if test.failure {
 				if err == nil {
