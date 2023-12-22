@@ -104,14 +104,6 @@ func GetDeployment(c *gin.Context) {
 			return
 		}
 
-		// send API call to create the deployment
-		_, err := database.FromContext(c).CreateDeployment(c, dep)
-		if err != nil {
-			retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-		}
-
 	} else {
 		dep = d
 	}
