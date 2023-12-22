@@ -61,8 +61,8 @@ type (
 		logger *logrus.Entry
 
 		build.BuildInterface
-		deployment.DeploymentInterface
 		executable.BuildExecutableInterface
+		deployment.DeploymentInterface
 		hook.HookInterface
 		log.LogInterface
 		pipeline.PipelineInterface

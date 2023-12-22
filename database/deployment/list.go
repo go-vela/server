@@ -60,6 +60,7 @@ func (e *engine) ListDeployments(ctx context.Context) ([]*library.Deployment, er
 			if err2 != nil {
 				return nil, err
 			}
+
 			builds = append(builds, b.ToLibrary())
 		}
 

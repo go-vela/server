@@ -36,11 +36,11 @@ type Interface interface {
 	// BuildInterface defines the interface for builds stored in the database.
 	build.BuildInterface
 
-	// DeploymentInterface defines the interface for deployments stored in the database.
-	deployment.DeploymentInterface
-
 	// BuildExecutableInterface defines the interface for build executables stored in the database.
 	executable.BuildExecutableInterface
+
+	// DeploymentInterface defines the interface for deployments stored in the database.
+	deployment.DeploymentInterface
 
 	// HookInterface defines the interface for hooks stored in the database.
 	hook.HookInterface

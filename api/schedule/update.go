@@ -125,6 +125,7 @@ func UpdateSchedule(c *gin.Context) {
 
 	// set the updated by field using claims
 	s.SetUpdatedBy(u.GetName())
+
 	if input.GetBranch() != "" {
 		s.SetBranch(input.GetBranch())
 	}

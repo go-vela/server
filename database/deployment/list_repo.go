@@ -65,6 +65,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *library.Repo, pa
 			if err2 != nil {
 				return nil, err
 			}
+
 			builds = append(builds, b.ToLibrary())
 		}
 

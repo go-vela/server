@@ -103,7 +103,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		//
 		// The previous occurrence of the schedule must be after the starting time of processing schedules.
 		if !prevTime.After(start) {
-			logrus.Tracef("%s %s: previous occurence not after starting point", scheduleWait, schedule.GetName())
+			logrus.Tracef("%s %s: previous occurrence not after starting point", scheduleWait, schedule.GetName())
 
 			continue
 		}
@@ -277,6 +277,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			// parent should be "1" if it's the first build ran
 			b.SetParent(1)
 		}
+
 		r.SetCounter(r.GetCounter() + 1)
 
 		// set the build link if a web address is provided

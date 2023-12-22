@@ -400,6 +400,81 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 }
 
+func testExecutables(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for pipelines
+	methods := make(map[string]bool)
+	// capture the element type of the pipeline interface
+	element := reflect.TypeOf(new(executable.BuildExecutableInterface)).Elem()
+	// iterate through all methods found in the pipeline interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for pipelines
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	// create the pipelines
+	for _, executable := range resources.Executables {
+		err := db.CreateBuildExecutable(context.TODO(), executable)
+		if err != nil {
+			t.Errorf("unable to create executable %d: %v", executable.GetID(), err)
+		}
+	}
+	methods["CreateBuildExecutable"] = true
+
+	// pop executables for builds
+	for _, executable := range resources.Executables {
+		got, err := db.PopBuildExecutable(context.TODO(), executable.GetBuildID())
+		if err != nil {
+			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
+		}
+		if !cmp.Equal(got, executable) {
+			t.Errorf("PopBuildExecutable() is %v, want %v", got, executable)
+		}
+	}
+	methods["PopBuildExecutable"] = true
+
+	resources.Builds[0].SetStatus(constants.StatusError)
+
+	_, err := db.UpdateBuild(context.TODO(), resources.Builds[0])
+	if err != nil {
+		t.Errorf("unable to update build for clean executables test")
+	}
+
+	err = db.CreateBuildExecutable(context.TODO(), resources.Executables[0])
+	if err != nil {
+		t.Errorf("unable to create executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	count, err := db.CleanBuildExecutables(context.TODO())
+	if err != nil {
+		t.Errorf("unable to clean executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	if count != 1 {
+		t.Errorf("CleanBuildExecutables should have affected 1 row, affected %d", count)
+	}
+
+	_, err = db.PopBuildExecutable(context.TODO(), resources.Builds[0].GetID())
+	if err == nil {
+		t.Errorf("build executable not cleaned")
+	}
+
+	methods["CleanBuildExecutables"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for pipelines", method)
+		}
+	}
+}
+
 func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for deployments
 	methods := make(map[string]bool)
@@ -515,81 +590,6 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for deployments", method)
-		}
-	}
-}
-
-func testExecutables(t *testing.T, db Interface, resources *Resources) {
-	// create a variable to track the number of methods called for pipelines
-	methods := make(map[string]bool)
-	// capture the element type of the pipeline interface
-	element := reflect.TypeOf(new(executable.BuildExecutableInterface)).Elem()
-	// iterate through all methods found in the pipeline interface
-	for i := 0; i < element.NumMethod(); i++ {
-		// skip tracking the methods to create indexes and tables for pipelines
-		// since those are already called when the database engine starts
-		if strings.Contains(element.Method(i).Name, "Index") ||
-			strings.Contains(element.Method(i).Name, "Table") {
-			continue
-		}
-
-		// add the method name to the list of functions
-		methods[element.Method(i).Name] = false
-	}
-
-	// create the pipelines
-	for _, executable := range resources.Executables {
-		err := db.CreateBuildExecutable(context.TODO(), executable)
-		if err != nil {
-			t.Errorf("unable to create executable %d: %v", executable.GetID(), err)
-		}
-	}
-	methods["CreateBuildExecutable"] = true
-
-	// pop executables for builds
-	for _, executable := range resources.Executables {
-		got, err := db.PopBuildExecutable(context.TODO(), executable.GetBuildID())
-		if err != nil {
-			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
-		}
-		if !cmp.Equal(got, executable) {
-			t.Errorf("PopBuildExecutable() is %v, want %v", got, executable)
-		}
-	}
-	methods["PopBuildExecutable"] = true
-
-	resources.Builds[0].SetStatus(constants.StatusError)
-
-	_, err := db.UpdateBuild(context.TODO(), resources.Builds[0])
-	if err != nil {
-		t.Errorf("unable to update build for clean executables test")
-	}
-
-	err = db.CreateBuildExecutable(context.TODO(), resources.Executables[0])
-	if err != nil {
-		t.Errorf("unable to create executable %d: %v", resources.Executables[0].GetID(), err)
-	}
-
-	count, err := db.CleanBuildExecutables(context.TODO())
-	if err != nil {
-		t.Errorf("unable to clean executable %d: %v", resources.Executables[0].GetID(), err)
-	}
-
-	if count != 1 {
-		t.Errorf("CleanBuildExecutables should have affected 1 row, affected %d", count)
-	}
-
-	_, err = db.PopBuildExecutable(context.TODO(), resources.Builds[0].GetID())
-	if err == nil {
-		t.Errorf("build executable not cleaned")
-	}
-
-	methods["CleanBuildExecutables"] = true
-
-	// ensure we called all the methods we expected to
-	for method, called := range methods {
-		if !called {
-			t.Errorf("method %s was not called for pipelines", method)
 		}
 	}
 }

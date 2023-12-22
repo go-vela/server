@@ -66,6 +66,7 @@ func GetDeployment(c *gin.Context) {
 	u := user.Retrieve(c)
 	deployment := util.PathParameter(c, "deployment")
 	ctx := c.Request.Context()
+
 	var (
 		dep *library.Deployment
 		err error
@@ -103,7 +104,6 @@ func GetDeployment(c *gin.Context) {
 
 			return
 		}
-
 	} else {
 		dep = d
 	}
