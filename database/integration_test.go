@@ -527,8 +527,8 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list deployments: %v", err)
 	}
-	if !reflect.DeepEqual(list, resources.Deployments) {
-		t.Errorf("ListDeployments() is %v, want %v", list, resources.Deployments)
+	if diff := cmp.Diff(resources.Deployments, list); diff != "" {
+		t.Errorf("ListDeployments() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListDeployments"] = true
 
@@ -540,8 +540,8 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Deployments) {
 		t.Errorf("ListDeploymentssForRepo() is %v, want %v", count, len(resources.Deployments))
 	}
-	if !reflect.DeepEqual(list, []*library.Deployment{resources.Deployments[1], resources.Deployments[0]}) {
-		t.Errorf("ListDeploymentsForRepo() is %v, want %v", list, []*library.Deployment{resources.Deployments[1], resources.Deployments[0]})
+	if diff := cmp.Diff([]*library.Deployment{resources.Deployments[1], resources.Deployments[0]}, list); diff != "" {
+		t.Errorf("ListDeploymentsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListDeploymentsForRepo"] = true
 
@@ -552,8 +552,8 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get deployment %d for repo %d: %v", deployment.GetID(), repo.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, deployment) {
-			t.Errorf("GetDeploymentForRepo() is %v, want %v", got, deployment)
+		if diff := cmp.Diff(deployment, got); diff != "" {
+			t.Errorf("GetDeploymentForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["GetDeploymentForRepo"] = true
@@ -570,8 +570,8 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get deployment %d by ID: %v", deployment.GetID(), err)
 		}
-		if !reflect.DeepEqual(got, deployment) {
-			t.Errorf("GetDeployment() is %v, want %v", got, deployment)
+		if diff := cmp.Diff(deployment, got); diff != "" {
+			t.Errorf("GetDeployment() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["UpdateDeployment"] = true
