@@ -1,8 +1,8 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
+
+import "context"
 
 const (
 	// CreateRepoIDIndex represents a query to create an
@@ -16,7 +16,7 @@ ON schedules (repo_id);
 )
 
 // CreateScheduleIndexes creates the indexes for the schedules table in the database.
-func (e *engine) CreateScheduleIndexes() error {
+func (e *engine) CreateScheduleIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for schedules table in the database")
 
 	// create the repo_id column index for the schedules table

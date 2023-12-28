@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -23,6 +21,8 @@ func Retrieve(c *gin.Context) *library.Worker {
 // Establish sets the worker in the given context.
 func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+
 		wParam := util.PathParameter(c, "worker")
 		if len(wParam) == 0 {
 			retErr := fmt.Errorf("no worker parameter provided")
@@ -33,7 +33,7 @@ func Establish() gin.HandlerFunc {
 
 		logrus.Debugf("Reading worker %s", wParam)
 
-		w, err := database.FromContext(c).GetWorkerForHostname(wParam)
+		w, err := database.FromContext(c).GetWorkerForHostname(ctx, wParam)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read worker %s: %w", wParam, err)
 			util.HandleError(c, http.StatusNotFound, retErr)

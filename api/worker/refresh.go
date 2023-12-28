@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
@@ -60,6 +58,7 @@ func Refresh(c *gin.Context) {
 	// capture middleware values
 	w := worker.Retrieve(c)
 	cl := claims.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// if we are not using a symmetric token, and the subject does not match the input, request should be denied
 	if !strings.EqualFold(cl.TokenType, constants.ServerWorkerTokenType) && !strings.EqualFold(cl.Subject, w.GetHostname()) {
@@ -79,7 +78,7 @@ func Refresh(c *gin.Context) {
 	w.SetLastCheckedIn(time.Now().Unix())
 
 	// send API call to update the worker
-	err := database.FromContext(c).UpdateWorker(w)
+	_, err := database.FromContext(c).UpdateWorker(ctx, w)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update worker %s: %w", w.GetHostname(), err)
 

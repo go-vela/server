@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -36,7 +35,7 @@ func TestHook_Engine_GetHook(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateHook(_hook)
+	_, err := _sqlite.CreateHook(context.TODO(), _hook)
 	if err != nil {
 		t.Errorf("unable to create test hook for sqlite: %v", err)
 	}
@@ -65,7 +64,7 @@ func TestHook_Engine_GetHook(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetHook(1)
+			got, err := test.database.GetHook(context.TODO(), 1)
 
 			if test.failure {
 				if err == nil {

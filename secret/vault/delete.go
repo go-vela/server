@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 )
 
 // Delete deletes a secret.
-func (c *client) Delete(sType, org, name, path string) error {
+func (c *client) Delete(ctx context.Context, sType, org, name, path string) error {
 	// create log fields from secret metadata
 	fields := logrus.Fields{
 		"org":    org,

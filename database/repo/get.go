@@ -1,17 +1,17 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetRepo gets a repo by ID from the database.
-func (e *engine) GetRepo(id int64) (*library.Repo, error) {
+func (e *engine) GetRepo(ctx context.Context, id int64) (*library.Repo, error) {
 	e.logger.Tracef("getting repo %d from the database", id)
 
 	// variable to store query results

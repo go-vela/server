@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // CountBuildsForDeployment gets the count of builds by deployment URL from the database.
-func (e *engine) CountBuildsForDeployment(d *library.Deployment, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountBuildsForDeployment(ctx context.Context, d *library.Deployment, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetURL(),
 	}).Tracef("getting count of builds for deployment %s from the database", d.GetURL())

@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package vault
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -82,7 +81,7 @@ func TestVault_Get_Org(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.Get("org", "foo", "bar", "baz")
+			got, err := s.Get(context.TODO(), "org", "foo", "bar", "baz")
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
@@ -166,7 +165,7 @@ func TestVault_Get_Repo(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.Get("repo", "foo", "bar", "baz")
+			got, err := s.Get(context.TODO(), "repo", "foo", "bar", "baz")
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
@@ -250,7 +249,7 @@ func TestVault_Get_Shared(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.Get("shared", "foo", "bar", "baz")
+			got, err := s.Get(context.TODO(), "shared", "foo", "bar", "baz")
 
 			if resp.Code != http.StatusOK {
 				t.Errorf("Get returned %v, want %v", resp.Code, http.StatusOK)
@@ -300,7 +299,7 @@ func TestVault_Get_InvalidType(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.Get("invalid", "foo", "bar", "foob")
+			got, err := s.Get(context.TODO(), "invalid", "foo", "bar", "foob")
 			if err == nil {
 				t.Errorf("Get should have returned err")
 			}
@@ -345,7 +344,7 @@ func TestVault_Get_ClosedServer(t *testing.T) {
 			if err != nil {
 				t.Errorf("New returned err: %v", err)
 			}
-			got, err := s.Get("repo", "foo", "bar", "foob")
+			got, err := s.Get(context.TODO(), "repo", "foo", "bar", "foob")
 			if err == nil {
 				t.Errorf("Get should have returned err")
 			}

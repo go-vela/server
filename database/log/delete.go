@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // DeleteLog deletes an existing log from the database.
-func (e *engine) DeleteLog(l *library.Log) error {
+func (e *engine) DeleteLog(ctx context.Context, l *library.Log) error {
 	// check what the log entry is for
 	switch {
 	case l.GetServiceID() > 0:

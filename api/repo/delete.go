@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -59,6 +57,7 @@ func DeleteRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -70,7 +69,7 @@ func DeleteRepo(c *gin.Context) {
 	}).Infof("deleting repo %s", r.GetFullName())
 
 	// send API call to remove the webhook
-	err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+	err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -88,7 +87,7 @@ func DeleteRepo(c *gin.Context) {
 	// Mark the repo as inactive
 	r.SetActive(false)
 
-	_, err = database.FromContext(c).UpdateRepo(r)
+	_, err = database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to set repo %s to inactive: %w", r.GetFullName(), err)
 

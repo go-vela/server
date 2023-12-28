@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package queue
 
@@ -30,10 +28,12 @@ func TestQueue_New(t *testing.T) {
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:  "redis",
-				Address: fmt.Sprintf("redis://%s", _redis.Addr()),
-				Routes:  []string{"foo"},
-				Cluster: false,
+				Driver:     "redis",
+				Address:    fmt.Sprintf("redis://%s", _redis.Addr()),
+				Routes:     []string{"foo"},
+				Cluster:    false,
+				PrivateKey: "bOiFT7Y9e0jpOqaapTa3NzUkAve3VdRvyowgsY/vtlcK5L4RADOh9uTe1UVLdu3l/a0hvhiIkkLidUwVBhASWA==",
+				PublicKey:  "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{

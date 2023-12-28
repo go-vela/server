@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
 	"errors"
 
 	"github.com/go-vela/types/constants"
@@ -16,7 +15,7 @@ import (
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
-func (e *engine) LastHookForRepo(r *library.Repo) (*library.Hook, error) {
+func (e *engine) LastHookForRepo(ctx context.Context, r *library.Repo) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

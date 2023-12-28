@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -18,7 +17,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipelineOne.SetRef("refs/heads/master")
+	_pipelineOne.SetRef("refs/heads/main")
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 
@@ -42,12 +41,12 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(_pipelineOne)
+	_, err := _sqlite.CreatePipeline(context.TODO(), _pipelineOne)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreatePipeline(_pipelineTwo)
+	_, err = _sqlite.CreatePipeline(context.TODO(), _pipelineTwo)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -76,7 +75,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountPipelinesForRepo(&library.Repo{ID: _pipelineOne.RepoID})
+			got, err := test.database.CountPipelinesForRepo(context.TODO(), &library.Repo{ID: _pipelineOne.RepoID})
 
 			if test.failure {
 				if err == nil {

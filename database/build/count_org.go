@@ -1,16 +1,16 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
 
 // CountBuildsForOrg gets the count of builds by org name from the database.
-func (e *engine) CountBuildsForOrg(org string, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("getting count of builds for org %s from the database", org)

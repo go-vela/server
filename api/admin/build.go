@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code
 package admin
@@ -50,13 +48,16 @@ import (
 // AllBuildsQueue represents the API handler to
 // captures all running and pending builds stored in the database.
 func AllBuildsQueue(c *gin.Context) {
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	logrus.Info("Admin: reading running and pending builds")
 
 	// default timestamp to 24 hours ago if user did not provide it as query parameter
 	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
 
 	// send API call to capture pending and running builds
-	b, err := database.FromContext(c).ListPendingAndRunningBuilds(after)
+	b, err := database.FromContext(c).ListPendingAndRunningBuilds(ctx, after)
 	if err != nil {
 		retErr := fmt.Errorf("unable to capture all running and pending builds: %w", err)
 
@@ -103,6 +104,9 @@ func AllBuildsQueue(c *gin.Context) {
 func UpdateBuild(c *gin.Context) {
 	logrus.Info("Admin: updating build in database")
 
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// capture body from API request
 	input := new(library.Build)
 
@@ -116,7 +120,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to update the build
-	b, err := database.FromContext(c).UpdateBuild(input)
+	b, err := database.FromContext(c).UpdateBuild(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %d: %w", input.GetID(), err)
 

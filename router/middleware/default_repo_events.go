@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -13,6 +11,15 @@ import (
 func DefaultRepoEvents(defaultRepoEvents []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("defaultRepoEvents", defaultRepoEvents)
+		c.Next()
+	}
+}
+
+// DefaultRepoEventsMask is a middleware function that attaches the defaultRepoEventsMask
+// to enable the server to override the default repo events using a mask.
+func DefaultRepoEventsMask(defaultRepoEventsMask int64) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("defaultRepoEventsMask", defaultRepoEventsMask)
 		c.Next()
 	}
 }

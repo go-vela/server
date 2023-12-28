@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code
 package admin
@@ -54,6 +52,9 @@ import (
 func UpdateService(c *gin.Context) {
 	logrus.Info("Admin: updating service in database")
 
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// capture body from API request
 	input := new(library.Service)
 
@@ -67,7 +68,7 @@ func UpdateService(c *gin.Context) {
 	}
 
 	// send API call to update the service
-	err = database.FromContext(c).UpdateService(input)
+	s, err := database.FromContext(c).UpdateService(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update service %d: %w", input.GetID(), err)
 
@@ -76,5 +77,5 @@ func UpdateService(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, input)
+	c.JSON(http.StatusOK, s)
 }

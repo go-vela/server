@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -14,7 +14,7 @@ import (
 // ListReposForOrg gets a list of repos by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListReposForOrg(org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
+func (e *engine) ListReposForOrg(ctx context.Context, org, sortBy string, filters map[string]interface{}, page, perPage int) ([]*library.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing repos for org %s from the database", org)
@@ -25,7 +25,7 @@ func (e *engine) ListReposForOrg(org, sortBy string, filters map[string]interfac
 	repos := []*library.Repo{}
 
 	// count the results
-	count, err := e.CountReposForOrg(org, filters)
+	count, err := e.CountReposForOrg(ctx, org, filters)
 	if err != nil {
 		return repos, 0, err
 	}

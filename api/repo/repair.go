@@ -1,21 +1,20 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
@@ -55,6 +54,9 @@ func RepairRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
+	// capture middleware values
+	m := c.MustGet("metadata").(*types.Metadata)
 
 	// update engine logger with API metadata
 	//
@@ -68,7 +70,7 @@ func RepairRepo(c *gin.Context) {
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
 		// send API call to remove the webhook
-		err := scm.FromContext(c).Disable(u, r.GetOrg(), r.GetName())
+		err := scm.FromContext(c).Disable(ctx, u, r.GetOrg(), r.GetName())
 		if err != nil {
 			retErr := fmt.Errorf("unable to delete webhook for %s: %w", r.GetFullName(), err)
 
@@ -77,7 +79,7 @@ func RepairRepo(c *gin.Context) {
 			return
 		}
 
-		hook, err := database.FromContext(c).LastHookForRepo(r)
+		hook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
 
@@ -87,7 +89,7 @@ func RepairRepo(c *gin.Context) {
 		}
 
 		// send API call to create the webhook
-		hook, _, err = scm.FromContext(c).Enable(u, r, hook)
+		hook, _, err = scm.FromContext(c).Enable(ctx, u, r, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create webhook for %s: %w", r.GetFullName(), err)
 
@@ -107,7 +109,7 @@ func RepairRepo(c *gin.Context) {
 
 		hook.SetRepoID(r.GetID())
 
-		_, err = database.FromContext(c).CreateHook(hook)
+		_, err = database.FromContext(c).CreateHook(ctx, hook)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create initialization webhook for %s: %w", r.GetFullName(), err)
 
@@ -117,12 +119,47 @@ func RepairRepo(c *gin.Context) {
 		}
 	}
 
+	// get repo information from the source
+	sourceRepo, _, err := scm.FromContext(c).GetRepo(ctx, u, r)
+	if err != nil {
+		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", sourceRepo.GetFullName(), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// if repo has a name change, then update DB with new name
+	// if repo has an org change, update org as well
+	if sourceRepo.GetName() != r.GetName() || sourceRepo.GetOrg() != r.GetOrg() {
+		h, err := database.FromContext(c).LastHookForRepo(ctx, r)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get last hook for %s: %w", r.GetFullName(), err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		// set sourceRepo PreviousName to old name if name is changed
+		// ignore if repo is transferred and name is unchanged
+		if sourceRepo.GetName() != r.GetName() {
+			sourceRepo.SetPreviousName(r.GetName())
+		}
+
+		r, err = wh.RenameRepository(ctx, h, sourceRepo, c, m)
+		if err != nil {
+			util.HandleError(c, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
 	// if the repo was previously inactive, mark it as active
 	if !r.GetActive() {
 		r.SetActive(true)
 
 		// send API call to update the repo
-		_, err := database.FromContext(c).UpdateRepo(r)
+		_, err := database.FromContext(c).UpdateRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set repo %s to active: %w", r.GetFullName(), err)
 

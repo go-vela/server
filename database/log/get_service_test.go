@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package log
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -42,7 +41,7 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateLog(_log)
+	err := _sqlite.CreateLog(context.TODO(), _log)
 	if err != nil {
 		t.Errorf("unable to create test log for sqlite: %v", err)
 	}
@@ -71,7 +70,7 @@ func TestLog_Engine_GetLogForService(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetLogForService(_service)
+			got, err := test.database.GetLogForService(context.TODO(), _service)
 
 			if test.failure {
 				if err == nil {

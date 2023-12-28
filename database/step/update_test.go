@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package step
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -33,7 +32,7 @@ WHERE "id" = $16`).
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateStep(_step)
+	_, err := _sqlite.CreateStep(_step)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -59,7 +58,7 @@ WHERE "id" = $16`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.UpdateStep(_step)
+			got, err := test.database.UpdateStep(_step)
 
 			if test.failure {
 				if err == nil {
@@ -71,6 +70,10 @@ WHERE "id" = $16`).
 
 			if err != nil {
 				t.Errorf("UpdateStep for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _step) {
+				t.Errorf("UpdateStep for %s returned %s, want %s", test.name, got, _step)
 			}
 		})
 	}

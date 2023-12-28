@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package deployment
 
@@ -82,6 +80,7 @@ func ListDeployments(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -116,7 +115,7 @@ func ListDeployments(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
-	t, err := scm.FromContext(c).GetDeploymentCount(u, r)
+	t, err := scm.FromContext(c).GetDeploymentCount(ctx, u, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
 
@@ -126,7 +125,7 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of deployments for the repo
-	d, err := scm.FromContext(c).GetDeploymentList(u, r, page, perPage)
+	d, err := scm.FromContext(c).GetDeploymentList(ctx, u, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 
@@ -138,7 +137,7 @@ func ListDeployments(c *gin.Context) {
 	dWithBs := []*library.Deployment{}
 
 	for _, deployment := range d {
-		b, _, err := database.FromContext(c).ListBuildsForDeployment(deployment, nil, 1, 3)
+		b, _, err := database.FromContext(c).ListBuildsForDeployment(ctx, deployment, nil, 1, 3)
 		if err != nil {
 			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
 

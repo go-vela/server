@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -23,7 +21,7 @@ const (
   "url": "https://api.github.com/repos/github/octocat/deployments/1",
   "user": "octocat",
   "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
-  "ref": "master",
+  "ref": "main",
   "task": "deploy:vela",
   "target": "production",
   "description": "Deployment request from Vela"
@@ -37,7 +35,7 @@ const (
     "url": "https://api.github.com/repos/github/octocat/deployments/2",
     "user": "octocat",
     "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
-    "ref": "master",
+    "ref": "main",
     "task": "deploy:vela",
     "target": "production",
     "description": "Deployment request from Vela"
@@ -48,7 +46,7 @@ const (
     "url": "https://api.github.com/repos/github/octocat/deployments/1",
     "user": "octocat",
     "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
-    "ref": "master",
+    "ref": "main",
     "task": "deploy:vela",
     "target": "production",
     "description": "Deployment request from Vela"

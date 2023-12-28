@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
@@ -322,12 +320,14 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 				Key:    "org/repo/docker/username",
 				Engine: "native",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/repo/docker/password",
 				Engine: "vault",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -350,6 +350,7 @@ func TestNative_Parse_StagesPipeline(t *testing.T) {
 
 func TestNative_Parse_StepsPipeline(t *testing.T) {
 	// setup types
+	tBool := true
 	client, _ := New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 	want := &yaml.Build{
 		Version: "1",
@@ -357,6 +358,9 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 			Template:    false,
 			Clone:       nil,
 			Environment: []string{"steps", "services", "secrets"},
+			AutoCancel: &yaml.CancelOptions{
+				Running: &tBool,
+			},
 		},
 		Environment: map[string]string{
 			"HELLO": "Hello, Global Environment",
@@ -419,12 +423,14 @@ func TestNative_Parse_StepsPipeline(t *testing.T) {
 				Key:    "org/repo/docker/username",
 				Engine: "native",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/repo/docker/password",
 				Engine: "vault",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 		},
 	}
@@ -458,36 +464,42 @@ func TestNative_Parse_Secrets(t *testing.T) {
 				Key:    "org/repo/docker/username",
 				Engine: "native",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/repo/docker/password",
 				Engine: "vault",
 				Type:   "repo",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_username",
 				Key:    "org/docker/username",
 				Engine: "native",
 				Type:   "org",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/docker/password",
 				Engine: "vault",
 				Type:   "org",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_username",
 				Key:    "org/team/docker/username",
 				Engine: "native",
 				Type:   "shared",
+				Pull:   "build_start",
 			},
 			&yaml.Secret{
 				Name:   "docker_password",
 				Key:    "org/team/docker/password",
 				Engine: "vault",
 				Type:   "shared",
+				Pull:   "build_start",
 			},
 		},
 	}

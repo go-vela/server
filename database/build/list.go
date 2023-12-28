@@ -1,17 +1,17 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListBuilds gets a list of all builds from the database.
-func (e *engine) ListBuilds() ([]*library.Build, error) {
+func (e *engine) ListBuilds(ctx context.Context) ([]*library.Build, error) {
 	e.logger.Trace("listing all builds from the database")
 
 	// variables to store query results and return value
@@ -20,7 +20,7 @@ func (e *engine) ListBuilds() ([]*library.Build, error) {
 	builds := []*library.Build{}
 
 	// count the results
-	count, err := e.CountBuilds()
+	count, err := e.CountBuilds(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
@@ -72,6 +70,7 @@ func UpdatePipeline(c *gin.Context) {
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
 
@@ -170,7 +169,7 @@ func UpdatePipeline(c *gin.Context) {
 	}
 
 	// send API call to update the pipeline
-	p, err = database.FromContext(c).UpdatePipeline(p)
+	p, err = database.FromContext(c).UpdatePipeline(ctx, p)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update pipeline %s: %w", entry, err)
 

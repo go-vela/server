@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -46,12 +45,12 @@ func TestService_Engine_CountServicesForBuild(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateService(_serviceOne)
+	_, err := _sqlite.CreateService(context.TODO(), _serviceOne)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateService(_serviceTwo)
+	_, err = _sqlite.CreateService(context.TODO(), _serviceTwo)
 	if err != nil {
 		t.Errorf("unable to create test service for sqlite: %v", err)
 	}
@@ -82,7 +81,7 @@ func TestService_Engine_CountServicesForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountServicesForBuild(_build, filters)
+			got, err := test.database.CountServicesForBuild(context.TODO(), _build, filters)
 
 			if test.failure {
 				if err == nil {

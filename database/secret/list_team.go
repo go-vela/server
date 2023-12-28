@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
 	"strings"
 
 	"github.com/go-vela/types/constants"
@@ -16,7 +15,7 @@ import (
 // ListSecretsForTeam gets a list of secrets by org and team name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListSecretsForTeam(org, team string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
+func (e *engine) ListSecretsForTeam(ctx context.Context, org, team string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -29,7 +28,7 @@ func (e *engine) ListSecretsForTeam(org, team string, filters map[string]interfa
 	secrets := []*library.Secret{}
 
 	// count the results
-	count, err := e.CountSecretsForTeam(org, team, filters)
+	count, err := e.CountSecretsForTeam(ctx, org, team, filters)
 	if err != nil {
 		return secrets, 0, err
 	}
@@ -86,7 +85,7 @@ func (e *engine) ListSecretsForTeam(org, team string, filters map[string]interfa
 }
 
 // ListSecretsForTeams gets a list of secrets by teams within an org from the database.
-func (e *engine) ListSecretsForTeams(org string, teams []string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
+func (e *engine) ListSecretsForTeams(ctx context.Context, org string, teams []string, filters map[string]interface{}, page, perPage int) ([]*library.Secret, int64, error) {
 	// iterate through the list of teams provided
 	for index, team := range teams {
 		// ensure the team name is lower case
@@ -105,7 +104,7 @@ func (e *engine) ListSecretsForTeams(org string, teams []string, filters map[str
 	secrets := []*library.Secret{}
 
 	// count the results
-	count, err := e.CountSecretsForTeams(org, teams, filters)
+	count, err := e.CountSecretsForTeams(ctx, org, teams, filters)
 	if err != nil {
 		return secrets, 0, err
 	}

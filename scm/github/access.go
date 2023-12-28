@@ -1,20 +1,19 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
 import (
+	"context"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v56/github"
 )
 
 // OrgAccess captures the user's access level for an org.
-func (c *client) OrgAccess(u *library.User, org string) (string, error) {
+func (c *client) OrgAccess(ctx context.Context, u *library.User, org string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -49,29 +48,31 @@ func (c *client) OrgAccess(u *library.User, org string) (string, error) {
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, error) {
+func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
-		"user": u.GetName(),
-	}).Tracef("capturing %s access level to repo %s/%s", u.GetName(), org, repo)
+		"user": name,
+	}).Tracef("capturing %s access level to repo %s/%s", name, org, repo)
 
 	// check if user is accessing repo in personal org
-	if strings.EqualFold(org, u.GetName()) {
+	if strings.EqualFold(org, name) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"repo": repo,
-			"user": u.GetName(),
-		}).Debugf("skipping access level check for user %s with repo %s/%s", u.GetName(), org, repo)
+			"user": name,
+		}).Debugf("skipping access level check for user %s with repo %s/%s", name, org, repo)
 
 		return "admin", nil
 	}
 
 	// create github oauth client with the given token
+	//
+	//nolint:contextcheck // ignore context passing
 	client := c.newClientToken(token)
 
 	// send API call to capture repo access level for user
-	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, u.GetName())
+	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
 	if err != nil {
 		return "", err
 	}
@@ -80,7 +81,7 @@ func (c *client) RepoAccess(u *library.User, token, org, repo string) (string, e
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
+func (c *client) TeamAccess(ctx context.Context, u *library.User, org, team string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -142,7 +143,7 @@ func (c *client) TeamAccess(u *library.User, org, team string) (string, error) {
 }
 
 // ListUsersTeamsForOrg captures the user's teams for an org.
-func (c *client) ListUsersTeamsForOrg(u *library.User, org string) ([]string, error) {
+func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *library.User, org string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),

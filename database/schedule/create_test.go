@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -20,6 +20,7 @@ func TestSchedule_Engine_CreateSchedule(t *testing.T) {
 	_schedule.SetCreatedBy("user1")
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
+	_schedule.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -29,9 +30,9 @@ func TestSchedule_Engine_CreateSchedule(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "schedules"
-("repo_id","active","name","entry","created_at","created_by","updated_at","updated_by","scheduled_at","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
-		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, 1).
+("repo_id","active","name","entry","created_at","created_by","updated_at","updated_by","scheduled_at","branch","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING "id"`).
+		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, "main", 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
@@ -58,7 +59,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateSchedule(_schedule)
+			got, err := test.database.CreateSchedule(context.TODO(), _schedule)
 
 			if test.failure {
 				if err == nil {
@@ -70,6 +71,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("CreateSchedule for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _schedule) {
+				t.Errorf("CreateSchedule for %s returned %s, want %s", test.name, got, _schedule)
 			}
 		})
 	}

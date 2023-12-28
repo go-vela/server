@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
@@ -99,13 +97,14 @@ func ListSecrets(c *gin.Context) {
 	t := util.PathParameter(c, "type")
 	o := util.PathParameter(c, "org")
 	n := util.PathParameter(c, "name")
+	ctx := c.Request.Context()
 
 	var teams []string
 	// get list of user's teams if type is shared secret and team is '*'
 	if t == constants.SecretShared && n == "*" {
 		var err error
 
-		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(u, o)
+		teams, err = scm.FromContext(c).ListUsersTeamsForOrg(ctx, u, o)
 		if err != nil {
 			retErr := fmt.Errorf("unable to list users %s teams for org %s: %w", u.GetName(), o, err)
 
@@ -164,7 +163,7 @@ func ListSecrets(c *gin.Context) {
 	}
 
 	// send API call to capture the total number of secrets
-	total, err := secret.FromContext(c, e).Count(t, o, n, teams)
+	total, err := secret.FromContext(c, e).Count(ctx, t, o, n, teams)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get secret count for %s from %s service: %w", entry, e, err)
 
@@ -177,7 +176,7 @@ func ListSecrets(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of secrets
-	s, err := secret.FromContext(c, e).List(t, o, n, page, perPage, teams)
+	s, err := secret.FromContext(c, e).List(ctx, t, o, n, page, perPage, teams)
 	if err != nil {
 		retErr := fmt.Errorf("unable to list secrets for %s from %s service: %w", entry, e, err)
 

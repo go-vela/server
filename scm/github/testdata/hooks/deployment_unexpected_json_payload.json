@@ -5,7 +5,7 @@
     "id": 145988746,
     "node_id": "MDEwOkRlcGxveW1lbnQxNDU5ODg3NDY=",
     "sha": "f95f852bd8fca8fcc58a9a2d6c842781e32a215e",
-    "ref": "master",
+    "ref": "main",
     "task": "deploy",
     "payload": {
       "foo": {
@@ -132,7 +132,7 @@
     "forks": 1,
     "open_issues": 2,
     "watchers": 0,
-    "default_branch": "master"
+    "default_branch": "main"
   },
   "sender": {
     "login": "Codertocat",

@@ -1,11 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code with create.go
 package repo
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -15,7 +14,7 @@ import (
 )
 
 // UpdateRepo updates an existing repo in the database.
-func (e *engine) UpdateRepo(r *library.Repo) (*library.Repo, error) {
+func (e *engine) UpdateRepo(ctx context.Context, r *library.Repo) (*library.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

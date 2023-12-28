@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -38,6 +38,15 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
 		// set to skip creating tables and indexes in the build engine
 		e.config.SkipCreation = skipCreation
+
+		return nil
+	}
+}
+
+// WithContext sets the context in the database engine for Builds.
+func WithContext(ctx context.Context) EngineOpt {
+	return func(e *engine) error {
+		e.ctx = ctx
 
 		return nil
 	}

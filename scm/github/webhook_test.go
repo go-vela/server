@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
@@ -54,7 +52,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("push")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -64,7 +62,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
@@ -78,18 +76,17 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -133,7 +130,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("push")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -143,7 +140,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
@@ -157,18 +154,17 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 	wantBuild.SetBaseRef("")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -212,7 +208,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -222,7 +218,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -237,20 +233,21 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetBranch("master")
+	wantBuild.SetBranch("main")
 	wantBuild.SetRef("refs/pull/1/head")
-	wantBuild.SetBaseRef("master")
+	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
 	want := &types.Webhook{
-		Comment:  "",
-		PRNumber: wantHook.GetNumber(),
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		PullRequest: types.PullRequest{
+			Number: wantHook.GetNumber(),
+		},
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -294,18 +291,17 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -349,18 +345,17 @@ func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
 	wantHook.SetCreated(time.Now().UTC().Unix())
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -453,7 +448,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("deployment")
@@ -465,7 +460,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -480,8 +475,8 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 
 	type args struct {
 		file              string
@@ -523,13 +518,12 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
 
 			want := &types.Webhook{
-				Comment: "",
-				Hook:    tt.args.hook,
-				Repo:    tt.args.repo,
-				Build:   tt.args.build,
+				Hook:  tt.args.hook,
+				Repo:  tt.args.repo,
+				Build: tt.args.build,
 			}
 
-			got, err := client.ProcessWebhook(request)
+			got, err := client.ProcessWebhook(context.TODO(), request)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ProcessWebhook() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -573,7 +567,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
 	wantHook.SetWebhookID(123456)
 	wantHook.SetCreated(time.Now().UTC().Unix())
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent("deployment")
@@ -585,7 +579,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -600,17 +594,16 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetBranch("master")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
-		Build:   wantBuild,
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -657,13 +650,12 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -710,13 +702,12 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    nil,
-		Build:   nil,
+		Hook:  wantHook,
+		Repo:  nil,
+		Build: nil,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -753,7 +744,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(request, new(library.Repo))
+	err = client.VerifyWebhook(context.TODO(), request, new(library.Repo))
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -770,7 +761,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	r.SetFullName("Codertocat/Hello-World")
 	r.SetLink("https://github.com/Codertocat/Hello-World")
 	r.SetClone("https://github.com/Codertocat/Hello-World.git")
-	r.SetBranch("master")
+	r.SetBranch("main")
 	r.SetPrivate(false)
 
 	// setup request
@@ -794,7 +785,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(request, r)
+	err = client.VerifyWebhook(context.TODO(), request, r)
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -842,7 +833,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -859,14 +850,16 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantBuild.SetRef("refs/pull/1/head")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: wantHook.GetNumber(),
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		PullRequest: types.PullRequest{
+			Comment: "ok to test",
+			Number:  wantHook.GetNumber(),
+		},
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -919,7 +912,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
 	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
@@ -933,17 +926,19 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantBuild.SetSender("Codertocat")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
-	wantBuild.SetRef("refs/heads/master")
+	wantBuild.SetRef("refs/heads/main")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     wantRepo,
-		Build:    wantBuild,
+		PullRequest: types.PullRequest{
+			Comment: "ok to test",
+			Number:  0,
+		},
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -991,14 +986,10 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
 	want := &types.Webhook{
-		Comment:  "ok to test",
-		PRNumber: 0,
-		Hook:     wantHook,
-		Repo:     nil,
-		Build:    nil,
+		Hook: wantHook,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1041,7 +1032,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction(constants.ActionRenamed)
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1052,18 +1043,16 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Codertocat/Hello-Old-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1106,7 +1095,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction(constants.ActionTransferred)
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1117,18 +1106,16 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
-	wantRepo.SetPreviousName("Old-Codertocat/Hello-World")
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1171,7 +1158,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction("archived")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1182,17 +1169,16 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1251,12 +1237,11 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetPrivate(false)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1299,7 +1284,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantHook.SetHost("github.com")
 	wantHook.SetEvent(constants.EventRepository)
 	wantHook.SetEventAction("publicized")
-	wantHook.SetBranch("master")
+	wantHook.SetBranch("main")
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
@@ -1310,17 +1295,16 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetFullName("Codertocat/Hello-World")
 	wantRepo.SetLink("https://octocoders.github.io/Codertocat/Hello-World")
 	wantRepo.SetClone("https://octocoders.github.io/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("master")
+	wantRepo.SetBranch("main")
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
 	want := &types.Webhook{
-		Comment: "",
-		Hook:    wantHook,
-		Repo:    wantRepo,
+		Hook: wantHook,
+		Repo: wantRepo,
 	}
 
-	got, err := client.ProcessWebhook(request)
+	got, err := client.ProcessWebhook(context.TODO(), request)
 
 	if err != nil {
 		t.Errorf("ProcessWebhook returned err: %v", err)
@@ -1374,7 +1358,7 @@ func TestGithub_Redeliver_Webhook(t *testing.T) {
 	client, _ := NewTest(s.URL, "https://foo.bar.com")
 
 	// run test
-	err := client.RedeliverWebhook(ctx, u, _repo, _hook)
+	err := client.RedeliverWebhook(context.TODO(), u, _repo, _hook)
 
 	if err != nil {
 		t.Errorf("RedeliverWebhook returned err: %v", err)
@@ -1422,7 +1406,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	ghClient := client.newClientToken(*u.Token)
 
 	// run test
-	got, err := client.getDeliveryID(ctx, ghClient, _repo, _hook)
+	got, err := client.getDeliveryID(context.TODO(), ghClient, _repo, _hook)
 
 	if err != nil {
 		t.Errorf("RedeliverWebhook returned err: %v", err)

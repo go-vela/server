@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package redis
 
@@ -46,7 +44,9 @@ func Strings(v []string) *[]string { return &v }
 
 // setup global variables used for testing.
 var (
-	_build = &library.Build{
+	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
+	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
+	_build             = &library.Build{
 		ID:           Int64(1),
 		Number:       Int(1),
 		Parent:       Int(1),
@@ -65,8 +65,8 @@ var (
 		Commit:       String("48afb5bdc41ad69bf22588491333f7cf71135163"),
 		Sender:       String("OctoKitty"),
 		Author:       String("OctoKitty"),
-		Branch:       String("master"),
-		Ref:          String("refs/heads/master"),
+		Branch:       String("main"),
+		Ref:          String("refs/heads/main"),
 		BaseRef:      String(""),
 		Host:         String("example.company.com"),
 		Runtime:      String("docker"),
@@ -80,7 +80,7 @@ var (
 		FullName:    String("github/octocat"),
 		Link:        String("https://github.com/github/octocat"),
 		Clone:       String("https://github.com/github/octocat.git"),
-		Branch:      String("master"),
+		Branch:      String("main"),
 		Timeout:     Int64(60),
 		Visibility:  String("public"),
 		Private:     Bool(false),

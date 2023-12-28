@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
@@ -80,6 +78,7 @@ func ListHooks(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -114,7 +113,7 @@ func ListHooks(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of steps for the build
-	h, t, err := database.FromContext(c).ListHooksForRepo(r, page, perPage)
+	h, t, err := database.FromContext(c).ListHooksForRepo(ctx, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get hooks for repo %s: %w", r.GetFullName(), err)
 

@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -16,7 +15,7 @@ func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
-	_pipeline.SetRef("refs/heads/master")
+	_pipeline.SetRef("refs/heads/main")
 	_pipeline.SetType("yaml")
 	_pipeline.SetVersion("1")
 
@@ -31,7 +30,7 @@ func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreatePipeline(_pipeline)
+	_, err := _sqlite.CreatePipeline(context.TODO(), _pipeline)
 	if err != nil {
 		t.Errorf("unable to create test pipeline for sqlite: %v", err)
 	}
@@ -57,7 +56,7 @@ func TestPipeline_Engine_DeletePipeline(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeletePipeline(_pipeline)
+			err = test.database.DeletePipeline(context.TODO(), _pipeline)
 
 			if test.failure {
 				if err == nil {

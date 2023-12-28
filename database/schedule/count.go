@@ -1,15 +1,14 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 )
 
 // CountSchedules gets the count of all schedules from the database.
-func (e *engine) CountSchedules() (int64, error) {
+func (e *engine) CountSchedules(ctx context.Context) (int64, error) {
 	e.logger.Tracef("getting count of all schedules from the database")
 
 	// variable to store query results

@@ -35,9 +35,7 @@ linters-settings:
   # https://github.com/denis-tingaikin/go-header
   goheader:
     template: |-
-      Copyright (c) {{ YEAR }} Target Brands, Inc. All rights reserved.
-      
-      Use of this source code is governed by the LICENSE file in this repository.
+      SPDX-License-Identifier: Apache-2.0
 
   # https://github.com/client9/misspell
   misspell:

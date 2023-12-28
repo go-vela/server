@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package pipeline
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // DeletePipeline deletes an existing pipeline from the database.
-func (e *engine) DeletePipeline(p *library.Pipeline) error {
+func (e *engine) DeletePipeline(ctx context.Context, p *library.Pipeline) error {
 	e.logger.WithFields(logrus.Fields{
 		"pipeline": p.GetCommit(),
 	}).Tracef("deleting pipeline %s from the database", p.GetCommit())

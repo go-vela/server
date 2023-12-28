@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -41,6 +39,7 @@ import (
 func GetSourceRepos(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -54,7 +53,7 @@ func GetSourceRepos(c *gin.Context) {
 	output := make(map[string][]library.Repo)
 
 	// send API call to capture the list of repos for the user
-	srcRepos, err := scm.FromContext(c).ListUserRepos(u)
+	srcRepos, err := scm.FromContext(c).ListUserRepos(ctx, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get SCM repos for user %s: %w", u.GetName(), err)
 
@@ -88,7 +87,7 @@ func GetSourceRepos(c *gin.Context) {
 
 		for page > 0 {
 			// send API call to capture the list of repos for the org
-			dbReposPart, _, err := database.FromContext(c).ListReposForOrg(org, "name", filters, page, 100)
+			dbReposPart, _, err := database.FromContext(c).ListReposForOrg(ctx, org, "name", filters, page, 100)
 			if err != nil {
 				retErr := fmt.Errorf("unable to get repos for org %s: %w", org, err)
 

@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // ListHooksForRepo gets a list of hooks by repo ID from the database.
-func (e *engine) ListHooksForRepo(r *library.Repo, page, perPage int) ([]*library.Hook, int64, error) {
+func (e *engine) ListHooksForRepo(ctx context.Context, r *library.Repo, page, perPage int) ([]*library.Hook, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -24,7 +24,7 @@ func (e *engine) ListHooksForRepo(r *library.Repo, page, perPage int) ([]*librar
 	hooks := []*library.Hook{}
 
 	// count the results
-	count, err := e.CountHooksForRepo(r)
+	count, err := e.CountHooksForRepo(ctx, r)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package middleware
 
@@ -20,7 +18,8 @@ func TestMiddleware_Queue(t *testing.T) {
 	// setup types
 	var got queue.Service
 
-	want, _ := redis.NewTest()
+	// signing keys are irrelevant here
+	want, _ := redis.NewTest("", "")
 
 	// setup context
 	gin.SetMode(gin.TestMode)

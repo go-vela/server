@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetUserForName gets a user by name from the database.
-func (e *engine) GetUserForName(name string) (*library.User, error) {
+func (e *engine) GetUserForName(ctx context.Context, name string) (*library.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": name,
 	}).Tracef("getting user %s from the database", name)

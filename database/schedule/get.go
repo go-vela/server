@@ -1,17 +1,16 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetSchedule gets a schedule by ID from the database.
-func (e *engine) GetSchedule(id int64) (*library.Schedule, error) {
+func (e *engine) GetSchedule(ctx context.Context, id int64) (*library.Schedule, error) {
 	e.logger.Tracef("getting schedule %d from the database", id)
 
 	// variable to store query results

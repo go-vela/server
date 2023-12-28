@@ -1,8 +1,8 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
+
+import "context"
 
 const (
 	// CreateUserRefreshIndex represents a query to create an
@@ -16,7 +16,7 @@ ON users (refresh_token);
 )
 
 // CreateUserIndexes creates the indexes for the users table in the database.
-func (e *engine) CreateUserIndexes() error {
+func (e *engine) CreateUserIndexes(ctx context.Context) error {
 	e.logger.Tracef("creating indexes for users table in the database")
 
 	// create the refresh_token column index for the users table

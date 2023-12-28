@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package queue
 
@@ -23,10 +21,11 @@ func TestQueue_Setup_Redis(t *testing.T) {
 	defer _redis.Close()
 
 	_setup := &Setup{
-		Driver:  "redis",
-		Address: fmt.Sprintf("redis://%s", _redis.Addr()),
-		Routes:  []string{"foo"},
-		Cluster: false,
+		Driver:    "redis",
+		Address:   fmt.Sprintf("redis://%s", _redis.Addr()),
+		Routes:    []string{"foo"},
+		Cluster:   false,
+		PublicKey: "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 	}
 
 	_, err = _setup.Redis()
@@ -63,19 +62,21 @@ func TestQueue_Setup_Validate(t *testing.T) {
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:  "redis",
-				Address: "redis://redis.example.com",
-				Routes:  []string{"foo"},
-				Cluster: false,
+				Driver:    "redis",
+				Address:   "redis://redis.example.com",
+				Routes:    []string{"foo"},
+				Cluster:   false,
+				PublicKey: "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{
 			failure: false,
 			setup: &Setup{
-				Driver:  "kafka",
-				Address: "kafka://kafka.example.com",
-				Routes:  []string{"foo"},
-				Cluster: false,
+				Driver:    "kafka",
+				Address:   "kafka://kafka.example.com",
+				Routes:    []string{"foo"},
+				Cluster:   false,
+				PublicKey: "CuS+EQAzofbk3tVFS3bt5f2tIb4YiJJC4nVMFQYQElg=",
 			},
 		},
 		{

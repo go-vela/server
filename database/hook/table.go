@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -57,7 +57,7 @@ hooks (
 )
 
 // CreateHookTable creates the hooks table in the database.
-func (e *engine) CreateHookTable(driver string) error {
+func (e *engine) CreateHookTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating hooks table in the database")
 
 	// handle the driver provided to create the table

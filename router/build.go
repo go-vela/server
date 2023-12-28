@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package router
 
@@ -23,9 +21,11 @@ import (
 // GET    /api/v1/repos/:org/:repo/builds/:build
 // PUT    /api/v1/repos/:org/:repo/builds/:build
 // DELETE /api/v1/repos/:org/:repo/builds/:build
+// POST   /api/v1/repos/:org/:repo/builds/:build/approve
 // DELETE /api/v1/repos/:org/:repo/builds/:build/cancel
 // GET    /api/v1/repos/:org/:repo/builds/:build/logs
 // GET    /api/v1/repos/:org/:repo/builds/:build/token
+// GET    /api/v1/repos/:org/:repo/builds/:build/executable
 // POST   /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services
 // GET    /api/v1/repos/:org/:repo/builds/:build/services/:service
@@ -58,9 +58,12 @@ func BuildHandlers(base *gin.RouterGroup) {
 			b.GET("", perm.MustRead(), build.GetBuild)
 			b.PUT("", perm.MustBuildAccess(), middleware.Payload(), build.UpdateBuild)
 			b.DELETE("", perm.MustPlatformAdmin(), build.DeleteBuild)
+			b.POST("/approve", perm.MustAdmin(), build.ApproveBuild)
 			b.DELETE("/cancel", executors.Establish(), perm.MustWrite(), build.CancelBuild)
 			b.GET("/logs", perm.MustRead(), log.ListLogsForBuild)
 			b.GET("/token", perm.MustWorkerAuthToken(), build.GetBuildToken)
+			b.GET("/graph", perm.MustRead(), build.GetBuildGraph)
+			b.GET("/executable", perm.MustBuildAccess(), build.GetBuildExecutable)
 
 			// Service endpoints
 			// * Log endpoints

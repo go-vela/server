@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -74,6 +72,7 @@ func UpdateBuild(c *gin.Context) {
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -151,7 +150,7 @@ func UpdateBuild(c *gin.Context) {
 	}
 
 	// send API call to update the build
-	b, err = database.FromContext(c).UpdateBuild(b)
+	b, err = database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update build %s: %w", entry, err)
 
@@ -169,13 +168,13 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError {
 		// send API call to capture the repo owner
-		u, err := database.FromContext(c).GetUser(r.GetUserID())
+		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 		if err != nil {
 			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
 		}
 
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}

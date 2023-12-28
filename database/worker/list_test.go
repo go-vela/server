@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -47,12 +46,12 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateWorker(_workerOne)
+	_, err := _sqlite.CreateWorker(context.TODO(), _workerOne)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateWorker(_workerTwo)
+	_, err = _sqlite.CreateWorker(context.TODO(), _workerTwo)
 	if err != nil {
 		t.Errorf("unable to create test worker for sqlite: %v", err)
 	}
@@ -81,7 +80,7 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListWorkers()
+			got, err := test.database.ListWorkers(context.TODO())
 
 			if test.failure {
 				if err == nil {

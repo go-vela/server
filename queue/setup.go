@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package queue
 
@@ -30,6 +28,10 @@ type Setup struct {
 	Routes []string
 	// specifies the timeout for pop requests for the queue client
 	Timeout time.Duration
+	// private key in base64 used for signing items pushed to the queue
+	PrivateKey string
+	// public key in base64 used for opening items popped from the queue
+	PublicKey string
 }
 
 // Redis creates and returns a Vela service capable
@@ -45,6 +47,8 @@ func (s *Setup) Redis() (Service, error) {
 		redis.WithChannels(s.Routes...),
 		redis.WithCluster(s.Cluster),
 		redis.WithTimeout(s.Timeout),
+		redis.WithPrivateKey(s.PrivateKey),
+		redis.WithPublicKey(s.PublicKey),
 	)
 }
 
@@ -84,6 +88,10 @@ func (s *Setup) Validate() error {
 	// verify queue routes were provided
 	if len(s.Routes) == 0 {
 		return fmt.Errorf("no queue routes provided")
+	}
+
+	if len(s.PublicKey) == 0 {
+		return fmt.Errorf("no queue public key was provided")
 	}
 
 	// setup is valid

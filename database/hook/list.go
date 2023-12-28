@@ -1,17 +1,17 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListHooks gets a list of all hooks from the database.
-func (e *engine) ListHooks() ([]*library.Hook, error) {
+func (e *engine) ListHooks(ctx context.Context) ([]*library.Hook, error) {
 	e.logger.Trace("listing all hooks from the database")
 
 	// variables to store query results and return value
@@ -20,7 +20,7 @@ func (e *engine) ListHooks() ([]*library.Hook, error) {
 	hooks := []*library.Hook{}
 
 	// count the results
-	count, err := e.CountHooks()
+	count, err := e.CountHooks(ctx)
 	if err != nil {
 		return nil, err
 	}

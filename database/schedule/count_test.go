@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -21,6 +20,7 @@ func TestSchedule_Engine_CountSchedules(t *testing.T) {
 	_scheduleOne.SetCreatedBy("user1")
 	_scheduleOne.SetUpdatedAt(1)
 	_scheduleOne.SetUpdatedBy("user2")
+	_scheduleOne.SetBranch("main")
 
 	_scheduleTwo := testSchedule()
 	_scheduleTwo.SetID(2)
@@ -31,6 +31,7 @@ func TestSchedule_Engine_CountSchedules(t *testing.T) {
 	_scheduleTwo.SetCreatedBy("user1")
 	_scheduleTwo.SetUpdatedAt(1)
 	_scheduleTwo.SetUpdatedBy("user2")
+	_scheduleTwo.SetBranch("main")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -44,12 +45,12 @@ func TestSchedule_Engine_CountSchedules(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateSchedule(_scheduleOne)
+	_, err := _sqlite.CreateSchedule(context.TODO(), _scheduleOne)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
 
-	err = _sqlite.CreateSchedule(_scheduleTwo)
+	_, err = _sqlite.CreateSchedule(context.TODO(), _scheduleTwo)
 	if err != nil {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
@@ -78,7 +79,7 @@ func TestSchedule_Engine_CountSchedules(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountSchedules()
+			got, err := test.database.CountSchedules(context.TODO())
 
 			if test.failure {
 				if err == nil {

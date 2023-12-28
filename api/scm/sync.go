@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package scm
 
@@ -19,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// swagger:operation GET /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
+// swagger:operation PATCH /api/v1/scm/repos/{org}/{repo}/sync scm SyncRepo
 //
 // Sync up scm service and database in the context of a specific repo
 //
@@ -43,7 +41,17 @@ import (
 //   '200':
 //     description: Successfully synchronized repo
 //     schema:
-//     type: string
+//       "$ref": "#/definitions/Repo"
+//   '204':
+//     description: Successful request resulting in no change
+//   '301':
+//     description: Repo has moved permanently
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '403':
+//     description: User has been forbidden access to repository
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to synchronize repo
 //     schema:
@@ -59,6 +67,7 @@ func SyncRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -72,32 +81,40 @@ func SyncRepo(c *gin.Context) {
 	logger.Infof("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
-	_, err := scm.FromContext(c).GetRepo(u, r)
+	_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, r)
 
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
-		// set repo to inactive - do not delete
-		r.SetActive(false)
+		if respCode == http.StatusNotFound {
+			// set repo to inactive - do not delete
+			r.SetActive(false)
 
-		// update repo in database
-		_, err := database.FromContext(c).UpdateRepo(r)
-		if err != nil {
-			retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+			// update repo in database
+			r, err = database.FromContext(c).UpdateRepo(ctx, r)
+			if err != nil {
+				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
-			util.HandleError(c, http.StatusInternalServerError, retErr)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			// exit with success as hook sync will be unnecessary
+			c.JSON(http.StatusOK, r)
 
 			return
 		}
 
-		// exit with success as hook sync will be unnecessary
-		c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+		retErr := fmt.Errorf("error while retrieving repo %s from %s: %w", r.GetFullName(), scm.FromContext(c).Driver(), err)
+
+		util.HandleError(c, respCode, retErr)
 
 		return
 	}
 
 	// verify the user is an admin of the repo
 	// we cannot use our normal permissions check due to the possibility the repo was deleted
-	perm, err := scm.FromContext(c).RepoAccess(u, u.GetToken(), o, r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), o, r.GetName())
 	if err != nil {
 		logger.Errorf("unable to get user %s access level for org %s", u.GetName(), o)
 	}
@@ -110,10 +127,11 @@ func SyncRepo(c *gin.Context) {
 		return
 	}
 
-	// if we have webhook validation, update the repo hook in the SCM
-	if c.Value("webhookvalidation").(bool) {
+	// if we have webhook validation and the repo is active in the database,
+	// update the repo hook in the SCM
+	if c.Value("webhookvalidation").(bool) && r.GetActive() {
 		// grab last hook from repo to fetch the webhook ID
-		lastHook, err := database.FromContext(c).LastHookForRepo(r)
+		lastHook, err := database.FromContext(c).LastHookForRepo(ctx, r)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve last hook for repo %s: %w", r.GetFullName(), err)
 
@@ -123,8 +141,27 @@ func SyncRepo(c *gin.Context) {
 		}
 
 		// update webhook
-		err = scm.FromContext(c).Update(u, r, lastHook.GetWebhookID())
+		webhookExists, err := scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())
 		if err != nil {
+			// if webhook has been manually deleted from GitHub,
+			// set to inactive in database
+			if !webhookExists {
+				r.SetActive(false)
+
+				r, err = database.FromContext(c).UpdateRepo(ctx, r)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
+				c.JSON(http.StatusOK, r)
+
+				return
+			}
+
 			retErr := fmt.Errorf("unable to update repo webhook for %s: %w", r.GetFullName(), err)
 
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -133,5 +170,5 @@ func SyncRepo(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("repo %s synced", r.GetFullName()))
+	c.Status(http.StatusNoContent)
 }

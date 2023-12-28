@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code
 package admin
@@ -66,7 +64,7 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	// send API call to update the step
-	err = database.FromContext(c).UpdateStep(input)
+	s, err := database.FromContext(c).UpdateStep(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %d: %w", input.GetID(), err)
 
@@ -75,5 +73,5 @@ func UpdateStep(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, input)
+	c.JSON(http.StatusOK, s)
 }

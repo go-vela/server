@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // DeleteSecret deletes an existing secret from the database.
-func (e *engine) DeleteSecret(s *library.Secret) error {
+func (e *engine) DeleteSecret(ctx context.Context, s *library.Secret) error {
 	// handle the secret based off the type
 	//
 	//nolint:dupl // ignore similar code with update.go

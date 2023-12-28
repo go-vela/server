@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -30,11 +30,11 @@ const (
 	scheduleWait = "waiting to trigger build for schedule"
 )
 
-func processSchedules(start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
-	schedules, err := database.ListActiveSchedules()
+	schedules, err := database.ListActiveSchedules(ctx)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		// This is needed to ensure we are not dealing with a stale schedule since we fetch
 		// all schedules once and iterate through that list which can take a significant
 		// amount of time to get to the end of the list.
-		schedule, err := database.GetSchedule(s.GetID())
+		schedule, err := database.GetSchedule(ctx, s.GetID())
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -115,7 +115,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		schedule.SetScheduledAt(time.Now().UTC().Unix())
 
 		// send API call to update schedule for ensuring scheduled_at field is set
-		err = database.UpdateSchedule(schedule, false)
+		_, err = database.UpdateSchedule(ctx, schedule, false)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -123,7 +123,7 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 		}
 
 		// process the schedule and trigger a new build
-		err = processSchedule(schedule, compiler, database, metadata, queue, scm)
+		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm, allowList)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -135,11 +135,16 @@ func processSchedules(start time.Time, compiler compiler.Engine, database databa
 }
 
 //nolint:funlen // ignore function length and number of statements
-func processSchedule(s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	// send API call to capture the repo for the schedule
-	r, err := database.GetRepo(s.GetRepoID())
+	r, err := database.GetRepo(ctx, s.GetRepoID())
 	if err != nil {
 		return fmt.Errorf("unable to fetch repo: %w", err)
+	}
+
+	// ensure repo has not been removed from allow list
+	if !util.CheckAllowlist(r, allowList) {
+		return fmt.Errorf("skipping schedule: repo %s no longer on allow list", r.GetFullName())
 	}
 
 	logrus.Tracef("processing schedule %s/%s", r.GetFullName(), s.GetName())
@@ -155,13 +160,13 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to capture the owner for the repo
-	u, err := database.GetUser(r.GetUserID())
+	u, err := database.GetUser(ctx, r.GetUserID())
 	if err != nil {
 		return fmt.Errorf("unable to get owner for repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to confirm repo owner has at least write access to repo
-	_, err = scm.RepoAccess(u, u.GetToken(), r.GetOrg(), r.GetName())
+	_, err = scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		return fmt.Errorf("%s does not have at least write access for repo %s", u.GetName(), r.GetFullName())
 	}
@@ -172,7 +177,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to capture the number of pending or running builds for the repo
-	builds, err := database.CountBuildsForRepo(r, filters)
+	builds, err := database.CountBuildsForRepo(ctx, r, filters)
 	if err != nil {
 		return fmt.Errorf("unable to get count of builds for repo %s: %w", r.GetFullName(), err)
 	}
@@ -183,7 +188,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	}
 
 	// send API call to capture the commit sha for the branch
-	_, commit, err := scm.GetBranch(u, r)
+	_, commit, err := scm.GetBranch(ctx, u, r, s.GetBranch())
 	if err != nil {
 		return fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 	}
@@ -192,7 +197,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 
 	b := new(library.Build)
 	b.SetAuthor(s.GetCreatedBy())
-	b.SetBranch(r.GetBranch())
+	b.SetBranch(s.GetBranch())
 	b.SetClone(r.GetClone())
 	b.SetCommit(commit)
 	b.SetDeploy(s.GetName())
@@ -236,10 +241,10 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		}
 
 		// send API call to attempt to capture the pipeline
-		pipeline, err = database.GetPipelineForRepo(b.GetCommit(), r)
+		pipeline, err = database.GetPipelineForRepo(ctx, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			config, err = scm.ConfigBackoff(u, r, b.GetCommit())
+			config, err = scm.ConfigBackoff(ctx, u, r, b.GetCommit())
 			if err != nil {
 				return fmt.Errorf("unable to get pipeline config for %s/%s: %w", r.GetFullName(), b.GetCommit(), err)
 			}
@@ -248,7 +253,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
-		r, err = database.GetRepoForOrg(r.GetOrg(), r.GetName())
+		r, err = database.GetRepoForOrg(ctx, r.GetOrg(), r.GetName())
 		if err != nil {
 			err = fmt.Errorf("unable to get repo %s: %w", r.GetFullName(), err)
 
@@ -325,7 +330,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 			pipeline.SetRef(b.GetRef())
 
 			// send API call to create the pipeline
-			pipeline, err = database.CreatePipeline(pipeline)
+			pipeline, err = database.CreatePipeline(ctx, pipeline)
 			if err != nil {
 				err = fmt.Errorf("failed to create pipeline for %s: %w", r.GetFullName(), err)
 
@@ -350,7 +355,7 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = build.PlanBuild(database, p, b, r)
+		err = build.PlanBuild(ctx, database, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
@@ -373,25 +378,47 @@ func processSchedule(s *library.Schedule, compiler compiler.Engine, database dat
 	} // end of retry loop
 
 	// send API call to update repo for ensuring counter is incremented
-	r, err = database.UpdateRepo(r)
+	r, err = database.UpdateRepo(ctx, r)
 	if err != nil {
 		return fmt.Errorf("unable to update repo %s: %w", r.GetFullName(), err)
 	}
 
 	// send API call to capture the triggered build
-	b, err = database.GetBuildForRepo(r, b.GetNumber())
+	b, err = database.GetBuildForRepo(ctx, r, b.GetNumber())
 	if err != nil {
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
+	// determine queue route
+	route, err := queue.Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		build.CleanBuild(ctx, database, b, nil, nil, err)
+
+		return err
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	b.SetHost(route)
+
+	err = build.PublishBuildExecutable(ctx, database, p, b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+		return retErr
+	}
+
 	// publish the build to the queue
 	go build.PublishToQueue(
+		ctx,
 		queue,
 		database,
-		p,
 		b,
 		r,
 		u,
+		route,
 	)
 
 	return nil

@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
@@ -79,7 +77,8 @@ func CancelBuild(c *gin.Context) {
 	e := executors.Retrieve(c)
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
-	u := user.Retrieve(c)
+	user := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -90,13 +89,13 @@ func CancelBuild(c *gin.Context) {
 		"build": b.GetNumber(),
 		"org":   o,
 		"repo":  r.GetName(),
-		"user":  u.GetName(),
+		"user":  user.GetName(),
 	}).Infof("canceling build %s", entry)
 
 	switch b.GetStatus() {
 	case constants.StatusRunning:
 		// retrieve the worker info
-		w, err := database.FromContext(c).GetWorkerForHostname(b.GetHost())
+		w, err := database.FromContext(c).GetWorkerForHostname(ctx, b.GetHost())
 		if err != nil {
 			retErr := fmt.Errorf("unable to get worker for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -170,12 +169,22 @@ func CancelBuild(c *gin.Context) {
 					return
 				}
 
+				b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
+
+				b, err = database.FromContext(c).UpdateBuild(ctx, b)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					return
+				}
+
 				c.JSON(resp.StatusCode, b)
 
 				return
 			}
 		}
-	case constants.StatusPending:
+	case constants.StatusPending, constants.StatusPendingApproval:
 		break
 
 	default:
@@ -189,10 +198,20 @@ func CancelBuild(c *gin.Context) {
 	// build has been abandoned
 	// update the status in the build table
 	b.SetStatus(constants.StatusCanceled)
+	b.SetError(fmt.Sprintf("build was canceled by %s", user.GetName()))
 
-	b, err := database.FromContext(c).UpdateBuild(b)
+	b, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update status for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	// remove build executable for clean up
+	_, err = database.FromContext(c).PopBuildExecutable(ctx, b.GetID())
+	if err != nil {
+		retErr := fmt.Errorf("unable to pop build %s from executables table: %w", entry, err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
@@ -230,7 +249,7 @@ func CancelBuild(c *gin.Context) {
 		if step.GetStatus() == constants.StatusRunning || step.GetStatus() == constants.StatusPending {
 			step.SetStatus(constants.StatusCanceled)
 
-			err = database.FromContext(c).UpdateStep(step)
+			_, err = database.FromContext(c).UpdateStep(step)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
 				util.HandleError(c, http.StatusNotFound, retErr)
@@ -246,7 +265,7 @@ func CancelBuild(c *gin.Context) {
 
 	for page > 0 {
 		// retrieve build services (per page) from the database
-		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(b, map[string]interface{}{}, page, perPage)
+		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -271,7 +290,7 @@ func CancelBuild(c *gin.Context) {
 		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
 			service.SetStatus(constants.StatusCanceled)
 
-			err = database.FromContext(c).UpdateService(service)
+			_, err = database.FromContext(c).UpdateService(ctx, service)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
 					service.GetName(),

@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/library"
 )
 
@@ -18,34 +18,34 @@ type ServiceInterface interface {
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
 	// CreateServiceTable defines a function that creates the services table.
-	CreateServiceTable(string) error
+	CreateServiceTable(context.Context, string) error
 
 	// Service Data Manipulation Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CleanServices defines a function that sets running or pending services to error status before a given created time.
-	CleanServices(string, int64) (int64, error)
+	CleanServices(context.Context, string, int64) (int64, error)
 	// CountServices defines a function that gets the count of all services.
-	CountServices() (int64, error)
+	CountServices(context.Context) (int64, error)
 	// CountServicesForBuild defines a function that gets the count of services by build ID.
-	CountServicesForBuild(*library.Build, map[string]interface{}) (int64, error)
+	CountServicesForBuild(context.Context, *library.Build, map[string]interface{}) (int64, error)
 	// CreateService defines a function that creates a new service.
-	CreateService(*library.Service) error
+	CreateService(context.Context, *library.Service) (*library.Service, error)
 	// DeleteService defines a function that deletes an existing service.
-	DeleteService(*library.Service) error
+	DeleteService(context.Context, *library.Service) error
 	// GetService defines a function that gets a service by ID.
-	GetService(int64) (*library.Service, error)
+	GetService(context.Context, int64) (*library.Service, error)
 	// GetServiceForBuild defines a function that gets a service by number and build ID.
-	GetServiceForBuild(*library.Build, int) (*library.Service, error)
+	GetServiceForBuild(context.Context, *library.Build, int) (*library.Service, error)
 	// ListServices defines a function that gets a list of all services.
-	ListServices() ([]*library.Service, error)
+	ListServices(context.Context) ([]*library.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.
-	ListServicesForBuild(*library.Build, map[string]interface{}, int, int) ([]*library.Service, int64, error)
+	ListServicesForBuild(context.Context, *library.Build, map[string]interface{}, int, int) ([]*library.Service, int64, error)
 	// ListServiceImageCount defines a function that gets a list of all service images and the count of their occurrence.
-	ListServiceImageCount() (map[string]float64, error)
+	ListServiceImageCount(context.Context) (map[string]float64, error)
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.
-	ListServiceStatusCount() (map[string]float64, error)
+	ListServiceStatusCount(context.Context) (map[string]float64, error)
 	// UpdateService defines a function that updates an existing service.
-	UpdateService(*library.Service) error
+	UpdateService(context.Context, *library.Service) (*library.Service, error)
 }

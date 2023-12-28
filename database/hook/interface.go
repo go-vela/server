@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package hook
 
 import (
+	"context"
+
 	"github.com/go-vela/types/library"
 )
 
@@ -18,32 +18,34 @@ type HookInterface interface {
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
 	// CreateHookIndexes defines a function that creates the indexes for the hooks table.
-	CreateHookIndexes() error
+	CreateHookIndexes(context.Context) error
 	// CreateHookTable defines a function that creates the hooks table.
-	CreateHookTable(string) error
+	CreateHookTable(context.Context, string) error
 
 	// Hook Data Manipulation Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CountHooks defines a function that gets the count of all hooks.
-	CountHooks() (int64, error)
+	CountHooks(context.Context) (int64, error)
 	// CountHooksForRepo defines a function that gets the count of hooks by repo ID.
-	CountHooksForRepo(*library.Repo) (int64, error)
+	CountHooksForRepo(context.Context, *library.Repo) (int64, error)
 	// CreateHook defines a function that creates a new hook.
-	CreateHook(*library.Hook) (*library.Hook, error)
+	CreateHook(context.Context, *library.Hook) (*library.Hook, error)
 	// DeleteHook defines a function that deletes an existing hook.
-	DeleteHook(*library.Hook) error
+	DeleteHook(context.Context, *library.Hook) error
 	// GetHook defines a function that gets a hook by ID.
-	GetHook(int64) (*library.Hook, error)
+	GetHook(context.Context, int64) (*library.Hook, error)
+	// GetHookByWebhookID defines a function that gets any hook with a matching webhook_id.
+	GetHookByWebhookID(context.Context, int64) (*library.Hook, error)
 	// GetHookForRepo defines a function that gets a hook by repo ID and number.
-	GetHookForRepo(*library.Repo, int) (*library.Hook, error)
+	GetHookForRepo(context.Context, *library.Repo, int) (*library.Hook, error)
 	// LastHookForRepo defines a function that gets the last hook by repo ID.
-	LastHookForRepo(*library.Repo) (*library.Hook, error)
+	LastHookForRepo(context.Context, *library.Repo) (*library.Hook, error)
 	// ListHooks defines a function that gets a list of all hooks.
-	ListHooks() ([]*library.Hook, error)
+	ListHooks(context.Context) ([]*library.Hook, error)
 	// ListHooksForRepo defines a function that gets a list of hooks by repo ID.
-	ListHooksForRepo(*library.Repo, int, int) ([]*library.Hook, int64, error)
+	ListHooksForRepo(context.Context, *library.Repo, int, int) ([]*library.Hook, int64, error)
 	// UpdateHook defines a function that updates an existing hook.
-	UpdateHook(*library.Hook) (*library.Hook, error)
+	UpdateHook(context.Context, *library.Hook) (*library.Hook, error)
 }

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -74,6 +72,14 @@ const (
 	//nolint:gosec // not actual credentials
 	RegisterTokenResp = `{
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ3b3JrZXIiLCJpYXQiOjE1MTYyMzkwMjIsInRva2VuX3R5cGUiOiJXb3JrZXJSZWdpc3RlciJ9.gEzKaZB-sDd_gFCVF5uGo2mcf3iy9CrXDTLPZ6PTsTc"
+	}`
+
+	// QueueInfoResp represents a JSON return for an admin requesting a queue registration info.
+	//
+	//not actual credentials.
+	QueueInfoResp = `{
+		"queue_public_key": "DXeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ98zmko=",
+		"queue_address": "redis://redis:6000"
 	}`
 )
 
@@ -195,6 +201,28 @@ func registerToken(c *gin.Context) {
 	data := []byte(RegisterTokenResp)
 
 	var body library.Token
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
+}
+
+// getQueueCreds returns mock JSON for a http GET.
+//
+// Pass "" to Authorization header to test receiving a http 401 response.
+func getQueueCreds(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	// verify token if empty
+	if token == "" {
+		msg := "unable get queue credentials; invalid registration token"
+
+		c.AbortWithStatusJSON(http.StatusUnauthorized, types.Error{Message: &msg})
+
+		return
+	}
+
+	data := []byte(QueueInfoResp)
+
+	var body library.QueueInfo
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)

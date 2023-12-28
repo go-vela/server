@@ -1,10 +1,10 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package service
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // ListServicesForBuild gets a list of all services from the database.
-func (e *engine) ListServicesForBuild(b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Service, int64, error) {
+func (e *engine) ListServicesForBuild(ctx context.Context, b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Service, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("listing services for build %d from the database", b.GetNumber())
@@ -23,7 +23,7 @@ func (e *engine) ListServicesForBuild(b *library.Build, filters map[string]inter
 	services := []*library.Service{}
 
 	// count the results
-	count, err := e.CountServicesForBuild(b, filters)
+	count, err := e.CountServicesForBuild(ctx, b, filters)
 	if err != nil {
 		return services, 0, err
 	}

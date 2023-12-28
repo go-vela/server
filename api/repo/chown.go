@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
@@ -54,6 +52,7 @@ func ChownRepo(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -68,7 +67,7 @@ func ChownRepo(c *gin.Context) {
 	r.SetUserID(u.GetID())
 
 	// send API call to update the repo
-	_, err := database.FromContext(c).UpdateRepo(r)
+	_, err := database.FromContext(c).UpdateRepo(ctx, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to change owner of repo %s to %s: %w", r.GetFullName(), u.GetName(), err)
 

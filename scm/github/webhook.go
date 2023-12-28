@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package github
 
@@ -20,15 +18,16 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v56/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
 //
 //nolint:nilerr // ignore webhook returning nil
-func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
+func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*types.Webhook, error) {
 	c.Logger.Tracef("processing GitHub webhook")
 
+	// create our own record of the hook and populate its fields
 	h := new(library.Hook)
 	h.SetNumber(1)
 	h.SetSourceID(request.Header.Get("X-GitHub-Delivery"))
@@ -93,7 +92,7 @@ func (c *client) ProcessWebhook(request *http.Request) (*types.Webhook, error) {
 }
 
 // VerifyWebhook verifies the webhook from a repo.
-func (c *client) VerifyWebhook(request *http.Request, r *library.Repo) error {
+func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *library.Repo) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -207,10 +206,9 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	}
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -233,9 +231,11 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize
+	// skip if the pull request action is not opened, synchronize, reopened, or edited
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
-		!strings.EqualFold(payload.GetAction(), "synchronize") {
+		!strings.EqualFold(payload.GetAction(), "synchronize") &&
+		!strings.EqualFold(payload.GetAction(), "reopened") &&
+		!strings.EqualFold(payload.GetAction(), "edited") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -291,11 +291,13 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	}
 
 	return &types.Webhook{
-		Comment:  "",
-		PRNumber: payload.GetNumber(),
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		PullRequest: types.PullRequest{
+			Number:     payload.GetNumber(),
+			IsFromFork: payload.GetPullRequest().GetHead().GetRepo().GetFork(),
+		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -423,10 +425,9 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	)
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
-		Build:   b,
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -447,8 +448,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	if strings.EqualFold(payload.GetAction(), "deleted") {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
-			Comment: payload.GetComment().GetBody(),
-			Hook:    h,
+			Hook: h,
 		}, nil
 	}
 
@@ -490,11 +490,13 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	}
 
 	return &types.Webhook{
-		Comment:  payload.GetComment().GetBody(),
-		PRNumber: pr,
-		Hook:     h,
-		Repo:     r,
-		Build:    b,
+		PullRequest: types.PullRequest{
+			Comment: payload.GetComment().GetBody(),
+			Number:  pr,
+		},
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
@@ -517,22 +519,6 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	r.SetActive(!repo.GetArchived())
 	r.SetTopics(repo.Topics)
 
-	// if action is renamed, then get the previous name from payload
-	if payload.GetAction() == constants.ActionRenamed {
-		r.SetPreviousName(repo.GetOwner().GetLogin() + "/" + payload.GetChanges().GetRepo().GetName().GetFrom())
-	}
-
-	// if action is transferred, then get the previous owner from payload
-	// could be a user or an org, but both are User structs
-	if payload.GetAction() == constants.ActionTransferred {
-		org := payload.GetChanges().GetOwner().GetOwnerInfo().GetOrg()
-		if org == nil {
-			org = payload.GetChanges().GetOwner().GetOwnerInfo().GetUser()
-		}
-
-		r.SetPreviousName(org.GetLogin() + "/" + repo.GetName())
-	}
-
 	h.SetEvent(constants.EventRepository)
 	h.SetEventAction(payload.GetAction())
 	h.SetBranch(r.GetBranch())
@@ -541,9 +527,8 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	)
 
 	return &types.Webhook{
-		Comment: "",
-		Hook:    h,
-		Repo:    r,
+		Hook: h,
+		Repo: r,
 	}, nil
 }
 

@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package schedule
 
@@ -27,6 +25,7 @@ func Establish() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
+		ctx := c.Request.Context()
 
 		sParam := util.PathParameter(c, "schedule")
 		if len(sParam) == 0 {
@@ -45,7 +44,7 @@ func Establish() gin.HandlerFunc {
 			"user": u.GetName(),
 		}).Debugf("reading schedule %s for repo %s", sParam, r.GetFullName())
 
-		s, err := database.FromContext(c).GetScheduleForRepo(r, sParam)
+		s, err := database.FromContext(c).GetScheduleForRepo(ctx, r, sParam)
 		if err != nil {
 			retErr := fmt.Errorf("unable to read schedule %s for repo %s: %w", sParam, r.GetFullName(), err)
 			util.HandleError(c, http.StatusNotFound, retErr)

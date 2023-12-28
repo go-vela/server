@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -55,7 +55,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateWorker(_worker)
+			got, err := test.database.CreateWorker(context.TODO(), _worker)
 
 			if test.failure {
 				if err == nil {
@@ -67,6 +67,10 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
 
 			if err != nil {
 				t.Errorf("CreateWorker for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, _worker) {
+				t.Errorf("CreateWorker for %s returned %s, want %s", test.name, got, _worker)
 			}
 		})
 	}

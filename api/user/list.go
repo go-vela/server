@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
@@ -66,6 +64,7 @@ import (
 func ListUsers(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -98,7 +97,7 @@ func ListUsers(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the list of users
-	users, t, err := database.FromContext(c).ListLiteUsers(page, perPage)
+	users, t, err := database.FromContext(c).ListLiteUsers(ctx, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get users: %w", err)
 

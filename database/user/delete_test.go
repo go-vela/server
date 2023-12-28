@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package user
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -29,7 +28,7 @@ func TestUser_Engine_DeleteUser(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateUser(_user)
+	_, err := _sqlite.CreateUser(context.TODO(), _user)
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -55,7 +54,7 @@ func TestUser_Engine_DeleteUser(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteUser(_user)
+			err = test.database.DeleteUser(context.TODO(), _user)
 
 			if test.failure {
 				if err == nil {

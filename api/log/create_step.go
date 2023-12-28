@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 //nolint:dupl // ignore similar code to service
 package log
@@ -79,6 +77,7 @@ func CreateStepLog(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -111,7 +110,7 @@ func CreateStepLog(c *gin.Context) {
 	input.SetRepoID(r.GetID())
 
 	// send API call to create the logs
-	err = database.FromContext(c).CreateLog(input)
+	err = database.FromContext(c).CreateLog(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create logs for step %s: %w", entry, err)
 

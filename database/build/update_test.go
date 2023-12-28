@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package build
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -24,15 +23,15 @@ func TestBuild_Engine_UpdateBuild(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "builds"
-SET "repo_id"=$1,"pipeline_id"=$2,"number"=$3,"parent"=$4,"event"=$5,"event_action"=$6,"status"=$7,"error"=$8,"enqueued"=$9,"created"=$10,"started"=$11,"finished"=$12,"deploy"=$13,"deploy_payload"=$14,"clone"=$15,"source"=$16,"title"=$17,"message"=$18,"commit"=$19,"sender"=$20,"author"=$21,"email"=$22,"link"=$23,"branch"=$24,"ref"=$25,"base_ref"=$26,"head_ref"=$27,"host"=$28,"runtime"=$29,"distribution"=$30
-WHERE "id" = $31`).
-		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
+SET "repo_id"=$1,"pipeline_id"=$2,"number"=$3,"parent"=$4,"event"=$5,"event_action"=$6,"status"=$7,"error"=$8,"enqueued"=$9,"created"=$10,"started"=$11,"finished"=$12,"deploy"=$13,"deploy_payload"=$14,"clone"=$15,"source"=$16,"title"=$17,"message"=$18,"commit"=$19,"sender"=$20,"author"=$21,"email"=$22,"link"=$23,"branch"=$24,"ref"=$25,"base_ref"=$26,"head_ref"=$27,"host"=$28,"runtime"=$29,"distribution"=$30,"approved_at"=$31,"approved_by"=$32
+WHERE "id" = $33`).
+		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateBuild(_build)
+	_, err := _sqlite.CreateBuild(context.TODO(), _build)
 	if err != nil {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
@@ -58,7 +57,7 @@ WHERE "id" = $31`).
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.UpdateBuild(_build)
+			got, err := test.database.UpdateBuild(context.TODO(), _build)
 
 			if test.failure {
 				if err == nil {

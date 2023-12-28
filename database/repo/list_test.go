@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package repo
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -24,6 +23,7 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
+	_repoOne.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
@@ -35,6 +35,7 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
+	_repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -47,9 +48,9 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_delete", "allow_deploy", "allow_tag", "allow_comment", "pipeline_type", "previous_name"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, false, "yaml", nil).
-		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, false, "yaml", nil)
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, 1, "yaml", nil, nil).
+		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, 1, "yaml", nil, nil)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "repos"`).WillReturnRows(_rows)
@@ -57,12 +58,12 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateRepo(_repoOne)
+	_, err := _sqlite.CreateRepo(context.TODO(), _repoOne)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateRepo(_repoTwo)
+	_, err = _sqlite.CreateRepo(context.TODO(), _repoTwo)
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -91,7 +92,7 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListRepos()
+			got, err := test.database.ListRepos(context.TODO())
 
 			if test.failure {
 				if err == nil {

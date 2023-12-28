@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package auth
 
@@ -49,8 +47,11 @@ import (
 // process a user logging in using PAT to Vela from
 // the API.
 func PostAuthToken(c *gin.Context) {
+	// capture middleware values
+	ctx := c.Request.Context()
+
 	// attempt to get user from source
-	u, err := scm.FromContext(c).AuthenticateToken(c.Request)
+	u, err := scm.FromContext(c).AuthenticateToken(ctx, c.Request)
 	if err != nil {
 		retErr := fmt.Errorf("unable to authenticate user: %w", err)
 
@@ -60,7 +61,7 @@ func PostAuthToken(c *gin.Context) {
 	}
 
 	// check if the user exists
-	u, err = database.FromContext(c).GetUserForName(u.GetName())
+	u, err = database.FromContext(c).GetUserForName(ctx, u.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("user %s not found", u.GetName())
 

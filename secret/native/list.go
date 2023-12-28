@@ -1,10 +1,9 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package native
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-vela/types/constants"
@@ -13,7 +12,7 @@ import (
 )
 
 // List captures a list of secrets.
-func (c *client) List(sType, org, name string, page, perPage int, teams []string) ([]*library.Secret, error) {
+func (c *client) List(ctx context.Context, sType, org, name string, page, perPage int, teams []string) ([]*library.Secret, error) {
 	// handle the secret based off the type
 	switch sType {
 	case constants.SecretOrg:
@@ -23,7 +22,7 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 		}).Tracef("listing native %s secrets for %s", sType, org)
 
 		// capture the list of org secrets from the native service
-		secrets, _, err := c.Database.ListSecretsForOrg(org, nil, page, perPage)
+		secrets, _, err := c.Database.ListSecretsForOrg(ctx, org, nil, page, perPage)
 		if err != nil {
 			return nil, err
 		}
@@ -43,7 +42,7 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 		r.SetFullName(fmt.Sprintf("%s/%s", org, name))
 
 		// capture the list of repo secrets from the native service
-		secrets, _, err := c.Database.ListSecretsForRepo(r, nil, page, perPage)
+		secrets, _, err := c.Database.ListSecretsForRepo(ctx, r, nil, page, perPage)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +58,7 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 			}).Tracef("listing native %s secrets for teams %s in org %s", sType, teams, org)
 
 			// capture the list of shared secrets for multiple teams from the native service
-			secrets, _, err := c.Database.ListSecretsForTeams(org, teams, nil, page, perPage)
+			secrets, _, err := c.Database.ListSecretsForTeams(ctx, org, teams, nil, page, perPage)
 			if err != nil {
 				return nil, err
 			}
@@ -74,7 +73,7 @@ func (c *client) List(sType, org, name string, page, perPage int, teams []string
 		}).Tracef("listing native %s secrets for %s/%s", sType, org, name)
 
 		// capture the list of shared secrets from the native service
-		secrets, _, err := c.Database.ListSecretsForTeam(org, name, nil, page, perPage)
+		secrets, _, err := c.Database.ListSecretsForTeam(ctx, org, name, nil, page, perPage)
 		if err != nil {
 			return nil, err
 		}

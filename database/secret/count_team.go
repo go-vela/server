@@ -1,10 +1,9 @@
-// Copyright (c) 2023 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package secret
 
 import (
+	"context"
 	"strings"
 
 	"github.com/go-vela/types/constants"
@@ -12,7 +11,7 @@ import (
 )
 
 // CountSecretsForTeam gets the count of secrets by org and team name from the database.
-func (e *engine) CountSecretsForTeam(org, team string, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountSecretsForTeam(ctx context.Context, org, team string, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -36,7 +35,7 @@ func (e *engine) CountSecretsForTeam(org, team string, filters map[string]interf
 }
 
 // CountSecretsForTeams gets the count of secrets by teams within an org from the database.
-func (e *engine) CountSecretsForTeams(org string, teams []string, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountSecretsForTeams(ctx context.Context, org string, teams []string, filters map[string]interface{}) (int64, error) {
 	// lower case team names for not case-sensitive values from the SCM i.e. GitHub
 	//
 	// iterate through the list of teams provided

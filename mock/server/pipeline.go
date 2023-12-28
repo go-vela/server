@@ -1,6 +1,4 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package server
 
@@ -112,7 +110,7 @@ templates:
   "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
   "flavor": "",
   "platform": "",
-  "ref": "refs/heads/master",
+  "ref": "refs/heads/main",
   "type": "yaml",
   "version": "1",
   "external_secrets": false,
@@ -132,7 +130,7 @@ templates:
     "commit": "a49aaf4afae6431a79239c95247a2b169fd9f067",
     "flavor": "",
     "platform": "",
-    "ref": "refs/heads/master",
+    "ref": "refs/heads/main",
     "type": "yaml",
     "version": "1",
     "external_secrets": false,
@@ -149,7 +147,7 @@ templates:
     "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
     "flavor": "",
     "platform": "",
-    "ref": "refs/heads/master",
+    "ref": "refs/heads/main",
     "type": "yaml",
     "version": "1",
     "external_secrets": false,

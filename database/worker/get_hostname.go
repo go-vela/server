@@ -1,10 +1,10 @@
-// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package worker
 
 import (
+	"context"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetWorkerForHostname gets a worker by hostname from the database.
-func (e *engine) GetWorkerForHostname(hostname string) (*library.Worker, error) {
+func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*library.Worker, error) {
 	e.logger.WithFields(logrus.Fields{
 		"worker": hostname,
 	}).Tracef("getting worker %s from the database", hostname)
