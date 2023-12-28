@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CountDeploymentssForRepo gets the count of deployments by repo ID from the database.
+// CountDeploymentsForRepo gets the count of deployments by repo ID from the database.
 func (e *engine) CountDeploymentsForRepo(ctx context.Context, r *library.Repo) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

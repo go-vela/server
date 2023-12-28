@@ -108,5 +108,13 @@ func GetDeployment(c *gin.Context) {
 		dep = d
 	}
 
+	if dep == nil {
+		retErr := fmt.Errorf("invalid deployment parameter provided: %s", deployment)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	c.JSON(http.StatusOK, dep)
 }
