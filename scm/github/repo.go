@@ -187,6 +187,12 @@ func (c *client) Enable(ctx context.Context, u *library.User, r *library.Repo, h
 		events = append(events, eventPush)
 	}
 
+	// subscribe to delete event if branch delete or tag is allowed
+	if r.GetAllowEvents().GetDelete().GetBranch() ||
+		r.GetAllowEvents().GetDelete().GetTag() {
+		events = append(events, eventDelete)
+	}
+
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: events,
@@ -259,6 +265,12 @@ func (c *client) Update(ctx context.Context, u *library.User, r *library.Repo, h
 	if r.GetAllowEvents().GetPush().GetBranch() ||
 		r.GetAllowEvents().GetPush().GetTag() {
 		events = append(events, eventPush)
+	}
+
+	// subscribe to delete event if branch delete or tag is allowed
+	if r.GetAllowEvents().GetDelete().GetBranch() ||
+		r.GetAllowEvents().GetDelete().GetTag() {
+		events = append(events, eventDelete)
 	}
 
 	// create the hook object to make the API call
