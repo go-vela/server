@@ -11,7 +11,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-func TestDeployment_Engine_CountDeploymentssForRepo(t *testing.T) {
+func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	builds := []*library.Build{}
 
 	// setup types

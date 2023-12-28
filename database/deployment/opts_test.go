@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -54,8 +53,8 @@ func TestDeployment_EngineOpt_WithClient(t *testing.T) {
 				t.Errorf("WithClient returned err: %v", err)
 			}
 
-			if diff := cmp.Diff(test.want, e.client); diff != "" {
-				t.Errorf("WithClient mismatch (-want +got):\n%s", diff)
+			if !reflect.DeepEqual(e.client, test.want) {
+				t.Errorf("WithClient is %v, want %v", e.client, test.want)
 			}
 		})
 	}
