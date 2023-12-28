@@ -43,7 +43,7 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	}
 }
 
-// WithContext sets the context in the database engine for Repos.
+// WithContext sets the context in the database engine for Deployments.
 func WithContext(ctx context.Context) EngineOpt {
 	return func(e *engine) error {
 		e.ctx = ctx

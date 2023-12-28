@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -53,8 +54,8 @@ func TestDeployment_EngineOpt_WithClient(t *testing.T) {
 				t.Errorf("WithClient returned err: %v", err)
 			}
 
-			if !reflect.DeepEqual(e.client, test.want) {
-				t.Errorf("WithClient is %v, want %v", e.client, test.want)
+			if diff := cmp.Diff(test.want, e.client); diff != "" {
+				t.Errorf("WithClient mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -109,7 +110,7 @@ func TestDeployment_EngineOpt_WithLogger(t *testing.T) {
 	}
 }
 
-func TestSchedule_EngineOpt_WithSkipCreation(t *testing.T) {
+func TestDeployment_EngineOpt_WithSkipCreation(t *testing.T) {
 	// setup types
 	e := &engine{config: new(config)}
 

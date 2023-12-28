@@ -538,7 +538,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to list deployments for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
 	if int(count) != len(resources.Deployments) {
-		t.Errorf("ListDeploymentssForRepo() is %v, want %v", count, len(resources.Deployments))
+		t.Errorf("ListDeploymentsForRepo() is %v, want %v", count, len(resources.Deployments))
 	}
 	if diff := cmp.Diff([]*library.Deployment{resources.Deployments[1], resources.Deployments[0]}, list); diff != "" {
 		t.Errorf("ListDeploymentsForRepo() mismatch (-want +got):\n%s", diff)

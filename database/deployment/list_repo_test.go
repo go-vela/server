@@ -103,7 +103,7 @@ func TestDeployment_Engine_ListDeploymentsForRepo(t *testing.T) {
 
 			if test.failure {
 				if err == nil {
-					t.Errorf("ListDeploymentssForRepo for %s should have returned err", test.name)
+					t.Errorf("ListDeploymentsForRepo for %s should have returned err", test.name)
 				}
 
 				return

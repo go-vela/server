@@ -38,12 +38,12 @@ func (e *engine) GetDeployment(id int64) (*library.Deployment, error) {
 		b := new(database.Build)
 
 		// send query to the database and store result in variable
-		err2 := e.client.
+		err = e.client.
 			Table(constants.TableBuild).
 			Where("id = ?", bID).
 			Take(b).
 			Error
-		if err2 != nil {
+		if err != nil {
 			return nil, err
 		}
 

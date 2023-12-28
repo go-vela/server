@@ -45,12 +45,12 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *library.Repo, numb
 		b := new(database.Build)
 
 		// send query to the database and store result in variable
-		err2 := e.client.
+		err = e.client.
 			Table(constants.TableBuild).
 			Where("id = ?", bID).
 			Take(b).
 			Error
-		if err2 != nil {
+		if err != nil {
 			return nil, err
 		}
 
