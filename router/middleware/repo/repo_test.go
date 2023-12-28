@@ -56,7 +56,6 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetActive(false)
 	want.SetAllowPull(false)
 	want.SetAllowPush(false)
-	want.SetAllowDelete(false)
 	want.SetAllowDeploy(false)
 	want.SetAllowTag(false)
 	want.SetAllowComment(false)

@@ -173,15 +173,13 @@ func CreateRepo(c *gin.Context) {
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
-		!input.GetAllowComment() && !input.GetAllowDelete() {
+		!input.GetAllowComment() {
 		for _, event := range defaultRepoEvents {
 			switch event {
 			case constants.EventPull:
 				r.SetAllowPull(true)
 			case constants.EventPush:
 				r.SetAllowPush(true)
-			case constants.EventDelete:
-				r.SetAllowDelete(true)
 			case constants.EventDeploy:
 				r.SetAllowDeploy(true)
 			case constants.EventTag:
@@ -195,7 +193,6 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowDeploy(input.GetAllowDeploy())
 		r.SetAllowPull(input.GetAllowPull())
 		r.SetAllowPush(input.GetAllowPush())
-		r.SetAllowDelete(input.GetAllowDelete())
 		r.SetAllowTag(input.GetAllowTag())
 	}
 	// -- END DEPRECATED SECTION --
@@ -269,7 +266,6 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowDeploy(dbRepo.GetAllowDeploy())
 		r.SetAllowPull(dbRepo.GetAllowPull())
 		r.SetAllowPush(dbRepo.GetAllowPush())
-		r.SetAllowDelete(dbRepo.GetAllowDelete())
 		r.SetAllowTag(dbRepo.GetAllowTag())
 	}
 

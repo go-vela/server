@@ -616,7 +616,6 @@ func TestGithub_Enable(t *testing.T) {
 	r.SetHash("secret")
 	r.SetAllowPush(true)
 	r.SetAllowPull(true)
-	r.SetAllowDelete(true)
 	r.SetAllowDeploy(true)
 
 	client, _ := NewTest(s.URL)
@@ -666,7 +665,6 @@ func TestGithub_Update(t *testing.T) {
 	r.SetHash("secret")
 	r.SetAllowPush(true)
 	r.SetAllowPull(true)
-	r.SetAllowDelete(true)
 	r.SetAllowDeploy(true)
 
 	hookID := int64(1)
