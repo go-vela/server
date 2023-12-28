@@ -665,7 +665,6 @@ func PostWebhook(c *gin.Context) {
 
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
-
 	// if event is deployment, update the deployment record to include this build
 	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
 		d, err := database.FromContext(c).GetDeploymentForRepo(c, repo, webhook.Deployment.GetNumber())
