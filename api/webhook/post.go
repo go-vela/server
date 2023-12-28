@@ -667,9 +667,7 @@ func PostWebhook(c *gin.Context) {
 	h.SetBuildID(b.GetID())
 
 	// if event is deployment, update the deployment record to include this build
-	if b.GetEvent() == constants.EventDeploy {
-		builds := []*library.Build{}
-		builds = append(builds, b)
+	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
 
 		d, err := database.FromContext(c).GetDeploymentForRepo(c, repo, webhook.Deployment.GetNumber())
 		if err != nil {
@@ -677,7 +675,7 @@ func PostWebhook(c *gin.Context) {
 				deployment := webhook.Deployment
 
 				deployment.SetRepoID(repo.GetID())
-				deployment.SetBuilds(builds)
+				deployment.SetBuilds([]*library.Build{b})
 
 				_, err := database.FromContext(c).CreateDeployment(c, deployment)
 				if err != nil {
@@ -699,7 +697,7 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 		} else {
-			d.SetBuilds(builds)
+			d.SetBuilds([]*library.Build{b})
 			_, err := database.FromContext(c).UpdateDeployment(d)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to update deployment %s/%d: %w", baseErr, repo.GetFullName(), d.GetNumber(), err)

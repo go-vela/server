@@ -14,7 +14,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -68,7 +67,6 @@ func GetDeployment(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var (
-		dep *library.Deployment
 		err error
 	)
 
@@ -96,7 +94,7 @@ func GetDeployment(c *gin.Context) {
 	d, err := database.FromContext(c).GetDeployment(int64(number))
 	if err != nil {
 		// send API call to SCM to capture the deployment
-		dep, err = scm.FromContext(c).GetDeployment(ctx, u, r, int64(number))
+		d, err = scm.FromContext(c).GetDeployment(ctx, u, r, int64(number))
 		if err != nil {
 			retErr := fmt.Errorf("unable to get deployment %s: %w", entry, err)
 
@@ -104,17 +102,15 @@ func GetDeployment(c *gin.Context) {
 
 			return
 		}
-	} else {
-		dep = d
 	}
 
-	if dep == nil {
-		retErr := fmt.Errorf("invalid deployment parameter provided: %s", deployment)
+	if d == nil {
+		retErr := fmt.Errorf("unable to get deployment: %s", deployment)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
 
-	c.JSON(http.StatusOK, dep)
+	c.JSON(http.StatusOK, d)
 }

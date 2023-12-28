@@ -122,7 +122,7 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of deployments for the repo
-	d, err := database.FromContext(c).ListDeployments(c)
+	d, err := database.FromContext(c).ListDeploymentsForRepo(c, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 

@@ -339,18 +339,21 @@ func RestartBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, b)
 
-	d, err := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
-	if err != nil {
-		logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
-	}
+	// if the event is a deployment, update the build list
+	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		d, err := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
+		if err != nil {
+			logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
+		}
 
-	build := append(d.Builds, b)
+		build := append(d.Builds, b)
 
-	d.SetBuilds(build)
+		d.SetBuilds(build)
 
-	_, err = database.FromContext(c).UpdateDeployment(d)
-	if err != nil {
-		logger.Errorf("unable to set update deployment for build %s: %v", entry, err)
+		_, err = database.FromContext(c).UpdateDeployment(d)
+		if err != nil {
+			logger.Errorf("unable to set update deployment for build %s: %v", entry, err)
+		}
 	}
 
 	// send API call to set the status on the commit

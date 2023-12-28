@@ -72,7 +72,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	case *github.PullRequestEvent:
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
-		return c.processDeploymentEvent(ctx, h, event)
+		return c.processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
@@ -293,7 +293,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 }
 
 // processDeploymentEvent is a helper function to process the deployment event.
-func (c *client) processDeploymentEvent(ctx context.Context, h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
+func (c *client) processDeploymentEvent(h *library.Hook, payload *github.DeploymentEvent) (*types.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
