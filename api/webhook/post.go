@@ -668,7 +668,6 @@ func PostWebhook(c *gin.Context) {
 
 	// if event is deployment, update the deployment record to include this build
 	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
-
 		d, err := database.FromContext(c).GetDeploymentForRepo(c, repo, webhook.Deployment.GetNumber())
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
