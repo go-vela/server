@@ -60,7 +60,7 @@ func TestDeployment_Engine_ListDeploymentsForRepo(t *testing.T) {
 		AddRow(1, 1, 1, "https://github.com/github/octocat/deployments/1", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", 1, "octocat", "{}")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "deployments" WHERE repo_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "deployments" WHERE repo_id = $1 ORDER BY number DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
