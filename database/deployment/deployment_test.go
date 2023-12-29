@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package build
+package deployment
 
 import (
-	"context"
-	"database/sql/driver"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
@@ -19,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestBuild_New(t *testing.T) {
+func TestDeployment_New(t *testing.T) {
 	// setup types
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
@@ -30,10 +27,7 @@ func TestBuild_New(t *testing.T) {
 	defer _sql.Close()
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_config := &gorm.Config{SkipDefaultTransaction: true}
 
@@ -54,6 +48,7 @@ func TestBuild_New(t *testing.T) {
 		failure      bool
 		name         string
 		client       *gorm.DB
+		key          string
 		logger       *logrus.Entry
 		skipCreation bool
 		want         *engine
@@ -67,7 +62,6 @@ func TestBuild_New(t *testing.T) {
 			want: &engine{
 				client: _postgres,
 				config: &config{SkipCreation: false},
-				ctx:    context.TODO(),
 				logger: logger,
 			},
 		},
@@ -80,7 +74,6 @@ func TestBuild_New(t *testing.T) {
 			want: &engine{
 				client: _sqlite,
 				config: &config{SkipCreation: false},
-				ctx:    context.TODO(),
 				logger: logger,
 			},
 		},
@@ -90,7 +83,6 @@ func TestBuild_New(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := New(
-				WithContext(context.TODO()),
 				WithClient(test.client),
 				WithLogger(test.logger),
 				WithSkipCreation(test.skipCreation),
@@ -126,10 +118,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(CreateRepoIDIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateSourceIndex).WillReturnResult(sqlmock.NewResult(1, 1))
-	_mock.ExpectExec(CreateStatusIndex).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// create the new mock Postgres database client
 	//
@@ -143,13 +132,12 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 	}
 
 	_engine, err := New(
-		WithContext(context.TODO()),
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new postgres build engine: %v", err)
+		t.Errorf("unable to create new postgres deployment engine: %v", err)
 	}
 
 	return _engine, _mock
@@ -166,60 +154,19 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	_engine, err := New(
-		WithContext(context.TODO()),
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
 	)
 	if err != nil {
-		t.Errorf("unable to create new sqlite build engine: %v", err)
+		t.Errorf("unable to create new sqlite deployment engine: %v", err)
 	}
 
 	return _engine
 }
 
-// testBuild is a test helper function to create a library
-// Build type with all fields set to their zero values.
-func testBuild() *library.Build {
-	return &library.Build{
-		ID:           new(int64),
-		RepoID:       new(int64),
-		PipelineID:   new(int64),
-		Number:       new(int),
-		Parent:       new(int),
-		Event:        new(string),
-		EventAction:  new(string),
-		Status:       new(string),
-		Error:        new(string),
-		Enqueued:     new(int64),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Deploy:       new(string),
-		DeployNumber: new(int64),
-		Clone:        new(string),
-		Source:       new(string),
-		Title:        new(string),
-		Message:      new(string),
-		Commit:       new(string),
-		Sender:       new(string),
-		Author:       new(string),
-		Email:        new(string),
-		Link:         new(string),
-		Branch:       new(string),
-		Ref:          new(string),
-		BaseRef:      new(string),
-		HeadRef:      new(string),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-		ApprovedAt:   new(int64),
-		ApprovedBy:   new(string),
-	}
-}
-
 // testDeployment is a test helper function to create a library
-// Repo type with all fields set to their zero values.
+// Deployment type with all fields set to their zero values.
 func testDeployment() *library.Deployment {
 	builds := []*library.Build{}
 	return &library.Deployment{
@@ -267,30 +214,4 @@ func testRepo() *library.Repo {
 		AllowTag:     new(bool),
 		AllowComment: new(bool),
 	}
-}
-
-// This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values
-// that are otherwise not easily compared. These typically would be values generated
-// before adding or updating them in the database.
-//
-// https://github.com/DATA-DOG/go-sqlmock#matching-arguments-like-timetime
-type AnyArgument struct{}
-
-// Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(_ driver.Value) bool {
-	return true
-}
-
-// NowTimestamp is used to test whether timestamps get updated correctly to the current time with lenience.
-type NowTimestamp struct{}
-
-// Match satisfies sqlmock.Argument interface.
-func (t NowTimestamp) Match(v driver.Value) bool {
-	ts, ok := v.(int64)
-	if !ok {
-		return false
-	}
-	now := time.Now().Unix()
-
-	return now-ts < 10
 }

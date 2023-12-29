@@ -318,6 +318,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetEvent(constants.EventDeploy)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
+	b.SetDeployNumber(payload.GetDeployment().GetID())
 	b.SetSource(payload.GetDeployment().GetURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDeploy, repo.GetHTMLURL()))
 	b.SetMessage(payload.GetDeployment().GetDescription())
@@ -327,6 +328,18 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
 	b.SetBranch(payload.GetDeployment().GetRef())
 	b.SetRef(payload.GetDeployment().GetRef())
+
+	d := new(library.Deployment)
+
+	d.SetNumber(payload.GetDeployment().GetID())
+	d.SetURL(payload.GetDeployment().GetURL())
+	d.SetCommit(payload.GetDeployment().GetSHA())
+	d.SetRef(b.GetRef())
+	d.SetTask(payload.GetDeployment().GetTask())
+	d.SetTarget(payload.GetDeployment().GetEnvironment())
+	d.SetDescription(payload.GetDeployment().GetDescription())
+	d.SetCreatedAt(time.Now().Unix())
+	d.SetCreatedBy(payload.GetDeployment().GetCreator().GetLogin())
 
 	// check if payload is provided within request
 	//
@@ -371,10 +384,13 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
 
+	d.SetRef(b.GetRef())
+
 	return &types.Webhook{
-		Hook:  h,
-		Repo:  r,
-		Build: b,
+		Hook:       h,
+		Repo:       r,
+		Build:      b,
+		Deployment: d,
 	}, nil
 }
 

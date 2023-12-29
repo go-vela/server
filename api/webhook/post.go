@@ -5,6 +5,7 @@ package webhook
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,6 +25,7 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 var baseErr = "unable to process webhook"
@@ -663,6 +665,49 @@ func PostWebhook(c *gin.Context) {
 
 	// set the BuildID field
 	h.SetBuildID(b.GetID())
+	// if event is deployment, update the deployment record to include this build
+	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		d, err := database.FromContext(c).GetDeploymentForRepo(c, repo, webhook.Deployment.GetNumber())
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				deployment := webhook.Deployment
+
+				deployment.SetRepoID(repo.GetID())
+				deployment.SetBuilds([]*library.Build{b})
+
+				_, err := database.FromContext(c).CreateDeployment(c, deployment)
+				if err != nil {
+					retErr := fmt.Errorf("%s: failed to create deployment %s/%d: %w", baseErr, repo.GetFullName(), deployment.GetNumber(), err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
+
+					h.SetStatus(constants.StatusFailure)
+					h.SetError(retErr.Error())
+
+					return
+				}
+			} else {
+				retErr := fmt.Errorf("%s: failed to get deployment %s/%d: %w", baseErr, repo.GetFullName(), webhook.Deployment.GetNumber(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+		} else {
+			d.SetBuilds([]*library.Build{b})
+			_, err := database.FromContext(c).UpdateDeployment(d)
+			if err != nil {
+				retErr := fmt.Errorf("%s: failed to update deployment %s/%d: %w", baseErr, repo.GetFullName(), d.GetNumber(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				h.SetStatus(constants.StatusFailure)
+				h.SetError(retErr.Error())
+
+				return
+			}
+		}
+	}
 
 	c.JSON(http.StatusOK, b)
 

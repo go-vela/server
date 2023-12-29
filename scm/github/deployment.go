@@ -37,17 +37,20 @@ func (c *client) GetDeployment(ctx context.Context, u *library.User, r *library.
 		c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 	}
 
+	createdAt := deployment.CreatedAt.Unix()
+
 	return &library.Deployment{
 		ID:          deployment.ID,
 		RepoID:      r.ID,
 		URL:         deployment.URL,
-		User:        deployment.Creator.Login,
 		Commit:      deployment.SHA,
 		Ref:         deployment.Ref,
 		Task:        deployment.Task,
 		Target:      deployment.Environment,
 		Description: deployment.Description,
 		Payload:     payload,
+		CreatedAt:   &createdAt,
+		CreatedBy:   deployment.Creator.Login,
 	}, nil
 }
 
@@ -129,18 +132,22 @@ func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *libr
 		if err != nil {
 			c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 		}
+
+		createdAt := deployment.CreatedAt.Unix()
+
 		// convert query result to library type
 		deployments = append(deployments, &library.Deployment{
 			ID:          deployment.ID,
 			RepoID:      r.ID,
 			URL:         deployment.URL,
-			User:        deployment.Creator.Login,
 			Commit:      deployment.SHA,
 			Ref:         deployment.Ref,
 			Task:        deployment.Task,
 			Target:      deployment.Environment,
 			Description: deployment.Description,
 			Payload:     payload,
+			CreatedAt:   &createdAt,
+			CreatedBy:   deployment.Creator.Login,
 		})
 	}
 
@@ -182,10 +189,9 @@ func (c *client) CreateDeployment(ctx context.Context, u *library.User, r *libra
 		return err
 	}
 
-	d.SetID(deploy.GetID())
+	d.SetNumber(deploy.GetID())
 	d.SetRepoID(r.GetID())
 	d.SetURL(deploy.GetURL())
-	d.SetUser(deploy.GetCreator().GetLogin())
 	d.SetCommit(deploy.GetSHA())
 	d.SetRef(deploy.GetRef())
 	d.SetTask(deploy.GetTask())
