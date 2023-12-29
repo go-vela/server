@@ -30,7 +30,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *library.Repo, pa
 	err := e.client.
 		Table(constants.TableDeployment).
 		Where("repo_id = ?", r.GetID()).
-		Order("id DESC").
+		Order("number DESC").
 		Limit(perPage).
 		Offset(offset).
 		Find(&d).

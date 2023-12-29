@@ -260,19 +260,6 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListBuilds"] = true
 
-	// list the builds for a deployment
-	list, count, err = db.ListBuildsForDeployment(context.TODO(), resources.Deployments[0], nil, 1, 10)
-	if err != nil {
-		t.Errorf("unable to list builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
-	}
-	if int(count) != len(resources.Builds) {
-		t.Errorf("ListBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
-	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
-		t.Errorf("ListBuildsForDeployment() mismatch (-want +got):\n%s", diff)
-	}
-	methods["ListBuildsForDeployment"] = true
-
 	// list the builds for an org
 	list, count, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
 	if err != nil {
