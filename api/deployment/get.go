@@ -66,10 +66,6 @@ func GetDeployment(c *gin.Context) {
 	deployment := util.PathParameter(c, "deployment")
 	ctx := c.Request.Context()
 
-	var (
-		err error
-	)
-
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), deployment)
 
 	// update engine logger with API metadata
