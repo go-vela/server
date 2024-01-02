@@ -71,28 +71,50 @@ func TestWorker_Engine_ListWorkers(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure  bool
+		before   int64
+		active   string
 		name     string
 		database *engine
 		want     []*library.Worker
 	}{
 		{
 			failure:  false,
-			name:     "postgres",
+			before:   newer,
+			active:   "all",
+			name:     "sqlite3 before filter",
+			database: _sqlite,
+			want:     []*library.Worker{_workerTwo},
+		},
+		{
+			failure:  false,
+			before:   newer + 1,
+			active:   "all",
+			name:     "postgres catch all",
 			database: _postgres,
 			want:     []*library.Worker{_workerOne, _workerTwo, _workerThree},
 		},
 		{
 			failure:  false,
-			name:     "sqlite3",
+			before:   newer + 1,
+			active:   "all",
+			name:     "sqlite3 catch all",
 			database: _sqlite,
 			want:     []*library.Worker{_workerOne, _workerTwo, _workerThree},
+		},
+		{
+			failure:  false,
+			before:   newer + 1,
+			active:   "true",
+			name:     "sqlite3 active filter",
+			database: _sqlite,
+			want:     []*library.Worker{_workerOne, _workerTwo},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListWorkers(context.TODO(), "all", newer+1, 0)
+			got, err := test.database.ListWorkers(context.TODO(), test.active, test.before, 0)
 
 			if test.failure {
 				if err == nil {

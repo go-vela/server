@@ -27,10 +27,7 @@ import (
 //   name: active
 //   description: Filter workers based on active status
 //   type: string
-//   enum:
-//   - true
-//   - false
-//   - all
+//   default: "true"
 // - in: query
 //   name: checked_in_before
 //   description: filter workers that have checked in before a certain time

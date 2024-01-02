@@ -4,6 +4,7 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/go-vela/types/constants"
@@ -25,8 +26,14 @@ func (e *engine) ListWorkers(ctx context.Context, active string, before, after i
 		Where("last_checked_in > ?", after)
 
 	// if active can be parsed as a boolean, add to query
-	if _, err := strconv.ParseBool(active); err == nil {
-		query.Where("active = ?", active)
+	if b, err := strconv.ParseBool(active); err == nil {
+		// convert bool to 0/1 for Sqlite
+		qBool := 0
+		if b {
+			qBool = 1
+		}
+
+		query.Where("active = ?", fmt.Sprintf("%d", qBool))
 	}
 
 	// send query to the database and store result in variable
