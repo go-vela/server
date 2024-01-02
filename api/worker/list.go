@@ -27,7 +27,6 @@ import (
 //   name: active
 //   description: Filter workers based on active status
 //   type: boolean
-//   default: true
 // - in: query
 //   name: checked_in_before
 //   description: filter workers that have checked in before a certain time
@@ -65,7 +64,7 @@ func ListWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	active := c.DefaultQuery("active", "true")
+	active := c.Query("active")
 
 	// capture before query parameter if present, default to now
 	before, err := strconv.ParseInt(c.DefaultQuery("checked_in_before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
