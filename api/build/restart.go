@@ -298,8 +298,6 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the pipeline did not already exist in the database
-	//
-	//nolint:dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
@@ -340,6 +338,23 @@ func RestartBuild(c *gin.Context) {
 	b, _ = database.FromContext(c).GetBuildForRepo(ctx, r, b.GetNumber())
 
 	c.JSON(http.StatusCreated, b)
+
+	// if the event is a deployment, update the build list
+	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		d, err := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
+		if err != nil {
+			logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
+		}
+
+		build := append(d.Builds, b)
+
+		d.SetBuilds(build)
+
+		_, err = database.FromContext(c).UpdateDeployment(d)
+		if err != nil {
+			logger.Errorf("unable to set update deployment for build %s: %v", entry, err)
+		}
+	}
 
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
