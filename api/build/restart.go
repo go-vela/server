@@ -340,13 +340,13 @@ func RestartBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, b)
 
 	// if the event is a deployment, update the build list
-	if !strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
 		d, err := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
 		if err != nil {
 			logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
 		}
 
-		build := append(d.Builds, b)
+		build := append(d.GetBuilds(), b)
 
 		d.SetBuilds(build)
 
