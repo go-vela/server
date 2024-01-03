@@ -222,6 +222,9 @@ func testEvents() *library.Events {
 			Created: new(bool),
 			Edited:  new(bool),
 		},
+		Schedule: &actions.Schedule{
+			Run: new(bool),
+		},
 	}
 }
 
