@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v57/github"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.

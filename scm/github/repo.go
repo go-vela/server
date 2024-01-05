@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v57/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
