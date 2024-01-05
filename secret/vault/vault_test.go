@@ -95,6 +95,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	inputV1 := &api.Secret{
 		Data: map[string]interface{}{
 			"events":        []interface{}{"foo", "bar"},
+			"allow_events":  int64(1),
 			"images":        []interface{}{"foo", "bar"},
 			"name":          "bar",
 			"org":           "foo",
@@ -114,6 +115,7 @@ func TestVault_secretFromVault(t *testing.T) {
 		Data: map[string]interface{}{
 			"data": map[string]interface{}{
 				"events":        []interface{}{"foo", "bar"},
+				"allow_events":  int64(1),
 				"images":        []interface{}{"foo", "bar"},
 				"name":          "bar",
 				"org":           "foo",
@@ -138,6 +140,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	want.SetValue("baz")
 	want.SetType("org")
 	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
 	want.SetCreatedAt(1563474077)
@@ -178,6 +181,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	s.SetValue("baz")
 	s.SetType("org")
 	s.SetEvents([]string{"foo", "bar"})
+	s.SetAllowEvents(library.NewEventsFromMask(1))
 	s.SetImages([]string{"foo", "bar"})
 	s.SetAllowCommand(true)
 	s.SetCreatedAt(1563474077)
@@ -188,6 +192,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	want := &api.Secret{
 		Data: map[string]interface{}{
 			"events":        []string{"foo", "bar"},
+			"allow_events":  int64(1),
 			"images":        []string{"foo", "bar"},
 			"name":          "bar",
 			"org":           "foo",

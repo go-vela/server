@@ -156,6 +156,14 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		}
 	}
 
+	v, ok = data["allow_events"]
+	if ok {
+		mask, ok := v.(int64)
+		if ok {
+			s.SetAllowEvents(library.NewEventsFromMask(mask))
+		}
+	}
+
 	// set images if found in Vault secret
 	v, ok = data["images"]
 	if ok {
@@ -281,6 +289,11 @@ func vaultFromSecret(s *library.Secret) *api.Secret {
 	// set events if found in Vela secret
 	if len(s.GetEvents()) > 0 {
 		vault.Data["events"] = s.GetEvents()
+	}
+
+	// set allow events to mask
+	if s.GetAllowEvents().ToDatabase() != 0 {
+		vault.Data["allow_events"] = s.GetAllowEvents().ToDatabase()
 	}
 
 	// set images if found in Vela secret

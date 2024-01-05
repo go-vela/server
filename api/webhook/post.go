@@ -258,7 +258,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// verify the build has a valid event and the repo allows that event type
-	if !repo.EventAllowed(b.GetEvent(), b.GetEventAction()) {
+	if !repo.GetAllowEvents().Allowed(b.GetEvent(), b.GetEventAction()) {
 		var actionErr string
 		if len(b.GetEventAction()) > 0 {
 			actionErr = ":" + b.GetEventAction()

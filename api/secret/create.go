@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
 )
 
@@ -207,8 +208,21 @@ func CreateSecret(c *gin.Context) {
 		input.SetImages(util.Unique(input.GetImages()))
 	}
 
-	if len(input.GetEvents()) > 0 {
-		input.SetEvents(util.Unique(input.GetEvents()))
+	// default event set for secrets
+	if input.GetAllowEvents().ToDatabase() == 0 {
+		e := new(library.Events)
+
+		push := new(actions.Push)
+		push.SetBranch(true)
+		push.SetTag(true)
+
+		deploy := new(actions.Deploy)
+		deploy.SetCreated(true)
+
+		e.SetPush(push)
+		e.SetDeployment(deploy)
+
+		input.SetAllowEvents(e)
 	}
 
 	if len(input.GetEvents()) == 0 {
