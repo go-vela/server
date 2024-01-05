@@ -274,6 +274,11 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"host": src.Host,
 			}).Tracef("Using authenticated GitHub client to pull template")
 
+			// verify private GitHub is actually set up
+			if c.PrivateGithub == nil {
+				return nil, fmt.Errorf("unable to fetch template %s: missing credentials", src.Name)
+			}
+
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
 			if err != nil {
@@ -306,6 +311,10 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"repo": src.Repo,
 				"path": src.Name,
 			}).Tracef("Using authenticated GitHub client to pull template")
+
+			if c.PrivateGithub == nil {
+				return nil, fmt.Errorf("unable to fetch template %s: missing credentials", src.Name)
+			}
 
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
