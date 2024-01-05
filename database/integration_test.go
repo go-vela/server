@@ -1938,7 +1938,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	methods["CountWorkers"] = true
 
 	// list the workers
-	list, err := db.ListWorkers(context.TODO())
+	list, err := db.ListWorkers(context.TODO(), "all", time.Now().Unix(), 0)
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
@@ -2450,7 +2450,7 @@ func newResources() *Resources {
 	workerOne.SetRunningBuildIDs([]string{"12345"})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	workerOne.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerOne.SetBuildLimit(1)
 
 	workerTwo := new(library.Worker)
@@ -2464,7 +2464,7 @@ func newResources() *Resources {
 	workerTwo.SetRunningBuildIDs([]string{"12345"})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{

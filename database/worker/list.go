@@ -4,6 +4,8 @@ package worker
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
@@ -11,30 +13,31 @@ import (
 )
 
 // ListWorkers gets a list of all workers from the database.
-func (e *engine) ListWorkers(ctx context.Context) ([]*library.Worker, error) {
+func (e *engine) ListWorkers(ctx context.Context, active string, before, after int64) ([]*library.Worker, error) {
 	e.logger.Trace("listing all workers from the database")
 
 	// variables to store query results and return value
-	count := int64(0)
 	w := new([]database.Worker)
 	workers := []*library.Worker{}
 
-	// count the results
-	count, err := e.CountWorkers(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// build query with checked in constraints
+	query := e.client.Table(constants.TableWorker).
+		Where("last_checked_in < ?", before).
+		Where("last_checked_in > ?", after)
 
-	// short-circuit if there are no results
-	if count == 0 {
-		return workers, nil
+	// if active can be parsed as a boolean, add to query
+	if b, err := strconv.ParseBool(active); err == nil {
+		// convert bool to 0/1 for Sqlite
+		qBool := 0
+		if b {
+			qBool = 1
+		}
+
+		query.Where("active = ?", fmt.Sprintf("%d", qBool))
 	}
 
 	// send query to the database and store result in variable
-	err = e.client.
-		Table(constants.TableWorker).
-		Find(&w).
-		Error
+	err := query.Find(&w).Error
 	if err != nil {
 		return nil, err
 	}
