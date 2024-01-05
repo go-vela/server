@@ -143,13 +143,43 @@ func TestNative_ExpandStages(t *testing.T) {
 		"bar":  "test4",
 	}
 
-	// run test
+	// run test -- missing private github
 	compiler, err := New(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData))
+	compiler.PrivateGithub = nil
+	_, err = compiler.ExpandStages(
+		&yaml.Build{
+			Stages:      stages,
+			Services:    yaml.ServiceSlice{},
+			Environment: raw.StringSliceMap{},
+		},
+		tmpls,
+		new(pipeline.RuleData),
+	)
+
+	if err == nil {
+		t.Errorf("ExpandStages should have returned error with empty PrivateGitHub")
+	}
+
+	// run test
+	compiler, err = New(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	build, err := compiler.ExpandStages(
+		&yaml.Build{
+			Stages:      stages,
+			Services:    yaml.ServiceSlice{},
+			Environment: raw.StringSliceMap{},
+		},
+		tmpls,
+		new(pipeline.RuleData),
+	)
+
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
