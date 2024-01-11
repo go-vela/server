@@ -222,9 +222,8 @@ func testEvents() *library.Events {
 			Created: new(bool),
 			Edited:  new(bool),
 		},
-		Delete: &actions.Delete{
-			Branch: new(bool),
-			Tag:    new(bool),
+		Schedule: &actions.Schedule{
+			Run: new(bool),
 		},
 	}
 }

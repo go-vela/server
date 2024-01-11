@@ -24,6 +24,11 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 		secret.SetEvents(s.GetEvents())
 	}
 
+	// update allow events if set
+	if s.GetAllowEvents().ToDatabase() > 0 {
+		secret.SetAllowEvents(s.GetAllowEvents())
+	}
+
 	// update the images if set
 	if s.Images != nil {
 		secret.SetImages(s.GetImages())
