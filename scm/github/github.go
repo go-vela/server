@@ -24,6 +24,7 @@ const (
 	eventIssueComment = "issue_comment"
 	eventRepository   = "repository"
 	eventInitialize   = "initialize"
+	eventDelete       = "delete"
 )
 
 type config struct {
