@@ -37,7 +37,7 @@ type WorkerInterface interface {
 	// GetWorkerForHostname defines a function that gets a worker by hostname.
 	GetWorkerForHostname(context.Context, string) (*library.Worker, error)
 	// ListWorkers defines a function that gets a list of all workers.
-	ListWorkers(context.Context) ([]*library.Worker, error)
+	ListWorkers(context.Context, string, int64, int64) ([]*library.Worker, error)
 	// UpdateWorker defines a function that updates an existing worker.
 	UpdateWorker(context.Context, *library.Worker) (*library.Worker, error)
 }

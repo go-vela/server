@@ -184,5 +184,6 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 		TimestampFormat: "2006-01-02T15:04:05.000Z0700",
 		FieldMap:        ecsFieldMap,
 	}
+
 	return jf.Format(e)
 }

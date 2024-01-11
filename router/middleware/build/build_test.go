@@ -61,6 +61,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetStarted(0)
 	want.SetFinished(0)
 	want.SetDeploy("")
+	want.SetDeployNumber(0)
 	want.SetClone("")
 	want.SetSource("")
 	want.SetTitle("")

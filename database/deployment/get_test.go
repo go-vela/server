@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package deployment
+
+import (
+	"context"
+	"reflect"
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/library"
+)
+
+func TestDeployment_Engine_GetDeployment(t *testing.T) {
+	builds := []*library.Build{}
+
+	// setup types
+	_deploymentOne := testDeployment()
+	_deploymentOne.SetID(1)
+	_deploymentOne.SetRepoID(1)
+	_deploymentOne.SetNumber(1)
+	_deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
+	_deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
+	_deploymentOne.SetRef("refs/heads/master")
+	_deploymentOne.SetTask("vela-deploy")
+	_deploymentOne.SetTarget("production")
+	_deploymentOne.SetDescription("Deployment request from Vela")
+	_deploymentOne.SetPayload(map[string]string{"foo": "test1"})
+	_deploymentOne.SetCreatedAt(1)
+	_deploymentOne.SetCreatedBy("octocat")
+	_deploymentOne.SetBuilds(builds)
+
+	_postgres, _mock := testPostgres(t)
+	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
+
+	// create expected result in mock
+	_rows := sqlmock.NewRows(
+		[]string{"id", "repo_id", "number", "url", "commit", "ref", "task", "target", "description", "payload", "created_at", "created_by", "builds"}).
+		AddRow(1, 1, 1, "https://github.com/github/octocat/deployments/1", "48afb5bdc41ad69bf22588491333f7cf71135163", "refs/heads/master", "vela-deploy", "production", "Deployment request from Vela", "{\"foo\":\"test1\"}", 1, "octocat", "{}")
+
+	// ensure the mock expects the query
+	_mock.ExpectQuery(`SELECT * FROM "deployments" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
+
+	_sqlite := testSqlite(t)
+	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
+
+	_, err := _sqlite.CreateDeployment(context.TODO(), _deploymentOne)
+	if err != nil {
+		t.Errorf("unable to create test deployment for sqlite: %v", err)
+	}
+
+	// setup tests
+	tests := []struct {
+		failure  bool
+		name     string
+		database *engine
+		want     *library.Deployment
+	}{
+		{
+			failure:  false,
+			name:     "postgres",
+			database: _postgres,
+			want:     _deploymentOne,
+		},
+		{
+			failure:  false,
+			name:     "sqlite3",
+			database: _sqlite,
+			want:     _deploymentOne,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := test.database.GetDeployment(1)
+
+			if test.failure {
+				if err == nil {
+					t.Errorf("GetDeployment for %s should have returned err", test.name)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Errorf("GetDeployment for %s returned err: %v", test.name, err)
+			}
+
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("GetDeployment for %s is %v, want %v", test.name, got, test.want)
+			}
+		})
+	}
+}
