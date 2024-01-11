@@ -152,10 +152,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.GetHeadCommit().GetURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventPush, repo.GetHTMLURL()))
-
-	sanitizedMessage := strings.Replace(payload.GetHeadCommit().GetMessage(), `\`, `\\`, -1)
-
-	b.SetMessage(sanitizedMessage)
+	b.SetMessage(payload.GetHeadCommit().GetMessage())
 	b.SetCommit(payload.GetHeadCommit().GetID())
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
