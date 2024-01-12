@@ -50,12 +50,6 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 	_pipeline.SetData(data)
 	_pipeline.SetType(c.repo.GetPipelineType())
 
-	// validate the yaml configuration
-	err = c.Validate(p)
-	if err != nil {
-		return nil, _pipeline, err
-	}
-
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
