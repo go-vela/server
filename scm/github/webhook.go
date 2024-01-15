@@ -79,6 +79,9 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	case *github.IssueCommentEvent:
 		c.Logger.Tracef("issue comment")
 		return c.processIssueCommentEvent(h, event)
+	case *github.DeleteEvent:
+		c.Logger.Tracef("delete")
+		return c.processDeleteEvent(h, event)
 	case *github.RepositoryEvent:
 		c.Logger.Tracef("repository")
 		return c.processRepositoryEvent(h, event)
@@ -498,6 +501,83 @@ func (c *client) processRepositoryEvent(h *library.Hook, payload *github.Reposit
 	return &types.Webhook{
 		Hook: h,
 		Repo: r,
+	}, nil
+}
+
+// processDeleteEvent is a helper function to process the delete event.
+func (c *client) processDeleteEvent(h *library.Hook, payload *github.DeleteEvent) (*types.Webhook, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  payload.GetRepo().GetOwner().GetLogin(),
+		"repo": payload.GetRepo().GetName(),
+	}).Tracef("processing delete GitHub webhook for %s", payload.GetRepo().GetFullName())
+
+	repo := payload.GetRepo()
+
+	// convert payload to library repo
+	r := new(library.Repo)
+	r.SetOrg(repo.GetOwner().GetLogin())
+	r.SetName(repo.GetName())
+	r.SetFullName(repo.GetFullName())
+	r.SetLink(repo.GetHTMLURL())
+	r.SetClone(repo.GetCloneURL())
+	r.SetBranch(repo.GetDefaultBranch())
+	r.SetPrivate(repo.GetPrivate())
+	r.SetTopics(repo.Topics)
+
+	// convert payload to library build
+	b := new(library.Build)
+	b.SetEvent(constants.EventDelete)
+	b.SetClone(repo.GetCloneURL())
+	//b.SetSource(payload.GetHeadCommit().GetURL())
+	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
+	//b.SetMessage(payload.GetHeadCommit().GetMessage())
+	//b.SetCommit(payload.GetHeadCommit().GetID())
+	b.SetSender(payload.GetSender().GetLogin())
+	//b.SetAuthor(payload.GetDelete())
+	//b.SetEmail(payload.GetHeadCommit().GetAuthor().GetEmail())
+	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
+	b.SetRef(payload.GetRef())
+	//b.SetBaseRef(payload.GetBaseRef())
+
+	// update the hook object
+	h.SetBranch(b.GetBranch())
+	h.SetEvent(constants.EventDelete)
+	h.SetLink(
+		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
+	)
+
+	// ensure the build author is set
+	//if len(b.GetAuthor()) == 0 {
+	//	b.SetAuthor(payload.GetHeadCommit().GetCommitter().GetName())
+	//}
+
+	// ensure the build sender is set
+	//if len(b.GetSender()) == 0 {
+	//	b.SetSender(payload.GetPusher().GetName())
+	//}
+
+	// ensure the build email is set
+	//if len(b.GetEmail()) == 0 {
+	//	b.SetEmail(payload.GetHeadCommit().GetCommitter().GetEmail())
+	//}
+
+	// handle when push event is a tag
+	//if strings.HasPrefix(b.GetRef(), "refs/tags/") {
+	// set the proper event for the hook
+	//	h.SetEvent(constants.EventTag)
+	// set the proper event for the build
+	//	b.SetEvent(constants.EventTag)
+
+	// set the proper branch from the base ref
+	//	if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
+	//		b.SetBranch(strings.TrimPrefix(payload.GetBaseRef(), "refs/heads/"))
+	//	}
+	//}
+
+	return &types.Webhook{
+		Hook:  h,
+		Repo:  r,
+		Build: b,
 	}, nil
 }
 
