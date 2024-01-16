@@ -528,16 +528,15 @@ func (c *client) processDeleteEvent(h *library.Hook, payload *github.DeleteEvent
 	b := new(library.Build)
 	b.SetEvent(constants.EventDelete)
 	b.SetClone(repo.GetCloneURL())
-	//b.SetSource(payload.GetHeadCommit().GetURL())
+	b.SetEventAction(payload.GetRefType())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
-	//b.SetMessage(payload.GetHeadCommit().GetMessage())
-	//b.SetCommit(payload.GetHeadCommit().GetID())
+	b.SetMessage(fmt.Sprintf("%s %s deleted", payload.GetRef(), payload.GetRefType()))
 	b.SetSender(payload.GetSender().GetLogin())
-	//b.SetAuthor(payload.GetDelete())
-	//b.SetEmail(payload.GetHeadCommit().GetAuthor().GetEmail())
+	b.SetAuthor(payload.GetSender().GetLogin())
+	b.SetEmail(payload.GetSender().GetEmail())
 	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
-	b.SetRef(payload.GetRef())
-	//b.SetBaseRef(payload.GetBaseRef())
+	b.SetRef(repo.GetDefaultBranch())
+	b.SetSource(payload.GetRepo().GetOwner().GetHTMLURL())
 
 	// update the hook object
 	h.SetBranch(b.GetBranch())
@@ -545,34 +544,6 @@ func (c *client) processDeleteEvent(h *library.Hook, payload *github.DeleteEvent
 	h.SetLink(
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
-
-	// ensure the build author is set
-	//if len(b.GetAuthor()) == 0 {
-	//	b.SetAuthor(payload.GetHeadCommit().GetCommitter().GetName())
-	//}
-
-	// ensure the build sender is set
-	//if len(b.GetSender()) == 0 {
-	//	b.SetSender(payload.GetPusher().GetName())
-	//}
-
-	// ensure the build email is set
-	//if len(b.GetEmail()) == 0 {
-	//	b.SetEmail(payload.GetHeadCommit().GetCommitter().GetEmail())
-	//}
-
-	// handle when push event is a tag
-	//if strings.HasPrefix(b.GetRef(), "refs/tags/") {
-	// set the proper event for the hook
-	//	h.SetEvent(constants.EventTag)
-	// set the proper event for the build
-	//	b.SetEvent(constants.EventTag)
-
-	// set the proper branch from the base ref
-	//	if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
-	//		b.SetBranch(strings.TrimPrefix(payload.GetBaseRef(), "refs/heads/"))
-	//	}
-	//}
 
 	return &types.Webhook{
 		Hook:  h,
