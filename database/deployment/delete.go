@@ -3,6 +3,7 @@
 package deployment
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -10,7 +11,7 @@ import (
 )
 
 // DeleteDeployment deletes an existing deployment from the database.
-func (e *engine) DeleteDeployment(d *library.Deployment) error {
+func (e *engine) DeleteDeployment(ctx context.Context, d *library.Deployment) error {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": d.GetID(),
 	}).Tracef("deleting deployment %d in the database", d.GetID())
