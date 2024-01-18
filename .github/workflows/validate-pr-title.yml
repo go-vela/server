@@ -4,14 +4,14 @@ name: validate PR title
 # trigger on pull_request events of the opened & edited type.
 on:
   pull_request:
-    types: [ opened, synchronize, edited, reopened ]
+    types: [opened, synchronize, edited, reopened]
 
 # pipeline to execute
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: validate title
-      run: |
-        echo "${{ github.event.pull_request.title }}" | grep -Eq '^(feat|fix|chore|refactor|enhance|test|docs)\(.*\):.*$' && (echo "Pass"; exit 0) || (echo "Incorrect Format. Please see https://go-vela.github.io/docs/community/contributing_guidelines/#development-workflow"; exit 1)
+      - name: validate title
+        run: |
+          echo "${{ github.event.pull_request.title }}" | grep -Eq '^(feat|fix|chore|refactor|enhance|test|docs)(\(.*\)|):\s.+$' && (echo "Pass"; exit 0) || (echo "Incorrect Format. Please see https://go-vela.github.io/docs/community/contributing_guidelines/#development-workflow"; exit 1)
