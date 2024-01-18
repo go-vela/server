@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -10,7 +11,7 @@ import (
 )
 
 // GetStepForBuild gets a step by number and build ID from the database.
-func (e *engine) GetStepForBuild(b *library.Build, number int) (*library.Step, error) {
+func (e *engine) GetStepForBuild(ctx context.Context, b *library.Build, number int) (*library.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"step":  number,

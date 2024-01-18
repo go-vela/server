@@ -1637,10 +1637,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		// add the method name to the list of functions
 		methods[element.Method(i).Name] = false
 	}
+	ctx := context.TODO()
 
 	// create the steps
 	for _, step := range resources.Steps {
-		_, err := db.CreateStep(step)
+		_, err := db.CreateStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
@@ -1648,7 +1649,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateStep"] = true
 
 	// count the steps
-	count, err := db.CountSteps()
+	count, err := db.CountSteps(ctx)
 	if err != nil {
 		t.Errorf("unable to count steps: %v", err)
 	}
@@ -1658,7 +1659,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSteps"] = true
 
 	// count the steps for a build
-	count, err = db.CountStepsForBuild(resources.Builds[0], nil)
+	count, err = db.CountStepsForBuild(ctx, resources.Builds[0], nil)
 	if err != nil {
 		t.Errorf("unable to count steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -1668,7 +1669,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["CountStepsForBuild"] = true
 
 	// list the steps
-	list, err := db.ListSteps()
+	list, err := db.ListSteps(ctx)
 	if err != nil {
 		t.Errorf("unable to list steps: %v", err)
 	}
@@ -1678,7 +1679,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSteps"] = true
 
 	// list the steps for a build
-	list, count, err = db.ListStepsForBuild(resources.Builds[0], nil, 1, 10)
+	list, count, err = db.ListStepsForBuild(ctx, resources.Builds[0], nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -1694,7 +1695,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		"#init":                  1,
 		"target/vela-git:v0.3.0": 1,
 	}
-	images, err := db.ListStepImageCount()
+	images, err := db.ListStepImageCount(ctx)
 	if err != nil {
 		t.Errorf("unable to list step image count: %v", err)
 	}
@@ -1710,7 +1711,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		"running": 1,
 		"success": 0,
 	}
-	statuses, err := db.ListStepStatusCount()
+	statuses, err := db.ListStepStatusCount(ctx)
 	if err != nil {
 		t.Errorf("unable to list step status count: %v", err)
 	}
@@ -1722,7 +1723,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// lookup the steps by name
 	for _, step := range resources.Steps {
 		build := resources.Builds[step.GetBuildID()-1]
-		got, err := db.GetStepForBuild(build, step.GetNumber())
+		got, err := db.GetStepForBuild(ctx, build, step.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get step %d for build %d: %v", step.GetID(), build.GetID(), err)
 		}
@@ -1733,7 +1734,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["GetStepForBuild"] = true
 
 	// clean the steps
-	count, err = db.CleanSteps("integration testing", 1563474090)
+	count, err = db.CleanSteps(ctx, "integration testing", 1563474090)
 	if err != nil {
 		t.Errorf("unable to clean steps: %v", err)
 	}
@@ -1745,7 +1746,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// update the steps
 	for _, step := range resources.Steps {
 		step.SetStatus("success")
-		got, err := db.UpdateStep(step)
+		got, err := db.UpdateStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to update step %d: %v", step.GetID(), err)
 		}
@@ -1759,7 +1760,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the steps
 	for _, step := range resources.Steps {
-		err = db.DeleteStep(step)
+		err = db.DeleteStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to delete step %d: %v", step.GetID(), err)
 		}
