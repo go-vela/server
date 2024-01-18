@@ -57,10 +57,12 @@ func (c *client) Config(ctx context.Context, u *library.User, r *library.Repo, r
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
+	// default pipeline file names
 	files := []string{".vela.yml", ".vela.yaml"}
 
+	// starlark support - prefer .star/.py, use default as fallback
 	if strings.EqualFold(r.GetPipelineType(), constants.PipelineTypeStarlark) {
-		files = append(files, ".vela.star", ".vela.py")
+		files = append([]string{".vela.star", ".vela.py"}, files...)
 	}
 
 	// set the reference for the options to capture the pipeline configuration
@@ -576,7 +578,6 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 
 	maxRedirects := 3
 	data, _, err := client.Repositories.GetBranch(ctx, r.GetOrg(), r.GetName(), branch, maxRedirects)
-
 	if err != nil {
 		return "", "", err
 	}
