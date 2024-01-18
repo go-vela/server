@@ -379,11 +379,11 @@ func defaultAllowedEvents(sliceDefaults []string, maskDefaults int64) *library.E
 
 			events.SetComment(comment)
 		case constants.EventDelete:
-			delete := new(actions.Delete)
-			delete.SetBranch(true)
-			delete.SetTag(true)
+			del := new(actions.Delete)
+			del.SetBranch(true)
+			del.SetTag(true)
 
-			events.SetDelete(delete)
+			events.SetDelete(del)
 		}
 	}
 

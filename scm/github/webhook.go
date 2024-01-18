@@ -87,7 +87,6 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 		return c.processRepositoryEvent(h, event)
 	}
 
-	c.Logger.Tracef("help")
 	return &types.Webhook{Hook: h}, nil
 }
 
