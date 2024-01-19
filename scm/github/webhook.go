@@ -79,9 +79,9 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	case *github.IssueCommentEvent:
 		c.Logger.Tracef("issue comment")
 		return c.processIssueCommentEvent(h, event)
-	case *github.DeleteEvent:
-		c.Logger.Tracef("delete")
-		return c.processDeleteEvent(h, event)
+	//case *github.DeleteEvent:
+	//	c.Logger.Tracef("delete")
+	//	return c.processDeleteEvent(h, event)
 	case *github.RepositoryEvent:
 		c.Logger.Tracef("repository")
 		return c.processRepositoryEvent(h, event)
@@ -202,6 +202,31 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		if strings.HasPrefix(payload.GetBaseRef(), "refs/heads/") {
 			b.SetBranch(strings.TrimPrefix(payload.GetBaseRef(), "refs/heads/"))
 		}
+	}
+
+	// handle when push event is a delete
+	if strings.EqualFold(b.GetCommit(), "") {
+		b.SetCommit(payload.GetBefore())
+		b.SetRef(payload.GetBefore())
+		b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
+
+		// set the proper event for the hook
+		h.SetEvent(constants.EventDelete)
+		// set the proper event for the build
+		b.SetEvent(constants.EventDelete)
+		// set the proper action for the build
+		b.SetEventAction(constants.ActionBranch)
+		// set the proper message for the build
+		b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/heads/"), constants.ActionBranch))
+
+		if strings.HasPrefix(payload.GetRef(), "refs/tags/") {
+			b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/tags/"))
+			// set the proper action for the build
+			b.SetEventAction(constants.ActionTag)
+			// set the proper message for the build
+			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/tags/"), constants.ActionTag))
+		}
+
 	}
 
 	return &types.Webhook{

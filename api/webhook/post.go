@@ -378,6 +378,7 @@ func PostWebhook(c *gin.Context) {
 		}
 
 		b.SetCommit(commit)
+		b.SetRef(commit)
 	}
 
 	// variable to store changeset files

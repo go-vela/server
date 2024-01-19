@@ -206,8 +206,10 @@ func testRepo() *library.Repo {
 func testEvents() *library.Events {
 	return &library.Events{
 		Push: &actions.Push{
-			Branch: new(bool),
-			Tag:    new(bool),
+			Branch:       new(bool),
+			Tag:          new(bool),
+			DeleteBranch: new(bool),
+			DeleteTag:    new(bool),
 		},
 		PullRequest: &actions.Pull{
 			Opened:      new(bool),
@@ -224,10 +226,6 @@ func testEvents() *library.Events {
 		},
 		Schedule: &actions.Schedule{
 			Run: new(bool),
-		},
-		Delete: &actions.Delete{
-			Branch: new(bool),
-			Tag:    new(bool),
 		},
 	}
 }
