@@ -697,7 +697,7 @@ func PostWebhook(c *gin.Context) {
 		} else {
 			build := append(d.GetBuilds(), b)
 			d.SetBuilds(build)
-			_, err := database.FromContext(c).UpdateDeployment(d)
+			_, err := database.FromContext(c).UpdateDeployment(ctx, d)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to update deployment %s/%d: %w", baseErr, repo.GetFullName(), d.GetNumber(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
