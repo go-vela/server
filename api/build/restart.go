@@ -149,6 +149,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetStarted(0)
 	b.SetFinished(0)
 	b.SetStatus(constants.StatusPending)
+	b.SetError("")
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
