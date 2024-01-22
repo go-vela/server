@@ -214,10 +214,6 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		h.SetEvent(constants.EventDelete)
 		// set the proper event for the build
 		b.SetEvent(constants.EventDelete)
-		// set the proper action for the build
-		b.SetEventAction(constants.ActionBranch)
-		// set the proper message for the build
-		b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/heads/"), constants.ActionBranch))
 
 		if strings.HasPrefix(payload.GetRef(), "refs/tags/") {
 			b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/tags/"))
@@ -225,6 +221,11 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 			b.SetEventAction(constants.ActionTag)
 			// set the proper message for the build
 			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/tags/"), constants.ActionTag))
+		} else {
+			// set the proper action for the build
+			b.SetEventAction(constants.ActionBranch)
+			// set the proper message for the build
+			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/heads/"), constants.ActionBranch))
 		}
 
 	}
