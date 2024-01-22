@@ -5,14 +5,14 @@ steps:
       - go get ./...
     image: golang:latest
     ruleset:
-      event: [ push, pull_request, delete ]
+      event: [ push, pull_request ]
 
   - name: test
     commands:
       - go test ./...
     image: golang:latest
     ruleset:
-      event: [ push, pull_request, delete ]
+      event: [ push, pull_request ]
 
   - name: build
     commands:
@@ -22,4 +22,4 @@ steps:
       GOOS: linux
     image: golang:latest
     ruleset:
-      event: [ push, pull_request, delete ]
+      event: [ push, pull_request ]
