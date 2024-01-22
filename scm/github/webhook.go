@@ -68,19 +68,14 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*ty
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
-		c.Logger.Tracef("push")
 		return c.processPushEvent(h, event)
 	case *github.PullRequestEvent:
-		c.Logger.Tracef("pull")
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
-		c.Logger.Tracef("deployment")
 		return c.processDeploymentEvent(h, event)
 	case *github.IssueCommentEvent:
-		c.Logger.Tracef("issue comment")
 		return c.processIssueCommentEvent(h, event)
 	case *github.RepositoryEvent:
-		c.Logger.Tracef("repository")
 		return c.processRepositoryEvent(h, event)
 	}
 
@@ -206,6 +201,9 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		b.SetCommit(payload.GetBefore())
 		b.SetRef(payload.GetBefore())
 		b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
+		b.SetAuthor(payload.GetSender().GetLogin())
+		b.SetSource(fmt.Sprintf("%s/commit/%s", payload.GetRepo().GetHTMLURL(), payload.GetBefore()))
+		b.SetEmail(payload.GetPusher().GetEmail())
 
 		// set the proper event for the hook
 		h.SetEvent(constants.EventDelete)

@@ -367,20 +367,6 @@ func PostWebhook(c *gin.Context) {
 		b.SetHeadRef(headref)
 	}
 
-	// if the event is delete,
-	// call SCM for more data not provided in webhook payload
-	if strings.EqualFold(b.GetEvent(), constants.EventDelete) {
-		// send API call to capture the commit sha for the branch
-		_, commit, err := scm.FromContext(c).GetBranch(ctx, u, r, r.GetBranch())
-		if err != nil {
-			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-		}
-
-		b.SetCommit(commit)
-		b.SetRef(commit)
-	}
-
 	// variable to store changeset files
 	var files []string
 
