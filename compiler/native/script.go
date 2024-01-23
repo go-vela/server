@@ -98,16 +98,21 @@ func generateScriptPosix(commands []string) string {
 // setupScript is a helper script this is added to the build to ensure
 // a minimum set of environment variables are set correctly.
 const setupScript = `
-cat <<EOF > $HOME/.netrc
-machine $VELA_NETRC_MACHINE
-login $VELA_NETRC_USERNAME
-password $VELA_NETRC_PASSWORD
+set +e
+touch $HOME/.netrc 2>/dev/null
+if [ -w "$HOME" ]; then
+  cat <<EOF > $HOME/.netrc
+machine ${VELA_NETRC_MACHINE:-}
+login ${VELA_NETRC_USERNAME:-}
+password ${VELA_NETRC_PASSWORD:-}
 EOF
-chmod 0600 $HOME/.netrc
+  chmod 0600 $HOME/.netrc 2>/dev/null
+fi
 unset VELA_NETRC_MACHINE
 unset VELA_NETRC_USERNAME
 unset VELA_NETRC_PASSWORD
 unset VELA_BUILD_SCRIPT
+set -e
 %s
 `
 
