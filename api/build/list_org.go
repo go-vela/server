@@ -135,7 +135,8 @@ func ListBuildsForOrg(c *gin.Context) {
 		// verify the event provided is a valid event type
 		if event != constants.EventComment && event != constants.EventDeploy &&
 			event != constants.EventPush && event != constants.EventPull &&
-			event != constants.EventTag && event != constants.EventSchedule {
+			event != constants.EventTag && event != constants.EventSchedule &&
+			event != constants.EventDelete {
 			retErr := fmt.Errorf("unable to process event %s: invalid event type provided", event)
 
 			util.HandleError(c, http.StatusBadRequest, retErr)
