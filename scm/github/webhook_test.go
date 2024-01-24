@@ -175,6 +175,160 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	}
 }
 
+func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/push_delete_branch.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "push")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("delete")
+	wantHook.SetBranch("main")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics([]string{"go", "vela"})
+
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("delete")
+	wantBuild.SetEventAction("branch")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/d3d9188fc87a6977343e922c128f162a86018d76")
+	wantBuild.SetTitle("delete received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("main branch deleted")
+	wantBuild.SetCommit("d3d9188fc87a6977343e922c128f162a86018d76")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
+	wantBuild.SetBranch("main")
+	wantBuild.SetRef("d3d9188fc87a6977343e922c128f162a86018d76")
+	wantBuild.SetBaseRef("")
+
+	want := &types.Webhook{
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(context.TODO(), request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
+	// setup router
+	s := httptest.NewServer(http.NotFoundHandler())
+	defer s.Close()
+
+	// setup request
+	body, err := os.Open("testdata/hooks/push_delete_tag.json")
+	if err != nil {
+		t.Errorf("unable to open file: %v", err)
+	}
+
+	defer body.Close()
+
+	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	request.Header.Set("X-GitHub-Hook-ID", "123456")
+	request.Header.Set("X-GitHub-Event", "push")
+
+	// setup client
+	client, _ := NewTest(s.URL)
+
+	// run test
+	wantHook := new(library.Hook)
+	wantHook.SetNumber(1)
+	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
+	wantHook.SetWebhookID(123456)
+	wantHook.SetCreated(time.Now().UTC().Unix())
+	wantHook.SetHost("github.com")
+	wantHook.SetEvent("delete")
+	wantHook.SetBranch("refs/tags/v0.1")
+	wantHook.SetStatus(constants.StatusSuccess)
+	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
+
+	wantRepo := new(library.Repo)
+	wantRepo.SetOrg("Codertocat")
+	wantRepo.SetName("Hello-World")
+	wantRepo.SetFullName("Codertocat/Hello-World")
+	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
+	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantRepo.SetBranch("main")
+	wantRepo.SetPrivate(false)
+	wantRepo.SetTopics([]string{"go", "vela"})
+
+	wantBuild := new(library.Build)
+	wantBuild.SetEvent("delete")
+	wantBuild.SetEventAction("tag")
+	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/d3d9188fc87a6977343e922c128f162a86018d76")
+	wantBuild.SetTitle("delete received from https://github.com/Codertocat/Hello-World")
+	wantBuild.SetMessage("v0.1 tag deleted")
+	wantBuild.SetCommit("d3d9188fc87a6977343e922c128f162a86018d76")
+	wantBuild.SetSender("Codertocat")
+	wantBuild.SetAuthor("Codertocat")
+	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
+	wantBuild.SetBranch("v0.1")
+	wantBuild.SetRef("d3d9188fc87a6977343e922c128f162a86018d76")
+	wantBuild.SetBaseRef("")
+
+	want := &types.Webhook{
+		Hook:  wantHook,
+		Repo:  wantRepo,
+		Build: wantBuild,
+	}
+
+	got, err := client.ProcessWebhook(context.TODO(), request)
+
+	if err != nil {
+		t.Errorf("ProcessWebhook returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	}
+}
+
 func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	// setup router
 	s := httptest.NewServer(http.NotFoundHandler())
