@@ -342,10 +342,12 @@ func CreateBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, input)
 
-	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
-	if err != nil {
-		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+	// send API call to set the status on the commit except for scheduled build
+	if input.GetEvent() != constants.EventSchedule {
+		err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
+		if err != nil {
+			logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		}
 	}
 
 	// determine queue route
