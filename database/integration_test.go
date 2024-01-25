@@ -547,13 +547,13 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 
 	// update the deployments
 	for _, deployment := range resources.Deployments {
-		_, err = db.UpdateDeployment(deployment)
+		_, err = db.UpdateDeployment(context.TODO(), deployment)
 		if err != nil {
 			t.Errorf("unable to update deployment %d: %v", deployment.GetID(), err)
 		}
 
 		// lookup the deployment by ID
-		got, err := db.GetDeployment(deployment.GetID())
+		got, err := db.GetDeployment(context.TODO(), deployment.GetID())
 		if err != nil {
 			t.Errorf("unable to get deployment %d by ID: %v", deployment.GetID(), err)
 		}
@@ -566,7 +566,7 @@ func testDeployments(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the deployments
 	for _, deployment := range resources.Deployments {
-		err = db.DeleteDeployment(deployment)
+		err = db.DeleteDeployment(context.TODO(), deployment)
 		if err != nil {
 			t.Errorf("unable to delete hook %d: %v", deployment.GetID(), err)
 		}
