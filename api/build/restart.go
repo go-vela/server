@@ -149,6 +149,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetStarted(0)
 	b.SetFinished(0)
 	b.SetStatus(constants.StatusPending)
+	b.SetError("")
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
@@ -350,7 +351,7 @@ func RestartBuild(c *gin.Context) {
 
 		d.SetBuilds(build)
 
-		_, err = database.FromContext(c).UpdateDeployment(d)
+		_, err = database.FromContext(c).UpdateDeployment(ctx, d)
 		if err != nil {
 			logger.Errorf("unable to set update deployment for build %s: %v", entry, err)
 		}

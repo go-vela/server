@@ -372,7 +372,8 @@ func PostWebhook(c *gin.Context) {
 
 	// check if the build event is not issue_comment or pull_request
 	if !strings.EqualFold(b.GetEvent(), constants.EventComment) &&
-		!strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		!strings.EqualFold(b.GetEvent(), constants.EventPull) &&
+		!strings.EqualFold(b.GetEvent(), constants.EventDelete) {
 		// send API call to capture list of files changed for the commit
 		files, err = scm.FromContext(c).Changeset(ctx, u, repo, b.GetCommit())
 		if err != nil {
@@ -697,7 +698,7 @@ func PostWebhook(c *gin.Context) {
 		} else {
 			build := append(d.GetBuilds(), b)
 			d.SetBuilds(build)
-			_, err := database.FromContext(c).UpdateDeployment(d)
+			_, err := database.FromContext(c).UpdateDeployment(ctx, d)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to update deployment %s/%d: %w", baseErr, repo.GetFullName(), d.GetNumber(), err)
 				util.HandleError(c, http.StatusInternalServerError, retErr)
