@@ -39,11 +39,15 @@ func (c *client) ScriptSteps(s yaml.StepSlice) (yaml.StepSlice, error) {
 		// set the default home
 		//nolint:goconst // ignore making this a constant for now
 		home := "/root"
+
 		// override the home value if user is defined
-		// TODO:
-		// - add ability to override user home directory
 		if step.User != "" {
 			home = fmt.Sprintf("/home/%s", step.User)
+		}
+
+		// if user provides a home directory, use that
+		if override, ok := step.Environment["HOME"]; ok {
+			home = override
 		}
 
 		// generate script from commands
@@ -95,23 +99,19 @@ func generateScriptPosix(commands []string) string {
 	return base64.StdEncoding.EncodeToString([]byte(script))
 }
 
-// setupScript is a helper script that is added to the build to attempt
-// to set up the netrc file if the user has access.
+// setupScript is a helper script this is added to the build to ensure
+// a minimum set of environment variables are set correctly.
 const setupScript = `
-set +e
-if [ -w "$HOME" ]; then
-  cat <<EOF > $HOME/.netrc
-machine ${VELA_NETRC_MACHINE}
-login ${VELA_NETRC_USERNAME}
-password ${VELA_NETRC_PASSWORD}
+cat <<EOF > $HOME/.netrc
+machine $VELA_NETRC_MACHINE
+login $VELA_NETRC_USERNAME
+password $VELA_NETRC_PASSWORD
 EOF
-  chmod 0600 $HOME/.netrc 2>/dev/null
-fi
+chmod 0600 $HOME/.netrc
 unset VELA_NETRC_MACHINE
 unset VELA_NETRC_USERNAME
 unset VELA_NETRC_PASSWORD
 unset VELA_BUILD_SCRIPT
-set -e
 %s
 `
 
