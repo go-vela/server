@@ -196,6 +196,34 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		}
 	}
 
+	// handle when push event is a delete
+	if strings.EqualFold(b.GetCommit(), "") {
+		b.SetCommit(payload.GetBefore())
+		b.SetRef(payload.GetBefore())
+		b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
+		b.SetAuthor(payload.GetSender().GetLogin())
+		b.SetSource(fmt.Sprintf("%s/commit/%s", payload.GetRepo().GetHTMLURL(), payload.GetBefore()))
+		b.SetEmail(payload.GetPusher().GetEmail())
+
+		// set the proper event for the hook
+		h.SetEvent(constants.EventDelete)
+		// set the proper event for the build
+		b.SetEvent(constants.EventDelete)
+
+		if strings.HasPrefix(payload.GetRef(), "refs/tags/") {
+			b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/tags/"))
+			// set the proper action for the build
+			b.SetEventAction(constants.ActionTag)
+			// set the proper message for the build
+			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/tags/"), constants.ActionTag))
+		} else {
+			// set the proper action for the build
+			b.SetEventAction(constants.ActionBranch)
+			// set the proper message for the build
+			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/heads/"), constants.ActionBranch))
+		}
+	}
+
 	return &types.Webhook{
 		Hook:  h,
 		Repo:  r,
