@@ -3,13 +3,14 @@
 package step
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/go-vela/types/constants"
 )
 
 // ListStepStatusCount gets a list of all step statuses and the count of their occurrence from the database.
-func (e *engine) ListStepStatusCount() (map[string]float64, error) {
+func (e *engine) ListStepStatusCount(ctx context.Context) (map[string]float64, error) {
 	e.logger.Tracef("getting count of all statuses for steps from the database")
 
 	// variables to store query results and return value

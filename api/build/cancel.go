@@ -224,7 +224,7 @@ func CancelBuild(c *gin.Context) {
 
 	for page > 0 {
 		// retrieve build steps (per page) from the database
-		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
+		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, page, perPage)
 		if err != nil {
 			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
 			util.HandleError(c, http.StatusNotFound, retErr)
@@ -249,7 +249,7 @@ func CancelBuild(c *gin.Context) {
 		if step.GetStatus() == constants.StatusRunning || step.GetStatus() == constants.StatusPending {
 			step.SetStatus(constants.StatusCanceled)
 
-			_, err = database.FromContext(c).UpdateStep(step)
+			_, err = database.FromContext(c).UpdateStep(ctx, step)
 			if err != nil {
 				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
 				util.HandleError(c, http.StatusNotFound, retErr)

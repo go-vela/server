@@ -3,13 +3,14 @@
 package step
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/go-vela/types/constants"
 )
 
 // ListStepImageCount gets a list of all step images and the count of their occurrence from the database.
-func (e *engine) ListStepImageCount() (map[string]float64, error) {
+func (e *engine) ListStepImageCount(ctx context.Context) (map[string]float64, error) {
 	e.logger.Tracef("getting count of all images for steps from the database")
 
 	// variables to store query results and return value
