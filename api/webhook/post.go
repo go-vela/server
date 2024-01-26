@@ -766,12 +766,10 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	// send API call to set the status on the commit except for scheduled build
-	if b.GetEvent() != constants.EventSchedule {
-		err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
-		if err != nil {
-			logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
-		}
+	// send API call to set the status on the commit
+	err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
+	if err != nil {
+		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
 
 	// publish the build to the queue
