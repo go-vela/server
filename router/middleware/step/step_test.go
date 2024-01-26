@@ -81,13 +81,13 @@ func TestStep_Establish(t *testing.T) {
 	defer func() {
 		_ = db.DeleteBuild(context.TODO(), b)
 		_ = db.DeleteRepo(context.TODO(), r)
-		_ = db.DeleteStep(want)
+		_ = db.DeleteStep(context.TODO(), want)
 		db.Close()
 	}()
 
 	_, _ = db.CreateRepo(context.TODO(), r)
 	_, _ = db.CreateBuild(context.TODO(), b)
-	_, _ = db.CreateStep(want)
+	_, _ = db.CreateStep(context.TODO(), want)
 
 	// setup context
 	gin.SetMode(gin.TestMode)

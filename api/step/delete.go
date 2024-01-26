@@ -66,6 +66,7 @@ func DeleteStep(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -81,7 +82,7 @@ func DeleteStep(c *gin.Context) {
 	}).Infof("deleting step %s", entry)
 
 	// send API call to remove the step
-	err := database.FromContext(c).DeleteStep(s)
+	err := database.FromContext(c).DeleteStep(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to delete step %s: %w", entry, err)
 

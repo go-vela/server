@@ -131,7 +131,7 @@ func CleanResources(c *gin.Context) {
 	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
 
 	// clean steps
-	steps, err := database.FromContext(c).CleanSteps(msg, before)
+	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
 	if err != nil {
 		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. %d services cleaned. unable to update steps: %w", builds, executables, services, err)
 
