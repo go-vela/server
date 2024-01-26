@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"github.com/go-vela/types/library"
 )
 
@@ -16,34 +17,34 @@ type StepInterface interface {
 	// https://en.wikipedia.org/wiki/Data_definition_language
 
 	// CreateStepTable defines a function that creates the steps table.
-	CreateStepTable(string) error
+	CreateStepTable(context.Context, string) error
 
 	// Step Data Manipulation Language Functions
 	//
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CleanSteps defines a function that sets running or pending steps to error status before a given created time.
-	CleanSteps(string, int64) (int64, error)
+	CleanSteps(context.Context, string, int64) (int64, error)
 	// CountSteps defines a function that gets the count of all steps.
-	CountSteps() (int64, error)
+	CountSteps(context.Context) (int64, error)
 	// CountStepsForBuild defines a function that gets the count of steps by build ID.
-	CountStepsForBuild(*library.Build, map[string]interface{}) (int64, error)
+	CountStepsForBuild(context.Context, *library.Build, map[string]interface{}) (int64, error)
 	// CreateStep defines a function that creates a new step.
-	CreateStep(*library.Step) (*library.Step, error)
+	CreateStep(context.Context, *library.Step) (*library.Step, error)
 	// DeleteStep defines a function that deletes an existing step.
-	DeleteStep(*library.Step) error
+	DeleteStep(context.Context, *library.Step) error
 	// GetStep defines a function that gets a step by ID.
-	GetStep(int64) (*library.Step, error)
+	GetStep(context.Context, int64) (*library.Step, error)
 	// GetStepForBuild defines a function that gets a step by number and build ID.
-	GetStepForBuild(*library.Build, int) (*library.Step, error)
+	GetStepForBuild(context.Context, *library.Build, int) (*library.Step, error)
 	// ListSteps defines a function that gets a list of all steps.
-	ListSteps() ([]*library.Step, error)
+	ListSteps(ctx context.Context) ([]*library.Step, error)
 	// ListStepsForBuild defines a function that gets a list of steps by build ID.
-	ListStepsForBuild(*library.Build, map[string]interface{}, int, int) ([]*library.Step, int64, error)
+	ListStepsForBuild(context.Context, *library.Build, map[string]interface{}, int, int) ([]*library.Step, int64, error)
 	// ListStepImageCount defines a function that gets a list of all step images and the count of their occurrence.
-	ListStepImageCount() (map[string]float64, error)
+	ListStepImageCount(context.Context) (map[string]float64, error)
 	// ListStepStatusCount defines a function that gets a list of all step statuses and the count of their occurrence.
-	ListStepStatusCount() (map[string]float64, error)
+	ListStepStatusCount(context.Context) (map[string]float64, error)
 	// UpdateStep defines a function that updates an existing step.
-	UpdateStep(*library.Step) (*library.Step, error)
+	UpdateStep(context.Context, *library.Step) (*library.Step, error)
 }

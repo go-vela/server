@@ -60,7 +60,7 @@ func planStep(ctx context.Context, database database.Interface, b *library.Build
 	s.SetCreated(time.Now().UTC().Unix())
 
 	// send API call to create the step
-	s, err := database.CreateStep(s)
+	s, err := database.CreateStep(ctx, s)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create step %s: %w", s.GetName(), err)
 	}

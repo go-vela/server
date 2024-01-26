@@ -143,6 +143,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for steps
 	e.StepInterface, err = step.New(
+		step.WithContext(e.ctx),
 		step.WithClient(e.client),
 		step.WithLogger(e.logger),
 		step.WithSkipCreation(e.config.SkipCreation),

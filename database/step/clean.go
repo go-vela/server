@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-vela/types/constants"
@@ -12,7 +13,7 @@ import (
 )
 
 // CleanSteps updates steps to an error with a created timestamp prior to a defined moment.
-func (e *engine) CleanSteps(msg string, before int64) (int64, error) {
+func (e *engine) CleanSteps(ctx context.Context, msg string, before int64) (int64, error) {
 	logrus.Tracef("cleaning pending or running steps in the database created prior to %d", before)
 
 	s := new(library.Step)

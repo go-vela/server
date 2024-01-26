@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -19,6 +20,9 @@ func TestStep_Engine_DeleteStep(t *testing.T) {
 	_step.SetImage("bar")
 
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the query
@@ -28,8 +32,7 @@ func TestStep_Engine_DeleteStep(t *testing.T) {
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
-
-	_, err := _sqlite.CreateStep(_step)
+	_, err := _sqlite.CreateStep(ctx, _step)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -55,7 +58,7 @@ func TestStep_Engine_DeleteStep(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err = test.database.DeleteStep(_step)
+			err = test.database.DeleteStep(ctx, _step)
 
 			if test.failure {
 				if err == nil {
