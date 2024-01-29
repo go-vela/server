@@ -162,11 +162,12 @@ func UpdateBuild(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 
 	// check if the build is in a "final" state
-	if b.GetStatus() == constants.StatusSuccess ||
+	// and if build is not a scheduled event
+	if (b.GetStatus() == constants.StatusSuccess ||
 		b.GetStatus() == constants.StatusFailure ||
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
-		b.GetStatus() == constants.StatusError {
+		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
 		// send API call to capture the repo owner
 		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 		if err != nil {
