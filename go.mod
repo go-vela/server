@@ -9,12 +9,12 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/adhocore/gronx v1.6.6
 	github.com/alicebob/miniredis/v2 v2.31.1
-	github.com/aws/aws-sdk-go v1.50.3
+	github.com/aws/aws-sdk-go v1.50.7
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.22.1-0.20240122175704-d058de26b401
+	github.com/go-vela/types v0.22.1-0.20240125182149-1625a79ce6fb
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v58 v58.0.0
@@ -38,7 +38,7 @@ require (
 	gopkg.in/square/go-jose.v2 v2.6.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/driver/sqlite v1.5.4
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.6
 	k8s.io/apimachinery v0.29.1
 )
 
