@@ -3206,7 +3206,6 @@ func Test_CompileLite(t *testing.T) {
 	type args struct {
 		file         string
 		pipelineType string
-		template     bool
 		substitute   bool
 	}
 
@@ -3221,7 +3220,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/inline_with_stages.yml",
 				pipelineType: "",
-				template:     true,
 				substitute:   true,
 			},
 			want: &yaml.Build{
@@ -3313,7 +3311,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/inline_with_steps.yml",
 				pipelineType: "",
-				template:     true,
 				substitute:   true,
 			},
 			want: &yaml.Build{
@@ -3369,7 +3366,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/golang_inline_stages.yml",
 				pipelineType: "golang",
-				template:     false,
 				substitute:   false,
 			},
 			want: &yaml.Build{
@@ -3423,7 +3419,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/step_inline_template.yml",
 				pipelineType: "",
-				template:     false,
 				substitute:   false,
 			},
 			want:    nil,
@@ -3434,7 +3429,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/stage_inline_template.yml",
 				pipelineType: "",
-				template:     false,
 				substitute:   false,
 			},
 			want:    nil,
@@ -3459,7 +3453,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, _, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute)
+			got, _, err := compiler.CompileLite(yaml, tt.args.substitute)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return
