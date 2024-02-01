@@ -264,7 +264,7 @@ func PostWebhook(c *gin.Context) {
 			actionErr = ":" + b.GetEventAction()
 		}
 
-		retErr := fmt.Errorf("%s: %s does not have %s%s events enabled", baseErr, repo.GetFullName(), b.GetEvent(), actionErr)
+		retErr := fmt.Errorf("%s: %s does not have %s%s event enabled", baseErr, repo.GetFullName(), b.GetEvent(), actionErr)
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		h.SetStatus(constants.StatusSkipped)
