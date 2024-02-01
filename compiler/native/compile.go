@@ -97,7 +97,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Build, *library.Pipeline, error) {
+func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -122,10 +122,10 @@ func (c *client) CompileLite(v interface{}, template, substitute bool) (*yaml.Bu
 		p = newPipeline
 	}
 
-	if template {
-		// create map of templates for easy lookup
-		templates := mapFromTemplates(p.Templates)
+	// create map of templates for easy lookup
+	templates := mapFromTemplates(p.Templates)
 
+	if len(templates) > 0 {
 		switch {
 		case len(p.Stages) > 0:
 			// inject the templates into the steps

@@ -95,7 +95,7 @@ func CompilePipeline(c *gin.Context) {
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	// compile the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), true, true)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline %s: %w", entry, err)
 
