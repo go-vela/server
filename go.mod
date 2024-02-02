@@ -7,14 +7,14 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/Masterminds/sprig/v3 v3.2.3
-	github.com/adhocore/gronx v1.6.6
+	github.com/adhocore/gronx v1.6.7
 	github.com/alicebob/miniredis/v2 v2.31.1
-	github.com/aws/aws-sdk-go v1.50.7
+	github.com/aws/aws-sdk-go v1.50.9
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.23.0-rc1
+	github.com/go-vela/types v0.23.0-rc2
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v58 v58.0.0
