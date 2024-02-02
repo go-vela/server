@@ -412,8 +412,6 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), r.GetFullName()),
 	)
 
-	d.SetRef(b.GetRef())
-
 	return &types.Webhook{
 		Hook:       h,
 		Repo:       r,
