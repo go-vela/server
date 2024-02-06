@@ -26,7 +26,7 @@ deployments (
 	payload      VARCHAR(2500),
 	created_at   INTEGER,
 	created_by   VARCHAR(250),
-	builds       VARCHAR(50),
+	builds       VARCHAR(500),
 	UNIQUE(repo_id, number)
 );
 `
