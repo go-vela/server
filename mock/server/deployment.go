@@ -17,14 +17,18 @@ const (
 	// DeploymentResp represents a JSON return for a single build.
 	DeploymentResp = `{
   "id": 1,
+  "number": 1234,
   "repo_id": 1,
   "url": "https://api.github.com/repos/github/octocat/deployments/1",
-  "user": "octocat",
   "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
   "ref": "main",
   "task": "deploy:vela",
   "target": "production",
-  "description": "Deployment request from Vela"
+  "description": "Deployment request from Vela",
+  "payload": {},
+  "created_at": 1,
+  "created_by": "octocat",
+  "builds": []
 }`
 
 	// DeploymentsResp represents a JSON return for one to many builds.

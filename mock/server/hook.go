@@ -25,6 +25,8 @@ const (
   "created": 1563475419,
   "host": "github.com",
   "event": "push",
+  "event_action": "",
+  "webhook_id": 1234,
   "branch": "main",
   "error": "",
   "status": "success",

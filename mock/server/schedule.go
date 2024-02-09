@@ -17,6 +17,7 @@ const (
 	// ScheduleResp represents a JSON return for a single schedule.
 	ScheduleResp = `{
 	"id": 2,
+	"repo_id": 1,
 	"active": true,
 	"name": "foo",
 	"entry": "@weekly",
@@ -25,31 +26,7 @@ const (
 	"updated_at": 1683154980,
 	"updated_by": "octocat",
 	"scheduled_at": 0,
-	"repo": {
-		"id": 1,
-		"user_id": 1,
-		"org": "github",
-		"name": "octocat",
-		"full_name": "github/octocat",
-		"link": "https://github.com/github/octocat",
-		"clone": "https://github.com/github/octocat.git",
-		"branch": "main",
-		"topics": [],
-		"build_limit": 10,
-		"timeout": 30,
-		"counter": 0,
-		"visibility": "public",
-		"private": false,
-		"trusted": false,
-		"active": true,
-		"allow_pull": false,
-		"allow_push": true,
-		"allow_deploy": false,
-		"allow_tag": false,
-		"allow_comment": false,
-		"pipeline_type": "yaml",
-		"previous_name": ""
-	}
+	"branch": "main"
 }`
 	SchedulesResp = `[
 	{
@@ -62,31 +39,8 @@ const (
 		"updated_at": 1683154980,
 		"updated_by": "octocat",
 		"scheduled_at": 0,
-		"repo": {
-			"id": 1,
-			"user_id": 1,
-			"org": "github",
-			"name": "octokitty",
-			"full_name": "github/octokitty",
-			"link": "https://github.com/github/octokitty",
-			"clone": "https://github.com/github/octokitty.git",
-			"branch": "main",
-			"topics": [],
-			"build_limit": 10,
-			"timeout": 30,
-			"counter": 0,
-			"visibility": "public",
-			"private": false,
-			"trusted": false,
-			"active": true,
-			"allow_pull": false,
-			"allow_push": true,
-			"allow_deploy": false,
-			"allow_tag": false,
-			"allow_comment": false,
-			"pipeline_type": "yaml",
-			"previous_name": ""
-		}
+		"repo_id": 1,
+		"branch": "main"
 	},
 	{
 		"id": 1,
@@ -98,31 +52,8 @@ const (
 		"updated_at": 1683154974,
 		"updated_by": "octocat",
 		"scheduled_at": 0,
-		"repo": {
-			"id": 1,
-			"user_id": 1,
-			"org": "github",
-			"name": "octokitty",
-			"full_name": "github/octokitty",
-			"link": "https://github.com/github/octokitty",
-			"clone": "https://github.com/github/octokitty.git",
-			"branch": "main",
-			"topics": [],
-			"build_limit": 10,
-			"timeout": 30,
-			"counter": 0,
-			"visibility": "public",
-			"private": false,
-			"trusted": false,
-			"active": true,
-			"allow_pull": false,
-			"allow_push": true,
-			"allow_deploy": false,
-			"allow_tag": false,
-			"allow_comment": false,
-			"pipeline_type": "yaml",
-			"previous_name": ""
-		}
+		"repo_id": 1,
+		"branch": "main
 	}
 ]`
 )
