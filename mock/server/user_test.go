@@ -15,7 +15,7 @@ func TestUser_ActiveUserResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(UserResp), &testUser)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling user: %v", err)
 	}
 
 	tUser := reflect.TypeOf(testUser)

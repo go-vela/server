@@ -15,7 +15,7 @@ func TestSchedule_ActiveScheduleResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(ScheduleResp), &testSchedule)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling schedule: %v", err)
 	}
 
 	tSchedule := reflect.TypeOf(testSchedule)

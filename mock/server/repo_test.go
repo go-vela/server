@@ -15,7 +15,7 @@ func TestRepo_ActiveRepoResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(RepoResp), &testRepo)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling repo: %v", err)
 	}
 
 	tRepo := reflect.TypeOf(testRepo)

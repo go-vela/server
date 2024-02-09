@@ -15,7 +15,7 @@ func TestDeployment_ActiveDeploymentResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(DeploymentResp), &testDeployment)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling deployment: %v", err)
 	}
 
 	tDeployment := reflect.TypeOf(testDeployment)

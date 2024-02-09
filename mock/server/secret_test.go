@@ -15,7 +15,7 @@ func TestSecret_ActiveSecretResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(SecretResp), &testSecret)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling secret: %v", err)
 	}
 
 	tSecret := reflect.TypeOf(testSecret)

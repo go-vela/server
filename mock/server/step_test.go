@@ -15,7 +15,7 @@ func TestStep_ActiveStepResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(StepResp), &testStep)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling step: %v", err)
 	}
 
 	tStep := reflect.TypeOf(testStep)

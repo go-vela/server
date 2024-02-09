@@ -15,7 +15,7 @@ func TestPipeline_ActivePipelineResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(PipelineResp), &testPipeline)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling pipeline: %v", err)
 	}
 
 	tPipeline := reflect.TypeOf(testPipeline)

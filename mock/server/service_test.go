@@ -15,7 +15,7 @@ func TestService_ActiveServiceResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(ServiceResp), &testService)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling service: %v", err)
 	}
 
 	tService := reflect.TypeOf(testService)

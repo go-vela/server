@@ -15,7 +15,7 @@ func TestWorker_ActiveWorkerResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(WorkerResp), &testWorker)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling worker: %v", err)
 	}
 
 	tWorker := reflect.TypeOf(testWorker)

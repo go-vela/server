@@ -15,7 +15,7 @@ func TestHook_ActiveHookResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(HookResp), &testHook)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling hook: %v", err)
 	}
 
 	tHook := reflect.TypeOf(testHook)

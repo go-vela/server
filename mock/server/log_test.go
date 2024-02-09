@@ -15,7 +15,7 @@ func TestLog_ActiveLogResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(LogResp), &testLog)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling log: %v", err)
 	}
 
 	tLog := reflect.TypeOf(testLog)
