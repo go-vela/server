@@ -26,7 +26,13 @@ const (
 			"large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "idle",
+			"last_status_update_at": 160000000,
+			"running_build_ids": [],
+			"last_build_started_at": 1,
+			"last_build_finished_at": 2,
+			"build_limit": 1
 		}`
 
 	// WorkersResp represents a JSON return for one to many workers.
