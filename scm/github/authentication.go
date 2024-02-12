@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-vela/server/random"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v58/github"
+	"github.com/google/go-github/v59/github"
 )
 
 // Authorize uses the given access token to authorize the user.
