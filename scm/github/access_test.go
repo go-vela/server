@@ -378,7 +378,7 @@ func TestGithub_TeamList(t *testing.T) {
 	_, engine := gin.CreateTestContext(resp)
 
 	// setup mock server
-	engine.GET("/api/v3/repos/", func(c *gin.Context) {
+	engine.GET("/api/v3/user/teams", func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusOK)
 		c.File("testdata/team_admin.json")
