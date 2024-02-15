@@ -51,6 +51,9 @@ type Service interface {
 	// TeamAccess defines a function that captures
 	// the user's access level for a team.
 	TeamAccess(context.Context, *library.User, string, string) (string, error)
+	// RepoContributor defines a function that captures
+	// whether the user is a contributor for a repo.
+	RepoContributor(context.Context, *library.User, string, string, string) (bool, error)
 
 	// Teams SCM Interface Functions
 

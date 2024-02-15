@@ -75,6 +75,7 @@ func CreateRepo(c *gin.Context) {
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
 	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
+	defaultRepoApproveBuild := c.Value("defaultRepoApproveBuild").(string)
 
 	ctx := c.Request.Context()
 
@@ -151,7 +152,7 @@ func CreateRepo(c *gin.Context) {
 	if len(input.GetApproveBuild()) > 0 {
 		r.SetApproveBuild(input.GetApproveBuild())
 	} else {
-		r.SetApproveBuild(constants.ApproveForkAlways)
+		r.SetApproveBuild(defaultRepoApproveBuild)
 	}
 
 	// fields restricted to platform admins

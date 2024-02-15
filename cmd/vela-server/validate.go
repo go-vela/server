@@ -98,6 +98,13 @@ func validateCore(c *cli.Context) error {
 		}
 	}
 
+	if c.String("default-repo-approve-build") != constants.ApproveForkAlways &&
+		c.String("default-repo-approve-build") != constants.ApproveNever &&
+		c.String("default-repo-approve-build") != constants.ApproveForkNoWrite &&
+		c.String("default-repo-approve-build") != constants.ApproveOnce {
+		return fmt.Errorf("default-repo-approve-build (VELA_DEFAULT_REPO_APPROVE_BUILD) has the unsupported value of %s", c.String("default-repo-approve-build"))
+	}
+
 	return nil
 }
 
