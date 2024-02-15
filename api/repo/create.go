@@ -150,6 +150,18 @@ func CreateRepo(c *gin.Context) {
 
 	// set the fork policy field based off the input provided
 	if len(input.GetApproveBuild()) > 0 {
+		// ensure the approve build setting matches one of the expected values
+		if input.GetApproveBuild() != constants.ApproveForkAlways &&
+			input.GetApproveBuild() != constants.ApproveForkNoWrite &&
+			input.GetApproveBuild() != constants.ApproveNever &&
+			input.GetApproveBuild() != constants.ApproveOnce {
+			retErr := fmt.Errorf("approve_build of %s is invalid", input.GetApproveBuild())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
 		r.SetApproveBuild(input.GetApproveBuild())
 	} else {
 		r.SetApproveBuild(defaultRepoApproveBuild)
