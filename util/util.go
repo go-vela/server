@@ -3,6 +3,7 @@
 package util
 
 import (
+	"context"
 	"html"
 	"strings"
 
@@ -13,11 +14,19 @@ import (
 )
 
 // HandleError appends the error to the handler chain for logging and outputs it.
-func HandleError(c *gin.Context, status int, err error) {
+func HandleError(c context.Context, status int, err error) {
 	msg := err.Error()
-	//nolint:errcheck // ignore checking error
-	c.Error(err)
-	c.AbortWithStatusJSON(status, types.Error{Message: &msg})
+
+	switch ctx := c.(type) {
+	case *gin.Context:
+		//nolint:errcheck // ignore checking error
+		ctx.Error(err)
+		ctx.AbortWithStatusJSON(status, types.Error{Message: &msg})
+
+		return
+	default:
+		return
+	}
 }
 
 // MaxInt is a helper function to clamp the integer which
