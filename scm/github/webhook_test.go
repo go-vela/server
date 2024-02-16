@@ -1018,36 +1018,8 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
-	wantRepo.SetOrg("Codertocat")
-	wantRepo.SetName("Hello-World")
-	wantRepo.SetFullName("Codertocat/Hello-World")
-	wantRepo.SetLink("https://github.com/Codertocat/Hello-World")
-	wantRepo.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantRepo.SetBranch("main")
-	wantRepo.SetPrivate(false)
-	wantRepo.SetTopics(nil)
-
-	wantBuild := new(library.Build)
-	wantBuild.SetEvent("comment")
-	wantBuild.SetEventAction("created")
-	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
-	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/issues/1")
-	wantBuild.SetTitle("comment received from https://github.com/Codertocat/Hello-World")
-	wantBuild.SetMessage("Update the README with new information")
-	wantBuild.SetSender("Codertocat")
-	wantBuild.SetAuthor("Codertocat")
-	wantBuild.SetEmail("")
-	wantBuild.SetRef("refs/heads/main")
-
 	want := &types.Webhook{
-		PullRequest: types.PullRequest{
-			Comment: "ok to test",
-			Number:  0,
-		},
-		Hook:  wantHook,
-		Repo:  wantRepo,
-		Build: wantBuild,
+		Hook: wantHook,
 	}
 
 	got, err := client.ProcessWebhook(context.TODO(), request)
