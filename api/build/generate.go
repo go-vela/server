@@ -22,6 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// GeneratorForm is a struct that contains information for the generator to create a build.
 type GeneratorForm struct {
 	Build    *library.Build
 	Repo     *library.Repo
@@ -45,12 +46,15 @@ func GenerateQueueItems(
 	compiler compiler.Engine,
 	queue queue.Service,
 ) (bool, *pipeline.Build, *types.Item, error) {
-	// send API call to capture repo owner
-	logrus.Debugf("capturing owner of repository %s", form.Repo.GetFullName())
+	logrus.Debugf("generating queue items for build %s/%d", form.Repo.GetFullName(), form.Build.GetNumber())
 
+	// assign variables from form for readibility
 	r := form.Repo
 	b := form.Build
 	baseErr := form.BaseErr
+
+	// send API call to capture repo owner
+	logrus.Debugf("capturing owner of repository %s", form.Repo.GetFullName())
 
 	u, err := database.GetUser(c, r.GetUserID())
 	if err != nil {
@@ -69,12 +73,21 @@ func GenerateQueueItems(
 		return false, nil, nil, retErr
 	}
 
+	// get pull request number from build if event is pull_request or issue_comment
 	var prNum int
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) || strings.EqualFold(b.GetEvent(), constants.EventComment) {
+		prNum, err = getPRNumberFromBuild(b)
+		if err != nil {
+			retErr := fmt.Errorf("%s: failed to get pull request number for %s: %w", baseErr, r.GetFullName(), err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return false, nil, nil, retErr
+		}
+	}
 
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
 	if strings.EqualFold(form.Source, "webhook") && strings.EqualFold(b.GetEvent(), constants.EventComment) {
-		prNum, err = getPRNumberFromBuild(b)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request number for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -135,6 +148,7 @@ func GenerateQueueItems(
 	}
 
 	// update fields in build object
+	// this is necessary in case source is restart and the build is prepopulated with these values
 	b.SetID(0)
 	b.SetCreated(time.Now().UTC().Unix())
 	b.SetEnqueued(0)
@@ -145,9 +159,6 @@ func GenerateQueueItems(
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
-
-	logrus.Debug("updating status to pending")
-	b.SetStatus(constants.StatusPending)
 
 	// variable to store changeset files
 	var files []string
