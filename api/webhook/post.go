@@ -1033,6 +1033,12 @@ func gatekeepBuild(c *gin.Context, b *library.Build, r *library.Repo, u *library
 		return fmt.Errorf("unable to update build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
+	// update the build components to pending approval status
+	err = build.UpdateComponentStatuses(c, b, constants.StatusPendingApproval)
+	if err != nil {
+		return fmt.Errorf("unable to update build components for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+	}
+
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(c, u, b, r.GetOrg(), r.GetName())
 	if err != nil {
