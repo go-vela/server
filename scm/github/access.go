@@ -185,3 +185,48 @@ func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *library.User, org 
 
 	return userTeams, nil
 }
+
+// RepoContributor lists all contributors from a repository and checks if the sender is one of the contributors.
+func (c *client) RepoContributor(ctx context.Context, owner *library.User, sender, org, repo string) (bool, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  org,
+		"repo": repo,
+		"user": sender,
+	}).Tracef("capturing %s contributor status for repo %s/%s", sender, org, repo)
+
+	// create GitHub OAuth client with repo owner's token
+	client := c.newClientToken(owner.GetToken())
+
+	// set the max per page for the options to capture the list of repos
+	opts := github.ListContributorsOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100, // 100 is max
+		},
+	}
+
+	for {
+		// send API call to list all contributors for repository
+		contributors, resp, err := client.Repositories.ListContributors(ctx, org, repo, &opts)
+		if err != nil {
+			return false, err
+		}
+
+		// match login to sender to see if they are a contributor
+		//
+		// check this as we page through the results to spare API
+		for _, contributor := range contributors {
+			if strings.EqualFold(contributor.GetLogin(), sender) {
+				return true, nil
+			}
+		}
+
+		// break the loop if there is no more results to page through
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	return false, nil
+}

@@ -158,6 +158,18 @@ func UpdateRepo(c *gin.Context) {
 	}
 
 	if len(input.GetApproveBuild()) > 0 {
+		// ensure the approve build setting matches one of the expected values
+		if input.GetApproveBuild() != constants.ApproveForkAlways &&
+			input.GetApproveBuild() != constants.ApproveForkNoWrite &&
+			input.GetApproveBuild() != constants.ApproveNever &&
+			input.GetApproveBuild() != constants.ApproveOnce {
+			retErr := fmt.Errorf("approve_build of %s is invalid", input.GetApproveBuild())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
 		// update fork policy if set
 		r.SetApproveBuild(input.GetApproveBuild())
 	}

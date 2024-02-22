@@ -411,3 +411,80 @@ func TestGithub_TeamList(t *testing.T) {
 		t.Errorf("TeamAccess is %v, want %v", got, want)
 	}
 }
+
+func TestGithub_RepoContributor(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/:org/:repo/contributors", func(c *gin.Context) {
+		if c.Param("org") != "github" {
+			c.Status(http.StatusNotFound)
+
+			return
+		}
+
+		c.Header("Content-Type", "application/json")
+		c.Status(http.StatusOK)
+		c.File("testdata/list_contributors.json")
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	tests := []struct {
+		name    string
+		sender  string
+		org     string
+		repo    string
+		want    bool
+		wantErr bool
+	}{
+		{
+			name:   "repo contributor",
+			sender: "octocat",
+			org:    "github",
+			repo:   "example",
+			want:   true,
+		},
+		{
+			name:   "repo non-contributor",
+			sender: "userA",
+			org:    "github",
+			repo:   "example",
+			want:   false,
+		},
+		{
+			name:    "repo not found",
+			sender:  "octocat",
+			org:     "foo",
+			repo:    "example",
+			wantErr: true,
+		},
+	}
+
+	client, _ := NewTest(s.URL)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := client.RepoContributor(context.TODO(), u, tt.sender, tt.org, tt.repo)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RepoContributor() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if got != tt.want {
+				t.Errorf("RepoContributor() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
