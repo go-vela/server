@@ -23,3 +23,12 @@ func DefaultRepoEventsMask(defaultRepoEventsMask int64) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// DefaultRepoApproveBuild is a middleware function that attaches the defaultRepoApproveBuild
+// to enable the server to override the default repo approve build setting.
+func DefaultRepoApproveBuild(defaultRepoApproveBuild string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("defaultRepoApproveBuild", defaultRepoApproveBuild)
+		c.Next()
+	}
+}

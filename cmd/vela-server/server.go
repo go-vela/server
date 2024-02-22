@@ -120,6 +120,7 @@ func server(c *cli.Context) error {
 		middleware.Worker(c.Duration("worker-active-interval")),
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
+		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 	)
