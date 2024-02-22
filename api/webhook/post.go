@@ -759,6 +759,26 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			fallthrough
+		case constants.ApproveOnce:
+			// determine if build sender is in the contributors list for the repo
+			//
+			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
+			// GitHub adds a single-contributor API endpoint.
+			contributor, err := scm.FromContext(c).RepoContributor(ctx, u, b.GetSender(), r.GetOrg(), r.GetName())
+			if err != nil {
+				util.HandleError(c, http.StatusInternalServerError, err)
+			}
+
+			if !contributor {
+				err = gatekeepBuild(c, b, repo, u)
+				if err != nil {
+					util.HandleError(c, http.StatusInternalServerError, err)
+				}
+
+				return
+			}
+
+			fallthrough
 		case constants.ApproveNever:
 			fallthrough
 		default:
