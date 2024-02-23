@@ -146,6 +146,8 @@ func Test_ShouldAutoCancel(t *testing.T) {
 	branchDev := "dev"
 	branchPatch := "patch-1"
 
+	statusPendingApproval := constants.StatusPendingApproval
+
 	actionOpened := constants.ActionOpened
 	actionSync := constants.ActionSynchronize
 
@@ -255,6 +257,22 @@ func Test_ShouldAutoCancel(t *testing.T) {
 			},
 			branch: branchDev,
 			want:   false,
+		},
+		{
+			name: "Pending Approval Build",
+			opts: &pipeline.CancelOptions{
+				Running:       false,
+				Pending:       false,
+				DefaultBranch: false,
+			},
+			build: &library.Build{
+				Event:       &pullEvent,
+				Branch:      &branchDev,
+				EventAction: &actionOpened,
+				Status:      &statusPendingApproval,
+			},
+			branch: branchDev,
+			want:   true,
 		},
 	}
 
