@@ -47,7 +47,7 @@ func TestPipeline_Engine_ListPipelinesForRepo(t *testing.T) {
 		AddRow(2, 1, "a49aaf4afae6431a79239c95247a2b169fd9f067", "", "", "refs/heads/main", "yaml", "1", false, false, false, false, []byte{120, 94, 74, 203, 207, 7, 4, 0, 0, 255, 255, 2, 130, 1, 69})
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "pipelines" WHERE repo_id = $1 LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
