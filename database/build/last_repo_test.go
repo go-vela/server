@@ -38,7 +38,7 @@ func TestBuild_Engine_LastBuildForRepo(t *testing.T) {
 		AddRow(1, 1, nil, 1, 0, "", "", "", "", 0, 0, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0, "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch = $2 ORDER BY number DESC LIMIT 1`).WithArgs(1, "main").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch = $2 ORDER BY number DESC LIMIT $3`).WithArgs(1, "main", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

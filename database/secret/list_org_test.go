@@ -57,8 +57,8 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 		AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, nil, 1, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT 10`).
-		WithArgs(constants.SecretOrg, "foo").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT $3`).
+		WithArgs(constants.SecretOrg, "foo", 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
