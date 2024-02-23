@@ -736,6 +736,30 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// regardless of whether the build is published to queue, we want to attempt to auto-cancel if no errors
+	defer func() {
+		if err == nil && build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
+			// fetch pending and running builds
+			rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
+			if err != nil {
+				logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
+			}
+
+			for _, rB := range rBs {
+				// call auto cancel routine
+				canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
+				if err != nil {
+					// continue cancel loop if error, but log based on type of error
+					if canceled {
+						logrus.Errorf("unable to update canceled build error message: %v", err)
+					} else {
+						logrus.Errorf("unable to cancel running build: %v", err)
+					}
+				}
+			}
+		}
+	}()
+
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
 		switch repo.GetApproveBuild() {
@@ -802,27 +826,6 @@ func PostWebhook(c *gin.Context) {
 		u,
 		route,
 	)
-
-	if build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
-		// fetch pending and running builds
-		rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
-		if err != nil {
-			logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
-		}
-
-		for _, rB := range rBs {
-			// call auto cancel routine
-			canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
-			if err != nil {
-				// continue cancel loop if error, but log based on type of error
-				if canceled {
-					logrus.Errorf("unable to update canceled build error message: %v", err)
-				} else {
-					logrus.Errorf("unable to cancel running build: %v", err)
-				}
-			}
-		}
-	}
 }
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
