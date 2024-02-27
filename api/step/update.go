@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-vela/server/scm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
@@ -149,6 +151,15 @@ func UpdateStep(c *gin.Context) {
 	s, err = database.FromContext(c).UpdateStep(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %s: %w", entry, err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	err = scm.FromContext(c).UpdateChecks(ctx, r, s, b.GetCommit())
+	if err != nil {
+		retErr := fmt.Errorf("unable to set step check %s: %w", entry, err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

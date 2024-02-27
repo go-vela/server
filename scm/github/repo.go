@@ -587,14 +587,13 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 }
 
 // CreateChecks defines a function that does stuff...
-func (c *client) CreateChecks(ctx context.Context, r *library.Repo, s *library.Step, branch string) (int64, error) {
+func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step string) (int64, error) {
 	// create client from GitHub App
 	client := c.newGithubAppToken(r)
 
 	opts := github.CreateCheckRunOptions{
-		// TODO: add step name?
-		Name:    fmt.Sprintf("vela-%s-%s", branch, s.GetName()),
-		HeadSHA: branch,
+		Name:    fmt.Sprintf("vela-%s-%s", commit, step),
+		HeadSHA: commit,
 	}
 
 	check, _, err := client.Checks.CreateCheckRun(ctx, r.GetOrg(), r.GetName(), opts)
@@ -606,18 +605,52 @@ func (c *client) CreateChecks(ctx context.Context, r *library.Repo, s *library.S
 }
 
 // UpdateChecks defines a function that does stuff...
-func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.Step, id int64, branch string) error {
+func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.Step, commit string) error {
 	// create client from GitHub App
 	client := c.newGithubAppToken(r)
 
-	opts := github.UpdateCheckRunOptions{
-		// TODO: add step name?
-		Name:       fmt.Sprintf("vela-%s-%s", branch, s.GetName()),
-		Status:     github.String("completed"),
-		Conclusion: github.String("success"),
+	var (
+		conclusion string
+		status     string
+	)
+	// set the conclusion and status for the step check depending on what the status of the step is
+	switch s.GetStatus() {
+	case constants.StatusPending:
+		conclusion = "neutral"
+		status = "queued"
+	case constants.StatusPendingApproval:
+		conclusion = "action_required"
+		status = "queued"
+	case constants.StatusRunning:
+		conclusion = "neutral"
+		status = "in_progress"
+	case constants.StatusSuccess:
+		conclusion = "success"
+		status = "completed"
+	case constants.StatusFailure:
+		conclusion = "failure"
+		status = "completed"
+	case constants.StatusCanceled:
+		conclusion = "cancelled"
+		status = "completed"
+	case constants.StatusKilled:
+		conclusion = "cancelled"
+		status = "completed"
+	case constants.StatusSkipped:
+		conclusion = "skipped"
+		status = "completed"
+	default:
+		conclusion = "neutral"
+		status = "completed"
 	}
 
-	_, _, err := client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), id, opts)
+	opts := github.UpdateCheckRunOptions{
+		Name:       fmt.Sprintf("vela-%s-%s", commit, s.GetName()),
+		Conclusion: github.String(conclusion),
+		Status:     github.String(status),
+	}
+
+	_, _, err := client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
 	if err != nil {
 		return err
 	}
