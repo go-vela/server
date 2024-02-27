@@ -149,3 +149,27 @@ func WithScopes(scopes []string) ClientOpt {
 		return nil
 	}
 }
+
+// WithGithubAppID sets the ID for the GitHub App in the scm client.
+func WithGithubAppID(id int64) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring ID for GitHub App in github scm client")
+
+		// set the ID for the GitHub App in the github client
+		c.config.GithubAppID = id
+
+		return nil
+	}
+}
+
+// WithGithubPrivateKey sets the private key for the GitHub App in the scm client.
+func WithGithubPrivateKey(key string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring private key for GitHub App in github scm client")
+
+		// set the private key for the GitHub App in the github client
+		c.config.GithubAppPrivateKey = key
+
+		return nil
+	}
+}

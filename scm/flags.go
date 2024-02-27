@@ -66,4 +66,16 @@ var Flags = []cli.Flag{
 			"is behind a Firewall or NAT, or when using something like ngrok to forward webhooks. " +
 			"(defaults to VELA_ADDR).",
 	},
+	&cli.Int64Flag{
+		EnvVars:  []string{"VELA_SCM_APP_ID", "SCM_APP_ID"},
+		FilePath: "/vela/scm/app_id",
+		Name:     "scm.app.id",
+		Usage:    "(optional & experimental) ID for the GitHub App",
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY", "SCM_APP_PRIVATE_KEY"},
+		FilePath: "/vela/scm/app_private_key",
+		Name:     "scm.app.private_key",
+		Usage:    "(optional & experimental) private key for the GitHub App",
+	},
 }

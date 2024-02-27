@@ -45,6 +45,9 @@ type config struct {
 	WebUIAddress string
 	// specifies the OAuth scopes to use for the GitHub client
 	Scopes []string
+	// optional and experimental
+	GithubAppID         int64
+	GithubAppPrivateKey string
 }
 
 type client struct {

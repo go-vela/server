@@ -24,6 +24,8 @@ func setupSCM(c *cli.Context) (scm.Service, error) {
 		StatusContext:        c.String("scm.context"),
 		WebUIAddress:         c.String("webui-addr"),
 		Scopes:               c.StringSlice("scm.scopes"),
+		GithubAppID:          c.Int64("scm.app.id"),
+		GithubAppPrivateKey:  c.String("scm.app.private_key"),
 	}
 
 	// setup the scm
