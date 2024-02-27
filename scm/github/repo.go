@@ -585,3 +585,42 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 
 	return data.GetName(), data.GetCommit().GetSHA(), nil
 }
+
+// CreateChecks defines a function that does stuff...
+func (c *client) CreateChecks(ctx context.Context, r *library.Repo, s *library.Step, branch string) (int64, error) {
+	// create client from GitHub App
+	client := c.newGithubAppToken(r)
+
+	opts := github.CreateCheckRunOptions{
+		// TODO: add step name?
+		Name:    fmt.Sprintf("vela-%s-%s", branch, s.GetName()),
+		HeadSHA: branch,
+	}
+
+	check, _, err := client.Checks.CreateCheckRun(ctx, r.GetOrg(), r.GetName(), opts)
+	if err != nil {
+		return 0, err
+	}
+
+	return check.GetID(), nil
+}
+
+// UpdateChecks defines a function that does stuff...
+func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.Step, id int64, branch string) error {
+	// create client from GitHub App
+	client := c.newGithubAppToken(r)
+
+	opts := github.UpdateCheckRunOptions{
+		// TODO: add step name?
+		Name:       fmt.Sprintf("vela-%s-%s", branch, s.GetName()),
+		Status:     github.String("completed"),
+		Conclusion: github.String("success"),
+	}
+
+	_, _, err := client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), id, opts)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -132,6 +132,10 @@ type Service interface {
 	// a repository file's html_url.
 	GetHTMLURL(context.Context, *library.User, string, string, string, string) (string, error)
 
+	// TODO: add comments
+	CreateChecks(context.Context, *library.Repo, *library.Step, string) (int64, error)
+	UpdateChecks(context.Context, *library.Repo, *library.Step, int64, string) error
+
 	// Webhook SCM Interface Functions
 
 	// ProcessWebhook defines a function that
