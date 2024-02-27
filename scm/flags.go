@@ -76,6 +76,6 @@ var Flags = []cli.Flag{
 		EnvVars:  []string{"VELA_SCM_APP_PRIVATE_KEY", "SCM_APP_PRIVATE_KEY"},
 		FilePath: "/vela/scm/app_private_key",
 		Name:     "scm.app.private_key",
-		Usage:    "(optional & experimental) private key for the GitHub App",
+		Usage:    "(optional & experimental) path to private key for the GitHub App",
 	},
 }

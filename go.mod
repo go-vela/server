@@ -10,6 +10,7 @@ require (
 	github.com/adhocore/gronx v1.6.7
 	github.com/alicebob/miniredis/v2 v2.31.1
 	github.com/aws/aws-sdk-go v1.50.24
+	github.com/bradleyfalzon/ghinstallation/v2 v2.9.0
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
@@ -66,8 +67,10 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
+	github.com/google/go-github/v57 v57.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect

@@ -5,8 +5,13 @@ package github
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
+	"strings"
 
+	"github.com/go-vela/types/library"
+
+	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/google/go-github/v59/github"
 	"github.com/sirupsen/logrus"
 
@@ -51,9 +56,10 @@ type config struct {
 }
 
 type client struct {
-	config  *config
-	OAuth   *oauth2.Config
-	AuthReq *github.AuthorizationRequest
+	config        *config
+	OAuth         *oauth2.Config
+	AuthReq       *github.AuthorizationRequest
+	AppsTransport *ghinstallation.AppsTransport
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }
@@ -112,6 +118,17 @@ func New(opts ...ClientOpt) (*client, error) {
 		Scopes:       githubScopes,
 	}
 
+	if c.config.GithubAppID != 0 && len(c.config.GithubAppPrivateKey) > 0 {
+		c.Logger.Infof("sourcing private key from path: %s", c.config.GithubAppPrivateKey)
+		transport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, c.config.GithubAppID, c.config.GithubAppPrivateKey)
+		if err != nil {
+			return nil, err
+		}
+
+		transport.BaseURL = c.config.API
+		c.AppsTransport = transport
+	}
+
 	return c, nil
 }
 
@@ -166,4 +183,41 @@ func (c *client) newClientToken(token string) *github.Client {
 	github.BaseURL, _ = url.Parse(c.config.API)
 
 	return github
+}
+
+// helper function to return the GitHub App token.
+func (c *client) newGithubAppToken(r *library.Repo) *github.Client {
+	// create a github client based off the existing GitHub App configuration
+	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
+	if err != nil {
+		panic(err)
+	}
+
+	// list all installations (a.k.a. orgs) where the GitHub App is installed
+	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	var id int64
+	// iterate through the list of installations
+	for _, install := range installations {
+		// find the installation that matches the org for the repo
+		if strings.EqualFold(install.GetAccount().GetLogin(), r.GetOrg()) {
+			id = install.GetID()
+		}
+	}
+
+	// failsafe in case the repo does not belong to an org where the GitHub App is installed
+	if id == 0 {
+		panic(err)
+	}
+
+	// create installation token for the repo
+	t, _, err := client.Apps.CreateInstallationToken(context.Background(), id, &github.InstallationTokenOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	return c.newClientToken(t.GetToken())
 }
