@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -11,6 +12,9 @@ import (
 func TestStep_Engine_CreateStepTable(t *testing.T) {
 	// setup types
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	_mock.ExpectExec(CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -39,7 +43,7 @@ func TestStep_Engine_CreateStepTable(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := test.database.CreateStepTable(test.name)
+			err := test.database.CreateStepTable(ctx, test.name)
 
 			if test.failure {
 				if err == nil {

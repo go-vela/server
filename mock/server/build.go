@@ -18,9 +18,11 @@ const (
 	BuildResp = `{
   "id": 1,
   "repo_id": 1,
+  "pipeline_id": 1,
   "number": 1,
   "parent": 1,
   "event": "push",
+  "event_action": "",
   "status": "created",
   "error": "",
   "enqueued": 1563474077,
@@ -28,6 +30,8 @@ const (
   "started": 1563474077,
   "finished": 0,
   "deploy": "",
+  "deploy_number": 1,
+  "deploy_payload": {},
   "clone": "https://github.com/github/octocat.git",
   "source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
   "title": "push received from https://github.com/github/octocat",
@@ -39,10 +43,13 @@ const (
   "link": "https://vela.example.company.com/github/octocat/1",
   "branch": "main",
   "ref": "refs/heads/main",
+  "head_ref": "",
   "base_ref": "",
   "host": "example.company.com",
   "runtime": "docker",
-  "distribution": "linux"
+  "distribution": "linux",
+  "approved_at": 0,
+  "approved_by": ""
 }`
 
 	// BuildsResp represents a JSON return for one to many builds.
@@ -299,6 +306,23 @@ func cancelBuild(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, BuildResp)
+}
+
+// approveBuild has a param :build and returns mock JSON for a http POST.
+//
+// Pass "0" to :build to test receiving a http 403 response.
+func approveBuild(c *gin.Context) {
+	b := c.Param("build")
+
+	if strings.EqualFold(b, "0") {
+		msg := "user does not have admin permissions for the repo"
+
+		c.AbortWithStatusJSON(http.StatusForbidden, types.Error{Message: &msg})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, fmt.Sprintf("Successfully approved build %s", b))
 }
 
 // buildQueue has a param :after returns mock JSON for a http GET.

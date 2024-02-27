@@ -14,6 +14,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
+	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -29,7 +30,7 @@ const (
 	scheduleWait = "waiting to trigger build for schedule"
 )
 
-func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
@@ -102,7 +103,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		//
 		// The previous occurrence of the schedule must be after the starting time of processing schedules.
 		if !prevTime.After(start) {
-			logrus.Tracef("%s %s: previous occurence not after starting point", scheduleWait, schedule.GetName())
+			logrus.Tracef("%s %s: previous occurrence not after starting point", scheduleWait, schedule.GetName())
 
 			continue
 		}
@@ -122,7 +123,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		}
 
 		// process the schedule and trigger a new build
-		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm)
+		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm, allowList)
 		if err != nil {
 			logrus.WithError(err).Warnf("%s %s", scheduleErr, schedule.GetName())
 
@@ -134,11 +135,16 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 }
 
 //nolint:funlen // ignore function length and number of statements
-func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service) error {
+func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(ctx, s.GetRepoID())
 	if err != nil {
 		return fmt.Errorf("unable to fetch repo: %w", err)
+	}
+
+	// ensure repo has not been removed from allow list
+	if !util.CheckAllowlist(r, allowList) {
+		return fmt.Errorf("skipping schedule: repo %s no longer on allow list", r.GetFullName())
 	}
 
 	logrus.Tracef("processing schedule %s/%s", r.GetFullName(), s.GetName())
@@ -160,7 +166,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// send API call to confirm repo owner has at least write access to repo
-	_, err = scm.RepoAccess(ctx, u, u.GetToken(), r.GetOrg(), r.GetName())
+	_, err = scm.RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		return fmt.Errorf("%s does not have at least write access for repo %s", u.GetName(), r.GetFullName())
 	}
@@ -271,6 +277,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 			// parent should be "1" if it's the first build ran
 			b.SetParent(1)
 		}
+
 		r.SetCounter(r.GetCounter() + 1)
 
 		// set the build link if a web address is provided
@@ -383,15 +390,36 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		return fmt.Errorf("unable to get new build %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
+	// determine queue route
+	route, err := queue.Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		build.CleanBuild(ctx, database, b, nil, nil, err)
+
+		return err
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	b.SetHost(route)
+
+	err = build.PublishBuildExecutable(ctx, database, p, b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+		return retErr
+	}
+
 	// publish the build to the queue
 	go build.PublishToQueue(
 		ctx,
 		queue,
 		database,
-		p,
 		b,
 		r,
 		u,
+		route,
 	)
 
 	return nil

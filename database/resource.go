@@ -1,6 +1,4 @@
-// Copyright (c) 2023 Target Brands, Ine. All rights reserved.
-//
-// Use of this source code is governed by the LICENSE file in this repository.
+// SPDX-License-Identifier: Apache-2.0
 
 package database
 
@@ -8,6 +6,7 @@ import (
 	"context"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -44,6 +43,17 @@ func (e *engine) NewResources(ctx context.Context) error {
 		executable.WithSkipCreation(e.config.SkipCreation),
 		executable.WithEncryptionKey(e.config.EncryptionKey),
 		executable.WithDriver(e.config.Driver),
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the database agnostic engine for deployments
+	e.DeploymentInterface, err = deployment.New(
+		deployment.WithContext(e.ctx),
+		deployment.WithClient(e.client),
+		deployment.WithLogger(e.logger),
+		deployment.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -133,6 +143,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for steps
 	e.StepInterface, err = step.New(
+		step.WithContext(e.ctx),
 		step.WithClient(e.client),
 		step.WithLogger(e.logger),
 		step.WithSkipCreation(e.config.SkipCreation),

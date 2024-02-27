@@ -50,14 +50,14 @@ type BuildInterface interface {
 	LastBuildForRepo(context.Context, *library.Repo, string) (*library.Build, error)
 	// ListBuilds defines a function that gets a list of all builds.
 	ListBuilds(context.Context) ([]*library.Build, error)
-	// ListBuildsForDeployment defines a function that gets a list of builds by deployment url.
-	ListBuildsForDeployment(context.Context, *library.Deployment, map[string]interface{}, int, int) ([]*library.Build, int64, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
 	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*library.Build, int64, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.
 	ListBuildsForRepo(context.Context, *library.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
 	ListPendingAndRunningBuilds(context.Context, string) ([]*library.BuildQueue, error)
+	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.
+	ListPendingAndRunningBuildsForRepo(context.Context, *library.Repo) ([]*library.Build, error)
 	// UpdateBuild defines a function that updates an existing build.
 	UpdateBuild(context.Context, *library.Build) (*library.Build, error)
 }

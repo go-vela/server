@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -34,6 +35,8 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 	_stepTwo.SetImage("bar")
 
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -49,17 +52,17 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 ORDER BY id DESC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateStep(_stepOne)
+	_, err := _sqlite.CreateStep(ctx, _stepOne)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateStep(_stepTwo)
+	_, err = _sqlite.CreateStep(ctx, _stepTwo)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -90,7 +93,7 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListStepsForBuild(_build, filters, 1, 10)
+			got, _, err := test.database.ListStepsForBuild(ctx, _build, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

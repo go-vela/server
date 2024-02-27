@@ -23,6 +23,7 @@ func TestNative_Get(t *testing.T) {
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
 	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
@@ -37,7 +38,7 @@ func TestNative_Get(t *testing.T) {
 	defer db.Close()
 
 	defer func() {
-		db.DeleteSecret(context.TODO(), want)
+		_ = db.DeleteSecret(context.TODO(), want)
 		db.Close()
 	}()
 

@@ -112,7 +112,8 @@ func TestNative_TransformStages(t *testing.T) {
 				ID:      "__0",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
@@ -167,7 +168,8 @@ func TestNative_TransformStages(t *testing.T) {
 				ID:      "localOrg_localRepo_1",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
@@ -339,7 +341,8 @@ func TestNative_TransformSteps(t *testing.T) {
 				ID:      "__0",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{
@@ -389,7 +392,8 @@ func TestNative_TransformSteps(t *testing.T) {
 				ID:      "localOrg_localRepo_1",
 				Version: "v1",
 				Metadata: pipeline.Metadata{
-					Clone: true,
+					Clone:      true,
+					AutoCancel: &pipeline.CancelOptions{},
 				},
 				Services: pipeline.ContainerSlice{
 					&pipeline.Container{

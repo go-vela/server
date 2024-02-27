@@ -77,6 +77,7 @@ func UpdateStep(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -145,7 +146,7 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	// send API call to update the step
-	s, err = database.FromContext(c).UpdateStep(s)
+	s, err = database.FromContext(c).UpdateStep(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %s: %w", entry, err)
 

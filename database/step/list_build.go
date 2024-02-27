@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -10,7 +11,7 @@ import (
 )
 
 // ListStepsForBuild gets a list of all steps from the database.
-func (e *engine) ListStepsForBuild(b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
+func (e *engine) ListStepsForBuild(ctx context.Context, b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Step, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("listing steps for build %d from the database", b.GetNumber())
@@ -21,7 +22,7 @@ func (e *engine) ListStepsForBuild(b *library.Build, filters map[string]interfac
 	steps := []*library.Step{}
 
 	// count the results
-	count, err := e.CountStepsForBuild(b, filters)
+	count, err := e.CountStepsForBuild(ctx, b, filters)
 	if err != nil {
 		return steps, 0, err
 	}

@@ -28,6 +28,7 @@ builds (
 	started        INTEGER,
 	finished       INTEGER,
 	deploy         VARCHAR(500),
+	deploy_number  INTEGER,
 	deploy_payload VARCHAR(2000),
 	clone          VARCHAR(1000),
 	source         VARCHAR(1000),
@@ -45,6 +46,8 @@ builds (
 	host           VARCHAR(250),
 	runtime        VARCHAR(250),
 	distribution   VARCHAR(250),
+	approved_at    INTEGER,
+	approved_by    VARCHAR(250),
 	timestamp      INTEGER,
 	UNIQUE(repo_id, number)
 );
@@ -69,6 +72,7 @@ builds (
 	started        INTEGER,
 	finished       INTEGER,
 	deploy         TEXT,
+	deploy_number  INTEGER,
 	deploy_payload TEXT,
 	clone          TEXT,
 	source         TEXT,
@@ -86,6 +90,8 @@ builds (
 	host           TEXT,
 	runtime        TEXT,
 	distribution   TEXT,
+	approved_at    INTEGER,
+	approved_by    TEXT,
 	timestamp      INTEGER,
 	UNIQUE(repo_id, number)
 );

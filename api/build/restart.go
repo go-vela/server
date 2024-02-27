@@ -98,6 +98,14 @@ func RestartBuild(c *gin.Context) {
 		"user":  u.GetName(),
 	})
 
+	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
+		retErr := fmt.Errorf("unable to restart build %s/%d: cannot restart a build pending approval", r.GetFullName(), b.GetNumber())
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	logger.Infof("restarting build %s", entry)
 
 	// send API call to capture the repo owner
@@ -141,6 +149,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetStarted(0)
 	b.SetFinished(0)
 	b.SetStatus(constants.StatusPending)
+	b.SetError("")
 	b.SetHost("")
 	b.SetRuntime("")
 	b.SetDistribution("")
@@ -290,8 +299,6 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// check if the pipeline did not already exist in the database
-	//
-	//nolint:dupl // ignore duplicate code
 	if pipeline == nil {
 		pipeline = compiled
 		pipeline.SetRepoID(r.GetID())
@@ -333,10 +340,49 @@ func RestartBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, b)
 
+	// if the event is a deployment, update the build list
+	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		d, err := database.FromContext(c).GetDeploymentForRepo(c, r, b.GetDeployNumber())
+		if err != nil {
+			logger.Errorf("unable to set get deployment for build %s: %v", entry, err)
+		}
+
+		build := append(d.GetBuilds(), b)
+
+		d.SetBuilds(build)
+
+		_, err = database.FromContext(c).UpdateDeployment(ctx, d)
+		if err != nil {
+			logger.Errorf("unable to set update deployment for build %s: %v", entry, err)
+		}
+	}
+
 	// send API call to set the status on the commit
 	err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logger.Errorf("unable to set commit status for build %s: %v", entry, err)
+	}
+
+	// determine queue route
+	route, err := queue.FromContext(c).Route(&p.Worker)
+	if err != nil {
+		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, database.FromContext(c), b, nil, nil, err)
+
+		return
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	b.SetHost(route)
+
+	err = PublishBuildExecutable(ctx, database.FromContext(c), p, b)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
 	}
 
 	// publish the build to the queue
@@ -344,9 +390,9 @@ func RestartBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		p,
 		b,
 		r,
 		u,
+		route,
 	)
 }

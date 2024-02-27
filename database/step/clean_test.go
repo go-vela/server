@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -52,6 +53,8 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	_stepFour.SetStatus("pending")
 
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// ensure the mock expects the name query
@@ -62,22 +65,22 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateStep(_stepOne)
+	_, err := _sqlite.CreateStep(ctx, _stepOne)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateStep(_stepTwo)
+	_, err = _sqlite.CreateStep(ctx, _stepTwo)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateStep(_stepThree)
+	_, err = _sqlite.CreateStep(ctx, _stepThree)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateStep(_stepFour)
+	_, err = _sqlite.CreateStep(ctx, _stepFour)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -106,7 +109,7 @@ func TestStep_Engine_CleanStep(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CleanSteps("msg", 3)
+			got, err := test.database.CleanSteps(ctx, "msg", 3)
 
 			if test.failure {
 				if err == nil {

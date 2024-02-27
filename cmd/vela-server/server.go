@@ -119,6 +119,8 @@ func server(c *cli.Context) error {
 		middleware.SecureCookie(c.Bool("vela-enable-secure-cookie")),
 		middleware.Worker(c.Duration("worker-active-interval")),
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
+		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
+		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
 		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 	)
@@ -212,7 +214,7 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm)
+			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

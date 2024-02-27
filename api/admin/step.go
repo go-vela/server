@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -53,6 +52,7 @@ func UpdateStep(c *gin.Context) {
 
 	// capture body from API request
 	input := new(library.Step)
+	ctx := c.Request.Context()
 
 	err := c.Bind(input)
 	if err != nil {
@@ -64,7 +64,7 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	// send API call to update the step
-	s, err := database.FromContext(c).UpdateStep(input)
+	s, err := database.FromContext(c).UpdateStep(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %d: %w", input.GetID(), err)
 

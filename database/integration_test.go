@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -117,6 +118,8 @@ func TestDatabase_Integration(t *testing.T) {
 			}
 
 			t.Run("test_builds", func(t *testing.T) { testBuilds(t, db, resources) })
+
+			t.Run("test_deployments", func(t *testing.T) { testDeployments(t, db, resources) })
 
 			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
 
@@ -252,23 +255,10 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list builds: %v", err)
 	}
-	if !cmp.Equal(list, resources.Builds) {
-		t.Errorf("ListBuilds() is %v, want %v", list, resources.Builds)
+	if diff := cmp.Diff(resources.Builds, list); diff != "" {
+		t.Errorf("ListBuilds() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuilds"] = true
-
-	// list the builds for a deployment
-	list, count, err = db.ListBuildsForDeployment(context.TODO(), resources.Deployments[0], nil, 1, 10)
-	if err != nil {
-		t.Errorf("unable to list builds for deployment %d: %v", resources.Deployments[0].GetID(), err)
-	}
-	if int(count) != len(resources.Builds) {
-		t.Errorf("ListBuildsForDeployment() is %v, want %v", count, len(resources.Builds))
-	}
-	if !cmp.Equal(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
-		t.Errorf("ListBuildsForDeployment() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
-	}
-	methods["ListBuildsForDeployment"] = true
 
 	// list the builds for an org
 	list, count, err = db.ListBuildsForOrg(context.TODO(), resources.Repos[0].GetOrg(), nil, 1, 10)
@@ -278,8 +268,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForOrg() is %v, want %v", count, len(resources.Builds))
 	}
-	if !cmp.Equal(list, resources.Builds) {
-		t.Errorf("ListBuildsForOrg() is %v, want %v", list, resources.Builds)
+	if diff := cmp.Diff(resources.Builds, list); diff != "" {
+		t.Errorf("ListBuildsForOrg() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForOrg"] = true
 
@@ -291,18 +281,31 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if !cmp.Equal(list, []*library.Build{resources.Builds[1], resources.Builds[0]}) {
-		t.Errorf("ListBuildsForRepo() is %v, want %v", list, []*library.Build{resources.Builds[1], resources.Builds[0]})
+	if diff := cmp.Diff([]*library.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
+		t.Errorf("ListBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForRepo"] = true
+
+	// list the pending / running builds for a repo
+	list, err = db.ListPendingAndRunningBuildsForRepo(context.TODO(), resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to list pending and running builds for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	if diff := cmp.Diff([]*library.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
+		t.Errorf("ListPendingAndRunningBuildsForRepo() mismatch (-want +got):\n%s", diff)
+	}
+	methods["ListPendingAndRunningBuildsForRepo"] = true
 
 	// list the pending and running builds
 	queueList, err := db.ListPendingAndRunningBuilds(context.TODO(), "0")
 	if err != nil {
 		t.Errorf("unable to list pending and running builds: %v", err)
 	}
-	if !cmp.Equal(queueList, queueBuilds) {
-		t.Errorf("ListPendingAndRunningBuilds() is %v, want %v", queueList, queueBuilds)
+	if diff := cmp.Diff(queueBuilds, queueList); diff != "" {
+		t.Errorf("ListPendingAndRunningBuilds() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListPendingAndRunningBuilds"] = true
 
@@ -311,8 +314,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last build for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !cmp.Equal(got, resources.Builds[1]) {
-		t.Errorf("LastBuildForRepo() is %v, want %v", got, resources.Builds[1])
+	if diff := cmp.Diff(resources.Builds[1], got); diff != "" {
+		t.Errorf("LastBuildForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["LastBuildForRepo"] = true
 
@@ -323,8 +326,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
 		}
-		if !cmp.Equal(got, build) {
-			t.Errorf("GetBuildForRepo() is %v, want %v", got, build)
+		if diff := cmp.Diff(build, got); diff != "" {
+			t.Errorf("GetBuildForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["GetBuildForRepo"] = true
@@ -352,8 +355,8 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get build %d by ID: %v", build.GetID(), err)
 		}
-		if !cmp.Equal(got, build) {
-			t.Errorf("GetBuild() is %v, want %v", got, build)
+		if diff := cmp.Diff(build, got); diff != "" {
+			t.Errorf("GetBuild() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["UpdateBuild"] = true
@@ -417,16 +420,163 @@ func testExecutables(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get executable %d for build %d: %v", executable.GetID(), executable.GetBuildID(), err)
 		}
-		if !cmp.Equal(got, executable) {
-			t.Errorf("PopBuildExecutable() is %v, want %v", got, executable)
+		if diff := cmp.Diff(executable, got); diff != "" {
+			t.Errorf("PopBuildExecutable() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["PopBuildExecutable"] = true
+
+	resources.Builds[0].SetStatus(constants.StatusError)
+
+	_, err := db.UpdateBuild(context.TODO(), resources.Builds[0])
+	if err != nil {
+		t.Errorf("unable to update build for clean executables test")
+	}
+
+	err = db.CreateBuildExecutable(context.TODO(), resources.Executables[0])
+	if err != nil {
+		t.Errorf("unable to create executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	count, err := db.CleanBuildExecutables(context.TODO())
+	if err != nil {
+		t.Errorf("unable to clean executable %d: %v", resources.Executables[0].GetID(), err)
+	}
+
+	if count != 1 {
+		t.Errorf("CleanBuildExecutables should have affected 1 row, affected %d", count)
+	}
+
+	_, err = db.PopBuildExecutable(context.TODO(), resources.Builds[0].GetID())
+	if err == nil {
+		t.Errorf("build executable not cleaned")
+	}
+
+	methods["CleanBuildExecutables"] = true
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for pipelines", method)
+		}
+	}
+}
+
+func testDeployments(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for deployments
+	methods := make(map[string]bool)
+	// capture the element type of the deployment interface
+	element := reflect.TypeOf(new(deployment.DeploymentInterface)).Elem()
+	// iterate through all methods found in the deployment interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for deployments
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	// create the deployments
+	for _, deployment := range resources.Deployments {
+		_, err := db.CreateDeployment(context.TODO(), deployment)
+		if err != nil {
+			t.Errorf("unable to create deployment %d: %v", deployment.GetID(), err)
+		}
+	}
+	methods["CreateDeployment"] = true
+
+	// count the deployments
+	count, err := db.CountDeployments(context.TODO())
+	if err != nil {
+		t.Errorf("unable to count deployment: %v", err)
+	}
+	if int(count) != len(resources.Deployments) {
+		t.Errorf("CountDeployments() is %v, want %v", count, len(resources.Deployments))
+	}
+	methods["CountDeployments"] = true
+
+	// count the deployments for a repo
+	count, err = db.CountDeploymentsForRepo(context.TODO(), resources.Repos[0])
+	if err != nil {
+		t.Errorf("unable to count deployments for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Builds) {
+		t.Errorf("CountDeploymentsForRepo() is %v, want %v", count, len(resources.Builds))
+	}
+	methods["CountDeploymentsForRepo"] = true
+
+	// list the deployments
+	list, err := db.ListDeployments(context.TODO())
+	if err != nil {
+		t.Errorf("unable to list deployments: %v", err)
+	}
+	if diff := cmp.Diff(resources.Deployments, list); diff != "" {
+		t.Errorf("ListDeployments() mismatch (-want +got):\n%s", diff)
+	}
+	methods["ListDeployments"] = true
+
+	// list the deployments for a repo
+	list, err = db.ListDeploymentsForRepo(context.TODO(), resources.Repos[0], 1, 10)
+	if err != nil {
+		t.Errorf("unable to list deployments for repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if int(count) != len(resources.Deployments) {
+		t.Errorf("ListDeploymentsForRepo() is %v, want %v", count, len(resources.Deployments))
+	}
+	if diff := cmp.Diff([]*library.Deployment{resources.Deployments[1], resources.Deployments[0]}, list); diff != "" {
+		t.Errorf("ListDeploymentsForRepo() mismatch (-want +got):\n%s", diff)
+	}
+	methods["ListDeploymentsForRepo"] = true
+
+	// lookup the deployments by name
+	for _, deployment := range resources.Deployments {
+		repo := resources.Repos[deployment.GetRepoID()-1]
+		got, err := db.GetDeploymentForRepo(context.TODO(), repo, deployment.GetNumber())
+		if err != nil {
+			t.Errorf("unable to get deployment %d for repo %d: %v", deployment.GetID(), repo.GetID(), err)
+		}
+		if diff := cmp.Diff(deployment, got); diff != "" {
+			t.Errorf("GetDeploymentForRepo() mismatch (-want +got):\n%s", diff)
+		}
+	}
+	methods["GetDeploymentForRepo"] = true
+
+	// update the deployments
+	for _, deployment := range resources.Deployments {
+		_, err = db.UpdateDeployment(context.TODO(), deployment)
+		if err != nil {
+			t.Errorf("unable to update deployment %d: %v", deployment.GetID(), err)
+		}
+
+		// lookup the deployment by ID
+		got, err := db.GetDeployment(context.TODO(), deployment.GetID())
+		if err != nil {
+			t.Errorf("unable to get deployment %d by ID: %v", deployment.GetID(), err)
+		}
+		if diff := cmp.Diff(deployment, got); diff != "" {
+			t.Errorf("GetDeployment() mismatch (-want +got):\n%s", diff)
+		}
+	}
+	methods["UpdateDeployment"] = true
+	methods["GetDeployment"] = true
+
+	// delete the deployments
+	for _, deployment := range resources.Deployments {
+		err = db.DeleteDeployment(context.TODO(), deployment)
+		if err != nil {
+			t.Errorf("unable to delete hook %d: %v", deployment.GetID(), err)
+		}
+	}
+	methods["DeleteDeployment"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for deployments", method)
 		}
 	}
 }
@@ -483,8 +633,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list hooks: %v", err)
 	}
-	if !cmp.Equal(list, resources.Hooks) {
-		t.Errorf("ListHooks() is %v, want %v", list, resources.Hooks)
+	if diff := cmp.Diff(resources.Hooks, list); diff != "" {
+		t.Errorf("ListHooks() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListHooks"] = true
 
@@ -497,8 +647,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Hooks)-1 {
 		t.Errorf("ListHooksForRepo() is %v, want %v", count, len(resources.Hooks))
 	}
-	if !cmp.Equal(list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]}) {
-		t.Errorf("ListHooksForRepo() is %v, want %v", list, []*library.Hook{resources.Hooks[1], resources.Hooks[0]})
+	if diff := cmp.Diff([]*library.Hook{resources.Hooks[1], resources.Hooks[0]}, list); diff != "" {
+		t.Errorf("ListHooksForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListHooksForRepo"] = true
 
@@ -507,8 +657,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !cmp.Equal(got, resources.Hooks[1]) {
-		t.Errorf("LastHookForRepo() is %v, want %v", got, resources.Hooks[1])
+	if diff := cmp.Diff(resources.Hooks[1], got); diff != "" {
+		t.Errorf("LastHookForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["LastHookForRepo"] = true
 
@@ -517,8 +667,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
-	if !reflect.DeepEqual(got, resources.Hooks[2]) {
-		t.Errorf("GetHookByWebhookID() is %v, want %v", got, resources.Hooks[2])
+	if diff := cmp.Diff(resources.Hooks[2], got); diff != "" {
+		t.Errorf("GetHookByWebhookID() mismatch (-want +got):\n%s", diff)
 	}
 	methods["GetHookByWebhookID"] = true
 
@@ -529,8 +679,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get hook %d for repo %d: %v", hook.GetID(), repo.GetID(), err)
 		}
-		if !cmp.Equal(got, hook) {
-			t.Errorf("GetHookForRepo() is %v, want %v", got, hook)
+		if diff := cmp.Diff(hook, got); diff != "" {
+			t.Errorf("GetHookForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["GetHookForRepo"] = true
@@ -548,8 +698,8 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get hook %d by ID: %v", hook.GetID(), err)
 		}
-		if !cmp.Equal(got, hook) {
-			t.Errorf("GetHook() is %v, want %v", got, hook)
+		if diff := cmp.Diff(hook, got); diff != "" {
+			t.Errorf("GetHook() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["UpdateHook"] = true
@@ -624,8 +774,8 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list logs: %v", err)
 	}
-	if !cmp.Equal(list, resources.Logs) {
-		t.Errorf("ListLogs() is %v, want %v", list, resources.Logs)
+	if diff := cmp.Diff(resources.Logs, list); diff != "" {
+		t.Errorf("ListLogs() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListLogs"] = true
 
@@ -637,8 +787,8 @@ func testLogs(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Logs) {
 		t.Errorf("ListLogsForBuild() is %v, want %v", count, len(resources.Logs))
 	}
-	if !cmp.Equal(list, resources.Logs) {
-		t.Errorf("ListLogsForBuild() is %v, want %v", list, resources.Logs)
+	if diff := cmp.Diff(resources.Logs, list); diff != "" {
+		t.Errorf("ListLogsForBuild() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListLogsForBuild"] = true
 
@@ -757,8 +907,8 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list pipelines: %v", err)
 	}
-	if !cmp.Equal(list, resources.Pipelines) {
-		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
+	if diff := cmp.Diff(resources.Pipelines, list); diff != "" {
+		t.Errorf("ListPipelines() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListPipelines"] = true
 
@@ -770,8 +920,8 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Pipelines) {
 		t.Errorf("ListPipelinesForRepo() is %v, want %v", count, len(resources.Pipelines))
 	}
-	if !cmp.Equal(list, resources.Pipelines) {
-		t.Errorf("ListPipelines() is %v, want %v", list, resources.Pipelines)
+	if diff := cmp.Diff(resources.Pipelines, list); diff != "" {
+		t.Errorf("ListPipelines() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListPipelinesForRepo"] = true
 
@@ -782,8 +932,8 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get pipeline %d for repo %d: %v", pipeline.GetID(), repo.GetID(), err)
 		}
-		if !cmp.Equal(got, pipeline) {
-			t.Errorf("GetPipelineForRepo() is %v, want %v", got, pipeline)
+		if diff := cmp.Diff(pipeline, got); diff != "" {
+			t.Errorf("GetPipelineForRepo() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["GetPipelineForRepo"] = true
@@ -801,8 +951,8 @@ func testPipelines(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get pipeline %d by ID: %v", pipeline.GetID(), err)
 		}
-		if !cmp.Equal(got, pipeline) {
-			t.Errorf("GetPipeline() is %v, want %v", got, pipeline)
+		if diff := cmp.Diff(pipeline, got); diff != "" {
+			t.Errorf("GetPipeline() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["UpdatePipeline"] = true
@@ -887,8 +1037,8 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if err != nil {
 		t.Errorf("unable to list repos: %v", err)
 	}
-	if !cmp.Equal(list, resources.Repos) {
-		t.Errorf("ListRepos() is %v, want %v", list, resources.Repos)
+	if diff := cmp.Diff(resources.Repos, list); diff != "" {
+		t.Errorf("ListRepos() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListRepos"] = true
 
@@ -900,8 +1050,8 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("ListReposForOrg() is %v, want %v", count, len(resources.Repos))
 	}
-	if !cmp.Equal(list, resources.Repos) {
-		t.Errorf("ListReposForOrg() is %v, want %v", list, resources.Repos)
+	if diff := cmp.Diff(resources.Repos, list); diff != "" {
+		t.Errorf("ListReposForOrg() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListReposForOrg"] = true
 
@@ -913,8 +1063,8 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Repos) {
 		t.Errorf("ListReposForUser() is %v, want %v", count, len(resources.Repos))
 	}
-	if !cmp.Equal(list, resources.Repos) {
-		t.Errorf("ListReposForUser() is %v, want %v", list, resources.Repos)
+	if diff := cmp.Diff(resources.Repos, list); diff != "" {
+		t.Errorf("ListReposForUser() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListReposForUser"] = true
 
@@ -924,8 +1074,8 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get repo %d by org: %v", repo.GetID(), err)
 		}
-		if !cmp.Equal(got, repo) {
-			t.Errorf("GetRepoForOrg() is %v, want %v", got, repo)
+		if diff := cmp.Diff(repo, got); diff != "" {
+			t.Errorf("GetRepoForOrg() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["GetRepoForOrg"] = true
@@ -1487,10 +1637,11 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		// add the method name to the list of functions
 		methods[element.Method(i).Name] = false
 	}
+	ctx := context.TODO()
 
 	// create the steps
 	for _, step := range resources.Steps {
-		_, err := db.CreateStep(step)
+		_, err := db.CreateStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to create step %d: %v", step.GetID(), err)
 		}
@@ -1498,7 +1649,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateStep"] = true
 
 	// count the steps
-	count, err := db.CountSteps()
+	count, err := db.CountSteps(ctx)
 	if err != nil {
 		t.Errorf("unable to count steps: %v", err)
 	}
@@ -1508,7 +1659,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSteps"] = true
 
 	// count the steps for a build
-	count, err = db.CountStepsForBuild(resources.Builds[0], nil)
+	count, err = db.CountStepsForBuild(ctx, resources.Builds[0], nil)
 	if err != nil {
 		t.Errorf("unable to count steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -1518,7 +1669,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["CountStepsForBuild"] = true
 
 	// list the steps
-	list, err := db.ListSteps()
+	list, err := db.ListSteps(ctx)
 	if err != nil {
 		t.Errorf("unable to list steps: %v", err)
 	}
@@ -1528,7 +1679,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSteps"] = true
 
 	// list the steps for a build
-	list, count, err = db.ListStepsForBuild(resources.Builds[0], nil, 1, 10)
+	list, count, err = db.ListStepsForBuild(ctx, resources.Builds[0], nil, 1, 10)
 	if err != nil {
 		t.Errorf("unable to list steps for build %d: %v", resources.Builds[0].GetID(), err)
 	}
@@ -1544,7 +1695,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		"#init":                  1,
 		"target/vela-git:v0.3.0": 1,
 	}
-	images, err := db.ListStepImageCount()
+	images, err := db.ListStepImageCount(ctx)
 	if err != nil {
 		t.Errorf("unable to list step image count: %v", err)
 	}
@@ -1560,7 +1711,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 		"running": 1,
 		"success": 0,
 	}
-	statuses, err := db.ListStepStatusCount()
+	statuses, err := db.ListStepStatusCount(ctx)
 	if err != nil {
 		t.Errorf("unable to list step status count: %v", err)
 	}
@@ -1572,7 +1723,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// lookup the steps by name
 	for _, step := range resources.Steps {
 		build := resources.Builds[step.GetBuildID()-1]
-		got, err := db.GetStepForBuild(build, step.GetNumber())
+		got, err := db.GetStepForBuild(ctx, build, step.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get step %d for build %d: %v", step.GetID(), build.GetID(), err)
 		}
@@ -1583,7 +1734,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	methods["GetStepForBuild"] = true
 
 	// clean the steps
-	count, err = db.CleanSteps("integration testing", 1563474090)
+	count, err = db.CleanSteps(ctx, "integration testing", 1563474090)
 	if err != nil {
 		t.Errorf("unable to clean steps: %v", err)
 	}
@@ -1595,7 +1746,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 	// update the steps
 	for _, step := range resources.Steps {
 		step.SetStatus("success")
-		got, err := db.UpdateStep(step)
+		got, err := db.UpdateStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to update step %d: %v", step.GetID(), err)
 		}
@@ -1609,7 +1760,7 @@ func testSteps(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the steps
 	for _, step := range resources.Steps {
-		err = db.DeleteStep(step)
+		err = db.DeleteStep(ctx, step)
 		if err != nil {
 			t.Errorf("unable to delete step %d: %v", step.GetID(), err)
 		}
@@ -1788,7 +1939,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	methods["CountWorkers"] = true
 
 	// list the workers
-	list, err := db.ListWorkers(context.TODO())
+	list, err := db.ListWorkers(context.TODO(), "all", time.Now().Unix(), 0)
 	if err != nil {
 		t.Errorf("unable to list workers: %v", err)
 	}
@@ -1857,6 +2008,7 @@ func newResources() *Resources {
 	buildOne.SetStarted(1563474078)
 	buildOne.SetFinished(1563474079)
 	buildOne.SetDeploy("")
+	buildOne.SetDeployNumber(0)
 	buildOne.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
 	buildOne.SetClone("https://github.com/github/octocat.git")
 	buildOne.SetSource("https://github.com/github/octocat/deployments/1")
@@ -1874,6 +2026,8 @@ func newResources() *Resources {
 	buildOne.SetHost("example.company.com")
 	buildOne.SetRuntime("docker")
 	buildOne.SetDistribution("linux")
+	buildOne.SetApprovedAt(1563474078)
+	buildOne.SetApprovedBy("OctoCat")
 
 	buildTwo := new(library.Build)
 	buildTwo.SetID(2)
@@ -1890,6 +2044,7 @@ func newResources() *Resources {
 	buildTwo.SetStarted(1563474078)
 	buildTwo.SetFinished(1563474079)
 	buildTwo.SetDeploy("")
+	buildTwo.SetDeployNumber(0)
 	buildTwo.SetDeployPayload(raw.StringSliceMap{"foo": "test1"})
 	buildTwo.SetClone("https://github.com/github/octocat.git")
 	buildTwo.SetSource("https://github.com/github/octocat/deployments/1")
@@ -1907,6 +2062,8 @@ func newResources() *Resources {
 	buildTwo.SetHost("example.company.com")
 	buildTwo.SetRuntime("docker")
 	buildTwo.SetDistribution("linux")
+	buildTwo.SetApprovedAt(1563474078)
+	buildTwo.SetApprovedBy("OctoCat")
 
 	executableOne := new(library.BuildExecutable)
 	executableOne.SetID(1)
@@ -1918,29 +2075,36 @@ func newResources() *Resources {
 	executableTwo.SetBuildID(2)
 	executableTwo.SetData([]byte("foo"))
 
+	builds := []*library.Build{}
 	deploymentOne := new(library.Deployment)
 	deploymentOne.SetID(1)
+	deploymentOne.SetNumber(1)
 	deploymentOne.SetRepoID(1)
 	deploymentOne.SetURL("https://github.com/github/octocat/deployments/1")
-	deploymentOne.SetUser("octocat")
 	deploymentOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
 	deploymentOne.SetRef("refs/heads/main")
 	deploymentOne.SetTask("vela-deploy")
 	deploymentOne.SetTarget("production")
 	deploymentOne.SetDescription("Deployment request from Vela")
 	deploymentOne.SetPayload(map[string]string{"foo": "test1"})
+	deploymentOne.SetCreatedAt(1)
+	deploymentOne.SetCreatedBy("octocat")
+	deploymentOne.SetBuilds(builds)
 
 	deploymentTwo := new(library.Deployment)
-	deploymentTwo.SetID(1)
+	deploymentTwo.SetID(2)
+	deploymentTwo.SetNumber(2)
 	deploymentTwo.SetRepoID(1)
 	deploymentTwo.SetURL("https://github.com/github/octocat/deployments/2")
-	deploymentTwo.SetUser("octocat")
 	deploymentTwo.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135164")
 	deploymentTwo.SetRef("refs/heads/main")
 	deploymentTwo.SetTask("vela-deploy")
 	deploymentTwo.SetTarget("production")
 	deploymentTwo.SetDescription("Deployment request from Vela")
 	deploymentTwo.SetPayload(map[string]string{"foo": "test1"})
+	deploymentTwo.SetCreatedAt(1)
+	deploymentTwo.SetCreatedBy("octocat")
+	deploymentTwo.SetBuilds(builds)
 
 	hookOne := new(library.Hook)
 	hookOne.SetID(1)
@@ -2081,6 +2245,8 @@ func newResources() *Resources {
 	repoOne.SetAllowComment(false)
 	repoOne.SetPipelineType("")
 	repoOne.SetPreviousName("")
+	repoOne.SetApproveBuild(constants.ApproveNever)
+	repoOne.SetAllowEvents(library.NewEventsFromMask(1))
 
 	repoTwo := new(library.Repo)
 	repoTwo.SetID(2)
@@ -2107,6 +2273,8 @@ func newResources() *Resources {
 	repoTwo.SetAllowComment(false)
 	repoTwo.SetPipelineType("")
 	repoTwo.SetPreviousName("")
+	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
+	repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)
@@ -2144,6 +2312,7 @@ func newResources() *Resources {
 	secretOrg.SetType("org")
 	secretOrg.SetImages([]string{"alpine"})
 	secretOrg.SetEvents([]string{"push", "tag", "deployment"})
+	secretOrg.SetAllowEvents(library.NewEventsFromMask(1))
 	secretOrg.SetAllowCommand(true)
 	secretOrg.SetCreatedAt(time.Now().UTC().Unix())
 	secretOrg.SetCreatedBy("octocat")
@@ -2160,6 +2329,7 @@ func newResources() *Resources {
 	secretRepo.SetType("repo")
 	secretRepo.SetImages([]string{"alpine"})
 	secretRepo.SetEvents([]string{"push", "tag", "deployment"})
+	secretRepo.SetAllowEvents(library.NewEventsFromMask(1))
 	secretRepo.SetAllowCommand(true)
 	secretRepo.SetCreatedAt(time.Now().UTC().Unix())
 	secretRepo.SetCreatedBy("octocat")
@@ -2177,6 +2347,7 @@ func newResources() *Resources {
 	secretShared.SetImages([]string{"alpine"})
 	secretShared.SetEvents([]string{"push", "tag", "deployment"})
 	secretShared.SetAllowCommand(true)
+	secretShared.SetAllowEvents(library.NewEventsFromMask(1))
 	secretShared.SetCreatedAt(time.Now().UTC().Unix())
 	secretShared.SetCreatedBy("octocat")
 	secretShared.SetUpdatedAt(time.Now().Add(time.Hour * 1).UTC().Unix())
@@ -2283,7 +2454,7 @@ func newResources() *Resources {
 	workerOne.SetRunningBuildIDs([]string{"12345"})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	workerOne.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerOne.SetBuildLimit(1)
 
 	workerTwo := new(library.Worker)
@@ -2297,7 +2468,7 @@ func newResources() *Resources {
 	workerTwo.SetRunningBuildIDs([]string{"12345"})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
-	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix())
+	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{

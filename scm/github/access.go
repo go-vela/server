@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v59/github"
 )
 
 // OrgAccess captures the user's access level for an org.
@@ -48,29 +48,31 @@ func (c *client) OrgAccess(ctx context.Context, u *library.User, org string) (st
 }
 
 // RepoAccess captures the user's access level for a repo.
-func (c *client) RepoAccess(ctx context.Context, u *library.User, token, org, repo string) (string, error) {
+func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
-		"user": u.GetName(),
-	}).Tracef("capturing %s access level to repo %s/%s", u.GetName(), org, repo)
+		"user": name,
+	}).Tracef("capturing %s access level to repo %s/%s", name, org, repo)
 
 	// check if user is accessing repo in personal org
-	if strings.EqualFold(org, u.GetName()) {
+	if strings.EqualFold(org, name) {
 		c.Logger.WithFields(logrus.Fields{
 			"org":  org,
 			"repo": repo,
-			"user": u.GetName(),
-		}).Debugf("skipping access level check for user %s with repo %s/%s", u.GetName(), org, repo)
+			"user": name,
+		}).Debugf("skipping access level check for user %s with repo %s/%s", name, org, repo)
 
 		return "admin", nil
 	}
 
 	// create github oauth client with the given token
+	//
+	//nolint:contextcheck // ignore context passing
 	client := c.newClientToken(token)
 
 	// send API call to capture repo access level for user
-	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, u.GetName())
+	perm, _, err := client.Repositories.GetPermissionLevel(ctx, org, repo, name)
 	if err != nil {
 		return "", err
 	}
@@ -182,4 +184,49 @@ func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *library.User, org 
 	}
 
 	return userTeams, nil
+}
+
+// RepoContributor lists all contributors from a repository and checks if the sender is one of the contributors.
+func (c *client) RepoContributor(ctx context.Context, owner *library.User, sender, org, repo string) (bool, error) {
+	c.Logger.WithFields(logrus.Fields{
+		"org":  org,
+		"repo": repo,
+		"user": sender,
+	}).Tracef("capturing %s contributor status for repo %s/%s", sender, org, repo)
+
+	// create GitHub OAuth client with repo owner's token
+	client := c.newClientToken(owner.GetToken())
+
+	// set the max per page for the options to capture the list of repos
+	opts := github.ListContributorsOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100, // 100 is max
+		},
+	}
+
+	for {
+		// send API call to list all contributors for repository
+		contributors, resp, err := client.Repositories.ListContributors(ctx, org, repo, &opts)
+		if err != nil {
+			return false, err
+		}
+
+		// match login to sender to see if they are a contributor
+		//
+		// check this as we page through the results to spare API
+		for _, contributor := range contributors {
+			if strings.EqualFold(contributor.GetLogin(), sender) {
+				return true, nil
+			}
+		}
+
+		// break the loop if there is no more results to page through
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opts.Page = resp.NextPage
+	}
+
+	return false, nil
 }

@@ -12,8 +12,8 @@ import (
 // ScmHandlers is a function that extends the provided base router group
 // with the API handlers for source code management functionality.
 //
-// GET    /api/v1/scm/orgs/:org/sync
-// GET    /api/v1/scm/repos/:org/:repo/sync .
+// PATCH   /api/v1/scm/orgs/:org/sync
+// PATCH   /api/v1/scm/repos/:org/:repo/sync .
 func ScmHandlers(base *gin.RouterGroup) {
 	// SCM orgs endpoints
 	orgs := base.Group("/scm/orgs")
@@ -21,7 +21,7 @@ func ScmHandlers(base *gin.RouterGroup) {
 		// SCM org endpoints
 		org := orgs.Group("/:org", org.Establish())
 		{
-			org.GET("/sync", scm.SyncReposForOrg)
+			org.PATCH("/sync", scm.SyncReposForOrg)
 		} // end of SCM org endpoints
 	} // end of SCM orgs endpoints
 
@@ -31,7 +31,7 @@ func ScmHandlers(base *gin.RouterGroup) {
 		// SCM repo endpoints
 		repo := repos.Group("/:org/:repo", org.Establish(), repo.Establish())
 		{
-			repo.GET("/sync", scm.SyncRepo)
+			repo.PATCH("/sync", scm.SyncRepo)
 		} // end of SCM repo endpoints
 	} // end of SCM repos endpoints
 }

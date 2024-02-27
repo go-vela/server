@@ -132,6 +132,17 @@ func main() {
 			Usage:   "override default events for newly activated repositories",
 			Value:   cli.NewStringSlice(constants.EventPush),
 		},
+		&cli.Int64Flag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS_MASK"},
+			Name:    "default-repo-events-mask",
+			Usage:   "set default event mask for newly activated repositories",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_APPROVE_BUILD"},
+			Name:    "default-repo-approve-build",
+			Usage:   "override default approve build for newly activated repositories",
+			Value:   constants.ApproveForkAlways,
+		},
 		// Token Manager Flags
 		&cli.DurationFlag{
 			EnvVars: []string{"VELA_USER_ACCESS_TOKEN_DURATION", "USER_ACCESS_TOKEN_DURATION"},

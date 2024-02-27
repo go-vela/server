@@ -101,8 +101,8 @@ func validateStages(s yaml.StageSlice) error {
 				return fmt.Errorf("no name provided for step for stage %s", stage.Name)
 			}
 
-			if len(step.Image) == 0 && len(step.Template.Name) == 0 {
-				return fmt.Errorf("no image or template provided for step %s for stage %s", step.Name, stage.Name)
+			if len(step.Image) == 0 {
+				return fmt.Errorf("no image provided for step %s for stage %s", step.Name, stage.Name)
 			}
 
 			if step.Name == "clone" || step.Name == "init" {
@@ -128,8 +128,8 @@ func validateSteps(s yaml.StepSlice) error {
 			return fmt.Errorf("no name provided for step")
 		}
 
-		if len(step.Image) == 0 && len(step.Template.Name) == 0 {
-			return fmt.Errorf("no image or template provided for step %s", step.Name)
+		if len(step.Image) == 0 {
+			return fmt.Errorf("no image provided for step %s", step.Name)
 		}
 
 		if step.Name == "clone" || step.Name == "init" {

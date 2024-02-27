@@ -10,6 +10,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -218,11 +219,39 @@ func testSecret() *library.Secret {
 		Type:         new(string),
 		Images:       new([]string),
 		Events:       new([]string),
+		AllowEvents:  testEvents(),
 		AllowCommand: new(bool),
 		CreatedAt:    new(int64),
 		CreatedBy:    new(string),
 		UpdatedAt:    new(int64),
 		UpdatedBy:    new(string),
+	}
+}
+
+func testEvents() *library.Events {
+	return &library.Events{
+		Push: &actions.Push{
+			Branch:       new(bool),
+			Tag:          new(bool),
+			DeleteBranch: new(bool),
+			DeleteTag:    new(bool),
+		},
+		PullRequest: &actions.Pull{
+			Opened:      new(bool),
+			Edited:      new(bool),
+			Synchronize: new(bool),
+			Reopened:    new(bool),
+		},
+		Deployment: &actions.Deploy{
+			Created: new(bool),
+		},
+		Comment: &actions.Comment{
+			Created: new(bool),
+			Edited:  new(bool),
+		},
+		Schedule: &actions.Schedule{
+			Run: new(bool),
+		},
 	}
 }
 
