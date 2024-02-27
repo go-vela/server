@@ -16,6 +16,7 @@ IF NOT EXISTS
 build_executables (
 	id               SERIAL PRIMARY KEY,
 	build_id         INTEGER,
+	repo_id          INTEGER,
 	data             BYTEA,
 	UNIQUE(build_id)
 );
@@ -28,6 +29,7 @@ IF NOT EXISTS
 build_executables (
 	id               INTEGER PRIMARY KEY AUTOINCREMENT,
 	build_id         INTEGER,
+	repo_id          INTEGER,
 	data             BLOB,
 	UNIQUE(build_id)
 );
