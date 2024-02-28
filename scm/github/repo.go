@@ -589,7 +589,10 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 // CreateChecks defines a function that does stuff...
 func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step string) (int64, error) {
 	// create client from GitHub App
-	client := c.newGithubAppToken(r)
+	client, err := c.newGithubAppToken(r)
+	if err != nil {
+		return 0, err
+	}
 
 	opts := github.CreateCheckRunOptions{
 		Name:    fmt.Sprintf("vela-%s-%s", commit, step),
@@ -607,7 +610,10 @@ func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step
 // UpdateChecks defines a function that does stuff...
 func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.Step, commit string) error {
 	// create client from GitHub App
-	client := c.newGithubAppToken(r)
+	client, err := c.newGithubAppToken(r)
+	if err != nil {
+		return err
+	}
 
 	var (
 		conclusion string
@@ -650,7 +656,7 @@ func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.S
 		Status:     github.String(status),
 	}
 
-	_, _, err := client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
+	_, _, err = client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
 	if err != nil {
 		return err
 	}

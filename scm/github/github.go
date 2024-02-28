@@ -186,17 +186,28 @@ func (c *client) newClientToken(token string) *github.Client {
 }
 
 // helper function to return the GitHub App token.
-func (c *client) newGithubAppToken(r *library.Repo) *github.Client {
+func (c *client) newGithubAppToken(r *library.Repo) (*github.Client, error) {
 	// create a github client based off the existing GitHub App configuration
 	client, err := github.NewClient(&http.Client{Transport: c.AppsTransport}).WithEnterpriseURLs(c.config.API, c.config.API)
 	if err != nil {
-		panic(err)
+		return nil, err
+	}
+
+	// if repo has an install ID, use it to create an installation token
+	if r.GetInstallID() != 0 {
+		// create installation token for the repo
+		t, _, err := client.Apps.CreateInstallationToken(context.Background(), r.GetInstallID(), &github.InstallationTokenOptions{})
+		if err != nil {
+			panic(err)
+		}
+
+		return c.newClientToken(t.GetToken()), nil
 	}
 
 	// list all installations (a.k.a. orgs) where the GitHub App is installed
 	installations, _, err := client.Apps.ListInstallations(context.Background(), &github.ListOptions{})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var id int64
@@ -210,7 +221,7 @@ func (c *client) newGithubAppToken(r *library.Repo) *github.Client {
 
 	// failsafe in case the repo does not belong to an org where the GitHub App is installed
 	if id == 0 {
-		panic(err)
+		return nil, err
 	}
 
 	// create installation token for the repo
@@ -219,5 +230,5 @@ func (c *client) newGithubAppToken(r *library.Repo) *github.Client {
 		panic(err)
 	}
 
-	return c.newClientToken(t.GetToken())
+	return c.newClientToken(t.GetToken()), nil
 }

@@ -38,7 +38,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
-		s, err := planStep(ctx, database, b, step, "")
+		s, err := planStep(ctx, database, scm, b, r, step, "")
 		if err != nil {
 			return steps, err
 		}
@@ -61,14 +61,15 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	s.SetStatus(constants.StatusPending)
 	s.SetCreated(time.Now().UTC().Unix())
 
-	id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName())
-	if err != nil {
-		// TODO: make this error more meaningful
-		return nil, err
-	}
+	if c.ReportStatus {
+		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName())
+		if err != nil {
+			// TODO: make this error more meaningful
+			return nil, err
+		}
 
-	// TODO: have to store the check ID somewhere
-	s.SetCheckID(id)
+		s.SetCheckID(id)
+	}
 
 	// send API call to create the step
 	s, err := database.CreateStep(ctx, s)
