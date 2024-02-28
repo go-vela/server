@@ -587,7 +587,7 @@ func (c *client) GetBranch(ctx context.Context, u *library.User, r *library.Repo
 }
 
 // CreateChecks defines a function that does stuff...
-func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step string) (int64, error) {
+func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step, event string) (int64, error) {
 	// create client from GitHub App
 	client, err := c.newGithubAppToken(r)
 	if err != nil {
@@ -595,7 +595,7 @@ func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step
 	}
 
 	opts := github.CreateCheckRunOptions{
-		Name:    fmt.Sprintf("vela-%s-%s", commit, step),
+		Name:    fmt.Sprintf("vela-%s-%s", event, step),
 		HeadSHA: commit,
 	}
 
@@ -608,7 +608,7 @@ func (c *client) CreateChecks(ctx context.Context, r *library.Repo, commit, step
 }
 
 // UpdateChecks defines a function that does stuff...
-func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.Step, commit string) error {
+func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.Step, commit, event string) error {
 	// create client from GitHub App
 	client, err := c.newGithubAppToken(r)
 	if err != nil {
@@ -651,7 +651,7 @@ func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.S
 	}
 
 	opts := github.UpdateCheckRunOptions{
-		Name:       fmt.Sprintf("vela-%s-%s", commit, s.GetName()),
+		Name:       fmt.Sprintf("vela-%s-%s", event, s.GetName()),
 		Conclusion: github.String(conclusion),
 		Status:     github.String(status),
 	}

@@ -4,6 +4,9 @@ package github
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -120,10 +123,23 @@ func New(opts ...ClientOpt) (*client, error) {
 
 	if c.config.GithubAppID != 0 && len(c.config.GithubAppPrivateKey) > 0 {
 		c.Logger.Infof("sourcing private key from path: %s", c.config.GithubAppPrivateKey)
-		transport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, c.config.GithubAppID, c.config.GithubAppPrivateKey)
+
+		decodedPEM, err := base64.StdEncoding.DecodeString(c.config.GithubAppPrivateKey)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error decoding base64: %w", err)
 		}
+
+		block, _ := pem.Decode(decodedPEM)
+		if block == nil {
+			return nil, fmt.Errorf("failed to parse PEM block containing the key")
+		}
+
+		privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse RSA private key: %w", err)
+		}
+
+		transport := ghinstallation.NewAppsTransportFromPrivateKey(http.DefaultTransport, c.config.GithubAppID, privateKey)
 
 		transport.BaseURL = c.config.API
 		c.AppsTransport = transport

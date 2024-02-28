@@ -62,7 +62,7 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	s.SetCreated(time.Now().UTC().Unix())
 
 	if c.ReportStatus {
-		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName())
+		id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName(), b.GetEvent())
 		if err != nil {
 			// TODO: make this error more meaningful
 			return nil, err
