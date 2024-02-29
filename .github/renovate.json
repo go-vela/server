@@ -12,7 +12,8 @@
       "matchStrings": [
         "\\/\\/ renovate: image=(?<depName>.*?)\\s+?.*[:|=]\\s+\"(?<currentValue>.*)\"\\,?"
       ],
-      "versioningTemplate": "docker"
+      "versioningTemplate": "docker",
+      "datasourceTemplate": "docker"
     }
   ]
 }
