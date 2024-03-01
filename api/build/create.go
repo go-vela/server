@@ -137,7 +137,7 @@ func CreateBuild(c *gin.Context) {
 	c.JSON(http.StatusCreated, items.Build)
 
 	// publish the build to the queue
-	go PublishToQueue(
+	go Enqueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),

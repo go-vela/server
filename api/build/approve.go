@@ -116,7 +116,7 @@ func ApproveBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go PublishToQueue(
+	go Enqueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),

@@ -446,7 +446,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go build.PublishToQueue(
+	go build.Enqueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),

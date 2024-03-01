@@ -194,7 +194,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	}
 
 	// publish the build to the queue
-	go build.PublishToQueue(
+	go build.Enqueue(
 		ctx,
 		queue,
 		database,

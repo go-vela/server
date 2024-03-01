@@ -14,8 +14,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PublishToQueue is a helper function that publishes a queue item (build, repo, user) to the queue.
-func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interface, b *library.Build, r *library.Repo, u *library.User, route string) {
+// Enqueue is a helper function that pushes a queue item (build, repo, user) to the queue.
+func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, b *library.Build, r *library.Repo, u *library.User, route string) {
 	// convert build, repo, and user into queue item
 	item := types.ToItem(b, r, u)
 
@@ -31,9 +31,7 @@ func PublishToQueue(ctx context.Context, queue queue.Service, db database.Interf
 		return
 	}
 
-	logrus.Infof("Establishing route for build %d for %s", b.GetNumber(), r.GetFullName())
-
-	logrus.Infof("Publishing item for build %d for %s to queue %s", b.GetNumber(), r.GetFullName(), route)
+	logrus.Infof("Pushing item for build %d for %s to queue route %s", b.GetNumber(), r.GetFullName(), route)
 
 	// push item on to the queue
 	err = queue.Push(context.Background(), route, byteItem)
