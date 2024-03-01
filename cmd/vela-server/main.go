@@ -88,7 +88,8 @@ func main() {
 			EnvVars: []string{"VELA_CLONE_IMAGE"},
 			Name:    "clone-image",
 			Usage:   "the clone image to use for the injected clone step",
-			Value:   "target/vela-git:v0.8.0@sha256:02de004ae9dbf184c70039cb9ce431c31d6e7580eb9e6ec64a97ebf108aa65cb",
+			// renovate: image=target/vela-git
+			Value: "target/vela-git:v0.8.0@sha256:02de004ae9dbf184c70039cb9ce431c31d6e7580eb9e6ec64a97ebf108aa65cb",
 		},
 		&cli.StringSliceFlag{
 			EnvVars: []string{"VELA_REPO_ALLOWLIST"},
@@ -136,6 +137,12 @@ func main() {
 			EnvVars: []string{"VELA_DEFAULT_REPO_EVENTS_MASK"},
 			Name:    "default-repo-events-mask",
 			Usage:   "set default event mask for newly activated repositories",
+		},
+		&cli.StringFlag{
+			EnvVars: []string{"VELA_DEFAULT_REPO_APPROVE_BUILD"},
+			Name:    "default-repo-approve-build",
+			Usage:   "override default approve build for newly activated repositories",
+			Value:   constants.ApproveForkAlways,
 		},
 		// Token Manager Flags
 		&cli.DurationFlag{

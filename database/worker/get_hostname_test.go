@@ -28,7 +28,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 		AddRow(1, "worker_0", "localhost", nil, true, nil, 0, nil, 0, 0, 0, 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "workers" WHERE hostname = $1 LIMIT 1`).WithArgs("worker_0").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "workers" WHERE hostname = $1 LIMIT $2`).WithArgs("worker_0", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

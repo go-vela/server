@@ -43,7 +43,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 		AddRow(2, "baz")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT "id","name" FROM "users" LIMIT 10`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT "id","name" FROM "users" LIMIT $1`).WithArgs(10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

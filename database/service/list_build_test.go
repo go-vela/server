@@ -50,7 +50,7 @@ func TestService_Engine_ListServicesForBuild(t *testing.T) {
 		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "services" WHERE build_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "services" WHERE build_id = $1 ORDER BY id DESC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

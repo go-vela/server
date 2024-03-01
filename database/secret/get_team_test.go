@@ -36,8 +36,8 @@ func TestSecret_Engine_GetSecretForTeam(t *testing.T) {
 		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, nil, 1, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 AND name = $4 LIMIT 1`).
-		WithArgs(constants.SecretShared, "foo", "bar", "baz").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 AND name = $4 LIMIT $5`).
+		WithArgs(constants.SecretShared, "foo", "bar", "baz", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

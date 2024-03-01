@@ -27,10 +27,14 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 		return false, nil
 	}
 
+	status := rB.GetStatus()
+
 	// ensure criteria is met
 	if isCancelable(rB, b) {
 		switch {
-		case strings.EqualFold(rB.GetStatus(), constants.StatusPending) && cancelOpts.Pending:
+		case strings.EqualFold(status, constants.StatusPendingApproval) ||
+			(strings.EqualFold(status, constants.StatusPending) &&
+				cancelOpts.Pending):
 			// pending build will be handled gracefully by worker once pulled off queue
 			rB.SetStatus(constants.StatusCanceled)
 
@@ -44,7 +48,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 			if err != nil {
 				return true, err
 			}
-		case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && cancelOpts.Running:
+		case strings.EqualFold(status, constants.StatusRunning) && cancelOpts.Running:
 			// call cancelRunning routine for builds already running on worker
 			err := cancelRunning(c, rB, r)
 			if err != nil {
@@ -55,7 +59,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 		}
 
 		// set error message that references current build
-		rB.SetError(fmt.Sprintf("build was auto canceled in favor of build %d", b.GetNumber()))
+		rB.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
 
 		_, err := database.FromContext(c).UpdateBuild(c, rB)
 		if err != nil {
@@ -201,6 +205,11 @@ func isCancelable(target *library.Build, current *library.Build) bool {
 // ShouldAutoCancel is a helper function that determines whether or not a build should be eligible to
 // auto cancel currently running / pending builds.
 func ShouldAutoCancel(opts *pipeline.CancelOptions, b *library.Build, defaultBranch string) bool {
+	// if the build is pending approval, it should always be eligible to auto cancel
+	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
+		return true
+	}
+
 	// if anything is provided in the auto_cancel metadata, then we start with true
 	runAutoCancel := opts.Running || opts.Pending || opts.DefaultBranch
 

@@ -3228,7 +3228,22 @@ func Test_CompileLite(t *testing.T) {
 					RenderInline: true,
 					Environment:  []string{"steps", "services", "secrets"},
 				},
-				Templates: []*yaml.Template{},
+				Templates: []*yaml.Template{
+					{
+						Name:      "golang",
+						Source:    "github.example.com/github/octocat/golang_inline_stages.yml",
+						Format:    "golang",
+						Type:      "github",
+						Variables: map[string]any{"image": string("golang:latest")},
+					},
+					{
+						Name:   "starlark",
+						Source: "github.example.com/github/octocat/starlark_inline_stages.star",
+						Format: "starlark",
+						Type:   "github",
+					},
+				},
+				Environment: raw.StringSliceMap{},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "test",
@@ -3357,7 +3372,21 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 					},
 				},
-				Templates: yaml.TemplateSlice{},
+				Environment: raw.StringSliceMap{},
+				Templates: yaml.TemplateSlice{
+					{
+						Name:   "golang",
+						Source: "github.example.com/github/octocat/golang_inline_steps.yml",
+						Format: "golang",
+						Type:   "github",
+					},
+					{
+						Name:   "starlark",
+						Source: "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format: "starlark",
+						Type:   "github",
+					},
+				},
 			},
 			wantErr: false,
 		},

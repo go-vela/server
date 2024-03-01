@@ -58,8 +58,8 @@ func TestSecret_Engine_ListSecretsForTeam(t *testing.T) {
 		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, nil, 1, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 ORDER BY id DESC LIMIT 10`).
-		WithArgs(constants.SecretShared, "foo", "bar").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND team = $3 ORDER BY id DESC LIMIT $4`).
+		WithArgs(constants.SecretShared, "foo", "bar", 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -164,8 +164,8 @@ func TestSecret_Engine_ListSecretsForTeams(t *testing.T) {
 		AddRow(1, "shared", "foo", "", "bar", "baz", "foob", nil, nil, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND LOWER(team) IN ($3,$4) ORDER BY id DESC LIMIT 10`).
-		WithArgs(constants.SecretShared, "foo", "foo", "bar").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 AND LOWER(team) IN ($3,$4) ORDER BY id DESC LIMIT $5`).
+		WithArgs(constants.SecretShared, "foo", "foo", "bar", 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

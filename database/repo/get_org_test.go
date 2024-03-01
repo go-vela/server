@@ -34,7 +34,7 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, false, false, false, false, false, 1, "yaml", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE org = $1 AND name = $2 LIMIT 1`).WithArgs("foo", "bar").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE org = $1 AND name = $2 LIMIT $3`).WithArgs("foo", "bar", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

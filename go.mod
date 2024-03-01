@@ -9,12 +9,12 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/adhocore/gronx v1.6.7
 	github.com/alicebob/miniredis/v2 v2.31.1
-	github.com/aws/aws-sdk-go v1.50.15
+	github.com/aws/aws-sdk-go v1.50.24
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.23.0
+	github.com/go-vela/types v0.23.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v59 v59.0.0
@@ -27,7 +27,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.18.0
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/afero v1.11.0
 	github.com/urfave/cli/v2 v2.27.1
@@ -36,10 +36,10 @@ require (
 	golang.org/x/oauth2 v0.17.0
 	golang.org/x/sync v0.6.0
 	gopkg.in/square/go-jose.v2 v2.6.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/driver/sqlite v1.5.4
-	gorm.io/gorm v1.25.6
-	k8s.io/apimachinery v0.29.1
+	gorm.io/driver/postgres v1.5.6
+	gorm.io/driver/sqlite v1.5.5
+	gorm.io/gorm v1.25.7
+	k8s.io/apimachinery v0.29.2
 )
 
 require (

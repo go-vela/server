@@ -277,6 +277,7 @@ func PostWebhook(c *gin.Context) {
 		prComment = webhook.PullRequest.Comment
 	}
 
+	// construct generator form
 	generatorForm := build.GeneratorForm{
 		Build:    b,
 		Repo:     repo,
@@ -287,6 +288,7 @@ func PostWebhook(c *gin.Context) {
 		Retries:  3,
 	}
 
+	// generate the queue items
 	pushed, p, items, err := build.GenerateQueueItems(
 		c,
 		generatorForm,
@@ -296,7 +298,11 @@ func PostWebhook(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
-	h.SetBuildID(items.Build.GetID())
+	// capture the build, repo, and user from the items
+	b, repo, u := items.Build, items.Repo, items.User
+
+	// set hook build_id to the generated build id
+	h.SetBuildID(b.GetID())
 
 	if err != nil {
 		h.SetStatus(constants.StatusFailure)
@@ -304,8 +310,6 @@ func PostWebhook(c *gin.Context) {
 
 		return
 	}
-
-	c.JSON(http.StatusOK, items.Build)
 
 	if !pushed {
 		// if the build was not pushed to the queue, it was skipped
@@ -359,11 +363,37 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
+	c.JSON(http.StatusOK, b)
+
+	// regardless of whether the build is published to queue, we want to attempt to auto-cancel if no errors
+	defer func() {
+		if err == nil && build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
+			// fetch pending and running builds
+			rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
+			if err != nil {
+				logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
+			}
+
+			for _, rB := range rBs {
+				// call auto cancel routine
+				canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
+				if err != nil {
+					// continue cancel loop if error, but log based on type of error
+					if canceled {
+						logrus.Errorf("unable to update canceled build error message: %v", err)
+					} else {
+						logrus.Errorf("unable to cancel running build: %v", err)
+					}
+				}
+			}
+		}
+	}()
+
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
-			err = gatekeepBuild(c, b, repo, items.User)
+			err = gatekeepBuild(c, b, repo, u)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
@@ -371,9 +401,29 @@ func PostWebhook(c *gin.Context) {
 			return
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), items.User.GetToken(), r.GetOrg(), r.GetName())
+			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), u.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				err = gatekeepBuild(c, b, repo, items.User)
+				err = gatekeepBuild(c, b, repo, u)
+				if err != nil {
+					util.HandleError(c, http.StatusInternalServerError, err)
+				}
+
+				return
+			}
+
+			fallthrough
+		case constants.ApproveOnce:
+			// determine if build sender is in the contributors list for the repo
+			//
+			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
+			// GitHub adds a single-contributor API endpoint.
+			contributor, err := scm.FromContext(c).RepoContributor(ctx, u, b.GetSender(), r.GetOrg(), r.GetName())
+			if err != nil {
+				util.HandleError(c, http.StatusInternalServerError, err)
+			}
+
+			if !contributor {
+				err = gatekeepBuild(c, b, repo, u)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -390,7 +440,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(ctx, items.User, b, repo.GetOrg(), repo.GetName())
+	err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
@@ -402,30 +452,9 @@ func PostWebhook(c *gin.Context) {
 		database.FromContext(c),
 		b,
 		repo,
-		items.User,
-		items.Build.GetHost(),
+		u,
+		b.GetHost(),
 	)
-
-	if build.ShouldAutoCancel(p.Metadata.AutoCancel, b, repo.GetBranch()) {
-		// fetch pending and running builds
-		rBs, err := database.FromContext(c).ListPendingAndRunningBuildsForRepo(c, repo)
-		if err != nil {
-			logrus.Errorf("unable to fetch pending and running builds for %s: %v", repo.GetFullName(), err)
-		}
-
-		for _, rB := range rBs {
-			// call auto cancel routine
-			canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
-			if err != nil {
-				// continue cancel loop if error, but log based on type of error
-				if canceled {
-					logrus.Errorf("unable to update canceled build error message: %v", err)
-				} else {
-					logrus.Errorf("unable to cancel running build: %v", err)
-				}
-			}
-		}
-	}
 }
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
@@ -654,6 +683,12 @@ func gatekeepBuild(c *gin.Context, b *library.Build, r *library.Repo, u *library
 	_, err := database.FromContext(c).UpdateBuild(c, b)
 	if err != nil {
 		return fmt.Errorf("unable to update build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+	}
+
+	// update the build components to pending approval status
+	err = build.UpdateComponentStatuses(c, b, constants.StatusPendingApproval)
+	if err != nil {
+		return fmt.Errorf("unable to update build components for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
 	}
 
 	// send API call to set the status on the commit

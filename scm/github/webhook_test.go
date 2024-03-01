@@ -334,26 +334,6 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	// setup request
-	body, err := os.Open("testdata/hooks/pull_request.json")
-	if err != nil {
-		t.Errorf("unable to open file: %v", err)
-	}
-
-	defer body.Close()
-
-	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
-	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	request.Header.Set("X-GitHub-Hook-ID", "123456")
-	request.Header.Set("X-GitHub-Host", "github.com")
-	request.Header.Set("X-GitHub-Version", "2.16.0")
-	request.Header.Set("X-GitHub-Event", "pull_request")
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
 	// run test
 	wantHook := new(library.Hook)
 	wantHook.SetNumber(1)
@@ -392,131 +372,101 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
-	want := &types.Webhook{
-		PullRequest: types.PullRequest{
-			Number: wantHook.GetNumber(),
+	tests := []struct {
+		name     string
+		testData string
+		want     *types.Webhook
+		wantErr  bool
+	}{
+		{
+			name:     "success",
+			testData: "testdata/hooks/pull_request.json",
+			want: &types.Webhook{
+				PullRequest: types.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild,
+			},
 		},
-		Hook:  wantHook,
-		Repo:  wantRepo,
-		Build: wantBuild,
+		{
+			name:     "fork",
+			testData: "testdata/hooks/pull_request_fork.json",
+			want: &types.Webhook{
+				PullRequest: types.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: true,
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild,
+			},
+		},
+		{
+			name:     "fork same repo",
+			testData: "testdata/hooks/pull_request_fork_same-repo.json",
+			want: &types.Webhook{
+				PullRequest: types.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild,
+			},
+		},
+		{
+			name:     "closed action",
+			testData: "testdata/hooks/pull_request_closed_action.json",
+			want: &types.Webhook{
+				Hook:  wantHook,
+				Repo:  nil,
+				Build: nil,
+			},
+		},
+		{
+			name:     "closed state",
+			testData: "testdata/hooks/pull_request_closed_state.json",
+			want: &types.Webhook{
+				Hook:  wantHook,
+				Repo:  nil,
+				Build: nil,
+			},
+		},
 	}
 
-	got, err := client.ProcessWebhook(context.TODO(), request)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := os.Open(tt.testData)
+			if err != nil {
+				t.Errorf("unable to open file: %v", err)
+			}
 
-	if err != nil {
-		t.Errorf("ProcessWebhook returned err: %v", err)
-	}
+			defer body.Close()
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
-	}
-}
+			request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
+			request.Header.Set("Content-Type", "application/json")
+			request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
+			request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
+			request.Header.Set("X-GitHub-Hook-ID", "123456")
+			request.Header.Set("X-GitHub-Host", "github.com")
+			request.Header.Set("X-GitHub-Version", "2.16.0")
+			request.Header.Set("X-GitHub-Event", "pull_request")
 
-func TestGithub_ProcessWebhook_PullRequest_ClosedAction(t *testing.T) {
-	// setup router
-	s := httptest.NewServer(http.NotFoundHandler())
-	defer s.Close()
+			client, _ := NewTest(s.URL)
 
-	// setup request
-	body, err := os.Open("testdata/hooks/pull_request_closed_action.json")
-	if err != nil {
-		t.Errorf("unable to open file: %v", err)
-	}
+			got, err := client.ProcessWebhook(context.TODO(), request)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ProcessWebhook() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 
-	defer body.Close()
-
-	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
-	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	request.Header.Set("X-GitHub-Hook-ID", "123456")
-	request.Header.Set("X-GitHub-Host", "github.com")
-	request.Header.Set("X-GitHub-Version", "2.16.0")
-	request.Header.Set("X-GitHub-Event", "pull_request")
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
-	wantHook := new(library.Hook)
-	wantHook.SetNumber(1)
-	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	wantHook.SetWebhookID(123456)
-	wantHook.SetCreated(time.Now().UTC().Unix())
-	wantHook.SetHost("github.com")
-	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("main")
-	wantHook.SetStatus(constants.StatusSuccess)
-	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-
-	want := &types.Webhook{
-		Hook:  wantHook,
-		Repo:  nil,
-		Build: nil,
-	}
-
-	got, err := client.ProcessWebhook(context.TODO(), request)
-
-	if err != nil {
-		t.Errorf("ProcessWebhook returned err: %v", err)
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
-	}
-}
-
-func TestGithub_ProcessWebhook_PullRequest_ClosedState(t *testing.T) {
-	// setup router
-	s := httptest.NewServer(http.NotFoundHandler())
-	defer s.Close()
-
-	// setup request
-	body, err := os.Open("testdata/hooks/pull_request_closed_state.json")
-	if err != nil {
-		t.Errorf("unable to open file: %v", err)
-	}
-
-	defer body.Close()
-
-	request, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/test", body)
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "GitHub-Hookshot/a22606a")
-	request.Header.Set("X-GitHub-Delivery", "7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	request.Header.Set("X-GitHub-Hook-ID", "123456")
-	request.Header.Set("X-GitHub-Host", "github.com")
-	request.Header.Set("X-GitHub-Version", "2.16.0")
-	request.Header.Set("X-GitHub-Event", "pull_request")
-
-	// setup client
-	client, _ := NewTest(s.URL)
-
-	// run test
-	wantHook := new(library.Hook)
-	wantHook.SetNumber(1)
-	wantHook.SetSourceID("7bd477e4-4415-11e9-9359-0d41fdf9567e")
-	wantHook.SetWebhookID(123456)
-	wantHook.SetCreated(time.Now().UTC().Unix())
-	wantHook.SetHost("github.com")
-	wantHook.SetEvent("pull_request")
-	wantHook.SetBranch("main")
-	wantHook.SetStatus(constants.StatusSuccess)
-	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
-
-	want := &types.Webhook{
-		Hook:  wantHook,
-		Repo:  nil,
-		Build: nil,
-	}
-
-	got, err := client.ProcessWebhook(context.TODO(), request)
-
-	if err != nil {
-		t.Errorf("ProcessWebhook returned err: %v", err)
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
 
