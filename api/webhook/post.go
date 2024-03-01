@@ -288,8 +288,8 @@ func PostWebhook(c *gin.Context) {
 		Retries:  3,
 	}
 
-	// generate the queue items
-	pushed, p, items, err := build.CompileAndPublish(
+	// generate the queue item
+	pushed, p, item, err := build.CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -299,7 +299,7 @@ func PostWebhook(c *gin.Context) {
 	)
 
 	// capture the build, repo, and user from the items
-	b, repo, u := items.Build, items.Repo, items.User
+	b, repo, u := item.Build, item.Repo, item.User
 
 	// set hook build_id to the generated build id
 	h.SetBuildID(b.GetID())
@@ -450,9 +450,7 @@ func PostWebhook(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		b,
-		repo,
-		u,
+		item,
 		b.GetHost(),
 	)
 }

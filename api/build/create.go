@@ -120,7 +120,7 @@ func CreateBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
-	_, _, items, err := CompileAndPublish(
+	_, _, item, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -134,16 +134,14 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, items.Build)
+	c.JSON(http.StatusCreated, item.Build)
 
 	// publish the build to the queue
 	go Enqueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		items.Build,
-		items.Repo,
-		items.User,
-		items.Build.GetHost(),
+		item,
+		item.Build.GetHost(),
 	)
 }

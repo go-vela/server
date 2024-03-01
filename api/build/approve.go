@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
@@ -120,9 +121,7 @@ func ApproveBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		b,
-		r,
-		u,
+		types.ToItem(b, r, u),
 		b.GetHost(),
 	)
 
