@@ -170,7 +170,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventSchedule, url))
 
 	// schedule form
-	generatorForm := build.GeneratorForm{
+	config := build.CompileAndPublishConfig{
 		Build:    b,
 		Repo:     r,
 		Metadata: metadata,
@@ -179,9 +179,9 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		Retries:  1,
 	}
 
-	_, _, items, err := build.GenerateQueueItems(
+	_, _, items, err := build.CompileAndPublish(
 		ctx,
-		generatorForm,
+		config,
 		database,
 		scm,
 		compiler,

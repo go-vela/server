@@ -277,8 +277,8 @@ func PostWebhook(c *gin.Context) {
 		prComment = webhook.PullRequest.Comment
 	}
 
-	// construct generator form
-	generatorForm := build.GeneratorForm{
+	// construct CompileAndPublishConfig
+	config := build.CompileAndPublishConfig{
 		Build:    b,
 		Repo:     repo,
 		Metadata: m,
@@ -289,9 +289,9 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// generate the queue items
-	pushed, p, items, err := build.GenerateQueueItems(
+	pushed, p, items, err := build.CompileAndPublish(
 		c,
-		generatorForm,
+		config,
 		database.FromContext(c),
 		scm.FromContext(c),
 		compiler.FromContext(c),

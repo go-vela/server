@@ -109,7 +109,7 @@ func RestartBuild(c *gin.Context) {
 	logger.Debugf("Generating queue items for build %s", entry)
 
 	// restart form
-	generatorForm := GeneratorForm{
+	config := CompileAndPublishConfig{
 		Build:    b,
 		Repo:     r,
 		Metadata: m,
@@ -119,9 +119,9 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// generate queue items
-	_, _, items, err := GenerateQueueItems(
+	_, _, items, err := CompileAndPublish(
 		c,
-		generatorForm,
+		config,
 		database.FromContext(c),
 		scm.FromContext(c),
 		compiler.FromContext(c),

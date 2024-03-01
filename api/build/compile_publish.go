@@ -22,8 +22,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GeneratorForm is a struct that contains information for the generator to create a build.
-type GeneratorForm struct {
+// CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
+type CompileAndPublishConfig struct {
 	Build    *library.Build
 	Repo     *library.Repo
 	Metadata *types.Metadata
@@ -33,28 +33,28 @@ type GeneratorForm struct {
 	Retries  int
 }
 
-// GenerateQueueItems is a helper function to generate the queue items for a build. It takes a form
+// CompileAndPublish is a helper function to generate the queue items for a build. It takes a form
 // as well as the database, scm, compiler, and queue services as arguments. It is used in webhook handling,
 // schedule processing, and API build creation.
 //
 //nolint:funlen,gocyclo // ignore function length due to comments, error handling, and general complexity of function
-func GenerateQueueItems(
+func CompileAndPublish(
 	c context.Context,
-	form GeneratorForm,
+	cfg CompileAndPublishConfig,
 	database database.Interface,
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
 ) (bool, *pipeline.Build, *types.Item, error) {
-	logrus.Debugf("generating queue items for build %s/%d", form.Repo.GetFullName(), form.Build.GetNumber())
+	logrus.Debugf("generating queue items for build %s/%d", cfg.Repo.GetFullName(), cfg.Build.GetNumber())
 
 	// assign variables from form for readibility
-	r := form.Repo
-	b := form.Build
-	baseErr := form.BaseErr
+	r := cfg.Repo
+	b := cfg.Build
+	baseErr := cfg.BaseErr
 
 	// send API call to capture repo owner
-	logrus.Debugf("capturing owner of repository %s", form.Repo.GetFullName())
+	logrus.Debugf("capturing owner of repository %s", cfg.Repo.GetFullName())
 
 	u, err := database.GetUser(c, r.GetUserID())
 	if err != nil {
@@ -87,7 +87,7 @@ func GenerateQueueItems(
 
 	// if the event is issue_comment and the issue is a pull request,
 	// call SCM for more data not provided in webhook payload
-	if strings.EqualFold(form.Source, "webhook") && strings.EqualFold(b.GetEvent(), constants.EventComment) {
+	if strings.EqualFold(cfg.Source, "webhook") && strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request number for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusBadRequest, retErr)
@@ -110,7 +110,7 @@ func GenerateQueueItems(
 	}
 
 	// if the source is from a schedule, fetch the commit sha from schedule branch (same as build branch at this moment)
-	if strings.EqualFold(form.Source, "schedule") {
+	if strings.EqualFold(cfg.Source, "schedule") {
 		// send API call to capture the commit sha for the branch
 		_, commit, err := scm.GetBranch(c, u, r, b.GetBranch())
 		if err != nil {
@@ -191,7 +191,7 @@ func GenerateQueueItems(
 
 	var (
 		// variable to store the raw pipeline configuration
-		config []byte
+		pipelineFile []byte
 		// variable to store executable pipeline
 		p *pipeline.Build
 		// variable to store pipeline configuration
@@ -207,7 +207,7 @@ func GenerateQueueItems(
 	// Some operations taken during the webhook workflow can lead to race conditions
 	// failing to successfully process the request. This logic ensures we attempt our
 	// best efforts to handle these cases gracefully.
-	for i := 0; i < form.Retries; i++ {
+	for i := 0; i < cfg.Retries; i++ {
 		logrus.Debugf("compilation loop - attempt %d", i+1)
 		// check if we're on the first iteration of the loop
 		if i > 0 {
@@ -219,7 +219,7 @@ func GenerateQueueItems(
 		pipeline, err = database.GetPipelineForRepo(c, b.GetCommit(), r)
 		if err != nil { // assume the pipeline doesn't exist in the database yet
 			// send API call to capture the pipeline configuration file
-			config, err = scm.ConfigBackoff(c, u, r, b.GetCommit())
+			pipelineFile, err = scm.ConfigBackoff(c, u, r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
@@ -228,7 +228,7 @@ func GenerateQueueItems(
 				return false, nil, nil, retErr
 			}
 		} else {
-			config = pipeline.GetData()
+			pipelineFile = pipeline.GetData()
 		}
 
 		// send API call to capture repo for the counter (grabbing repo again to ensure counter is correct)
@@ -237,7 +237,7 @@ func GenerateQueueItems(
 			retErr := fmt.Errorf("%s: unable to get repo %s: %w", baseErr, r.GetFullName(), err)
 
 			// check if the retry limit has been exceeded
-			if i < form.Retries-1 {
+			if i < cfg.Retries-1 {
 				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// continue to the next iteration of the loop
@@ -259,9 +259,9 @@ func GenerateQueueItems(
 		b.SetNumber(inc)
 
 		// populate the build link if a web address is provided
-		if len(form.Metadata.Vela.WebAddress) > 0 {
+		if len(cfg.Metadata.Vela.WebAddress) > 0 {
 			b.SetLink(
-				fmt.Sprintf("%s/%s/%d", form.Metadata.Vela.WebAddress, repo.GetFullName(), b.GetNumber()),
+				fmt.Sprintf("%s/%s/%d", cfg.Metadata.Vela.WebAddress, repo.GetFullName(), b.GetNumber()),
 			)
 		}
 
@@ -280,13 +280,13 @@ func GenerateQueueItems(
 		p, compiled, err = compiler.
 			Duplicate().
 			WithBuild(b).
-			WithComment(form.Comment).
+			WithComment(cfg.Comment).
 			WithCommit(b.GetCommit()).
 			WithFiles(files).
-			WithMetadata(form.Metadata).
+			WithMetadata(cfg.Metadata).
 			WithRepo(repo).
 			WithUser(u).
-			Compile(config)
+			Compile(pipelineFile)
 		if err != nil {
 			// format the error message with extra information
 			err = fmt.Errorf("unable to compile pipeline configuration for %s: %w", repo.GetFullName(), err)
@@ -341,7 +341,7 @@ func GenerateQueueItems(
 				retErr := fmt.Errorf("%s: failed to create pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 
 				// check if the retry limit has been exceeded
-				if i < form.Retries-1 {
+				if i < cfg.Retries-1 {
 					logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 					// continue to the next iteration of the loop
@@ -368,7 +368,7 @@ func GenerateQueueItems(
 			retErr := fmt.Errorf("%s: %w", baseErr, err)
 
 			// check if the retry limit has been exceeded
-			if i < form.Retries-1 {
+			if i < cfg.Retries-1 {
 				logrus.WithError(retErr).Warningf("retrying #%d", i+1)
 
 				// reset fields set by cleanBuild for retry

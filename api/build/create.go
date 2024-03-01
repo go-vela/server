@@ -110,8 +110,8 @@ func CreateBuild(c *gin.Context) {
 		return
 	}
 
-	// create form
-	generatorForm := GeneratorForm{
+	// create config
+	config := CompileAndPublishConfig{
 		Build:    input,
 		Repo:     r,
 		Metadata: m,
@@ -120,16 +120,16 @@ func CreateBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
-	_, _, items, err := GenerateQueueItems(
+	_, _, items, err := CompileAndPublish(
 		c,
-		generatorForm,
+		config,
 		database.FromContext(c),
 		scm.FromContext(c),
 		compiler.FromContext(c),
 		queue.FromContext(c),
 	)
 
-	// error handling done in GenerateQueueItems
+	// error handling done in CompileAndPublish
 	if err != nil {
 		return
 	}
