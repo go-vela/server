@@ -118,6 +118,7 @@ func RestartBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
+	// generate queue items
 	_, _, items, err := GenerateQueueItems(
 		c,
 		generatorForm,
