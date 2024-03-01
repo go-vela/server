@@ -158,6 +158,8 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	if s.GetCheckID() != 0 {
+		s.SetReport(input.GetReport())
+
 		err = scm.FromContext(c).UpdateChecks(ctx, r, s, b.GetCommit(), b.GetEvent())
 		if err != nil {
 			retErr := fmt.Errorf("unable to set step check %s: %w", entry, err)

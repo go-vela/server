@@ -650,10 +650,38 @@ func (c *client) UpdateChecks(ctx context.Context, r *library.Repo, s *library.S
 		status = "completed"
 	}
 
+	var annotations []*github.CheckRunAnnotation
+
+	for _, reportAnnotation := range s.GetReport().GetAnnotations() {
+		annotation := &github.CheckRunAnnotation{
+			Path:            github.String(reportAnnotation.GetPath()),
+			StartLine:       github.Int(reportAnnotation.GetStartLine()),
+			EndLine:         github.Int(reportAnnotation.GetEndLine()),
+			StartColumn:     github.Int(reportAnnotation.GetStartColumn()),
+			EndColumn:       github.Int(reportAnnotation.GetEndColumn()),
+			AnnotationLevel: github.String(reportAnnotation.GetAnnotationLevel()),
+			Message:         github.String(reportAnnotation.GetMessage()),
+			Title:           github.String(reportAnnotation.GetTitle()),
+			RawDetails:      github.String(reportAnnotation.GetRawDetails()),
+		}
+
+		annotations = append(annotations, annotation)
+	}
+
+	output := &github.CheckRunOutput{
+		Title:            github.String(s.GetReport().GetTitle()),
+		Summary:          github.String(s.GetReport().GetSummary()),
+		Text:             github.String(s.GetReport().GetText()),
+		AnnotationsCount: github.Int(s.GetReport().GetAnnotationsCount()),
+		AnnotationsURL:   github.String(s.GetReport().GetAnnotationsURL()),
+		Annotations:      annotations,
+	}
+
 	opts := github.UpdateCheckRunOptions{
 		Name:       fmt.Sprintf("vela-%s-%s", event, s.GetName()),
 		Conclusion: github.String(conclusion),
 		Status:     github.String(status),
+		Output:     output,
 	}
 
 	_, _, err = client.Checks.UpdateCheckRun(ctx, r.GetOrg(), r.GetName(), s.GetCheckID(), opts)
