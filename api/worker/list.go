@@ -39,12 +39,6 @@ import (
 //   default: 0
 // security:
 //   - ApiKeyAuth: []
-// parameters:
-// - in: query
-//   name: links
-//   description: Include links to builds currently running
-//   type: boolean
-//   default: false
 // responses:
 //   '200':
 //     description: Successfully retrieved the list of workers
