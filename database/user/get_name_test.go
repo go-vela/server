@@ -29,7 +29,7 @@ func TestUser_Engine_GetUserForName(t *testing.T) {
 		AddRow(1, "foo", "", "bar", "baz", "{}", false, false)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "users" WHERE name = $1 LIMIT 1`).WithArgs("foo").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE name = $1 LIMIT $2`).WithArgs("foo", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

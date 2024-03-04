@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -10,7 +11,7 @@ import (
 )
 
 // UpdateStep updates an existing step in the database.
-func (e *engine) UpdateStep(s *library.Step) (*library.Step, error) {
+func (e *engine) UpdateStep(ctx context.Context, s *library.Step) (*library.Step, error) {
 	e.logger.WithFields(logrus.Fields{
 		"step": s.GetNumber(),
 	}).Tracef("updating step %s in the database", s.GetName())

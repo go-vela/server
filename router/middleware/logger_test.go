@@ -225,7 +225,6 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 }
 
 func TestMiddleware_Format(t *testing.T) {
-
 	wantLabels := "labels.vela"
 
 	// setup data, fields, and logger
@@ -266,5 +265,4 @@ func TestMiddleware_Format(t *testing.T) {
 	if !strings.Contains(string(got), "/foobar") {
 		t.Errorf("Format returned %v, want to contain /foobar", string(got))
 	}
-
 }

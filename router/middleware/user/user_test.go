@@ -91,7 +91,7 @@ func TestUser_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteUser(_context.TODO(), want)
+		_ = db.DeleteUser(_context.TODO(), want)
 		db.Close()
 	}()
 

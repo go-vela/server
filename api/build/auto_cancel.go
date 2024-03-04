@@ -27,15 +27,14 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 		return false, nil
 	}
 
-	// ensure criteria is met before auto canceling (push to same branch, or pull with same action from same head_ref)
-	if (strings.EqualFold(rB.GetEvent(), constants.EventPush) &&
-		strings.EqualFold(b.GetEvent(), constants.EventPush) &&
-		strings.EqualFold(b.GetBranch(), rB.GetBranch())) ||
-		(strings.EqualFold(rB.GetEvent(), constants.EventPull) &&
-			strings.EqualFold(b.GetEventAction(), rB.GetEventAction()) &&
-			strings.EqualFold(b.GetHeadRef(), rB.GetHeadRef())) {
+	status := rB.GetStatus()
+
+	// ensure criteria is met
+	if isCancelable(rB, b) {
 		switch {
-		case strings.EqualFold(rB.GetStatus(), constants.StatusPending) && cancelOpts.Pending:
+		case strings.EqualFold(status, constants.StatusPendingApproval) ||
+			(strings.EqualFold(status, constants.StatusPending) &&
+				cancelOpts.Pending):
 			// pending build will be handled gracefully by worker once pulled off queue
 			rB.SetStatus(constants.StatusCanceled)
 
@@ -49,7 +48,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 			if err != nil {
 				return true, err
 			}
-		case strings.EqualFold(rB.GetStatus(), constants.StatusRunning) && cancelOpts.Running:
+		case strings.EqualFold(status, constants.StatusRunning) && cancelOpts.Running:
 			// call cancelRunning routine for builds already running on worker
 			err := cancelRunning(c, rB, r)
 			if err != nil {
@@ -60,7 +59,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 		}
 
 		// set error message that references current build
-		rB.SetError(fmt.Sprintf("build was auto canceled in favor of build %d", b.GetNumber()))
+		rB.SetError(fmt.Sprintf("%s build was auto canceled in favor of build %d", status, b.GetNumber()))
 
 		_, err := database.FromContext(c).UpdateBuild(c, rB)
 		if err != nil {
@@ -184,4 +183,49 @@ func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
 	}
 
 	return nil
+}
+
+// isCancelable is a helper function that determines whether a `target` build should be auto-canceled
+// given a current build that intends to supersede it.
+func isCancelable(target *library.Build, current *library.Build) bool {
+	switch target.GetEvent() {
+	case constants.EventPush:
+		// target is cancelable if current build is also a push event and the branches are the same
+		return strings.EqualFold(current.GetEvent(), constants.EventPush) && strings.EqualFold(current.GetBranch(), target.GetBranch())
+	case constants.EventPull:
+		cancelableAction := strings.EqualFold(target.GetEventAction(), constants.ActionOpened) || strings.EqualFold(target.GetEventAction(), constants.ActionSynchronize)
+
+		// target is cancelable if current build is also a pull event, target is an opened / synchronize action, and the current head ref matches target head ref
+		return strings.EqualFold(current.GetEvent(), constants.EventPull) && cancelableAction && strings.EqualFold(current.GetHeadRef(), target.GetHeadRef())
+	default:
+		return false
+	}
+}
+
+// ShouldAutoCancel is a helper function that determines whether or not a build should be eligible to
+// auto cancel currently running / pending builds.
+func ShouldAutoCancel(opts *pipeline.CancelOptions, b *library.Build, defaultBranch string) bool {
+	// if the build is pending approval, it should always be eligible to auto cancel
+	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
+		return true
+	}
+
+	// if anything is provided in the auto_cancel metadata, then we start with true
+	runAutoCancel := opts.Running || opts.Pending || opts.DefaultBranch
+
+	switch b.GetEvent() {
+	case constants.EventPush:
+		// pushes to the default branch should only auto cancel if pipeline specifies default_branch: true
+		if !opts.DefaultBranch && strings.EqualFold(b.GetBranch(), defaultBranch) {
+			runAutoCancel = false
+		}
+
+		return runAutoCancel
+
+	case constants.EventPull:
+		// only synchronize actions of the pull_request event are eligible to auto cancel
+		return runAutoCancel && (strings.EqualFold(b.GetEventAction(), constants.ActionSynchronize))
+	default:
+		return false
+	}
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -189,6 +190,7 @@ func testRepo() *library.Repo {
 		Branch:       new(string),
 		Visibility:   new(string),
 		PreviousName: new(string),
+		ApproveBuild: new(string),
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
@@ -197,6 +199,34 @@ func testRepo() *library.Repo {
 		AllowDeploy:  new(bool),
 		AllowTag:     new(bool),
 		AllowComment: new(bool),
+		AllowEvents:  testEvents(),
+	}
+}
+
+func testEvents() *library.Events {
+	return &library.Events{
+		Push: &actions.Push{
+			Branch:       new(bool),
+			Tag:          new(bool),
+			DeleteBranch: new(bool),
+			DeleteTag:    new(bool),
+		},
+		PullRequest: &actions.Pull{
+			Opened:      new(bool),
+			Edited:      new(bool),
+			Synchronize: new(bool),
+			Reopened:    new(bool),
+		},
+		Deployment: &actions.Deploy{
+			Created: new(bool),
+		},
+		Comment: &actions.Comment{
+			Created: new(bool),
+			Edited:  new(bool),
+		},
+		Schedule: &actions.Schedule{
+			Run: new(bool),
+		},
 	}
 }
 
@@ -208,6 +238,6 @@ func testRepo() *library.Repo {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }

@@ -24,17 +24,18 @@ func TestSecret_Engine_GetSecret(t *testing.T) {
 	_secret.SetCreatedBy("user")
 	_secret.SetUpdatedAt(1)
 	_secret.SetUpdatedBy("user2")
+	_secret.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, 1, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE id = $1 LIMIT 1`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

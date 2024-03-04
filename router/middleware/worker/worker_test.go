@@ -61,7 +61,7 @@ func TestWorker_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteWorker(context.TODO(), want)
+		_ = db.DeleteWorker(context.TODO(), want)
 		db.Close()
 	}()
 

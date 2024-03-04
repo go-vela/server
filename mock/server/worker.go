@@ -27,7 +27,12 @@ const (
 			"large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "busy",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
 			"running_builds": [
   				{
 					"id": 2,
@@ -102,7 +107,43 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "available",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": [
+  				{
+					"id": 2,
+					"repo_id": 1,
+					"number": 2,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474204,
+					"created": 1563474204,
+					"started": 1563474204,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "Second commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "ed95dcc0687c",
+					"runtime": "",
+					"distribution": ""
+  				}
+			]
 		  },
 		{
 			"id": 2,
@@ -114,7 +155,13 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "idle",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": []
 		  }
 	]`
 

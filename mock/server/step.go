@@ -24,6 +24,8 @@ const (
   "name": "clone",
   "status": "success",
   "error": "",
+  "image": "alpine",
+  "stage": "",
   "exit_code": 0,
   "created": 1563475419,
   "started": 0,

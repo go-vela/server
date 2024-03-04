@@ -122,11 +122,16 @@ func ListReposForOrg(c *gin.Context) {
 	// capture the sort_by query parameter if present
 	sortBy := util.QueryParameter(c, "sort_by", "name")
 
+	// prep filters
+	filters := make(map[string]interface{})
+
 	// capture the query parameters if present:
 	//
 	// * active
-	filters := map[string]interface{}{
-		"active": util.QueryParameter(c, "active", "true"),
+	active := util.QueryParameter(c, "active", "true")
+	// ensure active is a boolean and add it to filters as such
+	if activeBool, err := strconv.ParseBool(active); err == nil {
+		filters["active"] = activeBool
 	}
 
 	// See if the user is an org admin to bypass individual permission checks

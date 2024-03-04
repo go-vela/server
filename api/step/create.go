@@ -72,6 +72,7 @@ func CreateStep(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d", r.GetFullName(), b.GetNumber())
 
@@ -110,7 +111,7 @@ func CreateStep(c *gin.Context) {
 	}
 
 	// send API call to create the step
-	s, err := database.FromContext(c).CreateStep(input)
+	s, err := database.FromContext(c).CreateStep(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create step for build %s: %w", entry, err)
 

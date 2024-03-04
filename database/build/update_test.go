@@ -23,9 +23,9 @@ func TestBuild_Engine_UpdateBuild(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectExec(`UPDATE "builds"
-SET "repo_id"=$1,"pipeline_id"=$2,"number"=$3,"parent"=$4,"event"=$5,"event_action"=$6,"status"=$7,"error"=$8,"enqueued"=$9,"created"=$10,"started"=$11,"finished"=$12,"deploy"=$13,"deploy_payload"=$14,"clone"=$15,"source"=$16,"title"=$17,"message"=$18,"commit"=$19,"sender"=$20,"author"=$21,"email"=$22,"link"=$23,"branch"=$24,"ref"=$25,"base_ref"=$26,"head_ref"=$27,"host"=$28,"runtime"=$29,"distribution"=$30
-WHERE "id" = $31`).
-		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
+SET "repo_id"=$1,"pipeline_id"=$2,"number"=$3,"parent"=$4,"event"=$5,"event_action"=$6,"status"=$7,"error"=$8,"enqueued"=$9,"created"=$10,"started"=$11,"finished"=$12,"deploy"=$13,"deploy_number"=$14,"deploy_payload"=$15,"clone"=$16,"source"=$17,"title"=$18,"message"=$19,"commit"=$20,"sender"=$21,"author"=$22,"email"=$23,"link"=$24,"branch"=$25,"ref"=$26,"base_ref"=$27,"head_ref"=$28,"host"=$29,"runtime"=$30,"distribution"=$31,"approved_at"=$32,"approved_by"=$33
+WHERE "id" = $34`).
+		WithArgs(1, nil, 1, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, AnyArgument{}, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

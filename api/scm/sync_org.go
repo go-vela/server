@@ -35,7 +35,19 @@ import (
 //   '200':
 //     description: Successfully synchronized repos
 //     schema:
-//       type: string
+//       type: array
+//       items:
+//         "$ref": "#/definitions/Repo"
+//   '204':
+//     description: Successful request resulting in no change
+//   '301':
+//     description: One repo in the org has moved permanently
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '403':
+//     description: User has been forbidden access to at least one repository in org
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to synchronize org repositories
 //     schema:
@@ -105,18 +117,28 @@ func SyncReposForOrg(c *gin.Context) {
 		page++
 	}
 
+	var results []*library.Repo
+
 	// iterate through captured repos and check if they are in GitHub
 	for _, repo := range repos {
-		_, err := scm.FromContext(c).GetRepo(ctx, u, repo)
+		_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, repo)
 		// if repo cannot be captured from GitHub, set to inactive in database
 		if err != nil {
-			repo.SetActive(false)
+			if respCode == http.StatusNotFound {
+				_, err := database.FromContext(c).UpdateRepo(ctx, repo)
+				if err != nil {
+					retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
 
-			_, err := database.FromContext(c).UpdateRepo(ctx, repo)
-			if err != nil {
-				retErr := fmt.Errorf("unable to update repo for org %s: %w", o, err)
+					util.HandleError(c, http.StatusInternalServerError, retErr)
 
-				util.HandleError(c, http.StatusInternalServerError, retErr)
+					return
+				}
+
+				results = append(results, repo)
+			} else {
+				retErr := fmt.Errorf("error while retrieving repo %s from %s: %w", repo.GetFullName(), scm.FromContext(c).Driver(), err)
+
+				util.HandleError(c, respCode, retErr)
 
 				return
 			}
@@ -152,6 +174,8 @@ func SyncReposForOrg(c *gin.Context) {
 						return
 					}
 
+					results = append(results, repo)
+
 					continue
 				}
 
@@ -164,5 +188,12 @@ func SyncReposForOrg(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, fmt.Sprintf("org %s repos synced", o))
+	// if no repo was changed, return no content status
+	if len(results) == 0 {
+		c.Status(http.StatusNoContent)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, results)
 }

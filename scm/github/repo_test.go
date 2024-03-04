@@ -27,14 +27,14 @@ func TestGithub_Config_YML(t *testing.T) {
 
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		if c.Param("path") == ".vela.yaml" {
-			c.Status(http.StatusNotFound)
+		if c.Param("path") == ".vela.yml" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/yml.json")
 			return
 		}
 
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/yml.json")
+		c.Status(http.StatusNotFound)
 	})
 
 	s := httptest.NewServer(engine)
@@ -79,16 +79,23 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	resp := httptest.NewRecorder()
 	_, engine := gin.CreateTestContext(resp)
 
+	// counter for api calls
+	count := 0
+
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		if c.Param("path") == ".vela.yaml" {
-			c.Status(http.StatusNotFound)
+		// load the yml file on the second api call
+		if c.Param("path") == ".vela.yml" && count != 0 {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/yml.json")
 			return
 		}
 
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/yml.json")
+		c.Status(http.StatusNotFound)
+
+		// increment api call counter
+		count++
 	})
 
 	s := httptest.NewServer(engine)
@@ -96,7 +103,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 
 	want, err := os.ReadFile("testdata/pipeline.yml")
 	if err != nil {
-		t.Errorf("Config reading file returned err: %v", err)
+		t.Errorf("ConfigBackoff reading file returned err: %v", err)
 	}
 
 	// setup types
@@ -111,60 +118,18 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
+	got, err := client.ConfigBackoff(context.TODO(), u, r, "")
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("ConfigBackoff returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if err != nil {
-		t.Errorf("Config returned err: %v", err)
+		t.Errorf("ConfigBackoff returned err: %v", err)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Config is %v, want %v", got, want)
-	}
-}
-
-func TestGithub_Config_YML_BadRequest(t *testing.T) {
-	// setup context
-	gin.SetMode(gin.TestMode)
-
-	resp := httptest.NewRecorder()
-	_, engine := gin.CreateTestContext(resp)
-
-	// setup mock server
-	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		c.Status(http.StatusBadRequest)
-	})
-
-	s := httptest.NewServer(engine)
-	defer s.Close()
-
-	// setup types
-	u := new(library.User)
-	u.SetName("foo")
-	u.SetToken("bar")
-
-	r := new(library.Repo)
-	r.SetOrg("foo")
-	r.SetName("bar")
-
-	client, _ := NewTest(s.URL)
-
-	// run test
-	got, err := client.Config(context.TODO(), u, r, "")
-
-	if resp.Code != http.StatusOK {
-		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
-	}
-
-	if err == nil {
-		t.Error("Config should have returned err")
-	}
-
-	if got != nil {
-		t.Errorf("Config is %v, want nil", got)
+		t.Errorf("ConfigBackoff is %v, want %v", got, want)
 	}
 }
 
@@ -177,14 +142,14 @@ func TestGithub_Config_YAML(t *testing.T) {
 
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		if c.Param("path") == ".vela.yml" {
-			c.Status(http.StatusNotFound)
+		if c.Param("path") == ".vela.yaml" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/yaml.json")
 			return
 		}
 
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/yaml.json")
+		c.Status(http.StatusNotFound)
 	})
 
 	s := httptest.NewServer(engine)
@@ -231,20 +196,80 @@ func TestGithub_Config_Star(t *testing.T) {
 
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		if c.Param("path") == ".vela.yml" {
-			c.Status(http.StatusNotFound)
+		if c.Param("path") == ".vela.star" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/star.json")
 			return
 		}
 
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/star.json")
+		c.Status(http.StatusNotFound)
 	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := os.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.star")
+	if err != nil {
+		t.Errorf("Config reading file returned err: %v", err)
+	}
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	r.SetName("bar")
+	r.SetPipelineType(constants.PipelineTypeStarlark)
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.Config(context.TODO(), u, r, "")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Config returned err: %v", err)
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Config is %v, want %v", got, want)
+	}
+}
+
+func TestGithub_Config_Star_Prefer(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		// repo has .vela.yml and .vela.star
+		switch c.Param("path") {
+		case ".vela.yml":
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/yml.json")
+		case ".vela.star":
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/star.json")
+		default:
+			c.Status(http.StatusNotFound)
+		}
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	want, err := os.ReadFile("testdata/pipeline.star")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -286,20 +311,20 @@ func TestGithub_Config_Py(t *testing.T) {
 
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
-		if c.Param("path") == ".vela.yml" {
-			c.Status(http.StatusNotFound)
+		if c.Param("path") == ".vela.py" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/py.json")
 			return
 		}
 
-		c.Header("Content-Type", "application/json")
-		c.Status(http.StatusOK)
-		c.File("testdata/py.json")
+		c.Status(http.StatusNotFound)
 	})
 
 	s := httptest.NewServer(engine)
 	defer s.Close()
 
-	want, err := os.ReadFile("testdata/pipeline.yml")
+	want, err := os.ReadFile("testdata/pipeline.star")
 	if err != nil {
 		t.Errorf("Config reading file returned err: %v", err)
 	}
@@ -341,11 +366,13 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		// first default not found
 		if c.Param("path") == ".vela.yml" {
 			c.Status(http.StatusNotFound)
 			return
 		}
 
+		// second default (.vela.yaml) causes bad request
 		c.Status(http.StatusBadRequest)
 	})
 
@@ -388,6 +415,55 @@ func TestGithub_Config_NotFound(t *testing.T) {
 
 	// setup mock server
 	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		c.Status(http.StatusNotFound)
+	})
+
+	s := httptest.NewServer(engine)
+	defer s.Close()
+
+	// setup types
+	u := new(library.User)
+	u.SetName("foo")
+	u.SetToken("bar")
+
+	r := new(library.Repo)
+	r.SetOrg("foo")
+	r.SetName("bar")
+
+	client, _ := NewTest(s.URL)
+
+	// run test
+	got, err := client.Config(context.TODO(), u, r, "")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Config returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err == nil {
+		t.Error("Config should have returned err")
+	}
+
+	if got != nil {
+		t.Errorf("Config is %v, want nil", got)
+	}
+}
+
+func TestGithub_Config_BadEncoding(t *testing.T) {
+	// setup context
+	gin.SetMode(gin.TestMode)
+
+	resp := httptest.NewRecorder()
+	_, engine := gin.CreateTestContext(resp)
+
+	// setup mock server
+	engine.GET("/api/v3/repos/foo/bar/contents/:path", func(c *gin.Context) {
+		if c.Param("path") == ".vela.yml" {
+			c.Header("Content-Type", "application/json")
+			c.Status(http.StatusOK)
+			c.File("testdata/yml_bad_encoding.json")
+			return
+		}
+
 		c.Status(http.StatusNotFound)
 	})
 
@@ -1106,9 +1182,9 @@ func TestGithub_GetRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.GetRepo(context.TODO(), u, r)
+	got, code, err := client.GetRepo(context.TODO(), u, r)
 
-	if resp.Code != http.StatusOK {
+	if code != http.StatusOK {
 		t.Errorf("GetRepo returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
@@ -1149,10 +1225,14 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	_, err := client.GetRepo(context.TODO(), u, r)
+	_, code, err := client.GetRepo(context.TODO(), u, r)
 
 	if err == nil {
 		t.Error("GetRepo should return error")
+	}
+
+	if code != http.StatusNotFound {
+		t.Errorf("GetRepo should have returned %d status, got %d", http.StatusNotFound, code)
 	}
 }
 
@@ -1273,7 +1353,6 @@ func TestGithub_ListUserRepos(t *testing.T) {
 
 	// run test
 	got, err := client.ListUserRepos(context.TODO(), u)
-
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1311,7 +1390,6 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 
 	// run test
 	got, err := client.ListUserRepos(context.TODO(), u)
-
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1356,7 +1434,6 @@ func TestGithub_GetPullRequest(t *testing.T) {
 
 	// run test
 	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(context.TODO(), u, r, 1)
-
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1413,7 +1490,6 @@ func TestGithub_GetBranch(t *testing.T) {
 
 	// run test
 	gotBranch, gotCommit, err := client.GetBranch(context.TODO(), u, r, "main")
-
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}

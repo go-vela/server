@@ -11,6 +11,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -195,6 +196,7 @@ func testBuild() *library.Build {
 		Started:      new(int64),
 		Finished:     new(int64),
 		Deploy:       new(string),
+		DeployNumber: new(int64),
 		Clone:        new(string),
 		Source:       new(string),
 		Title:        new(string),
@@ -211,22 +213,29 @@ func testBuild() *library.Build {
 		Host:         new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
+		ApprovedAt:   new(int64),
+		ApprovedBy:   new(string),
 	}
 }
 
 // testDeployment is a test helper function to create a library
 // Repo type with all fields set to their zero values.
 func testDeployment() *library.Deployment {
+	builds := []*library.Build{}
 	return &library.Deployment{
 		ID:          new(int64),
 		RepoID:      new(int64),
+		Number:      new(int64),
 		URL:         new(string),
-		User:        new(string),
 		Commit:      new(string),
 		Ref:         new(string),
 		Task:        new(string),
 		Target:      new(string),
 		Description: new(string),
+		Payload:     new(raw.StringSliceMap),
+		CreatedAt:   new(int64),
+		CreatedBy:   new(string),
+		Builds:      builds,
 	}
 }
 
@@ -268,7 +277,7 @@ func testRepo() *library.Repo {
 type AnyArgument struct{}
 
 // Match satisfies sqlmock.Argument interface.
-func (a AnyArgument) Match(v driver.Value) bool {
+func (a AnyArgument) Match(_ driver.Value) bool {
 	return true
 }
 

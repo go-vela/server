@@ -5,8 +5,10 @@ package deployment
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
@@ -82,7 +84,8 @@ func CreateDeployment(c *gin.Context) {
 
 	// update fields in deployment object
 	input.SetRepoID(r.GetID())
-	input.SetUser(u.GetName())
+	input.SetCreatedBy(u.GetName())
+	input.SetCreatedAt(time.Now().Unix())
 
 	if len(input.GetDescription()) == 0 {
 		input.SetDescription("Deployment request from Vela")
@@ -107,5 +110,15 @@ func CreateDeployment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, input)
+	// send API call to create the deployment
+	d, err := database.FromContext(c).CreateDeployment(c, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to create new deployment for %s: %w", r.GetFullName(), err)
+
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, d)
 }

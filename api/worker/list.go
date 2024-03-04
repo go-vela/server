@@ -5,6 +5,8 @@ package worker
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
@@ -21,6 +23,20 @@ import (
 // ---
 // produces:
 // - application/json
+// parameters:
+// - in: query
+//   name: active
+//   description: Filter workers based on active status
+//   type: boolean
+// - in: query
+//   name: checked_in_before
+//   description: filter workers that have checked in before a certain time
+//   type: integer
+// - in: query
+//   name: checked_in_after
+//   description: filter workers that have checked in after a certain time
+//   type: integer
+//   default: 0
 // security:
 //   - ApiKeyAuth: []
 // parameters:
@@ -55,15 +71,29 @@ func ListWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	var filters = map[string]interface{}{}
-
 	active := c.Query("active")
 
-	if len(active) > 0 {
-		filters["active"] = active
+	// capture before query parameter if present, default to now
+	before, err := strconv.ParseInt(c.DefaultQuery("checked_in_before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert `checked_in_before` query parameter: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
 	}
 
-	workers, err := database.FromContext(c).ListWorkers(ctx)
+	// capture after query parameter if present, default to 0
+	after, err := strconv.ParseInt(c.DefaultQuery("checked_in_after", "0"), 10, 64)
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert `checked_in_after` query parameter: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	workers, err := database.FromContext(c).ListWorkers(ctx, active, before, after)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 

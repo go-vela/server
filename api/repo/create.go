@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -73,6 +74,9 @@ func CreateRepo(c *gin.Context) {
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
 	defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
+	defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
+	defaultRepoApproveBuild := c.Value("defaultRepoApproveBuild").(string)
+
 	ctx := c.Request.Context()
 
 	// capture body from API request
@@ -97,7 +101,7 @@ func CreateRepo(c *gin.Context) {
 	}).Infof("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
-	r, err := scm.FromContext(c).GetRepo(ctx, u, input)
+	r, _, err := scm.FromContext(c).GetRepo(ctx, u, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to retrieve repo info for %s from source: %w", r.GetFullName(), err)
 
@@ -144,6 +148,25 @@ func CreateRepo(c *gin.Context) {
 		r.SetVisibility(input.GetVisibility())
 	}
 
+	// set the fork policy field based off the input provided
+	if len(input.GetApproveBuild()) > 0 {
+		// ensure the approve build setting matches one of the expected values
+		if input.GetApproveBuild() != constants.ApproveForkAlways &&
+			input.GetApproveBuild() != constants.ApproveForkNoWrite &&
+			input.GetApproveBuild() != constants.ApproveNever &&
+			input.GetApproveBuild() != constants.ApproveOnce {
+			retErr := fmt.Errorf("approve_build of %s is invalid", input.GetApproveBuild())
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		r.SetApproveBuild(input.GetApproveBuild())
+	} else {
+		r.SetApproveBuild(defaultRepoApproveBuild)
+	}
+
 	// fields restricted to platform admins
 	if u.GetAdmin() {
 		// trusted default is false
@@ -152,6 +175,14 @@ func CreateRepo(c *gin.Context) {
 		}
 	}
 
+	// set allow events based on input if given
+	if input.GetAllowEvents().ToDatabase() != 0 {
+		r.SetAllowEvents(input.GetAllowEvents())
+	} else {
+		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
+	}
+
+	// -- DEPRECATED SECTION --
 	// set default events if no events are passed in
 	if !input.GetAllowPull() && !input.GetAllowPush() &&
 		!input.GetAllowDeploy() && !input.GetAllowTag() &&
@@ -177,6 +208,7 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowPush(input.GetAllowPush())
 		r.SetAllowTag(input.GetAllowTag())
 	}
+	// -- END DEPRECATED SECTION --
 
 	if len(input.GetPipelineType()) == 0 {
 		r.SetPipelineType(constants.PipelineTypeYAML)
@@ -318,4 +350,55 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, r)
+}
+
+// defaultAllowedEvents is a helper function that generates an Events struct that results
+// from an admin-provided `sliceDefaults` or an admin-provided `maskDefaults`. If the admin
+// supplies a mask, that will be the default. Otherwise, it will be the legacy event list.
+func defaultAllowedEvents(sliceDefaults []string, maskDefaults int64) *library.Events {
+	if maskDefaults > 0 {
+		return library.NewEventsFromMask(maskDefaults)
+	}
+
+	events := new(library.Events)
+
+	for _, event := range sliceDefaults {
+		switch event {
+		case constants.EventPull:
+			pull := new(actions.Pull)
+			pull.SetOpened(true)
+			pull.SetSynchronize(true)
+
+			events.SetPullRequest(pull)
+		case constants.EventPush:
+			push := events.GetPush()
+			push.SetBranch(true)
+
+			events.SetPush(push)
+		case constants.EventTag:
+			tag := events.GetPush()
+			tag.SetTag(true)
+
+			events.SetPush(tag)
+		case constants.EventDeploy:
+			deploy := new(actions.Deploy)
+			deploy.SetCreated(true)
+
+			events.SetDeployment(deploy)
+		case constants.EventComment:
+			comment := new(actions.Comment)
+			comment.SetCreated(true)
+			comment.SetEdited(true)
+
+			events.SetComment(comment)
+		case constants.EventDelete:
+			deletion := events.GetPush()
+			deletion.SetDeleteBranch(true)
+			deletion.SetDeleteTag(true)
+
+			events.SetPush(deletion)
+		}
+	}
+
+	return events
 }

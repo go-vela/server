@@ -16,7 +16,7 @@ import (
 var (
 	// ErrEmptyWorkerHost defines the error type when a
 	// Worker type has an empty Host field provided.
-	ErrEmptyWorkerHost = errors.New("empty worker address provided")
+	ErrEmptyWorkerHost = errors.New("empty worker hostname provided")
 
 	// ErrEmptyWorkerAddress defines the error type when a
 	// Worker type has an empty Address field provided.

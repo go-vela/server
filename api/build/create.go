@@ -342,10 +342,34 @@ func CreateBuild(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, input)
 
-	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
+	// send API call to set the status on the commit except for scheduled build
+	if input.GetEvent() != constants.EventSchedule {
+		err = scm.FromContext(c).Status(ctx, u, input, r.GetOrg(), r.GetName())
+		if err != nil {
+			logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		}
+	}
+
+	// determine queue route
+	route, err := queue.FromGinContext(c).Route(&p.Worker)
 	if err != nil {
-		logger.Errorf("unable to set commit status for build %s/%d: %v", r.GetFullName(), input.GetNumber(), err)
+		logrus.Errorf("unable to set route for build %d for %s: %v", input.GetNumber(), r.GetFullName(), err)
+
+		// error out the build
+		CleanBuild(ctx, database.FromContext(c), input, nil, nil, err)
+
+		return
+	}
+
+	// temporarily set host to the route before it gets picked up by a worker
+	input.SetHost(route)
+
+	err = PublishBuildExecutable(ctx, database.FromContext(c), p, input)
+	if err != nil {
+		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", r.GetFullName(), input.GetNumber(), err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
 	}
 
 	// publish the build to the queue
@@ -353,10 +377,10 @@ func CreateBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		p,
 		input,
 		r,
 		u,
+		route,
 	)
 }
 

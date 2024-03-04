@@ -59,8 +59,10 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetAllowDeploy(false)
 	want.SetAllowTag(false)
 	want.SetAllowComment(false)
+	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")
+	want.SetApproveBuild("")
 
 	got := new(library.Repo)
 
@@ -71,7 +73,7 @@ func TestRepo_Establish(t *testing.T) {
 	}
 
 	defer func() {
-		db.DeleteRepo(context.TODO(), want)
+		_ = db.DeleteRepo(context.TODO(), want)
 		db.Close()
 	}()
 
