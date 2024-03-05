@@ -23,7 +23,7 @@ func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *l
 		Table(constants.TableBuild).
 		Select("*").
 		Where("repo_id = ?", repo.GetID()).
-		Where("status = 'running' OR status = 'pending'").
+		Where("status = 'running' OR status = 'pending' OR status = 'pending approval'").
 		Find(&b).
 		Error
 	if err != nil {

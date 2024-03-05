@@ -171,7 +171,6 @@ func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *libr
 // compileInline parses and expands out inline pipelines.
 func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 	newPipeline := *p
-	newPipeline.Templates = yaml.TemplateSlice{}
 
 	// return if max template depth has been reached
 	if depth == 0 {
@@ -204,6 +203,8 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			newPipeline.Templates = append(newPipeline.Templates, parsed.Templates...)
 		}
 
 		switch {
