@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/api/types"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestWorker_ActiveWorkerResp(t *testing.T) {
-	testWorker := types.Worker{}
+	testWorker := api.Worker{}
 
 	err := json.Unmarshal([]byte(WorkerResp), &testWorker)
 	if err != nil {
@@ -28,7 +28,7 @@ func TestWorker_ActiveWorkerResp(t *testing.T) {
 }
 
 func TestWorker_ListActiveWorkerResp(t *testing.T) {
-	testWorkers := []types.Worker{}
+	testWorkers := []api.Worker{}
 
 	err := json.Unmarshal([]byte(WorkersResp), &testWorkers)
 	if err != nil {

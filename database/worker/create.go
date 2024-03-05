@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
@@ -20,7 +19,7 @@ func (e *engine) CreateWorker(ctx context.Context, w *api.Worker) (*api.Worker, 
 	// cast the library type to database type
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#WorkerFromLibrary
-	worker := types.WorkerFromAPI(w)
+	worker := WorkerFromAPI(w)
 
 	// validate the necessary fields are populated
 	//

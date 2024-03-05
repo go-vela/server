@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package types
+package util
 
 import (
 	"testing"
 )
 
-func TestTypes_Sanitize(t *testing.T) {
+func TestUtil_Sanitize(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		name  string
@@ -73,7 +73,7 @@ func TestTypes_Sanitize(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := sanitize(test.value)
+			got := Sanitize(test.value)
 
 			if got != test.want {
 				t.Errorf("sanitize is %v, want %v", got, test.want)

@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
@@ -18,7 +17,7 @@ func (e *engine) GetWorkerForHostname(ctx context.Context, hostname string) (*ap
 	}).Tracef("getting worker %s from the database", hostname)
 
 	// variable to store query results
-	w := new(types.Worker)
+	w := new(Worker)
 
 	// send query to the database and store result in variable
 	err := e.client.

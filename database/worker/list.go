@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -17,7 +16,7 @@ func (e *engine) ListWorkers(ctx context.Context, active string, before, after i
 	e.logger.Trace("listing all workers from the database")
 
 	// variables to store query results and return value
-	w := new([]types.Worker)
+	results := new([]Worker)
 	workers := []*api.Worker{}
 
 	// build query with checked in constraints
@@ -37,13 +36,13 @@ func (e *engine) ListWorkers(ctx context.Context, active string, before, after i
 	}
 
 	// send query to the database and store result in variable
-	err := query.Find(&w).Error
+	err := query.Find(&results).Error
 	if err != nil {
 		return nil, err
 	}
 
 	// iterate through all query results
-	for _, worker := range *w {
+	for _, worker := range *results {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := worker
 
