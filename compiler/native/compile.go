@@ -97,7 +97,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 }
 
 // CompileLite produces a partial of an executable pipeline from a yaml configuration.
-func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *library.Pipeline, error) {
+func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substitute bool) (*yaml.Build, *library.Pipeline, error) {
 	p, data, err := c.Parse(v, c.repo.GetPipelineType(), new(yaml.Template))
 	if err != nil {
 		return nil, nil, err
@@ -129,7 +129,7 @@ func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *libr
 		switch {
 		case len(p.Stages) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandStages(p, templates, nil)
+			p, err = c.ExpandStages(p, templates, ruleData)
 			if err != nil {
 				return nil, _pipeline, err
 			}
@@ -141,9 +141,33 @@ func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *libr
 					return nil, _pipeline, err
 				}
 			}
+
+			if ruleData != nil {
+				purgedStages := new(yaml.StageSlice)
+
+				for _, stg := range p.Stages {
+					purgedSteps := new(yaml.StepSlice)
+
+					for _, s := range stg.Steps {
+						cRuleset := s.Ruleset.ToPipeline()
+						if match, err := cRuleset.Match(ruleData); err == nil && match {
+							*purgedSteps = append(*purgedSteps, s)
+						}
+					}
+
+					stg.Steps = *purgedSteps
+
+					if len(stg.Steps) > 0 {
+						*purgedStages = append(*purgedStages, stg)
+					}
+				}
+
+				p.Stages = *purgedStages
+			}
+
 		case len(p.Steps) > 0:
 			// inject the templates into the steps
-			p, err = c.ExpandSteps(p, templates, nil, c.TemplateDepth)
+			p, err = c.ExpandSteps(p, templates, ruleData, c.TemplateDepth)
 			if err != nil {
 				return nil, _pipeline, err
 			}
@@ -154,6 +178,19 @@ func (c *client) CompileLite(v interface{}, substitute bool) (*yaml.Build, *libr
 				if err != nil {
 					return nil, _pipeline, err
 				}
+			}
+
+			if ruleData != nil {
+				purgedSteps := new(yaml.StepSlice)
+
+				for _, s := range p.Steps {
+					cRuleset := s.Ruleset.ToPipeline()
+					if match, err := cRuleset.Match(ruleData); err == nil && match {
+						*purgedSteps = append(*purgedSteps, s)
+					}
+				}
+
+				p.Steps = *purgedSteps
 			}
 		}
 	}
