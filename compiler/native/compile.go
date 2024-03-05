@@ -125,73 +125,71 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 	// create map of templates for easy lookup
 	templates := mapFromTemplates(p.Templates)
 
-	if len(templates) > 0 {
-		switch {
-		case len(p.Stages) > 0:
-			// inject the templates into the steps
-			p, err = c.ExpandStages(p, templates, ruleData)
+	switch {
+	case len(p.Stages) > 0:
+		// inject the templates into the steps
+		p, err = c.ExpandStages(p, templates, ruleData)
+		if err != nil {
+			return nil, _pipeline, err
+		}
+
+		if substitute {
+			// inject the substituted environment variables into the steps
+			p.Stages, err = c.SubstituteStages(p.Stages)
 			if err != nil {
 				return nil, _pipeline, err
 			}
+		}
 
-			if substitute {
-				// inject the substituted environment variables into the steps
-				p.Stages, err = c.SubstituteStages(p.Stages)
-				if err != nil {
-					return nil, _pipeline, err
-				}
-			}
+		if ruleData != nil {
+			purgedStages := new(yaml.StageSlice)
 
-			if ruleData != nil {
-				purgedStages := new(yaml.StageSlice)
-
-				for _, stg := range p.Stages {
-					purgedSteps := new(yaml.StepSlice)
-
-					for _, s := range stg.Steps {
-						cRuleset := s.Ruleset.ToPipeline()
-						if match, err := cRuleset.Match(ruleData); err == nil && match {
-							*purgedSteps = append(*purgedSteps, s)
-						}
-					}
-
-					stg.Steps = *purgedSteps
-
-					if len(stg.Steps) > 0 {
-						*purgedStages = append(*purgedStages, stg)
-					}
-				}
-
-				p.Stages = *purgedStages
-			}
-
-		case len(p.Steps) > 0:
-			// inject the templates into the steps
-			p, err = c.ExpandSteps(p, templates, ruleData, c.TemplateDepth)
-			if err != nil {
-				return nil, _pipeline, err
-			}
-
-			if substitute {
-				// inject the substituted environment variables into the steps
-				p.Steps, err = c.SubstituteSteps(p.Steps)
-				if err != nil {
-					return nil, _pipeline, err
-				}
-			}
-
-			if ruleData != nil {
+			for _, stg := range p.Stages {
 				purgedSteps := new(yaml.StepSlice)
 
-				for _, s := range p.Steps {
+				for _, s := range stg.Steps {
 					cRuleset := s.Ruleset.ToPipeline()
 					if match, err := cRuleset.Match(ruleData); err == nil && match {
 						*purgedSteps = append(*purgedSteps, s)
 					}
 				}
 
-				p.Steps = *purgedSteps
+				stg.Steps = *purgedSteps
+
+				if len(stg.Steps) > 0 {
+					*purgedStages = append(*purgedStages, stg)
+				}
 			}
+
+			p.Stages = *purgedStages
+		}
+
+	case len(p.Steps) > 0:
+		// inject the templates into the steps
+		p, err = c.ExpandSteps(p, templates, ruleData, c.TemplateDepth)
+		if err != nil {
+			return nil, _pipeline, err
+		}
+
+		if substitute {
+			// inject the substituted environment variables into the steps
+			p.Steps, err = c.SubstituteSteps(p.Steps)
+			if err != nil {
+				return nil, _pipeline, err
+			}
+		}
+
+		if ruleData != nil {
+			purgedSteps := new(yaml.StepSlice)
+
+			for _, s := range p.Steps {
+				cRuleset := s.Ruleset.ToPipeline()
+				if match, err := cRuleset.Match(ruleData); err == nil && match {
+					*purgedSteps = append(*purgedSteps, s)
+				}
+			}
+
+			p.Steps = *purgedSteps
 		}
 	}
 
