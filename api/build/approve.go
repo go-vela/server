@@ -86,8 +86,17 @@ func ApproveBuild(c *gin.Context) {
 		"user": u.GetName(),
 	})
 
+	// verify build is in correct status
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		retErr := fmt.Errorf("unable to approve build %s/%d: build not in pending approval state", r.GetFullName(), b.GetNumber())
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// verify user is not the sender of the build
+	if strings.EqualFold(u.GetName(), b.GetSender()) {
+		retErr := fmt.Errorf("unable to approve build %s/%d: approver cannot be the sender of the build", r.GetFullName(), b.GetNumber())
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
@@ -96,7 +105,7 @@ func ApproveBuild(c *gin.Context) {
 	logger.Debugf("user %s approved build %s/%d for execution", u.GetName(), r.GetFullName(), b.GetNumber())
 
 	// send API call to capture the repo owner
-	u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
+	owner, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
 
@@ -105,6 +114,7 @@ func ApproveBuild(c *gin.Context) {
 		return
 	}
 
+	// set fields
 	b.SetStatus(constants.StatusPending)
 	b.SetApprovedAt(time.Now().Unix())
 	b.SetApprovedBy(u.GetName())
@@ -122,7 +132,7 @@ func ApproveBuild(c *gin.Context) {
 		database.FromContext(c),
 		b,
 		r,
-		u,
+		owner,
 		b.GetHost(),
 	)
 
