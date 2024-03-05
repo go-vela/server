@@ -42,6 +42,7 @@ type client struct {
 	metadata       *types.Metadata
 	repo           *library.Repo
 	user           *library.User
+	label          string
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -206,6 +207,15 @@ func (c *client) WithRepo(r *library.Repo) compiler.Engine {
 func (c *client) WithUser(u *library.User) compiler.Engine {
 	if u != nil {
 		c.user = u
+	}
+
+	return c
+}
+
+// WithComment sets the comment in the Engine.
+func (c *client) WithLabel(label string) compiler.Engine {
+	if label != "" {
+		c.label = label
 	}
 
 	return c

@@ -505,6 +505,7 @@ func PostWebhook(c *gin.Context) {
 			WithMetadata(m).
 			WithRepo(repo).
 			WithUser(u).
+			WithLabel(webhook.PullRequest.Label).
 			Compile(config)
 		if err != nil {
 			// format the error message with extra information
