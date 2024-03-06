@@ -237,9 +237,9 @@ func (w *Worker) Validate() error {
 	return nil
 }
 
-// WorkerFromAPI converts the library worker type
+// FromAPI converts the API worker type
 // to a database worker type.
-func WorkerFromAPI(w *api.Worker) *Worker {
+func FromAPI(w *api.Worker) *Worker {
 	var rBs []string
 
 	for _, b := range w.GetRunningBuilds() {

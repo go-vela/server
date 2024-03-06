@@ -8,7 +8,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// Worker is the library representation of a worker.
+// Worker is the API representation of a worker.
 //
 // swagger:model Worker
 type Worker struct {

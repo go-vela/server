@@ -19,7 +19,7 @@ func (e *engine) UpdateWorker(ctx context.Context, w *api.Worker) (*api.Worker, 
 	// cast the library type to database type
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#WorkerFromLibrary
-	worker := WorkerFromAPI(w)
+	worker := FromAPI(w)
 
 	// validate the necessary fields are populated
 	//
