@@ -4,8 +4,13 @@ package repo
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	wh "github.com/go-vela/server/api/webhook"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -13,8 +18,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
-	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo

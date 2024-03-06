@@ -7,11 +7,12 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // PublishToQueue is a helper function that publishes a queue item (build, repo, user) to the queue.

@@ -6,10 +6,10 @@ import (
 	"html"
 	"strings"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/library"
 )
 
 // HandleError appends the error to the handler chain for logging and outputs it.

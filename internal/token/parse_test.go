@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 
 	jwt "github.com/golang-jwt/jwt/v5"
+
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 )
 
 func TestTokenManager_ParseToken(t *testing.T) {

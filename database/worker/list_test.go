@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestWorker_Engine_ListWorkers(t *testing.T) {

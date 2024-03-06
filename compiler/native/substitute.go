@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/buildkite/yaml"
-
 	"github.com/drone/envsubst"
 
 	types "github.com/go-vela/types/yaml"

@@ -8,9 +8,10 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+
 	_context "context"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types/library"
 )
 

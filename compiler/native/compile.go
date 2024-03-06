@@ -12,16 +12,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-vela/types/constants"
+	"github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/go-retryablehttp"
 
 	yml "github.com/buildkite/yaml"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/go-retryablehttp"
 )
 
 // ModifyRequest contains the payload passed to the modification endpoint.

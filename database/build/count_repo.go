@@ -5,9 +5,10 @@ package build
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountBuildsForRepo gets the count of builds by repo ID from the database.

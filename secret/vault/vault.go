@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
-	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/library"
 )
 
 const (

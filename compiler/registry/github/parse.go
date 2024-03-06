@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/server/compiler/registry"
-
 	"github.com/goware/urlx"
+
+	"github.com/go-vela/server/compiler/registry"
 )
 
 // Parse creates the registry source object from

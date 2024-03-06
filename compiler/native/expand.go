@@ -6,17 +6,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/pipeline"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
-	"github.com/spf13/afero"
-
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/sirupsen/logrus"
 )
 
 // ExpandStages injects the template for each

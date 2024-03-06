@@ -5,8 +5,9 @@ package queue
 import (
 	"time"
 
-	"github.com/go-vela/types/constants"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/constants"
 )
 
 // Flags represents all supported command line

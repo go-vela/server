@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/types/constants"
 )
 
 func TestSecret_Engine_CountSecretsForRepo(t *testing.T) {

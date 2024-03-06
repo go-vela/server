@@ -8,9 +8,10 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /login authenticate GetLogin

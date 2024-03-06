@@ -5,9 +5,9 @@ package worker
 import (
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestWorker_FromContext(t *testing.T) {

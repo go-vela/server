@@ -6,10 +6,10 @@ import (
 	"flag"
 	"testing"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_Validate_NoVersion(t *testing.T) {

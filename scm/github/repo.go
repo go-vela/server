@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/go-github/v59/github"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function

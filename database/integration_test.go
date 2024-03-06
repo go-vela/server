@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
@@ -26,7 +28,6 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-cmp/cmp"
 )
 
 // Resources represents the object containing test resources.

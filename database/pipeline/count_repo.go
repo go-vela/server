@@ -5,9 +5,10 @@ package pipeline
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountPipelinesForRepo gets the count of pipelines by repo ID from the database.

@@ -13,6 +13,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/urfave/cli/v2"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
@@ -26,8 +29,6 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/urfave/cli/v2"
 )
 
 func TestPipeline_Retrieve(t *testing.T) {

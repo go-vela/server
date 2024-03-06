@@ -4,10 +4,12 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
+	bmiddleware "github.com/go-vela/server/router/middleware/build"
+
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/log"
 	"github.com/go-vela/server/router/middleware"
-	bmiddleware "github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/executors"
 	"github.com/go-vela/server/router/middleware/perm"
 )

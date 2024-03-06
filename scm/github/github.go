@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/go-github/v59/github"
 	"github.com/sirupsen/logrus"
-
 	"golang.org/x/oauth2"
 )
 

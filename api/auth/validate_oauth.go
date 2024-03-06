@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 )

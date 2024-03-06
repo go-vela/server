@@ -8,8 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
 	"github.com/hashicorp/vault/api"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestVault_New(t *testing.T) {

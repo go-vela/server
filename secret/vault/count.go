@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
-	"github.com/hashicorp/vault/api"
 )
 
 // Count counts a list of secrets.

@@ -6,12 +6,12 @@ import (
 	"context"
 	"errors"
 
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-
-	"gorm.io/gorm"
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.

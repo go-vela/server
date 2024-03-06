@@ -4,9 +4,11 @@ package schedule
 
 import (
 	"context"
+
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountSchedulesForRepo gets the count of schedules by repo ID from the database.

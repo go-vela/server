@@ -9,12 +9,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli/v2"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
-
-	"github.com/gin-gonic/gin"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestMiddleware_CompilerNative(t *testing.T) {

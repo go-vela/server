@@ -9,14 +9,14 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
+	"github.com/urfave/cli/v2"
+
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/google/go-cmp/cmp"
-
-	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_ExpandStages(t *testing.T) {
