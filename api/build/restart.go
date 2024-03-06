@@ -319,7 +319,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetPipelineID(pipeline.GetID())
 
 	// create the objects from the pipeline in the database
-	err = PlanBuild(ctx, database.FromContext(c), p, b, r)
+	err = PlanBuild(ctx, database.FromContext(c), scm.FromContext(c), p, b, r)
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 

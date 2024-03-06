@@ -133,8 +133,8 @@ type Service interface {
 	GetHTMLURL(context.Context, *library.User, string, string, string, string) (string, error)
 
 	// TODO: add comments
-	CreateChecks(context.Context, *library.Repo, string, string) (int64, error)
-	UpdateChecks(context.Context, *library.Repo, *library.Step, string) error
+	CreateChecks(context.Context, *library.Repo, string, string, string) (int64, error)
+	UpdateChecks(context.Context, *library.Repo, *library.Step, string, string) error
 
 	// Webhook SCM Interface Functions
 

@@ -356,7 +356,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		//   using the same Number and thus create a constraint
 		//   conflict; consider deleting the partially created
 		//   build object in the database
-		err = build.PlanBuild(ctx, database, p, b, r)
+		err = build.PlanBuild(ctx, database, scm, p, b, r)
 		if err != nil {
 			// check if the retry limit has been exceeded
 			if i < retryLimit-1 {
