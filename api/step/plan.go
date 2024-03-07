@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-vela/server/scm"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -16,7 +18,7 @@ import (
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build) ([]*library.Step, error) {
+func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *library.Build, r *library.Repo) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
@@ -25,7 +27,7 @@ func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Bui
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			s, err := planStep(ctx, database, b, step, stage.Name)
+			s, err := planStep(ctx, database, scm, b, r, step, stage.Name)
 			if err != nil {
 				return steps, err
 			}
@@ -47,7 +49,7 @@ func PlanSteps(ctx context.Context, database database.Interface, p *pipeline.Bui
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, b *library.Build, c *pipeline.Container, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *library.Build, r *library.Repo, c *pipeline.Container, stage string) (*library.Step, error) {
 	// create the step object
 	s := new(library.Step)
 	s.SetBuildID(b.GetID())
@@ -58,6 +60,15 @@ func planStep(ctx context.Context, database database.Interface, b *library.Build
 	s.SetStage(stage)
 	s.SetStatus(constants.StatusPending)
 	s.SetCreated(time.Now().UTC().Unix())
+
+	id, err := scm.CreateChecks(ctx, r, b.GetCommit(), s.GetName())
+	if err != nil {
+		// TODO: make this error more meaningful
+		return nil, err
+	}
+
+	// TODO: have to store the check ID somewhere
+	s.SetCheckID(id)
 
 	// send API call to create the step
 	s, err := database.CreateStep(ctx, s)
