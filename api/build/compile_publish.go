@@ -426,12 +426,12 @@ func CompileAndPublish(
 	// determine queue route
 	route, err := queue.Route(&p.Worker)
 	if err != nil {
-		logrus.Errorf("unable to set route for build %d for %s: %v", b.GetNumber(), r.GetFullName(), err)
+		retErr := fmt.Errorf("unable to set route for build %d for %s: %w", b.GetNumber(), r.GetFullName(), err)
 
 		// error out the build
-		CleanBuild(c, database, b, nil, nil, err)
+		CleanBuild(c, database, b, nil, nil, retErr)
 
-		return false, nil, nil, nil
+		return false, nil, nil, retErr
 	}
 
 	// temporarily set host to the route before it gets picked up by a worker

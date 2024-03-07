@@ -115,8 +115,8 @@ func CreateBuild(c *gin.Context) {
 		Build:    input,
 		Repo:     r,
 		Metadata: m,
-		BaseErr:  "unable to restart build",
-		Source:   "restart",
+		BaseErr:  "unable to create build",
+		Source:   "create",
 		Retries:  1,
 	}
 
