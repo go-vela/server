@@ -77,6 +77,19 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	// create a platform settings object to store the settings
+	// err := e.client.Table(constantsTableSettings).Save(s2).Error
+	s := "init1"
+	ss, err := database.GetSettings(context.Background())
+	if ss == nil || err != nil {
+		_, err = database.CreateSettings(context.Background(), &s)
+		if err != nil {
+			return err
+		}
+	}
+
+	// when the server reboots, should it only use the defaults when the object doesnt exist yet?
+
 	queue, err := setupQueue(c)
 	if err != nil {
 		return err

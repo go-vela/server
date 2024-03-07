@@ -24,6 +24,10 @@ import (
 // PUT    /api/v1/admin/user
 // POST   /api/v1/admin/workers/:worker/register.
 func AdminHandlers(base *gin.RouterGroup) {
+	// todo: figure out permissions for GET vs PUT etc
+	base.Group("/admin").GET("/settings", admin.GetSettings)
+	base.Group("/admin").PUT("/settings", admin.UpdateSettings)
+
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
 	{

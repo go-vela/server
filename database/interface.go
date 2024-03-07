@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
+	"github.com/go-vela/server/database/settings"
 )
 
 // Interface represents the interface for integrating with the supported database providers.
@@ -32,6 +33,9 @@ type Interface interface {
 	Ping() error
 
 	// Resource Interface Functions
+
+	// SettingsInterface defines the interface for platform settings stored in the database.
+	settings.SettingsInterface
 
 	// BuildInterface defines the interface for builds stored in the database.
 	build.BuildInterface
