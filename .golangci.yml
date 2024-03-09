@@ -34,7 +34,7 @@ linters-settings:
 
   # https://github.com/daixiang0/gci
   # ensure import order is consistent
-  # gci write --custom-order -s standard -s default -s blank -s dot -s alias -s "prefix(github.com/go-vela)" .
+  # gci write --custom-order -s standard -s default -s blank -s dot -s "prefix(github.com/go-vela)" .
   gci:
     custom-order: true
     sections:
@@ -42,7 +42,6 @@ linters-settings:
       - default
       - blank
       - dot
-      - alias
       - prefix(github.com/go-vela)
 
   # https://github.com/denis-tingaikin/go-header
