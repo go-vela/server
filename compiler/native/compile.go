@@ -12,10 +12,9 @@ import (
 	"strings"
 	"time"
 
+	yml "github.com/buildkite/yaml"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
-
-	yml "github.com/buildkite/yaml"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"

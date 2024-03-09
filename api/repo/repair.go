@@ -10,7 +10,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	wh "github.com/go-vela/server/api/webhook"
-
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"

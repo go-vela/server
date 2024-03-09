@@ -3,14 +3,13 @@
 package github
 
 import (
+	_context "context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-
-	_context "context"
 
 	"github.com/go-vela/types/library"
 )

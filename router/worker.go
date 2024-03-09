@@ -5,11 +5,10 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 
-	wmiddleware "github.com/go-vela/server/router/middleware/worker"
-
 	"github.com/go-vela/server/api/worker"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/perm"
+	wmiddleware "github.com/go-vela/server/router/middleware/worker"
 )
 
 // WorkerHandlers is a function that extends the provided base router group

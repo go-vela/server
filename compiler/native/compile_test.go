@@ -12,12 +12,11 @@ import (
 	"testing"
 	"time"
 
+	yml "github.com/buildkite/yaml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-github/v59/github"
 	"github.com/urfave/cli/v2"
-
-	yml "github.com/buildkite/yaml"
 
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"

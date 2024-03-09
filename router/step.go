@@ -6,11 +6,10 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 
-	smiddleware "github.com/go-vela/server/router/middleware/step"
-
 	"github.com/go-vela/server/api/step"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/perm"
+	smiddleware "github.com/go-vela/server/router/middleware/step"
 )
 
 // StepHandlers is a function that extends the provided base router group

@@ -10,9 +10,8 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/buildkite/yaml"
 
-	types "github.com/go-vela/types/yaml"
-
 	"github.com/go-vela/types/raw"
+	types "github.com/go-vela/types/yaml"
 )
 
 // Render combines the template with the step in the yaml pipeline.

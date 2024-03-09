@@ -6,9 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-
 	goyaml "github.com/buildkite/yaml"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"

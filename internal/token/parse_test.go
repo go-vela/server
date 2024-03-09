@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-
 	jwt "github.com/golang-jwt/jwt/v5"
 
 	"github.com/go-vela/types/constants"

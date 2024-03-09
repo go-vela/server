@@ -9,11 +9,10 @@ import (
 
 	"github.com/buildkite/yaml"
 
-	types "github.com/go-vela/types/yaml"
-
 	"github.com/go-vela/server/compiler/template/native"
 	"github.com/go-vela/server/compiler/template/starlark"
 	"github.com/go-vela/types/constants"
+	types "github.com/go-vela/types/yaml"
 )
 
 // ParseRaw converts an object to a string.

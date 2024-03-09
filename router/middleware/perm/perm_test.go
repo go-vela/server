@@ -3,6 +3,7 @@
 package perm
 
 import (
+	_context "context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,8 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-
-	_context "context"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
