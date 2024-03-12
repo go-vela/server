@@ -25,6 +25,7 @@ func TestNative_Get(t *testing.T) {
 	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
 	want.SetCreatedAt(1)
 	want.SetCreatedBy("user")
 	want.SetUpdatedAt(1)
