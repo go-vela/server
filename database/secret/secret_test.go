@@ -210,21 +210,22 @@ func testRepo() *library.Repo {
 // Secret type with all fields set to their zero values.
 func testSecret() *library.Secret {
 	return &library.Secret{
-		ID:           new(int64),
-		Org:          new(string),
-		Repo:         new(string),
-		Team:         new(string),
-		Name:         new(string),
-		Value:        new(string),
-		Type:         new(string),
-		Images:       new([]string),
-		Events:       new([]string),
-		AllowEvents:  testEvents(),
-		AllowCommand: new(bool),
-		CreatedAt:    new(int64),
-		CreatedBy:    new(string),
-		UpdatedAt:    new(int64),
-		UpdatedBy:    new(string),
+		ID:                new(int64),
+		Org:               new(string),
+		Repo:              new(string),
+		Team:              new(string),
+		Name:              new(string),
+		Value:             new(string),
+		Type:              new(string),
+		Images:            new([]string),
+		Events:            new([]string),
+		AllowEvents:       testEvents(),
+		AllowCommand:      new(bool),
+		AllowSubstitution: new(bool),
+		CreatedAt:         new(int64),
+		CreatedBy:         new(string),
+		UpdatedAt:         new(int64),
+		UpdatedBy:         new(string),
 	}
 }
 
