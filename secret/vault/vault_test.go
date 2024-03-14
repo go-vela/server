@@ -3,12 +3,15 @@
 package vault
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/go-vela/types/library"
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/vault/api"
 )
 
@@ -93,42 +96,12 @@ func TestVault_New_Error(t *testing.T) {
 func TestVault_secretFromVault(t *testing.T) {
 	// setup types
 	inputV1 := &api.Secret{
-		Data: map[string]interface{}{
-			"events":        []interface{}{"foo", "bar"},
-			"allow_events":  int64(1),
-			"images":        []interface{}{"foo", "bar"},
-			"name":          "bar",
-			"org":           "foo",
-			"repo":          "*",
-			"team":          "foob",
-			"type":          "org",
-			"value":         "baz",
-			"allow_command": true,
-			"created_at":    int64(1563474077),
-			"created_by":    "octocat",
-			"updated_at":    int64(1563474079),
-			"updated_by":    "octocat2",
-		},
+		Data: testVaultSecretData(),
 	}
 
 	inputV2 := &api.Secret{
 		Data: map[string]interface{}{
-			"data": map[string]interface{}{
-				"events":        []interface{}{"foo", "bar"},
-				"allow_events":  int64(1),
-				"images":        []interface{}{"foo", "bar"},
-				"name":          "bar",
-				"org":           "foo",
-				"repo":          "*",
-				"team":          "foob",
-				"type":          "org",
-				"value":         "baz",
-				"allow_command": true,
-				"created_at":    int64(1563474077),
-				"created_by":    "octocat",
-				"updated_at":    int64(1563474079),
-				"updated_by":    "octocat2",
-			},
+			"data": testVaultSecretData(),
 		},
 	}
 
@@ -143,6 +116,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
+	want.SetAllowSubstitution(true)
 	want.SetCreatedAt(1563474077)
 	want.SetCreatedBy("octocat")
 	want.SetUpdatedAt(1563474079)
@@ -184,6 +158,7 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	s.SetAllowEvents(library.NewEventsFromMask(1))
 	s.SetImages([]string{"foo", "bar"})
 	s.SetAllowCommand(true)
+	s.SetAllowSubstitution(true)
 	s.SetCreatedAt(1563474077)
 	s.SetCreatedBy("octocat")
 	s.SetUpdatedAt(1563474079)
@@ -191,27 +166,75 @@ func TestVault_vaultFromSecret(t *testing.T) {
 
 	want := &api.Secret{
 		Data: map[string]interface{}{
-			"events":        []string{"foo", "bar"},
-			"allow_events":  int64(1),
-			"images":        []string{"foo", "bar"},
-			"name":          "bar",
-			"org":           "foo",
-			"repo":          "*",
-			"team":          "foob",
-			"type":          "org",
-			"value":         "baz",
-			"allow_command": true,
-			"created_at":    int64(1563474077),
-			"created_by":    "octocat",
-			"updated_at":    int64(1563474079),
-			"updated_by":    "octocat2",
+			"events":             []string{"foo", "bar"},
+			"allow_events":       int64(1),
+			"images":             []string{"foo", "bar"},
+			"name":               "bar",
+			"org":                "foo",
+			"repo":               "*",
+			"team":               "foob",
+			"type":               "org",
+			"value":              "baz",
+			"allow_command":      true,
+			"allow_substitution": true,
+			"created_at":         int64(1563474077),
+			"created_by":         "octocat",
+			"updated_at":         int64(1563474079),
+			"updated_by":         "octocat2",
 		},
 	}
 
 	// run test
 	got := vaultFromSecret(s)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("vaultFromSecret is %v, want %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("vaultFromSecret() mismatch (-got +want):\n%s", diff)
+	}
+}
+
+func TestVault_AccurateSecretFields(t *testing.T) {
+	testSecret := library.Secret{}
+
+	tSecret := reflect.TypeOf(testSecret)
+
+	vaultSecret := testVaultSecretData()
+
+	for i := 0; i < tSecret.NumField(); i++ {
+		field := tSecret.Field(i)
+
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" {
+			continue
+		}
+
+		jsonTag = strings.Split(jsonTag, ",")[0]
+		if strings.EqualFold(jsonTag, "id") {
+			continue // skip id field
+		}
+
+		if vaultSecret[jsonTag] == nil {
+			t.Errorf("vaultSecret missing field with JSON tag %s", jsonTag)
+		}
+	}
+}
+
+// helper function to return a test Vault secret data.
+func testVaultSecretData() map[string]interface{} {
+	return map[string]interface{}{
+		"events":             []interface{}{"foo", "bar"},
+		"allow_events":       json.Number("1"),
+		"images":             []interface{}{"foo", "bar"},
+		"name":               "bar",
+		"org":                "foo",
+		"repo":               "*",
+		"team":               "foob",
+		"type":               "org",
+		"value":              "baz",
+		"allow_command":      true,
+		"allow_substitution": true,
+		"created_at":         json.Number("1563474077"),
+		"created_by":         "octocat",
+		"updated_at":         json.Number("1563474079"),
+		"updated_by":         "octocat2",
 	}
 }
