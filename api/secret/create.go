@@ -234,6 +234,14 @@ func CreateSecret(c *gin.Context) {
 		input.SetAllowCommand(true)
 	}
 
+	// default to not allow substitution for shared secrets
+	if strings.EqualFold(input.GetType(), constants.SecretShared) && input.AllowSubstitution == nil {
+		input.SetAllowSubstitution(false)
+		input.SetAllowCommand(false)
+	} else if input.AllowSubstitution == nil {
+		input.SetAllowSubstitution(true)
+	}
+
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update the team instead of repo

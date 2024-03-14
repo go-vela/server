@@ -44,6 +44,11 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 		secret.SetAllowCommand(s.GetAllowCommand())
 	}
 
+	// update allow_substitution if set
+	if s.AllowSubstitution != nil {
+		secret.SetAllowSubstitution(s.GetAllowSubstitution())
+	}
+
 	// update updated_at if set
 	secret.SetUpdatedAt(s.GetUpdatedAt())
 
