@@ -152,6 +152,10 @@ func UpdateSecret(c *gin.Context) {
 		input.SetAllowCommand(input.GetAllowCommand())
 	}
 
+	if input.AllowSubstitution != nil {
+		input.SetAllowSubstitution(input.GetAllowSubstitution())
+	}
+
 	// check if secret is a shared secret
 	if strings.EqualFold(t, constants.SecretShared) {
 		// update the team instead of repo
