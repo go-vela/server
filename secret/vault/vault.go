@@ -174,6 +174,7 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		events, ok := data["events"]
 		if ok {
 			allowEventsMask := int64(0)
+
 			for _, element := range events.([]interface{}) {
 				event, ok := element.(string)
 				if ok {
