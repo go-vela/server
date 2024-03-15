@@ -105,6 +105,27 @@ func TestVault_secretFromVault(t *testing.T) {
 		},
 	}
 
+	// test vault secret from pre-v0.23 release
+	inputLegacy := &api.Secret{
+		Data: map[string]interface{}{
+			"data": map[string]interface{}{
+				"events":        []interface{}{"push", "tag", "deployment"},
+				"images":        []interface{}{"foo", "bar"},
+				"name":          "bar",
+				"org":           "foo",
+				"repo":          "*",
+				"team":          "foob",
+				"type":          "org",
+				"value":         "baz",
+				"allow_command": true,
+				"created_at":    json.Number("1563474077"),
+				"created_by":    "octocat",
+				"updated_at":    json.Number("1563474079"),
+				"updated_by":    "octocat2",
+			},
+		},
+	}
+
 	want := new(library.Secret)
 	want.SetOrg("foo")
 	want.SetRepo("*")
@@ -112,8 +133,8 @@ func TestVault_secretFromVault(t *testing.T) {
 	want.SetName("bar")
 	want.SetValue("baz")
 	want.SetType("org")
-	want.SetEvents([]string{"foo", "bar"})
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetEvents([]string{"push", "tag", "deployment"})
+	want.SetAllowEvents(library.NewEventsFromMask(8195))
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
 	want.SetAllowSubstitution(true)
@@ -132,6 +153,7 @@ func TestVault_secretFromVault(t *testing.T) {
 	}{
 		{"v1", args{secret: inputV1}},
 		{"v2", args{secret: inputV2}},
+		{"legacy", args{secret: inputLegacy}},
 	}
 
 	for _, tt := range tests {
@@ -221,8 +243,8 @@ func TestVault_AccurateSecretFields(t *testing.T) {
 // helper function to return a test Vault secret data.
 func testVaultSecretData() map[string]interface{} {
 	return map[string]interface{}{
-		"events":             []interface{}{"foo", "bar"},
-		"allow_events":       json.Number("1"),
+		"events":             []interface{}{"push", "tag", "deployment"},
+		"allow_events":       json.Number("8195"),
 		"images":             []interface{}{"foo", "bar"},
 		"name":               "bar",
 		"org":                "foo",
