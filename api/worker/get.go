@@ -56,7 +56,7 @@ func GetWorker(c *gin.Context) {
 		"worker": w.GetHostname(),
 	}).Infof("reading worker %s", w.GetHostname())
 
-	var rBs []*library.Build
+	rBs := []*library.Build{}
 
 	for _, b := range w.GetRunningBuilds() {
 		build, err := database.FromContext(c).GetBuild(ctx, b.GetID())

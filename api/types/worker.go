@@ -12,18 +12,18 @@ import (
 //
 // swagger:model Worker
 type Worker struct {
-	ID                  *int64           `json:"id,omitempty"`
-	Hostname            *string          `json:"hostname,omitempty"`
-	Address             *string          `json:"address,omitempty"`
-	Routes              *[]string        `json:"routes,omitempty"`
-	Active              *bool            `json:"active,omitempty"`
-	Status              *string          `json:"status,omitempty"`
-	LastStatusUpdateAt  *int64           `json:"last_status_update_at,omitempty"`
-	RunningBuilds       []*library.Build `json:"running_builds,omitempty"`
-	LastBuildStartedAt  *int64           `json:"last_build_started_at,omitempty"`
-	LastBuildFinishedAt *int64           `json:"last_build_finished_at,omitempty"`
-	LastCheckedIn       *int64           `json:"last_checked_in,omitempty"`
-	BuildLimit          *int64           `json:"build_limit,omitempty"`
+	ID                  *int64            `json:"id,omitempty"`
+	Hostname            *string           `json:"hostname,omitempty"`
+	Address             *string           `json:"address,omitempty"`
+	Routes              *[]string         `json:"routes,omitempty"`
+	Active              *bool             `json:"active,omitempty"`
+	Status              *string           `json:"status,omitempty"`
+	LastStatusUpdateAt  *int64            `json:"last_status_update_at,omitempty"`
+	RunningBuilds       *[]*library.Build `json:"running_builds,omitempty"`
+	LastBuildStartedAt  *int64            `json:"last_build_started_at,omitempty"`
+	LastBuildFinishedAt *int64            `json:"last_build_finished_at,omitempty"`
+	LastCheckedIn       *int64            `json:"last_checked_in,omitempty"`
+	BuildLimit          *int64            `json:"build_limit,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -127,7 +127,7 @@ func (w *Worker) GetRunningBuilds() []*library.Build {
 		return []*library.Build{}
 	}
 
-	return w.RunningBuilds
+	return *w.RunningBuilds
 }
 
 // GetLastBuildStartedAt returns the LastBuildStartedAt field.
@@ -283,7 +283,7 @@ func (w *Worker) SetRunningBuilds(builds []*library.Build) {
 		return
 	}
 
-	w.RunningBuilds = builds
+	w.RunningBuilds = &builds
 }
 
 // SetLastBuildStartedAt sets the LastBuildStartedAt field.

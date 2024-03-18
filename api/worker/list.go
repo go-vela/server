@@ -97,7 +97,7 @@ func ListWorkers(c *gin.Context) {
 	}
 
 	for _, w := range workers {
-		var rBs []*library.Build
+		rBs := []*library.Build{}
 
 		for _, b := range w.GetRunningBuilds() {
 			build, err := database.FromContext(c).GetBuild(ctx, b.GetID())
