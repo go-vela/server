@@ -221,7 +221,7 @@ func testWorker() *api.Worker {
 		Active:              new(bool),
 		Status:              new(string),
 		LastStatusUpdateAt:  new(int64),
-		RunningBuilds:       []*library.Build{b},
+		RunningBuilds:       &[]*library.Build{b},
 		LastBuildStartedAt:  new(int64),
 		LastBuildFinishedAt: new(int64),
 		LastCheckedIn:       new(int64),
