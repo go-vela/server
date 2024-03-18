@@ -67,6 +67,13 @@ func TestVault_Update_Org(t *testing.T) {
 	sec.SetType("org")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(true)
+	sec.SetAllowSubstitution(true)
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -167,6 +174,13 @@ func TestVault_Update_Repo(t *testing.T) {
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(true)
+	sec.SetAllowSubstitution(true)
+	sec.SetAllowEvents(library.NewEventsFromMask(3))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -267,6 +281,13 @@ func TestVault_Update_Shared(t *testing.T) {
 	sec.SetType("shared")
 	sec.SetImages([]string{"foo", "bar"})
 	sec.SetEvents([]string{"foo", "bar"})
+	sec.SetAllowCommand(false)
+	sec.SetAllowSubstitution(false)
+	sec.SetAllowEvents(library.NewEventsFromMask(1))
+	sec.SetCreatedAt(1563474077)
+	sec.SetCreatedBy("octocat")
+	sec.SetUpdatedAt(1563474079)
+	sec.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
