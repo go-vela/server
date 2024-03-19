@@ -29,21 +29,21 @@ LD_FLAGS = -X github.com/go-vela/server/version.Commit=${GITHUB_SHA} -X github.c
 clean: tidy vet fmt fix
 
 # The `restart` target is intended to destroy and
-# create the local docker-compose stack.
+# create the local Docker compose stack.
 #
 # Usage: `make restart`
 .PHONY: restart
 restart: down up
 
 # The `up` target is intended to create
-# the local docker-compose stack.
+# the local Docker compose stack.
 #
 # Usage: `make up`
 .PHONY: up
 up: build compose-up
 
 # The `down` target is intended to destroy
-# the local docker-compose stack.
+# the local Docker compose stack.
 #
 # Usage: `make down`
 .PHONY: down
@@ -233,34 +233,34 @@ bump-deps-full: check
 	@go get -t -u ./...
 
 # The `pull` target is intended to pull all
-# images for the local docker-compose stack.
+# images for the local Docker compose stack.
 #
 # Usage: `make pull`
 .PHONY: pull
 pull:
 	@echo
 	@echo "### Pulling images for docker-compose stack"
-	@docker-compose pull
+	@docker compose pull
 
 # The `compose-up` target is intended to build and create
-# all containers for the local docker-compose stack.
+# all containers for the local Docker compose stack.
 #
 # Usage: `make compose-up`
 .PHONY: compose-up
 compose-up:
 	@echo
 	@echo "### Creating containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml up -d --build
+	@docker compose -f docker-compose.yml up -d --build
 
 # The `compose-down` target is intended to destroy
-# all containers for the local docker-compose stack.
+# all containers for the local Docker compose stack.
 #
 # Usage: `make compose-down`
 .PHONY: compose-down
 compose-down:
 	@echo
 	@echo "### Destroying containers for docker-compose stack"
-	@docker-compose -f docker-compose.yml down
+	@docker compose -f docker-compose.yml down
 
 # The `spec-install` target is intended to install the
 # the needed dependencies to generate the api spec.
