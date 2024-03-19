@@ -250,12 +250,13 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, reopened, edited, or labeled
+	// skip if the pull request action is not opened, synchronize, reopened, edited, labeled, or unlabeled
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") &&
 		!strings.EqualFold(payload.GetAction(), "reopened") &&
 		!strings.EqualFold(payload.GetAction(), "edited") &&
-		!strings.EqualFold(payload.GetAction(), "labeled") {
+		!strings.EqualFold(payload.GetAction(), "labeled") &&
+		!strings.EqualFold(payload.GetAction(), "unlabeled") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
