@@ -7,11 +7,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -71,7 +71,7 @@ func UpdateWorker(c *gin.Context) {
 	}).Infof("updating worker %s", w.GetHostname())
 
 	// capture body from API request
-	input := new(library.Worker)
+	input := new(types.Worker)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -97,9 +97,9 @@ func UpdateWorker(c *gin.Context) {
 		w.SetActive(input.GetActive())
 	}
 
-	if input.RunningBuildIDs != nil {
+	if input.RunningBuilds != nil {
 		// update runningBuildIDs if set
-		w.SetRunningBuildIDs(input.GetRunningBuildIDs())
+		w.SetRunningBuilds(input.GetRunningBuilds())
 	}
 
 	if len(input.GetStatus()) > 0 {
