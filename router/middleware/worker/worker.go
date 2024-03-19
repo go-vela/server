@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the worker in the given context.
-func Retrieve(c *gin.Context) *library.Worker {
+func Retrieve(c *gin.Context) *api.Worker {
 	return FromContext(c)
 }
 
