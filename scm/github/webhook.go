@@ -348,6 +348,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	// convert payload to library build
 	b := new(library.Build)
 	b.SetEvent(constants.EventDeploy)
+	b.SetEventAction(constants.ActionCreated)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
 	b.SetDeployNumber(payload.GetDeployment().GetID())
