@@ -653,7 +653,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListHooksForRepo"] = true
 
-	// lookup the last build by repo
+	// lookup the last hook by repo
 	got, err := db.LastHookForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to get last hook for repo %d: %v", resources.Repos[0].GetID(), err)
@@ -673,7 +673,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["GetHookByWebhookID"] = true
 
-	// lookup the hooks by name
+	// lookup the hooks by repo ID and number
 	for _, hook := range resources.Hooks {
 		repo := resources.Repos[hook.GetRepoID()-1]
 		got, err = db.GetHookForRepo(context.TODO(), repo, hook.GetNumber())
@@ -685,6 +685,19 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["GetHookForRepo"] = true
+
+	// lookup the hooks by repo ID and number
+	for _, hook := range resources.Hooks {
+		build := resources.Builds[hook.GetBuildID()-1]
+		got, err = db.GetHookForBuild(context.TODO(), build)
+		if err != nil {
+			t.Errorf("unable to get hook %d for build %d: %v", hook.GetID(), build.GetID(), err)
+		}
+		if diff := cmp.Diff(hook, got); diff != "" {
+			t.Errorf("GetHookForBuild() mismatch (-want +got):\n%s", diff)
+		}
+	}
+	methods["GetHookForBuild"] = true
 
 	// update the hooks
 	for _, hook := range resources.Hooks {

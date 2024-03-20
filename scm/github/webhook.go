@@ -118,7 +118,7 @@ func (c *client) GetWebhook(ctx context.Context, u *library.User, r *library.Rep
 	// parse the payload from the webhook delivery ID
 	event, err := delivery.ParseRequestPayload()
 	if err != nil {
-		return &types.Webhook{Hook: h}, nil
+		return nil, err
 	}
 
 	// process the event from the webhook
