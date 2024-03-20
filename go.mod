@@ -10,11 +10,11 @@ require (
 	github.com/adhocore/gronx v1.8.1
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/aws/aws-sdk-go v1.51.0
-	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
+	github.com/buildkite/yaml v0.0.0-20230306222819-0e4e032d4835
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.23.2
+	github.com/go-vela/types v0.23.3-0.20240314131620-b1970b932c9a
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v59 v59.0.0
@@ -123,3 +123,5 @@ require (
 	k8s.io/klog/v2 v2.110.1 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
 )
+
+replace github.com/go-vela/types => ../types
