@@ -686,7 +686,7 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["GetHookForRepo"] = true
 
-	// lookup the hooks by repo ID and number
+	// lookup the hooks by build ID
 	for _, hook := range resources.Hooks {
 		build := resources.Builds[hook.GetBuildID()-1]
 		got, err = db.GetHookForBuild(context.TODO(), build)
