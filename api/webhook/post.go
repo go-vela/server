@@ -785,7 +785,6 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			logrus.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
-			break
 		case constants.ApproveOnce:
 			// determine if build sender is in the contributors list for the repo
 			//
