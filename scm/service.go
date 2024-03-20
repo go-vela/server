@@ -134,6 +134,9 @@ type Service interface {
 
 	// Webhook SCM Interface Functions
 
+	// GetWebhook defines a function that
+	// fetches the webhook from a repo and hook.
+	GetWebhook(context.Context, *library.User, *library.Repo, *library.Hook) (*types.Webhook, error)
 	// ProcessWebhook defines a function that
 	// parses the webhook from a repo.
 	ProcessWebhook(context.Context, *http.Request) (*types.Webhook, error)

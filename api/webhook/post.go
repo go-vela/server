@@ -766,7 +766,7 @@ func PostWebhook(c *gin.Context) {
 
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
-			err = gatekeepBuild(c, b, repo, u)
+			err = build.GatekeepBuild(c, b, repo, u)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
@@ -776,7 +776,7 @@ func PostWebhook(c *gin.Context) {
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
 			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), u.GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				err = gatekeepBuild(c, b, repo, u)
+				err = build.GatekeepBuild(c, b, repo, u)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -785,6 +785,7 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			logrus.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
+			fallthrough
 		case constants.ApproveOnce:
 			// determine if build sender is in the contributors list for the repo
 			//
@@ -796,7 +797,7 @@ func PostWebhook(c *gin.Context) {
 			}
 
 			if !contributor {
-				err = gatekeepBuild(c, b, repo, u)
+				err = build.GatekeepBuild(c, b, repo, u)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -1045,30 +1046,4 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 	}
 
 	return dbR, nil
-}
-
-// gatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
-// send a status update to the SCM.
-func gatekeepBuild(c *gin.Context, b *library.Build, r *library.Repo, u *library.User) error {
-	logrus.Debugf("fork PR build %s/%d waiting for approval", r.GetFullName(), b.GetNumber())
-	b.SetStatus(constants.StatusPendingApproval)
-
-	_, err := database.FromContext(c).UpdateBuild(c, b)
-	if err != nil {
-		return fmt.Errorf("unable to update build for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
-	}
-
-	// update the build components to pending approval status
-	err = build.UpdateComponentStatuses(c, b, constants.StatusPendingApproval)
-	if err != nil {
-		return fmt.Errorf("unable to update build components for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
-	}
-
-	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(c, u, b, r.GetOrg(), r.GetName())
-	if err != nil {
-		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
-	}
-
-	return nil
 }

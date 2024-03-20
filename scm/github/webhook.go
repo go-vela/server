@@ -97,6 +97,47 @@ func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *li
 	return nil
 }
 
+// GetWebhook fetches the webhook from GitHub for a repo and hook.
+func (c *client) GetWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) (*types.Webhook, error) {
+	// create GitHub OAuth client with user's token
+	//nolint:contextcheck // do not need to pass context in this instance
+	client := c.newClientToken(*u.Token)
+
+	// capture the delivery ID of the hook using GitHub API
+	deliveryID, err := c.getDeliveryID(ctx, client, r, h)
+	if err != nil {
+		return nil, err
+	}
+
+	// fetch the hook delivery from GitHub
+	delivery, _, err := client.Repositories.GetHookDelivery(ctx, r.GetOrg(), r.GetName(), h.GetWebhookID(), deliveryID)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse the payload from the webhook delivery ID
+	event, err := delivery.ParseRequestPayload()
+	if err != nil {
+		return &types.Webhook{Hook: h}, nil
+	}
+
+	// process the event from the webhook
+	switch event := event.(type) {
+	case *github.PushEvent:
+		return c.processPushEvent(h, event)
+	case *github.PullRequestEvent:
+		return c.processPREvent(h, event)
+	case *github.DeploymentEvent:
+		return c.processDeploymentEvent(h, event)
+	case *github.IssueCommentEvent:
+		return c.processIssueCommentEvent(h, event)
+	case *github.RepositoryEvent:
+		return c.processRepositoryEvent(h, event)
+	}
+
+	return &types.Webhook{Hook: h}, nil
+}
+
 // RedeliverWebhook redelivers webhooks from GitHub.
 func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token

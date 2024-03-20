@@ -98,12 +98,88 @@ func RestartBuild(c *gin.Context) {
 		"user":  u.GetName(),
 	})
 
+	// check if the build is pending approval from a repository admin
 	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		retErr := fmt.Errorf("unable to restart build %s/%d: cannot restart a build pending approval", r.GetFullName(), b.GetNumber())
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
+	}
+
+	// check if the build is for a pull request and was canceled
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) && strings.EqualFold(b.GetStatus(), constants.StatusCanceled) {
+		// send API call to capture the hook for the build
+		h, err := database.FromContext(c).GetHookForBuild(ctx, b)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get hook for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// send API call to capture the webhook for the hook
+		webhook, err := scm.FromContext(c).GetWebhook(ctx, u, r, h)
+		if err != nil {
+			retErr := fmt.Errorf("unable to get webhook for %s/%d: %w", r.GetFullName(), b.GetNumber(), err)
+
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			return
+		}
+
+		// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
+		if webhook.PullRequest.IsFromFork {
+			logrus.Tracef("inside %s workflow for fork PR build %s/%d", r.GetApproveBuild(), r.GetFullName(), b.GetNumber())
+
+			switch r.GetApproveBuild() {
+			case constants.ApproveForkAlways:
+				err = GatekeepBuild(c, b, r, u)
+				if err != nil {
+					util.HandleError(c, http.StatusInternalServerError, err)
+				}
+
+				return
+			case constants.ApproveForkNoWrite:
+				// determine if build sender has write access to parent repo. If not, this call will result in an error
+				_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), u.GetToken(), r.GetOrg(), r.GetName())
+				if err != nil {
+					err = GatekeepBuild(c, b, r, u)
+					if err != nil {
+						util.HandleError(c, http.StatusInternalServerError, err)
+					}
+
+					return
+				}
+
+				logrus.Debugf("fork PR build %s/%d automatically running without approval", r.GetFullName(), b.GetNumber())
+			case constants.ApproveOnce:
+				// determine if build sender is in the contributors list for the repo
+				//
+				// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
+				// GitHub adds a single-contributor API endpoint.
+				contributor, err := scm.FromContext(c).RepoContributor(ctx, u, b.GetSender(), r.GetOrg(), r.GetName())
+				if err != nil {
+					util.HandleError(c, http.StatusInternalServerError, err)
+				}
+
+				if !contributor {
+					err = GatekeepBuild(c, b, r, u)
+					if err != nil {
+						util.HandleError(c, http.StatusInternalServerError, err)
+					}
+
+					return
+				}
+
+				fallthrough
+			case constants.ApproveNever:
+				fallthrough
+			default:
+				logrus.Debugf("fork PR build %s/%d automatically running without approval", r.GetFullName(), b.GetNumber())
+			}
+		}
 	}
 
 	logger.Infof("restarting build %s", entry)
