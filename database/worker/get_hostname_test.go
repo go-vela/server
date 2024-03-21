@@ -9,7 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestWorker_Engine_GetWorkerForName(t *testing.T) {
@@ -19,6 +19,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 	_worker.SetHostname("worker_0")
 	_worker.SetAddress("localhost")
 	_worker.SetActive(true)
+	_worker.SetRunningBuilds(nil) // sqlmock cannot parse string array values
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -44,7 +45,7 @@ func TestWorker_Engine_GetWorkerForName(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Worker
+		want     *api.Worker
 	}{
 		{
 			failure:  false,

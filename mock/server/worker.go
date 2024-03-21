@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -28,12 +29,71 @@ const (
 			],
 			"active": true,
 			"last_checked_in": 1602612590,
-			"status": "idle",
-			"last_status_update_at": 160000000,
-			"running_build_ids": [],
-			"last_build_started_at": 1,
-			"last_build_finished_at": 2,
-			"build_limit": 1
+			"status": "busy",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": [
+  				{
+					"id": 2,
+					"repo_id": 1,
+					"number": 2,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474204,
+					"created": 1563474204,
+					"started": 1563474204,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "Second commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "ed95dcc0687c",
+					"runtime": "",
+					"distribution": ""
+  				},
+  				{
+					"id": 1,
+					"repo_id": 1,
+					"number": 1,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474077,
+					"created": 1563474076,
+					"started": 1563474077,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "First commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "82823eb770b0",
+					"runtime": "",
+					"distribution": ""
+  				}
+			]
 		}`
 
 	// WorkersResp represents a JSON return for one to many workers.
@@ -48,7 +108,43 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "available",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": [
+  				{
+					"id": 2,
+					"repo_id": 1,
+					"number": 2,
+					"parent": 1,
+					"event": "push",
+					"status": "running",
+					"error": "",
+					"enqueued": 1563474204,
+					"created": 1563474204,
+					"started": 1563474204,
+					"finished": 0,
+					"deploy": "",
+					"clone": "https://github.com/github/octocat.git",
+					"source": "https://github.com/github/octocat/commit/48afb5bdc41ad69bf22588491333f7cf71135163",
+					"title": "push received from https://github.com/github/octocat",
+					"message": "Second commit...",
+					"commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
+					"sender": "OctoKitty",
+					"author": "OctoKitty",
+					"email": "octokitty@github.com",
+					"link": "https://vela.example.company.com/github/octocat/1",
+					"branch": "main",
+					"ref": "refs/heads/main",
+					"base_ref": "",
+					"host": "ed95dcc0687c",
+					"runtime": "",
+					"distribution": ""
+  				}
+			]
 		  },
 		{
 			"id": 2,
@@ -60,7 +156,13 @@ const (
 			  "large:docker"
 			],
 			"active": true,
-			"last_checked_in": 1602612590
+			"last_checked_in": 1602612590,
+			"status": "idle",
+			"last_status_update_at": 1602612590,
+			"last_build_started_at": 1602612590,
+			"last_build_finished_at": 1602612590,
+			"build_limit": 2,
+			"running_builds": []
 		  }
 	]`
 
@@ -94,7 +196,7 @@ const (
 func getWorkers(c *gin.Context) {
 	data := []byte(WorkersResp)
 
-	var body []library.Worker
+	var body []api.Worker
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -114,7 +216,7 @@ func getWorker(c *gin.Context) {
 
 	data := []byte(WorkerResp)
 
-	var body library.Worker
+	var body api.Worker
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -146,7 +248,7 @@ func updateWorker(c *gin.Context) {
 
 	data := []byte(WorkerResp)
 
-	var body library.Worker
+	var body api.Worker
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

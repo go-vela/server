@@ -763,6 +763,8 @@ func PostWebhook(c *gin.Context) {
 
 	// if the webhook was from a Pull event from a forked repository, verify it is allowed to run
 	if webhook.PullRequest.IsFromFork {
+		logrus.Tracef("inside %s workflow for fork PR build %s/%d", repo.GetApproveBuild(), r.GetFullName(), b.GetNumber())
+
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
 			err = gatekeepBuild(c, b, repo, u)
@@ -783,7 +785,7 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 
-			fallthrough
+			logrus.Debugf("fork PR build %s/%d automatically running without approval", repo.GetFullName(), b.GetNumber())
 		case constants.ApproveOnce:
 			// determine if build sender is in the contributors list for the repo
 			//

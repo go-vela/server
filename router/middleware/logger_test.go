@@ -17,6 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
@@ -59,7 +60,7 @@ func TestMiddleware_Logger(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	w := new(library.Worker)
+	w := new(api.Worker)
 	w.SetID(1)
 	w.SetHostname("worker_0")
 	w.SetAddress("localhost")

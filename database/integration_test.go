@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
@@ -44,7 +45,7 @@ type Resources struct {
 	Services    []*library.Service
 	Steps       []*library.Step
 	Users       []*library.User
-	Workers     []*library.Worker
+	Workers     []*api.Worker
 }
 
 func TestDatabase_Integration(t *testing.T) {
@@ -2447,7 +2448,13 @@ func newResources() *Resources {
 	userTwo.SetActive(true)
 	userTwo.SetAdmin(false)
 
-	workerOne := new(library.Worker)
+	_bPartialOne := new(library.Build)
+	_bPartialOne.SetID(1)
+
+	_bPartialTwo := new(library.Build)
+	_bPartialTwo.SetID(2)
+
+	workerOne := new(api.Worker)
 	workerOne.SetID(1)
 	workerOne.SetHostname("worker-1.example.com")
 	workerOne.SetAddress("https://worker-1.example.com")
@@ -2455,13 +2462,13 @@ func newResources() *Resources {
 	workerOne.SetActive(true)
 	workerOne.SetStatus("available")
 	workerOne.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerOne.SetRunningBuildIDs([]string{"12345"})
+	workerOne.SetRunningBuilds([]*library.Build{_bPartialOne})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerOne.SetBuildLimit(1)
 
-	workerTwo := new(library.Worker)
+	workerTwo := new(api.Worker)
 	workerTwo.SetID(2)
 	workerTwo.SetHostname("worker-2.example.com")
 	workerTwo.SetAddress("https://worker-2.example.com")
@@ -2469,7 +2476,7 @@ func newResources() *Resources {
 	workerTwo.SetActive(true)
 	workerTwo.SetStatus("available")
 	workerTwo.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerTwo.SetRunningBuildIDs([]string{"12345"})
+	workerTwo.SetRunningBuilds([]*library.Build{_bPartialTwo})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
@@ -2488,7 +2495,7 @@ func newResources() *Resources {
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},
 		Users:       []*library.User{userOne, userTwo},
-		Workers:     []*library.Worker{workerOne, workerTwo},
+		Workers:     []*api.Worker{workerOne, workerTwo},
 	}
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -59,7 +60,7 @@ func CreateWorker(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.Worker)
+	input := new(types.Worker)
 
 	err := c.Bind(input)
 	if err != nil {
