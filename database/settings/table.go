@@ -16,7 +16,7 @@ IF NOT EXISTS
 settings (
 	id            SERIAL PRIMARY KEY,
 	foo_num       INTEGER,
-	bar_str       VARCHAR(250)
+	foo_str       VARCHAR(250)
 );
 `
 
@@ -27,7 +27,7 @@ IF NOT EXISTS
 settings (
 	id            INTEGER PRIMARY KEY AUTOINCREMENT,
 	foo_num      INTEGER,
-	bar_str          TEXT
+	foo_str          TEXT
 );
 `
 )

@@ -4,8 +4,10 @@ package settings
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -40,6 +42,13 @@ type (
 		//
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		logger *logrus.Entry
+	}
+
+	// Settings is the database representation of platform settings.
+	Settings struct {
+		ID     sql.NullInt64  `sql:"id"`
+		FooNum sql.NullInt64  `sql:"foo_num"`
+		FooStr sql.NullString `sql:"foo_str"`
 	}
 )
 
@@ -79,4 +88,14 @@ func New(opts ...EngineOpt) (*engine, error) {
 	// todo: need indexes?
 
 	return e, nil
+}
+
+// ToAPI converts the Worker type
+// to an API Worker type.
+func (s *Settings) ToAPI() *api.Settings {
+	settings := new(api.Settings)
+
+	// settings.SetID(s.ID.Int64)
+
+	return settings
 }

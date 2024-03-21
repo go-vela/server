@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
@@ -86,12 +87,7 @@ func UpdateSettings(c *gin.Context) {
 	logrus.Info("Admin: updating platform settings")
 
 	// capture body from API request
-	type ss struct {
-		BarStr string `json:"bar_str"`
-	}
-
-	input := new(ss)
-	// input := new(library.Settings)
+	input := new(api.Settings)
 
 	err = c.Bind(input)
 	if err != nil {
@@ -102,14 +98,11 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
-	// todo: do this right
-	updated := "default value"
-	if s != nil && input != nil {
-		updated = *s + input.BarStr
-	}
+	s.FooNum = input.FooNum
+	s.FooStr = input.FooStr
 
 	// send API call to update the repo
-	s, err = database.FromContext(c).UpdateSettings(ctx, &updated)
+	s, err = database.FromContext(c).UpdateSettings(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update platform settings: %w", err)
 

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
@@ -79,10 +80,15 @@ func server(c *cli.Context) error {
 
 	// create a platform settings object to store the settings
 	// err := e.client.Table(constantsTableSettings).Save(s2).Error
-	s := "init1"
 	ss, err := database.GetSettings(context.Background())
 	if ss == nil || err != nil {
-		_, err = database.CreateSettings(context.Background(), &s)
+		s := new(api.Settings)
+		var fooNum int64 = 101
+		var fooStr string = "bar"
+		s.FooNum = &fooNum
+		s.FooStr = &fooStr
+
+		_, err = database.CreateSettings(context.Background(), s)
 		if err != nil {
 			return err
 		}

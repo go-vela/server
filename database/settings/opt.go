@@ -10,42 +10,40 @@ import (
 	"gorm.io/gorm"
 )
 
-// todo: Step -> Settings
-
-// EngineOpt represents a configuration option to initialize the database engine for Steps.
+// EngineOpt represents a configuration option to initialize the database engine for Settings.
 type EngineOpt func(*engine) error
 
-// WithClient sets the gorm.io/gorm client in the database engine for Steps.
+// WithClient sets the gorm.io/gorm client in the database engine for Settings.
 func WithClient(client *gorm.DB) EngineOpt {
 	return func(e *engine) error {
-		// set the gorm.io/gorm client in the step engine
+		// set the gorm.io/gorm client in the settings engine
 		e.client = client
 
 		return nil
 	}
 }
 
-// WithLogger sets the github.com/sirupsen/logrus logger in the database engine for Steps.
+// WithLogger sets the github.com/sirupsen/logrus logger in the database engine for Settings.
 func WithLogger(logger *logrus.Entry) EngineOpt {
 	return func(e *engine) error {
-		// set the github.com/sirupsen/logrus logger in the step engine
+		// set the github.com/sirupsen/logrus logger in the settings engine
 		e.logger = logger
 
 		return nil
 	}
 }
 
-// WithSkipCreation sets the skip creation logic in the database engine for Steps.
+// WithSkipCreation sets the skip creation logic in the database engine for Settings.
 func WithSkipCreation(skipCreation bool) EngineOpt {
 	return func(e *engine) error {
-		// set to skip creating tables and indexes in the step engine
+		// set to skip creating tables and indexes in the settings engine
 		e.config.SkipCreation = skipCreation
 
 		return nil
 	}
 }
 
-// WithContext sets the context in the database engine for Steps.
+// WithContext sets the context in the database engine for Settings.
 func WithContext(ctx context.Context) EngineOpt {
 	return func(e *engine) error {
 		e.ctx = ctx

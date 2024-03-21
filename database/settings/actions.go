@@ -4,18 +4,12 @@ package settings
 
 import (
 	"context"
-	"database/sql"
+
+	api "github.com/go-vela/server/api/types"
 )
 
-// PlatformSettings_DB is the database representation of platform settings.
-type PlatformSettings_DB struct {
-	ID     sql.NullInt64  `sql:"id"`
-	FooNum sql.NullInt64  `sql:"foo_num"`
-	BarStr sql.NullString `sql:"bar_str"`
-}
-
 // CreateSettings updates a platform settings in the database.
-func (e *engine) CreateSettings(ctx context.Context, s *string) (*string, error) {
+func (e *engine) CreateSettings(ctx context.Context, s *api.Settings) (*api.Settings, error) {
 	e.logger.Tracef("creating platform settings in the database with %s", *s)
 
 	// cast the library type to database type
@@ -33,14 +27,8 @@ func (e *engine) CreateSettings(ctx context.Context, s *string) (*string, error)
 	// 	return nil, err
 	// }
 
-	s2 := PlatformSettings_DB{
-		ID:     sql.NullInt64{Int64: 1, Valid: true},
-		FooNum: sql.NullInt64{Int64: 420, Valid: true},
-		BarStr: sql.NullString{String: *s, Valid: true},
-	}
-
 	// send query to the database
-	err := e.client.Table(constantsTableSettings).Create(&s2).Error
+	err := e.client.Table(constantsTableSettings).Create(s).Error
 	if err != nil {
 		return nil, err
 	}
@@ -49,11 +37,11 @@ func (e *engine) CreateSettings(ctx context.Context, s *string) (*string, error)
 }
 
 // GetSettings gets platform settings from the database.
-func (e *engine) GetSettings(ctx context.Context) (*string, error) {
+func (e *engine) GetSettings(ctx context.Context) (*api.Settings, error) {
 	e.logger.Trace("getting platform settings from the database")
 
 	// variable to store query results
-	s := new(PlatformSettings_DB)
+	s := new(Settings)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -69,11 +57,11 @@ func (e *engine) GetSettings(ctx context.Context) (*string, error) {
 	// return the settings
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#Settings.ToLibrary
-	return &s.BarStr.String, nil
+	return s.ToAPI(), nil
 }
 
 // UpdateSettings updates a platform settings in the database.
-func (e *engine) UpdateSettings(ctx context.Context, s *string) (*string, error) {
+func (e *engine) UpdateSettings(ctx context.Context, s *api.Settings) (*api.Settings, error) {
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the library type to database type
@@ -91,14 +79,8 @@ func (e *engine) UpdateSettings(ctx context.Context, s *string) (*string, error)
 	// 	return nil, err
 	// }
 
-	s2 := PlatformSettings_DB{
-		ID:     sql.NullInt64{Int64: 1, Valid: true},
-		FooNum: sql.NullInt64{Int64: 421, Valid: true},
-		BarStr: sql.NullString{String: *s, Valid: true},
-	}
-
 	// send query to the database
-	err := e.client.Table(constantsTableSettings).Save(s2).Error
+	err := e.client.Table(constantsTableSettings).Save(s).Error
 	if err != nil {
 		return nil, err
 	}
