@@ -5,10 +5,11 @@ package secret
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListSecretsForRepo gets a list of secrets by org name from the database.

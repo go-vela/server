@@ -7,9 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/queue/redis"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // Setup represents the configuration necessary for

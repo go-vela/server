@@ -5,9 +5,10 @@ package hook
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountHooksForRepo gets the count of hooks by repo ID from the database.

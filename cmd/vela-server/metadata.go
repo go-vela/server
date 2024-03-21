@@ -5,11 +5,10 @@ package main
 import (
 	"net/url"
 
-	"github.com/go-vela/types"
-
 	"github.com/sirupsen/logrus"
-
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types"
 )
 
 // helper function to setup the metadata from the CLI arguments.

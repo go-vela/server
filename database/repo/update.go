@@ -7,10 +7,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // UpdateRepo updates an existing repo in the database.

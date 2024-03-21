@@ -6,10 +6,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CleanBuilds updates builds to an error with a provided message with a created timestamp prior to a defined moment.

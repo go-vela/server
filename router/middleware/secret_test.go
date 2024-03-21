@@ -8,11 +8,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/secret/native"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestMiddleware_Secret(t *testing.T) {

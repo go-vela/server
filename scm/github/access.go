@@ -6,10 +6,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/go-github/v59/github"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
 )
 
 // OrgAccess captures the user's access level for an org.

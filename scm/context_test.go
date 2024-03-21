@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-vela/server/scm/github"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/scm/github"
 )
 
 func TestSCM_FromContext(t *testing.T) {

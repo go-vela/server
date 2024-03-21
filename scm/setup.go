@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Setup represents the configuration necessary for

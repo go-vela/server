@@ -6,8 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/raw"
 	"go.starlark.net/starlark"
+
+	"github.com/go-vela/types/raw"
 )
 
 func TestStarlark_Render_convertTemplateVars(t *testing.T) {

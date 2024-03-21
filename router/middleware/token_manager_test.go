@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/internal/token"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/internal/token"
 )
 
 func TestMiddleware_TokenManager(t *testing.T) {

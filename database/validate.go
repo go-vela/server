@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // Validate verifies the required fields from the provided configuration are populated correctly.

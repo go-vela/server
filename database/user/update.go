@@ -7,10 +7,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // UpdateUser updates an existing user in the database.

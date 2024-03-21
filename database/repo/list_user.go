@@ -5,10 +5,11 @@ package repo
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListReposForUser gets a list of repos by user ID from the database.

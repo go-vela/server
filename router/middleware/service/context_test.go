@@ -5,9 +5,9 @@ package service
 import (
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestService_FromContext(t *testing.T) {

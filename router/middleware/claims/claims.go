@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/auth"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-
-	"github.com/gin-gonic/gin"
 )
 
 // Retrieve gets the claims in the given context.

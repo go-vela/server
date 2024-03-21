@@ -4,9 +4,11 @@ package step
 
 import (
 	"context"
+
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountStepsForBuild gets the count of steps by build ID from the database.

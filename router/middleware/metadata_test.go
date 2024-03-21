@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types"
 )
 
 func TestMiddleware_Metadata(t *testing.T) {

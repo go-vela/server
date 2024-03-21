@@ -7,9 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/go-vela/types"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/nacl/sign"
+
+	"github.com/go-vela/types"
 )
 
 // Pop grabs an item from the specified channel off the queue.

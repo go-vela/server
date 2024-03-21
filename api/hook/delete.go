@@ -8,12 +8,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation DELETE /api/v1/hooks/{org}/{repo}/{hook} webhook DeleteHook

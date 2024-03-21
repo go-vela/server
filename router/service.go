@@ -5,6 +5,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/api/service"
 	"github.com/go-vela/server/router/middleware"
 	"github.com/go-vela/server/router/middleware/perm"

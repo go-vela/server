@@ -8,17 +8,17 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-vela/types/constants"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/secret"
 	"github.com/go-vela/server/version"
-	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
-
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/go-vela/types/constants"
 )
 
 //nolint:funlen // ignore line length

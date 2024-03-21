@@ -5,9 +5,10 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/alicebob/miniredis/v2"
 	"testing"
 	"time"
+
+	"github.com/alicebob/miniredis/v2"
 )
 
 func TestRedis_Ping_Good(t *testing.T) {

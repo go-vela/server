@@ -7,12 +7,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/go-vela/types/raw"
+	yaml "github.com/buildkite/yaml"
+	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 
-	yaml "github.com/buildkite/yaml"
+	"github.com/go-vela/types/raw"
 	types "github.com/go-vela/types/yaml"
-	"go.starlark.net/starlark"
 )
 
 var (

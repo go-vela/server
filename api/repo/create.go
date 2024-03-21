@@ -9,6 +9,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -16,8 +19,6 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/library/actions"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/repos repos CreateRepo

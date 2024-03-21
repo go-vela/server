@@ -3,10 +3,10 @@
 package main
 
 import (
-	"github.com/go-vela/server/scm"
 	"github.com/sirupsen/logrus"
-
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/scm"
 )
 
 // helper function to setup the scm from the CLI arguments.

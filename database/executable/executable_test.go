@@ -8,13 +8,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/library"
 )
 
 func TestExecutable_New(t *testing.T) {

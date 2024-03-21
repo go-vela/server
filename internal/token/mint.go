@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 // Claims struct is an extension of the JWT standard claims. It

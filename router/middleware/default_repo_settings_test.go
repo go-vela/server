@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types/constants"
 )
 
 func TestMiddleware_DefaultRepoEvents(t *testing.T) {

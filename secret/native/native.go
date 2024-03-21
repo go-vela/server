@@ -3,8 +3,9 @@
 package native
 
 import (
-	"github.com/go-vela/server/database"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
 )
 
 // client represents a struct to hold native secret setup.

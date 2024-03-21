@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestVault_List_Org(t *testing.T) {

@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/queue"
-	"github.com/go-vela/types/constants"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
+	"github.com/go-vela/types/constants"
 )
 
 // MetricsQueryParameters holds query parameter information pertaining to requested metrics.

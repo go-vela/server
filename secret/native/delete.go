@@ -6,8 +6,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // Delete deletes a secret.

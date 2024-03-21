@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 )
 
 func TestSecret_New(t *testing.T) {

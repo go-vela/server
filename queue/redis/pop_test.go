@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/types"
 	"golang.org/x/crypto/nacl/sign"
 	"gopkg.in/square/go-jose.v2/json"
+
+	"github.com/go-vela/types"
 )
 
 func TestRedis_Pop(t *testing.T) {

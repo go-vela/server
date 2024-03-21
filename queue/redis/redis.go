@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-
 	"time"
 
 	"github.com/alicebob/miniredis/v2"

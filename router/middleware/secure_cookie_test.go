@@ -7,9 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-playground/assert/v2"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
 )
 
 func TestCookie_SecureCookie(t *testing.T) {

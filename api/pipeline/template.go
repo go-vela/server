@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/database"
@@ -20,7 +22,6 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/pipelines/{org}/{repo}/{pipeline}/templates pipelines GetTemplates

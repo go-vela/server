@@ -14,6 +14,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
@@ -24,8 +27,6 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 var baseErr = "unable to process webhook"

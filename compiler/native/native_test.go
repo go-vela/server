@@ -7,12 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/urfave/cli/v2"
 
+	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_New(t *testing.T) {
