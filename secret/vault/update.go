@@ -49,6 +49,10 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 		vault.Data["events"] = s.GetEvents()
 	}
 
+	if s.GetAllowEvents().ToDatabase() != 0 {
+		vault.Data["allow_events"] = s.GetAllowEvents().ToDatabase()
+	}
+
 	if s.Images != nil {
 		vault.Data["images"] = s.GetImages()
 	}
@@ -59,6 +63,10 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 
 	if s.AllowCommand != nil {
 		vault.Data["allow_command"] = s.GetAllowCommand()
+	}
+
+	if s.AllowSubstitution != nil {
+		vault.Data["allow_substitution"] = s.GetAllowSubstitution()
 	}
 
 	// validate the secret
