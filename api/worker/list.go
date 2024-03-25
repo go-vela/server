@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -86,7 +87,7 @@ func ListWorkers(c *gin.Context) {
 		return
 	}
 
-	w, err := database.FromContext(c).ListWorkers(ctx, active, before, after)
+	workers, err := database.FromContext(c).ListWorkers(ctx, active, before, after)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 
@@ -95,5 +96,23 @@ func ListWorkers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, w)
+	for _, w := range workers {
+		rBs := []*library.Build{}
+
+		for _, b := range w.GetRunningBuilds() {
+			build, err := database.FromContext(c).GetBuild(ctx, b.GetID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to read build %d: %w", b.GetID(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			rBs = append(rBs, build)
+		}
+
+		w.SetRunningBuilds(rBs)
+	}
+
+	c.JSON(http.StatusOK, workers)
 }
