@@ -8,6 +8,9 @@ stages:
       steps:
         - name: {{ $stage }}
           image: {{ default "alpine" $.image }}
+          ruleset:
+            event: tag
+            tag: v*
           commands:
             - echo hello from {{ $stage }}
   {{ end }}
