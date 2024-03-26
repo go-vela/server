@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -38,7 +39,7 @@ func TestGithub_Changeset(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("repos")
 	r.SetName("octocat")
 
@@ -84,7 +85,7 @@ func TestGithub_ChangesetPR(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("repos")
 	r.SetName("octocat")
 

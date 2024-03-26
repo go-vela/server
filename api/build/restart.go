@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -18,7 +19,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
@@ -73,7 +73,7 @@ import (
 // RestartBuild represents the API handler to restart an existing build in the configured backend.
 func RestartBuild(c *gin.Context) {
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	cl := claims.Retrieve(c)
 	b := build.Retrieve(c)
 	o := org.Retrieve(c)

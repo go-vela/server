@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -80,7 +81,7 @@ func CreateRepo(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.Repo)
+	input := new(types.Repo)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -111,7 +112,7 @@ func CreateRepo(c *gin.Context) {
 	}
 
 	// update fields in repo object
-	r.SetUserID(u.GetID())
+	r.SetOwner(u)
 
 	// set the active field based off the input provided
 	if input.Active == nil {
@@ -307,7 +308,7 @@ func CreateRepo(c *gin.Context) {
 	// if the repo exists but is inactive
 	if len(dbRepo.GetOrg()) > 0 && !dbRepo.GetActive() {
 		// update the repo owner
-		dbRepo.SetUserID(u.GetID())
+		dbRepo.SetOwner(u)
 		// update the default branch
 		dbRepo.SetBranch(r.GetBranch())
 		// activate the repo
@@ -355,12 +356,12 @@ func CreateRepo(c *gin.Context) {
 // defaultAllowedEvents is a helper function that generates an Events struct that results
 // from an admin-provided `sliceDefaults` or an admin-provided `maskDefaults`. If the admin
 // supplies a mask, that will be the default. Otherwise, it will be the legacy event list.
-func defaultAllowedEvents(sliceDefaults []string, maskDefaults int64) *library.Events {
+func defaultAllowedEvents(sliceDefaults []string, maskDefaults int64) *types.Events {
 	if maskDefaults > 0 {
-		return library.NewEventsFromMask(maskDefaults)
+		return types.NewEventsFromMask(maskDefaults)
 	}
 
-	events := new(library.Events)
+	events := new(types.Events)
 
 	for _, event := range sliceDefaults {
 		switch event {

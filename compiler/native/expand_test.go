@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
@@ -228,7 +229,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	testRepo := new(library.Repo)
+	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
 	testRepo.SetOrg("foo")
@@ -765,7 +766,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	testBuild.SetID(1)
 	testBuild.SetCommit("123abc456def")
 
-	testRepo := new(library.Repo)
+	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
 	testRepo.SetOrg("foo")
@@ -933,7 +934,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	testBuild.SetID(1)
 	testBuild.SetCommit("123abc456def")
 
-	testRepo := new(library.Repo)
+	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
 	testRepo.SetOrg("foo")
@@ -1019,7 +1020,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 	testBuild.SetID(1)
 	testBuild.SetCommit("123abc456def")
 
-	testRepo := new(library.Repo)
+	testRepo := new(api.Repo)
 
 	testRepo.SetID(1)
 	testRepo.SetOrg("foo")

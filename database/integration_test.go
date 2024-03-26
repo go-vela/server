@@ -38,7 +38,7 @@ type Resources struct {
 	Hooks       []*library.Hook
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
-	Repos       []*library.Repo
+	Repos       []*api.Repo
 	Schedules   []*library.Schedule
 	Secrets     []*library.Secret
 	Services    []*library.Service
@@ -2221,9 +2221,9 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
-	repoOne := new(library.Repo)
+	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetUserID(1)
+	repoOne.GetOwner().SetID(1)
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2247,11 +2247,11 @@ func newResources() *Resources {
 	repoOne.SetPipelineType("")
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
-	repoOne.SetAllowEvents(library.NewEventsFromMask(1))
+	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
-	repoTwo := new(library.Repo)
+	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetUserID(1)
+	repoTwo.GetOwner().SetID(1)
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
@@ -2275,7 +2275,7 @@ func newResources() *Resources {
 	repoTwo.SetPipelineType("")
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
-	repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
+	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)
@@ -2488,7 +2488,7 @@ func newResources() *Resources {
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
-		Repos:       []*library.Repo{repoOne, repoTwo},
+		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},

@@ -10,8 +10,8 @@ import (
 	"reflect"
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
@@ -914,7 +914,7 @@ func Test_client_Parse(t *testing.T) {
 				c = &client{}
 			} else {
 				c = &client{
-					repo: &library.Repo{PipelineType: &tt.args.pipelineType},
+					repo: &api.Repo{PipelineType: &tt.args.pipelineType},
 				}
 			}
 

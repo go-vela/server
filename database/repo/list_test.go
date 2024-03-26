@@ -8,14 +8,15 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
 )
 
 func TestRepo_Engine_ListRepos(t *testing.T) {
 	// setup types
 	_repoOne := testRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -23,11 +24,10 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
-	_repoOne.SetAllowEvents(library.NewEventsFromMask(1))
+	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")
@@ -35,7 +35,16 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
-	_repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
+	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+
+	_owner := testOwner()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+	_owner.SetHash("baz")
+
+	_repoOne.SetOwner(_owner)
+	_repoTwo.SetOwner(_owner)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -52,8 +61,13 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, 1, "yaml", nil, nil).
 		AddRow(2, 1, "baz", "bar", "foo", "bar/foo", "", "", "", "{}", 0, 0, "public", false, false, false, false, false, false, false, false, 1, "yaml", nil, nil)
 
+	_userRows := sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "repos"`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -68,24 +82,34 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
+	err = _sqlite.client.AutoMigrate(&database.User{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableUser).Create(database.UserFromLibrary(_owner)).Error
+	if err != nil {
+		t.Errorf("unable to create test user for sqlite: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Repo
+		want     []*api.Repo
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Repo{_repoOne, _repoTwo},
+			want:     []*api.Repo{_repoOne, _repoTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Repo{_repoOne, _repoTwo},
+			want:     []*api.Repo{_repoOne, _repoTwo},
 		},
 	}
 

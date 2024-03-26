@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
@@ -50,7 +51,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 
@@ -111,7 +112,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 
@@ -165,7 +166,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 
@@ -219,7 +220,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetPipelineType(constants.PipelineTypeStarlark)
@@ -279,7 +280,7 @@ func TestGithub_Config_Star_Prefer(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetPipelineType(constants.PipelineTypeStarlark)
@@ -334,7 +335,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetPipelineType(constants.PipelineTypeStarlark)
@@ -384,7 +385,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 
@@ -426,7 +427,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 
@@ -475,7 +476,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("foo")
 	r.SetName("bar")
 
@@ -685,7 +686,7 @@ func TestGithub_Enable(t *testing.T) {
 	wantHook.SetEvent("initialize")
 	wantHook.SetStatus("success")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
 	r.SetName("bar")
 	r.SetOrg("foo")
@@ -734,7 +735,7 @@ func TestGithub_Update(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
 	r.SetName("bar")
 	r.SetOrg("foo")
@@ -780,7 +781,7 @@ func TestGithub_Update_webhookExists_True(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 
 	client, _ := NewTest(s.URL)
 
@@ -817,7 +818,7 @@ func TestGithub_Update_webhookExists_False(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 
 	client, _ := NewTest(s.URL)
 
@@ -1164,11 +1165,11 @@ func TestGithub_GetRepo(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("octocat")
 	r.SetName("Hello-World")
 
-	want := new(library.Repo)
+	want := new(api.Repo)
 	want.SetOrg("octocat")
 	want.SetName("Hello-World")
 	want.SetFullName("octocat/Hello-World")
@@ -1218,7 +1219,7 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("octocat")
 	r.SetName("Hello-World")
 
@@ -1336,7 +1337,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("octocat")
 	r.SetName("Hello-World")
 	r.SetFullName("octocat/Hello-World")
@@ -1347,7 +1348,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	r.SetTopics([]string{"octocat", "atom", "electron", "api"})
 	r.SetVisibility("public")
 
-	want := []*library.Repo{r}
+	want := []*api.Repo{r}
 
 	client, _ := NewTest(s.URL)
 
@@ -1384,7 +1385,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	want := []*library.Repo{}
+	want := []*api.Repo{}
 
 	client, _ := NewTest(s.URL)
 
@@ -1421,7 +1422,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("octocat")
 	r.SetName("Hello-World")
 
@@ -1477,7 +1478,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("octocat")
 	r.SetName("Hello-World")
 	r.SetFullName("octocat/Hello-World")

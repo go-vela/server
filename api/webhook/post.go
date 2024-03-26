@@ -15,12 +15,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/build"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
@@ -74,7 +75,7 @@ func PostWebhook(c *gin.Context) {
 	logrus.Info("webhook received")
 
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	ctx := c.Request.Context()
 
 	// duplicate request so we can perform operations on the request body
@@ -459,7 +460,7 @@ func PostWebhook(c *gin.Context) {
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
-func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
+func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
 	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
@@ -551,7 +552,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
-func RenameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
+func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
 	// get any matching hook with the repo's unique webhook ID in the SCM
@@ -676,7 +677,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 
 // gatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
 // send a status update to the SCM.
-func gatekeepBuild(c *gin.Context, b *library.Build, r *library.Repo, u *library.User) error {
+func gatekeepBuild(c *gin.Context, b *library.Build, r *types.Repo, u *library.User) error {
 	logrus.Debugf("fork PR build %s/%d waiting for approval", r.GetFullName(), b.GetNumber())
 	b.SetStatus(constants.StatusPendingApproval)
 

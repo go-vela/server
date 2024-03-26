@@ -4,11 +4,11 @@ package redis
 
 import (
 	"context"
-	"reflect"
 	"testing"
 	"time"
 
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/internal"
+	"github.com/google/go-cmp/cmp"
 	"golang.org/x/crypto/nacl/sign"
 	"gopkg.in/square/go-jose.v2/json"
 )
@@ -16,7 +16,7 @@ import (
 func TestRedis_Pop(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
-	_item := &types.Item{
+	_item := &internal.Item{
 		Build: _build,
 		Repo:  _repo,
 		User:  _user,
@@ -79,7 +79,7 @@ func TestRedis_Pop(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		redis    *client
-		want     *types.Item
+		want     *internal.Item
 		channels []string
 	}{
 		{
@@ -121,8 +121,8 @@ func TestRedis_Pop(t *testing.T) {
 			t.Errorf("Pop returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("Pop is %v, want %v", got, test.want)
+		if diff := cmp.Diff(test.want, got); diff != "" {
+			t.Errorf("Pop() mismatch (-want +got):\n%s", diff)
 		}
 	}
 }
