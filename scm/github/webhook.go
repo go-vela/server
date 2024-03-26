@@ -440,8 +440,8 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
 
-	// skip if the comment action is deleted
-	if strings.EqualFold(payload.GetAction(), "deleted") {
+	// skip if the comment action is deleted or not part of a pull request
+	if strings.EqualFold(payload.GetAction(), "deleted") || !payload.GetIssue().IsPullRequest() {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
 			Hook: h,
@@ -473,22 +473,12 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
-	// treat as non-pull-request comment by default and
-	// set ref to default branch for the repo
-	b.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
-
-	pr := 0
-	// override ref and pull request number if this is
-	// a comment on a pull request
-	if payload.GetIssue().IsPullRequest() {
-		b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
-		pr = payload.GetIssue().GetNumber()
-	}
+	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
 	return &types.Webhook{
 		PullRequest: types.PullRequest{
 			Comment: payload.GetComment().GetBody(),
-			Number:  pr,
+			Number:  payload.GetIssue().GetNumber(),
 		},
 		Hook:  h,
 		Repo:  r,
