@@ -16,7 +16,6 @@ func TestRedis_Push(t *testing.T) {
 	_item := &internal.Item{
 		Build: _build,
 		Repo:  _repo,
-		User:  _user,
 	}
 
 	// setup queue item

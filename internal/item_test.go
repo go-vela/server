@@ -68,13 +68,6 @@ func TestTypes_ToItem(t *testing.T) {
 		AllowTag:    &booL,
 		AllowEvents: e,
 	}
-	u := &library.User{
-		ID:     &num64,
-		Name:   &str,
-		Token:  &str,
-		Active: &booL,
-		Admin:  &booL,
-	}
 	want := &Item{
 		Build: &library.Build{
 			ID:       &num64,
@@ -126,18 +119,11 @@ func TestTypes_ToItem(t *testing.T) {
 			AllowTag:    &booL,
 			AllowEvents: e,
 		},
-		User: &library.User{
-			ID:     &num64,
-			Name:   &str,
-			Token:  &str,
-			Active: &booL,
-			Admin:  &booL,
-		},
 		ItemVersion: ItemVersion,
 	}
 
 	// run test
-	got := ToItem(b, r, u)
+	got := ToItem(b, r)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("ToItem is %v, want %v", got, want)

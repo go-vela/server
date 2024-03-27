@@ -121,7 +121,7 @@ func ApproveBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		internal.ToItem(b, r, r.GetOwner()),
+		internal.ToItem(b, r),
 		b.GetHost(),
 	)
 

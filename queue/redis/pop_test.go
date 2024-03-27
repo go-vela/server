@@ -19,7 +19,6 @@ func TestRedis_Pop(t *testing.T) {
 	_item := &internal.Item{
 		Build: _build,
 		Repo:  _repo,
-		User:  _user,
 	}
 
 	var signed []byte

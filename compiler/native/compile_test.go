@@ -1816,7 +1816,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			}
 
 			compiler.WithMetadata(m)
-			compiler.WithRepo(&api.Repo{PipelineType: &tt.args.pipelineType})
+
+			pipelineType := tt.args.pipelineType
+			compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 
 			got, _, err := compiler.Compile(yaml)
 			if err != nil {
@@ -3127,7 +3129,8 @@ func Test_Compile_Inline(t *testing.T) {
 			compiler.WithMetadata(m)
 
 			if tt.args.pipelineType != "" {
-				compiler.WithRepo(&api.Repo{PipelineType: &tt.args.pipelineType})
+				pipelineType := tt.args.pipelineType
+				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 			}
 
 			got, _, err := compiler.Compile(yaml)
@@ -3475,7 +3478,8 @@ func Test_CompileLite(t *testing.T) {
 
 			compiler.WithMetadata(m)
 			if tt.args.pipelineType != "" {
-				compiler.WithRepo(&api.Repo{PipelineType: &tt.args.pipelineType})
+				pipelineType := tt.args.pipelineType
+				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 			}
 
 			yaml, err := os.ReadFile(tt.args.file)

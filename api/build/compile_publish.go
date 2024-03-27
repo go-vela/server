@@ -55,9 +55,6 @@ func CompileAndPublish(
 	b := cfg.Build
 	baseErr := cfg.BaseErr
 
-	// send API call to capture repo owner
-	logrus.Debugf("capturing owner of repository %s", cfg.Repo.GetFullName())
-
 	// confirm current repo owner has at least write access to repo (needed for status update later)
 	_, err := scm.RepoAccess(c, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
@@ -440,7 +437,7 @@ func CompileAndPublish(
 		return false, nil, nil, retErr
 	}
 
-	return true, p, internal.ToItem(b, repo, u), nil
+	return true, p, internal.ToItem(b, repo), nil
 }
 
 // getPRNumberFromBuild is a helper function to

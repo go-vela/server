@@ -300,7 +300,7 @@ func PostWebhook(c *gin.Context) {
 	)
 
 	// capture the build, repo, and user from the items
-	b, repo, u := item.Build, item.Repo, item.User
+	b, repo = item.Build, item.Repo
 
 	// set hook build_id to the generated build id
 	h.SetBuildID(b.GetID())
@@ -396,7 +396,7 @@ func PostWebhook(c *gin.Context) {
 
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
-			err = gatekeepBuild(c, b, repo, u)
+			err = gatekeepBuild(c, b, repo)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
@@ -404,9 +404,9 @@ func PostWebhook(c *gin.Context) {
 			return
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), u.GetToken(), r.GetOrg(), r.GetName())
+			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				err = gatekeepBuild(c, b, repo, u)
+				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -420,13 +420,13 @@ func PostWebhook(c *gin.Context) {
 			//
 			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
 			// GitHub adds a single-contributor API endpoint.
-			contributor, err := scm.FromContext(c).RepoContributor(ctx, u, b.GetSender(), r.GetOrg(), r.GetName())
+			contributor, err := scm.FromContext(c).RepoContributor(ctx, r.GetOwner(), b.GetSender(), r.GetOrg(), r.GetName())
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
 
 			if !contributor {
-				err = gatekeepBuild(c, b, repo, u)
+				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -443,7 +443,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
+	err = scm.FromContext(c).Status(ctx, repo.GetOwner(), b, repo.GetOrg(), repo.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
@@ -677,7 +677,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 
 // gatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
 // send a status update to the SCM.
-func gatekeepBuild(c *gin.Context, b *library.Build, r *types.Repo, u *library.User) error {
+func gatekeepBuild(c *gin.Context, b *library.Build, r *types.Repo) error {
 	logrus.Debugf("fork PR build %s/%d waiting for approval", r.GetFullName(), b.GetNumber())
 	b.SetStatus(constants.StatusPendingApproval)
 
@@ -693,7 +693,7 @@ func gatekeepBuild(c *gin.Context, b *library.Build, r *types.Repo, u *library.U
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(c, u, b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(c, r.GetOwner(), b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}

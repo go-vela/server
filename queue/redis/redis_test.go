@@ -99,15 +99,6 @@ var (
 		AllowDeploy: Bool(false),
 		AllowTag:    Bool(false),
 	}
-
-	_user = &library.User{
-		ID:     Int64(1),
-		Name:   String("octocat"),
-		Token:  nil,
-		Hash:   nil,
-		Active: Bool(true),
-		Admin:  Bool(false),
-	}
 )
 
 func TestRedis_New(t *testing.T) {
