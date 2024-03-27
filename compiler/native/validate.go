@@ -126,6 +126,8 @@ func validateStages(s yaml.StageSlice) error {
 func validateSteps(s yaml.StepSlice) error {
 	reportCount := 0
 
+	reportMap := make(map[string]string)
+
 	for _, step := range s {
 		if len(step.Name) == 0 {
 			return fmt.Errorf("no name provided for step")
@@ -139,7 +141,12 @@ func validateSteps(s yaml.StepSlice) error {
 			continue
 		}
 
+		if s, ok := reportMap[step.ReportAs]; ok {
+			return fmt.Errorf("report_as to %s for step %s is already targeted by step %s", step.ReportAs, step.Name, s)
+		}
+
 		if len(step.ReportAs) > 0 {
+			reportMap[step.ReportAs] = step.Name
 			reportCount++
 		}
 
