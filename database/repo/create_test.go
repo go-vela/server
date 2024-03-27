@@ -14,7 +14,7 @@ func TestRepo_Engine_CreateRepo(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
@@ -75,7 +75,7 @@ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$
 				t.Errorf("CreateRepo for %s returned err: %v", test.name, err)
 			}
 
-			if diff := cmp.Diff(got, _repo); diff != "" {
+			if diff := cmp.Diff(_repo, got); diff != "" {
 				t.Errorf("CreateRepo mismatch (-want +got):\n%s", diff)
 			}
 		})

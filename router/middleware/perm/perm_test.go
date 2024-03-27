@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
@@ -397,9 +398,12 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -483,9 +487,12 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -576,9 +583,12 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -662,9 +672,12 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -745,9 +758,12 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -828,9 +844,12 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -918,9 +937,12 @@ func TestPerm_MustAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1016,9 +1038,12 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1114,9 +1139,12 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1212,9 +1240,12 @@ func TestPerm_MustWrite(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1310,9 +1341,12 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1408,9 +1442,12 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1506,9 +1543,12 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1604,9 +1644,12 @@ func TestPerm_MustRead(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1702,9 +1745,12 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1800,9 +1846,12 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1886,9 +1935,12 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -1984,9 +2036,12 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -2082,9 +2137,12 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -2180,9 +2238,12 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")

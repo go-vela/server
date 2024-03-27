@@ -7,12 +7,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -99,7 +99,7 @@ func SyncReposForOrg(c *gin.Context) {
 		return
 	}
 
-	repos := []*library.Repo{}
+	repos := []*types.Repo{}
 	page := 0
 	// capture all repos belonging to a certain org in database
 	for orgRepos := int64(0); orgRepos < t; orgRepos += 100 {
@@ -117,7 +117,7 @@ func SyncReposForOrg(c *gin.Context) {
 		page++
 	}
 
-	var results []*library.Repo
+	var results []*types.Repo
 
 	// iterate through captured repos and check if they are in GitHub
 	for _, repo := range repos {

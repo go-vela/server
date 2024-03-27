@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestRepo_ActiveRepoResp(t *testing.T) {
-	testRepo := library.Repo{}
+	testRepo := api.Repo{}
 
 	err := json.Unmarshal([]byte(RepoResp), &testRepo)
 	if err != nil {

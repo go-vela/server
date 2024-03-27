@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -68,7 +68,7 @@ import (
 // This will only handle non-headless flows (ie. web or cli).
 func GetAuthRedirect(c *gin.Context) {
 	// load the metadata
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	logrus.Info("redirecting for final auth flow destination")
 

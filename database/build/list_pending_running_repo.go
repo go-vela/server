@@ -5,13 +5,14 @@ package build
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListPendingAndRunningBuilds gets a list of all pending and running builds in the provided timeframe from the database.
-func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *library.Repo) ([]*library.Build, error) {
+func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *api.Repo) ([]*library.Build, error) {
 	e.logger.Trace("listing all pending and running builds from the database")
 
 	// variables to store query results and return value

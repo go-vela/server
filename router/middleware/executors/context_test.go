@@ -6,16 +6,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestExecutors_FromContext(t *testing.T) {
 	// setup types
 	eID := int64(1)
-	e := library.Executor{ID: &eID}
-	want := []library.Executor{e}
+	e := api.Executor{ID: &eID}
+	want := []api.Executor{e}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -74,8 +73,8 @@ func TestExecutors_FromContext_Empty(t *testing.T) {
 func TestExecutors_ToContext(t *testing.T) {
 	// setup types
 	eID := int64(1)
-	e := library.Executor{ID: &eID}
-	want := []library.Executor{e}
+	e := api.Executor{ID: &eID}
+	want := []api.Executor{e}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

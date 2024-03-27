@@ -10,12 +10,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -25,8 +27,8 @@ import (
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
 type CompileAndPublishConfig struct {
 	Build    *library.Build
-	Repo     *library.Repo
-	Metadata *types.Metadata
+	Repo     *types.Repo
+	Metadata *internal.Metadata
 	BaseErr  string
 	Source   string
 	Comment  string
@@ -45,27 +47,17 @@ func CompileAndPublish(
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
-) (bool, *pipeline.Build, *types.Item, error) {
+) (bool, *pipeline.Build, *models.Item, error) {
 	logrus.Debugf("generating queue items for build %s/%d", cfg.Repo.GetFullName(), cfg.Build.GetNumber())
 
 	// assign variables from form for readibility
 	r := cfg.Repo
+	u := cfg.Repo.GetOwner()
 	b := cfg.Build
 	baseErr := cfg.BaseErr
 
-	// send API call to capture repo owner
-	logrus.Debugf("capturing owner of repository %s", cfg.Repo.GetFullName())
-
-	u, err := database.GetUser(c, r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return false, nil, nil, retErr
-	}
-
 	// confirm current repo owner has at least write access to repo (needed for status update later)
-	_, err = scm.RepoAccess(c, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+	_, err := scm.RepoAccess(c, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
 		util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -199,7 +191,7 @@ func CompileAndPublish(
 		// variable to store the pipeline type for the repository
 		pipelineType = r.GetPipelineType()
 		// variable to store updated repository record
-		repo *library.Repo
+		repo *types.Repo
 	)
 
 	// implement a loop to process asynchronous operations with a retry limit
@@ -322,7 +314,7 @@ func CompileAndPublish(
 
 			return false,
 				nil,
-				&types.Item{
+				&models.Item{
 					Build: b,
 				},
 				nil
@@ -446,7 +438,7 @@ func CompileAndPublish(
 		return false, nil, nil, retErr
 	}
 
-	return true, p, types.ToItem(b, repo, u), nil
+	return true, p, models.ToItem(b, repo), nil
 }
 
 // getPRNumberFromBuild is a helper function to

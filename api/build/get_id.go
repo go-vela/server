@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
@@ -51,7 +52,7 @@ func GetBuildByID(c *gin.Context) {
 	// Variables that will hold the library types of the build and repo
 	var (
 		b *library.Build
-		r *library.Repo
+		r *types.Repo
 	)
 
 	// Capture user from middleware

@@ -5,19 +5,18 @@ package repo
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListRepos gets a list of all repos from the database.
-func (e *engine) ListRepos(ctx context.Context) ([]*library.Repo, error) {
+func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 	e.logger.Trace("listing all repos from the database")
 
 	// variables to store query results and return value
 	count := int64(0)
-	r := new([]database.Repo)
-	repos := []*library.Repo{}
+	r := new([]Repo)
+	repos := []*api.Repo{}
 
 	// count the results
 	count, err := e.CountRepos(ctx)
@@ -33,6 +32,7 @@ func (e *engine) ListRepos(ctx context.Context) ([]*library.Repo, error) {
 	// send query to the database and store result in variable
 	err = e.client.
 		Table(constants.TableRepo).
+		Preload("Owner").
 		Find(&r).
 		Error
 	if err != nil {
@@ -45,8 +45,6 @@ func (e *engine) ListRepos(ctx context.Context) ([]*library.Repo, error) {
 		tmp := repo
 
 		// decrypt the fields for the repo
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
 		err = tmp.Decrypt(e.config.EncryptionKey)
 		if err != nil {
 			// TODO: remove backwards compatibility before 1.x.x release
@@ -57,10 +55,14 @@ func (e *engine) ListRepos(ctx context.Context) ([]*library.Repo, error) {
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
 		}
 
+		// decrypt owner fields
+		err = tmp.Owner.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo owner %d: %v", tmp.ID.Int64, err)
+		}
+
 		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-		repos = append(repos, tmp.ToLibrary())
+		repos = append(repos, tmp.ToAPI())
 	}
 
 	return repos, nil

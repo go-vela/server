@@ -8,8 +8,8 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,7 +38,7 @@ import (
 // process a user logging in to Vela.
 func Login(c *gin.Context) {
 	// load the metadata
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	// capture query params
 	t := util.FormParameter(c, "type")

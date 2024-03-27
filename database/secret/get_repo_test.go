@@ -16,7 +16,7 @@ func TestSecret_Engine_GetSecretForRepo(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")

@@ -5,6 +5,7 @@ package build
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -12,7 +13,7 @@ import (
 )
 
 // GetBuildForRepo gets a build by repo ID and number from the database.
-func (e *engine) GetBuildForRepo(ctx context.Context, r *library.Repo, number int) (*library.Build, error) {
+func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": number,
 		"org":   r.GetOrg(),

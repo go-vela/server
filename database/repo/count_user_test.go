@@ -15,7 +15,7 @@ func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	// setup types
 	_repoOne := testRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
+	_repoOne.GetOwner().SetID(1)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -24,7 +24,7 @@ func TestRepo_Engine_CountReposForUser(t *testing.T) {
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
+	_repoTwo.GetOwner().SetID(1)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")

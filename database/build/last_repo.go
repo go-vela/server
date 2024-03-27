@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -15,7 +16,7 @@ import (
 )
 
 // LastBuildForRepo gets the last build by repo ID and branch from the database.
-func (e *engine) LastBuildForRepo(ctx context.Context, r *library.Repo, branch string) (*library.Build, error) {
+func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch string) (*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

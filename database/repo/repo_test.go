@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
@@ -171,12 +172,12 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
-// testRepo is a test helper function to create a library
+// testRepo is a test helper function to create an API
 // Repo type with all fields set to their zero values.
-func testRepo() *library.Repo {
-	return &library.Repo{
+func testRepo() *api.Repo {
+	return &api.Repo{
 		ID:           new(int64),
-		UserID:       new(int64),
+		Owner:        testOwner(),
 		BuildLimit:   new(int64),
 		Timeout:      new(int64),
 		Counter:      new(int),
@@ -203,8 +204,8 @@ func testRepo() *library.Repo {
 	}
 }
 
-func testEvents() *library.Events {
-	return &library.Events{
+func testEvents() *api.Events {
+	return &api.Events{
 		Push: &actions.Push{
 			Branch:       new(bool),
 			Tag:          new(bool),
@@ -227,6 +228,19 @@ func testEvents() *library.Events {
 		Schedule: &actions.Schedule{
 			Run: new(bool),
 		},
+	}
+}
+
+func testOwner() *library.User {
+	return &library.User{
+		ID:           new(int64),
+		Name:         new(string),
+		RefreshToken: new(string),
+		Token:        new(string),
+		Hash:         new(string),
+		Favorites:    new([]string),
+		Active:       new(bool),
+		Admin:        new(bool),
 	}
 }
 

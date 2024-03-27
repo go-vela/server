@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-vela/server/api/service"
 	"github.com/go-vela/server/api/step"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -19,7 +20,7 @@ import (
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func PlanBuild(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build, r *library.Repo) error {
+func PlanBuild(ctx context.Context, database database.Interface, p *pipeline.Build, b *library.Build, r *types.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 

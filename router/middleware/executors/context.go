@@ -5,7 +5,7 @@ package executors
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "executors"
@@ -16,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the executors associated with this context.
-func FromContext(c context.Context) []library.Executor {
+func FromContext(c context.Context) []api.Executor {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	e, ok := value.([]library.Executor)
+	e, ok := value.([]api.Executor)
 	if !ok {
 		return nil
 	}
@@ -32,6 +32,6 @@ func FromContext(c context.Context) []library.Executor {
 
 // ToContext adds the executor to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, e []library.Executor) {
+func ToContext(c Setter, e []api.Executor) {
 	c.Set(key, e)
 }
