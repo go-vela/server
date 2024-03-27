@@ -994,6 +994,14 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// create the repos
 	for _, repo := range resources.Repos {
 		_, err := db.CreateRepo(context.TODO(), repo)
@@ -1109,6 +1117,14 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeleteRepo"] = true
+
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2221,9 +2237,29 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
+	userOne := new(library.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("superSecretToken")
+	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	userOne.SetFavorites([]string{"github/octocat"})
+	userOne.SetActive(true)
+	userOne.SetAdmin(false)
+
+	userTwo := new(library.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("superSecretToken")
+	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetActive(true)
+	userTwo.SetAdmin(false)
+
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.GetOwner().SetID(1)
+	repoOne.SetOwner(userOne)
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2251,7 +2287,7 @@ func newResources() *Resources {
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.GetOwner().SetID(1)
+	repoTwo.SetOwner(userOne)
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
@@ -2426,26 +2462,6 @@ func newResources() *Resources {
 	stepTwo.SetHost("example.company.com")
 	stepTwo.SetRuntime("docker")
 	stepTwo.SetDistribution("linux")
-
-	userOne := new(library.User)
-	userOne.SetID(1)
-	userOne.SetName("octocat")
-	userOne.SetToken("superSecretToken")
-	userOne.SetRefreshToken("superSecretRefreshToken")
-	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	userOne.SetFavorites([]string{"github/octocat"})
-	userOne.SetActive(true)
-	userOne.SetAdmin(false)
-
-	userTwo := new(library.User)
-	userTwo.SetID(2)
-	userTwo.SetName("octokitty")
-	userTwo.SetToken("superSecretToken")
-	userTwo.SetRefreshToken("superSecretRefreshToken")
-	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	userTwo.SetFavorites([]string{"github/octocat"})
-	userTwo.SetActive(true)
-	userTwo.SetAdmin(false)
 
 	_bPartialOne := new(library.Build)
 	_bPartialOne.SetID(1)
