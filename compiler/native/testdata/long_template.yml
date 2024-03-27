@@ -23,6 +23,7 @@ steps:
   - name: build
     commands:
       - ./gradlew build
+      - echo {{ .VELA_TEMPLATE_NAME }}
     environment: {{ .environment }}
     image: {{ .image }}
     {{ .pull_policy }}

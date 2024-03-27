@@ -191,6 +191,14 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 			format = constants.PipelineTypeGo
 		}
 
+		// initialize variable map if not parsed from config
+		if len(template.Variables) == 0 {
+			template.Variables = make(map[string]interface{})
+		}
+
+		// inject template name into variables
+		template.Variables["VELA_TEMPLATE_NAME"] = template.Name
+
 		parsed, _, err := c.Parse(bytes, format, template)
 		if err != nil {
 			return nil, err
