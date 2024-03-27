@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/sirupsen/logrus"
 )
 
 // Enqueue is a helper function that pushes a queue item (build, repo, user) to the queue.
-func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, item *internal.Item, route string) {
+func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, item *models.Item, route string) {
 	logrus.Infof("Converting queue item to json for build %d for %s", item.Build.GetNumber(), item.Repo.GetFullName())
 
 	byteItem, err := json.Marshal(item)

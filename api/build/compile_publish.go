@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
@@ -46,7 +47,7 @@ func CompileAndPublish(
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
-) (bool, *pipeline.Build, *internal.Item, error) {
+) (bool, *pipeline.Build, *models.Item, error) {
 	logrus.Debugf("generating queue items for build %s/%d", cfg.Repo.GetFullName(), cfg.Build.GetNumber())
 
 	// assign variables from form for readibility
@@ -313,7 +314,7 @@ func CompileAndPublish(
 
 			return false,
 				nil,
-				&internal.Item{
+				&models.Item{
 					Build: b,
 				},
 				nil
@@ -437,7 +438,7 @@ func CompileAndPublish(
 		return false, nil, nil, retErr
 	}
 
-	return true, p, internal.ToItem(b, repo), nil
+	return true, p, models.ToItem(b, repo), nil
 }
 
 // getPRNumberFromBuild is a helper function to

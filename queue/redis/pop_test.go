@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/queue/models"
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/crypto/nacl/sign"
 	"gopkg.in/square/go-jose.v2/json"
@@ -16,7 +16,7 @@ import (
 func TestRedis_Pop(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
-	_item := &internal.Item{
+	_item := &models.Item{
 		Build: _build,
 		Repo:  _repo,
 	}
@@ -78,7 +78,7 @@ func TestRedis_Pop(t *testing.T) {
 	tests := []struct {
 		failure  bool
 		redis    *client
-		want     *internal.Item
+		want     *models.Item
 		channels []string
 	}{
 		{

@@ -7,13 +7,13 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/queue/models"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/nacl/sign"
 )
 
 // Pop grabs an item from the specified channel off the queue.
-func (c *client) Pop(ctx context.Context, routes []string) (*internal.Item, error) {
+func (c *client) Pop(ctx context.Context, routes []string) (*models.Item, error) {
 	c.Logger.Tracef("popping item from queue %s", c.config.Channels)
 
 	// define channels to pop from
@@ -58,7 +58,7 @@ func (c *client) Pop(ctx context.Context, routes []string) (*internal.Item, erro
 	}
 
 	// unmarshal result into queue item
-	item := new(internal.Item)
+	item := new(models.Item)
 
 	err = json.Unmarshal(opened, item)
 	if err != nil {

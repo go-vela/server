@@ -7,13 +7,13 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Push(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
-	_item := &internal.Item{
+	_item := &models.Item{
 		Build: _build,
 		Repo:  _repo,
 	}

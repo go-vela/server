@@ -75,7 +75,7 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *types.Re
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call
 // to that executor's worker to cancel the build.
 func cancelRunning(c *gin.Context, b *library.Build, r *types.Repo) error {
-	e := new([]library.Executor)
+	e := new([]types.Executor)
 	// retrieve the worker
 	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
 	if err != nil {

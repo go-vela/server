@@ -10,8 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -121,7 +121,7 @@ func ApproveBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		internal.ToItem(b, r),
+		models.ToItem(b, r),
 		b.GetHost(),
 	)
 
