@@ -4,6 +4,7 @@ package native
 
 import (
 	"flag"
+	"fmt"
 	"testing"
 
 	"github.com/go-vela/types/raw"
@@ -524,6 +525,83 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 	}
 
 	err = compiler.Validate(p)
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
+func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	c := cli.NewContext(nil, set, nil)
+
+	str := "foo"
+
+	reportSteps := yaml.StepSlice{}
+
+	for i := 0; i < 12; i++ {
+		reportStep := &yaml.Step{
+			Commands: raw.StringSlice{"echo hello"},
+			Image:    "alpine",
+			Name:     fmt.Sprintf("%s-%d", str, i),
+			Pull:     "always",
+			ReportAs: fmt.Sprintf("step-%d", i),
+		}
+		reportSteps = append(reportSteps, reportStep)
+	}
+
+	p := &yaml.Build{
+		Version: "v1",
+		Steps:   reportSteps,
+	}
+
+	// run test
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.Validate(p)
+
+	if err == nil {
+		t.Errorf("Validate should have returned err")
+	}
+}
+
+func TestNative_Validate_MultiReportAs(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	c := cli.NewContext(nil, set, nil)
+
+	str := "foo"
+	p := &yaml.Build{
+		Version: "v1",
+		Steps: yaml.StepSlice{
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str,
+				Pull:     "always",
+				ReportAs: "bar",
+			},
+			&yaml.Step{
+				Commands: raw.StringSlice{"echo hello"},
+				Image:    "alpine",
+				Name:     str + "-2",
+				Pull:     "always",
+				ReportAs: "bar",
+			},
+		},
+	}
+
+	// run test
+	compiler, err := New(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	err = compiler.Validate(p)
+
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}

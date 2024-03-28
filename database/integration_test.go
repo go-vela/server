@@ -2408,6 +2408,7 @@ func newResources() *Resources {
 	stepOne.SetHost("example.company.com")
 	stepOne.SetRuntime("docker")
 	stepOne.SetDistribution("linux")
+	stepOne.SetReportAs("")
 
 	stepTwo := new(library.Step)
 	stepTwo.SetID(2)
@@ -2426,6 +2427,7 @@ func newResources() *Resources {
 	stepTwo.SetHost("example.company.com")
 	stepTwo.SetRuntime("docker")
 	stepTwo.SetDistribution("linux")
+	stepTwo.SetReportAs("test")
 
 	userOne := new(library.User)
 	userOne.SetID(1)

@@ -32,7 +32,8 @@ const (
   "finished": 0,
   "host": "host.company.com",
   "runtime": "docker",
-  "distribution": "linux"
+  "distribution": "linux",
+  "report_as": "test"
 }`
 
 	// StepsResp represents a JSON return for one to many steps.
@@ -51,7 +52,8 @@ const (
     "finished": 0,
     "host": "host.company.com",
     "runtime": "docker",
-    "distribution": "linux"
+    "distribution": "linux",
+	"report_as": ""
   },
   {
     "id": 1,
@@ -67,7 +69,8 @@ const (
     "finished": 0,
     "host": "host.company.com",
     "runtime": "docker",
-    "distribution": "linux"
+    "distribution": "linux",
+	"report_as": "test"
   }
 ]`
 )

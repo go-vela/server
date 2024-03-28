@@ -4,6 +4,7 @@ package step
 
 import (
 	"context"
+
 	"github.com/go-vela/types/constants"
 )
 
@@ -29,6 +30,7 @@ steps (
 	host          VARCHAR(250),
 	runtime       VARCHAR(250),
 	distribution  VARCHAR(250),
+	report_as     VARCHAR(250),
 	UNIQUE(build_id, number)
 );
 `
@@ -54,6 +56,7 @@ steps (
 	host          TEXT,
 	runtime       TEXT,
 	distribution  TEXT,
+	report_as     TEXT,
 	UNIQUE(build_id, number)
 );
 `
