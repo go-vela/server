@@ -305,7 +305,7 @@ func PostWebhook(c *gin.Context) {
 	h.SetBuildID(b.GetID())
 
 	// check if build was skipped
-	if strings.EqualFold(b.GetStatus(), constants.StatusSkipped) {
+	if err != nil && strings.EqualFold(b.GetStatus(), constants.StatusSkipped) {
 		h.SetStatus(constants.StatusSkipped)
 		h.SetError(err.Error())
 

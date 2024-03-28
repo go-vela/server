@@ -4,6 +4,7 @@ package build
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -324,7 +325,7 @@ func CompileAndPublish(
 				&types.Item{
 					Build: b,
 				},
-				fmt.Errorf(skip)
+				errors.New(skip)
 		}
 
 		// check if the pipeline did not already exist in the database
