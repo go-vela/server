@@ -132,7 +132,7 @@ func CreateBuild(c *gin.Context) {
 	)
 
 	// check if build was skipped
-	if strings.EqualFold(item.Build.GetStatus(), constants.StatusSkipped) {
+	if err != nil && strings.EqualFold(item.Build.GetStatus(), constants.StatusSkipped) {
 		c.JSON(http.StatusOK, err.Error())
 
 		return
