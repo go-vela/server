@@ -289,7 +289,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// generate the queue item
-	pushed, p, item, err := build.CompileAndPublish(
+	p, item, err := build.CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -304,16 +304,19 @@ func PostWebhook(c *gin.Context) {
 	// set hook build_id to the generated build id
 	h.SetBuildID(b.GetID())
 
-	if err != nil {
-		h.SetStatus(constants.StatusFailure)
+	// check if build was skipped
+	if strings.EqualFold(b.GetStatus(), constants.StatusSkipped) {
+		h.SetStatus(constants.StatusSkipped)
 		h.SetError(err.Error())
+
+		c.JSON(http.StatusOK, err.Error())
 
 		return
 	}
 
-	if !pushed {
-		// if the build was not pushed to the queue, it was skipped
-		h.SetStatus(constants.StatusSkipped)
+	if err != nil {
+		h.SetStatus(constants.StatusFailure)
+		h.SetError(err.Error())
 
 		return
 	}

@@ -291,7 +291,7 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 		"user":  u.GetName(),
 	}).Tracef("setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
-	// only report opened, synchronize, and reopened PR events
+	// only report opened, synchronize, and reopened action types for pull_request events
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && !strings.EqualFold(b.GetEventAction(), constants.ActionOpened) &&
 		!strings.EqualFold(b.GetEventAction(), constants.ActionSynchronize) && !strings.EqualFold(b.GetEventAction(), constants.ActionReopened) {
 		return nil
