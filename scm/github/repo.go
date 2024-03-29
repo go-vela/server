@@ -312,12 +312,14 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 	// depending on what the status of the build is
 	switch b.GetStatus() {
 	case constants.StatusRunning, constants.StatusPending:
+		//nolint:goconst // ignore making constant
 		state = "pending"
 		description = fmt.Sprintf("the build is %s", b.GetStatus())
 	case constants.StatusPendingApproval:
 		state = "pending"
 		description = "build needs approval from repo admin to run"
 	case constants.StatusSuccess:
+		//nolint:goconst // ignore making constant
 		state = "success"
 		description = "the build was successful"
 	case constants.StatusFailure:
@@ -402,6 +404,11 @@ func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Bui
 		"user":  u.GetName(),
 	}).Tracef("setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
+	// no commit statuses on deployments
+	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		return nil
+	}
+
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
@@ -416,17 +423,13 @@ func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Bui
 	// set the state and description for the status context
 	// depending on what the status of the build is
 	switch s.GetStatus() {
-	case constants.StatusRunning, constants.StatusPending:
-		state = "pending"
-		description = fmt.Sprintf("the step is %s", s.GetStatus())
-	case constants.StatusPendingApproval:
+	case constants.StatusRunning, constants.StatusPending, constants.StatusPendingApproval:
 		state = "pending"
 		description = fmt.Sprintf("the step is %s", s.GetStatus())
 	case constants.StatusSuccess:
 		state = "success"
 		description = "the step was successful"
 	case constants.StatusFailure:
-		//nolint:goconst // ignore making constant
 		state = "failure"
 		description = "the step has failed"
 	case constants.StatusCanceled:
@@ -436,8 +439,8 @@ func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Bui
 		state = "failure"
 		description = "the step was killed"
 	case constants.StatusSkipped:
-		state = "success"
-		description = "step was skipped as no steps/stages found"
+		state = "failure"
+		description = "step was skipped or never ran"
 	default:
 		state = "error"
 		description = "there was an error"
