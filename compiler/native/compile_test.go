@@ -680,7 +680,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = "/root"
 	buildEnv["SHELL"] = "/bin/sh"
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build", "echo gradle"})
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
@@ -951,7 +951,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = "/root"
 	buildEnv["SHELL"] = "/bin/sh"
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build", "echo gradle"})
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
@@ -3230,17 +3230,21 @@ func Test_CompileLite(t *testing.T) {
 				},
 				Templates: []*yaml.Template{
 					{
-						Name:      "golang",
-						Source:    "github.example.com/github/octocat/golang_inline_stages.yml",
-						Format:    "golang",
-						Type:      "github",
-						Variables: map[string]any{"image": string("golang:latest")},
+						Name:   "golang",
+						Source: "github.example.com/github/octocat/golang_inline_stages.yml",
+						Format: "golang",
+						Type:   "github",
+						Variables: map[string]any{
+							"image":              string("golang:latest"),
+							"VELA_TEMPLATE_NAME": string("golang"),
+						},
 					},
 					{
-						Name:   "starlark",
-						Source: "github.example.com/github/octocat/starlark_inline_stages.star",
-						Format: "starlark",
-						Type:   "github",
+						Name:      "starlark",
+						Source:    "github.example.com/github/octocat/starlark_inline_stages.star",
+						Format:    "starlark",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("starlark")},
 					},
 				},
 				Environment: raw.StringSliceMap{},
@@ -3375,16 +3379,18 @@ func Test_CompileLite(t *testing.T) {
 				Environment: raw.StringSliceMap{},
 				Templates: yaml.TemplateSlice{
 					{
-						Name:   "golang",
-						Source: "github.example.com/github/octocat/golang_inline_steps.yml",
-						Format: "golang",
-						Type:   "github",
+						Name:      "golang",
+						Source:    "github.example.com/github/octocat/golang_inline_steps.yml",
+						Format:    "golang",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("golang")},
 					},
 					{
-						Name:   "starlark",
-						Source: "github.example.com/github/octocat/starlark_inline_steps.star",
-						Format: "starlark",
-						Type:   "github",
+						Name:      "starlark",
+						Source:    "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format:    "starlark",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("starlark")},
 					},
 				},
 			},
