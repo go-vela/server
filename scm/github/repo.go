@@ -421,7 +421,7 @@ func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Bui
 	)
 
 	// set the state and description for the status context
-	// depending on what the status of the build is
+	// depending on what the status of the step is
 	switch s.GetStatus() {
 	case constants.StatusRunning, constants.StatusPending, constants.StatusPendingApproval:
 		state = "pending"
