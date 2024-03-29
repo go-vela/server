@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/yaml"
 )
 
@@ -123,6 +124,10 @@ func validateStages(s yaml.StageSlice) error {
 // validateSteps is a helper function that verifies the
 // steps block in the yaml configuration is valid.
 func validateSteps(s yaml.StepSlice) error {
+	reportCount := 0
+
+	reportMap := make(map[string]string)
+
 	for _, step := range s {
 		if len(step.Name) == 0 {
 			return fmt.Errorf("no name provided for step")
@@ -136,11 +141,24 @@ func validateSteps(s yaml.StepSlice) error {
 			continue
 		}
 
+		if s, ok := reportMap[step.ReportAs]; ok {
+			return fmt.Errorf("report_as to %s for step %s is already targeted by step %s", step.ReportAs, step.Name, s)
+		}
+
+		if len(step.ReportAs) > 0 {
+			reportMap[step.ReportAs] = step.Name
+			reportCount++
+		}
+
 		if len(step.Commands) == 0 && len(step.Environment) == 0 &&
 			len(step.Parameters) == 0 && len(step.Secrets) == 0 &&
 			len(step.Template.Name) == 0 && !step.Detach {
 			return fmt.Errorf("no commands, environment, parameters, secrets or template provided for step %s", step.Name)
 		}
+	}
+
+	if reportCount > constants.ReportStepStatusLimit {
+		return fmt.Errorf("report_as is limited to %d steps, counted %d", constants.ReportStepStatusLimit, reportCount)
 	}
 
 	return nil
