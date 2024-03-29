@@ -221,6 +221,7 @@ func testStep() *library.Step {
 		Host:         new(string),
 		Runtime:      new(string),
 		Distribution: new(string),
+		ReportAs:     new(string),
 	}
 }
 
