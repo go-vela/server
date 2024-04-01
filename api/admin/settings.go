@@ -10,19 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 )
 
-type PlatformSettings_API struct {
-	ID     int    `json:"id"`
-	FooNum int    `json:"foo_num"`
-	BarStr string `json:"bar_str"`
-}
-
 // swagger:operation GET /api/v1/admin/settings admin GetSettings
 //
-// Get the currently configured platform settings.
+// Get the currently configured settings.
 //
 // ---
 // produces:
@@ -31,80 +26,63 @@ type PlatformSettings_API struct {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved platform settings from the database
+//     description: Successfully retrieved settings from the database
 //     schema:
 //       type: array
 //       items:
 //         "$ref": "#/definitions/Settings"
 //   '500':
-//     description: Unable to retrieve platform settings from the database
+//     description: Unable to retrieve settings from the database
 //     schema:
 //       "$ref": "#/definitions/Error"
 
 // GetSettings represents the API handler to
-// captures platform settings stored in the database.
+// captures settings stored in the database.
 func GetSettings(c *gin.Context) {
 	// capture middleware values
-	ctx := c.Request.Context()
+	s := settings.Retrieve(c)
 
-	logrus.Info("Admin: reading platform settings")
-
-	// send API call to capture pending and running builds
-	s, err := database.FromContext(c).GetSettings(ctx)
-	if err != nil {
-		retErr := fmt.Errorf("unable to capture platform settings: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
+	logrus.Info("Admin: reading settings")
 
 	c.JSON(http.StatusOK, s)
 }
 
+// todo: swagger and comments
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
-	// todo: settings.Retrieve
-	// s := user.Retrieve(c)
-
-	s, err := database.FromContext(c).GetSettings(c.Request.Context())
-	if err != nil {
-		retErr := fmt.Errorf("unable to retrieve platform settings from the database: %w", err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
-	// maxBuildLimit := c.Value("maxBuildLimit").(int64)
-	// defaultRepoEvents := c.Value("defaultRepoEvents").([]string)
-	// defaultRepoEventsMask := c.Value("defaultRepoEventsMask").(int64)
+	s := settings.Retrieve(c)
 	ctx := c.Request.Context()
 
+	// todo: comment is inaccurate
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.Info("Admin: updating platform settings")
+	logrus.Info("Admin: updating settings")
 
 	// capture body from API request
 	input := new(api.Settings)
 
-	err = c.Bind(input)
+	err := c.Bind(input)
 	if err != nil {
-		retErr := fmt.Errorf("unable to decode JSON for platform settings: %w", err)
+		retErr := fmt.Errorf("unable to decode JSON for settings: %w", err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
 
-	s.FooNum = input.FooNum
-	s.FooStr = input.FooStr
+	if input.FooNum != nil {
+		s.FooNum = input.FooNum
+	}
+
+	if input.FooStr != nil {
+		s.FooStr = input.FooStr
+	}
 
 	// send API call to update the repo
-	s, err = database.FromContext(c).UpdateSettings(ctx, input)
+	s, err = database.FromContext(c).UpdateSettings(ctx, s)
 	if err != nil {
-		retErr := fmt.Errorf("unable to update platform settings: %w", err)
+		retErr := fmt.Errorf("unable to update settings: %w", err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
