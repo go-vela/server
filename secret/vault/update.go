@@ -45,9 +45,6 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 
 	// convert the Vault secret our secret
 	vault := vaultFromSecret(sec)
-	if len(s.GetEvents()) > 0 {
-		vault.Data["events"] = s.GetEvents()
-	}
 
 	if s.GetAllowEvents().ToDatabase() != 0 {
 		vault.Data["allow_events"] = s.GetAllowEvents().ToDatabase()
