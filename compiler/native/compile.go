@@ -70,7 +70,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 		Repo:    c.repo.GetFullName(),
 		Tag:     strings.TrimPrefix(c.build.GetRef(), "refs/tags/"),
 		Target:  c.build.GetDeploy(),
-		Label:   c.label,
+		Label:   c.labels,
 	}
 
 	switch {

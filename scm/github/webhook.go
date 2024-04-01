@@ -311,6 +311,17 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
+	var prLabels []string
+	if strings.EqualFold(payload.GetAction(), "labeled") ||
+		strings.EqualFold(payload.GetAction(), "unlabeled") {
+		prLabels = append(prLabels, payload.GetLabel().GetName())
+	} else {
+		labels := payload.GetPullRequest().Labels
+		for _, label := range labels {
+			prLabels = append(prLabels, label.GetName())
+		}
+	}
+
 	// determine if pull request head is a fork and does not match the repo name of base
 	fromFork := payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
 		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName())
@@ -319,7 +330,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		PullRequest: types.PullRequest{
 			Number:     payload.GetNumber(),
 			IsFromFork: fromFork,
-			Label:      payload.GetLabel().GetName(),
+			Labels:     prLabels,
 		},
 		Hook:  h,
 		Repo:  r,
