@@ -182,34 +182,6 @@ func CreateRepo(c *gin.Context) {
 		r.SetAllowEvents(defaultAllowedEvents(defaultRepoEvents, defaultRepoEventsMask))
 	}
 
-	// -- DEPRECATED SECTION --
-	// set default events if no events are passed in
-	if !input.GetAllowPull() && !input.GetAllowPush() &&
-		!input.GetAllowDeploy() && !input.GetAllowTag() &&
-		!input.GetAllowComment() {
-		for _, event := range defaultRepoEvents {
-			switch event {
-			case constants.EventPull:
-				r.SetAllowPull(true)
-			case constants.EventPush:
-				r.SetAllowPush(true)
-			case constants.EventDeploy:
-				r.SetAllowDeploy(true)
-			case constants.EventTag:
-				r.SetAllowTag(true)
-			case constants.EventComment:
-				r.SetAllowComment(true)
-			}
-		}
-	} else {
-		r.SetAllowComment(input.GetAllowComment())
-		r.SetAllowDeploy(input.GetAllowDeploy())
-		r.SetAllowPull(input.GetAllowPull())
-		r.SetAllowPush(input.GetAllowPush())
-		r.SetAllowTag(input.GetAllowTag())
-	}
-	// -- END DEPRECATED SECTION --
-
 	if len(input.GetPipelineType()) == 0 {
 		r.SetPipelineType(constants.PipelineTypeYAML)
 	} else {
@@ -275,11 +247,7 @@ func CreateRepo(c *gin.Context) {
 
 		// make sure our record of the repo allowed events matches what we send to SCM
 		// what the dbRepo has should override default events on enable
-		r.SetAllowComment(dbRepo.GetAllowComment())
-		r.SetAllowDeploy(dbRepo.GetAllowDeploy())
-		r.SetAllowPull(dbRepo.GetAllowPull())
-		r.SetAllowPush(dbRepo.GetAllowPush())
-		r.SetAllowTag(dbRepo.GetAllowTag())
+		r.SetAllowEvents(dbRepo.GetAllowEvents())
 	}
 
 	// check if we should create the webhook

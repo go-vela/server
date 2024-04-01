@@ -22,7 +22,6 @@ func TestNative_Get(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
 	want.SetAllowEvents(library.NewEventsFromMask(1))
 	want.SetAllowCommand(false)
 	want.SetAllowSubstitution(false)

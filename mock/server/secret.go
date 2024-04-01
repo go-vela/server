@@ -28,7 +28,6 @@ const (
   "images": [
     "alpine"
   ],
-  "events": [],
   "allow_events": {
 	  "push": {
 		  "branch": true,
@@ -68,9 +67,6 @@ const (
     "type": "repo",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -83,9 +79,6 @@ const (
     "type": "org",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -98,9 +91,6 @@ const (
     "type": "shared",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   }
 ]`
