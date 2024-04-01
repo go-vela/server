@@ -16,6 +16,7 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 )
@@ -126,13 +127,11 @@ func ApproveBuild(c *gin.Context) {
 	}
 
 	// publish the build to the queue
-	go PublishToQueue(
+	go Enqueue(
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		b,
-		r,
-		owner,
+		types.ToItem(b, r, owner),
 		b.GetHost(),
 	)
 
