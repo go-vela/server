@@ -98,7 +98,7 @@ func TestNative_ExpandStages(t *testing.T) {
 					Pull:  "always",
 				},
 				&yaml.Step{
-					Commands: []string{"./gradlew build"},
+					Commands: []string{"./gradlew build", "echo gradle"},
 					Environment: raw.StringSliceMap{
 						"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 						"GRADLE_USER_HOME": ".gradle",
@@ -301,7 +301,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			Pull:  "always",
 		},
 		&yaml.Step{
-			Commands: []string{"./gradlew build"},
+			Commands: []string{"./gradlew build", "echo gradle"},
 			Environment: raw.StringSliceMap{
 				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 				"GRADLE_USER_HOME": ".gradle",
@@ -823,7 +823,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 			Pull:  "always",
 		},
 		&yaml.Step{
-			Commands: []string{"./gradlew build"},
+			Commands: []string{"./gradlew build", "echo test"},
 			Environment: raw.StringSliceMap{
 				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 				"GRADLE_USER_HOME": ".gradle",
