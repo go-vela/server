@@ -68,25 +68,14 @@ func server(c *cli.Context) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
-	compiler, err := setupCompiler(c)
-	if err != nil {
-		return err
-	}
-
 	database, err := database.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
 
-	// create a platform settings object to store the settings
-	// err := e.client.Table(constantsTableSettings).Save(s2).Error
-	ss, err := database.GetSettings(context.Background())
-	if ss == nil || err != nil {
-		s := new(api.Settings)
-		var fooNum int64 = 101
-		var fooStr string = "bar"
-		s.FooNum = &fooNum
-		s.FooStr = &fooStr
+	s, err := database.GetSettings(context.Background())
+	if s == nil || err != nil {
+		s = api.NewSettings(c)
 
 		_, err = database.CreateSettings(context.Background(), s)
 		if err != nil {
@@ -94,7 +83,12 @@ func server(c *cli.Context) error {
 		}
 	}
 
-	// when the server reboots, should it only use the defaults when the object doesnt exist yet?
+	compiler, err := setupCompiler(c)
+	if err != nil {
+		return err
+	}
+
+	compiler = compiler.WithSettings(s)
 
 	queue, err := setupQueue(c)
 	if err != nil {

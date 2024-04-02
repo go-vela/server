@@ -28,7 +28,7 @@ func (e *engine) CreateSettings(ctx context.Context, s *api.Settings) (*api.Sett
 	// }
 
 	// send query to the database
-	err := e.client.Table(constantsTableSettings).Create(s).Error
+	err := e.client.Table(TableSettings).Create(s).Error
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (e *engine) GetSettings(ctx context.Context) (*api.Settings, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
-		Table(constantsTableSettings).
+		Table(TableSettings).
 		// todo: how to ensure this is always a singleton at the first row
 		Where("id = ?", 1).
 		Take(s).
@@ -80,7 +80,7 @@ func (e *engine) UpdateSettings(ctx context.Context, s *api.Settings) (*api.Sett
 	// }
 
 	// send query to the database
-	err := e.client.Table(constantsTableSettings).Save(s).Error
+	err := e.client.Table(TableSettings).Save(s).Error
 	if err != nil {
 		return nil, err
 	}

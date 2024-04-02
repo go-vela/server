@@ -5,17 +5,24 @@ package settings
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
 )
 
 const (
-	// todo: constantsTableSettings -> types.constants.TableSettings
-	constantsTableSettings = "settings"
+	TableSettings = "settings"
+)
+
+var (
+	// ErrEmptyCloneImage defines the error type when a
+	// Settings type has an empty CloneImage field provided.
+	ErrEmptyCloneImage = errors.New("empty settings clone image provided")
 )
 
 // todo: comments Build->Settings
@@ -46,9 +53,8 @@ type (
 
 	// Settings is the database representation of platform settings.
 	Settings struct {
-		ID     sql.NullInt64  `sql:"id"`
-		FooNum sql.NullInt64  `sql:"foo_num"`
-		FooStr sql.NullString `sql:"foo_str"`
+		ID         sql.NullInt64  `sql:"id"`
+		CloneImage sql.NullString `sql:"clone_image"`
 	}
 )
 
@@ -82,7 +88,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	// create the settings table
 	err := e.CreateSettingsTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
-		return nil, fmt.Errorf("unable to create %s table: %w", constantsTableSettings, err)
+		return nil, fmt.Errorf("unable to create %s table: %w", TableSettings, err)
 	}
 
 	// todo: need indexes?
@@ -90,12 +96,64 @@ func New(opts ...EngineOpt) (*engine, error) {
 	return e, nil
 }
 
+// Nullify ensures the valid flag for
+// the sql.Null types are properly set.
+//
+// When a field within the Build type is the zero
+// value for the field, the valid flag is set to
+// false causing it to be NULL in the database.
+func (s *Settings) Nullify() *Settings {
+	if s == nil {
+		return nil
+	}
+
+	// check if the ID field should be false
+	if s.ID.Int64 == 0 {
+		s.ID.Valid = false
+	}
+
+	// check if the CloneImage field should be false
+	if len(s.CloneImage.String) == 0 {
+		s.CloneImage.Valid = false
+	}
+
+	return s
+}
+
 // ToAPI converts the Worker type
 // to an API Worker type.
 func (s *Settings) ToAPI() *api.Settings {
 	settings := new(api.Settings)
 
-	// settings.SetID(s.ID.Int64)
+	settings.SetID(s.ID.Int64)
+	settings.SetCloneImage(s.CloneImage.String)
 
 	return settings
+}
+
+// Validate verifies the necessary fields for
+// the Settings type are populated correctly.
+func (s *Settings) Validate() error {
+	// verify the CloneImage field is populated
+	if len(s.CloneImage.String) == 0 {
+		return ErrEmptyCloneImage
+	}
+
+	// ensure that all Settings string fields
+	// that can be returned as JSON are sanitized
+	// to avoid unsafe HTML content
+	s.CloneImage = sql.NullString{String: util.Sanitize(s.CloneImage.String), Valid: s.CloneImage.Valid}
+
+	return nil
+}
+
+// FromAPI converts the API settings type
+// to a database settings type.
+func FromAPI(s *api.Settings) *Settings {
+	settings := &Settings{
+		ID:         sql.NullInt64{Int64: s.GetID(), Valid: true},
+		CloneImage: sql.NullString{String: s.GetCloneImage(), Valid: true},
+	}
+
+	return settings.Nullify()
 }

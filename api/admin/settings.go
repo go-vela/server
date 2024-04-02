@@ -53,10 +53,6 @@ func UpdateSettings(c *gin.Context) {
 	s := settings.Retrieve(c)
 	ctx := c.Request.Context()
 
-	// todo: comment is inaccurate
-	// update engine logger with API metadata
-	//
-	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.Info("Admin: updating settings")
 
 	// capture body from API request
@@ -71,12 +67,8 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
-	if input.FooNum != nil {
-		s.FooNum = input.FooNum
-	}
-
-	if input.FooStr != nil {
-		s.FooStr = input.FooStr
+	if input.CloneImage != nil {
+		s.CloneImage = input.CloneImage
 	}
 
 	// send API call to update the repo

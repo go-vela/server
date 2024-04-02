@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 
@@ -25,13 +26,14 @@ type ModificationConfig struct {
 }
 
 type client struct {
+	*api.Settings
 	Github              registry.Service
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
-	CloneImage          string
-	TemplateDepth       int
-	StarlarkExecLimit   uint64
+	// CloneImage          string
+	TemplateDepth     int
+	StarlarkExecLimit uint64
 
 	build          *library.Build
 	comment        string
@@ -70,7 +72,7 @@ func New(ctx *cli.Context) (*client, error) {
 	c.Github = github
 
 	// set the clone image to use for the injected clone step
-	c.CloneImage = ctx.String("clone-image")
+	// c.CloneImage = ctx.String("clone-image")
 
 	// set the template depth to use for nested templates
 	c.TemplateDepth = ctx.Int("max-template-depth")
@@ -112,6 +114,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc := new(client)
 
 	// copy the essential fields from the existing client
+	cc.Settings = c.Settings
 	cc.Github = c.Github
 	cc.PrivateGithub = c.PrivateGithub
 	cc.UsePrivateGithub = c.UsePrivateGithub
@@ -206,6 +209,15 @@ func (c *client) WithRepo(r *library.Repo) compiler.Engine {
 func (c *client) WithUser(u *library.User) compiler.Engine {
 	if u != nil {
 		c.user = u
+	}
+
+	return c
+}
+
+// WithSettings sets the api settings type in the Engine.
+func (c *client) WithSettings(s *api.Settings) compiler.Engine {
+	if s != nil {
+		c.Settings = s
 	}
 
 	return c

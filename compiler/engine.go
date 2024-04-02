@@ -3,6 +3,7 @@
 package compiler
 
 import (
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -140,7 +141,10 @@ type Engine interface {
 	// WithUser defines a function that sets
 	// the library user type in the Engine.
 	WithUser(*library.User) Engine
-	// WithUser defines a function that sets
+	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine
+	// WithPrivateGitHub defines a function that sets
+	// the server settings in the Engine.
+	WithSettings(*api.Settings) Engine
 }

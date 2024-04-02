@@ -15,8 +15,7 @@ CREATE TABLE
 IF NOT EXISTS
 settings (
 	id            SERIAL PRIMARY KEY,
-	foo_num       INTEGER,
-	foo_str       VARCHAR(250)
+	clone_image       VARCHAR(250)
 );
 `
 
@@ -26,8 +25,7 @@ CREATE TABLE
 IF NOT EXISTS
 settings (
 	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	foo_num      INTEGER,
-	foo_str          TEXT
+	clone_image       TEXT
 );
 `
 )
