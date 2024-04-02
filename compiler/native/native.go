@@ -26,7 +26,6 @@ type ModificationConfig struct {
 }
 
 type client struct {
-	*api.Settings
 	Github              registry.Service
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
@@ -44,6 +43,7 @@ type client struct {
 	metadata       *types.Metadata
 	repo           *library.Repo
 	user           *library.User
+	settings       *api.Settings
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -114,12 +114,10 @@ func (c *client) Duplicate() compiler.Engine {
 	cc := new(client)
 
 	// copy the essential fields from the existing client
-	cc.Settings = c.Settings
 	cc.Github = c.Github
 	cc.PrivateGithub = c.PrivateGithub
 	cc.UsePrivateGithub = c.UsePrivateGithub
 	cc.ModificationService = c.ModificationService
-	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
 
@@ -217,7 +215,7 @@ func (c *client) WithUser(u *library.User) compiler.Engine {
 // WithSettings sets the api settings type in the Engine.
 func (c *client) WithSettings(s *api.Settings) compiler.Engine {
 	if s != nil {
-		c.Settings = s
+		c.settings = s
 	}
 
 	return c

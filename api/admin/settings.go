@@ -81,5 +81,11 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
+	// todo: how to connect this with the actual settings record stored in the server
+	// todo: how to take this update and propogate it to the other server groups????????????
+	// say you have two instances of the server running, we need to fetch this settings record before actually using it
+	//
+	//
+
 	c.JSON(http.StatusOK, s)
 }
