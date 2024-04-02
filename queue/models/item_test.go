@@ -62,10 +62,6 @@ func TestTypes_ToItem(t *testing.T) {
 		Private:     &booL,
 		Trusted:     &booL,
 		Active:      &booL,
-		AllowPull:   &booL,
-		AllowPush:   &booL,
-		AllowDeploy: &booL,
-		AllowTag:    &booL,
 		AllowEvents: e,
 	}
 	want := &Item{
@@ -113,10 +109,6 @@ func TestTypes_ToItem(t *testing.T) {
 			Private:     &booL,
 			Trusted:     &booL,
 			Active:      &booL,
-			AllowPull:   &booL,
-			AllowPush:   &booL,
-			AllowDeploy: &booL,
-			AllowTag:    &booL,
 			AllowEvents: e,
 		},
 		ItemVersion: ItemVersion,

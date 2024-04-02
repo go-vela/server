@@ -9,7 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-func TestLibrary_Comment_Getters(t *testing.T) {
+func TestTypes_Comment_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		actions *Comment
@@ -37,7 +37,7 @@ func TestLibrary_Comment_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Comment_Setters(t *testing.T) {
+func TestTypes_Comment_Setters(t *testing.T) {
 	// setup types
 	var a *Comment
 
@@ -71,7 +71,7 @@ func TestLibrary_Comment_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Comment_FromMask(t *testing.T) {
+func TestTypes_Comment_FromMask(t *testing.T) {
 	// setup types
 	mask := testMask()
 
@@ -85,7 +85,7 @@ func TestLibrary_Comment_FromMask(t *testing.T) {
 	}
 }
 
-func TestLibrary_Comment_ToMask(t *testing.T) {
+func TestTypes_Comment_ToMask(t *testing.T) {
 	// setup types
 	actions := testComment()
 

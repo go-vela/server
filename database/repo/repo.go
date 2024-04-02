@@ -95,11 +95,6 @@ type (
 		Private      sql.NullBool   `sql:"private"`
 		Trusted      sql.NullBool   `sql:"trusted"`
 		Active       sql.NullBool   `sql:"active"`
-		AllowPull    sql.NullBool   `sql:"allow_pull"`
-		AllowPush    sql.NullBool   `sql:"allow_push"`
-		AllowDeploy  sql.NullBool   `sql:"allow_deploy"`
-		AllowTag     sql.NullBool   `sql:"allow_tag"`
-		AllowComment sql.NullBool   `sql:"allow_comment"`
 		AllowEvents  sql.NullInt64  `sql:"allow_events"`
 		PipelineType sql.NullString `sql:"pipeline_type"`
 		PreviousName sql.NullString `sql:"previous_name"`
@@ -314,11 +309,6 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo.SetPrivate(r.Private.Bool)
 	repo.SetTrusted(r.Trusted.Bool)
 	repo.SetActive(r.Active.Bool)
-	repo.SetAllowPull(r.AllowPull.Bool)
-	repo.SetAllowPush(r.AllowPush.Bool)
-	repo.SetAllowDeploy(r.AllowDeploy.Bool)
-	repo.SetAllowTag(r.AllowTag.Bool)
-	repo.SetAllowComment(r.AllowComment.Bool)
 	repo.SetAllowEvents(api.NewEventsFromMask(r.AllowEvents.Int64))
 	repo.SetPipelineType(r.PipelineType.String)
 	repo.SetPreviousName(r.PreviousName.String)
@@ -411,11 +401,6 @@ func FromAPI(r *api.Repo) *Repo {
 		Private:      sql.NullBool{Bool: r.GetPrivate(), Valid: true},
 		Trusted:      sql.NullBool{Bool: r.GetTrusted(), Valid: true},
 		Active:       sql.NullBool{Bool: r.GetActive(), Valid: true},
-		AllowPull:    sql.NullBool{Bool: r.GetAllowPull(), Valid: true},
-		AllowPush:    sql.NullBool{Bool: r.GetAllowPush(), Valid: true},
-		AllowDeploy:  sql.NullBool{Bool: r.GetAllowDeploy(), Valid: true},
-		AllowTag:     sql.NullBool{Bool: r.GetAllowTag(), Valid: true},
-		AllowComment: sql.NullBool{Bool: r.GetAllowComment(), Valid: true},
 		AllowEvents:  sql.NullInt64{Int64: r.GetAllowEvents().ToDatabase(), Valid: true},
 		PipelineType: sql.NullString{String: r.GetPipelineType(), Valid: true},
 		PreviousName: sql.NullString{String: r.GetPreviousName(), Valid: true},

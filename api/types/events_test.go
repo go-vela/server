@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestLibrary_Events_Getters(t *testing.T) {
+func TestTypes_Events_Getters(t *testing.T) {
 	// setup types
 	eventsOne, eventsTwo := testEvents()
 
@@ -58,7 +58,7 @@ func TestLibrary_Events_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Events_Setters(t *testing.T) {
+func TestTypes_Events_Setters(t *testing.T) {
 	// setup types
 	var e *Events
 
@@ -113,7 +113,7 @@ func TestLibrary_Events_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Events_List(t *testing.T) {
+func TestTypes_Events_List(t *testing.T) {
 	// setup types
 	eventsOne, eventsTwo := testEvents()
 
@@ -149,7 +149,7 @@ func TestLibrary_Events_List(t *testing.T) {
 	}
 }
 
-func TestLibrary_Events_NewEventsFromMask_ToDatabase(t *testing.T) {
+func TestTypes_Events_NewEventsFromMask_ToDatabase(t *testing.T) {
 	// setup mask
 	maskOne := int64(
 		constants.AllowPushBranch |
@@ -290,7 +290,7 @@ func Test_NewEventsFromSlice(t *testing.T) {
 	}
 }
 
-func TestLibrary_Events_Allowed(t *testing.T) {
+func TestTypes_Events_Allowed(t *testing.T) {
 	// setup types
 	eventsOne, eventsTwo := testEvents()
 

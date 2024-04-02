@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/types/raw"
 )
 
-func TestLibrary_Executor_Getters(t *testing.T) {
+func TestTypes_Executor_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		executor *Executor
@@ -61,7 +61,7 @@ func TestLibrary_Executor_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Executor_Setters(t *testing.T) {
+func TestTypes_Executor_Setters(t *testing.T) {
 	// setup types
 	var e *Executor
 
@@ -120,7 +120,7 @@ func TestLibrary_Executor_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Executor_String(t *testing.T) {
+func TestTypes_Executor_String(t *testing.T) {
 	// setup types
 	e := testExecutor()
 

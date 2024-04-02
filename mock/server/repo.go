@@ -39,11 +39,6 @@ const (
   "pipeline_type": "yaml",
   "topics": [],
   "active": true,
-  "allow_pull": false,
-  "allow_push": true,
-  "allow_deploy": false,
-  "allow_tag": false,
-  "allow_comment": false,
   "allow_events": {
 	"push": {
 		"branch": true,
@@ -83,11 +78,7 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   },
   {
     "id": 2,
@@ -103,11 +94,7 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   }
 ]`
 )

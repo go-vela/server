@@ -9,7 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-func TestLibrary_Schedule_Getters(t *testing.T) {
+func TestTypes_Schedule_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		actions *Schedule
@@ -33,7 +33,7 @@ func TestLibrary_Schedule_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Schedule_Setters(t *testing.T) {
+func TestTypes_Schedule_Setters(t *testing.T) {
 	// setup types
 	var a *Schedule
 
@@ -62,7 +62,7 @@ func TestLibrary_Schedule_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Schedule_FromMask(t *testing.T) {
+func TestTypes_Schedule_FromMask(t *testing.T) {
 	// setup types
 	mask := testMask()
 
@@ -76,7 +76,7 @@ func TestLibrary_Schedule_FromMask(t *testing.T) {
 	}
 }
 
-func TestLibrary_Schedule_ToMask(t *testing.T) {
+func TestTypes_Schedule_ToMask(t *testing.T) {
 	// setup types
 	actions := testSchedule()
 

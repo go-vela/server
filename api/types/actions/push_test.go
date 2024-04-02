@@ -9,7 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-func TestLibrary_Push_Getters(t *testing.T) {
+func TestTypes_Push_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		actions *Push
@@ -37,7 +37,7 @@ func TestLibrary_Push_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Push_Setters(t *testing.T) {
+func TestTypes_Push_Setters(t *testing.T) {
 	// setup types
 	var a *Push
 
@@ -81,7 +81,7 @@ func TestLibrary_Push_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Push_FromMask(t *testing.T) {
+func TestTypes_Push_FromMask(t *testing.T) {
 	// setup types
 	mask := testMask()
 
@@ -95,7 +95,7 @@ func TestLibrary_Push_FromMask(t *testing.T) {
 	}
 }
 
-func TestLibrary_Push_ToMask(t *testing.T) {
+func TestTypes_Push_ToMask(t *testing.T) {
 	// setup types
 	actions := testPush()
 

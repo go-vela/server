@@ -111,6 +111,9 @@ type Service interface {
 	// Status defines a function that sends the
 	// commit status for the given SHA from a repo.
 	Status(context.Context, *library.User, *library.Build, string, string) error
+	// StepStatus defines a function that sends the
+	// commit status for the given SHA for a specified step context.
+	StepStatus(context.Context, *library.User, *library.Build, *library.Step, string, string) error
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
 	ListUserRepos(context.Context, *library.User) ([]*api.Repo, error)

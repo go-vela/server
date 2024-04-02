@@ -13,7 +13,9 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
@@ -156,4 +158,20 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, s)
+
+	// check if the build is in a "final" state
+	// and if build is not a scheduled event
+	if (s.GetStatus() == constants.StatusSuccess ||
+		s.GetStatus() == constants.StatusFailure ||
+		s.GetStatus() == constants.StatusCanceled ||
+		s.GetStatus() == constants.StatusKilled ||
+		s.GetStatus() == constants.StatusError) &&
+		(b.GetEvent() != constants.EventSchedule) &&
+		(len(s.GetReportAs()) > 0) {
+		// send API call to set the status on the commit
+		err = scm.FromContext(c).StepStatus(ctx, r.GetOwner(), b, s, r.GetOrg(), r.GetName())
+		if err != nil {
+			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
+		}
+	}
 }

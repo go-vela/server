@@ -5,6 +5,7 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
@@ -16,6 +17,7 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
@@ -120,7 +122,7 @@ func CreateBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
-	_, _, item, err := CompileAndPublish(
+	_, item, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -128,6 +130,13 @@ func CreateBuild(c *gin.Context) {
 		compiler.FromContext(c),
 		queue.FromContext(c),
 	)
+
+	// check if build was skipped
+	if err != nil && strings.EqualFold(item.Build.GetStatus(), constants.StatusSkipped) {
+		c.JSON(http.StatusOK, err.Error())
+
+		return
+	}
 
 	// error handling done in CompileAndPublish
 	if err != nil {

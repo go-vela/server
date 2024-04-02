@@ -73,6 +73,7 @@ func TestStep_Establish(t *testing.T) {
 	want.SetHost("")
 	want.SetRuntime("")
 	want.SetDistribution("")
+	want.SetReportAs("")
 
 	got := new(library.Step)
 

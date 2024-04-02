@@ -210,11 +210,6 @@ func testRepo() *api.Repo {
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
-		AllowPull:    new(bool),
-		AllowPush:    new(bool),
-		AllowDeploy:  new(bool),
-		AllowTag:     new(bool),
-		AllowComment: new(bool),
 	}
 }
 

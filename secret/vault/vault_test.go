@@ -133,7 +133,6 @@ func TestVault_secretFromVault(t *testing.T) {
 	want.SetName("bar")
 	want.SetValue("baz")
 	want.SetType("org")
-	want.SetEvents([]string{"push", "tag", "deployment"})
 	want.SetAllowEvents(library.NewEventsFromMask(8195))
 	want.SetImages([]string{"foo", "bar"})
 	want.SetAllowCommand(true)
@@ -176,7 +175,6 @@ func TestVault_vaultFromSecret(t *testing.T) {
 	s.SetName("bar")
 	s.SetValue("baz")
 	s.SetType("org")
-	s.SetEvents([]string{"foo", "bar"})
 	s.SetAllowEvents(library.NewEventsFromMask(1))
 	s.SetImages([]string{"foo", "bar"})
 	s.SetAllowCommand(true)
@@ -188,7 +186,6 @@ func TestVault_vaultFromSecret(t *testing.T) {
 
 	want := &api.Secret{
 		Data: map[string]interface{}{
-			"events":             []string{"foo", "bar"},
 			"allow_events":       int64(1),
 			"images":             []string{"foo", "bar"},
 			"name":               "bar",
@@ -243,7 +240,6 @@ func TestVault_AccurateSecretFields(t *testing.T) {
 // helper function to return a test Vault secret data.
 func testVaultSecretData() map[string]interface{} {
 	return map[string]interface{}{
-		"events":             []interface{}{"push", "tag", "deployment"},
 		"allow_events":       json.Number("8195"),
 		"images":             []interface{}{"foo", "bar"},
 		"name":               "bar",
