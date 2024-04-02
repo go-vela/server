@@ -74,22 +74,18 @@ var (
 	}
 
 	_repo = &library.Repo{
-		ID:          Int64(1),
-		Org:         String("github"),
-		Name:        String("octocat"),
-		FullName:    String("github/octocat"),
-		Link:        String("https://github.com/github/octocat"),
-		Clone:       String("https://github.com/github/octocat.git"),
-		Branch:      String("main"),
-		Timeout:     Int64(60),
-		Visibility:  String("public"),
-		Private:     Bool(false),
-		Trusted:     Bool(false),
-		Active:      Bool(true),
-		AllowPull:   Bool(false),
-		AllowPush:   Bool(true),
-		AllowDeploy: Bool(false),
-		AllowTag:    Bool(false),
+		ID:         Int64(1),
+		Org:        String("github"),
+		Name:       String("octocat"),
+		FullName:   String("github/octocat"),
+		Link:       String("https://github.com/github/octocat"),
+		Clone:      String("https://github.com/github/octocat.git"),
+		Branch:     String("main"),
+		Timeout:    Int64(60),
+		Visibility: String("public"),
+		Private:    Bool(false),
+		Trusted:    Bool(false),
+		Active:     Bool(true),
 	}
 
 	_steps = &pipeline.Build{
