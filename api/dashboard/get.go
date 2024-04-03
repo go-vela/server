@@ -8,42 +8,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/dashboard"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
-
-// RepoPartial is an API type that holds all relevant information
-// for a repository attached to a dashboard.
-type RepoPartial struct {
-	Org     string         `json:"org,omitempty"`
-	Name    string         `json:"name,omitempty"`
-	Counter int            `json:"counter,omitempty"`
-	Builds  []BuildPartial `json:"builds,omitempty"`
-}
-
-// BuildPartial is an API type that holds all relevant information
-// for a build attached to a RepoPartial.
-type BuildPartial struct {
-	Number   int    `json:"number,omitempty"`
-	Started  int64  `json:"started,omitempty"`
-	Finished int64  `json:"finished,omitempty"`
-	Sender   string `json:"sender,omitempty"`
-	Status   string `json:"status,omitempty"`
-	Event    string `json:"event,omitempty"`
-	Branch   string `json:"branch,omitempty"`
-	Link     string `json:"link,omitempty"`
-}
-
-// DashCard is an API type that holds the dashboard information as
-// well as a list of RepoPartials attached to the dashboard.
-type DashCard struct {
-	Dashboard *library.Dashboard `json:"dashboard,omitempty"`
-	Repos     []RepoPartial      `json:"repos,omitempty"`
-}
 
 // swagger:operation GET /api/v1/dashboards/{dashboard} dashboards GetDashboard
 //
@@ -85,7 +56,7 @@ func GetDashboard(c *gin.Context) {
 	}).Infof("reading dashboard %s", d.GetID())
 
 	// initialize DashCard and set dashboard to the dashboard info pulled from database
-	dashboard := new(DashCard)
+	dashboard := new(types.DashCard)
 	dashboard.Dashboard = d
 
 	// build RepoPartials referenced in the dashboard
@@ -102,11 +73,11 @@ func GetDashboard(c *gin.Context) {
 // buildRepoPartials is a helper function which takes the dashboard repo list and builds
 // a list of RepoPartials with information about the associated repository and its latest
 // five builds.
-func buildRepoPartials(c context.Context, repos []*library.DashboardRepo) ([]RepoPartial, error) {
-	var result []RepoPartial
+func buildRepoPartials(c context.Context, repos []*types.DashboardRepo) ([]types.RepoPartial, error) {
+	var result []types.RepoPartial
 
 	for _, r := range repos {
-		repo := RepoPartial{}
+		repo := types.RepoPartial{}
 
 		// fetch repo from database
 		dbRepo, err := database.FromContext(c).GetRepo(c, r.GetID())
@@ -125,11 +96,11 @@ func buildRepoPartials(c context.Context, repos []*library.DashboardRepo) ([]Rep
 			return nil, fmt.Errorf("unable to list builds for repo %s in dashboard: %w", dbRepo.GetFullName(), err)
 		}
 
-		bPartials := []BuildPartial{}
+		bPartials := []types.BuildPartial{}
 
 		// populate BuildPartials with info from builds list
 		for _, build := range builds {
-			bPartial := BuildPartial{
+			bPartial := types.BuildPartial{
 				Number:   build.GetNumber(),
 				Status:   build.GetStatus(),
 				Started:  build.GetStarted(),

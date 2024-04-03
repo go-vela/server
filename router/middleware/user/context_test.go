@@ -5,15 +5,13 @@ package user
 import (
 	"testing"
 
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
 )
 
 func TestUser_FromContext(t *testing.T) {
 	// setup types
 	uID := int64(1)
-	want := &library.User{ID: &uID}
+	want := &api.User{ID: &uID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -72,7 +70,7 @@ func TestUser_FromContext_Empty(t *testing.T) {
 func TestUser_ToContext(t *testing.T) {
 	// setup types
 	uID := int64(1)
-	want := &library.User{ID: &uID}
+	want := &api.User{ID: &uID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

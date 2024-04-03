@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
 )
 
@@ -207,17 +208,33 @@ func CreateSecret(c *gin.Context) {
 		input.SetImages(util.Unique(input.GetImages()))
 	}
 
-	if len(input.GetEvents()) > 0 {
-		input.SetEvents(util.Unique(input.GetEvents()))
-	}
+	// default event set for secrets
+	if input.GetAllowEvents().ToDatabase() == 0 {
+		e := new(library.Events)
 
-	if len(input.GetEvents()) == 0 {
-		// set default events to enable for the secret
-		input.SetEvents([]string{constants.EventPush, constants.EventTag, constants.EventDeploy})
+		push := new(actions.Push)
+		push.SetBranch(true)
+		push.SetTag(true)
+
+		deploy := new(actions.Deploy)
+		deploy.SetCreated(true)
+
+		e.SetPush(push)
+		e.SetDeployment(deploy)
+
+		input.SetAllowEvents(e)
 	}
 
 	if input.AllowCommand == nil {
 		input.SetAllowCommand(true)
+	}
+
+	// default to not allow substitution for shared secrets
+	if strings.EqualFold(input.GetType(), constants.SecretShared) && input.AllowSubstitution == nil {
+		input.SetAllowSubstitution(false)
+		input.SetAllowCommand(false)
+	} else if input.AllowSubstitution == nil {
+		input.SetAllowSubstitution(true)
 	}
 
 	// check if secret is a shared secret

@@ -51,7 +51,13 @@ func TestVault_Get_Org(t *testing.T) {
 	want.SetValue("baz")
 	want.SetType("org")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(true)
+	want.SetAllowSubstitution(true)
+	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetCreatedAt(1563474077)
+	want.SetCreatedBy("octocat")
+	want.SetUpdatedAt(1563474079)
+	want.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -135,7 +141,13 @@ func TestVault_Get_Repo(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("repo")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(true)
+	want.SetAllowSubstitution(true)
+	want.SetAllowEvents(library.NewEventsFromMask(3))
+	want.SetCreatedAt(1563474077)
+	want.SetCreatedBy("octocat")
+	want.SetUpdatedAt(1563474079)
+	want.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string
@@ -219,7 +231,13 @@ func TestVault_Get_Shared(t *testing.T) {
 	want.SetValue("foob")
 	want.SetType("shared")
 	want.SetImages([]string{"foo", "bar"})
-	want.SetEvents([]string{"foo", "bar"})
+	want.SetAllowCommand(false)
+	want.SetAllowSubstitution(false)
+	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetCreatedAt(1563474077)
+	want.SetCreatedBy("octocat")
+	want.SetUpdatedAt(1563474079)
+	want.SetUpdatedBy("octocat2")
 
 	type args struct {
 		version string

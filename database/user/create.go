@@ -7,14 +7,14 @@ import (
 	"context"
 	"fmt"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // CreateUser creates a new user in the database.
-func (e *engine) CreateUser(ctx context.Context, u *library.User) (*library.User, error) {
+func (e *engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("creating user %s in the database", u.GetName())

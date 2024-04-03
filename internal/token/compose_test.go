@@ -11,14 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
 func TestToken_Compose(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")

@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -63,6 +64,7 @@ type (
 		build.BuildInterface
 		dashboard.DashboardInterface
 		executable.BuildExecutableInterface
+		deployment.DeploymentInterface
 		hook.HookInterface
 		log.LogInterface
 		pipeline.PipelineInterface

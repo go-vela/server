@@ -13,9 +13,7 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
-	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -80,7 +78,6 @@ func ListDeployments(c *gin.Context) {
 	o := org.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
@@ -115,7 +112,7 @@ func ListDeployments(c *gin.Context) {
 	perPage = util.MaxInt(1, util.MinInt(100, perPage))
 
 	// send API call to capture the total number of deployments for the repo
-	t, err := scm.FromContext(c).GetDeploymentCount(ctx, u, r)
+	t, err := database.FromContext(c).CountDeploymentsForRepo(c, r)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployment count for %s: %w", r.GetFullName(), err)
 
@@ -125,35 +122,13 @@ func ListDeployments(c *gin.Context) {
 	}
 
 	// send API call to capture the list of deployments for the repo
-	d, err := scm.FromContext(c).GetDeploymentList(ctx, u, r, page, perPage)
+	d, err := database.FromContext(c).ListDeploymentsForRepo(c, r, page, perPage)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get deployments for %s: %w", r.GetFullName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
-	}
-
-	dWithBs := []*library.Deployment{}
-
-	for _, deployment := range d {
-		b, _, err := database.FromContext(c).ListBuildsForDeployment(ctx, deployment, nil, 1, 3)
-		if err != nil {
-			retErr := fmt.Errorf("unable to get builds for deployment %d: %w", deployment.GetID(), err)
-
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return
-		}
-
-		builds := []library.Build{}
-		for _, build := range b {
-			builds = append(builds, *build)
-		}
-
-		deployment.SetBuilds(builds)
-
-		dWithBs = append(dWithBs, deployment)
 	}
 
 	// create pagination object
@@ -165,5 +140,5 @@ func ListDeployments(c *gin.Context) {
 	// set pagination headers
 	pagination.SetHeaderLink(c)
 
-	c.JSON(http.StatusOK, dWithBs)
+	c.JSON(http.StatusOK, d)
 }

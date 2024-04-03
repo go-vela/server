@@ -5,7 +5,7 @@ package dashboard
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 // DashboardInterface represents the Vela interface for repo
@@ -25,11 +25,11 @@ type DashboardInterface interface {
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CreateDashboard defines a function that creates a dashboard.
-	CreateDashboard(context.Context, *library.Dashboard) (*library.Dashboard, error)
+	CreateDashboard(context.Context, *api.Dashboard) (*api.Dashboard, error)
 	// DeleteDashboard defines a function that deletes a dashboard.
-	DeleteDashboard(context.Context, *library.Dashboard) error
+	DeleteDashboard(context.Context, *api.Dashboard) error
 	// GetDashboard defines a function that gets a dashboard by ID.
-	GetDashboard(context.Context, string) (*library.Dashboard, error)
+	GetDashboard(context.Context, string) (*api.Dashboard, error)
 	// UpdateDashboard defines a function that updates a dashboard.
-	UpdateDashboard(context.Context, *library.Dashboard) (*library.Dashboard, error)
+	UpdateDashboard(context.Context, *api.Dashboard) (*api.Dashboard, error)
 }

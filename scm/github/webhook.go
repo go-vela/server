@@ -18,7 +18,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v59/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -98,7 +98,7 @@ func (c *client) VerifyWebhook(ctx context.Context, request *http.Request, r *li
 }
 
 // RedeliverWebhook redelivers webhooks from GitHub.
-func (c *client) RedeliverWebhook(ctx context.Context, u *library.User, r *library.Repo, h *library.Hook) error {
+func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *library.Repo, h *library.Hook) error {
 	// create GitHub OAuth client with user's token
 	//nolint:contextcheck // do not need to pass context in this instance
 	client := c.newClientToken(*u.Token)
@@ -196,6 +196,34 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 		}
 	}
 
+	// handle when push event is a delete
+	if strings.EqualFold(b.GetCommit(), "") {
+		b.SetCommit(payload.GetBefore())
+		b.SetRef(payload.GetBefore())
+		b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDelete, repo.GetHTMLURL()))
+		b.SetAuthor(payload.GetSender().GetLogin())
+		b.SetSource(fmt.Sprintf("%s/commit/%s", payload.GetRepo().GetHTMLURL(), payload.GetBefore()))
+		b.SetEmail(payload.GetPusher().GetEmail())
+
+		// set the proper event for the hook
+		h.SetEvent(constants.EventDelete)
+		// set the proper event for the build
+		b.SetEvent(constants.EventDelete)
+
+		if strings.HasPrefix(payload.GetRef(), "refs/tags/") {
+			b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/tags/"))
+			// set the proper action for the build
+			b.SetEventAction(constants.ActionTag)
+			// set the proper message for the build
+			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/tags/"), constants.ActionTag))
+		} else {
+			// set the proper action for the build
+			b.SetEventAction(constants.ActionBranch)
+			// set the proper message for the build
+			b.SetMessage(fmt.Sprintf("%s %s deleted", strings.TrimPrefix(payload.GetRef(), "refs/heads/"), constants.ActionBranch))
+		}
+	}
+
 	return &types.Webhook{
 		Hook:  h,
 		Repo:  r,
@@ -281,10 +309,14 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
+	// determine if pull request head is a fork and does not match the repo name of base
+	fromFork := payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
+		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName())
+
 	return &types.Webhook{
 		PullRequest: types.PullRequest{
 			Number:     payload.GetNumber(),
-			IsFromFork: payload.GetPullRequest().GetHead().GetRepo().GetFork(),
+			IsFromFork: fromFork,
 		},
 		Hook:  h,
 		Repo:  r,
@@ -318,6 +350,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetEvent(constants.EventDeploy)
 	b.SetClone(repo.GetCloneURL())
 	b.SetDeploy(payload.GetDeployment().GetEnvironment())
+	b.SetDeployNumber(payload.GetDeployment().GetID())
 	b.SetSource(payload.GetDeployment().GetURL())
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventDeploy, repo.GetHTMLURL()))
 	b.SetMessage(payload.GetDeployment().GetDescription())
@@ -327,6 +360,18 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
 	b.SetBranch(payload.GetDeployment().GetRef())
 	b.SetRef(payload.GetDeployment().GetRef())
+
+	d := new(library.Deployment)
+
+	d.SetNumber(payload.GetDeployment().GetID())
+	d.SetURL(payload.GetDeployment().GetURL())
+	d.SetCommit(payload.GetDeployment().GetSHA())
+	d.SetRef(b.GetRef())
+	d.SetTask(payload.GetDeployment().GetTask())
+	d.SetTarget(payload.GetDeployment().GetEnvironment())
+	d.SetDescription(payload.GetDeployment().GetDescription())
+	d.SetCreatedAt(time.Now().Unix())
+	d.SetCreatedBy(payload.GetDeployment().GetCreator().GetLogin())
 
 	// check if payload is provided within request
 	//
@@ -372,9 +417,10 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	)
 
 	return &types.Webhook{
-		Hook:  h,
-		Repo:  r,
-		Build: b,
+		Hook:       h,
+		Repo:       r,
+		Build:      b,
+		Deployment: d,
 	}, nil
 }
 
@@ -391,8 +437,8 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
 
-	// skip if the comment action is deleted
-	if strings.EqualFold(payload.GetAction(), "deleted") {
+	// skip if the comment action is deleted or not part of a pull request
+	if strings.EqualFold(payload.GetAction(), "deleted") || !payload.GetIssue().IsPullRequest() {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
 			Hook: h,
@@ -424,22 +470,12 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
-	// treat as non-pull-request comment by default and
-	// set ref to default branch for the repo
-	b.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
-
-	pr := 0
-	// override ref and pull request number if this is
-	// a comment on a pull request
-	if payload.GetIssue().IsPullRequest() {
-		b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
-		pr = payload.GetIssue().GetNumber()
-	}
+	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
 	return &types.Webhook{
 		PullRequest: types.PullRequest{
 			Comment: payload.GetComment().GetBody(),
-			Number:  pr,
+			Number:  payload.GetIssue().GetNumber(),
 		},
 		Hook:  h,
 		Repo:  r,

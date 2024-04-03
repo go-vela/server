@@ -4,8 +4,6 @@ package user
 
 import (
 	"context"
-
-	"github.com/go-vela/types/library"
 )
 
 const key = "user"
@@ -16,13 +14,13 @@ type Setter interface {
 }
 
 // FromContext returns the User associated with this context.
-func FromContext(c context.Context) *library.User {
+func FromContext(c context.Context) *api.User {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	u, ok := value.(*library.User)
+	u, ok := value.(*api.User)
 	if !ok {
 		return nil
 	}
@@ -32,6 +30,6 @@ func FromContext(c context.Context) *library.User {
 
 // ToContext adds the User to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, u *library.User) {
+func ToContext(c Setter, u *api.User) {
 	c.Set(key, u)
 }

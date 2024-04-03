@@ -120,6 +120,14 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			return s, err
 		}
 
+		// initialize variable map if not parsed from config
+		if len(step.Template.Variables) == 0 {
+			step.Template.Variables = make(map[string]interface{})
+		}
+
+		// inject template name into variables
+		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
+
 		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err
@@ -274,6 +282,11 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"host": src.Host,
 			}).Tracef("Using authenticated GitHub client to pull template")
 
+			// verify private GitHub is actually set up
+			if c.PrivateGithub == nil {
+				return nil, fmt.Errorf("unable to fetch template %s: missing credentials", src.Name)
+			}
+
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)
 			if err != nil {
@@ -306,6 +319,10 @@ func (c *client) getTemplate(tmpl *yaml.Template, name string) ([]byte, error) {
 				"repo": src.Repo,
 				"path": src.Name,
 			}).Tracef("Using authenticated GitHub client to pull template")
+
+			if c.PrivateGithub == nil {
+				return nil, fmt.Errorf("unable to fetch template %s: missing credentials", src.Name)
+			}
 
 			// use private (authenticated) github instance to pull from
 			bytes, err = c.PrivateGithub.Template(c.user, src)

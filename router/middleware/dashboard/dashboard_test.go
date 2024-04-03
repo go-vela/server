@@ -10,13 +10,13 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestDashboard_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Dashboard)
+	want := new(api.Dashboard)
 	want.SetID("c8da1302-07d6-11ea-882f-4893bca275b8")
 
 	// setup context
@@ -34,7 +34,7 @@ func TestDashboard_Retrieve(t *testing.T) {
 
 func TestDashboard_Establish(t *testing.T) {
 	// setup types
-	want := new(library.Dashboard)
+	want := new(api.Dashboard)
 	want.SetID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	want.SetName("vela")
 	want.SetCreatedAt(1)
@@ -43,15 +43,15 @@ func TestDashboard_Establish(t *testing.T) {
 	want.SetUpdatedBy("octokitty")
 	want.SetAdmins([]string{"octocat", "octokitty"})
 
-	wantRepo := new(library.DashboardRepo)
+	wantRepo := new(api.DashboardRepo)
 	wantRepo.SetID(1)
 	wantRepo.SetName("go-vela/server")
 	wantRepo.SetBranches([]string{"main"})
 	wantRepo.SetEvents([]string{"push"})
 
-	want.SetRepos([]*library.DashboardRepo{wantRepo})
+	want.SetRepos([]*api.DashboardRepo{wantRepo})
 
-	got := new(library.Dashboard)
+	got := new(api.Dashboard)
 
 	// setup database
 	db, err := database.NewTest()

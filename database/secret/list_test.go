@@ -24,6 +24,7 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
+	_secretOne.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -36,6 +37,7 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
+	_secretTwo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -48,9 +50,9 @@ func TestSecret_Engine_ListSecrets(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, nil, false, 1, "user", 1, "user2").
-		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, nil, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(1, "repo", "foo", "bar", "", "baz", "foob", nil, 1, false, false, 1, "user", 1, "user2").
+		AddRow(2, "repo", "foo", "bar", "", "foob", "baz", nil, 1, false, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "secrets"`).WillReturnRows(_rows)

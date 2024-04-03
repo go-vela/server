@@ -11,8 +11,7 @@ import (
 	"strings"
 
 	"github.com/go-vela/server/random"
-	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v59/github"
 )
 
 // Authorize uses the given access token to authorize the user.
@@ -55,7 +54,7 @@ func (c *client) Login(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 // Authenticate completes the authentication workflow for the session
 // and returns the remote user details.
-func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request, oAuthState string) (*library.User, error) {
+func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request, oAuthState string) (*api.User, error) {
 	c.Logger.Trace("authenticating user")
 
 	// get the OAuth code
@@ -88,7 +87,7 @@ func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *htt
 		return nil, err
 	}
 
-	return &library.User{
+	return &api.User{
 		Name:  &u,
 		Token: &token.AccessToken,
 	}, nil
@@ -96,7 +95,7 @@ func (c *client) Authenticate(ctx context.Context, w http.ResponseWriter, r *htt
 
 // AuthenticateToken completes the authentication workflow
 // for the session and returns the remote user details.
-func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*library.User, error) {
+func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*api.User, error) {
 	c.Logger.Trace("authenticating user via token")
 
 	token := r.Header.Get("Token")
@@ -119,7 +118,7 @@ func (c *client) AuthenticateToken(ctx context.Context, r *http.Request) (*libra
 		return nil, err
 	}
 
-	return &library.User{
+	return &api.User{
 		Name:  &u,
 		Token: &token,
 	}, nil

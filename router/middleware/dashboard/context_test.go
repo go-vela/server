@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestDashboard_FromContext(t *testing.T) {
 	// setup types
 	uuid := "c8da1302-07d6-11ea-882f-4893bca275b8"
-	want := &library.Dashboard{ID: &uuid}
+	want := &api.Dashboard{ID: &uuid}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -71,7 +71,7 @@ func TestDashboard_FromContext_Empty(t *testing.T) {
 func TestDashboard_ToContext(t *testing.T) {
 	// setup types
 	uuid := "c8da1302-07d6-11ea-882f-4893bca275b8"
-	want := &library.Dashboard{ID: &uuid}
+	want := &api.Dashboard{ID: &uuid}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

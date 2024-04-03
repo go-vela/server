@@ -28,9 +28,31 @@ const (
   "images": [
     "alpine"
   ],
-  "events": [
-    "push"
-  ]
+  "allow_events": {
+	  "push": {
+		  "branch": true,
+		  "tag": true
+	  },
+	  "pull_request": {
+		  "opened": true,
+		  "synchronize": true,
+		  "reopened": true,
+		  "edited": false
+	  },
+	  "deployment": {
+		  "created": true
+	  },
+	  "comment": {
+		  "created": false,
+		  "edited": false
+	  }
+  },
+  "allow_command": true,
+  "allow_substitution": true,
+  "created_at": 1,
+  "created_by": "Octocat",
+  "updated_at": 2,
+  "updated_by": "OctoKitty"
 }`
 
 	// SecretsResp represents a JSON return for one to many secrets.
@@ -45,9 +67,6 @@ const (
     "type": "repo",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -60,9 +79,6 @@ const (
     "type": "org",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   },
   {
@@ -75,9 +91,6 @@ const (
     "type": "shared",
     "images": [
       "alpine"
-    ],
-    "events": [
-      "push"
     ]
   }
 ]`

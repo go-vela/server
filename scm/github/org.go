@@ -7,12 +7,10 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/go-vela/types/library"
 )
 
 // GetOrgName gets org name from Github.
-func (c *client) GetOrgName(ctx context.Context, u *library.User, o string) (string, error) {
+func (c *client) GetOrgName(ctx context.Context, u *api.User, o string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"user": u.GetName(),

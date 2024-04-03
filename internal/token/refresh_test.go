@@ -12,13 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestTokenManager_Refresh(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
@@ -79,7 +78,7 @@ func TestTokenManager_Refresh(t *testing.T) {
 
 func TestTokenManager_Refresh_Expired(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")

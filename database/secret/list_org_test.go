@@ -25,6 +25,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretOne.SetCreatedBy("user")
 	_secretOne.SetUpdatedAt(1)
 	_secretOne.SetUpdatedBy("user2")
+	_secretOne.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_secretTwo := testSecret()
 	_secretTwo.SetID(2)
@@ -37,6 +38,7 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 	_secretTwo.SetCreatedBy("user")
 	_secretTwo.SetUpdatedAt(1)
 	_secretTwo.SetUpdatedBy("user2")
+	_secretTwo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -50,13 +52,13 @@ func TestSecret_Engine_ListSecretsForOrg(t *testing.T) {
 
 	// create expected name query result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "events", "allow_command", "created_at", "created_by", "updated_at", "updated_by"}).
-		AddRow(2, "org", "foo", "*", "", "bar", "baz", nil, nil, false, 1, "user", 1, "user2").
-		AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, nil, false, 1, "user", 1, "user2")
+		[]string{"id", "type", "org", "repo", "team", "name", "value", "images", "allow_events", "allow_command", "allow_substitution", "created_at", "created_by", "updated_at", "updated_by"}).
+		AddRow(2, "org", "foo", "*", "", "bar", "baz", nil, 1, false, false, 1, "user", 1, "user2").
+		AddRow(1, "org", "foo", "*", "", "baz", "bar", nil, 1, false, false, 1, "user", 1, "user2")
 
 	// ensure the mock expects the name query
-	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT 10`).
-		WithArgs(constants.SecretOrg, "foo").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "secrets" WHERE type = $1 AND org = $2 ORDER BY id DESC LIMIT $3`).
+		WithArgs(constants.SecretOrg, "foo", 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

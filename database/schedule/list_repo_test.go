@@ -55,7 +55,7 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 		AddRow(1, 1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, "main")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE repo_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE repo_id = $1 ORDER BY id DESC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

@@ -3,6 +3,7 @@
 package step
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -32,8 +33,11 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 	_stepTwo.SetNumber(2)
 	_stepTwo.SetName("foo")
 	_stepTwo.SetImage("bar")
+	_stepTwo.SetReportAs("test")
 
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
@@ -44,22 +48,22 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"}).
-		AddRow(2, 1, 1, 2, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "").
-		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution", "report_as"}).
+		AddRow(2, 1, 1, 2, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "", "test").
+		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 ORDER BY id DESC LIMIT 10`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 ORDER BY id DESC LIMIT $2`).WithArgs(1, 10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	_, err := _sqlite.CreateStep(_stepOne)
+	_, err := _sqlite.CreateStep(ctx, _stepOne)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
 
-	_, err = _sqlite.CreateStep(_stepTwo)
+	_, err = _sqlite.CreateStep(ctx, _stepTwo)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -90,7 +94,7 @@ func TestStep_Engine_ListStepsForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, _, err := test.database.ListStepsForBuild(_build, filters, 1, 10)
+			got, _, err := test.database.ListStepsForBuild(ctx, _build, filters, 1, 10)
 
 			if test.failure {
 				if err == nil {

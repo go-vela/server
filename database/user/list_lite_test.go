@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 )
 
 func TestUser_Engine_ListLiteUsers(t *testing.T) {
@@ -45,7 +44,7 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 		AddRow(2, "baz")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT "id","name" FROM "users" LIMIT 10`).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT "id","name" FROM "users" LIMIT $1`).WithArgs(10).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -78,19 +77,19 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.User
+		want     []*api.User
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.User{_userOne, _userTwo},
+			want:     []*api.User{_userOne, _userTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.User{_userTwo, _userOne},
+			want:     []*api.User{_userTwo, _userOne},
 		},
 	}
 

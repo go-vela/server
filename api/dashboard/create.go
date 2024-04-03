@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -66,7 +66,7 @@ func CreateDashboard(c *gin.Context) {
 	u := user.Retrieve(c)
 
 	// capture body from API request
-	input := new(library.Dashboard)
+	input := new(types.Dashboard)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -91,7 +91,7 @@ func CreateDashboard(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("creating new dashboard %s", input.GetName())
 
-	d := new(library.Dashboard)
+	d := new(types.Dashboard)
 
 	// update fields in dashboard object
 	d.SetCreatedBy(u.GetName())
@@ -147,7 +147,7 @@ func CreateDashboard(c *gin.Context) {
 
 // validateAdminSet takes a slice of user names and converts it into a slice of matching
 // user ids in order to preserve data integrity in case of name change.
-func validateAdminSet(c context.Context, caller *library.User, users []string) ([]string, error) {
+func validateAdminSet(c context.Context, caller *types.User, users []string) ([]string, error) {
 	// add user creating the dashboard to admin list
 	admins := []string{fmt.Sprintf("%d", caller.GetID())}
 
@@ -170,7 +170,7 @@ func validateAdminSet(c context.Context, caller *library.User, users []string) (
 
 // validateRepoSet is a helper function that confirms all dashboard repos exist and are enabled
 // in the database while also confirming the IDs match when saving.
-func validateRepoSet(c context.Context, repos []*library.DashboardRepo) error {
+func validateRepoSet(c context.Context, repos []*types.DashboardRepo) error {
 	for _, repo := range repos {
 		// verify format (org/repo)
 		parts := strings.Split(repo.GetName(), "/")

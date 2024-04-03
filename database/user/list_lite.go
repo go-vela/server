@@ -7,19 +7,18 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListLiteUsers gets a lite (only: id, name) list of users from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*library.User, int64, error) {
+func (e *engine) ListLiteUsers(ctx context.Context, page, perPage int) ([]*api.User, int64, error) {
 	e.logger.Trace("listing lite users from the database")
 
 	// variables to store query results and return values
 	count := int64(0)
 	u := new([]database.User)
-	users := []*library.User{}
+	users := []*api.User{}
 
 	// count the results
 	count, err := e.CountUsers(ctx)

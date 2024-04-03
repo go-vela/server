@@ -313,7 +313,7 @@ func TestNative_WithUser(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
-	u := &library.User{ID: &id}
+	u := &api.User{ID: &id}
 
 	want, _ := New(c)
 	want.user = u

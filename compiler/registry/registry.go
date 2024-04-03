@@ -2,8 +2,6 @@
 
 package registry
 
-import "github.com/go-vela/types/library"
-
 // Service represents the interface for Vela integrating
 // with the different supported template registries.
 type Service interface {
@@ -13,5 +11,5 @@ type Service interface {
 
 	// Template defines a function that captures the
 	// templated pipeline configuration from a repo.
-	Template(*library.User, *Source) ([]byte, error)
+	Template(*api.User, *Source) ([]byte, error)
 }

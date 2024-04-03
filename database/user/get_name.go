@@ -7,12 +7,11 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // GetUserForName gets a user by name from the database.
-func (e *engine) GetUserForName(ctx context.Context, name string) (*library.User, error) {
+func (e *engine) GetUserForName(ctx context.Context, name string) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": name,
 	}).Tracef("getting user %s from the database", name)

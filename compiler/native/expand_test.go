@@ -98,7 +98,7 @@ func TestNative_ExpandStages(t *testing.T) {
 					Pull:  "always",
 				},
 				&yaml.Step{
-					Commands: []string{"./gradlew build"},
+					Commands: []string{"./gradlew build", "echo gradle"},
 					Environment: raw.StringSliceMap{
 						"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 						"GRADLE_USER_HOME": ".gradle",
@@ -143,13 +143,43 @@ func TestNative_ExpandStages(t *testing.T) {
 		"bar":  "test4",
 	}
 
-	// run test
+	// run test -- missing private github
 	compiler, err := New(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
 
-	build, err := compiler.ExpandStages(&yaml.Build{Stages: stages, Services: yaml.ServiceSlice{}, Environment: raw.StringSliceMap{}}, tmpls, new(pipeline.RuleData))
+	compiler.PrivateGithub = nil
+	_, err = compiler.ExpandStages(
+		&yaml.Build{
+			Stages:      stages,
+			Services:    yaml.ServiceSlice{},
+			Environment: raw.StringSliceMap{},
+		},
+		tmpls,
+		new(pipeline.RuleData),
+	)
+
+	if err == nil {
+		t.Errorf("ExpandStages should have returned error with empty PrivateGitHub")
+	}
+
+	// run test
+	compiler, err = New(c)
+	if err != nil {
+		t.Errorf("Creating new compiler returned err: %v", err)
+	}
+
+	build, err := compiler.ExpandStages(
+		&yaml.Build{
+			Stages:      stages,
+			Services:    yaml.ServiceSlice{},
+			Environment: raw.StringSliceMap{},
+		},
+		tmpls,
+		new(pipeline.RuleData),
+	)
+
 	if err != nil {
 		t.Errorf("ExpandStages returned err: %v", err)
 	}
@@ -271,7 +301,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 			Pull:  "always",
 		},
 		&yaml.Step{
-			Commands: []string{"./gradlew build"},
+			Commands: []string{"./gradlew build", "echo gradle"},
 			Environment: raw.StringSliceMap{
 				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 				"GRADLE_USER_HOME": ".gradle",
@@ -793,7 +823,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 			Pull:  "always",
 		},
 		&yaml.Step{
-			Commands: []string{"./gradlew build"},
+			Commands: []string{"./gradlew build", "echo test"},
 			Environment: raw.StringSliceMap{
 				"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
 				"GRADLE_USER_HOME": ".gradle",

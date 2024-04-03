@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -172,8 +171,8 @@ func testSqlite(t *testing.T) *engine {
 
 // testUser is a test helper function to create a library
 // User type with all fields set to their zero values.
-func testUser() *library.User {
-	return &library.User{
+func testUser() *api.User {
+	return &api.User{
 		ID:           new(int64),
 		Name:         new(string),
 		RefreshToken: new(string),

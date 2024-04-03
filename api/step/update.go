@@ -13,7 +13,9 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/step"
 	"github.com/go-vela/server/router/middleware/user"
+	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
@@ -77,6 +79,7 @@ func UpdateStep(c *gin.Context) {
 	r := repo.Retrieve(c)
 	s := step.Retrieve(c)
 	u := user.Retrieve(c)
+	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
@@ -145,7 +148,7 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	// send API call to update the step
-	s, err = database.FromContext(c).UpdateStep(s)
+	s, err = database.FromContext(c).UpdateStep(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update step %s: %w", entry, err)
 
@@ -155,4 +158,26 @@ func UpdateStep(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, s)
+
+	// check if the build is in a "final" state
+	// and if build is not a scheduled event
+	if (s.GetStatus() == constants.StatusSuccess ||
+		s.GetStatus() == constants.StatusFailure ||
+		s.GetStatus() == constants.StatusCanceled ||
+		s.GetStatus() == constants.StatusKilled ||
+		s.GetStatus() == constants.StatusError) &&
+		(b.GetEvent() != constants.EventSchedule) &&
+		(len(s.GetReportAs()) > 0) {
+		// send API call to capture the repo owner
+		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
+		if err != nil {
+			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
+		}
+
+		// send API call to set the status on the commit
+		err = scm.FromContext(c).StepStatus(ctx, u, b, s, r.GetOrg(), r.GetName())
+		if err != nil {
+			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
+		}
+	}
 }

@@ -234,7 +234,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")

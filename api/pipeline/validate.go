@@ -5,7 +5,6 @@ package pipeline
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
@@ -94,16 +93,8 @@ func ValidatePipeline(c *gin.Context) {
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
-	// capture optional template query parameter
-	template, err := strconv.ParseBool(c.DefaultQuery("template", "true"))
-	if err != nil {
-		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to parse template query parameter for %s: %w", entry, err))
-
-		return
-	}
-
 	// validate the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), template, false)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline %s: %w", entry, err)
 

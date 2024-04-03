@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
+	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
 	"github.com/go-vela/server/database/log"
@@ -35,6 +36,19 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
+	// create the database agnostic engine for build_executables
+	e.BuildExecutableInterface, err = executable.New(
+		executable.WithContext(e.ctx),
+		executable.WithClient(e.client),
+		executable.WithLogger(e.logger),
+		executable.WithSkipCreation(e.config.SkipCreation),
+		executable.WithEncryptionKey(e.config.EncryptionKey),
+		executable.WithDriver(e.config.Driver),
+	)
+	if err != nil {
+		return err
+	}
+
 	e.DashboardInterface, err = dashboard.New(
 		dashboard.WithContext(e.ctx),
 		dashboard.WithClient(e.client),
@@ -45,14 +59,12 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
-	// create the database agnostic engine for build_executables
-	e.BuildExecutableInterface, err = executable.New(
-		executable.WithContext(e.ctx),
-		executable.WithClient(e.client),
-		executable.WithLogger(e.logger),
-		executable.WithSkipCreation(e.config.SkipCreation),
-		executable.WithEncryptionKey(e.config.EncryptionKey),
-		executable.WithDriver(e.config.Driver),
+	// create the database agnostic engine for deployments
+	e.DeploymentInterface, err = deployment.New(
+		deployment.WithContext(e.ctx),
+		deployment.WithClient(e.client),
+		deployment.WithLogger(e.logger),
+		deployment.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err
@@ -142,6 +154,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 
 	// create the database agnostic engine for steps
 	e.StepInterface, err = step.New(
+		step.WithContext(e.ctx),
 		step.WithClient(e.client),
 		step.WithLogger(e.logger),
 		step.WithSkipCreation(e.config.SkipCreation),

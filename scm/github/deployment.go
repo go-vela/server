@@ -10,11 +10,11 @@ import (
 
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v59/github"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-func (c *client) GetDeployment(ctx context.Context, u *library.User, r *library.Repo, id int64) (*library.Deployment, error) {
+func (c *client) GetDeployment(ctx context.Context, u *api.User, r *library.Repo, id int64) (*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -37,22 +37,25 @@ func (c *client) GetDeployment(ctx context.Context, u *library.User, r *library.
 		c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 	}
 
+	createdAt := deployment.CreatedAt.Unix()
+
 	return &library.Deployment{
 		ID:          deployment.ID,
 		RepoID:      r.ID,
 		URL:         deployment.URL,
-		User:        deployment.Creator.Login,
 		Commit:      deployment.SHA,
 		Ref:         deployment.Ref,
 		Task:        deployment.Task,
 		Target:      deployment.Environment,
 		Description: deployment.Description,
 		Payload:     payload,
+		CreatedAt:   &createdAt,
+		CreatedBy:   deployment.Creator.Login,
 	}, nil
 }
 
 // GetDeploymentCount counts a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentCount(ctx context.Context, u *library.User, r *library.Repo) (int64, error) {
+func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *library.Repo) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -94,7 +97,7 @@ func (c *client) GetDeploymentCount(ctx context.Context, u *library.User, r *lib
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
+func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *library.Repo, page, perPage int) ([]*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -129,18 +132,22 @@ func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *libr
 		if err != nil {
 			c.Logger.Tracef("Unable to unmarshal payload for deployment id %v", deployment.ID)
 		}
+
+		createdAt := deployment.CreatedAt.Unix()
+
 		// convert query result to library type
 		deployments = append(deployments, &library.Deployment{
 			ID:          deployment.ID,
 			RepoID:      r.ID,
 			URL:         deployment.URL,
-			User:        deployment.Creator.Login,
 			Commit:      deployment.SHA,
 			Ref:         deployment.Ref,
 			Task:        deployment.Task,
 			Target:      deployment.Environment,
 			Description: deployment.Description,
 			Payload:     payload,
+			CreatedAt:   &createdAt,
+			CreatedBy:   deployment.Creator.Login,
 		})
 	}
 
@@ -148,7 +155,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *libr
 }
 
 // CreateDeployment creates a new deployment for the GitHub repo.
-func (c *client) CreateDeployment(ctx context.Context, u *library.User, r *library.Repo, d *library.Deployment) error {
+func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *library.Repo, d *library.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -182,10 +189,9 @@ func (c *client) CreateDeployment(ctx context.Context, u *library.User, r *libra
 		return err
 	}
 
-	d.SetID(deploy.GetID())
+	d.SetNumber(deploy.GetID())
 	d.SetRepoID(r.GetID())
 	d.SetURL(deploy.GetURL())
-	d.SetUser(deploy.GetCreator().GetLogin())
 	d.SetCommit(deploy.GetSHA())
 	d.SetRef(deploy.GetRef())
 	d.SetTask(deploy.GetTask())

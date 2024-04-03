@@ -41,7 +41,7 @@ type client struct {
 	localTemplates []string
 	metadata       *types.Metadata
 	repo           *library.Repo
-	user           *library.User
+	user           *api.User
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -203,7 +203,7 @@ func (c *client) WithRepo(r *library.Repo) compiler.Engine {
 }
 
 // WithUser sets the library user type in the Engine.
-func (c *client) WithUser(u *library.User) compiler.Engine {
+func (c *client) WithUser(u *api.User) compiler.Engine {
 	if u != nil {
 		c.user = u
 	}

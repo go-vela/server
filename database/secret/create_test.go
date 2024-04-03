@@ -24,6 +24,7 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretRepo.SetCreatedBy("user")
 	_secretRepo.SetUpdatedAt(1)
 	_secretRepo.SetUpdatedBy("user2")
+	_secretRepo.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_secretOrg := testSecret()
 	_secretOrg.SetID(2)
@@ -36,6 +37,7 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretOrg.SetCreatedBy("user")
 	_secretOrg.SetUpdatedAt(1)
 	_secretOrg.SetUpdatedBy("user2")
+	_secretOrg.SetAllowEvents(library.NewEventsFromMask(3))
 
 	_secretShared := testSecret()
 	_secretShared.SetID(3)
@@ -48,6 +50,7 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 	_secretShared.SetCreatedBy("user")
 	_secretShared.SetUpdatedAt(1)
 	_secretShared.SetUpdatedBy("user2")
+	_secretShared.SetAllowEvents(library.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -57,23 +60,23 @@ func TestSecret_Engine_CreateSecret(t *testing.T) {
 
 	// ensure the mock expects the repo secrets query
 	_mock.ExpectQuery(`INSERT INTO "secrets"
-("org","repo","team","name","value","type","images","events","allow_command","created_at","created_by","updated_at","updated_by","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
-		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", nil, nil, false, 1, "user", 1, "user2", 1).
+("org","repo","team","name","value","type","images","allow_events","allow_command","allow_substitution","created_at","created_by","updated_at","updated_by","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
+		WithArgs("foo", "bar", nil, "baz", AnyArgument{}, "repo", nil, 1, false, false, 1, "user", 1, "user2", 1).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the org secrets query
 	_mock.ExpectQuery(`INSERT INTO "secrets"
-("org","repo","team","name","value","type","images","events","allow_command","created_at","created_by","updated_at","updated_by","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
-		WithArgs("foo", "*", nil, "bar", AnyArgument{}, "org", nil, nil, false, 1, "user", 1, "user2", 2).
+("org","repo","team","name","value","type","images","allow_events","allow_command","allow_substitution","created_at","created_by","updated_at","updated_by","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
+		WithArgs("foo", "*", nil, "bar", AnyArgument{}, "org", nil, 3, false, false, 1, "user", 1, "user2", 2).
 		WillReturnRows(_rows)
 
 	// ensure the mock expects the shared secrets query
 	_mock.ExpectQuery(`INSERT INTO "secrets"
-("org","repo","team","name","value","type","images","events","allow_command","created_at","created_by","updated_at","updated_by","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING "id"`).
-		WithArgs("foo", nil, "bar", "baz", AnyArgument{}, "shared", nil, nil, false, 1, "user", 1, "user2", 3).
+("org","repo","team","name","value","type","images","allow_events","allow_command","allow_substitution","created_at","created_by","updated_at","updated_by","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING "id"`).
+		WithArgs("foo", nil, "bar", "baz", AnyArgument{}, "shared", nil, 1, false, false, 1, "user", 1, "user2", 3).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)

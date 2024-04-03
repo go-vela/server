@@ -3,11 +3,12 @@
 package step
 
 import (
-	"reflect"
+	"context"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-vela/types/library"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestStep_Engine_GetStepForBuild(t *testing.T) {
@@ -26,20 +27,22 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 	_step.SetImage("bar")
 
 	_postgres, _mock := testPostgres(t)
+
+	ctx := context.TODO()
+
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution"}).
-		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "")
+		[]string{"id", "repo_id", "build_id", "number", "name", "image", "stage", "status", "error", "exit_code", "created", "started", "finished", "host", "runtime", "distribution", "report_as"}).
+		AddRow(1, 1, 1, 1, "foo", "bar", "", "", "", 0, 0, 0, 0, "", "", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 AND number = $2 LIMIT 1`).WithArgs(1, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "steps" WHERE build_id = $1 AND number = $2 LIMIT $3`).WithArgs(1, 1, 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
-
-	_, err := _sqlite.CreateStep(_step)
+	_, err := _sqlite.CreateStep(ctx, _step)
 	if err != nil {
 		t.Errorf("unable to create test step for sqlite: %v", err)
 	}
@@ -68,7 +71,7 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.GetStepForBuild(_build, 1)
+			got, err := test.database.GetStepForBuild(ctx, _build, 1)
 
 			if test.failure {
 				if err == nil {
@@ -82,8 +85,8 @@ func TestStep_Engine_GetStepForBuild(t *testing.T) {
 				t.Errorf("GetStepForBuild for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetStepForBuild for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("GetStepForBuild for %s is a mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

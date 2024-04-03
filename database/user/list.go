@@ -7,17 +7,16 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListUsers gets a list of all users from the database.
-func (e *engine) ListUsers(ctx context.Context) ([]*library.User, error) {
+func (e *engine) ListUsers(ctx context.Context) ([]*api.User, error) {
 	e.logger.Trace("listing all users from the database")
 
 	// variables to store query results and return value
 	count := int64(0)
 	u := new([]database.User)
-	users := []*library.User{}
+	users := []*api.User{}
 
 	// count the results
 	count, err := e.CountUsers(ctx)

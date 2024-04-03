@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
@@ -53,12 +54,12 @@ func TestMiddleware_Logger(t *testing.T) {
 	s.SetNumber(1)
 	s.SetName("foo")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	w := new(library.Worker)
+	w := new(api.Worker)
 	w.SetID(1)
 	w.SetHostname("worker_0")
 	w.SetAddress("localhost")
@@ -224,7 +225,6 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 }
 
 func TestMiddleware_Format(t *testing.T) {
-
 	wantLabels := "labels.vela"
 
 	// setup data, fields, and logger
@@ -265,5 +265,4 @@ func TestMiddleware_Format(t *testing.T) {
 	if !strings.Contains(string(got), "/foobar") {
 		t.Errorf("Format returned %v, want to contain /foobar", string(got))
 	}
-
 }

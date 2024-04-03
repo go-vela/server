@@ -7,15 +7,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
 // Retrieve gets the build in the given context.
-func Retrieve(c *gin.Context) *library.Dashboard {
+func Retrieve(c *gin.Context) *api.Dashboard {
 	return FromContext(c)
 }
 

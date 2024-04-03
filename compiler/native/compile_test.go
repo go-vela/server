@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v59/github"
 
 	"testing"
 	"time"
@@ -680,7 +680,7 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = "/root"
 	buildEnv["SHELL"] = "/bin/sh"
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build", "echo gradle"})
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
@@ -951,7 +951,7 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	buildEnv["GRADLE_USER_HOME"] = ".gradle"
 	buildEnv["HOME"] = "/root"
 	buildEnv["SHELL"] = "/bin/sh"
-	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build"})
+	buildEnv["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{"./gradlew build", "echo gradle"})
 	buildEnv["bar"] = "test4"
 	buildEnv["star"] = "test3"
 
@@ -3206,7 +3206,6 @@ func Test_CompileLite(t *testing.T) {
 	type args struct {
 		file         string
 		pipelineType string
-		template     bool
 		substitute   bool
 	}
 
@@ -3221,7 +3220,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/inline_with_stages.yml",
 				pipelineType: "",
-				template:     true,
 				substitute:   true,
 			},
 			want: &yaml.Build{
@@ -3230,7 +3228,26 @@ func Test_CompileLite(t *testing.T) {
 					RenderInline: true,
 					Environment:  []string{"steps", "services", "secrets"},
 				},
-				Templates: []*yaml.Template{},
+				Templates: []*yaml.Template{
+					{
+						Name:   "golang",
+						Source: "github.example.com/github/octocat/golang_inline_stages.yml",
+						Format: "golang",
+						Type:   "github",
+						Variables: map[string]any{
+							"image":              string("golang:latest"),
+							"VELA_TEMPLATE_NAME": string("golang"),
+						},
+					},
+					{
+						Name:      "starlark",
+						Source:    "github.example.com/github/octocat/starlark_inline_stages.star",
+						Format:    "starlark",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("starlark")},
+					},
+				},
+				Environment: raw.StringSliceMap{},
 				Stages: []*yaml.Stage{
 					{
 						Name:  "test",
@@ -3313,7 +3330,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/inline_with_steps.yml",
 				pipelineType: "",
-				template:     true,
 				substitute:   true,
 			},
 			want: &yaml.Build{
@@ -3360,7 +3376,23 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 					},
 				},
-				Templates: yaml.TemplateSlice{},
+				Environment: raw.StringSliceMap{},
+				Templates: yaml.TemplateSlice{
+					{
+						Name:      "golang",
+						Source:    "github.example.com/github/octocat/golang_inline_steps.yml",
+						Format:    "golang",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("golang")},
+					},
+					{
+						Name:      "starlark",
+						Source:    "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format:    "starlark",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("starlark")},
+					},
+				},
 			},
 			wantErr: false,
 		},
@@ -3369,7 +3401,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/golang_inline_stages.yml",
 				pipelineType: "golang",
-				template:     false,
 				substitute:   false,
 			},
 			want: &yaml.Build{
@@ -3423,7 +3454,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/step_inline_template.yml",
 				pipelineType: "",
-				template:     false,
 				substitute:   false,
 			},
 			want:    nil,
@@ -3434,7 +3464,6 @@ func Test_CompileLite(t *testing.T) {
 			args: args{
 				file:         "testdata/stage_inline_template.yml",
 				pipelineType: "",
-				template:     false,
 				substitute:   false,
 			},
 			want:    nil,
@@ -3459,7 +3488,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, _, err := compiler.CompileLite(yaml, tt.args.template, tt.args.substitute)
+			got, _, err := compiler.CompileLite(yaml, tt.args.substitute)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return

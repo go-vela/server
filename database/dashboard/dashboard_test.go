@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -168,8 +168,8 @@ func testSqlite(t *testing.T) *engine {
 
 // testDashboard is a test helper function to create a library
 // Dashboard type with all fields set to their zero values.
-func testDashboard() *library.Dashboard {
-	return &library.Dashboard{
+func testDashboard() *api.Dashboard {
+	return &api.Dashboard{
 		ID:        new(string),
 		Name:      new(string),
 		CreatedAt: new(int64),
@@ -180,8 +180,8 @@ func testDashboard() *library.Dashboard {
 	}
 }
 
-func testDashboardRepo() *library.DashboardRepo {
-	return &library.DashboardRepo{
+func testDashboardRepo() *api.DashboardRepo {
+	return &api.DashboardRepo{
 		ID:       new(int64),
 		Branches: new([]string),
 		Events:   new([]string),

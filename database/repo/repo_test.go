@@ -194,11 +194,6 @@ func testRepo() *library.Repo {
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
-		AllowPull:    new(bool),
-		AllowPush:    new(bool),
-		AllowDeploy:  new(bool),
-		AllowTag:     new(bool),
-		AllowComment: new(bool),
 		AllowEvents:  testEvents(),
 	}
 }
@@ -206,8 +201,10 @@ func testRepo() *library.Repo {
 func testEvents() *library.Events {
 	return &library.Events{
 		Push: &actions.Push{
-			Branch: new(bool),
-			Tag:    new(bool),
+			Branch:       new(bool),
+			Tag:          new(bool),
+			DeleteBranch: new(bool),
+			DeleteTag:    new(bool),
 		},
 		PullRequest: &actions.Pull{
 			Opened:      new(bool),
@@ -221,6 +218,9 @@ func testEvents() *library.Events {
 		Comment: &actions.Comment{
 			Created: new(bool),
 			Edited:  new(bool),
+		},
+		Schedule: &actions.Schedule{
+			Run: new(bool),
 		},
 	}
 }

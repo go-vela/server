@@ -30,11 +30,11 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_pull", "allow_push", "allow_deploy", "allow_tag", "allow_comment", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
-		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, false, false, false, false, false, 1, "yaml", "", "")
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE org = $1 AND name = $2 LIMIT 1`).WithArgs("foo", "bar").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE org = $1 AND name = $2 LIMIT $3`).WithArgs("foo", "bar", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

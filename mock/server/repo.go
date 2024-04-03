@@ -19,6 +19,7 @@ const (
   "id": 1,
   "user_id": 1,
   "org": "github",
+  "counter": 10,
   "name": "octocat",
   "full_name": "github/octocat",
   "link": "https://github.com/github/octocat",
@@ -29,11 +30,30 @@ const (
   "visibility": "public",
   "private": false,
   "trusted": true,
+  "pipeline_type": "yaml",
+  "topics": [],
   "active": true,
-  "allow_pr": false,
-  "allow_push": true,
-  "allow_deploy": false,
-  "allow_tag": false
+  "allow_events": {
+	"push": {
+		"branch": true,
+		"tag": true
+	},
+	"pull_request": {
+		"opened": true,
+		"synchronize": true,
+		"reopened": true,
+		"edited": false
+	},
+	"deployment": {
+		"created": true
+	},
+	"comment": {
+		"created": false,
+		"edited": false
+	}
+  },
+  "approve_build": "fork-always",
+  "previous_name": ""
 }`
 
 	// ReposResp represents a JSON return for one to many repos.
@@ -52,11 +72,7 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   },
   {
     "id": 2,
@@ -72,11 +88,7 @@ const (
     "visibility": "public",
     "private": false,
     "trusted": true,
-    "active": true,
-    "allow_pr": false,
-    "allow_push": true,
-    "allow_deploy": false,
-    "allow_tag": false
+    "active": true
   }
 ]`
 )

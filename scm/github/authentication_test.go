@@ -11,7 +11,6 @@ import (
 	_context "context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types/library"
 )
 
 func TestGithub_Authenticate(t *testing.T) {
@@ -38,7 +37,7 @@ func TestGithub_Authenticate(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := new(library.User)
+	want := new(api.User)
 	want.SetName("octocat")
 	want.SetToken("foo")
 
@@ -326,7 +325,7 @@ func TestGithub_AuthenticateToken(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	want := new(library.User)
+	want := new(api.User)
 	want.SetName("octocat")
 	want.SetToken("foo")
 

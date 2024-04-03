@@ -34,7 +34,7 @@ func TestGithub_Changeset(t *testing.T) {
 	// setup types
 	want := []string{"file1.txt"}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -80,7 +80,7 @@ func TestGithub_ChangesetPR(t *testing.T) {
 	// setup types
 	want := []string{"file1.txt"}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 

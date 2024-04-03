@@ -67,7 +67,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 		AddRow(1, 1, nil, 1, 0, "", "", "running", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 
 	// ensure the mock expects the name query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND (status = 'running' OR status = 'pending')`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND (status = 'running' OR status = 'pending' OR status = 'pending approval')`).WithArgs(1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

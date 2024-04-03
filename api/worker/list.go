@@ -5,11 +5,14 @@ package worker
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,6 +23,20 @@ import (
 // ---
 // produces:
 // - application/json
+// parameters:
+// - in: query
+//   name: active
+//   description: Filter workers based on active status
+//   type: boolean
+// - in: query
+//   name: checked_in_before
+//   description: filter workers that have checked in before a certain time
+//   type: integer
+// - in: query
+//   name: checked_in_after
+//   description: filter workers that have checked in after a certain time
+//   type: integer
+//   default: 0
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -48,7 +65,29 @@ func ListWorkers(c *gin.Context) {
 		"user": u.GetName(),
 	}).Info("reading workers")
 
-	w, err := database.FromContext(c).ListWorkers(ctx)
+	active := c.Query("active")
+
+	// capture before query parameter if present, default to now
+	before, err := strconv.ParseInt(c.DefaultQuery("checked_in_before", strconv.FormatInt(time.Now().UTC().Unix(), 10)), 10, 64)
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert `checked_in_before` query parameter: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	// capture after query parameter if present, default to 0
+	after, err := strconv.ParseInt(c.DefaultQuery("checked_in_after", "0"), 10, 64)
+	if err != nil {
+		retErr := fmt.Errorf("unable to convert `checked_in_after` query parameter: %w", err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	workers, err := database.FromContext(c).ListWorkers(ctx, active, before, after)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get workers: %w", err)
 
@@ -57,5 +96,23 @@ func ListWorkers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, w)
+	for _, w := range workers {
+		rBs := []*library.Build{}
+
+		for _, b := range w.GetRunningBuilds() {
+			build, err := database.FromContext(c).GetBuild(ctx, b.GetID())
+			if err != nil {
+				retErr := fmt.Errorf("unable to read build %d: %w", b.GetID(), err)
+				util.HandleError(c, http.StatusInternalServerError, retErr)
+
+				return
+			}
+
+			rBs = append(rBs, build)
+		}
+
+		w.SetRunningBuilds(rBs)
+	}
+
+	c.JSON(http.StatusOK, workers)
 }

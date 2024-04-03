@@ -6,14 +6,13 @@ package dashboard
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/sirupsen/logrus"
 )
 
 // UpdateDashboard updates an existing dashboard in the database.
-func (e *engine) UpdateDashboard(ctx context.Context, d *library.Dashboard) (*library.Dashboard, error) {
+func (e *engine) UpdateDashboard(ctx context.Context, d *api.Dashboard) (*api.Dashboard, error) {
 	e.logger.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
 	}).Tracef("creating dashboard %s in the database", d.GetID())
@@ -21,7 +20,7 @@ func (e *engine) UpdateDashboard(ctx context.Context, d *library.Dashboard) (*li
 	// cast the library type to database type
 	//
 	// https://pkg.go.dev/github.com/go-vela/types/database#DashboardFromLibrary
-	dashboard := database.DashboardFromLibrary(d)
+	dashboard := FromAPI(d)
 
 	// validate the necessary fields are populated
 	//
@@ -37,5 +36,5 @@ func (e *engine) UpdateDashboard(ctx context.Context, d *library.Dashboard) (*li
 		return nil, err
 	}
 
-	return dashboard.ToLibrary(), nil
+	return dashboard.ToAPI(), nil
 }

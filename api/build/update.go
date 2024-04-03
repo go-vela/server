@@ -162,11 +162,12 @@ func UpdateBuild(c *gin.Context) {
 	c.JSON(http.StatusOK, b)
 
 	// check if the build is in a "final" state
-	if b.GetStatus() == constants.StatusSuccess ||
+	// and if build is not a scheduled event
+	if (b.GetStatus() == constants.StatusSuccess ||
 		b.GetStatus() == constants.StatusFailure ||
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
-		b.GetStatus() == constants.StatusError {
+		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
 		// send API call to capture the repo owner
 		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
 		if err != nil {
@@ -179,4 +180,78 @@ func UpdateBuild(c *gin.Context) {
 			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}
 	}
+}
+
+// UpdateComponentStatuses updates all components (steps and services) for a build to a given status.
+func UpdateComponentStatuses(c *gin.Context, b *library.Build, status string) error {
+	ctx := c.Request.Context()
+
+	// retrieve the steps for the build from the step table
+	steps := []*library.Step{}
+	page := 1
+	perPage := 100
+
+	for page > 0 {
+		// retrieve build steps (per page) from the database
+		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(ctx, b, map[string]interface{}{}, page, perPage)
+		if err != nil {
+			return err
+		}
+
+		// add page of steps to list steps
+		steps = append(steps, stepsPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		if len(stepsPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each step for the build
+	// setting status
+	for _, step := range steps {
+		step.SetStatus(status)
+
+		_, err := database.FromContext(c).UpdateStep(ctx, step)
+		if err != nil {
+			return err
+		}
+	}
+
+	// retrieve the services for the build from the service table
+	services := []*library.Service{}
+	page = 1
+
+	for page > 0 {
+		// retrieve build services (per page) from the database
+		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
+		if err != nil {
+			return err
+		}
+
+		// add page of services to the list of services
+		services = append(services, servicesPart...)
+
+		// assume no more pages exist if under 100 results are returned
+		if len(servicesPart) < 100 {
+			page = 0
+		} else {
+			page++
+		}
+	}
+
+	// iterate over each service for the build
+	// setting status
+	for _, service := range services {
+		service.SetStatus(status)
+
+		_, err := database.FromContext(c).UpdateService(ctx, service)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

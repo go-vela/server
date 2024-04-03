@@ -8,16 +8,16 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestDashboard_Engine_CreateDashboard(t *testing.T) {
 	// setup types
-	_dashRepo := new(library.DashboardRepo)
+	_dashRepo := new(api.DashboardRepo)
 	_dashRepo.SetID(1)
 	_dashRepo.SetBranches([]string{"main"})
 	_dashRepo.SetEvents([]string{"push"})
-	_dashRepos := []*library.DashboardRepo{_dashRepo}
+	_dashRepos := []*api.DashboardRepo{_dashRepo}
 
 	_dashboard := testDashboard()
 	_dashboard.SetID("c8da1302-07d6-11ea-882f-4893bca275b8")

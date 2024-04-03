@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -31,7 +30,7 @@ type MintTokenOpts struct {
 	Repo          string
 	TokenDuration time.Duration
 	TokenType     string
-	User          *library.User
+	User          *api.User
 }
 
 // MintToken mints a Vela JWT Token given a set of options.

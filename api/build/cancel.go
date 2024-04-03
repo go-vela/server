@@ -21,7 +21,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 )
 
@@ -217,91 +216,13 @@ func CancelBuild(c *gin.Context) {
 		return
 	}
 
-	// retrieve the steps for the build from the step table
-	steps := []*library.Step{}
-	page := 1
-	perPage := 100
+	// update component statuses to canceled
+	err = UpdateComponentStatuses(c, b, constants.StatusCanceled)
+	if err != nil {
+		retErr := fmt.Errorf("unable to update component statuses for build %s: %w", entry, err)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-	for page > 0 {
-		// retrieve build steps (per page) from the database
-		stepsPart, _, err := database.FromContext(c).ListStepsForBuild(b, map[string]interface{}{}, page, perPage)
-		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve steps for build %s: %w", entry, err)
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		// add page of steps to list steps
-		steps = append(steps, stepsPart...)
-
-		// assume no more pages exist if under 100 results are returned
-		if len(stepsPart) < 100 {
-			page = 0
-		} else {
-			page++
-		}
-	}
-
-	// iterate over each step for the build
-	// setting anything running or pending to canceled
-	for _, step := range steps {
-		if step.GetStatus() == constants.StatusRunning || step.GetStatus() == constants.StatusPending {
-			step.SetStatus(constants.StatusCanceled)
-
-			_, err = database.FromContext(c).UpdateStep(step)
-			if err != nil {
-				retErr := fmt.Errorf("unable to update step %s for build %s: %w", step.GetName(), entry, err)
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
-			}
-		}
-	}
-
-	// retrieve the services for the build from the service table
-	services := []*library.Service{}
-	page = 1
-
-	for page > 0 {
-		// retrieve build services (per page) from the database
-		servicesPart, _, err := database.FromContext(c).ListServicesForBuild(ctx, b, map[string]interface{}{}, page, perPage)
-		if err != nil {
-			retErr := fmt.Errorf("unable to retrieve services for build %s: %w", entry, err)
-			util.HandleError(c, http.StatusNotFound, retErr)
-
-			return
-		}
-
-		// add page of services to the list of services
-		services = append(services, servicesPart...)
-
-		// assume no more pages exist if under 100 results are returned
-		if len(servicesPart) < 100 {
-			page = 0
-		} else {
-			page++
-		}
-	}
-
-	// iterate over each service for the build
-	// setting anything running or pending to canceled
-	for _, service := range services {
-		if service.GetStatus() == constants.StatusRunning || service.GetStatus() == constants.StatusPending {
-			service.SetStatus(constants.StatusCanceled)
-
-			_, err = database.FromContext(c).UpdateService(ctx, service)
-			if err != nil {
-				retErr := fmt.Errorf("unable to update service %s for build %s: %w",
-					service.GetName(),
-					entry,
-					err,
-				)
-				util.HandleError(c, http.StatusNotFound, retErr)
-
-				return
-			}
-		}
+		return
 	}
 
 	c.JSON(http.StatusOK, b)

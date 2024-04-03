@@ -8,10 +8,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -54,17 +54,17 @@ func ListUserDashboards(c *gin.Context) {
 		"user": u.GetName(),
 	}).Infof("listing dashboards for user %s", u.GetName())
 
-	var dashCards []DashCard
+	var dashCards []types.DashCard
 
 	// iterate through user dashboards and build a list of DashCards
 	for _, dashboard := range u.GetDashboards() {
-		dashCard := DashCard{}
+		dashCard := types.DashCard{}
 
 		d, err := database.FromContext(c).GetDashboard(c, dashboard)
 		if err != nil {
 			// check if the query returned a record not found error
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				d = new(library.Dashboard)
+				d = new(types.Dashboard)
 				d.SetID(dashboard)
 
 				dashCard.Dashboard = d
