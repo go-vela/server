@@ -91,3 +91,23 @@ func (s *Settings) String() string {
 		s.GetCloneImage(),
 	)
 }
+
+// ToEnv converts the Settings type to a string format compatible with standard posix environments.
+func (s *Settings) ToEnv() string {
+	return fmt.Sprintf(`CloneImage='%s'
+FooBar='%s'
+`,
+		s.GetCloneImage(),
+		"something-cool",
+	)
+}
+
+// ToYAML converts the Settings type to a YAML string.
+func (s *Settings) ToYAML() string {
+	return fmt.Sprintf(`CloneImage: '%s'
+FooBar: '%s'
+`,
+		s.GetCloneImage(),
+		"something-cool",
+	)
+}

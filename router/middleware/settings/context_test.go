@@ -12,9 +12,12 @@ import (
 
 func TestSettings_FromContext(t *testing.T) {
 	// setup types
-	// num := int64(1)
+	num := int64(1)
+	cloneImage := "target/vela-git"
+
 	want := &api.Settings{
-		// ID: &num
+		ID:         &num,
+		CloneImage: &cloneImage,
 	}
 
 	// setup context
@@ -73,9 +76,12 @@ func TestSettings_FromContext_Empty(t *testing.T) {
 
 func TestSettings_ToContext(t *testing.T) {
 	// setup types
-	// num := int64(1)
+	num := int64(1)
+	cloneImage := "target/vela-git"
+
 	want := &api.Settings{
-		// ID: &num
+		ID:         &num,
+		CloneImage: &cloneImage,
 	}
 
 	// setup context

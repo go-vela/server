@@ -83,17 +83,12 @@ func server(c *cli.Context) error {
 		}
 	}
 
+	// todo: use settings initialization policy to reset settings?
+
 	compiler, err := setupCompiler(c)
 	if err != nil {
 		return err
 	}
-
-	// todo: this wont really work...
-	// if we receive an update to settings we need to update this settings record somehow???
-	// but we cant use the actual PUT endpoint because it is load balanced across a bunch of servers
-	// so... we need to refetch this settings record before we actually need it ?? ? ? ?? ? ? ? ?
-
-	compiler = compiler.WithSettings(s)
 
 	queue, err := setupQueue(c)
 	if err != nil {

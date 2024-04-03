@@ -6,6 +6,7 @@ package admin
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	api "github.com/go-vela/server/api/types"
@@ -44,7 +45,20 @@ func GetSettings(c *gin.Context) {
 
 	logrus.Info("Admin: reading settings")
 
-	c.JSON(http.StatusOK, s)
+	output := strings.ToLower(c.Query("output"))
+
+	switch output {
+	case "env":
+		exported := s.ToEnv()
+		c.String(http.StatusOK, exported)
+	case "yaml":
+		exported := s.ToYAML()
+		c.String(http.StatusOK, exported)
+	case "json":
+		fallthrough
+	default:
+		c.JSON(http.StatusOK, s)
+	}
 }
 
 // todo: swagger and comments
@@ -80,12 +94,6 @@ func UpdateSettings(c *gin.Context) {
 
 		return
 	}
-
-	// todo: how to connect this with the actual settings record stored in the server
-	// todo: how to take this update and propogate it to the other server groups????????????
-	// say you have two instances of the server running, we need to fetch this settings record before actually using it
-	//
-	//
 
 	c.JSON(http.StatusOK, s)
 }
