@@ -621,8 +621,6 @@ func (r *Repo) SetApproveBuild(v string) {
 }
 
 // String implements the Stringer interface for the Repo type.
-//
-//nolint:dupl // ignore duplicate with test func
 func (r *Repo) String() string {
 	return fmt.Sprintf(`{
   Active: %t,

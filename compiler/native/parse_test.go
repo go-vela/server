@@ -858,6 +858,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 
 type FailReader struct{}
 
+//nolint:revive // parameter is unused by design
 func (FailReader) Read(p []byte) (n int, err error) {
 	return 0, errors.New("this is a reader that fails when you try to read")
 }
@@ -910,11 +911,13 @@ func Test_client_Parse(t *testing.T) {
 			}
 
 			var c *client
-			if tt.args.pipelineType == "nil" {
+
+			pipelineType := tt.args.pipelineType
+			if pipelineType == "nil" {
 				c = &client{}
 			} else {
 				c = &client{
-					repo: &api.Repo{PipelineType: &tt.args.pipelineType},
+					repo: &api.Repo{PipelineType: &pipelineType},
 				}
 			}
 
