@@ -52,6 +52,15 @@
         "color": "0075ca",
         "default": true,
         "description": "Improvements or additions to documentation"
+      },
+      {
+        "id": 3768737,
+        "node_id": "MDU6TGFiZWwzNzY4NzM3",
+        "url": "https://git.target.com/api/v3/repos/WinSan/vela-sandbox/labels/enhancement",
+        "name": "enhancement",
+        "color": "a2eeef",
+        "default": true,
+        "description": "New feature or request"
       }
     ],
     "milestone": null,

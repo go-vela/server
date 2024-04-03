@@ -518,7 +518,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 				PullRequest: types.PullRequest{
 					Number:     wantHook.GetNumber(),
 					IsFromFork: false,
-					Labels:     []string{"documentation"},
+					Labels:     []string{"documentation", "enhancement"},
 				},
 				Hook:  wantHook,
 				Repo:  wantRepo,
