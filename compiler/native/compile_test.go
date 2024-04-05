@@ -2312,60 +2312,6 @@ func Test_Compile_Inline(t *testing.T) {
 						},
 					},
 					{
-						Name:        "golang_foo",
-						Needs:       []string{"clone"},
-						Environment: initEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_golang_foo_golang_foo",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from foo", m, ""),
-								Image:       "golang:latest",
-								Name:        "golang_foo",
-								Pull:        "not_present",
-								Number:      4,
-							},
-						},
-					},
-					{
-						Name:        "golang_bar",
-						Needs:       []string{"clone"},
-						Environment: initEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_golang_bar_golang_bar",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from bar", m, ""),
-								Image:       "golang:latest",
-								Name:        "golang_bar",
-								Pull:        "not_present",
-								Number:      5,
-							},
-						},
-					},
-					{
-						Name:        "golang_star",
-						Needs:       []string{"clone"},
-						Environment: initEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_golang_star_golang_star",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from star", m, ""),
-								Image:       "golang:latest",
-								Name:        "golang_star",
-								Pull:        "not_present",
-								Number:      6,
-							},
-						},
-					},
-					{
 						Name:        "starlark_foo",
 						Needs:       []string{"clone"},
 						Environment: initEnv,
@@ -2379,7 +2325,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Image:       "alpine",
 								Name:        "starlark_build_foo",
 								Pull:        "not_present",
-								Number:      7,
+								Number:      4,
 							},
 						},
 					},
@@ -2397,7 +2343,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Image:       "alpine",
 								Name:        "starlark_build_bar",
 								Pull:        "not_present",
-								Number:      8,
+								Number:      5,
 							},
 						},
 					},
@@ -2486,60 +2432,6 @@ func Test_Compile_Inline(t *testing.T) {
 						},
 					},
 					{
-						Name:        "nested_golang_foo",
-						Needs:       []string{"clone"},
-						Environment: initEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_nested_golang_foo_nested_golang_foo",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from foo", m, ""),
-								Image:       "golang:latest",
-								Name:        "nested_golang_foo",
-								Pull:        "not_present",
-								Number:      5,
-							},
-						},
-					},
-					{
-						Name:        "nested_golang_bar",
-						Needs:       []string{"clone"},
-						Environment: initEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_nested_golang_bar_nested_golang_bar",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from bar", m, ""),
-								Image:       "golang:latest",
-								Name:        "nested_golang_bar",
-								Pull:        "not_present",
-								Number:      6,
-							},
-						},
-					},
-					{
-						Name:        "nested_golang_star",
-						Needs:       []string{"clone"},
-						Environment: initEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_nested_golang_star_nested_golang_star",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from star", m, ""),
-								Image:       "golang:latest",
-								Name:        "nested_golang_star",
-								Pull:        "not_present",
-								Number:      7,
-							},
-						},
-					},
-					{
 						Name:        "nested_starlark_foo",
 						Needs:       []string{"clone"},
 						Environment: initEnv,
@@ -2553,7 +2445,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Image:       "alpine",
 								Name:        "nested_starlark_build_foo",
 								Pull:        "not_present",
-								Number:      8,
+								Number:      5,
 							},
 						},
 					},
@@ -2571,7 +2463,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Image:       "alpine",
 								Name:        "nested_starlark_build_bar",
 								Pull:        "not_present",
-								Number:      9,
+								Number:      6,
 							},
 						},
 					},
@@ -3021,60 +2913,6 @@ func Test_Compile_Inline(t *testing.T) {
 						},
 					},
 					{
-						Name:        "golang_foo",
-						Needs:       []string{"clone"},
-						Environment: golangEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_golang_foo_golang_foo",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from foo", m, constants.PipelineTypeGo),
-								Image:       "golang:latest",
-								Name:        "golang_foo",
-								Pull:        "not_present",
-								Number:      6,
-							},
-						},
-					},
-					{
-						Name:        "golang_bar",
-						Needs:       []string{"clone"},
-						Environment: golangEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_golang_bar_golang_bar",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from bar", m, constants.PipelineTypeGo),
-								Image:       "golang:latest",
-								Name:        "golang_bar",
-								Pull:        "not_present",
-								Number:      7,
-							},
-						},
-					},
-					{
-						Name:        "golang_star",
-						Needs:       []string{"clone"},
-						Environment: golangEnv,
-						Steps: []*pipeline.Container{
-							{
-								ID:          "__0_golang_star_golang_star",
-								Commands:    []string{"echo $VELA_BUILD_SCRIPT | base64 -d | /bin/sh -e"},
-								Directory:   "/vela/src/foo//",
-								Entrypoint:  []string{"/bin/sh", "-c"},
-								Environment: generateTestEnv("echo hello from star", m, constants.PipelineTypeGo),
-								Image:       "golang:latest",
-								Name:        "golang_star",
-								Pull:        "not_present",
-								Number:      8,
-							},
-						},
-					},
-					{
 						Name:        "starlark_foo",
 						Needs:       []string{"clone"},
 						Environment: golangEnv,
@@ -3088,7 +2926,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Image:       "alpine",
 								Name:        "starlark_build_foo",
 								Pull:        "not_present",
-								Number:      9,
+								Number:      6,
 							},
 						},
 					},
@@ -3106,7 +2944,7 @@ func Test_Compile_Inline(t *testing.T) {
 								Image:       "alpine",
 								Name:        "starlark_build_bar",
 								Pull:        "not_present",
-								Number:      10,
+								Number:      7,
 							},
 						},
 					},
@@ -3211,6 +3049,7 @@ func Test_CompileLite(t *testing.T) {
 		file         string
 		pipelineType string
 		substitute   bool
+		ruleData     *pipeline.RuleData
 	}
 
 	tests := []struct {
@@ -3263,6 +3102,20 @@ func Test_CompileLite(t *testing.T) {
 								Name:     "test",
 								Pull:     "not_present",
 							},
+							{
+								Commands: raw.StringSlice{"echo from inline ruleset"},
+								Image:    "alpine",
+								Name:     "ruleset",
+								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event:  []string{"push"},
+										Branch: []string{"main"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
 						},
 					},
 					{
@@ -3274,6 +3127,14 @@ func Test_CompileLite(t *testing.T) {
 								Image:    "golang:latest",
 								Name:     "golang_foo",
 								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
 							},
 						},
 					},
@@ -3286,6 +3147,14 @@ func Test_CompileLite(t *testing.T) {
 								Image:    "golang:latest",
 								Name:     "golang_bar",
 								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
 							},
 						},
 					},
@@ -3298,6 +3167,14 @@ func Test_CompileLite(t *testing.T) {
 								Image:    "golang:latest",
 								Name:     "golang_star",
 								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
 							},
 						},
 					},
@@ -3330,6 +3207,97 @@ func Test_CompileLite(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "render_inline with stages - ruleset",
+			args: args{
+				file:         "testdata/inline_with_stages.yml",
+				pipelineType: "",
+				substitute:   true,
+				ruleData: &pipeline.RuleData{
+					Event:  "push",
+					Branch: "main",
+				},
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					RenderInline: true,
+					Environment:  []string{"steps", "services", "secrets"},
+				},
+				Templates: []*yaml.Template{
+					{
+						Name:   "golang",
+						Source: "github.example.com/github/octocat/golang_inline_stages.yml",
+						Format: "golang",
+						Type:   "github",
+						Variables: map[string]any{
+							"image":              string("golang:latest"),
+							"VELA_TEMPLATE_NAME": string("golang"),
+						},
+					},
+					{
+						Name:      "starlark",
+						Source:    "github.example.com/github/octocat/starlark_inline_stages.star",
+						Format:    "starlark",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("starlark")},
+					},
+				},
+				Environment: raw.StringSliceMap{},
+				Stages: []*yaml.Stage{
+					{
+						Name:  "test",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo from inline"},
+								Image:    "alpine",
+								Name:     "test",
+								Pull:     "not_present",
+							},
+							{
+								Commands: raw.StringSlice{"echo from inline ruleset"},
+								Image:    "alpine",
+								Name:     "ruleset",
+								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event:  []string{"push"},
+										Branch: []string{"main"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
+							},
+						},
+					},
+					{
+						Name:  "starlark_foo",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from foo"},
+								Image:    "alpine",
+								Name:     "starlark_build_foo",
+								Pull:     "not_present",
+							},
+						},
+					},
+					{
+						Name:  "starlark_bar",
+						Needs: []string{"clone"},
+						Steps: []*yaml.Step{
+							{
+								Commands: raw.StringSlice{"echo hello from bar"},
+								Image:    "alpine",
+								Name:     "starlark_build_bar",
+								Pull:     "not_present",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "render_inline with steps",
 			args: args{
 				file:         "testdata/inline_with_steps.yml",
@@ -3348,6 +3316,34 @@ func Test_CompileLite(t *testing.T) {
 						Image:    "alpine",
 						Name:     "test",
 						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo from inline ruleset"},
+						Image:    "alpine",
+						Name:     "ruleset",
+						Pull:     "not_present",
+						Ruleset: yaml.Ruleset{
+							If: yaml.Rules{
+								Event:  []string{"deployment"},
+								Target: []string{"production"},
+							},
+							Matcher:  "filepath",
+							Operator: "and",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"echo from inline ruleset"},
+						Image:    "alpine",
+						Name:     "other ruleset",
+						Pull:     "not_present",
+						Ruleset: yaml.Ruleset{
+							If: yaml.Rules{
+								Path:  []string{"src/*", "test/*"},
+								Event: []string{},
+							},
+							Matcher:  "filepath",
+							Operator: "and",
+						},
 					},
 					{
 						Commands: raw.StringSlice{"echo hello from foo"},
@@ -3401,6 +3397,339 @@ func Test_CompileLite(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "render_inline with steps - ruleset",
+			args: args{
+				file:         "testdata/inline_with_steps.yml",
+				pipelineType: "",
+				substitute:   true,
+				ruleData: &pipeline.RuleData{
+					Event:  "deployment",
+					Target: "production",
+					Path:   []string{"README.md"},
+				},
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					RenderInline: true,
+					Environment:  []string{"steps", "services", "secrets"},
+				},
+				Steps: yaml.StepSlice{
+					{
+						Commands: raw.StringSlice{"echo from inline"},
+						Image:    "alpine",
+						Name:     "test",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo from inline ruleset"},
+						Image:    "alpine",
+						Name:     "ruleset",
+						Pull:     "not_present",
+						Ruleset: yaml.Ruleset{
+							If: yaml.Rules{
+								Event:  []string{"deployment"},
+								Target: []string{"production"},
+							},
+							Matcher:  "filepath",
+							Operator: "and",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from foo"},
+						Image:    "alpine",
+						Name:     "golang_foo",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from bar"},
+						Image:    "alpine",
+						Name:     "golang_bar",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from star"},
+						Image:    "alpine",
+						Name:     "golang_star",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from foo"},
+						Image:    "alpine",
+						Name:     "starlark_build_foo",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from bar"},
+						Image:    "alpine",
+						Name:     "starlark_build_bar",
+						Pull:     "not_present",
+					},
+				},
+				Environment: raw.StringSliceMap{},
+				Templates: yaml.TemplateSlice{
+					{
+						Name:      "golang",
+						Source:    "github.example.com/github/octocat/golang_inline_steps.yml",
+						Format:    "golang",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("golang")},
+					},
+					{
+						Name:      "starlark",
+						Source:    "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format:    "starlark",
+						Type:      "github",
+						Variables: map[string]any{"VELA_TEMPLATE_NAME": string("starlark")},
+					},
+				},
+			},
+		},
+		{
+			name: "call template with ruleset",
+			args: args{
+				file:         "testdata/steps_pipeline_template.yml",
+				pipelineType: "",
+				substitute:   true,
+				ruleData: &pipeline.RuleData{
+					Event: "push",
+				},
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Environment: raw.StringSliceMap{
+					"bar":  "test4",
+					"star": "test3",
+				},
+				Secrets: yaml.SecretSlice{
+					{
+						Name:   "docker_username",
+						Key:    "org/repo/docker/username",
+						Engine: "native",
+						Type:   "repo",
+						Pull:   "build_start",
+					},
+					{
+						Name:   "docker_password",
+						Key:    "org/repo/docker/password",
+						Engine: "vault",
+						Type:   "repo",
+						Pull:   "build_start",
+					},
+					{
+						Name:   "foo_password",
+						Key:    "org/repo/foo/password",
+						Engine: "vault",
+						Type:   "repo",
+						Pull:   "build_start",
+					},
+				},
+				Services: yaml.ServiceSlice{
+					{
+						Image: "postgres:12",
+						Name:  "postgres",
+						Pull:  "not_present",
+					},
+				},
+				Steps: yaml.StepSlice{
+					{
+						Commands: raw.StringSlice{"./gradlew downloadDependencies"},
+						Image:    "openjdk:latest",
+						Name:     "sample_install",
+						Pull:     "always",
+						Environment: raw.StringSliceMap{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"./gradlew check"},
+						Image:    "openjdk:latest",
+						Name:     "sample_test",
+						Pull:     "always",
+						Environment: raw.StringSliceMap{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"./gradlew build", "echo gradle"},
+						Image:    "openjdk:latest",
+						Name:     "sample_build",
+						Pull:     "always",
+						Environment: raw.StringSliceMap{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from foo"},
+						Image:    "alpine",
+						Name:     "starlark_build_foo",
+						Pull:     "not_present",
+					},
+					{
+						Commands: raw.StringSlice{"echo hello from bar"},
+						Image:    "alpine",
+						Name:     "starlark_build_bar",
+						Pull:     "not_present",
+					},
+					{
+						Secrets: yaml.StepSecretSlice{
+							{
+								Source: "docker_username",
+								Target: "registry_username",
+							},
+							{
+								Source: "docker_password",
+								Target: "registry_password",
+							},
+						},
+						Image: "plugins/docker:18.09",
+						Name:  "docker",
+						Pull:  "always",
+						Parameters: map[string]any{
+							"registry": string("index.docker.io"),
+							"repo":     string("github/octocat"),
+							"tags":     []any{string("latest"), string("dev")},
+						},
+					},
+				},
+				Templates: yaml.TemplateSlice{
+					{
+						Name:   "gradle",
+						Source: "github.example.com/foo/bar/long_template.yml",
+						Type:   "github",
+					},
+					{
+						Name:   "starlark",
+						Source: "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format: "starlark",
+						Type:   "github",
+					},
+				},
+			},
+		},
+		{
+			name: "call template with ruleset - no match",
+			args: args{
+				file:         "testdata/steps_pipeline_template.yml",
+				pipelineType: "",
+				substitute:   true,
+				ruleData: &pipeline.RuleData{
+					Event: "pull_request",
+				},
+			},
+			want: &yaml.Build{
+				Version: "1",
+				Metadata: yaml.Metadata{
+					Environment: []string{"steps", "services", "secrets"},
+				},
+				Environment: raw.StringSliceMap{
+					"bar":  "test4",
+					"star": "test3",
+				},
+				Secrets: yaml.SecretSlice{
+					{
+						Name:   "docker_username",
+						Key:    "org/repo/docker/username",
+						Engine: "native",
+						Type:   "repo",
+						Pull:   "build_start",
+					},
+					{
+						Name:   "docker_password",
+						Key:    "org/repo/docker/password",
+						Engine: "vault",
+						Type:   "repo",
+						Pull:   "build_start",
+					},
+					{
+						Name:   "foo_password",
+						Key:    "org/repo/foo/password",
+						Engine: "vault",
+						Type:   "repo",
+						Pull:   "build_start",
+					},
+				},
+				Services: yaml.ServiceSlice{
+					{
+						Image: "postgres:12",
+						Name:  "postgres",
+						Pull:  "not_present",
+					},
+				},
+				Steps: yaml.StepSlice{
+					{
+						Commands: raw.StringSlice{"./gradlew downloadDependencies"},
+						Image:    "openjdk:latest",
+						Name:     "sample_install",
+						Pull:     "always",
+						Environment: raw.StringSliceMap{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"./gradlew check"},
+						Image:    "openjdk:latest",
+						Name:     "sample_test",
+						Pull:     "always",
+						Environment: raw.StringSliceMap{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+					},
+					{
+						Commands: raw.StringSlice{"./gradlew build", "echo gradle"},
+						Image:    "openjdk:latest",
+						Name:     "sample_build",
+						Pull:     "always",
+						Environment: raw.StringSliceMap{
+							"GRADLE_OPTS":      "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false",
+							"GRADLE_USER_HOME": ".gradle",
+						},
+					},
+					{
+						Secrets: yaml.StepSecretSlice{
+							{
+								Source: "docker_username",
+								Target: "registry_username",
+							},
+							{
+								Source: "docker_password",
+								Target: "registry_password",
+							},
+						},
+						Image: "plugins/docker:18.09",
+						Name:  "docker",
+						Pull:  "always",
+						Parameters: map[string]any{
+							"registry": string("index.docker.io"),
+							"repo":     string("github/octocat"),
+							"tags":     []any{string("latest"), string("dev")},
+						},
+					},
+				},
+				Templates: yaml.TemplateSlice{
+					{
+						Name:   "gradle",
+						Source: "github.example.com/foo/bar/long_template.yml",
+						Type:   "github",
+					},
+					{
+						Name:   "starlark",
+						Source: "github.example.com/github/octocat/starlark_inline_steps.star",
+						Format: "starlark",
+						Type:   "github",
+					},
+				},
+			},
+		},
+		{
 			name: "golang",
 			args: args{
 				file:         "testdata/golang_inline_stages.yml",
@@ -3422,6 +3751,14 @@ func Test_CompileLite(t *testing.T) {
 								Image:    "alpine",
 								Name:     "foo",
 								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
 							},
 						},
 					},
@@ -3434,6 +3771,14 @@ func Test_CompileLite(t *testing.T) {
 								Image:    "alpine",
 								Name:     "bar",
 								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
 							},
 						},
 					},
@@ -3446,6 +3791,14 @@ func Test_CompileLite(t *testing.T) {
 								Image:    "alpine",
 								Name:     "star",
 								Pull:     "not_present",
+								Ruleset: yaml.Ruleset{
+									If: yaml.Rules{
+										Event: []string{"tag"},
+										Tag:   []string{"v*"},
+									},
+									Matcher:  "filepath",
+									Operator: "and",
+								},
 							},
 						},
 					},
@@ -3493,7 +3846,7 @@ func Test_CompileLite(t *testing.T) {
 				t.Errorf("Reading yaml file return err: %v", err)
 			}
 
-			got, _, err := compiler.CompileLite(yaml, tt.args.substitute)
+			got, _, err := compiler.CompileLite(yaml, tt.args.ruleData, tt.args.substitute)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CompileLite() error = %v, wantErr %v", err, tt.wantErr)
 				return
