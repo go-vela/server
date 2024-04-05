@@ -6,7 +6,6 @@ package pipeline
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
@@ -127,19 +126,14 @@ func prepareRuleData(c *gin.Context) *pipeline.RuleData {
 	tag := c.Query("tag")
 	// capture the target parameter
 	target := c.Query("target")
-
-	var pathSet []string
 	// capture the path parameter
-	path := c.Query("path")
-	if len(path) > 0 {
-		pathSet = strings.Split(path, ",")
-	}
+	pathSet := c.QueryArray("path")
 
 	// if any ruledata query params were provided, create ruledata struct
 	if len(branch) > 0 ||
 		len(comment) > 0 ||
 		len(event) > 0 ||
-		len(path) > 0 ||
+		len(pathSet) > 0 ||
 		len(ruleDataRepo) > 0 ||
 		len(status) > 0 ||
 		len(tag) > 0 ||
