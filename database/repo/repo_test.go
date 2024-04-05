@@ -211,6 +211,8 @@ func testEvents() *library.Events {
 			Edited:      new(bool),
 			Synchronize: new(bool),
 			Reopened:    new(bool),
+			Labeled:     new(bool),
+			Unlabeled:   new(bool),
 		},
 		Deployment: &actions.Deploy{
 			Created: new(bool),
