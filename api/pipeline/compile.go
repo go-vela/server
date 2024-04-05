@@ -6,15 +6,17 @@ package pipeline
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/pipeline"
+	pMiddleware "github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types"
+	"github.com/go-vela/types/pipeline"
 	"github.com/sirupsen/logrus"
 )
 
@@ -72,7 +74,7 @@ func CompilePipeline(c *gin.Context) {
 	// capture middleware values
 	m := c.MustGet("metadata").(*types.Metadata)
 	o := org.Retrieve(c)
-	p := pipeline.Retrieve(c)
+	p := pMiddleware.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
 
@@ -94,8 +96,10 @@ func CompilePipeline(c *gin.Context) {
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
+	ruleData := prepareRuleData(c)
+
 	// compile the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), true)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, true)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compile pipeline %s: %w", entry, err)
 
@@ -105,4 +109,52 @@ func CompilePipeline(c *gin.Context) {
 	}
 
 	writeOutput(c, pipeline)
+}
+
+// prepareRuleData is a helper function to prepare the rule data from the query parameters.
+func prepareRuleData(c *gin.Context) *pipeline.RuleData {
+	// capture the branch name parameter
+	branch := c.Query("branch")
+	// capture the comment parameter
+	comment := c.Query("comment")
+	// capture the event type parameter
+	event := c.Query("event")
+	// capture the repo parameter
+	ruleDataRepo := c.Query("repo")
+	// capture the status type parameter
+	status := c.Query("status")
+	// capture the tag parameter
+	tag := c.Query("tag")
+	// capture the target parameter
+	target := c.Query("target")
+
+	var pathSet []string
+	// capture the path parameter
+	path := c.Query("path")
+	if len(path) > 0 {
+		pathSet = strings.Split(path, ",")
+	}
+
+	// if any ruledata query params were provided, create ruledata struct
+	if len(branch) > 0 ||
+		len(comment) > 0 ||
+		len(event) > 0 ||
+		len(path) > 0 ||
+		len(ruleDataRepo) > 0 ||
+		len(status) > 0 ||
+		len(tag) > 0 ||
+		len(target) > 0 {
+		return &pipeline.RuleData{
+			Branch:  branch,
+			Comment: comment,
+			Event:   event,
+			Path:    pathSet,
+			Repo:    ruleDataRepo,
+			Status:  status,
+			Tag:     tag,
+			Target:  target,
+		}
+	}
+
+	return nil
 }
