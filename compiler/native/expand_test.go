@@ -451,6 +451,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				If: yaml.Rules{
 					Branch: []string{"main"},
 				},
+				Operator: "and",
 			},
 		},
 		&yaml.Step{
@@ -467,6 +468,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 				If: yaml.Rules{
 					Branch: []string{"dev"},
 				},
+				Operator: "and",
 			},
 		},
 	}

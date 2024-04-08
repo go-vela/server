@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-//
-//nolint:dupl // similar code to push.go
+
 package actions
 
 import "github.com/go-vela/types/constants"
@@ -12,6 +11,8 @@ type Pull struct {
 	Edited      *bool `json:"edited"`
 	Synchronize *bool `json:"synchronize"`
 	Reopened    *bool `json:"reopened"`
+	Labeled     *bool `json:"labeled"`
+	Unlabeled   *bool `json:"unlabeled"`
 }
 
 // FromMask returns the Pull type resulting from the provided integer mask.
@@ -20,6 +21,8 @@ func (a *Pull) FromMask(mask int64) *Pull {
 	a.SetSynchronize(mask&constants.AllowPullSync > 0)
 	a.SetEdited(mask&constants.AllowPullEdit > 0)
 	a.SetReopened(mask&constants.AllowPullReopen > 0)
+	a.SetLabeled(mask&constants.AllowPullLabel > 0)
+	a.SetUnlabeled(mask&constants.AllowPullUnlabel > 0)
 
 	return a
 }
@@ -42,6 +45,14 @@ func (a *Pull) ToMask() int64 {
 
 	if a.GetReopened() {
 		mask = mask | constants.AllowPullReopen
+	}
+
+	if a.GetLabeled() {
+		mask = mask | constants.AllowPullLabel
+	}
+
+	if a.GetUnlabeled() {
+		mask = mask | constants.AllowPullUnlabel
 	}
 
 	return mask
@@ -89,6 +100,28 @@ func (a *Pull) GetReopened() bool {
 	}
 
 	return *a.Reopened
+}
+
+// GetLabeled returns the Labeled field from the provided Pull. If the object is nil,
+// or the field within the object is nil, it returns the zero value instead.
+func (a *Pull) GetLabeled() bool {
+	// return zero value if Pull type or Labeled field is nil
+	if a == nil || a.Labeled == nil {
+		return false
+	}
+
+	return *a.Labeled
+}
+
+// GetUnlabeled returns the Unlabeled field from the provided Pull. If the object is nil,
+// or the field within the object is nil, it returns the zero value instead.
+func (a *Pull) GetUnlabeled() bool {
+	// return zero value if Pull type or Unlabeled field is nil
+	if a == nil || a.Unlabeled == nil {
+		return false
+	}
+
+	return *a.Unlabeled
 }
 
 // SetOpened sets the Pull Opened field.
@@ -141,4 +174,30 @@ func (a *Pull) SetReopened(v bool) {
 	}
 
 	a.Reopened = &v
+}
+
+// SetLabeled sets the Pull Labeled field.
+//
+// When the provided Pull type is nil, it
+// will set nothing and immediately return.
+func (a *Pull) SetLabeled(v bool) {
+	// return if Pull type is nil
+	if a == nil {
+		return
+	}
+
+	a.Labeled = &v
+}
+
+// SetUnlabeled sets the Pull Unlabeled field.
+//
+// When the provided Pull type is nil, it
+// will set nothing and immediately return.
+func (a *Pull) SetUnlabeled(v bool) {
+	// return if Pull type is nil
+	if a == nil {
+		return
+	}
+
+	a.Unlabeled = &v
 }

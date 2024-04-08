@@ -128,6 +128,7 @@ func testMask() int64 {
 			constants.AllowPullOpen |
 			constants.AllowPullSync |
 			constants.AllowPullReopen |
+			constants.AllowPullUnlabel |
 			constants.AllowDeployCreate |
 			constants.AllowCommentCreate |
 			constants.AllowSchedule,

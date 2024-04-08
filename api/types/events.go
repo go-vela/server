@@ -3,11 +3,13 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library/actions"
 )
 
-// Events is the API representation of the various events that generate a
+// Events is the library representation of the various events that generate a
 // webhook from the SCM.
 type Events struct {
 	Push        *actions.Push     `json:"push"`
@@ -39,7 +41,7 @@ func NewEventsFromMask(mask int64) *Events {
 
 // NewEventsFromSlice is an instantiation function for the Events type that
 // takes in a slice of event strings and populates the nested Events struct.
-func NewEventsFromSlice(events []string) *Events {
+func NewEventsFromSlice(events []string) (*Events, error) {
 	mask := int64(0)
 
 	// iterate through all events provided
@@ -68,6 +70,10 @@ func NewEventsFromSlice(events []string) *Events {
 			mask = mask | constants.AllowPullSync
 		case constants.EventPull + ":" + constants.ActionReopened:
 			mask = mask | constants.AllowPullReopen
+		case constants.EventPull + ":" + constants.ActionLabeled:
+			mask = mask | constants.AllowPullLabel
+		case constants.EventPull + ":" + constants.ActionUnlabeled:
+			mask = mask | constants.AllowPullUnlabel
 
 		// deployment actions
 		case constants.EventDeploy, constants.EventDeployAlternate, constants.EventDeploy + ":" + constants.ActionCreated:
@@ -84,10 +90,13 @@ func NewEventsFromSlice(events []string) *Events {
 		// schedule actions
 		case constants.EventSchedule, constants.EventSchedule + ":" + constants.ActionRun:
 			mask = mask | constants.AllowSchedule
+
+		default:
+			return nil, fmt.Errorf("invalid event provided: %s", event)
 		}
 	}
 
-	return NewEventsFromMask(mask)
+	return NewEventsFromMask(mask), nil
 }
 
 // Allowed determines whether or not an event + action is allowed based on whether
@@ -111,6 +120,10 @@ func (e *Events) Allowed(event, action string) bool {
 		allowed = e.GetPullRequest().GetEdited()
 	case constants.EventPull + ":" + constants.ActionReopened:
 		allowed = e.GetPullRequest().GetReopened()
+	case constants.EventPull + ":" + constants.ActionLabeled:
+		allowed = e.GetPullRequest().GetLabeled()
+	case constants.EventPull + ":" + constants.ActionUnlabeled:
+		allowed = e.GetPullRequest().GetUnlabeled()
 	case constants.EventTag:
 		allowed = e.GetPush().GetTag()
 	case constants.EventComment + ":" + constants.ActionCreated:
@@ -153,6 +166,14 @@ func (e *Events) List() []string {
 
 	if e.GetPullRequest().GetReopened() {
 		eventSlice = append(eventSlice, constants.EventPull+":"+constants.ActionReopened)
+	}
+
+	if e.GetPullRequest().GetLabeled() {
+		eventSlice = append(eventSlice, constants.EventPull+":"+constants.ActionLabeled)
+	}
+
+	if e.GetPullRequest().GetUnlabeled() {
+		eventSlice = append(eventSlice, constants.EventPull+":"+constants.ActionUnlabeled)
 	}
 
 	if e.GetPush().GetTag() {

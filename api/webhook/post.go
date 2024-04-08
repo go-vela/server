@@ -273,9 +273,17 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	var prComment string
+	var (
+		prComment string
+		prLabels  []string
+	)
+
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		prComment = webhook.PullRequest.Comment
+	}
+
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		prLabels = webhook.PullRequest.Labels
 	}
 
 	// construct CompileAndPublishConfig
@@ -286,6 +294,7 @@ func PostWebhook(c *gin.Context) {
 		BaseErr:  baseErr,
 		Source:   "webhook",
 		Comment:  prComment,
+		Labels:   prLabels,
 		Retries:  3,
 	}
 
