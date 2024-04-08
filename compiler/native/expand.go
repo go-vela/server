@@ -119,6 +119,14 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 			return s, err
 		}
 
+		// initialize variable map if not parsed from config
+		if len(step.Template.Variables) == 0 {
+			step.Template.Variables = make(map[string]interface{})
+		}
+
+		// inject template name into variables
+		step.Template.Variables["VELA_TEMPLATE_NAME"] = step.Template.Name
+
 		tmplBuild, err := c.mergeTemplate(bytes, tmpl, step)
 		if err != nil {
 			return s, err

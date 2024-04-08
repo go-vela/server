@@ -690,9 +690,6 @@ func TestGithub_Enable(t *testing.T) {
 	r.SetName("bar")
 	r.SetOrg("foo")
 	r.SetHash("secret")
-	r.SetAllowPush(true)
-	r.SetAllowPull(true)
-	r.SetAllowDeploy(true)
 
 	client, _ := NewTest(s.URL)
 
@@ -739,9 +736,6 @@ func TestGithub_Update(t *testing.T) {
 	r.SetName("bar")
 	r.SetOrg("foo")
 	r.SetHash("secret")
-	r.SetAllowPush(true)
-	r.SetAllowPull(true)
-	r.SetAllowDeploy(true)
 
 	hookID := int64(1)
 
@@ -908,10 +902,27 @@ func TestGithub_Status_Running(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
+	step := new(library.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusRunning)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
 	err := client.Status(context.TODO(), u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -952,10 +963,27 @@ func TestGithub_Status_Success(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
+	step := new(library.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusSuccess)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
 	err := client.Status(context.TODO(), u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -996,10 +1024,27 @@ func TestGithub_Status_Failure(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
+	step := new(library.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusFailure)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
 	err := client.Status(context.TODO(), u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1040,10 +1085,27 @@ func TestGithub_Status_Killed(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
+	step := new(library.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusKilled)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
 	err := client.Status(context.TODO(), u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1084,10 +1146,27 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	b.SetStatus(constants.StatusSkipped)
 	b.SetCommit("abcd1234")
 
+	step := new(library.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusSkipped)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
 	err := client.Status(context.TODO(), u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
@@ -1128,10 +1207,27 @@ func TestGithub_Status_Error(t *testing.T) {
 	b.SetStatus(constants.StatusRunning)
 	b.SetCommit("abcd1234")
 
+	step := new(library.Step)
+	step.SetID(1)
+	step.SetNumber(1)
+	step.SetName("test")
+	step.SetReportAs("test")
+	step.SetStatus(constants.StatusError)
+
 	client, _ := NewTest(s.URL)
 
 	// run test
 	err := client.Status(context.TODO(), u, b, "foo", "bar")
+
+	if resp.Code != http.StatusOK {
+		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)
+	}
+
+	if err != nil {
+		t.Errorf("Status returned err: %v", err)
+	}
+
+	err = client.StepStatus(context.TODO(), u, b, step, "foo", "bar")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Status returned %v, want %v", resp.Code, http.StatusOK)

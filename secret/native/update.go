@@ -20,11 +20,6 @@ func (c *client) Update(ctx context.Context, sType, org, name string, s *library
 		return nil, err
 	}
 
-	// update the events if set
-	if len(s.GetEvents()) > 0 {
-		secret.SetEvents(s.GetEvents())
-	}
-
 	// update allow events if set
 	if s.GetAllowEvents().ToDatabase() > 0 {
 		secret.SetAllowEvents(s.GetAllowEvents())

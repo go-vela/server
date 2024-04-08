@@ -226,11 +226,6 @@ func CreateSecret(c *gin.Context) {
 		input.SetAllowEvents(e)
 	}
 
-	if len(input.GetEvents()) == 0 {
-		// set default events to enable for the secret
-		input.SetEvents([]string{constants.EventPush, constants.EventTag, constants.EventDeploy})
-	}
-
 	if input.AllowCommand == nil {
 		input.SetAllowCommand(true)
 	}

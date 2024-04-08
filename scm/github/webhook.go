@@ -250,11 +250,13 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, reopened, or edited
+	// skip if the pull request action is not opened, synchronize, reopened, edited, labeled, or unlabeled
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") &&
 		!strings.EqualFold(payload.GetAction(), "reopened") &&
-		!strings.EqualFold(payload.GetAction(), "edited") {
+		!strings.EqualFold(payload.GetAction(), "edited") &&
+		!strings.EqualFold(payload.GetAction(), "labeled") &&
+		!strings.EqualFold(payload.GetAction(), "unlabeled") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -309,6 +311,17 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
+	var prLabels []string
+	if strings.EqualFold(payload.GetAction(), "labeled") ||
+		strings.EqualFold(payload.GetAction(), "unlabeled") {
+		prLabels = append(prLabels, payload.GetLabel().GetName())
+	} else {
+		labels := payload.GetPullRequest().Labels
+		for _, label := range labels {
+			prLabels = append(prLabels, label.GetName())
+		}
+	}
+
 	// determine if pull request head is a fork and does not match the repo name of base
 	fromFork := payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
 		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName())
@@ -317,6 +330,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		PullRequest: types.PullRequest{
 			Number:     payload.GetNumber(),
 			IsFromFork: fromFork,
+			Labels:     prLabels,
 		},
 		Hook:  h,
 		Repo:  r,
@@ -437,8 +451,8 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 		fmt.Sprintf("https://%s/%s/settings/hooks", h.GetHost(), payload.GetRepo().GetFullName()),
 	)
 
-	// skip if the comment action is deleted
-	if strings.EqualFold(payload.GetAction(), "deleted") {
+	// skip if the comment action is deleted or not part of a pull request
+	if strings.EqualFold(payload.GetAction(), "deleted") || !payload.GetIssue().IsPullRequest() {
 		// return &types.Webhook{Hook: h}, nil
 		return &types.Webhook{
 			Hook: h,
@@ -470,22 +484,12 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	b.SetSender(payload.GetSender().GetLogin())
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
-	// treat as non-pull-request comment by default and
-	// set ref to default branch for the repo
-	b.SetRef(fmt.Sprintf("refs/heads/%s", r.GetBranch()))
-
-	pr := 0
-	// override ref and pull request number if this is
-	// a comment on a pull request
-	if payload.GetIssue().IsPullRequest() {
-		b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
-		pr = payload.GetIssue().GetNumber()
-	}
+	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))
 
 	return &types.Webhook{
 		PullRequest: types.PullRequest{
 			Comment: payload.GetComment().GetBody(),
-			Number:  pr,
+			Number:  payload.GetIssue().GetNumber(),
 		},
 		Hook:  h,
 		Repo:  r,

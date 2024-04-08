@@ -144,10 +144,6 @@ func UpdateSecret(c *gin.Context) {
 		input.SetImages(util.Unique(input.GetImages()))
 	}
 
-	if len(input.GetEvents()) > 0 {
-		input.SetEvents(util.Unique(input.GetEvents()))
-	}
-
 	if input.AllowCommand != nil {
 		// update allow_command if set
 		input.SetAllowCommand(input.GetAllowCommand())

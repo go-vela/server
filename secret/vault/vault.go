@@ -145,22 +145,8 @@ func secretFromVault(vault *api.Secret) *library.Secret {
 		data = vault.Data
 	}
 
-	// set events if found in Vault secret
-	v, ok := data["events"]
-	if ok {
-		events, ok := v.([]interface{})
-		if ok {
-			for _, element := range events {
-				event, ok := element.(string)
-				if ok {
-					s.SetEvents(append(s.GetEvents(), event))
-				}
-			}
-		}
-	}
-
 	// set allow_events if found in Vault secret
-	v, ok = data["allow_events"]
+	v, ok := data["allow_events"]
 	if ok {
 		maskJSON, ok := v.(json.Number)
 		if ok {
@@ -345,11 +331,6 @@ func vaultFromSecret(s *library.Secret) *api.Secret {
 	data := make(map[string]interface{})
 	vault := new(api.Secret)
 	vault.Data = data
-
-	// set events if found in Vela secret
-	if len(s.GetEvents()) > 0 {
-		vault.Data["events"] = s.GetEvents()
-	}
 
 	// set allow events to mask
 	if s.GetAllowEvents().ToDatabase() != 0 {

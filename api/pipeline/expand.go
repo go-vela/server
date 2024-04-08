@@ -96,8 +96,10 @@ func ExpandPipeline(c *gin.Context) {
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
+	ruleData := prepareRuleData(c)
+
 	// expand the templates in the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), false)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to expand pipeline %s: %w", entry, err)
 

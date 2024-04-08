@@ -49,11 +49,6 @@ func TestOrg_Establish(t *testing.T) {
 	r.SetPrivate(false)
 	r.SetTrusted(false)
 	r.SetActive(false)
-	r.SetAllowPull(false)
-	r.SetAllowPush(false)
-	r.SetAllowDeploy(false)
-	r.SetAllowTag(false)
-	r.SetAllowComment(false)
 
 	want := "foo"
 	got := ""

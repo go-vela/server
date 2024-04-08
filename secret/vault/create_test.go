@@ -51,7 +51,6 @@ func TestVault_Create_Org(t *testing.T) {
 	sec.SetValue("baz")
 	sec.SetType("org")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(true)
 	sec.SetAllowSubstitution(true)
 	sec.SetAllowEvents(library.NewEventsFromMask(1))
@@ -142,7 +141,6 @@ func TestVault_Create_Repo(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(true)
 	sec.SetAllowSubstitution(true)
 	sec.SetAllowEvents(library.NewEventsFromMask(3))
@@ -234,7 +232,6 @@ func TestVault_Create_Shared(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("shared")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 	sec.SetAllowSubstitution(false)
 	sec.SetAllowEvents(library.NewEventsFromMask(1))
@@ -321,7 +318,6 @@ func TestVault_Create_InvalidSecret(t *testing.T) {
 	sec.SetValue("")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
 	type args struct {
@@ -376,7 +372,6 @@ func TestVault_Create_InvalidType(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("invalid")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
 	// setup mock server
@@ -430,7 +425,6 @@ func TestVault_Create_ClosedServer(t *testing.T) {
 	sec.SetValue("foob")
 	sec.SetType("repo")
 	sec.SetImages([]string{"foo", "bar"})
-	sec.SetEvents([]string{"foo", "bar"})
 	sec.SetAllowCommand(false)
 
 	// setup mock server
