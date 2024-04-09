@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -122,11 +122,8 @@ func (c *client) Disable(ctx context.Context, u *library.User, org, name string)
 			continue
 		}
 
-		// cast url from hook configuration to string
-		hookURL := hook.Config["url"].(string)
-
 		// capture hook ID if the hook url matches
-		if hookURL == fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress) {
+		if strings.EqualFold(hook.GetConfig().GetURL(), fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -192,10 +189,10 @@ func (c *client) Enable(ctx context.Context, u *library.User, r *library.Repo, h
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: events,
-		Config: map[string]interface{}{
-			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
-			"content_type": "form",
-			"secret":       r.GetHash(),
+		Config: &github.HookConfig{
+			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			ContentType: github.String("form"),
+			Secret:      github.String(r.GetHash()),
 		},
 		Active: github.Bool(true),
 	}
@@ -266,10 +263,10 @@ func (c *client) Update(ctx context.Context, u *library.User, r *library.Repo, h
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: events,
-		Config: map[string]interface{}{
-			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
-			"content_type": "form",
-			"secret":       r.GetHash(),
+		Config: &github.HookConfig{
+			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			ContentType: github.String("form"),
+			Secret:      github.String(r.GetHash()),
 		},
 		Active: github.Bool(true),
 	}
@@ -291,6 +288,12 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 		"user":  u.GetName(),
 	}).Tracef("setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
 
+	// only report opened, synchronize, and reopened action types for pull_request events
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) && !strings.EqualFold(b.GetEventAction(), constants.ActionOpened) &&
+		!strings.EqualFold(b.GetEventAction(), constants.ActionSynchronize) && !strings.EqualFold(b.GetEventAction(), constants.ActionReopened) {
+		return nil
+	}
+
 	// create GitHub OAuth client with user's token
 	client := c.newClientToken(*u.Token)
 
@@ -306,12 +309,14 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 	// depending on what the status of the build is
 	switch b.GetStatus() {
 	case constants.StatusRunning, constants.StatusPending:
+		//nolint:goconst // ignore making constant
 		state = "pending"
 		description = fmt.Sprintf("the build is %s", b.GetStatus())
 	case constants.StatusPendingApproval:
 		state = "pending"
 		description = "build needs approval from repo admin to run"
 	case constants.StatusSuccess:
+		//nolint:goconst // ignore making constant
 		state = "success"
 		description = "the build was successful"
 	case constants.StatusFailure:
@@ -367,6 +372,75 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 		_, _, err = client.Repositories.CreateDeploymentStatus(ctx, org, name, int64(number), status)
 
 		return err
+	}
+
+	// create the status object to make the API call
+	status := &github.RepoStatus{
+		Context:     github.String(context),
+		Description: github.String(description),
+		State:       github.String(state),
+	}
+
+	// provide "Details" link in GitHub UI if server was configured with it
+	if len(c.config.WebUIAddress) > 0 && b.GetStatus() != constants.StatusSkipped {
+		status.TargetURL = github.String(url)
+	}
+
+	// send API call to create the status context for the commit
+	_, _, err := client.Repositories.CreateStatus(ctx, org, name, b.GetCommit(), status)
+
+	return err
+}
+
+// StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
+func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Build, s *library.Step, org, name string) error {
+	c.Logger.WithFields(logrus.Fields{
+		"build": b.GetNumber(),
+		"org":   org,
+		"repo":  name,
+		"user":  u.GetName(),
+	}).Tracef("setting commit status for %s/%s/%d @ %s", org, name, b.GetNumber(), b.GetCommit())
+
+	// no commit statuses on deployments
+	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
+		return nil
+	}
+
+	// create GitHub OAuth client with user's token
+	client := c.newClientToken(*u.Token)
+
+	context := fmt.Sprintf("%s/%s/%s", c.config.StatusContext, b.GetEvent(), s.GetReportAs())
+	url := fmt.Sprintf("%s/%s/%s/%d#step:%d", c.config.WebUIAddress, org, name, b.GetNumber(), s.GetNumber())
+
+	var (
+		state       string
+		description string
+	)
+
+	// set the state and description for the status context
+	// depending on what the status of the step is
+	switch s.GetStatus() {
+	case constants.StatusRunning, constants.StatusPending, constants.StatusPendingApproval:
+		state = "pending"
+		description = fmt.Sprintf("the step is %s", s.GetStatus())
+	case constants.StatusSuccess:
+		state = "success"
+		description = "the step was successful"
+	case constants.StatusFailure:
+		state = "failure"
+		description = "the step has failed"
+	case constants.StatusCanceled:
+		state = "failure"
+		description = "the step was canceled"
+	case constants.StatusKilled:
+		state = "failure"
+		description = "the step was killed"
+	case constants.StatusSkipped:
+		state = "failure"
+		description = "step was skipped or never ran"
+	default:
+		state = "error"
+		description = "there was an error"
 	}
 
 	// create the status object to make the API call

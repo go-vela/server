@@ -198,11 +198,6 @@ func testRepo() *library.Repo {
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
-		AllowPull:    new(bool),
-		AllowPush:    new(bool),
-		AllowDeploy:  new(bool),
-		AllowTag:     new(bool),
-		AllowComment: new(bool),
 	}
 }
 
@@ -218,7 +213,6 @@ func testSecret() *library.Secret {
 		Value:             new(string),
 		Type:              new(string),
 		Images:            new([]string),
-		Events:            new([]string),
 		AllowEvents:       testEvents(),
 		AllowCommand:      new(bool),
 		AllowSubstitution: new(bool),
@@ -242,6 +236,8 @@ func testEvents() *library.Events {
 			Edited:      new(bool),
 			Synchronize: new(bool),
 			Reopened:    new(bool),
+			Labeled:     new(bool),
+			Unlabeled:   new(bool),
 		},
 		Deployment: &actions.Deploy{
 			Created: new(bool),

@@ -328,3 +328,23 @@ func TestNative_WithUser(t *testing.T) {
 		t.Errorf("WithUser is %v, want %v", got, want)
 	}
 }
+
+func TestNative_WithLabels(t *testing.T) {
+	// setup types
+	set := flag.NewFlagSet("test", 0)
+	c := cli.NewContext(nil, set, nil)
+
+	labels := []string{"documentation", "enhancement"}
+	want, _ := New(c)
+	want.labels = []string{"documentation", "enhancement"}
+
+	// run test
+	got, err := New(c)
+	if err != nil {
+		t.Errorf("Unable to create new compiler: %v", err)
+	}
+
+	if !reflect.DeepEqual(got.WithLabels(labels), want) {
+		t.Errorf("WithLocalTemplates is %v, want %v", got, want)
+	}
+}

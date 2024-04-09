@@ -40,7 +40,7 @@ import (
 //   '201':
 //     description: Successfully created the worker and retrieved auth token
 //     schema:
-//       "$ref": "#definitions/Token"
+//       "$ref": "#/definitions/Token"
 //   '400':
 //     description: Unable to create the worker
 //     schema:
