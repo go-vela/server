@@ -10,7 +10,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 )
 
 // Changeset captures the list of files changed for a commit.

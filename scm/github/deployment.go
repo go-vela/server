@@ -11,7 +11,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 )
 
 // GetDeployment gets a deployment from the GitHub repo.

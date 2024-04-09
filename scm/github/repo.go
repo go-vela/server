@@ -15,7 +15,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 )
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
@@ -123,11 +123,8 @@ func (c *client) Disable(ctx context.Context, u *library.User, org, name string)
 			continue
 		}
 
-		// cast url from hook configuration to string
-		hookURL := hook.Config["url"].(string)
-
 		// capture hook ID if the hook url matches
-		if hookURL == fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress) {
+		if strings.EqualFold(hook.GetConfig().GetURL(), fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)) {
 			ids = append(ids, hook.GetID())
 		}
 	}
@@ -193,10 +190,10 @@ func (c *client) Enable(ctx context.Context, u *library.User, r *api.Repo, h *li
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: events,
-		Config: map[string]interface{}{
-			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
-			"content_type": "form",
-			"secret":       r.GetHash(),
+		Config: &github.HookConfig{
+			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			ContentType: github.String("form"),
+			Secret:      github.String(r.GetHash()),
 		},
 		Active: github.Bool(true),
 	}
@@ -267,10 +264,10 @@ func (c *client) Update(ctx context.Context, u *library.User, r *api.Repo, hookI
 	// create the hook object to make the API call
 	hook := &github.Hook{
 		Events: events,
-		Config: map[string]interface{}{
-			"url":          fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress),
-			"content_type": "form",
-			"secret":       r.GetHash(),
+		Config: &github.HookConfig{
+			URL:         github.String(fmt.Sprintf("%s/webhook", c.config.ServerWebhookAddress)),
+			ContentType: github.String("form"),
+			Secret:      github.String(r.GetHash()),
 		},
 		Active: github.Bool(true),
 	}
