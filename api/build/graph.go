@@ -194,7 +194,7 @@ func GetBuildGraph(c *gin.Context) {
 		// check if the build event is not pull_request
 		if !strings.EqualFold(b.GetEvent(), constants.EventPull) {
 			// send API call to capture list of files changed for the commit
-			files, err = scm.FromContext(c).Changeset(ctx, u, r, b.GetCommit())
+			files, err = scm.FromContext(c).Changeset(ctx, r, b.GetCommit())
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 

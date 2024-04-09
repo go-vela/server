@@ -162,7 +162,7 @@ func CompileAndPublish(
 		!strings.EqualFold(b.GetEvent(), constants.EventPull) &&
 		!strings.EqualFold(b.GetEvent(), constants.EventDelete) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.Changeset(c, u, r, b.GetCommit())
+		files, err = scm.Changeset(c, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -174,7 +174,7 @@ func CompileAndPublish(
 	// check if the build event is a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && prNum > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.ChangesetPR(c, u, r, prNum)
+		files, err = scm.ChangesetPR(c, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)

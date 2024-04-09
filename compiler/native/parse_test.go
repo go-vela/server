@@ -858,8 +858,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 
 type FailReader struct{}
 
-//nolint:revive // parameter is unused by design
-func (FailReader) Read(p []byte) (n int, err error) {
+func (FailReader) Read(_ []byte) (n int, err error) {
 	return 0, errors.New("this is a reader that fails when you try to read")
 }
 

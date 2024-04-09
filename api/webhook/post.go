@@ -308,7 +308,7 @@ func PostWebhook(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
-	// capture the build, repo, and user from the items
+	// capture the build and repo from the items
 	b, repo = item.Build, item.Repo
 
 	// set hook build_id to the generated build id

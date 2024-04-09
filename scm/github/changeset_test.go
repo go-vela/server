@@ -42,11 +42,12 @@ func TestGithub_Changeset(t *testing.T) {
 	r := new(api.Repo)
 	r.SetOrg("repos")
 	r.SetName("octocat")
+	r.SetOwner(u)
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.Changeset(context.TODO(), u, r, "6dcb09b5b57875f334f61aebed695e2e4193db5e")
+	got, err := client.Changeset(context.TODO(), r, "6dcb09b5b57875f334f61aebed695e2e4193db5e")
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("Changeset returned %v, want %v", resp.Code, http.StatusOK)
@@ -88,11 +89,12 @@ func TestGithub_ChangesetPR(t *testing.T) {
 	r := new(api.Repo)
 	r.SetOrg("repos")
 	r.SetName("octocat")
+	r.SetOwner(u)
 
 	client, _ := NewTest(s.URL)
 
 	// run test
-	got, err := client.ChangesetPR(context.TODO(), u, r, 1)
+	got, err := client.ChangesetPR(context.TODO(), r, 1)
 
 	if resp.Code != http.StatusOK {
 		t.Errorf("ChangesetPR returned %v, want %v", resp.Code, http.StatusOK)

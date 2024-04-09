@@ -68,12 +68,12 @@ type Service interface {
 	// of files changed for a commit.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
-	Changeset(context.Context, *library.User, *api.Repo, string) ([]string, error)
+	Changeset(context.Context, *api.Repo, string) ([]string, error)
 	// ChangesetPR defines a function that captures the list
 	// of files changed for a pull request.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
-	ChangesetPR(context.Context, *library.User, *api.Repo, int) ([]string, error)
+	ChangesetPR(context.Context, *api.Repo, int) ([]string, error)
 
 	// Deployment SCM Interface Functions
 
