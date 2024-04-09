@@ -44,6 +44,7 @@ type client struct {
 	repo           *library.Repo
 	user           *library.User
 	settings       *api.Settings
+	labels         []string
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -216,6 +217,15 @@ func (c *client) WithUser(u *library.User) compiler.Engine {
 func (c *client) WithSettings(s *api.Settings) compiler.Engine {
 	if s != nil {
 		c.settings = s
+	}
+
+	return c
+}
+
+// WithLabels sets the label(s) in the Engine.
+func (c *client) WithLabels(labels []string) compiler.Engine {
+	if len(labels) != 0 {
+		c.labels = labels
 	}
 
 	return c

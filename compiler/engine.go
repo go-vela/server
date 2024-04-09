@@ -24,7 +24,7 @@ type Engine interface {
 	// CompileLite defines a function that produces an light executable
 	// representation of a pipeline from an object. This calls
 	// Parse internally to convert the object to a yaml configuration.
-	CompileLite(interface{}, bool) (*yaml.Build, *library.Pipeline, error)
+	CompileLite(interface{}, *pipeline.RuleData, bool) (*yaml.Build, *library.Pipeline, error)
 
 	// Duplicate defines a function that
 	// creates a clone of the Engine.
@@ -141,6 +141,9 @@ type Engine interface {
 	// WithUser defines a function that sets
 	// the library user type in the Engine.
 	WithUser(*library.User) Engine
+	// WithLabel defines a function that sets
+	// the label(s) in the Engine.
+	WithLabels([]string) Engine
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine

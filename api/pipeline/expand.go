@@ -103,8 +103,10 @@ func ExpandPipeline(c *gin.Context) {
 		WithUser(u).
 		WithSettings(s)
 
+	ruleData := prepareRuleData(c)
+
 	// expand the templates in the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), false)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to expand pipeline %s: %w", entry, err)
 

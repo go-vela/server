@@ -31,6 +31,7 @@ type CompileAndPublishConfig struct {
 	BaseErr  string
 	Source   string
 	Comment  string
+	Labels   []string
 	Retries  int
 }
 
@@ -303,6 +304,7 @@ func CompileAndPublish(
 			WithRepo(repo).
 			WithUser(u).
 			WithSettings(s).
+			WithLabels(cfg.Labels).
 			Compile(pipelineFile)
 		if err != nil {
 			// format the error message with extra information

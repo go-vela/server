@@ -18,7 +18,7 @@ import (
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 )
 
 // ProcessWebhook parses the webhook from a repo.
@@ -250,11 +250,13 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		return &types.Webhook{Hook: h}, nil
 	}
 
-	// skip if the pull request action is not opened, synchronize, reopened, or edited
+	// skip if the pull request action is not opened, synchronize, reopened, edited, labeled, or unlabeled
 	if !strings.EqualFold(payload.GetAction(), "opened") &&
 		!strings.EqualFold(payload.GetAction(), "synchronize") &&
 		!strings.EqualFold(payload.GetAction(), "reopened") &&
-		!strings.EqualFold(payload.GetAction(), "edited") {
+		!strings.EqualFold(payload.GetAction(), "edited") &&
+		!strings.EqualFold(payload.GetAction(), "labeled") &&
+		!strings.EqualFold(payload.GetAction(), "unlabeled") {
 		return &types.Webhook{Hook: h}, nil
 	}
 
@@ -309,6 +311,17 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		b.SetEmail(payload.GetPullRequest().GetHead().GetUser().GetEmail())
 	}
 
+	var prLabels []string
+	if strings.EqualFold(payload.GetAction(), "labeled") ||
+		strings.EqualFold(payload.GetAction(), "unlabeled") {
+		prLabels = append(prLabels, payload.GetLabel().GetName())
+	} else {
+		labels := payload.GetPullRequest().Labels
+		for _, label := range labels {
+			prLabels = append(prLabels, label.GetName())
+		}
+	}
+
 	// determine if pull request head is a fork and does not match the repo name of base
 	fromFork := payload.GetPullRequest().GetHead().GetRepo().GetFork() &&
 		!strings.EqualFold(payload.GetPullRequest().GetBase().GetRepo().GetFullName(), payload.GetPullRequest().GetHead().GetRepo().GetFullName())
@@ -317,6 +330,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 		PullRequest: types.PullRequest{
 			Number:     payload.GetNumber(),
 			IsFromFork: fromFork,
+			Labels:     prLabels,
 		},
 		Hook:  h,
 		Repo:  r,

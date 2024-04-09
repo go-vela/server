@@ -372,6 +372,54 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
+	wantBuild2 := new(library.Build)
+	wantBuild2.SetEvent("pull_request")
+	wantBuild2.SetEventAction("labeled")
+	wantBuild2.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild2.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild2.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild2.SetMessage("Update the README with new information")
+	wantBuild2.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild2.SetSender("Codertocat")
+	wantBuild2.SetAuthor("Codertocat")
+	wantBuild2.SetEmail("")
+	wantBuild2.SetBranch("main")
+	wantBuild2.SetRef("refs/pull/1/head")
+	wantBuild2.SetBaseRef("main")
+	wantBuild2.SetHeadRef("changes")
+
+	wantBuild3 := new(library.Build)
+	wantBuild3.SetEvent("pull_request")
+	wantBuild3.SetEventAction("unlabeled")
+	wantBuild3.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild3.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild3.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild3.SetMessage("Update the README with new information")
+	wantBuild3.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild3.SetSender("Codertocat")
+	wantBuild3.SetAuthor("Codertocat")
+	wantBuild3.SetEmail("")
+	wantBuild3.SetBranch("main")
+	wantBuild3.SetRef("refs/pull/1/head")
+	wantBuild3.SetBaseRef("main")
+	wantBuild3.SetHeadRef("changes")
+
+	wantBuild4 := new(library.Build)
+	wantBuild4.SetEvent("pull_request")
+	wantBuild4.SetEventAction("edited")
+	wantBuild4.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild4.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild4.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild4.SetMessage("Update the README with new information")
+	wantBuild4.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild4.SetSender("Codertocat")
+	wantBuild4.SetAuthor("Codertocat")
+	wantBuild4.SetEmail("")
+	wantBuild4.SetBranch("main")
+	wantBuild4.SetRef("refs/pull/1/head")
+	wantBuild4.SetBaseRef("main")
+	wantBuild4.SetHeadRef("changes")
+
 	tests := []struct {
 		name     string
 		testData string
@@ -433,6 +481,48 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 				Hook:  wantHook,
 				Repo:  nil,
 				Build: nil,
+			},
+		},
+		{
+			name:     "labeled documentation",
+			testData: "testdata/hooks/pull_request_labeled.json",
+			want: &types.Webhook{
+				PullRequest: types.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+					Labels:     []string{"documentation"},
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild2,
+			},
+		},
+		{
+			name:     "unlabeled documentation",
+			testData: "testdata/hooks/pull_request_unlabeled.json",
+			want: &types.Webhook{
+				PullRequest: types.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+					Labels:     []string{"documentation"},
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild3,
+			},
+		},
+		{
+			name:     "edited while labeled documentation",
+			testData: "testdata/hooks/pull_request_edited_while_labeled.json",
+			want: &types.Webhook{
+				PullRequest: types.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+					Labels:     []string{"documentation", "enhancement"},
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild4,
 			},
 		},
 	}

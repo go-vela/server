@@ -101,8 +101,10 @@ func ValidatePipeline(c *gin.Context) {
 		WithUser(u).
 		WithSettings(s)
 
+	ruleData := prepareRuleData(c)
+
 	// validate the pipeline
-	pipeline, _, err := compiler.CompileLite(p.GetData(), false)
+	pipeline, _, err := compiler.CompileLite(p.GetData(), ruleData, false)
 	if err != nil {
 		retErr := fmt.Errorf("unable to validate pipeline %s: %w", entry, err)
 
