@@ -5,7 +5,7 @@ package main
 import (
 	"net/url"
 
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/internal"
 
 	"github.com/sirupsen/logrus"
 
@@ -13,10 +13,10 @@ import (
 )
 
 // helper function to setup the metadata from the CLI arguments.
-func setupMetadata(c *cli.Context) (*types.Metadata, error) {
+func setupMetadata(c *cli.Context) (*internal.Metadata, error) {
 	logrus.Debug("Creating metadata from CLI configuration")
 
-	m := new(types.Metadata)
+	m := new(internal.Metadata)
 
 	database, err := metadataDatabase(c)
 	if err != nil {
@@ -50,7 +50,7 @@ func setupMetadata(c *cli.Context) (*types.Metadata, error) {
 }
 
 // helper function to capture the database metadata from the CLI arguments.
-func metadataDatabase(c *cli.Context) (*types.Database, error) {
+func metadataDatabase(c *cli.Context) (*internal.Database, error) {
 	logrus.Trace("Creating database metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("database.addr"))
@@ -58,14 +58,14 @@ func metadataDatabase(c *cli.Context) (*types.Database, error) {
 		return nil, err
 	}
 
-	return &types.Database{
+	return &internal.Database{
 		Driver: c.String("database.driver"),
 		Host:   u.Host,
 	}, nil
 }
 
 // helper function to capture the queue metadata from the CLI arguments.
-func metadataQueue(c *cli.Context) (*types.Queue, error) {
+func metadataQueue(c *cli.Context) (*internal.Queue, error) {
 	logrus.Trace("Creating queue metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("queue.addr"))
@@ -73,14 +73,14 @@ func metadataQueue(c *cli.Context) (*types.Queue, error) {
 		return nil, err
 	}
 
-	return &types.Queue{
+	return &internal.Queue{
 		Driver: c.String("queue.driver"),
 		Host:   u.Host,
 	}, nil
 }
 
 // helper function to capture the source metadata from the CLI arguments.
-func metadataSource(c *cli.Context) (*types.Source, error) {
+func metadataSource(c *cli.Context) (*internal.Source, error) {
 	logrus.Trace("Creating source metadata from CLI configuration")
 
 	u, err := url.Parse(c.String("scm.addr"))
@@ -88,7 +88,7 @@ func metadataSource(c *cli.Context) (*types.Source, error) {
 		return nil, err
 	}
 
-	return &types.Source{
+	return &internal.Source{
 		Driver: c.String("scm.driver"),
 		Host:   u.Host,
 	}, nil
@@ -97,10 +97,10 @@ func metadataSource(c *cli.Context) (*types.Source, error) {
 // helper function to capture the Vela metadata from the CLI arguments.
 //
 //nolint:unparam // ignore unparam for now
-func metadataVela(c *cli.Context) (*types.Vela, error) {
+func metadataVela(c *cli.Context) (*internal.Vela, error) {
 	logrus.Trace("Creating Vela metadata from CLI configuration")
 
-	vela := new(types.Vela)
+	vela := new(internal.Vela)
 
 	if len(c.String("server-addr")) > 0 {
 		vela.Address = c.String("server-addr")

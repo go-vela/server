@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 
@@ -23,7 +25,6 @@ import (
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
 
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/pipeline"
 
 	"github.com/gin-gonic/gin"
@@ -39,21 +40,21 @@ func TestNative_Compile_StagesPipeline(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -308,7 +309,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	type args struct {
 		endpoint     string
 		libraryBuild *library.Build
-		repo         *library.Repo
+		repo         *api.Repo
 	}
 
 	tests := []struct {
@@ -318,12 +319,12 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 	}{
 		{"bad url", args{
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     "bad",
 		}, true},
 		{"invalid return", args{
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
@@ -335,7 +336,7 @@ func TestNative_Compile_StagesPipeline_Modification(t *testing.T) {
 					Timeout:  1 * time.Second,
 					Endpoint: tt.args.endpoint,
 				},
-				repo:  &library.Repo{Name: &author},
+				repo:  &api.Repo{Name: &author},
 				build: &library.Build{Author: &name, Number: &number},
 			}
 			_, _, err := compiler.Compile(yaml)
@@ -376,7 +377,7 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	type args struct {
 		endpoint     string
 		libraryBuild *library.Build
-		repo         *library.Repo
+		repo         *api.Repo
 	}
 
 	tests := []struct {
@@ -386,12 +387,12 @@ func TestNative_Compile_StepsPipeline_Modification(t *testing.T) {
 	}{
 		{"bad url", args{
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     "bad",
 		}, true},
 		{"invalid return", args{
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/bad"),
 		}, true},
 	}
@@ -422,21 +423,21 @@ func TestNative_Compile_StepsPipeline(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -633,21 +634,21 @@ func TestNative_Compile_StagesPipelineTemplate(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -904,21 +905,21 @@ func TestNative_Compile_StepsPipelineTemplate(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -1138,21 +1139,21 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName(t *testi
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -1259,21 +1260,21 @@ func TestNative_Compile_StepsPipelineTemplate_VelaFunction_TemplateName_Inline(t
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -1378,21 +1379,21 @@ func TestNative_Compile_InvalidType(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -1435,21 +1436,21 @@ func TestNative_Compile_Clone(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -1629,21 +1630,21 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -1695,10 +1696,10 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 	goPipelineType := "go"
 
-	goFooEnv := environment(nil, m, &library.Repo{PipelineType: &goPipelineType}, nil)
+	goFooEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil)
 	goFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultGoEnv := environment(nil, m, &library.Repo{PipelineType: &goPipelineType}, nil)
+	defaultGoEnv := environment(nil, m, &api.Repo{PipelineType: &goPipelineType}, nil)
 	wantGo := &pipeline.Build{
 		Version: "1",
 		ID:      "__0",
@@ -1741,10 +1742,10 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 
 	starPipelineType := "starlark"
 
-	starlarkFooEnv := environment(nil, m, &library.Repo{PipelineType: &starPipelineType}, nil)
+	starlarkFooEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil)
 	starlarkFooEnv["PARAMETER_REGISTRY"] = "foo"
 
-	defaultStarlarkEnv := environment(nil, m, &library.Repo{PipelineType: &starPipelineType}, nil)
+	defaultStarlarkEnv := environment(nil, m, &api.Repo{PipelineType: &starPipelineType}, nil)
 	wantStarlark := &pipeline.Build{
 		Version: "1",
 		ID:      "__0",
@@ -1815,7 +1816,9 @@ func TestNative_Compile_Pipeline_Type(t *testing.T) {
 			}
 
 			compiler.WithMetadata(m)
-			compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
+
+			pipelineType := tt.args.pipelineType
+			compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 
 			got, _, err := compiler.Compile(yaml)
 			if err != nil {
@@ -1848,7 +1851,7 @@ func TestNative_Compile_NoStepsorStages(t *testing.T) {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
 
-	compiler.repo = &library.Repo{Name: &author}
+	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
 	got, _, err := compiler.Compile(yaml)
@@ -1880,7 +1883,7 @@ func TestNative_Compile_StepsandStages(t *testing.T) {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
 
-	compiler.repo = &library.Repo{Name: &author}
+	compiler.repo = &api.Repo{Name: &author}
 	compiler.build = &library.Build{Author: &name, Number: &number}
 
 	got, _, err := compiler.Compile(yaml)
@@ -1923,21 +1926,21 @@ func Test_client_modifyConfig(t *testing.T) {
 		c.JSON(http.StatusOK, body)
 	})
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -2083,7 +2086,7 @@ func Test_client_modifyConfig(t *testing.T) {
 		endpoint     string
 		build        *yaml.Build
 		libraryBuild *library.Build
-		repo         *library.Repo
+		repo         *api.Repo
 	}
 
 	tests := []struct {
@@ -2095,37 +2098,37 @@ func Test_client_modifyConfig(t *testing.T) {
 		{"unmodified", args{
 			build:        want,
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/unmodified"),
 		}, want, false},
 		{"modified", args{
 			build:        want,
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/modified"),
 		}, want2, false},
 		{"invalid endpoint", args{
 			build:        want,
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     "bad",
 		}, nil, true},
 		{"unauthorized endpoint", args{
 			build:        want,
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/unauthorized"),
 		}, nil, true},
 		{"timeout endpoint", args{
 			build:        want,
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/timeout"),
 		}, nil, true},
 		{"empty payload", args{
 			build:        want,
 			libraryBuild: &library.Build{Number: &number, Author: &author},
-			repo:         &library.Repo{Name: &name},
+			repo:         &api.Repo{Name: &name},
 			endpoint:     fmt.Sprintf("%s/%s", s.URL, "config/empty"),
 		}, nil, true},
 	}
@@ -2166,7 +2169,7 @@ func convertFileToGithubResponse(file string) (github.RepositoryContent, error) 
 	return content, nil
 }
 
-func generateTestEnv(command string, m *types.Metadata, pipelineType string) map[string]string {
+func generateTestEnv(command string, m *internal.Metadata, pipelineType string) map[string]string {
 	output := environment(nil, m, nil, nil)
 	output["VELA_BUILD_SCRIPT"] = generateScriptPosix([]string{command})
 	output["HOME"] = "/root"
@@ -2204,21 +2207,21 @@ func Test_Compile_Inline(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -2964,7 +2967,8 @@ func Test_Compile_Inline(t *testing.T) {
 			compiler.WithMetadata(m)
 
 			if tt.args.pipelineType != "" {
-				compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
+				pipelineType := tt.args.pipelineType
+				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 			}
 
 			got, _, err := compiler.Compile(yaml)
@@ -3021,21 +3025,21 @@ func Test_CompileLite(t *testing.T) {
 	set.Int("max-template-depth", 5, "doc")
 	c := cli.NewContext(nil, set, nil)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},
@@ -3833,7 +3837,8 @@ func Test_CompileLite(t *testing.T) {
 
 			compiler.WithMetadata(m)
 			if tt.args.pipelineType != "" {
-				compiler.WithRepo(&library.Repo{PipelineType: &tt.args.pipelineType})
+				pipelineType := tt.args.pipelineType
+				compiler.WithRepo(&api.Repo{PipelineType: &pipelineType})
 			}
 
 			yaml, err := os.ReadFile(tt.args.file)

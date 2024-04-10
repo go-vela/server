@@ -5,6 +5,7 @@ package hook
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -29,7 +30,7 @@ type HookInterface interface {
 	// CountHooks defines a function that gets the count of all hooks.
 	CountHooks(context.Context) (int64, error)
 	// CountHooksForRepo defines a function that gets the count of hooks by repo ID.
-	CountHooksForRepo(context.Context, *library.Repo) (int64, error)
+	CountHooksForRepo(context.Context, *api.Repo) (int64, error)
 	// CreateHook defines a function that creates a new hook.
 	CreateHook(context.Context, *library.Hook) (*library.Hook, error)
 	// DeleteHook defines a function that deletes an existing hook.
@@ -39,13 +40,13 @@ type HookInterface interface {
 	// GetHookByWebhookID defines a function that gets any hook with a matching webhook_id.
 	GetHookByWebhookID(context.Context, int64) (*library.Hook, error)
 	// GetHookForRepo defines a function that gets a hook by repo ID and number.
-	GetHookForRepo(context.Context, *library.Repo, int) (*library.Hook, error)
+	GetHookForRepo(context.Context, *api.Repo, int) (*library.Hook, error)
 	// LastHookForRepo defines a function that gets the last hook by repo ID.
-	LastHookForRepo(context.Context, *library.Repo) (*library.Hook, error)
+	LastHookForRepo(context.Context, *api.Repo) (*library.Hook, error)
 	// ListHooks defines a function that gets a list of all hooks.
 	ListHooks(context.Context) ([]*library.Hook, error)
 	// ListHooksForRepo defines a function that gets a list of hooks by repo ID.
-	ListHooksForRepo(context.Context, *library.Repo, int, int) ([]*library.Hook, int64, error)
+	ListHooksForRepo(context.Context, *api.Repo, int, int) ([]*library.Hook, int64, error)
 	// UpdateHook defines a function that updates an existing hook.
 	UpdateHook(context.Context, *library.Hook) (*library.Hook, error)
 }

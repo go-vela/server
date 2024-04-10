@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
@@ -38,9 +39,12 @@ func TestStep_Retrieve(t *testing.T) {
 
 func TestStep_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -153,9 +157,12 @@ func TestStep_Establish_NoRepo(t *testing.T) {
 
 func TestStep_Establish_NoBuild(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -201,9 +208,12 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 
 func TestStep_Establish_NoStepParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -257,9 +267,12 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -313,9 +326,12 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 func TestStep_Establish_NoStep(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")

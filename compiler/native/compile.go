@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/types/constants"
 
 	yml "github.com/buildkite/yaml"
+	api "github.com/go-vela/server/api/types"
 
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -502,7 +503,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *library.Repo) (*yaml.Build, error) {
+func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {
