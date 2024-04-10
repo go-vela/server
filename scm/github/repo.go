@@ -581,15 +581,15 @@ func toLibraryRepo(gr github.Repository) *api.Repo {
 
 // GetPullRequest defines a function that retrieves
 // a pull request for a repo.
-func (c *client) GetPullRequest(ctx context.Context, u *library.User, r *api.Repo, number int) (string, string, string, string, error) {
+func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (string, string, string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-		"user": u.GetName(),
+		"user": r.GetOwner().GetName(),
 	}).Tracef("retrieving pull request %d for repo %s", number, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(r.GetOwner().GetToken())
 
 	pull, _, err := client.PullRequests.Get(ctx, r.GetOrg(), r.GetName(), number)
 	if err != nil {
@@ -641,15 +641,15 @@ func (c *client) GetHTMLURL(ctx context.Context, u *library.User, org, repo, nam
 }
 
 // GetBranch defines a function that retrieves a branch for a repo.
-func (c *client) GetBranch(ctx context.Context, u *library.User, r *api.Repo, branch string) (string, string, error) {
+func (c *client) GetBranch(ctx context.Context, r *api.Repo, branch string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-		"user": u.GetName(),
+		"user": r.GetOwner().GetName(),
 	}).Tracef("retrieving branch %s for repo %s", branch, r.GetFullName())
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(r.GetOwner().GetToken())
 
 	maxRedirects := 3
 

@@ -1521,6 +1521,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	r := new(api.Repo)
 	r.SetOrg("octocat")
 	r.SetName("Hello-World")
+	r.SetOwner(u)
 
 	wantCommit := "6dcb09b5b57875f334f61aebed695e2e4193db5e"
 	wantBranch := "main"
@@ -1530,7 +1531,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(context.TODO(), u, r, 1)
+	gotCommit, gotBranch, gotBaseRef, gotHeadRef, err := client.GetPullRequest(context.TODO(), r, 1)
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}
@@ -1579,6 +1580,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	r.SetName("Hello-World")
 	r.SetFullName("octocat/Hello-World")
 	r.SetBranch("main")
+	r.SetOwner(u)
 
 	wantBranch := "main"
 	wantCommit := "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
@@ -1586,7 +1588,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	gotBranch, gotCommit, err := client.GetBranch(context.TODO(), u, r, "main")
+	gotBranch, gotCommit, err := client.GetBranch(context.TODO(), r, "main")
 	if err != nil {
 		t.Errorf("Status returned err: %v", err)
 	}

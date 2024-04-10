@@ -89,7 +89,7 @@ func CompileAndPublish(
 			return nil, nil, retErr
 		}
 
-		commit, branch, baseref, headref, err := scm.GetPullRequest(c, u, r, prNum)
+		commit, branch, baseref, headref, err := scm.GetPullRequest(c, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -106,7 +106,7 @@ func CompileAndPublish(
 	// if the source is from a schedule, fetch the commit sha from schedule branch (same as build branch at this moment)
 	if strings.EqualFold(cfg.Source, "schedule") {
 		// send API call to capture the commit sha for the branch
-		_, commit, err := scm.GetBranch(c, u, r, b.GetBranch())
+		_, commit, err := scm.GetBranch(c, r, b.GetBranch())
 		if err != nil {
 			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)

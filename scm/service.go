@@ -119,10 +119,10 @@ type Service interface {
 	ListUserRepos(context.Context, *library.User) ([]*api.Repo, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
-	GetBranch(context.Context, *library.User, *api.Repo, string) (string, string, error)
+	GetBranch(context.Context, *api.Repo, string) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
-	GetPullRequest(context.Context, *library.User, *api.Repo, int) (string, string, string, string, error)
+	GetPullRequest(context.Context, *api.Repo, int) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
 	GetRepo(context.Context, *library.User, *api.Repo) (*api.Repo, int, error)
