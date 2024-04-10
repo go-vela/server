@@ -10,7 +10,7 @@ require (
 	github.com/adhocore/gronx v1.8.1
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/aws/aws-sdk-go v1.51.0
-	github.com/buildkite/yaml v0.0.0-20230306222819-0e4e032d4835
+	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
 	github.com/drone/envsubst v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
