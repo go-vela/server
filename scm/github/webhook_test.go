@@ -573,7 +573,8 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
-	wantHook.SetEvent("deployment")
+	wantHook.SetEvent(constants.EventDeploy)
+	wantHook.SetEventAction(constants.ActionCreated)
 	wantHook.SetStatus(constants.StatusSuccess)
 
 	wantRepo := new(library.Repo)
@@ -587,7 +588,8 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
-	wantBuild.SetEvent("deployment")
+	wantBuild.SetEvent(constants.EventDeploy)
+	wantBuild.SetEventAction(constants.ActionCreated)
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetDeploy("production")
 	wantBuild.SetDeployNumber(145988746)
