@@ -85,6 +85,11 @@ func UpdateSettings(c *gin.Context) {
 		s.CloneImage = input.CloneImage
 	}
 
+	if input.QueueRoutes != nil {
+		// update routes if set
+		s.SetQueueRoutes(input.GetQueueRoutes())
+	}
+
 	// send API call to update the repo
 	s, err = database.FromContext(c).UpdateSettings(ctx, s)
 	if err != nil {

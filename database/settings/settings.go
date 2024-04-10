@@ -10,6 +10,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/util"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
@@ -23,6 +24,9 @@ var (
 	// ErrEmptyCloneImage defines the error type when a
 	// Settings type has an empty CloneImage field provided.
 	ErrEmptyCloneImage = errors.New("empty settings clone image provided")
+	// ErrEmptyQueueRoutes defines the error type when a
+	// Settings type has an empty QueueRoutes field provided.
+	ErrEmptyQueueRoutes = errors.New("empty settings queue routes provided")
 )
 
 // todo: comments Build->Settings
@@ -53,8 +57,9 @@ type (
 
 	// Settings is the database representation of platform settings.
 	Settings struct {
-		ID         sql.NullInt64  `sql:"id"`
-		CloneImage sql.NullString `sql:"clone_image"`
+		ID          sql.NullInt64  `sql:"id"`
+		CloneImage  sql.NullString `sql:"clone_image"`
+		QueueRoutes pq.StringArray `sql:"queue_routes" gorm:"type:varchar(1000)"`
 	}
 )
 
@@ -99,7 +104,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 // Nullify ensures the valid flag for
 // the sql.Null types are properly set.
 //
-// When a field within the Build type is the zero
+// When a field within the Settings type is the zero
 // value for the field, the valid flag is set to
 // false causing it to be NULL in the database.
 func (s *Settings) Nullify() *Settings {
@@ -120,13 +125,14 @@ func (s *Settings) Nullify() *Settings {
 	return s
 }
 
-// ToAPI converts the Worker type
-// to an API Worker type.
+// ToAPI converts the Settings type
+// to an API Settings type.
 func (s *Settings) ToAPI() *api.Settings {
 	settings := new(api.Settings)
 
 	settings.SetID(s.ID.Int64)
 	settings.SetCloneImage(s.CloneImage.String)
+	settings.SetQueueRoutes(s.QueueRoutes)
 
 	return settings
 }
@@ -144,15 +150,22 @@ func (s *Settings) Validate() error {
 	// to avoid unsafe HTML content
 	s.CloneImage = sql.NullString{String: util.Sanitize(s.CloneImage.String), Valid: s.CloneImage.Valid}
 
+	// ensure that all QueueRoutes are sanitized
+	// to avoid unsafe HTML content
+	for i, v := range s.QueueRoutes {
+		s.QueueRoutes[i] = util.Sanitize(v)
+	}
+
 	return nil
 }
 
-// FromAPI converts the API settings type
-// to a database settings type.
+// FromAPI converts the API Settings type
+// to a database Settings type.
 func FromAPI(s *api.Settings) *Settings {
 	settings := &Settings{
-		ID:         sql.NullInt64{Int64: s.GetID(), Valid: true},
-		CloneImage: sql.NullString{String: s.GetCloneImage(), Valid: true},
+		ID:          sql.NullInt64{Int64: s.GetID(), Valid: true},
+		CloneImage:  sql.NullString{String: s.GetCloneImage(), Valid: true},
+		QueueRoutes: pq.StringArray(s.GetQueueRoutes()),
 	}
 
 	return settings.Nullify()

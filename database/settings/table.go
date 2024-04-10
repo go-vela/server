@@ -14,8 +14,9 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id            SERIAL PRIMARY KEY,
-	clone_image       VARCHAR(250)
+	id                 SERIAL PRIMARY KEY,
+	clone_image        VARCHAR(250),
+	queue_routes       VARCHAR(1000)
 );
 `
 
@@ -24,8 +25,9 @@ settings (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	clone_image       TEXT
+	id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+	clone_image        TEXT,
+	queue_routes       TEXT
 );
 `
 )
