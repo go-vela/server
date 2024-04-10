@@ -4,18 +4,19 @@ package repo
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
+	"github.com/go-vela/types/database"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
@@ -23,7 +24,15 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	_repo.SetVisibility("public")
 	_repo.SetPipelineType("yaml")
 	_repo.SetTopics([]string{})
-	_repo.SetAllowEvents(library.NewEventsFromMask(1))
+	_repo.SetAllowEvents(api.NewEventsFromMask(1))
+
+	_owner := testOwner()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+	_owner.SetHash("baz")
+
+	_repo.SetOwner(_owner)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -33,8 +42,13 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
 		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
 
+	_userRows := sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE org = $1 AND name = $2 LIMIT $3`).WithArgs("foo", "bar", 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -44,12 +58,22 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
+	err = _sqlite.client.AutoMigrate(&database.User{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableUser).Create(database.UserFromLibrary(_owner)).Error
+	if err != nil {
+		t.Errorf("unable to create test user for sqlite: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Repo
+		want     *api.Repo
 	}{
 		{
 			failure:  false,
@@ -82,8 +106,8 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 				t.Errorf("GetRepoForOrg for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetRepoForOrg for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(_repo, got); diff != "" {
+				t.Errorf("GetRepoForOrg mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
