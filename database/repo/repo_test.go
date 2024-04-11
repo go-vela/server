@@ -14,8 +14,8 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/library/actions"
 )
 
 func TestRepo_New(t *testing.T) {
