@@ -6,7 +6,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
 )
 
@@ -67,46 +68,46 @@ type Service interface {
 	// of files changed for a commit.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
-	Changeset(context.Context, *library.User, *library.Repo, string) ([]string, error)
+	Changeset(context.Context, *api.Repo, string) ([]string, error)
 	// ChangesetPR defines a function that captures the list
 	// of files changed for a pull request.
 	//
 	// https://en.wikipedia.org/wiki/Changeset.
-	ChangesetPR(context.Context, *library.User, *library.Repo, int) ([]string, error)
+	ChangesetPR(context.Context, *api.Repo, int) ([]string, error)
 
 	// Deployment SCM Interface Functions
 
 	// GetDeployment defines a function that
 	// gets a deployment by number and repo.
-	GetDeployment(context.Context, *library.User, *library.Repo, int64) (*library.Deployment, error)
+	GetDeployment(context.Context, *library.User, *api.Repo, int64) (*library.Deployment, error)
 	// GetDeploymentCount defines a function that
 	// counts a list of all deployment for a repo.
-	GetDeploymentCount(context.Context, *library.User, *library.Repo) (int64, error)
+	GetDeploymentCount(context.Context, *library.User, *api.Repo) (int64, error)
 	// GetDeploymentList defines a function that gets
 	// a list of all deployments for a repo.
-	GetDeploymentList(context.Context, *library.User, *library.Repo, int, int) ([]*library.Deployment, error)
+	GetDeploymentList(context.Context, *library.User, *api.Repo, int, int) ([]*library.Deployment, error)
 	// CreateDeployment defines a function that
 	// creates a new deployment.
-	CreateDeployment(context.Context, *library.User, *library.Repo, *library.Deployment) error
+	CreateDeployment(context.Context, *library.User, *api.Repo, *library.Deployment) error
 
 	// Repo SCM Interface Functions
 
 	// Config defines a function that captures
 	// the pipeline configuration from a repo.
-	Config(context.Context, *library.User, *library.Repo, string) ([]byte, error)
+	Config(context.Context, *library.User, *api.Repo, string) ([]byte, error)
 	// ConfigBackoff is a truncated constant backoff wrapper for Config.
 	// Retry again in five seconds if Config fails to retrieve yaml/yml file.
 	// Will return an error after five failed attempts.
-	ConfigBackoff(context.Context, *library.User, *library.Repo, string) ([]byte, error)
+	ConfigBackoff(context.Context, *library.User, *api.Repo, string) ([]byte, error)
 	// Disable defines a function that deactivates
 	// a repo by destroying the webhook.
 	Disable(context.Context, *library.User, string, string) error
 	// Enable defines a function that activates
 	// a repo by creating the webhook.
-	Enable(context.Context, *library.User, *library.Repo, *library.Hook) (*library.Hook, string, error)
+	Enable(context.Context, *library.User, *api.Repo, *library.Hook) (*library.Hook, string, error)
 	// Update defines a function that updates
 	// a webhook for a specified repo.
-	Update(context.Context, *library.User, *library.Repo, int64) (bool, error)
+	Update(context.Context, *library.User, *api.Repo, int64) (bool, error)
 	// Status defines a function that sends the
 	// commit status for the given SHA from a repo.
 	Status(context.Context, *library.User, *library.Build, string, string) error
@@ -115,16 +116,16 @@ type Service interface {
 	StepStatus(context.Context, *library.User, *library.Build, *library.Step, string, string) error
 	// ListUserRepos defines a function that retrieves
 	// all repos with admin rights for the user.
-	ListUserRepos(context.Context, *library.User) ([]*library.Repo, error)
+	ListUserRepos(context.Context, *library.User) ([]*api.Repo, error)
 	// GetBranch defines a function that retrieves
 	// a branch for a repo.
-	GetBranch(context.Context, *library.User, *library.Repo, string) (string, string, error)
+	GetBranch(context.Context, *api.Repo, string) (string, string, error)
 	// GetPullRequest defines a function that retrieves
 	// a pull request for a repo.
-	GetPullRequest(context.Context, *library.User, *library.Repo, int) (string, string, string, string, error)
+	GetPullRequest(context.Context, *api.Repo, int) (string, string, string, string, error)
 	// GetRepo defines a function that retrieves
 	// details for a repo.
-	GetRepo(context.Context, *library.User, *library.Repo) (*library.Repo, int, error)
+	GetRepo(context.Context, *library.User, *api.Repo) (*api.Repo, int, error)
 	// GetOrgAndRepoName defines a function that retrieves
 	// the name of the org and repo in the SCM.
 	GetOrgAndRepoName(context.Context, *library.User, string, string) (string, string, error)
@@ -139,13 +140,13 @@ type Service interface {
 
 	// ProcessWebhook defines a function that
 	// parses the webhook from a repo.
-	ProcessWebhook(context.Context, *http.Request) (*types.Webhook, error)
+	ProcessWebhook(context.Context, *http.Request) (*internal.Webhook, error)
 	// VerifyWebhook defines a function that
 	// verifies the webhook from a repo.
-	VerifyWebhook(context.Context, *http.Request, *library.Repo) error
+	VerifyWebhook(context.Context, *http.Request, *api.Repo) error
 	// RedeliverWebhook defines a function that
 	// redelivers the webhook from the SCM.
-	RedeliverWebhook(context.Context, *library.User, *library.Repo, *library.Hook) error
+	RedeliverWebhook(context.Context, *library.User, *api.Repo, *library.Hook) error
 
 	// TODO: Add convert functions to interface?
 }

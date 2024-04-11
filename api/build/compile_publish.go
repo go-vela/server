@@ -11,12 +11,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -26,8 +28,8 @@ import (
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
 type CompileAndPublishConfig struct {
 	Build    *library.Build
-	Repo     *library.Repo
-	Metadata *types.Metadata
+	Repo     *types.Repo
+	Metadata *internal.Metadata
 	BaseErr  string
 	Source   string
 	Comment  string
@@ -47,27 +49,17 @@ func CompileAndPublish(
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
-) (*pipeline.Build, *types.Item, error) {
+) (*pipeline.Build, *models.Item, error) {
 	logrus.Debugf("generating queue items for build %s/%d", cfg.Repo.GetFullName(), cfg.Build.GetNumber())
 
 	// assign variables from form for readibility
 	r := cfg.Repo
+	u := cfg.Repo.GetOwner()
 	b := cfg.Build
 	baseErr := cfg.BaseErr
 
-	// send API call to capture repo owner
-	logrus.Debugf("capturing owner of repository %s", cfg.Repo.GetFullName())
-
-	u, err := database.GetUser(c, r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("%s: failed to get owner for %s: %w", baseErr, r.GetFullName(), err)
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return nil, nil, retErr
-	}
-
 	// confirm current repo owner has at least write access to repo (needed for status update later)
-	_, err = scm.RepoAccess(c, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+	_, err := scm.RepoAccess(c, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
 		util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -97,7 +89,7 @@ func CompileAndPublish(
 			return nil, nil, retErr
 		}
 
-		commit, branch, baseref, headref, err := scm.GetPullRequest(c, u, r, prNum)
+		commit, branch, baseref, headref, err := scm.GetPullRequest(c, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -114,7 +106,7 @@ func CompileAndPublish(
 	// if the source is from a schedule, fetch the commit sha from schedule branch (same as build branch at this moment)
 	if strings.EqualFold(cfg.Source, "schedule") {
 		// send API call to capture the commit sha for the branch
-		_, commit, err := scm.GetBranch(c, u, r, b.GetBranch())
+		_, commit, err := scm.GetBranch(c, r, b.GetBranch())
 		if err != nil {
 			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -170,7 +162,7 @@ func CompileAndPublish(
 		!strings.EqualFold(b.GetEvent(), constants.EventPull) &&
 		!strings.EqualFold(b.GetEvent(), constants.EventDelete) {
 		// send API call to capture list of files changed for the commit
-		files, err = scm.Changeset(c, u, r, b.GetCommit())
+		files, err = scm.Changeset(c, r, b.GetCommit())
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -182,7 +174,7 @@ func CompileAndPublish(
 	// check if the build event is a pull_request
 	if strings.EqualFold(b.GetEvent(), constants.EventPull) && prNum > 0 {
 		// send API call to capture list of files changed for the pull request
-		files, err = scm.ChangesetPR(c, u, r, prNum)
+		files, err = scm.ChangesetPR(c, r, prNum)
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 			util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -201,7 +193,7 @@ func CompileAndPublish(
 		// variable to store the pipeline type for the repository
 		pipelineType = r.GetPipelineType()
 		// variable to store updated repository record
-		repo *library.Repo
+		repo *types.Repo
 	)
 
 	// implement a loop to process asynchronous operations with a retry limit
@@ -324,7 +316,7 @@ func CompileAndPublish(
 			}
 
 			return nil,
-				&types.Item{
+				&models.Item{
 					Build: b,
 				},
 				errors.New(skip)
@@ -448,7 +440,7 @@ func CompileAndPublish(
 		return nil, nil, retErr
 	}
 
-	return p, types.ToItem(b, repo, u), nil
+	return p, models.ToItem(b, repo), nil
 }
 
 // getPRNumberFromBuild is a helper function to

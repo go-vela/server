@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 
@@ -53,8 +53,8 @@ func TestToken_Compose(t *testing.T) {
 		t.Errorf("Unable to create test token: %v", err)
 	}
 
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			AccessTokenDuration: d,
 		},
 	}

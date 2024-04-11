@@ -13,9 +13,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
@@ -23,7 +25,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/golang-jwt/jwt/v5"
@@ -66,9 +67,12 @@ func TestPipeline_Retrieve(t *testing.T) {
 
 func TestPipeline_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -168,9 +172,12 @@ func TestPipeline_Establish_NoRepo(t *testing.T) {
 
 func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -225,9 +232,12 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -241,21 +251,21 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	u.SetHash("baz")
 	u.SetAdmin(true)
 
-	m := &types.Metadata{
-		Database: &types.Database{
+	m := &internal.Metadata{
+		Database: &internal.Database{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Queue: &types.Queue{
+		Queue: &internal.Queue{
 			Channel: "foo",
 			Driver:  "foo",
 			Host:    "foo",
 		},
-		Source: &types.Source{
+		Source: &internal.Source{
 			Driver: "foo",
 			Host:   "foo",
 		},
-		Vela: &types.Vela{
+		Vela: &internal.Vela{
 			Address:    "foo",
 			WebAddress: "foo",
 		},

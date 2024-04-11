@@ -8,10 +8,10 @@ import (
 	"net/url"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 
 	"github.com/gin-gonic/gin"
@@ -41,7 +41,7 @@ import (
 // refresh token cookie.
 func Logout(c *gin.Context) {
 	// grab the metadata to help deal with the cookie
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	// capture middleware values
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()

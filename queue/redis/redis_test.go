@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/pipeline"
 )
 
 // The following functions were taken from
@@ -73,8 +73,16 @@ var (
 		Distribution: String("linux"),
 	}
 
-	_repo = &library.Repo{
-		ID:         Int64(1),
+	_repo = &api.Repo{
+		ID: Int64(1),
+		Owner: &library.User{
+			ID:     Int64(1),
+			Name:   String("octocat"),
+			Token:  nil,
+			Hash:   nil,
+			Active: Bool(true),
+			Admin:  Bool(false),
+		},
 		Org:        String("github"),
 		Name:       String("octocat"),
 		FullName:   String("github/octocat"),
@@ -86,62 +94,6 @@ var (
 		Private:    Bool(false),
 		Trusted:    Bool(false),
 		Active:     Bool(true),
-	}
-
-	_steps = &pipeline.Build{
-		Version: "1",
-		ID:      "github_octocat_1",
-		Services: pipeline.ContainerSlice{
-			{
-				ID:          "service_github_octocat_1_postgres",
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "postgres:12-alpine",
-				Name:        "postgres",
-				Number:      1,
-				Ports:       []string{"5432:5432"},
-				Pull:        "not_present",
-			},
-		},
-		Steps: pipeline.ContainerSlice{
-			{
-				ID:          "step_github_octocat_1_init",
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "#init",
-				Name:        "init",
-				Number:      1,
-				Pull:        "always",
-			},
-			{
-				ID:          "step_github_octocat_1_clone",
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "target/vela-git:v0.5.1",
-				Name:        "clone",
-				Number:      2,
-				Pull:        "always",
-			},
-			{
-				ID:          "step_github_octocat_1_echo",
-				Commands:    []string{"echo hello"},
-				Directory:   "/home/github/octocat",
-				Environment: map[string]string{"FOO": "bar"},
-				Image:       "alpine:latest",
-				Name:        "echo",
-				Number:      3,
-				Pull:        "always",
-			},
-		},
-	}
-
-	_user = &library.User{
-		ID:     Int64(1),
-		Name:   String("octocat"),
-		Token:  nil,
-		Hash:   nil,
-		Active: Bool(true),
-		Admin:  Bool(false),
 	}
 )
 
