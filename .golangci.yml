@@ -83,7 +83,6 @@ linters:
     - godot # checks if comments end in a period
     - gofmt # checks whether code was gofmt-ed
     - goheader # checks is file header matches to pattern
-    - goimports # fixes imports and formats code in same style as gofmt
     - gomoddirectives # manage the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - goprintffuncname # checks that printf-like functions are named with f at the end
     - gosec # inspects code for security problems
