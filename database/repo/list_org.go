@@ -5,9 +5,10 @@ package repo
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // ListReposForOrg gets a list of repos by org name from the database.

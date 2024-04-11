@@ -5,17 +5,15 @@ package native
 import (
 	"time"
 
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/compiler"
-	"github.com/go-vela/server/internal"
-
-	"github.com/go-vela/server/compiler/registry"
-	"github.com/go-vela/server/compiler/registry/github"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/registry"
+	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/types/library"
 )
 
 type ModificationConfig struct {

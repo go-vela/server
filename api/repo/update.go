@@ -9,6 +9,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
@@ -17,8 +20,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo} repos UpdateRepo

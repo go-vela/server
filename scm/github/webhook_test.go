@@ -13,13 +13,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/raw"
 	"github.com/google/go-cmp/cmp"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 )
 
 func TestGithub_ProcessWebhook_Push(t *testing.T) {

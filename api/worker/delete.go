@@ -7,11 +7,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation DELETE /api/v1/workers/{worker} workers DeleteWorker

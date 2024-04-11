@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )

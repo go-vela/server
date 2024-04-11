@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"strings"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/gin-gonic/gin"
 	"github.com/microcosm-cc/bluemonday"
 
-	"github.com/gin-gonic/gin"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 )
 

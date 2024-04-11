@@ -6,10 +6,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
+
+	"github.com/go-vela/types/constants"
 )
 
 type (

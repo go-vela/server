@@ -7,14 +7,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/raw"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 )
 
 func TestDeployment_New(t *testing.T) {

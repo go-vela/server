@@ -5,9 +5,10 @@ package repo
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // DeleteRepo deletes an existing repo from the database.

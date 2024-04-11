@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"

@@ -5,9 +5,10 @@ package deployment
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // CountDeploymentsForRepo gets the count of deployments by repo ID from the database.

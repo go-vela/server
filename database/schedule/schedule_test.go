@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/library"
 )
 
 func TestSchedule_New(t *testing.T) {

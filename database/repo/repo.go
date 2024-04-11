@@ -9,14 +9,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/lib/pq"
-	"github.com/sirupsen/logrus"
-
-	"gorm.io/gorm"
 )
 
 var (

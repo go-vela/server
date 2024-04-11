@@ -8,15 +8,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/urfave/cli/v2"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/raw"
-	"github.com/google/go-cmp/cmp"
-
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_EnvironmentStages(t *testing.T) {

@@ -7,10 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/server/queue/models"
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/crypto/nacl/sign"
 	"gopkg.in/square/go-jose.v2/json"
+
+	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Pop(t *testing.T) {

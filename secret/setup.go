@@ -7,11 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/secret/native"
 	"github.com/go-vela/server/secret/vault"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // Setup represents the configuration necessary for

@@ -7,8 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/queue/models"
 	"gopkg.in/square/go-jose.v2/json"
+
+	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Length(t *testing.T) {

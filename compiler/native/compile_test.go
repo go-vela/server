@@ -9,28 +9,22 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"testing"
+	"time"
+
+	yml "github.com/buildkite/yaml"
+	"github.com/gin-gonic/gin"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-github/v61/github"
+	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/raw"
-
-	"github.com/google/go-github/v61/github"
-
-	"testing"
-	"time"
-
-	"github.com/google/go-cmp/cmp"
-
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/yaml"
-
 	"github.com/go-vela/types/pipeline"
-
-	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
-
-	yml "github.com/buildkite/yaml"
+	"github.com/go-vela/types/raw"
+	"github.com/go-vela/types/yaml"
 )
 
 func TestNative_Compile_StagesPipeline(t *testing.T) {

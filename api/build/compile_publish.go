@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
@@ -22,7 +24,6 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
-	"github.com/sirupsen/logrus"
 )
 
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.

@@ -5,9 +5,10 @@ package secret
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // CountSecretsForRepo gets the count of secrets by org and repo name from the database.

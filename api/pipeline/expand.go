@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
@@ -15,7 +17,6 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/expand pipelines ExpandPipeline

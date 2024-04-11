@@ -13,11 +13,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestClaims_Retrieve(t *testing.T) {

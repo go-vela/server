@@ -8,10 +8,10 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestMiddleware_Scm(t *testing.T) {

@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/yaml"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_TransformStages(t *testing.T) {

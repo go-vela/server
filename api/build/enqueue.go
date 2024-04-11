@@ -7,10 +7,11 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/queue/models"
-	"github.com/sirupsen/logrus"
 )
 
 // Enqueue is a helper function that pushes a queue item (build, repo, user) to the queue.

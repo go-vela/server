@@ -6,10 +6,11 @@ import (
 	"context"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListSecretsForTeam gets a list of secrets by org and team name from the database.

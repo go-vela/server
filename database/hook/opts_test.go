@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
 )
 

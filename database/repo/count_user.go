@@ -5,9 +5,10 @@ package repo
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountReposForUser gets the count of repos by user ID from the database.

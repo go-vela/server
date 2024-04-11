@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/hashicorp/vault/api"
 )
 
 // Get captures a secret.

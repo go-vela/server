@@ -6,10 +6,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/go-github/v61/github"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/google/go-github/v61/github"
 )
 
 // Changeset captures the list of files changed for a commit.
