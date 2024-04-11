@@ -121,6 +121,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.ModificationService = c.ModificationService
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
+	cc.settings = c.settings
 
 	return cc
 }
@@ -208,15 +209,6 @@ func (c *client) WithRepo(r *library.Repo) compiler.Engine {
 func (c *client) WithUser(u *library.User) compiler.Engine {
 	if u != nil {
 		c.user = u
-	}
-
-	return c
-}
-
-// WithSettings sets the api settings type in the Engine.
-func (c *client) WithSettings(s *api.Settings) compiler.Engine {
-	if s != nil {
-		c.settings = s
 	}
 
 	return c

@@ -10,6 +10,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/go-vela/server/api/build"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
@@ -29,8 +30,9 @@ const (
 	scheduleWait = "waiting to trigger build for schedule"
 )
 
-func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
+func processSchedules(ctx context.Context, start time.Time, settings *api.Settings, compiler compiler.Engine, database database.Interface, metadata *types.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	logrus.Infof("processing active schedules to create builds")
+	// todo: replace allowList with settings.allowList
 
 	// send API call to capture the list of active schedules
 	schedules, err := database.ListActiveSchedules(ctx)

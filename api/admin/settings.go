@@ -41,7 +41,7 @@ import (
 // captures settings stored in the database.
 func GetSettings(c *gin.Context) {
 	// capture middleware values
-	s := settings.Retrieve(c)
+	s := settings.FromContext(c)
 
 	logrus.Info("Admin: reading settings")
 
@@ -64,7 +64,7 @@ func GetSettings(c *gin.Context) {
 // todo: swagger and comments
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
-	s := settings.Retrieve(c)
+	s := settings.FromContext(c)
 	ctx := c.Request.Context()
 
 	logrus.Info("Admin: updating settings")

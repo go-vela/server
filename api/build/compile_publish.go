@@ -277,21 +277,6 @@ func CompileAndPublish(
 			repo.SetPipelineType(pipeline.GetType())
 		}
 
-		// get settings
-		s, err := database.GetSettings(c)
-		if err != nil {
-			// format the error message with extra information
-			err = fmt.Errorf("unable to get settings: %w", err)
-
-			// log the error for traceability
-			logrus.Error(err.Error())
-
-			retErr := fmt.Errorf("%s: %w", baseErr, err)
-			util.HandleError(c, http.StatusInternalServerError, retErr)
-
-			return nil, nil, retErr
-		}
-
 		var compiled *library.Pipeline
 		// parse and compile the pipeline configuration file
 		p, compiled, err = compiler.
@@ -303,7 +288,6 @@ func CompileAndPublish(
 			WithMetadata(cfg.Metadata).
 			WithRepo(repo).
 			WithUser(u).
-			WithSettings(s).
 			WithLabels(cfg.Labels).
 			Compile(pipelineFile)
 		if err != nil {

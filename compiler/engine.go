@@ -147,7 +147,7 @@ type Engine interface {
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine
-	// WithPrivateGitHub defines a function that sets
-	// the server settings in the Engine.
-	WithSettings(*api.Settings) Engine
+	// UpdateFromSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	UpdateFromSettings(*api.Settings)
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -31,7 +30,6 @@ func Establish() gin.HandlerFunc {
 		o := org.Retrieve(c)
 		r := repo.Retrieve(c)
 		u := user.Retrieve(c)
-		s := settings.Retrieve(c)
 		ctx := c.Request.Context()
 
 		if r == nil {
@@ -82,7 +80,6 @@ func Establish() gin.HandlerFunc {
 				WithMetadata(c.MustGet("metadata").(*types.Metadata)).
 				WithRepo(r).
 				WithUser(u).
-				WithSettings(s).
 				Compile(config)
 			if err != nil {
 				retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)

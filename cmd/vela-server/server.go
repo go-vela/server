@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -73,24 +74,23 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	s, err := database.GetSettings(context.Background())
-	if s == nil || err != nil {
-		s = api.NewSettings(c)
+	settings, err := database.GetSettings(context.Background())
+	if settings == nil || err != nil {
+		// ignore error and attempt to create initial settings record
+		settings = api.NewSettings(c)
 
-		_, err = database.CreateSettings(context.Background(), s)
+		_, err = database.CreateSettings(context.Background(), settings)
 		if err != nil {
 			return err
 		}
 	}
-
-	// todo: use settings initialization policy to reset settings?
 
 	compiler, err := setupCompiler(c)
 	if err != nil {
 		return err
 	}
 
-	queue, err := setupQueue(c)
+	queue, err := setupQueue(c, settings)
 	if err != nil {
 		return err
 	}
@@ -111,6 +111,7 @@ func server(c *cli.Context) error {
 	}
 
 	router := router.Load(
+		middleware.Settings(database),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
@@ -227,7 +228,21 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
+			settings, err = database.GetSettings(context.Background())
+			if settings == nil || err != nil {
+				if settings == nil {
+					err = errors.New("settings not found")
+				}
+
+				logrus.WithError(err).Warn("unable to get platform settings")
+
+				continue
+			}
+
+			compiler.UpdateFromSettings(settings)
+			queue.UpdateFromSettings(settings)
+
+			err = processSchedules(ctx, start, settings, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

@@ -14,7 +14,6 @@ import (
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -81,7 +80,6 @@ func GetTemplates(c *gin.Context) {
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
 	u := user.Retrieve(c)
-	s := settings.Retrieve(c)
 	ctx := c.Request.Context()
 
 	entry := fmt.Sprintf("%s/%s", r.GetFullName(), p.GetCommit())
@@ -102,8 +100,7 @@ func GetTemplates(c *gin.Context) {
 		WithCommit(p.GetCommit()).
 		WithMetadata(m).
 		WithRepo(r).
-		WithUser(u).
-		WithSettings(s)
+		WithUser(u)
 
 	// parse the pipeline configuration
 	pipeline, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))

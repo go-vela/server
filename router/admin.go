@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-vela/server/api/admin"
 	"github.com/go-vela/server/router/middleware/perm"
-	smiddleware "github.com/go-vela/server/router/middleware/settings"
 )
 
 // AdminHandlers is a function that extends the provided base router group
@@ -62,7 +61,7 @@ func AdminHandlers(base *gin.RouterGroup) {
 		_admin.POST("/workers/:worker/register", admin.RegisterToken)
 
 		// Admin settings endpoint
-		_admin.GET("/settings", smiddleware.Establish(), admin.GetSettings)
-		_admin.PUT("/settings", smiddleware.Establish(), admin.UpdateSettings)
+		_admin.GET("/settings", admin.GetSettings)
+		_admin.PUT("/settings", admin.UpdateSettings)
 	} // end of admin endpoints
 }
