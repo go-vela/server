@@ -7,6 +7,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -15,7 +16,7 @@ import (
 // ListBuildsForRepo gets a list of builds by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForRepo(ctx context.Context, r *library.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
+func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}, before, after int64, page, perPage int) ([]*library.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

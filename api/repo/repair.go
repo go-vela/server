@@ -11,12 +11,12 @@ import (
 
 	wh "github.com/go-vela/server/api/webhook"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/repair repos RepairRepo
@@ -58,7 +58,7 @@ func RepairRepo(c *gin.Context) {
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	// update engine logger with API metadata
 	//

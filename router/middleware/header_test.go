@@ -12,7 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/internal"
 )
 
 func TestMiddleware_NoCache(t *testing.T) {
@@ -65,8 +65,8 @@ func TestMiddleware_Options(t *testing.T) {
 	wantHeaders := "authorization, origin, content-type, accept"
 	wantAllow := "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS"
 	wantContentType := "application/json"
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			Address: "http://localhost:8080",
 		},
 	}
@@ -121,8 +121,8 @@ func TestMiddleware_Options(t *testing.T) {
 
 func TestMiddleware_Options_InvalidMethod(t *testing.T) {
 	// setup types
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			Address: "http://localhost:8080",
 		},
 	}
@@ -179,8 +179,8 @@ func TestMiddleware_Cors(t *testing.T) {
 	// setup types
 	wantOrigin := "*"
 	wantExposeHeaders := "link, x-total-count"
-	m := &types.Metadata{
-		Vela: &types.Vela{
+	m := &internal.Metadata{
+		Vela: &internal.Vela{
 			Address: "http://localhost:8080",
 		},
 	}

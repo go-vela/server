@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
@@ -22,7 +23,7 @@ import (
 
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
-func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.Repo, cancelOpts *pipeline.CancelOptions) (bool, error) {
+func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *types.Repo, cancelOpts *pipeline.CancelOptions) (bool, error) {
 	// if build is the current build, continue
 	if rB.GetID() == b.GetID() {
 		return false, nil
@@ -74,8 +75,8 @@ func AutoCancel(c *gin.Context, b *library.Build, rB *library.Build, r *library.
 
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call
 // to that executor's worker to cancel the build.
-func cancelRunning(c *gin.Context, b *library.Build, r *library.Repo) error {
-	e := new([]library.Executor)
+func cancelRunning(c *gin.Context, b *library.Build, r *types.Repo) error {
+	e := new([]types.Executor)
 	// retrieve the worker
 	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
 	if err != nil {

@@ -7,13 +7,14 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // ListSchedulesForRepo gets a list of schedules by repo ID from the database.
-func (e *engine) ListSchedulesForRepo(ctx context.Context, r *library.Repo, page, perPage int) ([]*library.Schedule, int64, error) {
+func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*library.Schedule, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

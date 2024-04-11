@@ -8,14 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestExecutors_Retrieve(t *testing.T) {
 	// setup types
 	eID := int64(1)
-	e := library.Executor{ID: &eID}
-	want := []library.Executor{e}
+	e := api.Executor{ID: &eID}
+	want := []api.Executor{e}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

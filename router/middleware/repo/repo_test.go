@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/types/library"
@@ -18,7 +19,7 @@ import (
 
 func TestRepo_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Repo)
+	want := new(api.Repo)
 	want.SetID(1)
 
 	// setup context
@@ -36,9 +37,19 @@ func TestRepo_Retrieve(t *testing.T) {
 
 func TestRepo_Establish(t *testing.T) {
 	// setup types
-	want := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+	owner.SetName("foo")
+	owner.SetActive(false)
+	owner.SetAdmin(false)
+	owner.SetFavorites([]string{})
+	owner.SetHash("bar")
+	owner.SetToken("baz")
+	owner.SetRefreshToken("fresh")
+
+	want := new(api.Repo)
 	want.SetID(1)
-	want.SetUserID(1)
+	want.SetOwner(owner)
 	want.SetHash("baz")
 	want.SetOrg("foo")
 	want.SetName("bar")
@@ -54,12 +65,12 @@ func TestRepo_Establish(t *testing.T) {
 	want.SetPrivate(false)
 	want.SetTrusted(false)
 	want.SetActive(false)
-	want.SetAllowEvents(library.NewEventsFromMask(1))
+	want.SetAllowEvents(api.NewEventsFromMask(1))
 	want.SetPipelineType("yaml")
 	want.SetPreviousName("")
 	want.SetApproveBuild("")
 
-	got := new(library.Repo)
+	got := new(api.Repo)
 
 	// setup database
 	db, err := database.NewTest()
@@ -69,9 +80,11 @@ func TestRepo_Establish(t *testing.T) {
 
 	defer func() {
 		_ = db.DeleteRepo(context.TODO(), want)
+		_ = db.DeleteUser(context.TODO(), owner)
 		db.Close()
 	}()
 
+	_, _ = db.CreateUser(context.TODO(), owner)
 	_, _ = db.CreateRepo(context.TODO(), want)
 
 	// setup context

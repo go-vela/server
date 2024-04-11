@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestOrg_Retrieve(t *testing.T) {
@@ -34,9 +34,9 @@ func TestOrg_Retrieve(t *testing.T) {
 
 func TestOrg_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")

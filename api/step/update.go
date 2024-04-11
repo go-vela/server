@@ -169,14 +169,8 @@ func UpdateStep(c *gin.Context) {
 		s.GetStatus() == constants.StatusError) &&
 		(b.GetEvent() != constants.EventSchedule) &&
 		(len(s.GetReportAs()) > 0) {
-		// send API call to capture the repo owner
-		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-		if err != nil {
-			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
-		}
-
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).StepStatus(ctx, u, b, s, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).StepStatus(ctx, r.GetOwner(), b, s, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}

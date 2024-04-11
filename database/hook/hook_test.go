@@ -12,6 +12,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 
@@ -187,10 +188,9 @@ func testHook() *library.Hook {
 
 // testRepo is a test helper function to create a library
 // Repo type with all fields set to their zero values.
-func testRepo() *library.Repo {
-	return &library.Repo{
+func testRepo() *api.Repo {
+	return &api.Repo{
 		ID:           new(int64),
-		UserID:       new(int64),
 		BuildLimit:   new(int64),
 		Timeout:      new(int64),
 		Counter:      new(int),

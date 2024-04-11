@@ -7,13 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestRepo_FromContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Repo{ID: &num}
+	want := &api.Repo{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -72,7 +72,7 @@ func TestRepo_FromContext_Empty(t *testing.T) {
 func TestRepo_ToContext(t *testing.T) {
 	// setup types
 	num := int64(1)
-	want := &library.Repo{ID: &num}
+	want := &api.Repo{ID: &num}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

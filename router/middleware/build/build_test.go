@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -38,9 +39,12 @@ func TestBuild_Retrieve(t *testing.T) {
 
 func TestBuild_Establish(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -159,9 +163,12 @@ func TestBuild_Establish_NoRepo(t *testing.T) {
 
 func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -207,9 +214,12 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	owner := new(library.User)
+	owner.SetID(1)
+
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.SetOwner(owner)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")
@@ -255,9 +265,9 @@ func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_NoBuild(t *testing.T) {
 	// setup types
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetHash("baz")
 	r.SetOrg("foo")
 	r.SetName("bar")

@@ -10,13 +10,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/internal"
 )
 
 func TestMiddleware_Metadata(t *testing.T) {
 	// setup types
-	got := new(types.Metadata)
-	want := &types.Metadata{}
+	got := new(internal.Metadata)
+	want := &internal.Metadata{}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -28,7 +28,7 @@ func TestMiddleware_Metadata(t *testing.T) {
 	// setup mock server
 	engine.Use(Metadata(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("metadata").(*types.Metadata)
+		got = c.Value("metadata").(*internal.Metadata)
 
 		c.Status(http.StatusOK)
 	})

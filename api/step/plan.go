@@ -9,6 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/types/constants"
@@ -19,7 +20,7 @@ import (
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *library.Build, repo *library.Repo) ([]*library.Step, error) {
+func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *library.Build, repo *types.Repo) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
@@ -50,7 +51,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *library.Build, c *pipeline.Container, repo *library.Repo, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *library.Build, c *pipeline.Container, repo *types.Repo, stage string) (*library.Step, error) {
 	// create the step object
 	s := new(library.Step)
 	s.SetBuildID(b.GetID())
@@ -91,14 +92,8 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	}
 
 	if len(s.GetReportAs()) > 0 {
-		// send API call to capture the repo owner
-		u, err := database.GetUser(ctx, repo.GetUserID())
-		if err != nil {
-			logrus.Errorf("unable to get owner for build: %v", err)
-		}
-
 		// send API call to set the status on the commit
-		err = scm.StepStatus(ctx, u, b, s, repo.GetOrg(), repo.GetName())
+		err = scm.StepStatus(ctx, repo.GetOwner(), b, s, repo.GetOrg(), repo.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build: %v", err)
 		}

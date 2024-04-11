@@ -6,7 +6,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/library"

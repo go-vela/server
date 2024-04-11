@@ -12,14 +12,13 @@ import (
 
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry/github"
-	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/yaml"
 )
@@ -76,7 +75,7 @@ import (
 // map of templates utilized by a pipeline configuration.
 func GetTemplates(c *gin.Context) {
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	o := org.Retrieve(c)
 	p := pipeline.Retrieve(c)
 	r := repo.Retrieve(c)
@@ -102,14 +101,6 @@ func GetTemplates(c *gin.Context) {
 	pipeline, _, err := compiler.Parse(p.GetData(), p.GetType(), new(yaml.Template))
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to parse pipeline %s: %w", entry, err))
-
-		return
-	}
-
-	// send API call to capture the repo owner
-	user, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-	if err != nil {
-		util.HandleError(c, http.StatusBadRequest, fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err))
 
 		return
 	}
@@ -145,7 +136,7 @@ func GetTemplates(c *gin.Context) {
 		}
 
 		// retrieve link to template file from github
-		link, err := scm.FromContext(c).GetHTMLURL(ctx, user, src.Org, src.Repo, src.Name, src.Ref)
+		link, err := scm.FromContext(c).GetHTMLURL(ctx, r.GetOwner(), src.Org, src.Repo, src.Name, src.Ref)
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("%s: unable to get html url for %s/%s/%s/@%s: %w", baseErr, src.Org, src.Repo, src.Name, src.Ref, err))
 

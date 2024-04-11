@@ -7,24 +7,24 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetRepoForOrg gets a repo by org and repo name from the database.
-func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*library.Repo, error) {
+func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
 	}).Tracef("getting repo %s/%s from the database", org, name)
 
 	// variable to store query results
-	r := new(database.Repo)
+	r := new(Repo)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableRepo).
+		Preload("Owner").
 		Where("org = ?", org).
 		Where("name = ?", name).
 		Take(r).
@@ -34,8 +34,6 @@ func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*library.
 	}
 
 	// decrypt the fields for the repo
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.Decrypt
 	err = r.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -46,13 +44,18 @@ func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*library.
 		e.logger.Errorf("unable to decrypt repo %s/%s: %v", org, name, err)
 
 		// return the unencrypted repo
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-		return r.ToLibrary(), nil
+		return r.ToAPI(), nil
+	}
+
+	// decrypt owner fields
+	err = r.Owner.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo owner %s/%s: %v", org, name, err)
+
+		// return the unencrypted repo
+		return r.ToAPI(), nil
 	}
 
 	// return the decrypted repo
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Repo.ToLibrary
-	return r.ToLibrary(), nil
+	return r.ToAPI(), nil
 }

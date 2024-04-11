@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/microcosm-cc/bluemonday"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 // HandleError appends the error to the handler chain for logging and outputs it.
@@ -117,7 +117,7 @@ func Unique(stringSlice []string) []string {
 // allowlist are specified.
 //
 // a single entry of '*' allows any repo to be enabled.
-func CheckAllowlist(r *library.Repo, allowlist []string) bool {
+func CheckAllowlist(r *api.Repo, allowlist []string) bool {
 	// check if all repos are allowed to be enabled
 	if len(allowlist) == 1 && allowlist[0] == "*" {
 		return true

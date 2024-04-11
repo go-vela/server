@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 )
 
 // swagger:operation GET /login authenticate GetLogin
@@ -39,7 +39,7 @@ import (
 // process a user logging in to Vela.
 func Login(c *gin.Context) {
 	// load the metadata
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	// capture query params
 	t := util.FormParameter(c, "type")

@@ -7,12 +7,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // CountBuildsForRepo gets the count of builds by repo ID from the database.
-func (e *engine) CountBuildsForRepo(ctx context.Context, r *library.Repo, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountBuildsForRepo(ctx context.Context, r *api.Repo, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

@@ -9,13 +9,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // LastHookForRepo gets the last hook by repo ID from the database.
-func (e *engine) LastHookForRepo(ctx context.Context, r *library.Repo) (*library.Hook, error) {
+func (e *engine) LastHookForRepo(ctx context.Context, r *api.Repo) (*library.Hook, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

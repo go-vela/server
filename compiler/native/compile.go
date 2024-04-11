@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -298,8 +299,6 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 }
 
 // compileSteps executes the workflow for converting a YAML pipeline into an executable struct.
-//
-//nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
@@ -395,8 +394,6 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 }
 
 // compileStages executes the workflow for converting a YAML pipeline into an executable struct.
-//
-//nolint:dupl,lll // linter thinks the steps and stages workflows are identical
 func (c *client) compileStages(p *yaml.Build, _pipeline *library.Pipeline, tmpls map[string]*yaml.Template, r *pipeline.RuleData) (*pipeline.Build, *library.Pipeline, error) {
 	var err error
 
@@ -501,7 +498,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *library.Repo) (*yaml.Build, error) {
+func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {

@@ -9,15 +9,15 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	// setup types
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
@@ -27,7 +27,7 @@ func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	_repo.SetPreviousName("oldName")
 	_repo.SetApproveBuild(constants.ApproveForkAlways)
 	_repo.SetTopics([]string{})
-	_repo.SetAllowEvents(library.NewEventsFromMask(1))
+	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

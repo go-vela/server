@@ -7,22 +7,19 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // DeleteRepo deletes an existing repo from the database.
-func (e *engine) DeleteRepo(ctx context.Context, r *library.Repo) error {
+func (e *engine) DeleteRepo(ctx context.Context, r *api.Repo) error {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("deleting repo %s from the database", r.GetFullName())
 
 	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#RepoFromLibrary
-	repo := database.RepoFromLibrary(r)
+	repo := FromAPI(r)
 
 	// send query to the database
 	return e.client.

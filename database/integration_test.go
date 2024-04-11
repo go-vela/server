@@ -39,7 +39,7 @@ type Resources struct {
 	Hooks       []*library.Hook
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
-	Repos       []*library.Repo
+	Repos       []*api.Repo
 	Schedules   []*library.Schedule
 	Secrets     []*library.Secret
 	Services    []*library.Service
@@ -995,6 +995,14 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// create the repos
 	for _, repo := range resources.Repos {
 		_, err := db.CreateRepo(context.TODO(), repo)
@@ -1110,6 +1118,14 @@ func testRepos(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 	methods["DeleteRepo"] = true
+
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2222,9 +2238,29 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
-	repoOne := new(library.Repo)
+	userOne := new(library.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("superSecretToken")
+	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	userOne.SetFavorites([]string{"github/octocat"})
+	userOne.SetActive(true)
+	userOne.SetAdmin(false)
+
+	userTwo := new(library.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("superSecretToken")
+	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetActive(true)
+	userTwo.SetAdmin(false)
+
+	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetUserID(1)
+	repoOne.SetOwner(userOne)
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2243,11 +2279,11 @@ func newResources() *Resources {
 	repoOne.SetPipelineType("")
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
-	repoOne.SetAllowEvents(library.NewEventsFromMask(1))
+	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
-	repoTwo := new(library.Repo)
+	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetUserID(1)
+	repoTwo.SetOwner(userOne)
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
@@ -2266,7 +2302,7 @@ func newResources() *Resources {
 	repoTwo.SetPipelineType("")
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
-	repoTwo.SetAllowEvents(library.NewEventsFromMask(1))
+	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)
@@ -2417,26 +2453,6 @@ func newResources() *Resources {
 	stepTwo.SetDistribution("linux")
 	stepTwo.SetReportAs("test")
 
-	userOne := new(library.User)
-	userOne.SetID(1)
-	userOne.SetName("octocat")
-	userOne.SetToken("superSecretToken")
-	userOne.SetRefreshToken("superSecretRefreshToken")
-	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	userOne.SetFavorites([]string{"github/octocat"})
-	userOne.SetActive(true)
-	userOne.SetAdmin(false)
-
-	userTwo := new(library.User)
-	userTwo.SetID(2)
-	userTwo.SetName("octokitty")
-	userTwo.SetToken("superSecretToken")
-	userTwo.SetRefreshToken("superSecretRefreshToken")
-	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	userTwo.SetFavorites([]string{"github/octocat"})
-	userTwo.SetActive(true)
-	userTwo.SetAdmin(false)
-
 	_bPartialOne := new(library.Build)
 	_bPartialOne.SetID(1)
 
@@ -2478,7 +2494,7 @@ func newResources() *Resources {
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
-		Repos:       []*library.Repo{repoOne, repoTwo},
+		Repos:       []*api.Repo{repoOne, repoTwo},
 		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},

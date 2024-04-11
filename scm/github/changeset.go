@@ -6,22 +6,22 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v59/github"
+	"github.com/google/go-github/v61/github"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 // Changeset captures the list of files changed for a commit.
-func (c *client) Changeset(ctx context.Context, u *library.User, r *library.Repo, sha string) ([]string, error) {
+func (c *client) Changeset(ctx context.Context, r *api.Repo, sha string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-		"user": u.GetName(),
+		"user": r.GetOwner().GetName(),
 	}).Tracef("capturing commit changeset for %s/commit/%s", r.GetFullName(), sha)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(r.GetOwner().GetToken())
 	s := []string{}
 
 	// set the max per page for the options to capture the commit
@@ -42,15 +42,15 @@ func (c *client) Changeset(ctx context.Context, u *library.User, r *library.Repo
 }
 
 // ChangesetPR captures the list of files changed for a pull request.
-func (c *client) ChangesetPR(ctx context.Context, u *library.User, r *library.Repo, number int) ([]string, error) {
+func (c *client) ChangesetPR(ctx context.Context, r *api.Repo, number int) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
-		"user": u.GetName(),
+		"user": r.GetOwner().GetName(),
 	}).Tracef("capturing pull request changeset for %s/pull/%d", r.GetFullName(), number)
 
 	// create GitHub OAuth client with user's token
-	client := c.newClientToken(u.GetToken())
+	client := c.newClientToken(r.GetOwner().GetToken())
 	s := []string{}
 	f := []*github.CommitFile{}
 

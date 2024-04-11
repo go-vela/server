@@ -32,7 +32,7 @@ func TestHook_Engine_ListHooksForRepo(t *testing.T) {
 
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")

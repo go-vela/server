@@ -8,13 +8,14 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
 )
 
 // GetDeploymentForRepo gets a deployment by repo ID and number from the database.
-func (e *engine) GetDeploymentForRepo(ctx context.Context, r *library.Repo, number int64) (*library.Deployment, error) {
+func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number int64) (*library.Deployment, error) {
 	e.logger.WithFields(logrus.Fields{
 		"deployment": number,
 		"org":        r.GetOrg(),

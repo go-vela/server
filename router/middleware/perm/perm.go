@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
@@ -372,16 +371,7 @@ func MustAdmin() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			ro, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-			if err != nil {
-				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -431,16 +421,7 @@ func MustWrite() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			ro, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-			if err != nil {
-				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}
@@ -514,16 +495,7 @@ func MustRead() gin.HandlerFunc {
 			// try again using the repo owner token
 			//
 			// https://docs.github.com/en/rest/reference/repos#get-repository-permissions-for-a-user
-			ro, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-			if err != nil {
-				retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusBadRequest, retErr)
-
-				return
-			}
-
-			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), ro.GetToken(), r.GetOrg(), r.GetName())
+			perm, err = scm.FromContext(c).RepoAccess(ctx, u.GetName(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
 				logger.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
 			}

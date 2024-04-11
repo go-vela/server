@@ -13,12 +13,12 @@ import (
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/queue"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -106,23 +106,13 @@ func ApproveBuild(c *gin.Context) {
 
 	logger.Debugf("user %s approved build %s/%d for execution", u.GetName(), r.GetFullName(), b.GetNumber())
 
-	// send API call to capture the repo owner
-	owner, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get owner for %s: %w", r.GetFullName(), err)
-
-		util.HandleError(c, http.StatusBadRequest, retErr)
-
-		return
-	}
-
 	// set fields
 	b.SetStatus(constants.StatusPending)
 	b.SetApprovedAt(time.Now().Unix())
 	b.SetApprovedBy(u.GetName())
 
 	// update the build in the db
-	_, err = database.FromContext(c).UpdateBuild(ctx, b)
+	_, err := database.FromContext(c).UpdateBuild(ctx, b)
 	if err != nil {
 		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", b.GetNumber(), r.GetFullName(), err)
 	}
@@ -132,7 +122,7 @@ func ApproveBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		types.ToItem(b, r, owner),
+		models.ToItem(b, r),
 		b.GetHost(),
 	)
 

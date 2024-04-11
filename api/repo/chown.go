@@ -65,7 +65,7 @@ func ChownRepo(c *gin.Context) {
 	}).Infof("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
 
 	// update repo owner
-	r.SetUserID(u.GetID())
+	r.SetOwner(u)
 
 	// send API call to update the repo
 	_, err := database.FromContext(c).UpdateRepo(ctx, r)
