@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library/actions"
 	"github.com/google/go-cmp/cmp"
 )
 
