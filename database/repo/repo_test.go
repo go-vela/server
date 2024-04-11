@@ -9,8 +9,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/library/actions"
 	"github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
