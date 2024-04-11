@@ -42,4 +42,5 @@ type Service interface {
 	// UpdateFromSettings defines a function that updates
 	// runtime config within the queue using api settings.
 	UpdateFromSettings(*api.Settings)
+	GetChannels(*api.Settings) []string
 }

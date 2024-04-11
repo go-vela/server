@@ -307,6 +307,17 @@ func PostWebhook(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
+	// error handling done in CompileAndPublish
+	if err != nil {
+		retErr := fmt.Errorf("%s: unable to compile and publish", err)
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		h.SetStatus(constants.StatusSkipped)
+		h.SetError(retErr.Error())
+
+		return
+	}
+
 	// capture the build, repo, and user from the items
 	b, repo, u := item.Build, item.Repo, item.User
 

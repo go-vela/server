@@ -8,7 +8,11 @@ import (
 
 // UpdateFromSettings takes settings and updates the queue.
 func (c *client) UpdateFromSettings(s *api.Settings) {
-	c.Logger.Trace("updating queue using settings")
+	c.Logger.Tracef("updating queue using settings: %v", s.GetQueueRoutes())
 
 	c.config.Channels = s.GetQueueRoutes()
+}
+
+func (c *client) GetChannels(s *api.Settings) []string {
+	return c.config.Channels
 }
