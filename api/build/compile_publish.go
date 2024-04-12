@@ -426,6 +426,8 @@ func CompileAndPublish(
 		// error out the build
 		CleanBuild(c, database, b, nil, nil, retErr)
 
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
 		return nil, nil, retErr
 	}
 
