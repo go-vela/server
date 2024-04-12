@@ -47,7 +47,7 @@ func TestGithub_Config_YML(t *testing.T) {
 	}
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -108,7 +108,7 @@ func TestGithub_ConfigBackoff_YML(t *testing.T) {
 	}
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -162,7 +162,7 @@ func TestGithub_Config_YAML(t *testing.T) {
 	}
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -216,7 +216,7 @@ func TestGithub_Config_Star(t *testing.T) {
 	}
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -276,7 +276,7 @@ func TestGithub_Config_Star_Prefer(t *testing.T) {
 	}
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -331,7 +331,7 @@ func TestGithub_Config_Py(t *testing.T) {
 	}
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -381,7 +381,7 @@ func TestGithub_Config_YAML_BadRequest(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -423,7 +423,7 @@ func TestGithub_Config_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -472,7 +472,7 @@ func TestGithub_Config_BadEncoding(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -519,7 +519,7 @@ func TestGithub_Disable(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -553,7 +553,7 @@ func TestGithub_Disable_NotFoundHooks(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -592,7 +592,7 @@ func TestGithub_Disable_HooksButNotFound(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -634,7 +634,7 @@ func TestGithub_Disable_MultipleHooks(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -674,7 +674,7 @@ func TestGithub_Enable(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -728,7 +728,7 @@ func TestGithub_Update(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -771,7 +771,7 @@ func TestGithub_Update_webhookExists_True(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -808,7 +808,7 @@ func TestGithub_Update_webhookExists_False(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -846,7 +846,7 @@ func TestGithub_Status_Deployment(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -891,7 +891,7 @@ func TestGithub_Status_Running(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -952,7 +952,7 @@ func TestGithub_Status_Success(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1013,7 +1013,7 @@ func TestGithub_Status_Failure(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1074,7 +1074,7 @@ func TestGithub_Status_Killed(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1135,7 +1135,7 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1196,7 +1196,7 @@ func TestGithub_Status_Error(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1257,7 +1257,7 @@ func TestGithub_GetRepo(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1311,7 +1311,7 @@ func TestGithub_GetRepo_Fail(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1351,7 +1351,7 @@ func TestGithub_GetOrgAndRepoName(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1397,7 +1397,7 @@ func TestGithub_GetOrgAndRepoName_Fail(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1429,7 +1429,7 @@ func TestGithub_ListUserRepos(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1477,7 +1477,7 @@ func TestGithub_ListUserRepos_Ineligible(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1514,7 +1514,7 @@ func TestGithub_GetPullRequest(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -1571,7 +1571,7 @@ func TestGithub_GetBranch(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 

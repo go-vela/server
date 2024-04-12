@@ -9,13 +9,12 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // ListReposForUser gets a list of repos by user ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListReposForUser(ctx context.Context, u *library.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, int64, error) {
+func (e *engine) ListReposForUser(ctx context.Context, u *api.User, sortBy string, filters map[string]interface{}, page, perPage int) ([]*api.Repo, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing repos for user %s from the database", u.GetName())

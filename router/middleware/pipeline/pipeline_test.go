@@ -68,7 +68,7 @@ func TestPipeline_Retrieve(t *testing.T) {
 
 func TestPipeline_Establish(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -173,7 +173,7 @@ func TestPipeline_Establish_NoRepo(t *testing.T) {
 
 func TestPipeline_Establish_NoPipelineParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -233,7 +233,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -245,11 +245,10 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	m := &internal.Metadata{

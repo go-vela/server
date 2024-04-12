@@ -11,18 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestToken_Compose(t *testing.T) {
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",

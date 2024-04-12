@@ -14,9 +14,9 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 var (
@@ -100,7 +100,7 @@ type (
 		PreviousName sql.NullString `sql:"previous_name"`
 		ApproveBuild sql.NullString `sql:"approve_build"`
 
-		Owner database.User `gorm:"foreignKey:UserID"`
+		Owner user.User `gorm:"foreignKey:UserID"`
 	}
 )
 
@@ -293,7 +293,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo := new(api.Repo)
 
 	repo.SetID(r.ID.Int64)
-	repo.SetOwner(r.Owner.ToLibrary())
+	repo.SetOwner(r.Owner.ToAPI())
 	repo.SetHash(r.Hash.String)
 	repo.SetOrg(r.Org.String)
 	repo.SetName(r.Name.String)

@@ -76,11 +76,10 @@ var (
 
 	_repo = &api.Repo{
 		ID: Int64(1),
-		Owner: &library.User{
+		Owner: &api.User{
 			ID:     Int64(1),
 			Name:   String("octocat"),
 			Token:  nil,
-			Hash:   nil,
 			Active: Bool(true),
 			Admin:  Bool(false),
 		},

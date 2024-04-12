@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation PUT /api/v1/admin/user admin AdminUpdateUser
@@ -54,7 +54,7 @@ func UpdateUser(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.User)
+	input := new(types.User)
 
 	err := c.Bind(input)
 	if err != nil {

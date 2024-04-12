@@ -55,7 +55,7 @@ func TestMiddleware_Logger(t *testing.T) {
 	s.SetNumber(1)
 	s.SetName("foo")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")

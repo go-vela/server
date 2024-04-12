@@ -140,7 +140,7 @@ type Engine interface {
 	WithRepo(*api.Repo) Engine
 	// WithUser defines a function that sets
 	// the library user type in the Engine.
-	WithUser(*library.User) Engine
+	WithUser(*api.User) Engine
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine

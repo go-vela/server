@@ -5,35 +5,33 @@ package types
 import (
 	"fmt"
 	"strings"
-
-	"github.com/go-vela/types/library"
 )
 
 // Repo is the API representation of a repo.
 //
 // swagger:model Repo
 type Repo struct {
-	ID           *int64        `json:"id,omitempty"`
-	Owner        *library.User `json:"owner,omitempty"`
-	Hash         *string       `json:"-"`
-	Org          *string       `json:"org,omitempty"`
-	Name         *string       `json:"name,omitempty"`
-	FullName     *string       `json:"full_name,omitempty"`
-	Link         *string       `json:"link,omitempty"`
-	Clone        *string       `json:"clone,omitempty"`
-	Branch       *string       `json:"branch,omitempty"`
-	Topics       *[]string     `json:"topics,omitempty"`
-	BuildLimit   *int64        `json:"build_limit,omitempty"`
-	Timeout      *int64        `json:"timeout,omitempty"`
-	Counter      *int          `json:"counter,omitempty"`
-	Visibility   *string       `json:"visibility,omitempty"`
-	Private      *bool         `json:"private,omitempty"`
-	Trusted      *bool         `json:"trusted,omitempty"`
-	Active       *bool         `json:"active,omitempty"`
-	AllowEvents  *Events       `json:"allow_events,omitempty"`
-	PipelineType *string       `json:"pipeline_type,omitempty"`
-	PreviousName *string       `json:"previous_name,omitempty"`
-	ApproveBuild *string       `json:"approve_build,omitempty"`
+	ID           *int64    `json:"id,omitempty"`
+	Owner        *User     `json:"owner,omitempty"`
+	Hash         *string   `json:"-"`
+	Org          *string   `json:"org,omitempty"`
+	Name         *string   `json:"name,omitempty"`
+	FullName     *string   `json:"full_name,omitempty"`
+	Link         *string   `json:"link,omitempty"`
+	Clone        *string   `json:"clone,omitempty"`
+	Branch       *string   `json:"branch,omitempty"`
+	Topics       *[]string `json:"topics,omitempty"`
+	BuildLimit   *int64    `json:"build_limit,omitempty"`
+	Timeout      *int64    `json:"timeout,omitempty"`
+	Counter      *int      `json:"counter,omitempty"`
+	Visibility   *string   `json:"visibility,omitempty"`
+	Private      *bool     `json:"private,omitempty"`
+	Trusted      *bool     `json:"trusted,omitempty"`
+	Active       *bool     `json:"active,omitempty"`
+	AllowEvents  *Events   `json:"allow_events,omitempty"`
+	PipelineType *string   `json:"pipeline_type,omitempty"`
+	PreviousName *string   `json:"previous_name,omitempty"`
+	ApproveBuild *string   `json:"approve_build,omitempty"`
 }
 
 // Environment returns a list of environment variables
@@ -91,10 +89,10 @@ func (r *Repo) GetID() int64 {
 //
 // When the provided Repo type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (r *Repo) GetOwner() *library.User {
+func (r *Repo) GetOwner() *User {
 	// return zero value if Repo type or Owner field is nil
 	if r == nil || r.Owner == nil {
-		return new(library.User)
+		return new(User)
 	}
 
 	return r.Owner
@@ -364,7 +362,7 @@ func (r *Repo) SetID(v int64) {
 //
 // When the provided Repo type is nil, it
 // will set nothing and immediately return.
-func (r *Repo) SetOwner(v *library.User) {
+func (r *Repo) SetOwner(v *User) {
 	// return if Repo type is nil
 	if r == nil {
 		return
