@@ -309,7 +309,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// generate the queue item
-	p, item, err, code := build.CompileAndPublish(
+	p, item, code, err := build.CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),

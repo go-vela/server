@@ -129,7 +129,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// generate queue items
-	_, item, err, code := CompileAndPublish(
+	_, item, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),

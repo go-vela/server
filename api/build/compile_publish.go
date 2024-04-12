@@ -49,7 +49,7 @@ func CompileAndPublish(
 	scm scm.Service,
 	compiler compiler.Engine,
 	queue queue.Service,
-) (*pipeline.Build, *models.Item, error, int) {
+) (*pipeline.Build, *models.Item, int, error) {
 	logrus.Debugf("generating queue items for build %s/%d", cfg.Repo.GetFullName(), cfg.Build.GetNumber())
 
 	// assign variables from form for readibility
@@ -63,7 +63,7 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build to queue: repository owner %s no longer has write access to repository %s", u.GetName(), r.GetFullName())
 
-		return nil, nil, retErr, http.StatusUnauthorized
+		return nil, nil, http.StatusUnauthorized, retErr
 	}
 
 	// get pull request number from build if event is pull_request or issue_comment
@@ -73,7 +73,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request number for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, retErr, http.StatusBadRequest
+			return nil, nil, http.StatusBadRequest, retErr
 		}
 	}
 
@@ -84,7 +84,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get pull request info for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, retErr, http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, retErr
 		}
 
 		b.SetCommit(commit)
@@ -100,7 +100,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("failed to get commit for repo %s on %s branch: %w", r.GetFullName(), r.GetBranch(), err)
 
-			return nil, nil, retErr, http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, retErr
 		}
 
 		b.SetCommit(commit)
@@ -116,7 +116,7 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("%s: unable to get count of builds for repo %s", baseErr, r.GetFullName())
 
-		return nil, nil, retErr, http.StatusInternalServerError
+		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
 	logrus.Debugf("currently %d builds running on repo %s", builds, r.GetFullName())
@@ -125,7 +125,7 @@ func CompileAndPublish(
 	if builds >= r.GetBuildLimit() {
 		retErr := fmt.Errorf("%s: repo %s has exceeded the concurrent build limit of %d", baseErr, r.GetFullName(), r.GetBuildLimit())
 
-		return nil, nil, retErr, http.StatusTooManyRequests
+		return nil, nil, http.StatusTooManyRequests, retErr
 	}
 
 	// update fields in build object
@@ -153,7 +153,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, retErr, http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, retErr
 		}
 	}
 
@@ -164,7 +164,7 @@ func CompileAndPublish(
 		if err != nil {
 			retErr := fmt.Errorf("%s: failed to get changeset for %s: %w", baseErr, r.GetFullName(), err)
 
-			return nil, nil, retErr, http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, retErr
 		}
 	}
 
@@ -202,7 +202,7 @@ func CompileAndPublish(
 			if err != nil {
 				retErr := fmt.Errorf("%s: unable to get pipeline configuration for %s: %w", baseErr, r.GetFullName(), err)
 
-				return nil, nil, retErr, http.StatusNotFound
+				return nil, nil, http.StatusNotFound, retErr
 			}
 		} else {
 			pipelineFile = pipeline.GetData()
@@ -221,7 +221,7 @@ func CompileAndPublish(
 				continue
 			}
 
-			return nil, nil, retErr, http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, retErr
 		}
 
 		// update DB record of repo (repo) with any changes captured from webhook payload (r)
@@ -270,7 +270,7 @@ func CompileAndPublish(
 			// log the error for traceability
 			logrus.Error(err.Error())
 
-			return nil, nil, fmt.Errorf("%s: %w", baseErr, err), http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, fmt.Errorf("%s: %w", baseErr, err)
 		}
 
 		// reset the pipeline type for the repo
@@ -297,8 +297,8 @@ func CompileAndPublish(
 				&models.Item{
 					Build: b,
 				},
-				errors.New(skip),
-				http.StatusOK
+				http.StatusOK,
+				errors.New(skip)
 		}
 
 		// check if the pipeline did not already exist in the database
@@ -321,7 +321,7 @@ func CompileAndPublish(
 					continue
 				}
 
-				return nil, nil, retErr, http.StatusInternalServerError
+				return nil, nil, http.StatusInternalServerError, retErr
 			}
 		}
 
@@ -351,7 +351,7 @@ func CompileAndPublish(
 				continue
 			}
 
-			return nil, nil, retErr, http.StatusInternalServerError
+			return nil, nil, http.StatusInternalServerError, retErr
 		}
 
 		// break the loop because everything was successful
@@ -363,21 +363,21 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to update repo %s: %w", baseErr, repo.GetFullName(), err)
 
-		return nil, nil, retErr, http.StatusInternalServerError
+		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
 	// return error if pipeline didn't get populated
 	if p == nil {
 		retErr := fmt.Errorf("%s: failed to set pipeline for %s: %w", baseErr, repo.GetFullName(), err)
 
-		return nil, nil, retErr, http.StatusInternalServerError
+		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
 	// return error if build didn't get populated
 	if b == nil {
 		retErr := fmt.Errorf("%s: failed to set build for %s: %w", baseErr, repo.GetFullName(), err)
 
-		return nil, nil, retErr, http.StatusInternalServerError
+		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
 	// send API call to capture the triggered build
@@ -385,7 +385,7 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("%s: failed to get new build %s/%d: %w", baseErr, repo.GetFullName(), b.GetNumber(), err)
 
-		return nil, nil, retErr, http.StatusInternalServerError
+		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
 	// determine queue route
@@ -396,7 +396,7 @@ func CompileAndPublish(
 		// error out the build
 		CleanBuild(c, database, b, nil, nil, retErr)
 
-		return nil, nil, retErr, http.StatusBadRequest
+		return nil, nil, http.StatusBadRequest, retErr
 	}
 
 	// temporarily set host to the route before it gets picked up by a worker
@@ -407,10 +407,10 @@ func CompileAndPublish(
 	if err != nil {
 		retErr := fmt.Errorf("unable to publish build executable for %s/%d: %w", repo.GetFullName(), b.GetNumber(), err)
 
-		return nil, nil, retErr, http.StatusInternalServerError
+		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
-	return p, models.ToItem(b, repo), nil, http.StatusCreated
+	return p, models.ToItem(b, repo), http.StatusCreated, nil
 }
 
 // getPRNumberFromBuild is a helper function to

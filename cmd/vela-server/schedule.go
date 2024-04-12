@@ -179,7 +179,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		Retries:  1,
 	}
 
-	_, item, err, _ := build.CompileAndPublish(
+	_, item, _, err := build.CompileAndPublish(
 		ctx,
 		config,
 		database,

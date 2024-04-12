@@ -129,7 +129,7 @@ func CreateBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
-	_, item, err, code := CompileAndPublish(
+	_, item, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
