@@ -39,7 +39,7 @@ func TestBuild_Retrieve(t *testing.T) {
 
 func TestBuild_Establish(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -163,7 +163,7 @@ func TestBuild_Establish_NoRepo(t *testing.T) {
 
 func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -214,7 +214,7 @@ func TestBuild_Establish_NoBuildParameter(t *testing.T) {
 
 func TestBuild_Establish_InvalidBuildParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)

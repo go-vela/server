@@ -14,18 +14,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestUser_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.User)
+	want := new(api.User)
 	want.SetID(1)
 
 	// setup context
@@ -53,17 +53,16 @@ func TestUser_Establish(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	want := new(library.User)
+	want := new(api.User)
 	want.SetID(1)
 	want.SetName("foo")
 	want.SetRefreshToken("fresh")
 	want.SetToken("bar")
-	want.SetHash("baz")
 	want.SetActive(false)
 	want.SetAdmin(false)
 	want.SetFavorites([]string{})
 
-	got := new(library.User)
+	got := new(api.User)
 
 	gin.SetMode(gin.TestMode)
 
@@ -189,9 +188,9 @@ func TestUser_Establish_DiffTokenType(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	want := new(library.User)
+	want := new(api.User)
 
-	got := new(library.User)
+	got := new(api.User)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -280,7 +279,7 @@ func TestUser_Establish_NoUser(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 

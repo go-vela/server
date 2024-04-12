@@ -44,7 +44,7 @@ func TestTypes_ToItem(t *testing.T) {
 	}
 	r := &api.Repo{
 		ID: &num64,
-		Owner: &library.User{
+		Owner: &api.User{
 			ID:     &num64,
 			Name:   &str,
 			Token:  &str,
@@ -91,7 +91,7 @@ func TestTypes_ToItem(t *testing.T) {
 		},
 		Repo: &api.Repo{
 			ID: &num64,
-			Owner: &library.User{
+			Owner: &api.User{
 				ID:     &num64,
 				Name:   &str,
 				Token:  &str,

@@ -9,15 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the user in the given context.
-func Retrieve(c *gin.Context) *library.User {
+func Retrieve(c *gin.Context) *api.User {
 	return FromContext(c)
 }
 
@@ -29,7 +29,7 @@ func Establish() gin.HandlerFunc {
 
 		// if token is not a user token or claims were not retrieved, establish empty user to better handle nil checks
 		if cl == nil || !strings.EqualFold(cl.TokenType, constants.UserAccessTokenType) {
-			u := new(library.User)
+			u := new(api.User)
 
 			ToContext(c, u)
 			c.Next()

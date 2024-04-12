@@ -15,7 +15,7 @@ import (
 )
 
 // GetDeployment gets a deployment from the GitHub repo.
-func (c *client) GetDeployment(ctx context.Context, u *library.User, r *api.Repo, id int64) (*library.Deployment, error) {
+func (c *client) GetDeployment(ctx context.Context, u *api.User, r *api.Repo, id int64) (*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -56,7 +56,7 @@ func (c *client) GetDeployment(ctx context.Context, u *library.User, r *api.Repo
 }
 
 // GetDeploymentCount counts a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentCount(ctx context.Context, u *library.User, r *api.Repo) (int64, error) {
+func (c *client) GetDeploymentCount(ctx context.Context, u *api.User, r *api.Repo) (int64, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -98,7 +98,7 @@ func (c *client) GetDeploymentCount(ctx context.Context, u *library.User, r *api
 }
 
 // GetDeploymentList gets a list of deployments from the GitHub repo.
-func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *api.Repo, page, perPage int) ([]*library.Deployment, error) {
+func (c *client) GetDeploymentList(ctx context.Context, u *api.User, r *api.Repo, page, perPage int) ([]*library.Deployment, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -156,7 +156,7 @@ func (c *client) GetDeploymentList(ctx context.Context, u *library.User, r *api.
 }
 
 // CreateDeployment creates a new deployment for the GitHub repo.
-func (c *client) CreateDeployment(ctx context.Context, u *library.User, r *api.Repo, d *library.Deployment) error {
+func (c *client) CreateDeployment(ctx context.Context, u *api.User, r *api.Repo, d *library.Deployment) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

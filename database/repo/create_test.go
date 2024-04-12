@@ -12,7 +12,7 @@ import (
 
 func TestRepo_Engine_CreateRepo(t *testing.T) {
 	// setup types
-	_repo := testRepo()
+	_repo := testAPIRepo()
 	_repo.SetID(1)
 	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")

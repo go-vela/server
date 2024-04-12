@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestGithub_OrgAccess_Admin(t *testing.T) {
@@ -34,7 +34,7 @@ func TestGithub_OrgAccess_Admin(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -76,7 +76,7 @@ func TestGithub_OrgAccess_Member(t *testing.T) {
 	// setup types
 	want := "member"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -106,7 +106,7 @@ func TestGithub_OrgAccess_NotFound(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -144,7 +144,7 @@ func TestGithub_OrgAccess_Pending(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -174,7 +174,7 @@ func TestGithub_OrgAccess_Personal(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -212,7 +212,7 @@ func TestGithub_RepoAccess_Admin(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -242,7 +242,7 @@ func TestGithub_RepoAccess_NotFound(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -280,7 +280,7 @@ func TestGithub_TeamAccess_Admin(t *testing.T) {
 	// setup types
 	want := "admin"
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -322,7 +322,7 @@ func TestGithub_TeamAccess_NoAccess(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -352,7 +352,7 @@ func TestGithub_TeamAccess_NotFound(t *testing.T) {
 	// setup types
 	want := ""
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -390,7 +390,7 @@ func TestGithub_TeamList(t *testing.T) {
 	// setup types
 	want := []string{"Justice League", "octocat"}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 
@@ -436,7 +436,7 @@ func TestGithub_RepoContributor(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 

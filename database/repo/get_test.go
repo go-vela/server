@@ -10,13 +10,14 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 )
 
 func TestRepo_Engine_GetRepo(t *testing.T) {
 	// setup types
-	_repo := testRepo()
+	_repo := testAPIRepo()
 	_repo.SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -31,7 +32,6 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
-	_owner.SetHash("baz")
 
 	_repo.SetOwner(_owner)
 
@@ -64,7 +64,7 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableUser).Create(database.UserFromLibrary(_owner)).Error
+	err = _sqlite.client.Table(constants.TableUser).Create(user.FromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}

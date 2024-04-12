@@ -39,7 +39,7 @@ func TestService_Retrieve(t *testing.T) {
 
 func TestService_Establish(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -203,7 +203,7 @@ func TestService_Establish_NoBuild(t *testing.T) {
 
 func TestService_Establish_NoServiceParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -262,7 +262,7 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 
 func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)

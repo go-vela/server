@@ -32,7 +32,7 @@ func TestGithub_CreateDeployment(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("foo")
 	u.SetToken("bar")
 

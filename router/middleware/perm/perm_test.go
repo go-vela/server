@@ -38,11 +38,10 @@ func TestPerm_MustPlatformAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	mto := &token.MintTokenOpts{
@@ -120,11 +119,10 @@ func TestPerm_MustPlatformAdmin_NotAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -247,11 +245,10 @@ func TestPerm_MustWorkerRegisterToken_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("vela-worker")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	mto := &token.MintTokenOpts{
@@ -399,7 +396,7 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -488,7 +485,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -505,11 +502,10 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	b.SetRepoID(1)
 	b.SetNumber(1)
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("admin")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	tm := &token.Manager{
@@ -584,7 +580,7 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -673,7 +669,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -759,7 +755,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -845,7 +841,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	// setup types
 	secret := "superSecret"
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -938,7 +934,7 @@ func TestPerm_MustAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -950,11 +946,10 @@ func TestPerm_MustAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -1039,7 +1034,7 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1051,11 +1046,10 @@ func TestPerm_MustAdmin_PlatAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	mto := &token.MintTokenOpts{
@@ -1140,7 +1134,7 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1152,11 +1146,10 @@ func TestPerm_MustAdmin_NotAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -1241,7 +1234,7 @@ func TestPerm_MustWrite(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1253,11 +1246,10 @@ func TestPerm_MustWrite(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -1342,7 +1334,7 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1354,11 +1346,10 @@ func TestPerm_MustWrite_PlatAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	mto := &token.MintTokenOpts{
@@ -1443,7 +1434,7 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1455,11 +1446,10 @@ func TestPerm_MustWrite_RepoAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -1544,7 +1534,7 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1556,11 +1546,10 @@ func TestPerm_MustWrite_NotWrite(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -1645,7 +1634,7 @@ func TestPerm_MustRead(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1657,11 +1646,10 @@ func TestPerm_MustRead(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("private")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -1746,7 +1734,7 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1758,11 +1746,10 @@ func TestPerm_MustRead_PlatAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("private")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(true)
 
 	mto := &token.MintTokenOpts{
@@ -1847,7 +1834,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1936,7 +1923,7 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -1948,11 +1935,10 @@ func TestPerm_MustRead_RepoAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("private")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -2037,7 +2023,7 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -2049,11 +2035,10 @@ func TestPerm_MustRead_RepoWrite(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("private")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -2138,7 +2123,7 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -2150,11 +2135,10 @@ func TestPerm_MustRead_RepoPublic(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{
@@ -2239,7 +2223,7 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
 
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -2251,11 +2235,10 @@ func TestPerm_MustRead_NotRead(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("private")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foob")
 	u.SetToken("bar")
-	u.SetHash("baz")
 	u.SetAdmin(false)
 
 	mto := &token.MintTokenOpts{

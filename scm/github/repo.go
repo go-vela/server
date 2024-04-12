@@ -20,7 +20,7 @@ import (
 
 // ConfigBackoff is a wrapper for Config that will retry five times if the function
 // fails to retrieve the yaml/yml file.
-func (c *client) ConfigBackoff(ctx context.Context, u *library.User, r *api.Repo, ref string) (data []byte, err error) {
+func (c *client) ConfigBackoff(ctx context.Context, u *api.User, r *api.Repo, ref string) (data []byte, err error) {
 	// number of times to retry
 	retryLimit := 5
 
@@ -48,7 +48,7 @@ func (c *client) ConfigBackoff(ctx context.Context, u *library.User, r *api.Repo
 }
 
 // Config gets the pipeline configuration from the GitHub repo.
-func (c *client) Config(ctx context.Context, u *library.User, r *api.Repo, ref string) ([]byte, error) {
+func (c *client) Config(ctx context.Context, u *api.User, r *api.Repo, ref string) ([]byte, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -95,7 +95,7 @@ func (c *client) Config(ctx context.Context, u *library.User, r *api.Repo, ref s
 }
 
 // Disable deactivates a repo by deleting the webhook.
-func (c *client) Disable(ctx context.Context, u *library.User, org, name string) error {
+func (c *client) Disable(ctx context.Context, u *api.User, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": name,
@@ -150,7 +150,7 @@ func (c *client) Disable(ctx context.Context, u *library.User, org, name string)
 }
 
 // Enable activates a repo by creating the webhook.
-func (c *client) Enable(ctx context.Context, u *library.User, r *api.Repo, h *library.Hook) (*library.Hook, string, error) {
+func (c *client) Enable(ctx context.Context, u *api.User, r *api.Repo, h *library.Hook) (*library.Hook, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -224,7 +224,7 @@ func (c *client) Enable(ctx context.Context, u *library.User, r *api.Repo, h *li
 }
 
 // Update edits a repo webhook.
-func (c *client) Update(ctx context.Context, u *library.User, r *api.Repo, hookID int64) (bool, error) {
+func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID int64) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -281,7 +281,7 @@ func (c *client) Update(ctx context.Context, u *library.User, r *api.Repo, hookI
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, org, name string) error {
+func (c *client) Status(ctx context.Context, u *api.User, b *library.Build, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -394,7 +394,7 @@ func (c *client) Status(ctx context.Context, u *library.User, b *library.Build, 
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
-func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Build, s *library.Step, org, name string) error {
+func (c *client) StepStatus(ctx context.Context, u *api.User, b *library.Build, s *library.Step, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -463,7 +463,7 @@ func (c *client) StepStatus(ctx context.Context, u *library.User, b *library.Bui
 }
 
 // GetRepo gets repo information from Github.
-func (c *client) GetRepo(ctx context.Context, u *library.User, r *api.Repo) (*api.Repo, int, error) {
+func (c *client) GetRepo(ctx context.Context, u *api.User, r *api.Repo) (*api.Repo, int, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -483,7 +483,7 @@ func (c *client) GetRepo(ctx context.Context, u *library.User, r *api.Repo) (*ap
 }
 
 // GetOrgAndRepoName returns the name of the org and the repository in the SCM.
-func (c *client) GetOrgAndRepoName(ctx context.Context, u *library.User, o string, r string) (string, string, error) {
+func (c *client) GetOrgAndRepoName(ctx context.Context, u *api.User, o string, r string) (string, string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  o,
 		"repo": r,
@@ -503,7 +503,7 @@ func (c *client) GetOrgAndRepoName(ctx context.Context, u *library.User, o strin
 }
 
 // ListUserRepos returns a list of all repos the user has access to.
-func (c *client) ListUserRepos(ctx context.Context, u *library.User) ([]*api.Repo, error) {
+func (c *client) ListUserRepos(ctx context.Context, u *api.User) ([]*api.Repo, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("listing source repositories for %s", u.GetName())
@@ -605,7 +605,7 @@ func (c *client) GetPullRequest(ctx context.Context, r *api.Repo, number int) (s
 }
 
 // GetHTMLURL retrieves the html_url from repository contents from the GitHub repo.
-func (c *client) GetHTMLURL(ctx context.Context, u *library.User, org, repo, name, ref string) (string, error) {
+func (c *client) GetHTMLURL(ctx context.Context, u *api.User, org, repo, name, ref string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,
