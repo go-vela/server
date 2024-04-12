@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestLibrary_Dashboard_Getters(t *testing.T) {
+func TestTypes_Dashboard_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		dashboard *Dashboard
@@ -60,7 +60,7 @@ func TestLibrary_Dashboard_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Dashboard_Setters(t *testing.T) {
+func TestTypes_Dashboard_Setters(t *testing.T) {
 	// setup types
 	var d *Dashboard
 
@@ -124,7 +124,7 @@ func TestLibrary_Dashboard_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Dashboard_String(t *testing.T) {
+func TestTypes_Dashboard_String(t *testing.T) {
 	// setup types
 	d := testDashboard()
 

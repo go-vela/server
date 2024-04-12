@@ -34,10 +34,18 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the dashboard
+//     description: Successfully retrieved dashboard
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
+//   '401':
+//     description: Unauthorized to retrieve dashboard
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Server error when retrieving dashboard
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetDashboard represents the API handler to capture
 // a dashboard for a repo from the configured backend.

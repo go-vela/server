@@ -28,17 +28,20 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved the dashboards
+//     description: Successfully retrieved user dashboards
+//     type: json
 //     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Dashboard"
+//       "$ref": "#/definitions/Dashboard"
 //   '400':
-//     description: Unable to retrieve the org
+//     description: Bad request to retrieve user dashboards
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized to retrieve user dashboards
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to retrieve the org
+//     description: Server error when retrieving user dashboards
 //     schema:
 //       "$ref": "#/definitions/Error"
 

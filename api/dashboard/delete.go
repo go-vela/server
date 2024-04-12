@@ -32,15 +32,15 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully deleted the dashboard
+//     description: Successfully deleted dashboard
 //     schema:
 //       type: string
-//   '500':
-//     description: Unable to  deleted the dashboard
+//   '401':
+//     description: Unauthorized to delete dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '510':
-//     description: Unable to  deleted the dashboard
+//   '500':
+//     description: Server error when deleting dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -67,7 +67,6 @@ func DeleteDashboard(c *gin.Context) {
 		return
 	}
 
-	// Comment out actual delete until delete mechanism is fleshed out
 	err := database.FromContext(c).DeleteDashboard(c, d)
 	if err != nil {
 		retErr := fmt.Errorf("error while deleting dashboard %s: %w", d.GetID(), err)

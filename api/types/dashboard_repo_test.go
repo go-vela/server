@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestLibrary_DashboardRepo_Getters(t *testing.T) {
+func TestTypes_DashboardRepo_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		dashboardRepo *DashboardRepo
@@ -44,7 +44,7 @@ func TestLibrary_DashboardRepo_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_DashboardRepo_Setters(t *testing.T) {
+func TestTypes_DashboardRepo_Setters(t *testing.T) {
 	// setup types
 	var d *DashboardRepo
 
@@ -88,7 +88,7 @@ func TestLibrary_DashboardRepo_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_DashboardRepo_String(t *testing.T) {
+func TestTypes_DashboardRepo_String(t *testing.T) {
 	// setup types
 	d := testDashboardRepo()
 

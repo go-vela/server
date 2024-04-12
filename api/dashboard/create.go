@@ -36,27 +36,19 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '201':
-//     description: Successfully created the dashboard
+//     description: Successfully created dashboard
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
 //   '400':
-//     description: Unable to create the dashboard
+//     description: Bad request when creating dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '403':
-//     description: Unable to create the dashboard
-//     schema:
-//       "$ref": "#/definitions/Error"
-//   '409':
-//     description: Unable to create the dashboard
+//   '401':
+//     description: Unauthorized to create dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the dashboard
-//     schema:
-//       "$ref": "#/definitions/Error"
-//   '503':
-//     description: Unable to create the dashboard
+//     description: Server error when creating dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
 

@@ -35,7 +35,7 @@ type DashCard struct {
 	Repos     []RepoPartial `json:"repos,omitempty"`
 }
 
-// Dashboard is the library representation of a dashboard.
+// Dashboard is the API representation of a dashboard.
 //
 // swagger:model Dashboard
 type Dashboard struct {

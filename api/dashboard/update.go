@@ -40,19 +40,23 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the dashboard
+//     description: Successfully updated dashboard
 //     schema:
 //       "$ref": "#/definitions/Dashboard"
 //   '400':
-//     description: Unable to update the dashboard
+//     description: Bad request when updating dashboard
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized to update dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to update the dashboard
+//     description: Unable to find dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to update the dashboard
+//     description: Error while updating dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
 

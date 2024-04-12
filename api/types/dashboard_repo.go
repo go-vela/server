@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-// DashboardRepo is the library representation of a repo belonging to a Dashboard.
+// DashboardRepo is the API representation of a repo belonging to a Dashboard.
 //
 // swagger:model DashboardRepo
 type DashboardRepo struct {

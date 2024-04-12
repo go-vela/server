@@ -95,7 +95,7 @@ func TestTypes_User_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_User_Setters(t *testing.T) {
+func TestTypes_User_Setters(t *testing.T) {
 	// setup types
 	var u *User
 
@@ -159,7 +159,7 @@ func TestLibrary_User_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_User_String(t *testing.T) {
+func TestTypes_User_String(t *testing.T) {
 	// setup types
 	u := testUser()
 
