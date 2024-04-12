@@ -5,9 +5,10 @@ package dashboard
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // DeleteDashboard deletes an existing dashboard from the database.

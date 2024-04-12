@@ -1905,6 +1905,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	userOne.SetToken("")
 	userOne.SetRefreshToken("")
 	userOne.SetFavorites(nil)
+	userOne.SetDashboards(nil)
 	userOne.SetActive(false)
 	userOne.SetAdmin(false)
 
@@ -1914,6 +1915,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	userTwo.SetToken("")
 	userTwo.SetRefreshToken("")
 	userTwo.SetFavorites(nil)
+	userTwo.SetDashboards(nil)
 	userTwo.SetActive(false)
 	userTwo.SetAdmin(false)
 

@@ -7,8 +7,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	api "github.com/go-vela/server/api/types"
 	"github.com/google/go-cmp/cmp"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestRepo_Engine_GetDashboard(t *testing.T) {

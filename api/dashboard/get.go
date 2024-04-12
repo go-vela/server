@@ -8,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/dashboard"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/dashboards/{dashboard} dashboards GetDashboard

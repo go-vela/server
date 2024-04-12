@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code with create.go
+
 package dashboard
 
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
-	"github.com/sirupsen/logrus"
 )
 
 // UpdateDashboard updates an existing dashboard in the database.
