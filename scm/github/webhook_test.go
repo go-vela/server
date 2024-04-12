@@ -1467,7 +1467,7 @@ func TestGithub_Redeliver_Webhook(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("octocat")
 	u.SetToken("foo")
 
@@ -1511,7 +1511,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	defer s.Close()
 
 	// setup types
-	u := new(library.User)
+	u := new(api.User)
 	u.SetName("octocat")
 	u.SetToken("foo")
 

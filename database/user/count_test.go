@@ -12,17 +12,15 @@ import (
 
 func TestUser_Engine_CountUsers(t *testing.T) {
 	// setup types
-	_userOne := testUser()
+	_userOne := testAPIUser()
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
-	_userOne.SetHash("baz")
 
-	_userTwo := testUser()
+	_userTwo := testAPIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
-	_userTwo.SetHash("foo")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

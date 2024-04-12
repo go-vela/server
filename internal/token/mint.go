@@ -9,8 +9,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // Claims struct is an extension of the JWT standard claims. It
@@ -32,7 +32,7 @@ type MintTokenOpts struct {
 	Repo          string
 	TokenDuration time.Duration
 	TokenType     string
-	User          *library.User
+	User          *api.User
 }
 
 // MintToken mints a Vela JWT Token given a set of options.

@@ -10,7 +10,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestTypes_Repo_Environment(t *testing.T) {
@@ -343,7 +342,7 @@ func testRepo() *Repo {
 
 	e, _ := testEvents()
 
-	owner := new(library.User)
+	owner := new(User)
 	owner.SetID(1)
 	owner.SetName("octocat")
 

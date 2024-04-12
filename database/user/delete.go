@@ -7,21 +7,18 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // DeleteUser deletes an existing user from the database.
-func (e *engine) DeleteUser(ctx context.Context, u *library.User) error {
+func (e *engine) DeleteUser(ctx context.Context, u *api.User) error {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("deleting user %s from the database", u.GetName())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#UserFromLibrary
-	user := database.UserFromLibrary(u)
+	// cast the API type to database type
+	user := FromAPI(u)
 
 	// send query to the database
 	return e.client.

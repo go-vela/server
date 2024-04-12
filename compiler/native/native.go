@@ -40,7 +40,7 @@ type client struct {
 	localTemplates []string
 	metadata       *internal.Metadata
 	repo           *api.Repo
-	user           *library.User
+	user           *api.User
 	labels         []string
 }
 
@@ -203,7 +203,7 @@ func (c *client) WithRepo(r *api.Repo) compiler.Engine {
 }
 
 // WithUser sets the library user type in the Engine.
-func (c *client) WithUser(u *library.User) compiler.Engine {
+func (c *client) WithUser(u *api.User) compiler.Engine {
 	if u != nil {
 		c.user = u
 	}

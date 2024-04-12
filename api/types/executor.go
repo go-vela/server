@@ -10,7 +10,7 @@ import (
 	"github.com/go-vela/types/pipeline"
 )
 
-// Executor is the library representation of an executor for a worker.
+// Executor is the API representation of an executor for a worker.
 //
 // swagger:model Executor
 type Executor struct {

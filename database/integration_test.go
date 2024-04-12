@@ -44,7 +44,7 @@ type Resources struct {
 	Secrets     []*library.Secret
 	Services    []*library.Service
 	Steps       []*library.Step
-	Users       []*library.User
+	Users       []*api.User
 	Workers     []*api.Worker
 }
 
@@ -1811,27 +1811,25 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
-	userOne := new(library.User)
+	userOne := new(api.User)
 	userOne.SetID(1)
 	userOne.SetName("octocat")
 	userOne.SetToken("")
 	userOne.SetRefreshToken("")
-	userOne.SetHash("")
 	userOne.SetFavorites(nil)
 	userOne.SetActive(false)
 	userOne.SetAdmin(false)
 
-	userTwo := new(library.User)
+	userTwo := new(api.User)
 	userTwo.SetID(2)
 	userTwo.SetName("octokitty")
 	userTwo.SetToken("")
 	userTwo.SetRefreshToken("")
-	userTwo.SetHash("")
 	userTwo.SetFavorites(nil)
 	userTwo.SetActive(false)
 	userTwo.SetAdmin(false)
 
-	liteUsers := []*library.User{userOne, userTwo}
+	liteUsers := []*api.User{userOne, userTwo}
 
 	// create the users
 	for _, user := range resources.Users {
@@ -2238,22 +2236,20 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
-	userOne := new(library.User)
+	userOne := new(api.User)
 	userOne.SetID(1)
 	userOne.SetName("octocat")
 	userOne.SetToken("superSecretToken")
 	userOne.SetRefreshToken("superSecretRefreshToken")
-	userOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	userOne.SetFavorites([]string{"github/octocat"})
 	userOne.SetActive(true)
 	userOne.SetAdmin(false)
 
-	userTwo := new(library.User)
+	userTwo := new(api.User)
 	userTwo.SetID(2)
 	userTwo.SetName("octokitty")
 	userTwo.SetToken("superSecretToken")
 	userTwo.SetRefreshToken("superSecretRefreshToken")
-	userTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	userTwo.SetFavorites([]string{"github/octocat"})
 	userTwo.SetActive(true)
 	userTwo.SetAdmin(false)
@@ -2499,7 +2495,7 @@ func newResources() *Resources {
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},
-		Users:       []*library.User{userOne, userTwo},
+		Users:       []*api.User{userOne, userTwo},
 		Workers:     []*api.Worker{workerOne, workerTwo},
 	}
 }

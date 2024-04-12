@@ -11,6 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -30,7 +31,7 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 	_buildTwo.SetNumber(1)
 	_buildTwo.SetCreated(time.Now().UTC().Unix())
 
-	_repoOne := testRepo()
+	_repoOne := testAPIRepo()
 	_repoOne.SetID(1)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
@@ -41,7 +42,7 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 	_repoOne.SetTopics([]string{})
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_repoTwo := testRepo()
+	_repoTwo := testAPIRepo()
 	_repoTwo.SetID(2)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
@@ -56,7 +57,6 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
-	_owner.SetHash("baz")
 
 	_repoOne.SetOwner(_owner)
 	_repoTwo.SetOwner(_owner)
@@ -137,7 +137,7 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableUser).Create(database.UserFromLibrary(_owner)).Error
+	err = _sqlite.client.Table(constants.TableUser).Create(user.FromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}

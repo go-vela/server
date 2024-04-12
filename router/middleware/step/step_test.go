@@ -40,7 +40,7 @@ func TestStep_Retrieve(t *testing.T) {
 
 func TestStep_Establish(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -158,7 +158,7 @@ func TestStep_Establish_NoRepo(t *testing.T) {
 
 func TestStep_Establish_NoBuild(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -209,7 +209,7 @@ func TestStep_Establish_NoBuild(t *testing.T) {
 
 func TestStep_Establish_NoStepParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -268,7 +268,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)
@@ -327,7 +327,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 func TestStep_Establish_NoStep(t *testing.T) {
 	// setup types
-	owner := new(library.User)
+	owner := new(api.User)
 	owner.SetID(1)
 
 	r := new(api.Repo)

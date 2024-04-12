@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
 )
 
 const (
@@ -51,7 +51,7 @@ const (
 func getUsers(c *gin.Context) {
 	data := []byte(UsersResp)
 
-	var body []library.User
+	var body []api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -73,7 +73,7 @@ func getUser(c *gin.Context) {
 
 	data := []byte(UserResp)
 
-	var body library.User
+	var body api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -83,7 +83,7 @@ func getUser(c *gin.Context) {
 func addUser(c *gin.Context) {
 	data := []byte(UserResp)
 
-	var body library.User
+	var body api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -107,7 +107,7 @@ func updateUser(c *gin.Context) {
 
 	data := []byte(UserResp)
 
-	var body library.User
+	var body api.User
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

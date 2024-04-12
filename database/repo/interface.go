@@ -6,7 +6,6 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // RepoInterface represents the Vela interface for repo
@@ -32,7 +31,7 @@ type RepoInterface interface {
 	// CountReposForOrg defines a function that gets the count of repos by org name.
 	CountReposForOrg(context.Context, string, map[string]interface{}) (int64, error)
 	// CountReposForUser defines a function that gets the count of repos by user ID.
-	CountReposForUser(context.Context, *library.User, map[string]interface{}) (int64, error)
+	CountReposForUser(context.Context, *api.User, map[string]interface{}) (int64, error)
 	// CreateRepo defines a function that creates a new repo.
 	CreateRepo(context.Context, *api.Repo) (*api.Repo, error)
 	// DeleteRepo defines a function that deletes an existing repo.
@@ -46,7 +45,7 @@ type RepoInterface interface {
 	// ListReposForOrg defines a function that gets a list of repos by org name.
 	ListReposForOrg(context.Context, string, string, map[string]interface{}, int, int) ([]*api.Repo, int64, error)
 	// ListReposForUser defines a function that gets a list of repos by user ID.
-	ListReposForUser(context.Context, *library.User, string, map[string]interface{}, int, int) ([]*api.Repo, int64, error)
+	ListReposForUser(context.Context, *api.User, string, map[string]interface{}, int, int) ([]*api.Repo, int64, error)
 	// UpdateRepo defines a function that updates an existing repo.
 	UpdateRepo(context.Context, *api.Repo) (*api.Repo, error)
 }
