@@ -309,6 +309,11 @@ func PostWebhook(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
+	// error handling done in CompileAndPublish
+	if err != nil {
+		return
+	}
+
 	// capture the build and repo from the items
 	b, repo = item.Build, item.Repo
 
