@@ -40,7 +40,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", "dash", 1, "user1", 1, "user2", "{}", []byte(`[{"id":1,"branches":["main"],"events":["push"]}]`))
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "dashboards" WHERE id = $1 LIMIT 1`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "dashboards" WHERE id = $1 LIMIT $2`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8", 1).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

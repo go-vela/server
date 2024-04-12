@@ -12,13 +12,15 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestUser_Retrieve(t *testing.T) {
@@ -56,7 +58,6 @@ func TestUser_Establish(t *testing.T) {
 	want.SetName("foo")
 	want.SetRefreshToken("fresh")
 	want.SetToken("bar")
-	want.SetHash("baz")
 	want.SetActive(false)
 	want.SetAdmin(false)
 	want.SetFavorites([]string{})

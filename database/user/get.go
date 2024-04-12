@@ -5,8 +5,8 @@ package user
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 // GetUser gets a user by ID from the database.
@@ -14,7 +14,7 @@ func (e *engine) GetUser(ctx context.Context, id int64) (*api.User, error) {
 	e.logger.Tracef("getting user %d from the database", id)
 
 	// variable to store query results
-	u := new(database.User)
+	u := new(User)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -27,8 +27,6 @@ func (e *engine) GetUser(ctx context.Context, id int64) (*api.User, error) {
 	}
 
 	// decrypt the fields for the user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.Decrypt
 	err = u.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		// TODO: remove backwards compatibility before 1.x.x release
@@ -40,7 +38,5 @@ func (e *engine) GetUser(ctx context.Context, id int64) (*api.User, error) {
 	}
 
 	// return the decrypted user
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#User.ToLibrary
-	return u.ToLibrary(), nil
+	return u.ToAPI(), nil
 }

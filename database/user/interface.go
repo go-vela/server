@@ -4,6 +4,8 @@ package user
 
 import (
 	"context"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 // UserInterface represents the Vela interface for user

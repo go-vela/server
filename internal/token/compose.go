@@ -7,7 +7,9 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 )
 
@@ -20,7 +22,7 @@ import (
 func (tm *Manager) Compose(c *gin.Context, u *api.User) (string, string, error) {
 	// grab the metadata from the context to pull in provided
 	// cookie duration information
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 
 	// mint token options for refresh token
 	rmto := MintTokenOpts{

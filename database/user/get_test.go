@@ -8,15 +8,17 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestUser_Engine_GetUser(t *testing.T) {
 	// setup types
-	_user := testUser()
+	_user := testAPIUser()
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
-	_user.SetHash("baz")
+
 	_user.SetFavorites([]string{})
 	_user.SetDashboards([]string{})
 

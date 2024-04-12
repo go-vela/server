@@ -3,14 +3,15 @@
 package github
 
 import (
+	_context "context"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 
-	_context "context"
-
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestGithub_Authenticate(t *testing.T) {

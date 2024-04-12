@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-vela/types/constants"
-
 	"github.com/golang-jwt/jwt/v5/request"
+
+	"github.com/go-vela/types/constants"
 )
 
 // RetrieveAccessToken gets the passed in access token from the header in the request.

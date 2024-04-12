@@ -5,16 +5,15 @@ package native
 import (
 	"time"
 
-	"github.com/go-vela/server/compiler"
-
-	"github.com/go-vela/server/compiler/registry"
-	"github.com/go-vela/server/compiler/registry/github"
-
-	"github.com/go-vela/types"
-	"github.com/go-vela/types/library"
-
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/compiler/registry"
+	"github.com/go-vela/server/compiler/registry/github"
+	"github.com/go-vela/server/internal"
+	"github.com/go-vela/types/library"
 )
 
 type ModificationConfig struct {
@@ -39,9 +38,10 @@ type client struct {
 	files          []string
 	local          bool
 	localTemplates []string
-	metadata       *types.Metadata
-	repo           *library.Repo
+	metadata       *internal.Metadata
+	repo           *api.Repo
 	user           *api.User
+	labels         []string
 }
 
 // New returns a Pipeline implementation that integrates with the supported registries.
@@ -174,7 +174,7 @@ func (c *client) WithLocalTemplates(templates []string) compiler.Engine {
 }
 
 // WithMetadata sets the compiler metadata type in the Engine.
-func (c *client) WithMetadata(m *types.Metadata) compiler.Engine {
+func (c *client) WithMetadata(m *internal.Metadata) compiler.Engine {
 	if m != nil {
 		c.metadata = m
 	}
@@ -194,7 +194,7 @@ func (c *client) WithPrivateGitHub(url, token string) compiler.Engine {
 }
 
 // WithRepo sets the library repo type in the Engine.
-func (c *client) WithRepo(r *library.Repo) compiler.Engine {
+func (c *client) WithRepo(r *api.Repo) compiler.Engine {
 	if r != nil {
 		c.repo = r
 	}
@@ -206,6 +206,15 @@ func (c *client) WithRepo(r *library.Repo) compiler.Engine {
 func (c *client) WithUser(u *api.User) compiler.Engine {
 	if u != nil {
 		c.user = u
+	}
+
+	return c
+}
+
+// WithLabels sets the label(s) in the Engine.
+func (c *client) WithLabels(labels []string) compiler.Engine {
+	if len(labels) != 0 {
+		c.labels = labels
 	}
 
 	return c

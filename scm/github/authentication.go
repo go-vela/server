@@ -10,8 +10,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/google/go-github/v61/github"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/random"
-	"github.com/google/go-github/v59/github"
 )
 
 // Authorize uses the given access token to authorize the user.

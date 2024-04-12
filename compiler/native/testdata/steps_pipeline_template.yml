@@ -8,6 +8,11 @@ templates:
     source: github.example.com/foo/bar/long_template.yml
     type: github
 
+  - name: starlark
+    source: github.example.com/github/octocat/starlark_inline_steps.star
+    format: starlark
+    type: github
+
 steps:
   # would execute the following steps:
   # 1. sample_get_dependencies
@@ -20,6 +25,12 @@ steps:
         image: openjdk:latest
         environment: "{ GRADLE_USER_HOME: .gradle, GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.workers.max=1 -Dorg.gradle.parallel=false }"
         pull_policy: "pull: true"
+
+  - name: starlark
+    ruleset:
+      event: push
+    template:
+      name: starlark
 
   - name: docker
     image: plugins/docker:18.09

@@ -36,7 +36,10 @@ jobs:
         # Check that go fmt ./... produces a zero diff; clean up any changes afterwards.
         go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
         # Check that go fix ./... produces a zero diff; clean up any changes afterwards.
-        go fix ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+        #
+        # Renable this after https://github.com/golang/go/commit/7fd62ba821b1044e8e4077df052b0a1232672d57
+        # has been released.
+        # go fix ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
 
     - name: validate spec
       run: |

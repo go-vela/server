@@ -36,6 +36,16 @@ func (e *engine) NewResources(ctx context.Context) error {
 		return err
 	}
 
+	e.DashboardInterface, err = dashboard.New(
+		dashboard.WithContext(e.ctx),
+		dashboard.WithClient(e.client),
+		dashboard.WithLogger(e.logger),
+		dashboard.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
+
 	// create the database agnostic engine for build_executables
 	e.BuildExecutableInterface, err = executable.New(
 		executable.WithContext(e.ctx),
@@ -44,16 +54,6 @@ func (e *engine) NewResources(ctx context.Context) error {
 		executable.WithSkipCreation(e.config.SkipCreation),
 		executable.WithEncryptionKey(e.config.EncryptionKey),
 		executable.WithDriver(e.config.Driver),
-	)
-	if err != nil {
-		return err
-	}
-
-	e.DashboardInterface, err = dashboard.New(
-		dashboard.WithContext(e.ctx),
-		dashboard.WithClient(e.client),
-		dashboard.WithLogger(e.logger),
-		dashboard.WithSkipCreation(e.config.SkipCreation),
 	)
 	if err != nil {
 		return err

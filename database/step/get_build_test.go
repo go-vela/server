@@ -7,8 +7,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestStep_Engine_GetStepForBuild(t *testing.T) {

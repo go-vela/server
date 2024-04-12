@@ -9,9 +9,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/server/compiler/registry"
-
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/registry"
 )
 
 func TestGithub_Template(t *testing.T) {

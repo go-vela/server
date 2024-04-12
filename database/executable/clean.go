@@ -5,8 +5,9 @@ package executable
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 const CleanExecutablesPostgres = `

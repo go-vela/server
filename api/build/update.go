@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -16,7 +18,6 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build} builds UpdateBuild
@@ -168,14 +169,8 @@ func UpdateBuild(c *gin.Context) {
 		b.GetStatus() == constants.StatusCanceled ||
 		b.GetStatus() == constants.StatusKilled ||
 		b.GetStatus() == constants.StatusError) && b.GetEvent() != constants.EventSchedule {
-		// send API call to capture the repo owner
-		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-		if err != nil {
-			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
-		}
-
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).Status(ctx, u, b, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).Status(ctx, r.GetOwner(), b, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}

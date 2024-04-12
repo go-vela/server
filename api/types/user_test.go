@@ -10,12 +10,11 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-func TestLibrary_User_Sanitize(t *testing.T) {
+func TestTypes_User_Sanitize(t *testing.T) {
 	// setup types
 	u := testUser()
 
 	want := testUser()
-	want.SetHash(constants.SecretMask)
 	want.SetToken(constants.SecretMask)
 	want.SetRefreshToken(constants.SecretMask)
 
@@ -27,7 +26,7 @@ func TestLibrary_User_Sanitize(t *testing.T) {
 	}
 }
 
-func TestLibrary_User_Environment(t *testing.T) {
+func TestTypes_User_Environment(t *testing.T) {
 	// setup types
 	want := map[string]string{
 		"VELA_USER_ACTIVE":    "true",
@@ -44,7 +43,7 @@ func TestLibrary_User_Environment(t *testing.T) {
 	}
 }
 
-func TestLibrary_User_Getters(t *testing.T) {
+func TestTypes_User_Getters(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		user *User
@@ -76,10 +75,6 @@ func TestLibrary_User_Getters(t *testing.T) {
 
 		if test.user.GetToken() != test.want.GetToken() {
 			t.Errorf("GetToken is %v, want %v", test.user.GetToken(), test.want.GetToken())
-		}
-
-		if test.user.GetHash() != test.want.GetHash() {
-			t.Errorf("GetHash is %v, want %v", test.user.GetHash(), test.want.GetHash())
 		}
 
 		if !reflect.DeepEqual(test.user.GetFavorites(), test.want.GetFavorites()) {
@@ -125,7 +120,6 @@ func TestLibrary_User_Setters(t *testing.T) {
 		test.user.SetName(test.want.GetName())
 		test.user.SetRefreshToken(test.want.GetRefreshToken())
 		test.user.SetToken(test.want.GetToken())
-		test.user.SetHash(test.want.GetHash())
 		test.user.SetFavorites(test.want.GetFavorites())
 		test.user.SetActive(test.want.GetActive())
 		test.user.SetAdmin(test.want.GetAdmin())
@@ -145,10 +139,6 @@ func TestLibrary_User_Setters(t *testing.T) {
 
 		if test.user.GetToken() != test.want.GetToken() {
 			t.Errorf("SetToken is %v, want %v", test.user.GetToken(), test.want.GetToken())
-		}
-
-		if test.user.GetHash() != test.want.GetHash() {
-			t.Errorf("SetHash is %v, want %v", test.user.GetHash(), test.want.GetHash())
 		}
 
 		if !reflect.DeepEqual(test.user.GetFavorites(), test.want.GetFavorites()) {
@@ -207,7 +197,6 @@ func testUser() *User {
 	u.SetID(1)
 	u.SetName("octocat")
 	u.SetToken("superSecretToken")
-	u.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	u.SetFavorites([]string{"github/octocat"})
 	u.SetActive(true)
 	u.SetAdmin(false)

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code with update.go
 package schedule
 
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CreateSchedule creates a new schedule in the database.

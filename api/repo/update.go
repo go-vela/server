@@ -9,6 +9,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -16,9 +20,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo} repos UpdateRepo
@@ -89,7 +90,7 @@ func UpdateRepo(c *gin.Context) {
 	}).Infof("updating repo %s", r.GetFullName())
 
 	// capture body from API request
-	input := new(library.Repo)
+	input := new(types.Repo)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -249,19 +250,10 @@ func UpdateRepo(c *gin.Context) {
 
 			return
 		}
-		// if user is platform admin, fetch the repo owner token to make changes to webhook
+		// if user is platform admin, use repo owner token to make changes to webhook
 		if u.GetAdmin() {
 			// capture admin name for logging
 			admn := u.GetName()
-
-			u, err = database.FromContext(c).GetUser(ctx, r.GetUserID())
-			if err != nil {
-				retErr := fmt.Errorf("unable to get repo owner of %s for platform admin webhook update: %w", r.GetFullName(), err)
-
-				util.HandleError(c, http.StatusInternalServerError, retErr)
-
-				return
-			}
 
 			// log admin override update repo hook
 			logrus.WithFields(logrus.Fields{
@@ -269,6 +261,8 @@ func UpdateRepo(c *gin.Context) {
 				"repo": r.GetName(),
 				"user": u.GetName(),
 			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
+
+			u = r.GetOwner()
 		}
 		// update webhook with new events
 		_, err = scm.FromContext(c).Update(ctx, u, r, lastHook.GetWebhookID())

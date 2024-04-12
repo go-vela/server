@@ -5,16 +5,18 @@ package build
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // ListBuildsForDashboardRepo gets a list of builds by repo ID from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *library.Repo, branches, events []string) ([]*library.Build, error) {
+func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, branches, events []string) ([]*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),

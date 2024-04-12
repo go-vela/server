@@ -7,7 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
@@ -281,7 +282,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *library.Build, m *types.Metadata, r *library.Repo, u *api.User) map[string]string {
+func environment(b *library.Build, m *internal.Metadata, r *api.Repo, u *api.User) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"

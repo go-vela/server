@@ -10,9 +10,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestTokenManager_Refresh(t *testing.T) {
@@ -21,7 +23,6 @@ func TestTokenManager_Refresh(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -82,7 +83,6 @@ func TestTokenManager_Refresh_Expired(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",

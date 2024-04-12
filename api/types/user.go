@@ -8,7 +8,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-// User is the library representation of a user.
+// User is the API representation of a user.
 //
 // swagger:model User
 type User struct {
@@ -16,7 +16,6 @@ type User struct {
 	Name         *string   `json:"name,omitempty"`
 	RefreshToken *string   `json:"-"`
 	Token        *string   `json:"-"`
-	Hash         *string   `json:"-"` // deprecated
 	Favorites    *[]string `json:"favorites,omitempty"`
 	Active       *bool     `json:"active,omitempty"`
 	Admin        *bool     `json:"admin,omitempty"`
@@ -35,7 +34,6 @@ func (u *User) Sanitize() *User {
 		Name:         u.Name,
 		RefreshToken: &value,
 		Token:        &value,
-		Hash:         &value,
 		Favorites:    u.Favorites,
 		Active:       u.Active,
 		Admin:        u.Admin,
@@ -104,19 +102,6 @@ func (u *User) GetToken() string {
 	}
 
 	return *u.Token
-}
-
-// GetHash returns the Hash field.
-//
-// When the provided User type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (u *User) GetHash() string {
-	// return zero value if User type or Hash field is nil
-	if u == nil || u.Hash == nil {
-		return ""
-	}
-
-	return *u.Hash
 }
 
 // GetActive returns the Active field.
@@ -221,19 +206,6 @@ func (u *User) SetToken(v string) {
 	}
 
 	u.Token = &v
-}
-
-// SetHash sets the Hash field.
-//
-// When the provided User type is nil, it
-// will set nothing and immediately return.
-func (u *User) SetHash(v string) {
-	// return if User type is nil
-	if u == nil {
-		return
-	}
-
-	u.Hash = &v
 }
 
 // SetActive sets the Active field.

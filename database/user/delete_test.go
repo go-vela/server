@@ -11,11 +11,10 @@ import (
 
 func TestUser_Engine_DeleteUser(t *testing.T) {
 	// setup types
-	_user := testUser()
+	_user := testAPIUser()
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
-	_user.SetHash("baz")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

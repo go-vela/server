@@ -14,18 +14,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/server/api/build"
-	apiTypes "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 var baseErr = "unable to process webhook"
@@ -75,7 +76,7 @@ func PostWebhook(c *gin.Context) {
 	logrus.Info("webhook received")
 
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	ctx := c.Request.Context()
 
 	// duplicate request so we can perform operations on the request body
@@ -273,9 +274,17 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
-	var prComment string
+	var (
+		prComment string
+		prLabels  []string
+	)
+
 	if strings.EqualFold(b.GetEvent(), constants.EventComment) {
 		prComment = webhook.PullRequest.Comment
+	}
+
+	if strings.EqualFold(b.GetEvent(), constants.EventPull) {
+		prLabels = webhook.PullRequest.Labels
 	}
 
 	// construct CompileAndPublishConfig
@@ -286,6 +295,7 @@ func PostWebhook(c *gin.Context) {
 		BaseErr:  baseErr,
 		Source:   "webhook",
 		Comment:  prComment,
+		Labels:   prLabels,
 		Retries:  3,
 	}
 
@@ -299,8 +309,13 @@ func PostWebhook(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
-	// capture the build, repo, and user from the items
-	b, repo, u := item.Build, item.Repo, item.User
+	// error handling done in CompileAndPublish
+	if err != nil {
+		return
+	}
+
+	// capture the build and repo from the items
+	b, repo = item.Build, item.Repo
 
 	// set hook build_id to the generated build id
 	h.SetBuildID(b.GetID())
@@ -399,7 +414,7 @@ func PostWebhook(c *gin.Context) {
 
 		switch repo.GetApproveBuild() {
 		case constants.ApproveForkAlways:
-			err = gatekeepBuild(c, b, repo, u)
+			err = gatekeepBuild(c, b, repo)
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
@@ -407,9 +422,9 @@ func PostWebhook(c *gin.Context) {
 			return
 		case constants.ApproveForkNoWrite:
 			// determine if build sender has write access to parent repo. If not, this call will result in an error
-			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), u.GetToken(), r.GetOrg(), r.GetName())
+			_, err = scm.FromContext(c).RepoAccess(ctx, b.GetSender(), r.GetOwner().GetToken(), r.GetOrg(), r.GetName())
 			if err != nil {
-				err = gatekeepBuild(c, b, repo, u)
+				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -423,13 +438,13 @@ func PostWebhook(c *gin.Context) {
 			//
 			// NOTE: this call is cumbersome for repos with lots of contributors. Potential TODO: improve this if
 			// GitHub adds a single-contributor API endpoint.
-			contributor, err := scm.FromContext(c).RepoContributor(ctx, u, b.GetSender(), r.GetOrg(), r.GetName())
+			contributor, err := scm.FromContext(c).RepoContributor(ctx, r.GetOwner(), b.GetSender(), r.GetOrg(), r.GetName())
 			if err != nil {
 				util.HandleError(c, http.StatusInternalServerError, err)
 			}
 
 			if !contributor {
-				err = gatekeepBuild(c, b, repo, u)
+				err = gatekeepBuild(c, b, repo)
 				if err != nil {
 					util.HandleError(c, http.StatusInternalServerError, err)
 				}
@@ -446,7 +461,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(ctx, u, b, repo.GetOrg(), repo.GetName())
+	err = scm.FromContext(c).Status(ctx, repo.GetOwner(), b, repo.GetOrg(), repo.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", repo.GetFullName(), b.GetNumber(), err)
 	}
@@ -463,7 +478,7 @@ func PostWebhook(c *gin.Context) {
 
 // handleRepositoryEvent is a helper function that processes repository events from the SCM and updates
 // the database resources with any relevant changes resulting from the event, such as name changes, transfers, etc.
-func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadata, h *library.Hook, r *library.Repo) (*library.Repo, error) {
+func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *internal.Metadata, h *library.Hook, r *types.Repo) (*types.Repo, error) {
 	logrus.Debugf("webhook is repository event, making necessary updates to repo %s", r.GetFullName())
 
 	defer func() {
@@ -555,7 +570,7 @@ func handleRepositoryEvent(ctx context.Context, c *gin.Context, m *types.Metadat
 // queries the database for the repo that matches that name and org, and updates
 // that repo to its new name in order to preserve it. It also updates the secrets
 // associated with that repo as well as build links for the UI.
-func RenameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *gin.Context, m *types.Metadata) (*library.Repo, error) {
+func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gin.Context, m *internal.Metadata) (*types.Repo, error) {
 	logrus.Infof("renaming repository from %s to %s", r.GetPreviousName(), r.GetName())
 
 	// get any matching hook with the repo's unique webhook ID in the SCM
@@ -680,7 +695,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *library.Repo, c *
 
 // gatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
 // send a status update to the SCM.
-func gatekeepBuild(c *gin.Context, b *library.Build, r *library.Repo, u *apiTypes.User) error {
+func gatekeepBuild(c *gin.Context, b *library.Build, r *types.Repo) error {
 	logrus.Debugf("fork PR build %s/%d waiting for approval", r.GetFullName(), b.GetNumber())
 	b.SetStatus(constants.StatusPendingApproval)
 
@@ -696,7 +711,7 @@ func gatekeepBuild(c *gin.Context, b *library.Build, r *library.Repo, u *apiType
 	}
 
 	// send API call to set the status on the commit
-	err = scm.FromContext(c).Status(c, u, b, r.GetOrg(), r.GetName())
+	err = scm.FromContext(c).Status(c, r.GetOwner(), b, r.GetOrg(), r.GetName())
 	if err != nil {
 		logrus.Errorf("unable to set commit status for %s/%d: %v", r.GetFullName(), b.GetNumber(), err)
 	}

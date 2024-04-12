@@ -5,8 +5,9 @@ package starlark
 import (
 	"strings"
 
-	"github.com/go-vela/types/raw"
 	"go.starlark.net/starlark"
+
+	"github.com/go-vela/types/raw"
 )
 
 // convertTemplateVars takes template variables and converts

@@ -8,7 +8,8 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
@@ -75,7 +76,7 @@ func TestPipeline_Engine_CountPipelinesForRepo(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.CountPipelinesForRepo(context.TODO(), &library.Repo{ID: _pipelineOne.RepoID})
+			got, err := test.database.CountPipelinesForRepo(context.TODO(), &api.Repo{ID: _pipelineOne.RepoID})
 
 			if test.failure {
 				if err == nil {

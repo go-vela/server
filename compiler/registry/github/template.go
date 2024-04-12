@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-vela/server/compiler/registry"
+	"github.com/google/go-github/v61/github"
 
-	"github.com/google/go-github/v59/github"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/compiler/registry"
 )
 
 // Template captures the templated pipeline configuration from the GitHub repo.

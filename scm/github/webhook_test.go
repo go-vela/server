@@ -13,12 +13,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types/raw"
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/go-vela/types"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/types/raw"
 )
 
 func TestGithub_ProcessWebhook_Push(t *testing.T) {
@@ -56,7 +57,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -80,7 +81,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetRef("refs/heads/main")
 	wantBuild.SetBaseRef("")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:  wantHook,
 		Repo:  wantRepo,
 		Build: wantBuild,
@@ -134,7 +135,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -158,7 +159,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetRef("refs/heads/main")
 	wantBuild.SetBaseRef("")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:  wantHook,
 		Repo:  wantRepo,
 		Build: wantBuild,
@@ -210,7 +211,7 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -235,7 +236,7 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	wantBuild.SetRef("d3d9188fc87a6977343e922c128f162a86018d76")
 	wantBuild.SetBaseRef("")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:  wantHook,
 		Repo:  wantRepo,
 		Build: wantBuild,
@@ -287,7 +288,7 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -312,7 +313,7 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	wantBuild.SetRef("d3d9188fc87a6977343e922c128f162a86018d76")
 	wantBuild.SetBaseRef("")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:  wantHook,
 		Repo:  wantRepo,
 		Build: wantBuild,
@@ -346,7 +347,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -372,17 +373,65 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
+	wantBuild2 := new(library.Build)
+	wantBuild2.SetEvent("pull_request")
+	wantBuild2.SetEventAction("labeled")
+	wantBuild2.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild2.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild2.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild2.SetMessage("Update the README with new information")
+	wantBuild2.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild2.SetSender("Codertocat")
+	wantBuild2.SetAuthor("Codertocat")
+	wantBuild2.SetEmail("")
+	wantBuild2.SetBranch("main")
+	wantBuild2.SetRef("refs/pull/1/head")
+	wantBuild2.SetBaseRef("main")
+	wantBuild2.SetHeadRef("changes")
+
+	wantBuild3 := new(library.Build)
+	wantBuild3.SetEvent("pull_request")
+	wantBuild3.SetEventAction("unlabeled")
+	wantBuild3.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild3.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild3.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild3.SetMessage("Update the README with new information")
+	wantBuild3.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild3.SetSender("Codertocat")
+	wantBuild3.SetAuthor("Codertocat")
+	wantBuild3.SetEmail("")
+	wantBuild3.SetBranch("main")
+	wantBuild3.SetRef("refs/pull/1/head")
+	wantBuild3.SetBaseRef("main")
+	wantBuild3.SetHeadRef("changes")
+
+	wantBuild4 := new(library.Build)
+	wantBuild4.SetEvent("pull_request")
+	wantBuild4.SetEventAction("edited")
+	wantBuild4.SetClone("https://github.com/Codertocat/Hello-World.git")
+	wantBuild4.SetSource("https://github.com/Codertocat/Hello-World/pull/1")
+	wantBuild4.SetTitle("pull_request received from https://github.com/Codertocat/Hello-World")
+	wantBuild4.SetMessage("Update the README with new information")
+	wantBuild4.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
+	wantBuild4.SetSender("Codertocat")
+	wantBuild4.SetAuthor("Codertocat")
+	wantBuild4.SetEmail("")
+	wantBuild4.SetBranch("main")
+	wantBuild4.SetRef("refs/pull/1/head")
+	wantBuild4.SetBaseRef("main")
+	wantBuild4.SetHeadRef("changes")
+
 	tests := []struct {
 		name     string
 		testData string
-		want     *types.Webhook
+		want     *internal.Webhook
 		wantErr  bool
 	}{
 		{
 			name:     "success",
 			testData: "testdata/hooks/pull_request.json",
-			want: &types.Webhook{
-				PullRequest: types.PullRequest{
+			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
 					Number:     wantHook.GetNumber(),
 					IsFromFork: false,
 				},
@@ -394,8 +443,8 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 		{
 			name:     "fork",
 			testData: "testdata/hooks/pull_request_fork.json",
-			want: &types.Webhook{
-				PullRequest: types.PullRequest{
+			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
 					Number:     wantHook.GetNumber(),
 					IsFromFork: true,
 				},
@@ -407,8 +456,8 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 		{
 			name:     "fork same repo",
 			testData: "testdata/hooks/pull_request_fork_same-repo.json",
-			want: &types.Webhook{
-				PullRequest: types.PullRequest{
+			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
 					Number:     wantHook.GetNumber(),
 					IsFromFork: false,
 				},
@@ -420,7 +469,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 		{
 			name:     "closed action",
 			testData: "testdata/hooks/pull_request_closed_action.json",
-			want: &types.Webhook{
+			want: &internal.Webhook{
 				Hook:  wantHook,
 				Repo:  nil,
 				Build: nil,
@@ -429,10 +478,52 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 		{
 			name:     "closed state",
 			testData: "testdata/hooks/pull_request_closed_state.json",
-			want: &types.Webhook{
+			want: &internal.Webhook{
 				Hook:  wantHook,
 				Repo:  nil,
 				Build: nil,
+			},
+		},
+		{
+			name:     "labeled documentation",
+			testData: "testdata/hooks/pull_request_labeled.json",
+			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+					Labels:     []string{"documentation"},
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild2,
+			},
+		},
+		{
+			name:     "unlabeled documentation",
+			testData: "testdata/hooks/pull_request_unlabeled.json",
+			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+					Labels:     []string{"documentation"},
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild3,
+			},
+		},
+		{
+			name:     "edited while labeled documentation",
+			testData: "testdata/hooks/pull_request_edited_while_labeled.json",
+			want: &internal.Webhook{
+				PullRequest: internal.PullRequest{
+					Number:     wantHook.GetNumber(),
+					IsFromFork: false,
+					Labels:     []string{"documentation", "enhancement"},
+				},
+				Hook:  wantHook,
+				Repo:  wantRepo,
+				Build: wantBuild4,
 			},
 		},
 	}
@@ -483,10 +574,11 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
-	wantHook.SetEvent("deployment")
+	wantHook.SetEvent(constants.EventDeploy)
+	wantHook.SetEventAction(constants.ActionCreated)
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -497,7 +589,8 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
-	wantBuild.SetEvent("deployment")
+	wantBuild.SetEvent(constants.EventDeploy)
+	wantBuild.SetEventAction(constants.ActionCreated)
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetDeploy("production")
 	wantBuild.SetDeployNumber(145988746)
@@ -525,7 +618,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	type args struct {
 		file              string
 		hook              *library.Hook
-		repo              *library.Repo
+		repo              *api.Repo
 		build             *library.Build
 		deploymentPayload raw.StringSliceMap
 		deployment        *library.Deployment
@@ -562,7 +655,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 			client, _ := NewTest(s.URL)
 			wantBuild.SetDeployPayload(tt.args.deploymentPayload)
 
-			want := &types.Webhook{
+			want := &internal.Webhook{
 				Hook:       tt.args.hook,
 				Repo:       tt.args.repo,
 				Build:      tt.args.build,
@@ -616,10 +709,11 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantHook.SetBranch("main")
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 	wantHook.SetHost("github.com")
-	wantHook.SetEvent("deployment")
+	wantHook.SetEvent(constants.EventDeploy)
+	wantHook.SetEventAction(constants.ActionCreated)
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -630,7 +724,8 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetTopics(nil)
 
 	wantBuild := new(library.Build)
-	wantBuild.SetEvent("deployment")
+	wantBuild.SetEvent(constants.EventDeploy)
+	wantBuild.SetEventAction(constants.ActionCreated)
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetDeploy("production")
 	wantBuild.SetDeployNumber(145988746)
@@ -656,7 +751,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantDeployment.SetCreatedAt(time.Now().UTC().Unix())
 	wantDeployment.SetCreatedBy("Codertocat")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:       wantHook,
 		Repo:       wantRepo,
 		Build:      wantBuild,
@@ -709,7 +804,7 @@ func TestGithub_ProcessWebhook_BadGithubEvent(t *testing.T) {
 	wantHook.SetEvent("foobar")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:       wantHook,
 		Repo:       nil,
 		Build:      nil,
@@ -762,7 +857,7 @@ func TestGithub_ProcessWebhook_BadContentType(t *testing.T) {
 	wantHook.SetEvent("pull_request")
 	wantHook.SetStatus(constants.StatusSuccess)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook:       wantHook,
 		Repo:       nil,
 		Build:      nil,
@@ -806,7 +901,7 @@ func TestGithub_VerifyWebhook_EmptyRepo(t *testing.T) {
 	client, _ := NewTest(s.URL)
 
 	// run test
-	err = client.VerifyWebhook(context.TODO(), request, new(library.Repo))
+	err = client.VerifyWebhook(context.TODO(), request, new(api.Repo))
 	if err != nil {
 		t.Errorf("VerifyWebhook should have returned err")
 	}
@@ -817,7 +912,7 @@ func TestGithub_VerifyWebhook_NoSecret(t *testing.T) {
 	s := httptest.NewServer(http.NotFoundHandler())
 	defer s.Close()
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetOrg("Codertocat")
 	r.SetName("Hello-World")
 	r.SetFullName("Codertocat/Hello-World")
@@ -889,7 +984,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
 	wantRepo.SetFullName("Codertocat/Hello-World")
@@ -911,8 +1006,8 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantBuild.SetEmail("")
 	wantBuild.SetRef("refs/pull/1/head")
 
-	want := &types.Webhook{
-		PullRequest: types.PullRequest{
+	want := &internal.Webhook{
+		PullRequest: internal.PullRequest{
 			Comment: "ok to test",
 			Number:  wantHook.GetNumber(),
 		},
@@ -968,7 +1063,7 @@ func TestGithub_ProcessWebhook_IssueComment_Created(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 	}
 
@@ -1019,7 +1114,7 @@ func TestGithub_ProcessWebhook_IssueComment_Deleted(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 	}
 
@@ -1070,7 +1165,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetActive(true)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -1081,7 +1176,7 @@ func TestGitHub_ProcessWebhook_RepositoryRename(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 		Repo: wantRepo,
 	}
@@ -1133,7 +1228,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetActive(true)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -1144,7 +1239,7 @@ func TestGitHub_ProcessWebhook_RepositoryTransfer(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 		Repo: wantRepo,
 	}
@@ -1196,7 +1291,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetActive(false)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -1207,7 +1302,7 @@ func TestGitHub_ProcessWebhook_RepositoryArchived(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 		Repo: wantRepo,
 	}
@@ -1259,7 +1354,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetActive(true)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -1270,7 +1365,7 @@ func TestGitHub_ProcessWebhook_RepositoryEdited(t *testing.T) {
 	wantRepo.SetTopics([]string{"cloud", "security"})
 	wantRepo.SetPrivate(false)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 		Repo: wantRepo,
 	}
@@ -1322,7 +1417,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantHook.SetStatus(constants.StatusSuccess)
 	wantHook.SetLink("https://github.com/Codertocat/Hello-World/settings/hooks")
 
-	wantRepo := new(library.Repo)
+	wantRepo := new(api.Repo)
 	wantRepo.SetActive(true)
 	wantRepo.SetOrg("Codertocat")
 	wantRepo.SetName("Hello-World")
@@ -1333,7 +1428,7 @@ func TestGitHub_ProcessWebhook_Repository(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	want := &types.Webhook{
+	want := &internal.Webhook{
 		Hook: wantHook,
 		Repo: wantRepo,
 	}
@@ -1384,7 +1479,7 @@ func TestGithub_Redeliver_Webhook(t *testing.T) {
 	_hook.SetNumber(1)
 	_hook.SetWebhookID(1234)
 
-	_repo := new(library.Repo)
+	_repo := new(api.Repo)
 	_repo.SetID(1)
 	_repo.SetName("bar")
 	_repo.SetOrg("foo")
@@ -1428,7 +1523,7 @@ func TestGithub_GetDeliveryID(t *testing.T) {
 	_hook.SetNumber(1)
 	_hook.SetWebhookID(1234)
 
-	_repo := new(library.Repo)
+	_repo := new(api.Repo)
 	_repo.SetID(1)
 	_repo.SetName("bar")
 	_repo.SetOrg("foo")

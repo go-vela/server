@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types/constants"
-
 	jwt "github.com/golang-jwt/jwt/v5"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 )
 
 func TestTokenManager_ParseToken(t *testing.T) {
@@ -19,7 +20,6 @@ func TestTokenManager_ParseToken(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -120,7 +120,6 @@ func TestTokenManager_ParseToken_Error_NoParse(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -146,7 +145,6 @@ func TestTokenManager_ParseToken_Expired(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -179,7 +177,6 @@ func TestTokenManager_ParseToken_NoSubject(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -220,7 +217,6 @@ func TestTokenManager_ParseToken_Error_InvalidSignature(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -262,7 +258,6 @@ func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
-	u.SetHash("baz")
 
 	tm := &Manager{
 		PrivateKey:               "123abc",
@@ -279,7 +274,7 @@ func TestToken_Parse_AccessToken_NoExpiration(t *testing.T) {
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	token, err := tkn.SignedString([]byte(u.GetHash()))
+	token, err := tkn.SignedString([]byte("123abc"))
 	if err != nil {
 		t.Errorf("Unable to create test token: %v", err)
 	}

@@ -7,17 +7,17 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types"
 	"gopkg.in/square/go-jose.v2/json"
+
+	"github.com/go-vela/server/queue/models"
 )
 
 func TestRedis_Length(t *testing.T) {
 	// setup types
 	// use global variables in redis_test.go
-	_item := &types.Item{
+	_item := &models.Item{
 		Build: _build,
 		Repo:  _repo,
-		User:  _user,
 	}
 
 	// setup queue item

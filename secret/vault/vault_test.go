@@ -10,9 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-vela/types/library"
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/vault/api"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestVault_New(t *testing.T) {

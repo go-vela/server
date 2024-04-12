@@ -2,6 +2,10 @@
 
 package registry
 
+import (
+	api "github.com/go-vela/server/api/types"
+)
+
 // Service represents the interface for Vela integrating
 // with the different supported template registries.
 type Service interface {

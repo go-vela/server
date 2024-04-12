@@ -7,8 +7,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
@@ -33,7 +34,6 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
@@ -50,7 +50,7 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0, "", 0)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch IN ($2) AND event IN ($3,$4) ORDER BY number DESC LIMIT 5`).WithArgs(1, "main", "push", "pull_request").WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch IN ($2) AND event IN ($3,$4) ORDER BY number DESC LIMIT $5`).WithArgs(1, "main", "push", "pull_request", 5).WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()

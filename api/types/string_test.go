@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestLibrary_ToString(t *testing.T) {
+func TestTypes_ToString(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		parameter interface{}

@@ -54,24 +54,37 @@ func ToString(v interface{}) string {
 
 // helper function to unmarshal a parameter in map format.
 func unmarshalMap(v interface{}) string {
-	yml, _ := yaml.Marshal(v)
-	out, _ := json.YAMLToJSON(yml)
+	yml, err := yaml.Marshal(v)
+	if err != nil {
+		return err.Error()
+	}
+
+	out, err := json.YAMLToJSON(yml)
+	if err != nil {
+		return err.Error()
+	}
 
 	return string(out)
 }
 
 // helper function to unmarshal a parameter in slice format.
 func unmarshalSlice(v interface{}) string {
-	out, _ := yaml.Marshal(v)
+	out, err := yaml.Marshal(v)
+	if err != nil {
+		return err.Error()
+	}
 
 	in := []string{}
 
-	err := yaml.Unmarshal(out, &in)
+	err = yaml.Unmarshal(out, &in)
 	if err == nil {
 		return strings.Join(in, ",")
 	}
 
-	out, _ = json.YAMLToJSON(out)
+	out, err = json.YAMLToJSON(out)
+	if err != nil {
+		return err.Error()
+	}
 
 	return string(out)
 }

@@ -5,8 +5,9 @@ package repo
 import (
 	"context"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // CountReposForOrg gets the count of repos by org name from the database.
