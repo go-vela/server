@@ -8,8 +8,6 @@ import (
 
 // SkipEmptyBuild checks if the build should be skipped due to it
 // not containing any steps besides init or clone.
-//
-
 func SkipEmptyBuild(p *pipeline.Build) string {
 	if len(p.Stages) == 1 {
 		if p.Stages[0].Name == "init" {
