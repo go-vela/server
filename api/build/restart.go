@@ -51,23 +51,32 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Request processed but build was skipped
+//     description: Successfully received the webhook but build was skipped
 //     schema:
 //       type: string
 //   '201':
-//     description: Successfully restarted the build
+//     description: Successfully created the build from webhook
+//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to restart the build
+//     description: Malformed webhook payload or improper pipeline configuration
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Repository owner does not have proper access
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to restart the build
+//     description: Unable to receive the webhook
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '429':
+//     description: Concurrent build limit reached for repository
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to restart the build
+//     description: Unable to receive the webhook or internal error while processing
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -120,7 +129,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// generate queue items
-	_, item, err := CompileAndPublish(
+	_, item, err, code := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -129,9 +138,8 @@ func RestartBuild(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
-	// error handling done in CompileAndPublish
 	if err != nil {
-		return
+		util.HandleError(c, code, err)
 	}
 
 	c.JSON(http.StatusCreated, item.Build)
