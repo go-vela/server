@@ -13,11 +13,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestClaims_Retrieve(t *testing.T) {
@@ -50,12 +51,11 @@ func TestClaims_Retrieve(t *testing.T) {
 
 func TestClaims_Establish(t *testing.T) {
 	// setup types
-	user := new(library.User)
+	user := new(api.User)
 	user.SetID(1)
 	user.SetName("foo")
 	user.SetRefreshToken("fresh")
 	user.SetToken("bar")
-	user.SetHash("baz")
 	user.SetActive(true)
 	user.SetAdmin(false)
 	user.SetFavorites([]string{})
@@ -261,10 +261,9 @@ func TestClaims_Establish_BadToken(t *testing.T) {
 	context, engine := gin.CreateTestContext(resp)
 	context.Request, _ = http.NewRequest(http.MethodGet, "/workers/host", nil)
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("octocat")
-	u.SetHash("abc")
 
 	// setup database
 	db, err := database.NewTest()

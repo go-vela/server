@@ -5,9 +5,10 @@ package build
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // CountBuildsForDeployment gets the count of builds by deployment URL from the database.

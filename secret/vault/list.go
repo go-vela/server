@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/vault/api"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/hashicorp/vault/api"
 )
 
 // List captures a list of secrets.
@@ -42,7 +42,7 @@ func (c *client) List(ctx context.Context, sType, org, name string, _, _ int, _ 
 	var err error
 
 	s := []*library.Secret{}
-	//nolint:staticcheck // ignore false positive
+
 	vault := new(api.Secret)
 
 	// capture the list of secrets from the Vault service

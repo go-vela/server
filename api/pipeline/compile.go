@@ -8,15 +8,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/compiler"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/server/router/middleware/org"
 	pMiddleware "github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/pipeline"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation POST /api/v1/pipelines/{org}/{repo}/{pipeline}/compile pipelines CompilePipeline
@@ -71,7 +72,7 @@ import (
 // expand and compile a pipeline configuration.
 func CompilePipeline(c *gin.Context) {
 	// capture middleware values
-	m := c.MustGet("metadata").(*types.Metadata)
+	m := c.MustGet("metadata").(*internal.Metadata)
 	o := org.Retrieve(c)
 	p := pMiddleware.Retrieve(c)
 	r := repo.Retrieve(c)

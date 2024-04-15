@@ -58,7 +58,7 @@ func TestTypes_Worker_Getters(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(test.worker.GetRunningBuilds(), test.want.GetRunningBuilds()) {
-			t.Errorf("GetRunningBuildIDs is %v, want %v", test.worker.GetRunningBuilds(), test.want.GetRunningBuilds())
+			t.Errorf("GetRunningBuilds is %v, want %v", test.worker.GetRunningBuilds(), test.want.GetRunningBuilds())
 		}
 
 		if test.worker.GetLastBuildStartedAt() != test.want.GetLastBuildStartedAt() {

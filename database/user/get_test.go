@@ -8,16 +8,17 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestUser_Engine_GetUser(t *testing.T) {
 	// setup types
-	_user := testUser()
+	_user := testAPIUser()
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")
-	_user.SetHash("baz")
+
 	_user.SetFavorites([]string{})
 
 	_postgres, _mock := testPostgres(t)
@@ -44,7 +45,7 @@ func TestUser_Engine_GetUser(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.User
+		want     *api.User
 	}{
 		{
 			failure:  false,

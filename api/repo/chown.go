@@ -7,12 +7,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PATCH /api/v1/repos/{org}/{repo}/chown repos ChownRepo
@@ -64,7 +65,7 @@ func ChownRepo(c *gin.Context) {
 	}).Infof("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
 
 	// update repo owner
-	r.SetUserID(u.GetID())
+	r.SetOwner(u)
 
 	// send API call to update the repo
 	_, err := database.FromContext(c).UpdateRepo(ctx, r)

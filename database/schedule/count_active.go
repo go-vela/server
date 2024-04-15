@@ -4,6 +4,7 @@ package schedule
 
 import (
 	"context"
+
 	"github.com/go-vela/types/constants"
 )
 

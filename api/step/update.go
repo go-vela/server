@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
@@ -17,7 +19,6 @@ import (
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation PUT /api/v1/repos/{org}/{repo}/builds/{build}/steps/{step} steps UpdateStep
@@ -168,14 +169,8 @@ func UpdateStep(c *gin.Context) {
 		s.GetStatus() == constants.StatusError) &&
 		(b.GetEvent() != constants.EventSchedule) &&
 		(len(s.GetReportAs()) > 0) {
-		// send API call to capture the repo owner
-		u, err := database.FromContext(c).GetUser(ctx, r.GetUserID())
-		if err != nil {
-			logrus.Errorf("unable to get owner for build %s: %v", entry, err)
-		}
-
 		// send API call to set the status on the commit
-		err = scm.FromContext(c).StepStatus(ctx, u, b, s, r.GetOrg(), r.GetName())
+		err = scm.FromContext(c).StepStatus(ctx, r.GetOwner(), b, s, r.GetOrg(), r.GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build %s: %v", entry, err)
 		}

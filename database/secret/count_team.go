@@ -6,8 +6,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/types/constants"
 )
 
 // CountSecretsForTeam gets the count of secrets by org and team name from the database.

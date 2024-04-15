@@ -10,14 +10,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
+	"github.com/google/go-cmp/cmp"
+	"github.com/urfave/cli/v2"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/raw"
 	"github.com/go-vela/types/yaml"
-	"github.com/google/go-cmp/cmp"
-
-	"github.com/urfave/cli/v2"
 )
 
 func TestNative_Parse_Metadata_Bytes(t *testing.T) {
@@ -858,7 +857,7 @@ func TestNative_ParseString_Metadata(t *testing.T) {
 
 type FailReader struct{}
 
-func (FailReader) Read(p []byte) (n int, err error) {
+func (FailReader) Read(_ []byte) (n int, err error) {
 	return 0, errors.New("this is a reader that fails when you try to read")
 }
 
@@ -910,11 +909,13 @@ func Test_client_Parse(t *testing.T) {
 			}
 
 			var c *client
-			if tt.args.pipelineType == "nil" {
+
+			pipelineType := tt.args.pipelineType
+			if pipelineType == "nil" {
 				c = &client{}
 			} else {
 				c = &client{
-					repo: &library.Repo{PipelineType: &tt.args.pipelineType},
+					repo: &api.Repo{PipelineType: &pipelineType},
 				}
 			}
 

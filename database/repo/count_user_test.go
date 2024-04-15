@@ -8,30 +8,31 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/types/library"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	// setup types
-	_repoOne := testRepo()
+	_repoOne := testAPIRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
+	_repoOne.GetOwner().SetID(1)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 
-	_repoTwo := testRepo()
+	_repoTwo := testAPIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
+	_repoTwo.GetOwner().SetID(1)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
 
-	_user := new(library.User)
+	_user := new(api.User)
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")

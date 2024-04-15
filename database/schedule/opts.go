@@ -4,8 +4,8 @@ package schedule
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 

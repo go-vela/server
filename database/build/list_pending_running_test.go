@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -45,7 +47,7 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
@@ -79,7 +81,7 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}

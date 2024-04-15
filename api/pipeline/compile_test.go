@@ -9,8 +9,9 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-vela/types/pipeline"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/types/pipeline"
 )
 
 // TestPrepareRuleData tests the prepareRuleData function.
