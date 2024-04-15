@@ -25,17 +25,17 @@ import (
 // produces:
 // - application/json
 // parameters:
-// - in: path
-//   name: dashboard
+// - name: dashboard
+//   in: path
 //   description: ID of the dashboard
 //   required: true
-//   type: int
-// - in: body
-//   name: body
+//   type: string
+// - name: body
+//   in: body
 //   description: Payload containing the dashboard to update
 //   required: true
 //   schema:
-//     "$ref": "#/definitions/Dashboard"
+//     $ref: '#/definitions/Dashboard'
 // security:
 //   - ApiKeyAuth: []
 // responses:
