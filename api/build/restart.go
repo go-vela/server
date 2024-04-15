@@ -140,6 +140,8 @@ func RestartBuild(c *gin.Context) {
 
 	if err != nil {
 		util.HandleError(c, code, err)
+
+		return
 	}
 
 	c.JSON(http.StatusCreated, item.Build)
