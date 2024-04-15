@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// CreatePostgresTable represents a query to create the Postgres secrets table.
+	// CreatePostgresTable represents a query to create the Postgres dashboards table.
 	CreatePostgresTable = `
 CREATE TABLE
 IF NOT EXISTS
@@ -25,7 +25,7 @@ dashboards (
 );
 `
 
-	// CreateSqliteTable represents a query to create the Sqlite secrets table.
+	// CreateSqliteTable represents a query to create the Sqlite dashboards table.
 	CreateSqliteTable = `
 CREATE TABLE
 IF NOT EXISTS
@@ -42,7 +42,7 @@ dashboards (
 `
 )
 
-// CreateBuildExecutableTable creates the build executables table in the database.
+// CreateDashboardTable creates the dashboards table in the database.
 func (e *engine) CreateDashboardTable(ctx context.Context, driver string) error {
 	e.logger.Tracef("creating dashboards table in the database")
 

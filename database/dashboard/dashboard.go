@@ -165,8 +165,8 @@ func (d *Dashboard) Nullify() *Dashboard {
 	return d
 }
 
-// ToLibrary converts the Dashboard type
-// to a library Dashboard type.
+// ToAPI converts the Dashboard type
+// to an API Dashboard type.
 func (d *Dashboard) ToAPI() *api.Dashboard {
 	dashboard := new(api.Dashboard)
 
@@ -217,7 +217,7 @@ func (d *Dashboard) Validate() error {
 	return nil
 }
 
-// DashboardFromLibrary converts the library Dashboard type
+// FromAPI converts the API Dashboard type
 // to a database Dashboard type.
 func FromAPI(d *api.Dashboard) *Dashboard {
 	var (

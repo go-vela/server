@@ -9,7 +9,7 @@ import (
 	"github.com/go-vela/server/constants"
 )
 
-// GetDashboard gets a dashboard by ID from the database.
+// GetDashboard gets a dashboard by UUID from the database.
 func (e *engine) GetDashboard(ctx context.Context, id string) (*api.Dashboard, error) {
 	e.logger.Tracef("getting dashboard %s from the database", id)
 
@@ -26,8 +26,5 @@ func (e *engine) GetDashboard(ctx context.Context, id string) (*api.Dashboard, e
 		return nil, err
 	}
 
-	// return the decrypted dashboard
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Dashboard.ToLibrary
 	return r.ToAPI(), nil
 }

@@ -113,7 +113,7 @@ func CreateDashboard(c *gin.Context) {
 
 	d.SetRepos(input.GetRepos())
 
-	// send API call to create the dashboard
+	// create dashboard in database
 	d, err = database.FromContext(c).CreateDashboard(c, d)
 	if err != nil {
 		retErr := fmt.Errorf("unable to create new dashboard %s: %w", d.GetName(), err)
@@ -123,9 +123,10 @@ func CreateDashboard(c *gin.Context) {
 		return
 	}
 
-	// add dashboard to claims user's dashboard set
+	// add dashboard to claims' user's dashboard set
 	u.SetDashboards(append(u.GetDashboards(), d.GetID()))
 
+	// update user in database
 	_, err = database.FromContext(c).UpdateUser(c, u)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %s: %w", u.GetName(), err)

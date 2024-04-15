@@ -5,6 +5,7 @@ package dashboard
 import (
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -59,8 +60,8 @@ func DeleteDashboard(c *gin.Context) {
 		"user":      u.GetName(),
 	}).Infof("deleting dashboard %s", d.GetID())
 
-	if !isAdmin(u.GetID(), d.GetAdmins()) {
-		retErr := fmt.Errorf("unable to delete dashboard %s: user is not an admin", d.GetName())
+	if !slices.Contains(d.GetAdmins(), fmt.Sprintf("%d", u.GetID())) {
+		retErr := fmt.Errorf("unable to delete dashboard %s: user is not an admin", d.GetID())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
 
