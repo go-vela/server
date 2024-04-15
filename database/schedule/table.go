@@ -25,6 +25,7 @@ schedules (
 	updated_by   VARCHAR(250),
 	scheduled_at INTEGER,
 	branch       VARCHAR(250),
+	error        VARCHAR(250),
 	UNIQUE(repo_id, name)
 );
 `
@@ -45,6 +46,7 @@ schedules (
 	updated_by   TEXT,
 	scheduled_at INTEGER,
 	branch       TEXT,
+	error        TEXT,
 	UNIQUE(repo_id, name)
 );
 `
