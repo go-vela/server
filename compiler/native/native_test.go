@@ -12,7 +12,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/library"
 )
 
 func TestNative_New(t *testing.T) {
@@ -100,7 +99,7 @@ func TestNative_DuplicateStripBuild(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
-	b := &library.Build{ID: &id}
+	b := &api.Build{ID: &id}
 
 	want, _ := New(c)
 
@@ -123,7 +122,7 @@ func TestNative_WithBuild(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
-	b := &library.Build{ID: &id}
+	b := &api.Build{ID: &id}
 
 	want, _ := New(c)
 	want.build = b

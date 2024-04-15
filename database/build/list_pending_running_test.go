@@ -9,50 +9,55 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetStatus("running")
-	_buildOne.SetCreated(1)
-	_buildOne.SetDeployPayload(nil)
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetStatus("pending")
-	_buildTwo.SetCreated(1)
-	_buildTwo.SetDeployPayload(nil)
-
-	_queueOne := new(library.BuildQueue)
-	_queueOne.SetCreated(1)
-	_queueOne.SetFullName("foo/bar")
-	_queueOne.SetNumber(1)
-	_queueOne.SetStatus("running")
-
-	_queueTwo := new(library.BuildQueue)
-	_queueTwo.SetCreated(1)
-	_queueTwo.SetFullName("foo/bar")
-	_queueTwo.SetNumber(2)
-	_queueTwo.SetStatus("pending")
-
-	_repo := testRepo()
+	_repo := testAPIRepo()
 	_repo.SetID(1)
-	_repo.GetOwner().SetID(1)
+	_repo.SetOwner(_owner)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+
+	_buildOne := testAPIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repo)
+	_buildOne.SetNumber(1)
+	_buildOne.SetStatus("running")
+	_buildOne.SetCreated(1)
+	_buildOne.SetDeployPayload(nil)
+
+	_buildTwo := testAPIBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repo)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetStatus("pending")
+	_buildTwo.SetCreated(1)
+	_buildTwo.SetDeployPayload(nil)
+
+	_queueOne := new(api.QueueBuild)
+	_queueOne.SetCreated(1)
+	_queueOne.SetFullName("foo/bar")
+	_queueOne.SetNumber(1)
+	_queueOne.SetStatus("running")
+
+	_queueTwo := new(api.QueueBuild)
+	_queueTwo.SetCreated(1)
+	_queueTwo.SetFullName("foo/bar")
+	_queueTwo.SetNumber(2)
+	_queueTwo.SetStatus("pending")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -91,19 +96,19 @@ func TestBuild_Engine_ListPendingAndRunningBuilds(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.BuildQueue
+		want     []*api.QueueBuild
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.BuildQueue{_queueTwo, _queueOne},
+			want:     []*api.QueueBuild{_queueTwo, _queueOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.BuildQueue{_queueTwo, _queueOne},
+			want:     []*api.QueueBuild{_queueTwo, _queueOne},
 		},
 	}
 

@@ -8,22 +8,35 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestBuild_Engine_ListBuilds(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repo := testAPIRepo()
+	_repo.SetID(1)
+	_repo.SetOwner(_owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+
+	_buildOne := testAPIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
+	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployNumber(0)
 	_buildOne.SetDeployPayload(nil)
 
-	_buildTwo := testBuild()
+	_buildTwo := testAPIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployNumber(0)
 	_buildTwo.SetDeployPayload(nil)
@@ -64,19 +77,19 @@ func TestBuild_Engine_ListBuilds(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Build
+		want     []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 	}
 

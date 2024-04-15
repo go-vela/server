@@ -7,12 +7,10 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestDeployment_Engine_DeleteDeployment(t *testing.T) {
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	// setup types
 	_deploymentOne := testDeployment()

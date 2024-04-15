@@ -16,23 +16,14 @@ import (
 
 func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetDeployPayload(nil)
-	_buildOne.SetEvent("push")
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(2)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployPayload(nil)
-	_buildTwo.SetEvent("push")
-
-	_repoOne := testRepo()
+	_repoOne := testAPIRepo()
 	_repoOne.SetID(1)
-	_repoOne.GetOwner().SetID(1)
+	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -41,9 +32,9 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
 
-	_repoTwo := testRepo()
+	_repoTwo := testAPIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.GetOwner().SetID(1)
+	_repoTwo.SetOwner(_owner)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
 	_repoTwo.SetName("baz")
@@ -51,6 +42,20 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
+
+	_buildOne := testAPIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repoOne)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetEvent("push")
+
+	_buildTwo := testAPIBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repoTwo)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetEvent("push")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

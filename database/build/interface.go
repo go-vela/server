@@ -40,25 +40,25 @@ type BuildInterface interface {
 	// CountBuildsForStatus defines a function that gets the count of builds by status.
 	CountBuildsForStatus(context.Context, string, map[string]interface{}) (int64, error)
 	// CreateBuild defines a function that creates a new build.
-	CreateBuild(context.Context, *library.Build) (*library.Build, error)
+	CreateBuild(context.Context, *api.Build) (*api.Build, error)
 	// DeleteBuild defines a function that deletes an existing build.
-	DeleteBuild(context.Context, *library.Build) error
+	DeleteBuild(context.Context, *api.Build) error
 	// GetBuild defines a function that gets a build by ID.
-	GetBuild(context.Context, int64) (*library.Build, error)
+	GetBuild(context.Context, int64) (*api.Build, error)
 	// GetBuildForRepo defines a function that gets a build by repo ID and number.
-	GetBuildForRepo(context.Context, *api.Repo, int) (*library.Build, error)
+	GetBuildForRepo(context.Context, *api.Repo, int) (*api.Build, error)
 	// LastBuildForRepo defines a function that gets the last build ran by repo ID and branch.
-	LastBuildForRepo(context.Context, *api.Repo, string) (*library.Build, error)
+	LastBuildForRepo(context.Context, *api.Repo, string) (*api.Build, error)
 	// ListBuilds defines a function that gets a list of all builds.
-	ListBuilds(context.Context) ([]*library.Build, error)
+	ListBuilds(context.Context) ([]*api.Build, error)
 	// ListBuildsForOrg defines a function that gets a list of builds by org name.
-	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*library.Build, int64, error)
+	ListBuildsForOrg(context.Context, string, map[string]interface{}, int, int) ([]*api.Build, int64, error)
 	// ListBuildsForRepo defines a function that gets a list of builds by repo ID.
-	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*library.Build, int64, error)
+	ListBuildsForRepo(context.Context, *api.Repo, map[string]interface{}, int64, int64, int, int) ([]*api.Build, int64, error)
 	// ListPendingAndRunningBuilds defines a function that gets a list of pending and running builds.
-	ListPendingAndRunningBuilds(context.Context, string) ([]*library.BuildQueue, error)
+	ListPendingAndRunningBuilds(context.Context, string) ([]*api.QueueBuild, error)
 	// ListPendingAndRunningBuildsForRepo defines a function that gets a list of pending and running builds for a repo.
-	ListPendingAndRunningBuildsForRepo(context.Context, *api.Repo) ([]*library.Build, error)
+	ListPendingAndRunningBuildsForRepo(context.Context, *api.Repo) ([]*api.Build, error)
 	// UpdateBuild defines a function that updates an existing build.
-	UpdateBuild(context.Context, *library.Build) (*library.Build, error)
+	UpdateBuild(context.Context, *api.Build) (*api.Build, error)
 }

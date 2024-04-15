@@ -9,55 +9,64 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repoOne := testAPIRepo()
+	_repoOne.SetID(1)
+	_repoOne.SetOwner(_owner)
+	_repoOne.SetHash("baz")
+	_repoOne.SetOrg("foo")
+	_repoOne.SetName("bar")
+	_repoOne.SetFullName("foo/bar")
+	_repoOne.SetVisibility("public")
+	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetTopics([]string{})
+
+	_repoTwo := testAPIRepo()
+	_repoTwo.SetID(2)
+	_repoOne.SetOwner(_owner)
+	_repoTwo.SetHash("bar")
+	_repoTwo.SetOrg("foo")
+	_repoTwo.SetName("baz")
+	_repoTwo.SetFullName("foo/baz")
+	_repoTwo.SetVisibility("public")
+	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetTopics([]string{})
+
+	_buildOne := testAPIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
+	_buildOne.SetRepo(_repoOne)
 	_buildOne.SetNumber(1)
 	_buildOne.SetStatus("running")
 	_buildOne.SetCreated(1)
 	_buildOne.SetDeployPayload(nil)
 
-	_buildTwo := testBuild()
+	_buildTwo := testAPIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepo(_repoOne)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetStatus("pending")
 	_buildTwo.SetCreated(1)
 	_buildTwo.SetDeployPayload(nil)
 
-	_buildThree := testBuild()
+	_buildThree := testAPIBuild()
 	_buildThree.SetID(3)
-	_buildThree.SetRepoID(2)
+	_buildThree.SetRepo(_repoTwo)
 	_buildThree.SetNumber(1)
 	_buildThree.SetStatus("pending")
 	_buildThree.SetCreated(1)
 	_buildThree.SetDeployPayload(nil)
-
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.GetOwner().SetID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
-
-	_repoTwo := testRepo()
-	_repoTwo.SetID(2)
-	_repoTwo.GetOwner().SetID(1)
-	_repoTwo.SetHash("bazzy")
-	_repoTwo.SetOrg("foo")
-	_repoTwo.SetName("baz")
-	_repoTwo.SetFullName("foo/baz")
-	_repoTwo.SetVisibility("public")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -94,7 +103,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repoOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
@@ -109,26 +118,26 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Build
+		want     []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Build{_buildTwo, _buildOne},
+			want:     []*api.Build{_buildTwo, _buildOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := test.database.ListPendingAndRunningBuildsForRepo(context.TODO(), _repo)
+			got, err := test.database.ListPendingAndRunningBuildsForRepo(context.TODO(), _repoOne)
 
 			if test.failure {
 				if err == nil {

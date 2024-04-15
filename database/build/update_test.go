@@ -12,9 +12,23 @@ import (
 
 func TestBuild_Engine_UpdateBuild(t *testing.T) {
 	// setup types
-	_build := testBuild()
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repo := testAPIRepo()
+	_repo.SetID(1)
+	_repo.SetOwner(_owner)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+
+	_build := testAPIBuild()
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(_repo)
 	_build.SetNumber(1)
 	_build.SetDeployPayload(nil)
 

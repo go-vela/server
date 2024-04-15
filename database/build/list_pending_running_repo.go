@@ -7,21 +7,21 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListPendingAndRunningBuilds gets a list of all pending and running builds in the provided timeframe from the database.
-func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *api.Repo) ([]*library.Build, error) {
+func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *api.Repo) ([]*api.Build, error) {
 	e.logger.Trace("listing all pending and running builds from the database")
 
 	// variables to store query results and return value
-	b := new([]database.Build)
-	builds := []*library.Build{}
+	b := new([]Build)
+	builds := []*api.Build{}
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Select("*").
 		Where("repo_id = ?", repo.GetID()).
 		Where("status = 'running' OR status = 'pending' OR status = 'pending approval'").
@@ -39,7 +39,7 @@ func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *a
 		// convert query result to library type
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
-		builds = append(builds, tmp.ToLibrary())
+		builds = append(builds, tmp.ToAPI())
 	}
 
 	return builds, nil

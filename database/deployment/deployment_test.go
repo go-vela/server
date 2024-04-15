@@ -169,7 +169,7 @@ func testSqlite(t *testing.T) *engine {
 // testDeployment is a test helper function to create a library
 // Deployment type with all fields set to their zero values.
 func testDeployment() *library.Deployment {
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 	return &library.Deployment{
 		ID:          new(int64),
 		RepoID:      new(int64),

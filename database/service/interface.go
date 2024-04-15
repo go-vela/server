@@ -29,7 +29,7 @@ type ServiceInterface interface {
 	// CountServices defines a function that gets the count of all services.
 	CountServices(context.Context) (int64, error)
 	// CountServicesForBuild defines a function that gets the count of services by build ID.
-	CountServicesForBuild(context.Context, *library.Build, map[string]interface{}) (int64, error)
+	CountServicesForBuild(context.Context, *api.Build, map[string]interface{}) (int64, error)
 	// CreateService defines a function that creates a new service.
 	CreateService(context.Context, *library.Service) (*library.Service, error)
 	// DeleteService defines a function that deletes an existing service.
@@ -37,11 +37,11 @@ type ServiceInterface interface {
 	// GetService defines a function that gets a service by ID.
 	GetService(context.Context, int64) (*library.Service, error)
 	// GetServiceForBuild defines a function that gets a service by number and build ID.
-	GetServiceForBuild(context.Context, *library.Build, int) (*library.Service, error)
+	GetServiceForBuild(context.Context, *api.Build, int) (*library.Service, error)
 	// ListServices defines a function that gets a list of all services.
 	ListServices(context.Context) ([]*library.Service, error)
 	// ListServicesForBuild defines a function that gets a list of services by build ID.
-	ListServicesForBuild(context.Context, *library.Build, map[string]interface{}, int, int) ([]*library.Service, int64, error)
+	ListServicesForBuild(context.Context, *api.Build, map[string]interface{}, int, int) ([]*library.Service, int64, error)
 	// ListServiceImageCount defines a function that gets a list of all service images and the count of their occurrence.
 	ListServiceImageCount(context.Context) (map[string]float64, error)
 	// ListServiceStatusCount defines a function that gets a list of all service statuses and the count of their occurrence.

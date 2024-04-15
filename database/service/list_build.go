@@ -13,7 +13,7 @@ import (
 )
 
 // ListServicesForBuild gets a list of all services from the database.
-func (e *engine) ListServicesForBuild(ctx context.Context, b *library.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Service, int64, error) {
+func (e *engine) ListServicesForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}, page int, perPage int) ([]*library.Service, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("listing services for build %d from the database", b.GetNumber())

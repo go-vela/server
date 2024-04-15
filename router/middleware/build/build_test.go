@@ -15,12 +15,11 @@ import (
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Retrieve(t *testing.T) {
 	// setup types
-	want := new(library.Build)
+	want := new(api.Build)
 	want.SetID(1)
 
 	// setup context
@@ -51,7 +50,7 @@ func TestBuild_Establish(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	want := new(library.Build)
+	want := new(api.Build)
 	want.SetID(1)
 	want.SetRepoID(1)
 	want.SetPipelineID(0)
@@ -87,7 +86,7 @@ func TestBuild_Establish(t *testing.T) {
 	want.SetApprovedAt(0)
 	want.SetApprovedBy("")
 
-	got := new(library.Build)
+	got := new(api.Build)
 
 	// setup database
 	db, err := database.NewTest()

@@ -13,7 +13,6 @@ import (
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/internal"
-	"github.com/go-vela/types/library"
 )
 
 type ModificationConfig struct {
@@ -32,7 +31,7 @@ type client struct {
 	TemplateDepth       int
 	StarlarkExecLimit   uint64
 
-	build          *library.Build
+	build          *api.Build
 	comment        string
 	commit         string
 	files          []string
@@ -124,7 +123,7 @@ func (c *client) Duplicate() compiler.Engine {
 }
 
 // WithBuild sets the library build type in the Engine.
-func (c *client) WithBuild(b *library.Build) compiler.Engine {
+func (c *client) WithBuild(b *api.Build) compiler.Engine {
 	if b != nil {
 		c.build = b
 	}

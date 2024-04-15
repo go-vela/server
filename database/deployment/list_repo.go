@@ -46,7 +46,7 @@ func (e *engine) ListDeploymentsForRepo(ctx context.Context, r *api.Repo, page, 
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := deployment
 
-		builds := []*library.Build{}
+		builds := []*api.Build{}
 
 		for _, a := range tmp.Builds {
 			bID, err := strconv.ParseInt(a, 10, 64)

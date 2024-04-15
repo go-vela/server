@@ -171,7 +171,7 @@ const (
 func getBuilds(c *gin.Context) {
 	data := []byte(BuildsResp)
 
-	var body []library.Build
+	var body []api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -191,7 +191,7 @@ func getBuild(c *gin.Context) {
 
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -223,7 +223,7 @@ func getLogs(c *gin.Context) {
 func addBuild(c *gin.Context) {
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -247,7 +247,7 @@ func updateBuild(c *gin.Context) {
 
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -286,7 +286,7 @@ func restartBuild(c *gin.Context) {
 
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -340,7 +340,7 @@ func buildQueue(c *gin.Context) {
 
 	data := []byte(BuildQueueResp)
 
-	var body []library.BuildQueue
+	var body []api.BuildQueue
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

@@ -29,7 +29,7 @@ import (
 
 func TestMiddleware_Logger(t *testing.T) {
 	// setup types
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)
@@ -171,7 +171,7 @@ func TestMiddleware_Logger_Sanitize(t *testing.T) {
 	r.SetFullName("foo/bar")
 	logRepo, _ := json.Marshal(r)
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)

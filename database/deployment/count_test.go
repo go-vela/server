@@ -9,12 +9,11 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
 )
 
 func TestDeployment_Engine_CountDeployments(t *testing.T) {
-	buildOne := new(library.Build)
+	buildOne := new(api.Build)
 	buildOne.SetID(1)
 	buildOne.SetRepoID(1)
 	buildOne.SetPipelineID(1)
@@ -47,7 +46,7 @@ func TestDeployment_Engine_CountDeployments(t *testing.T) {
 	buildOne.SetRuntime("docker")
 	buildOne.SetDistribution("linux")
 
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 	builds = append(builds, buildOne)
 
 	// setup types

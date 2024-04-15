@@ -16,7 +16,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 var (
@@ -177,7 +176,7 @@ func (w *Worker) Nullify() *Worker {
 
 // ToAPI converts the Worker type
 // to an API Worker type.
-func (w *Worker) ToAPI(builds []*library.Build) *api.Worker {
+func (w *Worker) ToAPI(builds []*api.Build) *api.Worker {
 	worker := new(api.Worker)
 
 	worker.SetID(w.ID.Int64)
@@ -265,9 +264,9 @@ func FromAPI(w *api.Worker) *Worker {
 }
 
 // convertToBuilds is a helper function that generates build objects with ID fields given a list of IDs.
-func convertToBuilds(ids []string) []*library.Build {
+func convertToBuilds(ids []string) []*api.Build {
 	// create stripped build objects holding the IDs
-	var rBs []*library.Build
+	var rBs []*api.Build
 
 	for _, b := range ids {
 		id, err := strconv.ParseInt(b, 10, 64)
@@ -275,7 +274,7 @@ func convertToBuilds(ids []string) []*library.Build {
 			return nil
 		}
 
-		build := new(library.Build)
+		build := new(api.Build)
 		build.SetID(id)
 
 		rBs = append(rBs, build)

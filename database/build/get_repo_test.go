@@ -8,20 +8,17 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 	// setup types
-	_build := testBuild()
-	_build.SetID(1)
-	_build.SetRepoID(1)
-	_build.SetNumber(1)
-	_build.SetDeployNumber(0)
-	_build.SetDeployPayload(nil)
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_repo := testRepo()
+	_repo := testAPIRepo()
 	_repo.SetID(1)
 	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
@@ -29,6 +26,13 @@ func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+
+	_build := testAPIBuild()
+	_build.SetID(1)
+	_build.SetRepo(_repo)
+	_build.SetNumber(1)
+	_build.SetDeployNumber(0)
+	_build.SetDeployPayload(nil)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -54,7 +58,7 @@ func TestBuild_Engine_GetBuildForRepo(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Build
+		want     *api.Build
 	}{
 		{
 			failure:  false,

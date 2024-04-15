@@ -36,7 +36,7 @@ func (e *engine) GetDeploymentForRepo(ctx context.Context, r *api.Repo, number i
 		return nil, err
 	}
 
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	for _, a := range d.Builds {
 		bID, err := strconv.ParseInt(a, 10, 64)

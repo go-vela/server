@@ -8,25 +8,18 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // CreateBuild creates a new build in the database.
-func (e *engine) CreateBuild(ctx context.Context, b *library.Build) (*library.Build, error) {
+func (e *engine) CreateBuild(ctx context.Context, b *api.Build) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("creating build %d in the database", b.GetNumber())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#BuildFromLibrary
-	build := database.BuildFromLibrary(b)
+	build := FromAPI(b)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Build.Validate
 	err := build.Validate()
 	if err != nil {
 		return nil, err
@@ -38,5 +31,5 @@ func (e *engine) CreateBuild(ctx context.Context, b *library.Build) (*library.Bu
 	// send query to the database
 	result := e.client.Table(constants.TableBuild).Create(build)
 
-	return build.ToLibrary(), result.Error
+	return build.ToAPI(), result.Error
 }

@@ -12,15 +12,29 @@ import (
 
 func TestBuild_Engine_CountBuilds(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repo := testAPIRepo()
+	_repo.SetID(1)
+	_repo.GetOwner().SetID(1)
+	_repo.SetHash("baz")
+	_repo.SetOrg("foo")
+	_repo.SetName("bar")
+	_repo.SetFullName("foo/bar")
+	_repo.SetVisibility("public")
+
+	_buildOne := testAPIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
+	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
 
-	_buildTwo := testBuild()
+	_buildTwo := testAPIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
 

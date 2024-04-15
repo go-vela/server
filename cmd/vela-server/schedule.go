@@ -155,7 +155,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 
 	url := strings.TrimSuffix(r.GetClone(), ".git")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetAuthor(s.GetCreatedBy())
 	b.SetBranch(s.GetBranch())
 	b.SetClone(r.GetClone())

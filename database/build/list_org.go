@@ -7,23 +7,22 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // ListBuildsForOrg gets a list of builds by org name from the database.
 //
 //nolint:lll // ignore long line length due to variable names
-func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*library.Build, int64, error) {
+func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[string]interface{}, page, perPage int) ([]*api.Build, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org": org,
 	}).Tracef("listing builds for org %s from the database", org)
 
 	// variables to store query results and return values
 	count := int64(0)
-	b := new([]database.Build)
-	builds := []*library.Build{}
+	b := new([]Build)
+	builds := []*api.Build{}
 
 	// count the results
 	count, err := e.CountBuildsForOrg(ctx, org, filters)
@@ -63,7 +62,7 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 		// convert query result to library type
 		//
 		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
-		builds = append(builds, tmp.ToLibrary())
+		builds = append(builds, tmp.ToAPI())
 	}
 
 	return builds, count, nil

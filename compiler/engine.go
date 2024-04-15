@@ -116,7 +116,7 @@ type Engine interface {
 
 	// WithBuild defines a function that sets
 	// the library build type in the Engine.
-	WithBuild(*library.Build) Engine
+	WithBuild(*api.Build) Engine
 	// WithComment defines a function that sets
 	// the comment in the Engine.
 	WithComment(string) Engine

@@ -52,7 +52,7 @@ func TestStep_Establish(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)
@@ -221,7 +221,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)
@@ -280,7 +280,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)
@@ -339,7 +339,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 	b.SetRepoID(1)
 	b.SetNumber(1)

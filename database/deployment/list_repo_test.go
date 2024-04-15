@@ -19,7 +19,7 @@ func TestDeployment_Engine_ListDeploymentsForRepo(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	// setup types
 	_deploymentOne := testDeployment()

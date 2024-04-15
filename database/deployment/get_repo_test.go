@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeployment_Engine_GetDeploymentForRepo(t *testing.T) {
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 
 	// setup types
 	_deploymentOne := testDeployment()

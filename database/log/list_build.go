@@ -11,7 +11,7 @@ import (
 )
 
 // ListLogsForBuild gets a list of logs by build ID from the database.
-func (e *engine) ListLogsForBuild(ctx context.Context, b *library.Build, page, perPage int) ([]*library.Log, int64, error) {
+func (e *engine) ListLogsForBuild(ctx context.Context, b *api.Build, page, perPage int) ([]*library.Log, int64, error) {
 	e.logger.Tracef("listing logs for build %d from the database", b.GetID())
 
 	// variables to store query results and return value

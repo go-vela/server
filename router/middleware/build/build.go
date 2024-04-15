@@ -15,11 +15,10 @@ import (
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the build in the given context.
-func Retrieve(c *gin.Context) *library.Build {
+func Retrieve(c *gin.Context) *api.Build {
 	return FromContext(c)
 }
 

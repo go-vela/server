@@ -29,7 +29,7 @@ type LogInterface interface {
 	// CountLogs defines a function that gets the count of all logs.
 	CountLogs(context.Context) (int64, error)
 	// CountLogsForBuild defines a function that gets the count of logs by build ID.
-	CountLogsForBuild(context.Context, *library.Build) (int64, error)
+	CountLogsForBuild(context.Context, *api.Build) (int64, error)
 	// CreateLog defines a function that creates a new log.
 	CreateLog(context.Context, *library.Log) error
 	// DeleteLog defines a function that deletes an existing log.
@@ -43,7 +43,7 @@ type LogInterface interface {
 	// ListLogs defines a function that gets a list of all logs.
 	ListLogs(context.Context) ([]*library.Log, error)
 	// ListLogsForBuild defines a function that gets a list of logs by build ID.
-	ListLogsForBuild(context.Context, *library.Build, int, int) ([]*library.Log, int64, error)
+	ListLogsForBuild(context.Context, *api.Build, int, int) ([]*library.Log, int64, error)
 	// UpdateLog defines a function that updates an existing log.
 	UpdateLog(context.Context, *library.Log) error
 }

@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 func TestTypes_ToItem(t *testing.T) {
@@ -18,7 +17,7 @@ func TestTypes_ToItem(t *testing.T) {
 	str := "foo"
 	e := new(api.Events)
 
-	b := &library.Build{
+	b := &api.Build{
 		ID:       &num64,
 		RepoID:   &num64,
 		Number:   &num,
@@ -65,7 +64,7 @@ func TestTypes_ToItem(t *testing.T) {
 		AllowEvents: e,
 	}
 	want := &Item{
-		Build: &library.Build{
+		Build: &api.Build{
 			ID:       &num64,
 			RepoID:   &num64,
 			Number:   &num,

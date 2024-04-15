@@ -148,7 +148,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetEvent(constants.EventPush)
 	b.SetClone(repo.GetCloneURL())
 	b.SetSource(payload.GetHeadCommit().GetURL())
@@ -276,7 +276,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetEvent(constants.EventPull)
 	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())
@@ -361,7 +361,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetEvent(constants.EventDeploy)
 	b.SetEventAction(constants.ActionCreated)
 	b.SetClone(repo.GetCloneURL())
@@ -477,7 +477,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	r.SetTopics(repo.Topics)
 
 	// convert payload to library build
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetEvent(constants.EventComment)
 	b.SetEventAction(payload.GetAction())
 	b.SetClone(repo.GetCloneURL())

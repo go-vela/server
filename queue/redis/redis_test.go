@@ -10,7 +10,6 @@ import (
 	"github.com/alicebob/miniredis/v2"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 // The following functions were taken from
@@ -47,7 +46,7 @@ func Strings(v []string) *[]string { return &v }
 var (
 	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
 	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
-	_build             = &library.Build{
+	_build             = &api.Build{
 		ID:           Int64(1),
 		Number:       Int(1),
 		Parent:       Int(1),

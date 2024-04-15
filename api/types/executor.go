@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 )
 
@@ -18,7 +17,7 @@ type Executor struct {
 	Host         *string         `json:"host,omitempty"`
 	Runtime      *string         `json:"runtime,omitempty"`
 	Distribution *string         `json:"distribution,omitempty"`
-	Build        *library.Build  `json:"build,omitempty"`
+	Build        *Build          `json:"build,omitempty"`
 	Repo         *Repo           `json:"repo,omitempty"`
 	Pipeline     *pipeline.Build `json:"pipeline,omitempty"`
 }
@@ -79,10 +78,10 @@ func (e *Executor) GetDistribution() string {
 //
 // When the provided Executor type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (e *Executor) GetBuild() library.Build {
+func (e *Executor) GetBuild() Build {
 	// return zero value if Executor type or Build field is nil
 	if e == nil || e.Build == nil {
-		return library.Build{}
+		return Build{}
 	}
 
 	return *e.Build
@@ -170,7 +169,7 @@ func (e *Executor) SetDistribution(v string) {
 //
 // When the provided Executor type is nil, it
 // will set nothing and immediately return.
-func (e *Executor) SetBuild(v library.Build) {
+func (e *Executor) SetBuild(v Build) {
 	// return if Executor type is nil
 	if e == nil {
 		return

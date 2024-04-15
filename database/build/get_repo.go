@@ -9,12 +9,10 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // GetBuildForRepo gets a build by repo ID and number from the database.
-func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (*library.Build, error) {
+func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": number,
 		"org":   r.GetOrg(),
@@ -22,11 +20,13 @@ func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (
 	}).Tracef("getting build %s/%d from the database", r.GetFullName(), number)
 
 	// variable to store query results
-	b := new(database.Build)
+	b := new(Build)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("number = ?", number).
 		Take(b).
@@ -35,5 +35,5 @@ func (e *engine) GetBuildForRepo(ctx context.Context, r *api.Repo, number int) (
 		return nil, err
 	}
 
-	return b.ToLibrary(), nil
+	return b.ToAPI(), nil
 }

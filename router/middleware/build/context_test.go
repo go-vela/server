@@ -6,14 +6,12 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_FromContext(t *testing.T) {
 	// setup types
 	bID := int64(1)
-	want := &library.Build{ID: &bID}
+	want := &api.Build{ID: &bID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -72,7 +70,7 @@ func TestBuild_FromContext_Empty(t *testing.T) {
 func TestBuild_ToContext(t *testing.T) {
 	// setup types
 	bID := int64(1)
-	want := &library.Build{ID: &bID}
+	want := &api.Build{ID: &bID}
 
 	// setup context
 	gin.SetMode(gin.TestMode)

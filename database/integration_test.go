@@ -33,7 +33,7 @@ import (
 
 // Resources represents the object containing test resources.
 type Resources struct {
-	Builds      []*library.Build
+	Builds      []*api.Build
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
@@ -179,19 +179,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 
-	buildOne := new(library.BuildQueue)
+	buildOne := new(api.BuildQueue)
 	buildOne.SetCreated(1563474076)
 	buildOne.SetFullName("github/octocat")
 	buildOne.SetNumber(1)
 	buildOne.SetStatus("running")
 
-	buildTwo := new(library.BuildQueue)
+	buildTwo := new(api.BuildQueue)
 	buildTwo.SetCreated(1563474076)
 	buildTwo.SetFullName("github/octocat")
 	buildTwo.SetNumber(2)
 	buildTwo.SetStatus("running")
 
-	queueBuilds := []*library.BuildQueue{buildOne, buildTwo}
+	queueBuilds := []*api.BuildQueue{buildOne, buildTwo}
 
 	// create the builds
 	for _, build := range resources.Builds {
@@ -283,7 +283,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
 		t.Errorf("ListBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForRepo"] = true
@@ -296,7 +296,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListPendingAndRunningBuildsForRepo"] = true
@@ -2009,7 +2009,7 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 }
 
 func newResources() *Resources {
-	buildOne := new(library.Build)
+	buildOne := new(api.Build)
 	buildOne.SetID(1)
 	buildOne.SetRepoID(1)
 	buildOne.SetPipelineID(1)
@@ -2045,7 +2045,7 @@ func newResources() *Resources {
 	buildOne.SetApprovedAt(1563474078)
 	buildOne.SetApprovedBy("OctoCat")
 
-	buildTwo := new(library.Build)
+	buildTwo := new(api.Build)
 	buildTwo.SetID(2)
 	buildTwo.SetRepoID(1)
 	buildTwo.SetPipelineID(1)
@@ -2091,7 +2091,7 @@ func newResources() *Resources {
 	executableTwo.SetBuildID(2)
 	executableTwo.SetData([]byte("foo"))
 
-	builds := []*library.Build{}
+	builds := []*api.Build{}
 	deploymentOne := new(library.Deployment)
 	deploymentOne.SetID(1)
 	deploymentOne.SetNumber(1)
@@ -2449,10 +2449,10 @@ func newResources() *Resources {
 	stepTwo.SetDistribution("linux")
 	stepTwo.SetReportAs("test")
 
-	_bPartialOne := new(library.Build)
+	_bPartialOne := new(api.Build)
 	_bPartialOne.SetID(1)
 
-	_bPartialTwo := new(library.Build)
+	_bPartialTwo := new(api.Build)
 	_bPartialTwo.SetID(2)
 
 	workerOne := new(api.Worker)
@@ -2463,7 +2463,7 @@ func newResources() *Resources {
 	workerOne.SetActive(true)
 	workerOne.SetStatus("available")
 	workerOne.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerOne.SetRunningBuilds([]*library.Build{_bPartialOne})
+	workerOne.SetRunningBuilds([]*api.Build{_bPartialOne})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
@@ -2477,14 +2477,14 @@ func newResources() *Resources {
 	workerTwo.SetActive(true)
 	workerTwo.SetStatus("available")
 	workerTwo.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerTwo.SetRunningBuilds([]*library.Build{_bPartialTwo})
+	workerTwo.SetRunningBuilds([]*api.Build{_bPartialTwo})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{
-		Builds:      []*library.Build{buildOne, buildTwo},
+		Builds:      []*api.Build{buildOne, buildTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},

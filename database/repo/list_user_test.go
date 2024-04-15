@@ -14,18 +14,17 @@ import (
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	// setup types
-	_buildOne := new(library.Build)
+	_buildOne := new(api.Build)
 	_buildOne.SetID(1)
 	_buildOne.SetRepoID(1)
 	_buildOne.SetNumber(1)
 	_buildOne.SetCreated(time.Now().UTC().Unix())
 
-	_buildTwo := new(library.Build)
+	_buildTwo := new(api.Build)
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepoID(2)
 	_buildTwo.SetNumber(1)

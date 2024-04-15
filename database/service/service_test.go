@@ -166,8 +166,8 @@ func testSqlite(t *testing.T) *engine {
 
 // testBuild is a test helper function to create a library
 // Build type with all fields set to their zero values.
-func testBuild() *library.Build {
-	return &library.Build{
+func testBuild() *api.Build {
+	return &api.Build{
 		ID:           new(int64),
 		RepoID:       new(int64),
 		PipelineID:   new(int64),

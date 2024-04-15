@@ -11,23 +11,23 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // LastBuildForRepo gets the last build by repo ID and branch from the database.
-func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch string) (*library.Build, error) {
+func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch string) (*api.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 	}).Tracef("getting last build for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
-	b := new(database.Build)
+	b := new(Build)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("branch = ?", branch).
 		Order("number DESC").
@@ -43,5 +43,5 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 		return nil, err
 	}
 
-	return b.ToLibrary(), nil
+	return b.ToAPI(), nil
 }

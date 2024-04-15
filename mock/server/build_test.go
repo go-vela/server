@@ -6,12 +6,10 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_ActiveBuildResp(t *testing.T) {
-	testBuild := library.Build{}
+	testBuild := api.Build{}
 
 	err := json.Unmarshal([]byte(BuildResp), &testBuild)
 	if err != nil {

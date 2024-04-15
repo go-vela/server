@@ -9,31 +9,22 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetDeployPayload(nil)
-	_buildOne.SetEvent("push")
+	_owner := testAPIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := testBuild()
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(2)
-	_buildTwo.SetNumber(2)
-	_buildTwo.SetDeployPayload(nil)
-	_buildTwo.SetEvent("push")
-
-	_repoOne := testRepo()
+	_repoOne := testAPIRepo()
 	_repoOne.SetID(1)
-	_repoOne.GetOwner().SetID(1)
+	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -42,9 +33,9 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_repoOne.SetPipelineType("yaml")
 	_repoOne.SetTopics([]string{})
 
-	_repoTwo := testRepo()
+	_repoTwo := testAPIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.GetOwner().SetID(1)
+	_repoOne.SetOwner(_owner)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
 	_repoTwo.SetName("baz")
@@ -52,6 +43,20 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
+
+	_buildOne := testAPIBuild()
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repoOne)
+	_buildOne.SetNumber(1)
+	_buildOne.SetDeployPayload(nil)
+	_buildOne.SetEvent("push")
+
+	_buildTwo := testAPIBuild()
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repoTwo)
+	_buildTwo.SetNumber(2)
+	_buildTwo.SetDeployPayload(nil)
+	_buildTwo.SetEvent("push")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -126,14 +131,14 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		name     string
 		database *engine
 		filters  map[string]interface{}
-		want     []*library.Build
+		want     []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres without filters",
 			database: _postgres,
 			filters:  map[string]interface{}{},
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -142,7 +147,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"event": "push",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -151,14 +156,14 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"visibility": "public",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3 without filters",
 			database: _sqlite,
 			filters:  map[string]interface{}{},
-			want:     []*library.Build{_buildOne, _buildTwo},
+			want:     []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -167,7 +172,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"event": "push",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			failure:  false,
@@ -176,7 +181,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 			filters: map[string]interface{}{
 				"visibility": "public",
 			},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 	}
 
