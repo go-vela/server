@@ -5,7 +5,6 @@ package build
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -19,7 +18,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 )
 
@@ -51,24 +49,32 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Request processed but build was skipped
+//     description: Successfully received request but build was skipped
 //     schema:
 //       type: string
 //   '201':
-//     description: Successfully created the build
+//     description: Successfully created the build from request
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to create the build
+//     description: Malformed request payload or improper pipeline configuration
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Repository owner does not have proper access
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to create the build
+//     description: Unable to find resources for build
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '429':
+//     description: Concurrent build limit reached for repository
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to create the build
+//     description: Unable to receive the request or internal error while processing
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -123,7 +129,7 @@ func CreateBuild(c *gin.Context) {
 		Retries:  1,
 	}
 
-	_, item, err := CompileAndPublish(
+	_, item, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -133,14 +139,15 @@ func CreateBuild(c *gin.Context) {
 	)
 
 	// check if build was skipped
-	if err != nil && strings.EqualFold(item.Build.GetStatus(), constants.StatusSkipped) {
+	if err != nil && code == http.StatusOK {
 		c.JSON(http.StatusOK, err.Error())
 
 		return
 	}
 
-	// error handling done in CompileAndPublish
 	if err != nil {
+		util.HandleError(c, code, err)
+
 		return
 	}
 

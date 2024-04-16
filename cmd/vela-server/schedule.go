@@ -181,7 +181,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		Retries:  1,
 	}
 
-	_, item, err := build.CompileAndPublish(
+	_, item, _, err := build.CompileAndPublish(
 		ctx,
 		config,
 		database,
@@ -190,7 +190,6 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 		queue,
 	)
 
-	// error handling done in CompileAndPublish
 	if err != nil {
 		return err
 	}
