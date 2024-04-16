@@ -51,16 +51,16 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully received the webhook but build was skipped
+//     description: Successfully received request but build was skipped
 //     schema:
 //       type: string
 //   '201':
-//     description: Successfully created the build from webhook
+//     description: Successfully created the build from request
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Malformed webhook payload or improper pipeline configuration
+//     description: Malformed request payload or improper pipeline configuration
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
@@ -68,7 +68,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to receive the webhook
+//     description: Unable to find resources for build
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '429':
@@ -76,7 +76,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to receive the webhook or internal error while processing
+//     description: Unable to receive the request or internal error while processing
 //     schema:
 //       "$ref": "#/definitions/Error"
 
