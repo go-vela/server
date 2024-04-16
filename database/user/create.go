@@ -7,22 +7,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/types/constants"
 )
 
 // CreateUser creates a new user in the database.
-func (e *engine) CreateUser(ctx context.Context, u *library.User) (*library.User, error) {
+func (e *engine) CreateUser(ctx context.Context, u *api.User) (*api.User, error) {
 	e.logger.WithFields(logrus.Fields{
 		"user": u.GetName(),
 	}).Tracef("creating user %s in the database", u.GetName())
 
-	// cast the library type to database type
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#UserFromLibrary
-	user := database.UserFromLibrary(u)
+	// cast the API type to database type
+	user := FromAPI(u)
 
 	// validate the necessary fields are populated
 	//
@@ -49,5 +47,5 @@ func (e *engine) CreateUser(ctx context.Context, u *library.User) (*library.User
 		return nil, fmt.Errorf("unable to decrypt user %s: %w", u.GetName(), err)
 	}
 
-	return user.ToLibrary(), result.Error
+	return user.ToAPI(), result.Error
 }

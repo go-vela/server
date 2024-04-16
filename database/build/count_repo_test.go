@@ -26,7 +26,7 @@ func TestBuild_Engine_CountBuildsForRepo(t *testing.T) {
 
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetUserID(1)
+	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
 	_repo.SetName("bar")

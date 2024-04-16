@@ -4,6 +4,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router/middleware/settings"
 )

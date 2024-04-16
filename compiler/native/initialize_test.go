@@ -7,8 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-vela/types/yaml"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/types/yaml"
 )
 
 func TestNative_InitStage(t *testing.T) {

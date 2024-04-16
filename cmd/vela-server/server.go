@@ -15,14 +15,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router"
-	"github.com/go-vela/server/router/middleware"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
-
 	"k8s.io/apimachinery/pkg/util/wait"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router"
+	"github.com/go-vela/server/router/middleware"
 )
 
 func server(c *cli.Context) error {

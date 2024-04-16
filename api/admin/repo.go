@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/util"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
 )
 
 // swagger:operation PUT /api/v1/admin/repo admin AdminUpdateRepo
@@ -55,7 +54,7 @@ func UpdateRepo(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.Repo)
+	input := new(types.Repo)
 
 	err := c.Bind(input)
 	if err != nil {

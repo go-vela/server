@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
@@ -31,7 +33,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 
 	_repoOne := testRepo()
 	_repoOne.SetID(1)
-	_repoOne.SetUserID(1)
+	_repoOne.GetOwner().SetID(1)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -42,7 +44,7 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 
 	_repoTwo := testRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.SetUserID(1)
+	_repoTwo.GetOwner().SetID(1)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
 	_repoTwo.SetName("baz")
@@ -108,12 +110,12 @@ func TestBuild_Engine_ListBuildsForOrg(t *testing.T) {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoOne)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repoOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(database.RepoFromLibrary(_repoTwo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repoTwo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}

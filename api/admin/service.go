@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/util"
-
-	"github.com/go-vela/types/library"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/util"
+	"github.com/go-vela/types/library"
 )
 
 // swagger:operation PUT /api/v1/admin/service admin AdminUpdateService

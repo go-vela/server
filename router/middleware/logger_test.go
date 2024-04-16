@@ -14,6 +14,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -22,8 +25,6 @@ import (
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/router/middleware/worker"
 	"github.com/go-vela/types/library"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestMiddleware_Logger(t *testing.T) {
@@ -33,9 +34,9 @@ func TestMiddleware_Logger(t *testing.T) {
 	b.SetRepoID(1)
 	b.SetNumber(1)
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")
@@ -54,7 +55,7 @@ func TestMiddleware_Logger(t *testing.T) {
 	s.SetNumber(1)
 	s.SetName("foo")
 
-	u := new(library.User)
+	u := new(api.User)
 	u.SetID(1)
 	u.SetName("foo")
 	u.SetToken("bar")
@@ -162,9 +163,9 @@ func TestMiddleware_Logger_Error(t *testing.T) {
 func TestMiddleware_Logger_Sanitize(t *testing.T) {
 	var logBody, logWant map[string]interface{}
 
-	r := new(library.Repo)
+	r := new(api.Repo)
 	r.SetID(1)
-	r.SetUserID(1)
+	r.GetOwner().SetID(1)
 	r.SetOrg("foo")
 	r.SetName("bar")
 	r.SetFullName("foo/bar")

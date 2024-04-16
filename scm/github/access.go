@@ -6,14 +6,14 @@ import (
 	"context"
 	"strings"
 
+	"github.com/google/go-github/v61/github"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/types/library"
-	"github.com/google/go-github/v61/github"
+	api "github.com/go-vela/server/api/types"
 )
 
 // OrgAccess captures the user's access level for an org.
-func (c *client) OrgAccess(ctx context.Context, u *library.User, org string) (string, error) {
+func (c *client) OrgAccess(ctx context.Context, u *api.User, org string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -81,7 +81,7 @@ func (c *client) RepoAccess(ctx context.Context, name, token, org, repo string) 
 }
 
 // TeamAccess captures the user's access level for a team.
-func (c *client) TeamAccess(ctx context.Context, u *library.User, org, team string) (string, error) {
+func (c *client) TeamAccess(ctx context.Context, u *api.User, org, team string) (string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"team": team,
@@ -143,7 +143,7 @@ func (c *client) TeamAccess(ctx context.Context, u *library.User, org, team stri
 }
 
 // ListUsersTeamsForOrg captures the user's teams for an org.
-func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *library.User, org string) ([]string, error) {
+func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *api.User, org string) ([]string, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"user": u.GetName(),
@@ -187,7 +187,7 @@ func (c *client) ListUsersTeamsForOrg(ctx context.Context, u *library.User, org 
 }
 
 // RepoContributor lists all contributors from a repository and checks if the sender is one of the contributors.
-func (c *client) RepoContributor(ctx context.Context, owner *library.User, sender, org, repo string) (bool, error) {
+func (c *client) RepoContributor(ctx context.Context, owner *api.User, sender, org, repo string) (bool, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  org,
 		"repo": repo,

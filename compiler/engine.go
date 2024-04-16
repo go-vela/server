@@ -4,7 +4,7 @@ package compiler
 
 import (
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/types/raw"
@@ -134,13 +134,13 @@ type Engine interface {
 	WithLocalTemplates([]string) Engine
 	// WithMetadata defines a function that sets
 	// the compiler Metadata type in the Engine.
-	WithMetadata(*types.Metadata) Engine
+	WithMetadata(*internal.Metadata) Engine
 	// WithRepo defines a function that sets
 	// the library repo type in the Engine.
-	WithRepo(*library.Repo) Engine
+	WithRepo(*api.Repo) Engine
 	// WithUser defines a function that sets
 	// the library user type in the Engine.
-	WithUser(*library.User) Engine
+	WithUser(*api.User) Engine
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine

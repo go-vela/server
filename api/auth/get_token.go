@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/scm"
@@ -101,7 +103,7 @@ func GetAuthToken(c *gin.Context) {
 	// create a new user account
 	if len(u.GetName()) == 0 || err != nil {
 		// create the user account
-		u := new(library.User)
+		u := new(types.User)
 		u.SetName(newUser.GetName())
 		u.SetToken(newUser.GetToken())
 		u.SetActive(true)

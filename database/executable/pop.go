@@ -5,10 +5,11 @@ package executable
 import (
 	"context"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/database"
 	"github.com/go-vela/types/library"
-	"gorm.io/gorm/clause"
 )
 
 // PopBuildExecutable pops a build executable by build_id from the database.

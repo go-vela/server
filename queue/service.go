@@ -6,7 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types"
+	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/types/pipeline"
 )
 
@@ -25,7 +25,7 @@ type Service interface {
 
 	// Pop defines a function that grabs an
 	// item off the queue.
-	Pop(context.Context, []string) (*types.Item, error)
+	Pop(context.Context, []string) (*models.Item, error)
 
 	// Push defines a function that publishes an
 	// item to the specified route in the queue.

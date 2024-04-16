@@ -3,12 +3,12 @@
 package main
 
 import (
-	"github.com/go-vela/server/queue"
-
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/urfave/cli/v2"
+
+	"github.com/go-vela/server/queue"
 )
 
 // helper function to setup the queue from the CLI arguments.

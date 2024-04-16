@@ -7,6 +7,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
@@ -22,11 +27,6 @@ import (
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
-	"github.com/sirupsen/logrus"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 type (

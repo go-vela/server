@@ -31,6 +31,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/api"
 	"github.com/go-vela/server/api/auth"
 	"github.com/go-vela/server/api/webhook"
