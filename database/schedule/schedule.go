@@ -115,7 +115,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	return e, nil
 }
 
-// ScheduleFromLibrary converts the api.Schedule type to a database Schedule type.
+// FromAPI converts the api.Schedule type to a database Schedule type.
 func FromAPI(s *api.Schedule) *Schedule {
 	schedule := &Schedule{
 		ID:          sql.NullInt64{Int64: s.GetID(), Valid: true},
@@ -172,7 +172,7 @@ func (s *Schedule) Nullify() *Schedule {
 	return s
 }
 
-// ToLibrary converts the Schedule type to a api.Schedule type.
+// ToAPI converts the Schedule type to a api.Schedule type.
 func (s *Schedule) ToAPI() *api.Schedule {
 	return &api.Schedule{
 		ID:          &s.ID.Int64,

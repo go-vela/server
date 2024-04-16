@@ -9,7 +9,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	// "github.com/go-vela/types/database"
 )
 
 // UpdateSchedule updates an existing schedule in the database.
@@ -18,7 +17,7 @@ func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields boo
 		"schedule": s.GetName(),
 	}).Tracef("updating schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	schedule := FromAPI(s)
 
 	// validate the necessary fields are populated

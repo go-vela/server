@@ -17,7 +17,7 @@ func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Sche
 		"schedule": s.GetName(),
 	}).Tracef("creating schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	schedule := FromAPI(s)
 
 	// validate the necessary fields are populated

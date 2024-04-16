@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestLibrary_Schedule_Getters(t *testing.T) {
+func TestTypes_Schedule_Getters(t *testing.T) {
 	tests := []struct {
 		name     string
 		schedule *Schedule
@@ -85,7 +85,7 @@ func TestLibrary_Schedule_Getters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Schedule_Setters(t *testing.T) {
+func TestTypes_Schedule_Setters(t *testing.T) {
 	tests := []struct {
 		name     string
 		schedule *Schedule
@@ -175,7 +175,7 @@ func TestLibrary_Schedule_Setters(t *testing.T) {
 	}
 }
 
-func TestLibrary_Schedule_String(t *testing.T) {
+func TestTypes_Schedule_String(t *testing.T) {
 	s := testSchedule()
 
 	want := fmt.Sprintf(`{

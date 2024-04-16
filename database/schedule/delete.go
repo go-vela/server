@@ -17,7 +17,7 @@ func (e *engine) DeleteSchedule(ctx context.Context, s *api.Schedule) error {
 		"schedule": s.GetName(),
 	}).Tracef("deleting schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
+	// cast the API type to database type
 	schedule := FromAPI(s)
 
 	// send query to the database

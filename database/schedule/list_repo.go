@@ -9,7 +9,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	// "github.com/go-vela/types/database"
 )
 
 // ListSchedulesForRepo gets a list of schedules by repo ID from the database.
@@ -56,7 +55,7 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := schedule
 
-		// convert query result to library type
+		// convert query result to API type
 		schedules = append(schedules, tmp.ToAPI())
 	}
 

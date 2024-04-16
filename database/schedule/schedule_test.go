@@ -295,7 +295,7 @@ func TestSchedule_ToAPI(t *testing.T) {
 
 	got := testSchedule().ToAPI()
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToLibrary is %v, want %v", got, want)
+		t.Errorf("ToAPI is %v, want %v", got, want)
 	}
 }
 
@@ -385,7 +385,7 @@ func testSchedule() *Schedule {
 	}
 }
 
-// testRepo is a test helper function to create a library Repo type with all fields set to their zero values.
+// testRepo is a test helper function to create a API Repo type with all fields set to their zero values.
 func testRepo() *api.Repo {
 	return &api.Repo{
 		ID:           new(int64),
