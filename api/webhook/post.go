@@ -47,23 +47,32 @@ var baseErr = "unable to process webhook"
 //     "$ref": "#/definitions/Webhook"
 // responses:
 //   '200':
-//     description: Successfully received the webhook
+//     description: Successfully received the webhook but build was skipped
+//     schema:
+//       type: string
+//   '201':
+//     description: Successfully created the build from webhook
+//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Malformed webhook payload
+//     description: Malformed webhook payload or improper pipeline configuration
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Repository owner does not have proper access
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to receive the webhook
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '401':
-//     description: Unauthenticated
+//   '429':
+//     description: Concurrent build limit reached for repository
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to receive the webhook
+//     description: Unable to receive the webhook or internal error while processing
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -300,7 +309,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// generate the queue item
-	p, item, err := build.CompileAndPublish(
+	p, item, code, err := build.CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -310,18 +319,7 @@ func PostWebhook(c *gin.Context) {
 	)
 
 	// error handling done in CompileAndPublish
-	if err != nil {
-		return
-	}
-
-	// capture the build and repo from the items
-	b, repo = item.Build, item.Repo
-
-	// set hook build_id to the generated build id
-	h.SetBuildID(b.GetID())
-
-	// check if build was skipped
-	if err != nil && strings.EqualFold(b.GetStatus(), constants.StatusSkipped) {
+	if err != nil && code == http.StatusOK {
 		h.SetStatus(constants.StatusSkipped)
 		h.SetError(err.Error())
 
@@ -334,8 +332,16 @@ func PostWebhook(c *gin.Context) {
 		h.SetStatus(constants.StatusFailure)
 		h.SetError(err.Error())
 
+		util.HandleError(c, code, err)
+
 		return
 	}
+
+	// capture the build and repo from the items
+	b, repo = item.Build, item.Repo
+
+	// set hook build_id to the generated build id
+	h.SetBuildID(b.GetID())
 
 	// if event is deployment, update the deployment record to include this build
 	if strings.EqualFold(b.GetEvent(), constants.EventDeploy) {
@@ -382,7 +388,7 @@ func PostWebhook(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, b)
+	c.JSON(http.StatusCreated, b)
 
 	// regardless of whether the build is published to queue, we want to attempt to auto-cancel if no errors
 	defer func() {
