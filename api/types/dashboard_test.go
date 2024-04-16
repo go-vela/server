@@ -163,7 +163,7 @@ func testDashboard() *Dashboard {
 
 	d.SetID("123-abc")
 	d.SetName("vela")
-	d.SetAdmins([]string{"1", "42"})
+	d.SetAdmins([]*User{testUser()})
 	d.SetCreatedAt(1)
 	d.SetCreatedBy("octocat")
 	d.SetUpdatedAt(2)

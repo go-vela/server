@@ -11,7 +11,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
@@ -65,11 +64,12 @@ type (
 		CreatedBy sql.NullString `sql:"created_by"`
 		UpdatedAt sql.NullInt64  `sql:"updated_at"`
 		UpdatedBy sql.NullString `sql:"updated_by"`
-		Admins    pq.StringArray `sql:"admins" gorm:"type:varchar(5000)"`
+		Admins    AdminsJSON
 		Repos     DashReposJSON
 	}
 
 	DashReposJSON []*api.DashboardRepo
+	AdminsJSON    []*api.User
 )
 
 // New creates and returns a Vela service for integrating with dashboards in the database.
@@ -123,6 +123,24 @@ func (r *DashReposJSON) Scan(value interface{}) error {
 		return json.Unmarshal([]byte(v), &r)
 	default:
 		return fmt.Errorf("wrong type for repos: %T", v)
+	}
+}
+
+// Value - Implementation of valuer for database/sql for AdminsJSON.
+func (a AdminsJSON) Value() (driver.Value, error) {
+	valueString, err := json.Marshal(a)
+	return string(valueString), err
+}
+
+// Scan - Implement the database/sql scanner interface for AdminsJSON.
+func (a *AdminsJSON) Scan(value interface{}) error {
+	switch v := value.(type) {
+	case []byte:
+		return json.Unmarshal(v, &a)
+	case string:
+		return json.Unmarshal([]byte(v), &a)
+	default:
+		return fmt.Errorf("wrong type for admins: %T", v)
 	}
 }
 
@@ -190,29 +208,10 @@ func (d *Dashboard) Validate() error {
 		return ErrEmptyDashName
 	}
 
-	// calculate total size of favorites
-	total := 0
-	for _, f := range d.Admins {
-		total += len(f)
-	}
-
-	// verify the Favorites field is within the database constraints
-	// len is to factor in number of comma separators included in the database field,
-	// removing 1 due to the last item not having an appended comma
-	if (total + len(d.Admins) - 1) > constants.DashboardAdminMaxSize {
-		return ErrExceededAdminLimit
-	}
-
 	// ensure that all Dashboard string fields
 	// that can be returned as JSON are sanitized
 	// to avoid unsafe HTML content
 	d.Name = sql.NullString{String: util.Sanitize(d.Name.String), Valid: d.Name.Valid}
-
-	// ensure that all Favorites are sanitized
-	// to avoid unsafe HTML content
-	for i, v := range d.Admins {
-		d.Admins[i] = util.Sanitize(v)
-	}
 
 	return nil
 }
@@ -234,16 +233,16 @@ func FromAPI(d *api.Dashboard) *Dashboard {
 		}
 	}
 
-	user := &Dashboard{
+	dashboard := &Dashboard{
 		ID:        id,
 		Name:      sql.NullString{String: d.GetName(), Valid: true},
 		CreatedAt: sql.NullInt64{Int64: d.GetCreatedAt(), Valid: true},
 		CreatedBy: sql.NullString{String: d.GetCreatedBy(), Valid: true},
 		UpdatedAt: sql.NullInt64{Int64: d.GetUpdatedAt(), Valid: true},
 		UpdatedBy: sql.NullString{String: d.GetUpdatedBy(), Valid: true},
-		Admins:    pq.StringArray(d.GetAdmins()),
+		Admins:    d.GetAdmins(),
 		Repos:     d.GetRepos(),
 	}
 
-	return user.Nullify()
+	return dashboard.Nullify()
 }

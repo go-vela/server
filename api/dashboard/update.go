@@ -5,7 +5,6 @@ package dashboard
 import (
 	"fmt"
 	"net/http"
-	"slices"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -67,7 +66,7 @@ func UpdateDashboard(c *gin.Context) {
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
 
-	if !slices.Contains(d.GetAdmins(), u.GetName()) {
+	if !isAdmin(d, u) {
 		retErr := fmt.Errorf("unable to update dashboard %s: user is not an admin", d.GetID())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)

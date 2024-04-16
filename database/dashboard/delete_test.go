@@ -20,7 +20,6 @@ func TestDashboard_Engine_DeleteDashboard(t *testing.T) {
 	_dashboard.SetCreatedBy("user1")
 	_dashboard.SetUpdatedAt(1)
 	_dashboard.SetUpdatedBy("user2")
-	_dashboard.SetAdmins([]string{"octocat"})
 	_dashboard.SetRepos([]*api.DashboardRepo{testDashboardRepo()})
 
 	_postgres, _mock := testPostgres(t)

@@ -42,7 +42,6 @@ func TestDashboard_Establish(t *testing.T) {
 	want.SetCreatedBy("octocat")
 	want.SetUpdatedAt(1)
 	want.SetUpdatedBy("octokitty")
-	want.SetAdmins([]string{"octocat", "octokitty"})
 
 	wantRepo := new(api.DashboardRepo)
 	wantRepo.SetID(1)
@@ -51,6 +50,13 @@ func TestDashboard_Establish(t *testing.T) {
 	wantRepo.SetEvents([]string{"push"})
 
 	want.SetRepos([]*api.DashboardRepo{wantRepo})
+
+	wantAdmin := new(api.User)
+	wantAdmin.SetID(1)
+	wantAdmin.SetName("octocat")
+	wantAdmin.SetActive(true)
+
+	want.SetAdmins([]*api.User{wantAdmin})
 
 	got := new(api.Dashboard)
 

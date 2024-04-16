@@ -5,11 +5,11 @@ package dashboard
 import (
 	"fmt"
 	"net/http"
-	"slices"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/dashboard"
 	"github.com/go-vela/server/router/middleware/user"
@@ -60,7 +60,7 @@ func DeleteDashboard(c *gin.Context) {
 		"user":      u.GetName(),
 	}).Infof("deleting dashboard %s", d.GetID())
 
-	if !slices.Contains(d.GetAdmins(), fmt.Sprintf("%d", u.GetID())) {
+	if !isAdmin(d, u) {
 		retErr := fmt.Errorf("unable to delete dashboard %s: user is not an admin", d.GetID())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -78,4 +78,16 @@ func DeleteDashboard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fmt.Sprintf("dashboard %s deleted", d.GetName()))
+}
+
+// isAdmin is a helper function that iterates through the dashboard admins
+// and confirms if the user is in the slice.
+func isAdmin(d *types.Dashboard, u *types.User) bool {
+	for _, admin := range d.GetAdmins() {
+		if admin.GetID() == u.GetID() {
+			return true
+		}
+	}
+
+	return false
 }

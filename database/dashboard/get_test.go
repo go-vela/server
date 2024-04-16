@@ -20,6 +20,12 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	_dashRepo.SetEvents([]string{"push"})
 	_dashRepos := []*api.DashboardRepo{_dashRepo}
 
+	_admin := new(api.User)
+	_admin.SetID(1)
+	_admin.SetName("octocat")
+	_admin.SetActive(true)
+	_admins := []*api.User{_admin}
+
 	_dashboard := testDashboard()
 	_dashboard.SetID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_dashboard.SetName("dash")
@@ -27,8 +33,8 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	_dashboard.SetCreatedBy("user1")
 	_dashboard.SetUpdatedAt(1)
 	_dashboard.SetUpdatedBy("user2")
-	_dashboard.SetAdmins([]string{})
 	_dashboard.SetRepos(_dashRepos)
+	_dashboard.SetAdmins(_admins)
 
 	// uuid, _ := uuid.Parse("c8da1302-07d6-11ea-882f-4893bca275b8")
 
@@ -38,7 +44,7 @@ func TestRepo_Engine_GetDashboard(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "name", "created_at", "created_by", "updated_at", "updated_by", "admins", "repos"},
-	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", "dash", 1, "user1", 1, "user2", "{}", []byte(`[{"id":1,"branches":["main"],"events":["push"]}]`))
+	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", "dash", 1, "user1", 1, "user2", []byte(`[{"id":1,"name":"octocat","active":true}]`), []byte(`[{"id":1,"branches":["main"],"events":["push"]}]`))
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "dashboards" WHERE id = $1 LIMIT $2`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8", 1).WillReturnRows(_rows)

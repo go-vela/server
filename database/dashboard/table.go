@@ -20,7 +20,7 @@ dashboards (
 	created_by    VARCHAR(250),
 	updated_at    INTEGER,
 	updated_by    VARCHAR(250),
-	admins        VARCHAR(5000),
+	admins        JSON DEFAULT NULL,
 	repos         JSON DEFAULT NULL
 );
 `

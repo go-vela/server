@@ -69,7 +69,7 @@ func GetDashboard(c *gin.Context) {
 	dashboard.Dashboard = d
 
 	// build RepoPartials referenced in the dashboard
-	dashboard.Repos, err = buildRepoPartials(c, d.Repos)
+	dashboard.Repos, err = buildRepoPartials(c, d.GetRepos())
 	if err != nil {
 		util.HandleError(c, http.StatusInternalServerError, err)
 

@@ -440,6 +440,18 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 		if err != nil {
 			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
 		}
+
+		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
+		cmpAdmins := []*api.User{}
+		for _, admin := range got.GetAdmins() {
+			admin.SetToken(constants.SecretMask)
+			admin.SetRefreshToken(constants.SecretMask)
+
+			cmpAdmins = append(cmpAdmins, admin)
+		}
+
+		got.SetAdmins(cmpAdmins)
+
 		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
 			t.Errorf("GetDashboard() is %v, want %v", got, dashboard)
 		}
@@ -2099,6 +2111,26 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 }
 
 func newResources() *Resources {
+	userOne := new(api.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("superSecretToken")
+	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetFavorites([]string{"github/octocat"})
+	userOne.SetActive(true)
+	userOne.SetAdmin(false)
+	userOne.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
+
+	userTwo := new(api.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("superSecretToken")
+	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetActive(true)
+	userTwo.SetAdmin(false)
+	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7", "ba657dab-bc6e-421f-9188-86272bd0069a"})
+
 	buildOne := new(library.Build)
 	buildOne.SetID(1)
 	buildOne.SetRepoID(1)
@@ -2184,7 +2216,7 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	dashboardOne.SetAdmins([]string{"octocat", "octokitty"})
+	dashboardOne.SetAdmins([]*api.User{userOne.Sanitize(), userTwo.Sanitize()})
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
@@ -2194,7 +2226,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins([]string{"octocat", "octokitty"})
+	dashboardTwo.SetAdmins([]*api.User{userOne.Sanitize(), userTwo.Sanitize()})
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
@@ -2351,26 +2383,6 @@ func newResources() *Resources {
 	pipelineTwo.SetSteps(true)
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
-
-	userOne := new(api.User)
-	userOne.SetID(1)
-	userOne.SetName("octocat")
-	userOne.SetToken("superSecretToken")
-	userOne.SetRefreshToken("superSecretRefreshToken")
-	userOne.SetFavorites([]string{"github/octocat"})
-	userOne.SetActive(true)
-	userOne.SetAdmin(false)
-	userOne.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
-
-	userTwo := new(api.User)
-	userTwo.SetID(2)
-	userTwo.SetName("octokitty")
-	userTwo.SetToken("superSecretToken")
-	userTwo.SetRefreshToken("superSecretRefreshToken")
-	userTwo.SetFavorites([]string{"github/octocat"})
-	userTwo.SetActive(true)
-	userTwo.SetAdmin(false)
-	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7", "ba657dab-bc6e-421f-9188-86272bd0069a"})
 
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)

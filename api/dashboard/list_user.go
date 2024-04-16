@@ -88,7 +88,7 @@ func ListUserDashboards(c *gin.Context) {
 
 		dashCard.Dashboard = d
 
-		dashCard.Repos, err = buildRepoPartials(c, d.Repos)
+		dashCard.Repos, err = buildRepoPartials(c, d.GetRepos())
 		if err != nil {
 			util.HandleError(c, http.StatusInternalServerError, err)
 

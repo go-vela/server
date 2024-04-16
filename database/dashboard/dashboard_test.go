@@ -166,6 +166,18 @@ func testSqlite(t *testing.T) *engine {
 	return _engine
 }
 
+// testAdmin is a test helper function to create an API
+// User type wil all fields set to their zero values.
+func testAdmins() *[]*api.User {
+	return &[]*api.User{
+		{
+			ID:     new(int64),
+			Name:   new(string),
+			Active: new(bool),
+		},
+	}
+}
+
 // testDashboard is a test helper function to create a library
 // Dashboard type with all fields set to their zero values.
 func testDashboard() *api.Dashboard {
@@ -176,7 +188,7 @@ func testDashboard() *api.Dashboard {
 		CreatedBy: new(string),
 		UpdatedAt: new(int64),
 		UpdatedBy: new(string),
-		Admins:    new([]string),
+		Admins:    testAdmins(),
 	}
 }
 

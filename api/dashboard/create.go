@@ -139,28 +139,28 @@ func CreateDashboard(c *gin.Context) {
 	c.JSON(http.StatusCreated, d)
 }
 
-// createAdminSet takes a slice of user names and cleanses it of duplicates and throws and error
-// when a user is inactive or not found in the database.
-func createAdminSet(c context.Context, caller *types.User, users []string) ([]string, error) {
+// createAdminSet takes a slice of users, cleanses it of duplicates and throws an error
+// when a user is inactive or not found in the database. It returns a sanitized slice of admins.
+func createAdminSet(c context.Context, caller *types.User, users []*types.User) ([]*types.User, error) {
 	// add user creating the dashboard to admin list
-	admins := []string{caller.GetName()}
+	admins := []*types.User{caller.Sanitize()}
 
-	adminMap := make(map[string]bool)
+	dupMap := make(map[string]bool)
 
 	// validate supplied admins are actual users
-	for _, admin := range users {
-		if admin == caller.GetName() || adminMap[admin] {
+	for _, u := range users {
+		if u.GetName() == caller.GetName() || dupMap[u.GetName()] {
 			continue
 		}
 
-		u, err := database.FromContext(c).GetUserForName(c, admin)
-		if err != nil || !u.GetActive() {
-			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", admin)
+		dbUser, err := database.FromContext(c).GetUserForName(c, u.GetName())
+		if err != nil || !dbUser.GetActive() {
+			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", u.GetName())
 		}
 
-		admins = append(admins, u.GetName())
+		admins = append(admins, dbUser.Sanitize())
 
-		adminMap[admin] = true
+		dupMap[dbUser.GetName()] = true
 	}
 
 	return admins, nil

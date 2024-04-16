@@ -39,14 +39,14 @@ type DashCard struct {
 //
 // swagger:model Dashboard
 type Dashboard struct {
-	ID        *string          `json:"id,omitempty"`
-	Name      *string          `json:"name,omitempty"`
-	CreatedAt *int64           `json:"created_at,omitempty"`
-	CreatedBy *string          `json:"created_by,omitempty"`
-	UpdatedAt *int64           `json:"updated_at,omitempty"`
-	UpdatedBy *string          `json:"updated_by,omitempty"`
-	Admins    *[]string        `json:"admins,omitempty"`
-	Repos     []*DashboardRepo `json:"repos,omitempty"`
+	ID        *string           `json:"id,omitempty"`
+	Name      *string           `json:"name,omitempty"`
+	CreatedAt *int64            `json:"created_at,omitempty"`
+	CreatedBy *string           `json:"created_by,omitempty"`
+	UpdatedAt *int64            `json:"updated_at,omitempty"`
+	UpdatedBy *string           `json:"updated_by,omitempty"`
+	Admins    *[]*User          `json:"admins,omitempty"`
+	Repos     *[]*DashboardRepo `json:"repos,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -131,10 +131,10 @@ func (d *Dashboard) GetUpdatedBy() string {
 //
 // When the provided Dashboard type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (d *Dashboard) GetAdmins() []string {
+func (d *Dashboard) GetAdmins() []*User {
 	// return zero value if Dashboard type or Admins field is nil
 	if d == nil || d.Admins == nil {
-		return []string{}
+		return []*User{}
 	}
 
 	return *d.Admins
@@ -150,7 +150,7 @@ func (d *Dashboard) GetRepos() []*DashboardRepo {
 		return []*DashboardRepo{}
 	}
 
-	return d.Repos
+	return *d.Repos
 }
 
 // SetID sets the ID field.
@@ -235,7 +235,7 @@ func (d *Dashboard) SetUpdatedBy(v string) {
 //
 // When the provided Dashboard type is nil, it
 // will set nothing and immediately return.
-func (d *Dashboard) SetAdmins(v []string) {
+func (d *Dashboard) SetAdmins(v []*User) {
 	// return if Dashboard type is nil
 	if d == nil {
 		return
@@ -254,7 +254,7 @@ func (d *Dashboard) SetRepos(v []*DashboardRepo) {
 		return
 	}
 
-	d.Repos = v
+	d.Repos = &v
 }
 
 // String implements the Stringer interface for the Dashboard type.
