@@ -14,7 +14,10 @@ func TestTypes_User_Sanitize(t *testing.T) {
 	// setup types
 	u := testUser()
 
-	want := testUser()
+	want := new(User)
+	want.SetID(1)
+	want.SetName("octocat")
+	want.SetActive(true)
 	want.SetToken(constants.SecretMask)
 	want.SetRefreshToken(constants.SecretMask)
 

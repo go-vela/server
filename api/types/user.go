@@ -33,9 +33,7 @@ func (u *User) Sanitize() *User {
 		Name:         u.Name,
 		RefreshToken: &value,
 		Token:        &value,
-		Favorites:    u.Favorites,
 		Active:       u.Active,
-		Admin:        u.Admin,
 	}
 }
 
