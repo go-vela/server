@@ -56,7 +56,6 @@ func TestRepo_Engine_ListReposForOrg(t *testing.T) {
 	_owner := testOwner()
 	_owner.SetID(1)
 	_owner.SetName("foo")
-	_owner.SetToken("bar")
 
 	_repoOne.SetOwner(_owner)
 	_repoTwo.SetOwner(_owner)
