@@ -51,23 +51,32 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Request processed but build was skipped
+//     description: Successfully received request but build was skipped
 //     schema:
 //       type: string
 //   '201':
-//     description: Successfully restarted the build
+//     description: Successfully created the build from request
+//     type: json
 //     schema:
 //       "$ref": "#/definitions/Build"
 //   '400':
-//     description: Unable to restart the build
+//     description: Malformed request payload or improper pipeline configuration
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Repository owner does not have proper access
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
-//     description: Unable to restart the build
+//     description: Unable to find resources for build
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '429':
+//     description: Concurrent build limit reached for repository
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
-//     description: Unable to restart the build
+//     description: Unable to receive the request or internal error while processing
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -120,7 +129,7 @@ func RestartBuild(c *gin.Context) {
 	}
 
 	// generate queue items
-	_, item, err := CompileAndPublish(
+	_, item, code, err := CompileAndPublish(
 		c,
 		config,
 		database.FromContext(c),
@@ -129,8 +138,9 @@ func RestartBuild(c *gin.Context) {
 		queue.FromContext(c),
 	)
 
-	// error handling done in CompileAndPublish
 	if err != nil {
+		util.HandleError(c, code, err)
+
 		return
 	}
 
