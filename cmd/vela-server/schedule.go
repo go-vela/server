@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/go-vela/server/api/build"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -128,13 +129,23 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 
 			continue
 		}
+
+		schedule.SetError("")
+
+		// send API call to update schedule with the error message field cleared
+		_, err = database.UpdateSchedule(ctx, schedule, true)
+		if err != nil {
+			logError(database, ctx, err, schedule)
+
+			continue
+		}
 	}
 
 	return nil
 }
 
 // processSchedule will, given a schedule, process it and trigger a new build.
-func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
+func processSchedule(ctx context.Context, s *api.Schedule, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(ctx, s.GetRepoID())
 	if err != nil {
@@ -205,7 +216,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, compiler compiler
 	return nil
 }
 
-func logError(database database.Interface, ctx context.Context, err error, schedule *library.Schedule) {
+func logError(database database.Interface, ctx context.Context, err error, schedule *api.Schedule) {
 	// log the error message
 	logrus.WithError(err).Warnf("%s %s: %s", scheduleErr, schedule.GetName(), err.Error())
 
@@ -218,6 +229,6 @@ func logError(database database.Interface, ctx context.Context, err error, sched
 	// send API call to update schedule to ensure message field is set
 	_, err = database.UpdateSchedule(ctx, schedule, true)
 	if err != nil {
-		logrus.WithError(err).Warnf("%s %s: ", scheduleErr, schedule.GetName(), err.Error())
+		logrus.WithError(err).Warnf("%s %s: %s", scheduleErr, schedule.GetName(), err.Error())
 	}
 }

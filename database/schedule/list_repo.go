@@ -9,12 +9,11 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
+	// "github.com/go-vela/types/database"
 )
 
 // ListSchedulesForRepo gets a list of schedules by repo ID from the database.
-func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*library.Schedule, int64, error) {
+func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, perPage int) ([]*api.Schedule, int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
@@ -22,8 +21,8 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 
 	// variables to store query results and return value
 	count := int64(0)
-	s := new([]database.Schedule)
-	schedules := []*library.Schedule{}
+	s := new([]Schedule)
+	schedules := []*api.Schedule{}
 
 	// count the results
 	count, err := e.CountSchedulesForRepo(ctx, r)
@@ -58,7 +57,7 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 		tmp := schedule
 
 		// convert query result to library type
-		schedules = append(schedules, tmp.ToLibrary())
+		schedules = append(schedules, tmp.ToAPI())
 	}
 
 	return schedules, count, nil

@@ -9,11 +9,11 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestSchedule_Engine_GetSchedule(t *testing.T) {
-	_schedule := testSchedule()
+	_schedule := testAPISchedule()
 	_schedule.SetID(1)
 	_schedule.SetRepoID(1)
 	_schedule.SetName("nightly")
@@ -48,7 +48,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     *library.Schedule
+		want     *api.Schedule
 	}{
 		{
 			failure:  false,

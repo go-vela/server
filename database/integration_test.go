@@ -40,7 +40,7 @@ type Resources struct {
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
 	Repos       []*api.Repo
-	Schedules   []*library.Schedule
+	Schedules   []*api.Schedule
 	Secrets     []*library.Secret
 	Services    []*library.Service
 	Steps       []*library.Step
@@ -1212,8 +1212,8 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
-	if !cmp.Equal(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
-		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]})
+	if !cmp.Equal(list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
+		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
 	methods["ListSchedulesForRepo"] = true
 
@@ -2300,7 +2300,7 @@ func newResources() *Resources {
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
 	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	scheduleOne := new(library.Schedule)
+	scheduleOne := new(api.Schedule)
 	scheduleOne.SetID(1)
 	scheduleOne.SetRepoID(1)
 	scheduleOne.SetActive(true)
@@ -2313,7 +2313,7 @@ func newResources() *Resources {
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleOne.SetBranch("main")
 
-	scheduleTwo := new(library.Schedule)
+	scheduleTwo := new(api.Schedule)
 	scheduleTwo.SetID(2)
 	scheduleTwo.SetRepoID(1)
 	scheduleTwo.SetActive(true)
@@ -2491,7 +2491,7 @@ func newResources() *Resources {
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
-		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
+		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},

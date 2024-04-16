@@ -10,7 +10,7 @@ import (
 )
 
 func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
-	_schedule := testSchedule()
+	_schedule := testAPISchedule()
 	_schedule.SetID(1)
 	_schedule.SetRepoID(1)
 	_schedule.SetName("nightly")

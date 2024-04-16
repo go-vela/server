@@ -7,19 +7,18 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // CreateSchedule creates a new schedule in the database.
-func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) (*library.Schedule, error) {
+func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Schedule, error) {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("creating schedule %s in the database", s.GetName())
 
 	// cast the library type to database type
-	schedule := database.ScheduleFromLibrary(s)
+	schedule := FromAPI(s)
 
 	// validate the necessary fields are populated
 	err := schedule.Validate()
@@ -30,5 +29,5 @@ func (e *engine) CreateSchedule(ctx context.Context, s *library.Schedule) (*libr
 	// send query to the database
 	result := e.client.Table(constants.TableSchedule).Create(schedule)
 
-	return schedule.ToLibrary(), result.Error
+	return schedule.ToAPI(), result.Error
 }

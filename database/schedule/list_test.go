@@ -8,12 +8,11 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestSchedule_Engine_ListSchedules(t *testing.T) {
-	_scheduleOne := testSchedule()
+	_scheduleOne := testAPISchedule()
 	_scheduleOne.SetID(1)
 	_scheduleOne.SetRepoID(1)
 	_scheduleOne.SetName("nightly")
@@ -24,7 +23,7 @@ func TestSchedule_Engine_ListSchedules(t *testing.T) {
 	_scheduleOne.SetUpdatedBy("user2")
 	_scheduleOne.SetBranch("main")
 
-	_scheduleTwo := testSchedule()
+	_scheduleTwo := testAPISchedule()
 	_scheduleTwo.SetID(2)
 	_scheduleTwo.SetRepoID(2)
 	_scheduleTwo.SetName("hourly")
@@ -71,19 +70,19 @@ func TestSchedule_Engine_ListSchedules(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Schedule
+		want     []*api.Schedule
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Schedule{_scheduleOne, _scheduleTwo},
+			want:     []*api.Schedule{_scheduleOne, _scheduleTwo},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Schedule{_scheduleOne, _scheduleTwo},
+			want:     []*api.Schedule{_scheduleOne, _scheduleTwo},
 		},
 	}
 

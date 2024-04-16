@@ -11,7 +11,7 @@ import (
 )
 
 func TestSchedule_Engine_CreateSchedule(t *testing.T) {
-	_schedule := testSchedule()
+	_schedule := testAPISchedule()
 	_schedule.SetID(1)
 	_schedule.SetRepoID(1)
 	_schedule.SetName("nightly")
@@ -21,6 +21,7 @@ func TestSchedule_Engine_CreateSchedule(t *testing.T) {
 	_schedule.SetUpdatedAt(1)
 	_schedule.SetUpdatedBy("user2")
 	_schedule.SetBranch("main")
+	_schedule.SetError("error message")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -30,9 +31,9 @@ func TestSchedule_Engine_CreateSchedule(t *testing.T) {
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`INSERT INTO "schedules"
-("repo_id","active","name","entry","created_at","created_by","updated_at","updated_by","scheduled_at","branch","id")
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING "id"`).
-		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, "main", 1).
+("repo_id","active","name","entry","created_at","created_by","updated_at","updated_by","scheduled_at","branch","error","id")
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING "id"`).
+		WithArgs(1, false, "nightly", "0 0 * * *", 1, "user1", 1, "user2", nil, "main", "error message", 1).
 		WillReturnRows(_rows)
 
 	_sqlite := testSqlite(t)
