@@ -14,8 +14,6 @@ import (
 )
 
 // ListBuildsForDashboardRepo gets a list of builds by repo ID from the database.
-//
-//nolint:lll // ignore long line length due to variable names
 func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, branches, events []string) ([]*library.Build, error) {
 	e.logger.WithFields(logrus.Fields{
 		"org":  r.GetOrg(),

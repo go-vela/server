@@ -67,7 +67,7 @@ func UpdateDashboard(c *gin.Context) {
 	d := dashboard.Retrieve(c)
 	u := user.Retrieve(c)
 
-	if !slices.Contains(d.GetAdmins(), fmt.Sprintf("%d", u.GetID())) {
+	if !slices.Contains(d.GetAdmins(), u.GetName()) {
 		retErr := fmt.Errorf("unable to update dashboard %s: user is not an admin", d.GetID())
 
 		util.HandleError(c, http.StatusUnauthorized, retErr)
@@ -101,7 +101,7 @@ func UpdateDashboard(c *gin.Context) {
 
 	// validate admin set if supplied
 	if len(input.GetAdmins()) > 0 {
-		admins, err := validateAdminSet(c, u, input.GetAdmins())
+		admins, err := createAdminSet(c, u, input.GetAdmins())
 		if err != nil {
 			util.HandleError(c, http.StatusBadRequest, err)
 

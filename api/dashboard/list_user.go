@@ -19,7 +19,7 @@ import (
 
 // swagger:operation GET /api/v1/user/dashboards dashboards ListUserDashboards
 //
-// Get all dashboards for the claims users in the configured backend
+// Get all dashboards for the current user in the configured backend
 //
 // ---
 // produces:

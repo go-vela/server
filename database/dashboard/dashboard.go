@@ -31,27 +31,27 @@ var (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the BuildExecutableService interface.
+	// config represents the settings required to create the engine that implements the DashboardService interface.
 	config struct {
-		// specifies to skip creating tables and indexes for the BuildExecutable engine
+		// specifies to skip creating tables and indexes for the Dashboard engine
 		SkipCreation bool
 		// specifies the driver for proper popping query
 		Driver string
 	}
 
-	// engine represents the build executable functionality that implements the BuildExecutableService interface.
+	// engine represents the dashboard functionality that implements the DashboardService interface.
 	engine struct {
-		// engine configuration settings used in build executable functions
+		// engine configuration settings used in dashboard functions
 		config *config
 
 		ctx context.Context
 
-		// gorm.io/gorm database client used in build executable functions
+		// gorm.io/gorm database client used in dashboard functions
 		//
 		// https://pkg.go.dev/gorm.io/gorm#DB
 		client *gorm.DB
 
-		// sirupsen/logrus logger used in build executable functions
+		// sirupsen/logrus logger used in dashboard functions
 		//
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		logger *logrus.Entry
@@ -72,11 +72,11 @@ type (
 	DashReposJSON []*api.DashboardRepo
 )
 
-// New creates and returns a Vela service for integrating with build executables in the database.
+// New creates and returns a Vela service for integrating with dashboards in the database.
 //
 //nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (*engine, error) {
-	// create new BuildExecutable engine
+	// create new Dashboard engine
 	e := new(engine)
 
 	// create new fields
@@ -92,14 +92,14 @@ func New(opts ...EngineOpt) (*engine, error) {
 		}
 	}
 
-	// check if we should skip creating build executable database objects
+	// check if we should skip creating dashboard database objects
 	if e.config.SkipCreation {
-		e.logger.Warning("skipping creation of build executables table and indexes in the database")
+		e.logger.Warning("skipping creation of dashboards table and indexes in the database")
 
 		return e, nil
 	}
 
-	// create the build executables table
+	// create the dashboards table
 	err := e.CreateDashboardTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableDashboard, err)

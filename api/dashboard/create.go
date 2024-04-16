@@ -94,7 +94,7 @@ func CreateDashboard(c *gin.Context) {
 	d.SetUpdatedBy(u.GetName())
 
 	// validate admins to ensure they are all active users
-	admins, err := validateAdminSet(c, u, input.GetAdmins())
+	admins, err := createAdminSet(c, u, input.GetAdmins())
 	if err != nil {
 		util.HandleError(c, http.StatusBadRequest, err)
 
@@ -139,15 +139,17 @@ func CreateDashboard(c *gin.Context) {
 	c.JSON(http.StatusCreated, d)
 }
 
-// validateAdminSet takes a slice of user names and converts it into a slice of matching
-// user ids in order to preserve data integrity in case of name change.
-func validateAdminSet(c context.Context, caller *types.User, users []string) ([]string, error) {
+// createAdminSet takes a slice of user names and cleanses it of duplicates and throws and error
+// when a user is inactive or not found in the database.
+func createAdminSet(c context.Context, caller *types.User, users []string) ([]string, error) {
 	// add user creating the dashboard to admin list
-	admins := []string{fmt.Sprintf("%d", caller.GetID())}
+	admins := []string{caller.GetName()}
+
+	adminMap := make(map[string]bool)
 
 	// validate supplied admins are actual users
 	for _, admin := range users {
-		if admin == caller.GetName() {
+		if admin == caller.GetName() || adminMap[admin] {
 			continue
 		}
 
@@ -156,7 +158,9 @@ func validateAdminSet(c context.Context, caller *types.User, users []string) ([]
 			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", admin)
 		}
 
-		admins = append(admins, fmt.Sprintf("%d", u.GetID()))
+		admins = append(admins, u.GetName())
+
+		adminMap[admin] = true
 	}
 
 	return admins, nil
