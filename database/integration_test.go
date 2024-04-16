@@ -2374,7 +2374,7 @@ func newResources() *Resources {
 
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetOwner(userOne)
+	repoOne.SetOwner(userOne.Sanitize())
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2397,7 +2397,7 @@ func newResources() *Resources {
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne)
+	repoTwo.SetOwner(userOne.Sanitize())
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
