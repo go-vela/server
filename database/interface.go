@@ -13,10 +13,10 @@ import (
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	"github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
-	"github.com/go-vela/server/database/settings"
 )
 
 // Interface represents the interface for integrating with the supported database providers.
