@@ -5,7 +5,7 @@ package queue
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/types/pipeline"
 )
@@ -41,9 +41,9 @@ type Service interface {
 
 	// GetSettings defines a function that returns
 	// queue settings.
-	GetSettings() *api.QueueSettings
+	GetSettings() settings.Queue
 
 	// SetSettings defines a function that takes api settings
 	// and updates the compiler Engine.
-	SetSettings(*api.Settings)
+	SetSettings(*settings.Platform)
 }

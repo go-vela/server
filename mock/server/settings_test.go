@@ -7,11 +7,11 @@ import (
 	"reflect"
 	"testing"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 func TestSettings_GetResp(t *testing.T) {
-	testSettings := api.Settings{}
+	testSettings := settings.Platform{}
 
 	err := json.Unmarshal([]byte(SettingsResp), &testSettings)
 	if err != nil {
@@ -21,8 +21,63 @@ func TestSettings_GetResp(t *testing.T) {
 	tSettings := reflect.TypeOf(testSettings)
 
 	for i := 0; i < tSettings.NumField(); i++ {
-		if reflect.ValueOf(testSettings).Field(i).IsNil() {
+		f := reflect.ValueOf(testSettings).Field(i)
+		if f.IsNil() {
 			t.Errorf("SettingsResp missing field %s", tSettings.Field(i).Name)
+		}
+	}
+}
+
+func TestSettings_CreateResp(t *testing.T) {
+	testSettings := settings.Platform{}
+
+	err := json.Unmarshal([]byte(CreateSettingsResp), &testSettings)
+	if err != nil {
+		t.Errorf("error unmarshaling settings: %v", err)
+	}
+
+	tSettings := reflect.TypeOf(testSettings)
+
+	for i := 0; i < tSettings.NumField(); i++ {
+		f := reflect.ValueOf(testSettings).Field(i)
+		if f.IsNil() {
+			t.Errorf("CreateSettingsResp missing field %s", tSettings.Field(i).Name)
+		}
+	}
+}
+
+func TestSettings_UpdateResp(t *testing.T) {
+	testSettings := settings.Platform{}
+
+	err := json.Unmarshal([]byte(UpdateSettingsResp), &testSettings)
+	if err != nil {
+		t.Errorf("error unmarshaling settings: %v", err)
+	}
+
+	tSettings := reflect.TypeOf(testSettings)
+
+	for i := 0; i < tSettings.NumField(); i++ {
+		f := reflect.ValueOf(testSettings).Field(i)
+		if f.IsNil() {
+			t.Errorf("UpdateSettingsResp missing field %s", tSettings.Field(i).Name)
+		}
+	}
+}
+
+func TestSettings_RemoveResp(t *testing.T) {
+	testSettings := settings.Platform{}
+
+	err := json.Unmarshal([]byte(RemoveSettingsResp), &testSettings)
+	if err != nil {
+		t.Errorf("error unmarshaling settings: %v", err)
+	}
+
+	tSettings := reflect.TypeOf(testSettings)
+
+	for i := 0; i < tSettings.NumField(); i++ {
+		f := reflect.ValueOf(testSettings).Field(i)
+		if f.IsNil() {
+			t.Errorf("RemoveSettingsResp missing field %s", tSettings.Field(i).Name)
 		}
 	}
 }

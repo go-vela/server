@@ -14,7 +14,6 @@ import (
 func Compiler(comp compiler.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		s := settings.FromContext(c)
-
 		comp.SetSettings(s)
 
 		compiler.WithGinContext(c, comp)

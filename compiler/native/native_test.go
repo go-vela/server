@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
@@ -21,7 +22,8 @@ func TestNative_New(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 	public, _ := github.New("", "")
 	want := &client{
-		Github: public,
+		Github:   public,
+		Compiler: settings.CompilerMockEmpty(),
 	}
 
 	// run test
@@ -51,6 +53,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 		Github:           public,
 		PrivateGithub:    private,
 		UsePrivateGithub: true,
+		Compiler:         settings.CompilerMockEmpty(),
 	}
 
 	// run test
@@ -80,6 +83,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 		Github:           public,
 		PrivateGithub:    private,
 		UsePrivateGithub: true,
+		Compiler:         settings.CompilerMockEmpty(),
 	}
 
 	// run test

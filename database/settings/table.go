@@ -15,8 +15,9 @@ CREATE TABLE
 IF NOT EXISTS
 settings (
 	id                 SERIAL PRIMARY KEY,
-	clone_image        VARCHAR(250),
-	queue_routes       VARCHAR(1000)
+	compiler           JSON DEFAULT NULL,
+	queue         	   JSON DEFAULT NULL,
+	repo_allowlist	   VARCHAR(1000)
 );
 `
 
@@ -26,8 +27,9 @@ CREATE TABLE
 IF NOT EXISTS
 settings (
 	id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-	clone_image        TEXT,
-	queue_routes       TEXT
+	compiler           TEXT,
+	queue         	   TEXT,
+	repo_allowlist	   VARCHAR(1000)
 );
 `
 )

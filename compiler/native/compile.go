@@ -209,7 +209,7 @@ func (c *client) compileInline(p *yaml.Build, depth int) (*yaml.Build, error) {
 
 	// return if max template depth has been reached
 	if depth == 0 {
-		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
 		return nil, retErr
 	}

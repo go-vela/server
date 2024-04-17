@@ -19,7 +19,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
@@ -99,31 +99,34 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	settings, err := database.GetSettings(context.Background())
-	if settings == nil || err != nil {
+	s, err := database.GetSettings(context.Background())
+	if s == nil || err != nil {
 		// ignore error and attempt to create initial settings record
-		settings := new(api.Settings)
+		s := new(settings.Platform)
 
 		// singleton record ID should always be 1
-		settings.SetID(1)
+		s.SetID(1)
 
 		// read in defaults supplied from the cli runtime
 		compilerSettings := compiler.GetSettings()
-		settings.SetCompilerSettings(compilerSettings)
+		s.SetCompilerSettings(compilerSettings)
 
 		queueSettings := queue.GetSettings()
-		settings.SetQueueSettings(queueSettings)
+		s.SetQueueSettings(queueSettings)
+
+		// set permitted repos
+		s.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))
 
 		// create the settings record in the database
-		_, err = database.CreateSettings(context.Background(), settings)
+		_, err = database.CreateSettings(context.Background(), s)
 		if err != nil {
 			return err
 		}
 	}
 
 	// update any internal settings
-	queue.SetSettings(settings)
-	compiler.SetSettings(settings)
+	queue.SetSettings(s)
+	compiler.SetSettings(s)
 
 	router := router.Load(
 		middleware.Settings(database),
@@ -140,7 +143,7 @@ func server(c *cli.Context) error {
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
 		middleware.QueueAddress(c.String("queue.addr")),
-		middleware.Allowlist(c.StringSlice("vela-repo-allowlist")),
+		middleware.Allowlist(),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
 		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
@@ -243,9 +246,9 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			settings, err = database.GetSettings(context.Background())
-			if settings == nil || err != nil {
-				if settings == nil {
+			s, err = database.GetSettings(context.Background())
+			if s == nil || err != nil {
+				if s == nil {
 					err = errors.New("settings not found")
 				}
 
@@ -254,8 +257,8 @@ func server(c *cli.Context) error {
 				continue
 			}
 
-			compiler.SetSettings(settings)
-			queue.SetSettings(settings)
+			compiler.SetSettings(s)
+			queue.SetSettings(s)
 
 			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {

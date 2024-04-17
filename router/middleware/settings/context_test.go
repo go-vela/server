@@ -5,7 +5,7 @@ package settings
 import (
 	"testing"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +15,13 @@ func TestSettings_FromContext(t *testing.T) {
 	num := int64(1)
 	cloneImage := "target/vela-git"
 
-	cs := &api.CompilerSettings{
+	cs := settings.Compiler{
 		CloneImage: &cloneImage,
 	}
 
-	want := &api.Settings{
-		ID:               &num,
-		CompilerSettings: cs,
+	want := &settings.Platform{
+		ID:       &num,
+		Compiler: &cs,
 	}
 
 	// setup context
@@ -83,13 +83,13 @@ func TestSettings_ToContext(t *testing.T) {
 	num := int64(1)
 	cloneImage := "target/vela-git"
 
-	cs := &api.CompilerSettings{
+	cs := settings.Compiler{
 		CloneImage: &cloneImage,
 	}
 
-	want := &api.Settings{
-		ID:               &num,
-		CompilerSettings: cs,
+	want := &settings.Platform{
+		ID:       &num,
+		Compiler: &cs,
 	}
 
 	// setup context

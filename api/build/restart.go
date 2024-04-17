@@ -127,7 +127,7 @@ func RestartBuild(c *gin.Context) {
 		Source:   "restart",
 		Retries:  1,
 	}
-	logger.Tracef("restarting build using queue.channels: %v", queue.FromContext(c).GetSettings().GetQueueRoutes())
+
 	// generate queue items
 	_, item, code, err := CompileAndPublish(
 		c,

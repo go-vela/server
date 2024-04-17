@@ -3,17 +3,17 @@
 package redis
 
 import (
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 // SetSettings sets the api settings type in the Engine.
-func (c *client) GetSettings() *api.QueueSettings {
-	return c.QueueSettings
+func (c *client) GetSettings() settings.Queue {
+	return c.Queue
 }
 
 // SetSettings sets the api settings type in the Engine.
-func (c *client) SetSettings(s *api.Settings) {
+func (c *client) SetSettings(s *settings.Platform) {
 	if s != nil {
-		c.SetQueueRoutes(s.GetQueueRoutes())
+		c.SetRoutes(s.GetRoutes())
 	}
 }

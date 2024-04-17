@@ -7,30 +7,42 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 const (
 	// SettingsResp represents a JSON return for a single settings.
 	SettingsResp = `
 		{
-			"id": 1
+			"id": 1,
+			"compiler": {},
+			"queue": {},
+			"repo_allowlist": []
 		}`
 
 	// CreateSettingsResp represents a JSON return for creating a settings record.
 	CreateSettingsResp = `
 		{
-			"id": 1
+			"id": 1,
+			"compiler": {},
+			"queue": {},
+			"repo_allowlist": []
 		}`
 	// UpdateSettingsResp represents a JSON return for modifying a settings field.
 	UpdateSettingsResp = `
 		{
-			"id": 1
+			"id": 1,
+			"compiler": {},
+			"queue": {},
+			"repo_allowlist": []
 		}`
 	// RemoveSettingsResp represents a JSON return for deleting a settings record.
 	RemoveSettingsResp = `
 		{
-			"id": 1
+			"id": 1,
+			"compiler": {},
+			"queue": {},
+			"repo_allowlist": []
 		}`
 )
 
@@ -38,7 +50,7 @@ const (
 func getSettings(c *gin.Context) {
 	data := []byte(SettingsResp)
 
-	var body api.Settings
+	var body settings.Platform
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -48,7 +60,7 @@ func getSettings(c *gin.Context) {
 func createSettings(c *gin.Context) {
 	data := []byte(CreateSettingsResp)
 
-	var body api.Settings
+	var body settings.Platform
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -58,7 +70,7 @@ func createSettings(c *gin.Context) {
 func updateSettings(c *gin.Context) {
 	data := []byte(UpdateSettingsResp)
 
-	var body api.Settings
+	var body settings.Platform
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -70,7 +82,7 @@ func updateSettings(c *gin.Context) {
 func removeSettings(c *gin.Context) {
 	data := []byte(RemoveSettingsResp)
 
-	var body api.Settings
+	var body settings.Platform
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

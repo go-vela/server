@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
@@ -30,7 +31,7 @@ type client struct {
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
 
-	*api.CompilerSettings
+	settings.Compiler
 
 	build          *library.Build
 	comment        string
@@ -69,7 +70,7 @@ func New(ctx *cli.Context) (*client, error) {
 
 	c.Github = github
 
-	c.CompilerSettings = new(api.CompilerSettings)
+	c.Compiler = settings.Compiler{}
 
 	// set the clone image to use for the injected clone step
 	c.SetCloneImage(ctx.String("clone-image"))
@@ -118,6 +119,7 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.PrivateGithub = c.PrivateGithub
 	cc.UsePrivateGithub = c.UsePrivateGithub
 	cc.ModificationService = c.ModificationService
+	cc.CloneImage = c.CloneImage
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
 

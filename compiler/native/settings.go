@@ -3,16 +3,16 @@
 package native
 
 import (
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 // SetSettings sets the api settings type.
-func (c *client) GetSettings() *api.CompilerSettings {
-	return c.CompilerSettings
+func (c *client) GetSettings() settings.Compiler {
+	return c.Compiler
 }
 
 // SetSettings sets the api settings type.
-func (c *client) SetSettings(s *api.Settings) {
+func (c *client) SetSettings(s *settings.Platform) {
 	if s != nil {
 		c.SetCloneImage(s.GetCloneImage())
 		c.SetTemplateDepth(s.GetTemplateDepth())

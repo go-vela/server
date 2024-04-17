@@ -5,7 +5,7 @@ package settings
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 const key = "settings"
@@ -16,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Settings associated with this context.
-func FromContext(c context.Context) *api.Settings {
+func FromContext(c context.Context) *settings.Platform {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	s, ok := value.(*api.Settings)
+	s, ok := value.(*settings.Platform)
 	if !ok {
 		return nil
 	}
@@ -32,6 +32,6 @@ func FromContext(c context.Context) *api.Settings {
 
 // ToContext adds the Settings to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, s *api.Settings) {
+func ToContext(c Setter, s *settings.Platform) {
 	c.Set(key, s)
 }

@@ -5,15 +5,15 @@ package settings
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 // GetSettings gets platform settings from the database.
-func (e *engine) GetSettings(ctx context.Context) (*api.Settings, error) {
+func (e *engine) GetSettings(ctx context.Context) (*settings.Platform, error) {
 	e.logger.Trace("getting platform settings from the database")
 
 	// variable to store query results
-	s := new(Settings)
+	s := new(Platform)
 
 	// send query to the database and store result in variable
 	err := e.client.

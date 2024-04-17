@@ -12,7 +12,7 @@ func (c *client) Length(ctx context.Context) (int64, error) {
 
 	total := int64(0)
 
-	for _, channel := range c.GetQueueRoutes() {
+	for _, channel := range c.GetRoutes() {
 		items, err := c.Redis.LLen(ctx, channel).Result()
 		if err != nil {
 			return 0, err

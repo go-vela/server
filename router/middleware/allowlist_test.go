@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 func TestMiddleware_Allowlist(t *testing.T) {
@@ -24,7 +25,14 @@ func TestMiddleware_Allowlist(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Allowlist(want))
+	engine.Use(func(c *gin.Context) {
+		s := new(settings.Platform)
+		s.SetRepoAllowlist(want)
+
+		c.Set("settings", s)
+		c.Next()
+	})
+	engine.Use(Allowlist())
 	engine.GET("/health", func(c *gin.Context) {
 		got = c.Value("allowlist").([]string)
 

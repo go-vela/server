@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
+	settings "github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/settings"
+	sMiddleware "github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/util"
 	"github.com/sirupsen/logrus"
 )
@@ -41,7 +41,7 @@ import (
 // captures settings stored in the database.
 func GetSettings(c *gin.Context) {
 	// capture middleware values
-	s := settings.FromContext(c)
+	s := sMiddleware.FromContext(c)
 
 	logrus.Info("Admin: reading settings")
 
@@ -95,13 +95,13 @@ func GetSettings(c *gin.Context) {
 // update the settings singleton stored in the database.
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
-	s := settings.FromContext(c)
+	s := sMiddleware.FromContext(c)
 	ctx := c.Request.Context()
 
 	logrus.Info("Admin: updating settings")
 
 	// capture body from API request
-	input := new(api.Settings)
+	input := new(settings.Platform)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -126,7 +126,7 @@ func UpdateSettings(c *gin.Context) {
 
 	if input.Routes != nil {
 		// update routes if set
-		s.SetQueueRoutes(input.GetQueueRoutes())
+		s.SetRoutes(input.GetRoutes())
 	}
 
 	if input.RepoAllowlist != nil {

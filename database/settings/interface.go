@@ -5,7 +5,7 @@ package settings
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 // SettingsInterface represents the Vela interface for settings
@@ -14,9 +14,9 @@ import (
 //nolint:revive // ignore name stutter
 type SettingsInterface interface {
 	// CreateSettings defines a function that creates a platform settings record.
-	CreateSettings(context.Context, *api.Settings) (*api.Settings, error)
+	CreateSettings(context.Context, *settings.Platform) (*settings.Platform, error)
 	// GetSettings defines a function that gets platform settings.
-	GetSettings(context.Context) (*api.Settings, error)
+	GetSettings(context.Context) (*settings.Platform, error)
 	// UpdateSettings defines a function that updates platform settings.
-	UpdateSettings(context.Context, *api.Settings) (*api.Settings, error)
+	UpdateSettings(context.Context, *settings.Platform) (*settings.Platform, error)
 }

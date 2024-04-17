@@ -40,7 +40,7 @@ func WithChannels(channels ...string) ClientOpt {
 		}
 
 		// set the queue channels in the redis client
-		c.SetQueueRoutes(channels)
+		c.SetRoutes(channels)
 
 		return nil
 	}

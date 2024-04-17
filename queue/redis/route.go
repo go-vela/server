@@ -13,7 +13,7 @@ import (
 
 // Route decides which route a build gets placed within the queue.
 func (c *client) Route(w *pipeline.Worker) (string, error) {
-	c.Logger.Tracef("deciding route from queue channels %s", c.GetQueueRoutes())
+	c.Logger.Tracef("deciding route from queue channels %s", c.GetRoutes())
 
 	// create buffer to store route
 	buf := bytes.Buffer{}
@@ -37,7 +37,7 @@ func (c *client) Route(w *pipeline.Worker) (string, error) {
 
 	route := strings.TrimLeft(buf.String(), ":")
 
-	for _, r := range c.GetQueueRoutes() {
+	for _, r := range c.GetRoutes() {
 		if strings.EqualFold(route, r) {
 			return route, nil
 		}

@@ -5,11 +5,11 @@ package settings
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 )
 
 // UpdateSettings updates a platform settings in the database.
-func (e *engine) UpdateSettings(ctx context.Context, s *api.Settings) (*api.Settings, error) {
+func (e *engine) UpdateSettings(ctx context.Context, s *settings.Platform) (*settings.Platform, error) {
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the api type to database type
