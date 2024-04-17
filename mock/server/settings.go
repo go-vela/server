@@ -18,7 +18,8 @@ const (
 			"id": 1,
 			"compiler": {},
 			"queue": {},
-			"repo_allowlist": []
+			"repo_allowlist": [],
+			"schedule_allowlist": []
 		}`
 
 	// CreateSettingsResp represents a JSON return for creating a settings record.
@@ -27,7 +28,8 @@ const (
 			"id": 1,
 			"compiler": {},
 			"queue": {},
-			"repo_allowlist": []
+			"repo_allowlist": [],
+			"schedule_allowlist": []
 		}`
 	// UpdateSettingsResp represents a JSON return for modifying a settings field.
 	UpdateSettingsResp = `
@@ -35,7 +37,8 @@ const (
 			"id": 1,
 			"compiler": {},
 			"queue": {},
-			"repo_allowlist": []
+			"repo_allowlist": [],
+			"schedule_allowlist": []
 		}`
 	// RemoveSettingsResp represents a JSON return for deleting a settings record.
 	RemoveSettingsResp = `
@@ -43,7 +46,8 @@ const (
 			"id": 1,
 			"compiler": {},
 			"queue": {},
-			"repo_allowlist": []
+			"repo_allowlist": [],
+			"schedule_allowlist": []
 		}`
 )
 

@@ -14,10 +14,11 @@ const (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id                 SERIAL PRIMARY KEY,
-	compiler           JSON DEFAULT NULL,
-	queue         	   JSON DEFAULT NULL,
-	repo_allowlist	   VARCHAR(1000)
+	id                		SERIAL PRIMARY KEY,
+	compiler          		JSON DEFAULT NULL,
+	queue         	  		JSON DEFAULT NULL,
+	repo_allowlist	  		VARCHAR(1000)
+	schedule_allowlist	    VARCHAR(1000)
 );
 `
 
@@ -26,10 +27,11 @@ settings (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-	compiler           TEXT,
-	queue         	   TEXT,
-	repo_allowlist	   VARCHAR(1000)
+	id                 	   INTEGER PRIMARY KEY AUTOINCREMENT,
+	compiler           	   TEXT,
+	queue         	   	   TEXT,
+	repo_allowlist	   	   VARCHAR(1000)
+	schedule_allowlist	   VARCHAR(1000)
 );
 `
 )

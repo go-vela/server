@@ -130,8 +130,13 @@ func UpdateSettings(c *gin.Context) {
 	}
 
 	if input.RepoAllowlist != nil {
-		// update allowlist if set
+		// update repo allowlist if set
 		s.SetRepoAllowlist(input.GetRepoAllowlist())
+	}
+
+	if input.ScheduleAllowlist != nil {
+		// update schedule allowlist if set
+		s.SetScheduleAllowlist(input.GetScheduleAllowlist())
 	}
 
 	// send API call to update the repo

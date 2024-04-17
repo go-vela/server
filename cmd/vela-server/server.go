@@ -115,8 +115,11 @@ func server(c *cli.Context) error {
 		queueSettings := queue.GetSettings()
 		s.SetQueueSettings(queueSettings)
 
-		// set permitted repos
+		// set repos permitted to be added
 		s.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))
+
+		// set repos permitted to use schedules
+		s.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
 
 		// create the settings record in the database
 		_, err = database.CreateSettings(context.Background(), s)
@@ -153,7 +156,6 @@ func server(c *cli.Context) error {
 		middleware.DefaultRepoEvents(c.StringSlice("default-repo-events")),
 		middleware.DefaultRepoEventsMask(c.Int64("default-repo-events-mask")),
 		middleware.DefaultRepoApproveBuild(c.String("default-repo-approve-build")),
-		middleware.AllowlistSchedule(c.StringSlice("vela-schedule-allowlist")),
 		middleware.ScheduleFrequency(c.Duration("schedule-minimum-frequency")),
 	)
 
@@ -266,8 +268,7 @@ func server(c *cli.Context) error {
 			compiler.SetSettings(s)
 			queue.SetSettings(s)
 
-			// todo: SCHEDULES allowlist, not repo!!
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, s.GetRepoAllowlist())
+			err = processSchedules(ctx, start, s, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

@@ -16,7 +16,8 @@ type Platform struct {
 	*Compiler `json:"compiler,omitempty"`
 
 	// misc
-	RepoAllowlist *[]string `json:"repo_allowlist,omitempty"`
+	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"`
+	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -95,6 +96,32 @@ func (s *Platform) SetRepoAllowlist(v []string) {
 	}
 
 	s.RepoAllowlist = &v
+}
+
+// GetScheduleAllowlist returns the ScheduleAllowlist field.
+//
+// When the provided Settings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Platform) GetScheduleAllowlist() []string {
+	// return zero value if Settings type or ScheduleAllowlist field is nil
+	if s == nil || s.ScheduleAllowlist == nil {
+		return []string{}
+	}
+
+	return *s.ScheduleAllowlist
+}
+
+// SetScheduleAllowlist sets the RepoAllowlist field.
+//
+// When the provided Settings type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetScheduleAllowlist(v []string) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.ScheduleAllowlist = &v
 }
 
 // String implements the Stringer interface for the Settings type.

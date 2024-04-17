@@ -60,7 +60,8 @@ type (
 		Compiler
 		Queue
 
-		RepoAllowlist pq.StringArray `sql:"repo_allowlist" gorm:"type:varchar(1000)"`
+		RepoAllowlist     pq.StringArray `sql:"repo_allowlist" gorm:"type:varchar(1000)"`
+		ScheduleAllowlist pq.StringArray `sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
 	}
 
 	// Compiler is the database representation of compiler settings.
@@ -186,6 +187,7 @@ func (s *Platform) ToAPI() *settings.Platform {
 	settings.SetCloneImage(s.CloneImage.String)
 	settings.SetRoutes(s.Routes)
 	settings.SetRepoAllowlist(s.RepoAllowlist)
+	settings.SetScheduleAllowlist(s.ScheduleAllowlist)
 
 	return settings
 }
@@ -215,7 +217,12 @@ func (s *Platform) Validate() error {
 		s.RepoAllowlist[i] = util.Sanitize(v)
 	}
 
-	// todo: allowlist
+	// ensure that all ScheduleAllowlist are sanitized
+	// to avoid unsafe HTML content
+	for i, v := range s.ScheduleAllowlist {
+		s.ScheduleAllowlist[i] = util.Sanitize(v)
+	}
+
 	return nil
 }
 
@@ -232,7 +239,8 @@ func FromAPI(s *settings.Platform) *Platform {
 		Queue: Queue{
 			Routes: pq.StringArray(s.GetRoutes()),
 		},
-		RepoAllowlist: pq.StringArray(s.GetRepoAllowlist()),
+		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
+		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),
 	}
 
 	return settings.Nullify()
