@@ -85,6 +85,14 @@ func UpdateSettings(c *gin.Context) {
 		s.CloneImage = input.CloneImage
 	}
 
+	if input.TemplateDepth != nil {
+		s.TemplateDepth = input.TemplateDepth
+	}
+
+	if input.StarlarkExecLimit != nil {
+		s.StarlarkExecLimit = input.StarlarkExecLimit
+	}
+
 	if input.QueueRoutes != nil {
 		// update routes if set
 		s.SetQueueRoutes(input.GetQueueRoutes())

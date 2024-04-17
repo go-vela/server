@@ -57,9 +57,12 @@ type (
 
 	// Settings is the database representation of platform settings.
 	Settings struct {
-		ID          sql.NullInt64  `sql:"id"`
-		CloneImage  sql.NullString `sql:"clone_image"`
-		QueueRoutes pq.StringArray `sql:"queue_routes" gorm:"type:varchar(1000)"`
+		ID                sql.NullInt64  `sql:"id"`
+		CloneImage        sql.NullString `sql:"clone_image"`
+		TemplateDepth     sql.NullInt64  `sql:"template_depth"`
+		StarlarkExecLimit sql.NullInt64  `sql:"starlark_exec_limit"`
+		RepoAllowlist     pq.StringArray `sql:"repo_allowlist" gorm:"type:varchar(1000)"`
+		QueueRoutes       pq.StringArray `sql:"queue_routes" gorm:"type:varchar(1000)"`
 	}
 )
 
@@ -132,6 +135,9 @@ func (s *Settings) ToAPI() *api.Settings {
 
 	settings.SetID(s.ID.Int64)
 	settings.SetCloneImage(s.CloneImage.String)
+	settings.SetTemplateDepth(int(s.TemplateDepth.Int64))
+	settings.SetStarlarkExecLimit(uint64(s.StarlarkExecLimit.Int64))
+	settings.SetCloneImage(s.CloneImage.String)
 	settings.SetQueueRoutes(s.QueueRoutes)
 
 	return settings
@@ -163,9 +169,11 @@ func (s *Settings) Validate() error {
 // to a database Settings type.
 func FromAPI(s *api.Settings) *Settings {
 	settings := &Settings{
-		ID:          sql.NullInt64{Int64: s.GetID(), Valid: true},
-		CloneImage:  sql.NullString{String: s.GetCloneImage(), Valid: true},
-		QueueRoutes: pq.StringArray(s.GetQueueRoutes()),
+		ID:                sql.NullInt64{Int64: s.GetID(), Valid: true},
+		CloneImage:        sql.NullString{String: s.GetCloneImage(), Valid: true},
+		TemplateDepth:     sql.NullInt64{Int64: int64(s.GetTemplateDepth()), Valid: true},
+		StarlarkExecLimit: sql.NullInt64{Int64: int64(s.GetStarlarkExecLimit()), Valid: true},
+		QueueRoutes:       pq.StringArray(s.GetQueueRoutes()),
 	}
 
 	return settings.Nullify()

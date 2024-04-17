@@ -5,14 +5,13 @@ package main
 import (
 	"github.com/sirupsen/logrus"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/urfave/cli/v2"
 
 	"github.com/go-vela/server/queue"
 )
 
 // helper function to setup the queue from the CLI arguments.
-func setupQueue(c *cli.Context, s *api.Settings) (queue.Service, error) {
+func setupQueue(c *cli.Context) (queue.Service, error) {
 	logrus.Debug("Creating queue client from CLI configuration")
 
 	// queue configuration
@@ -20,7 +19,7 @@ func setupQueue(c *cli.Context, s *api.Settings) (queue.Service, error) {
 		Driver:     c.String("queue.driver"),
 		Address:    c.String("queue.addr"),
 		Cluster:    c.Bool("queue.cluster"),
-		Routes:     s.GetQueueRoutes(),
+		Routes:     c.StringSlice("queue.routes"),
 		Timeout:    c.Duration("queue.pop.timeout"),
 		PrivateKey: c.String("queue.private-key"),
 		PublicKey:  c.String("queue.public-key"),

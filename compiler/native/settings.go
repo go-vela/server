@@ -9,6 +9,8 @@ import (
 // UpdateFromSettings sets the api settings type in the Engine.
 func (c *client) UpdateFromSettings(s *api.Settings) {
 	if s != nil {
-		c.settings = s
+		c.CloneImage = s.GetCloneImage()
+		c.TemplateDepth = int(s.GetTemplateDepth())
+		c.StarlarkExecLimit = s.GetStarlarkExecLimit()
 	}
 }

@@ -12,9 +12,11 @@ import (
 //
 // swagger:model Settings
 type Settings struct {
-	ID          *int64    `json:"id,omitempty"`
-	CloneImage  *string   `json:"clone_image,omitempty"`
-	QueueRoutes *[]string `json:"queue_routes,omitempty"`
+	ID                *int64    `json:"id,omitempty"`
+	CloneImage        *string   `json:"clone_image,omitempty"`
+	TemplateDepth     *int      `json:"template_depth,omitempty"`
+	StarlarkExecLimit *uint64   `json:"starlark_exec_limit,omitempty"`
+	QueueRoutes       *[]string `json:"queue_routes,omitempty"`
 }
 
 // NewSettings returns a new Settings record.
@@ -26,6 +28,9 @@ func NewSettings(c *cli.Context) *Settings {
 
 	// set the clone image to use for the injected clone step
 	s.SetCloneImage(c.String("clone-image"))
+
+	// set the queue routes (channels) to use for builds
+	s.SetQueueRoutes(c.StringSlice("queue.routes"))
 
 	// set the queue routes (channels) to use for builds
 	s.SetQueueRoutes(c.StringSlice("queue.routes"))
@@ -57,6 +62,32 @@ func (s *Settings) GetCloneImage() string {
 	}
 
 	return *s.CloneImage
+}
+
+// GetTemplateDepth returns the TemplateDepth field.
+//
+// When the provided Settings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Settings) GetTemplateDepth() int {
+	// return zero value if Settings type or TemplateDepth field is nil
+	if s == nil || s.TemplateDepth == nil {
+		return 0
+	}
+
+	return *s.TemplateDepth
+}
+
+// GetStarlarkExecLimit returns the StarlarkExecLimit field.
+//
+// When the provided Settings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Settings) GetStarlarkExecLimit() uint64 {
+	// return zero value if Settings type or StarlarkExecLimit field is nil
+	if s == nil || s.StarlarkExecLimit == nil {
+		return 0
+	}
+
+	return *s.StarlarkExecLimit
 }
 
 // GetQueueRoutes returns the QueueRoutes field.
@@ -96,6 +127,32 @@ func (s *Settings) SetCloneImage(v string) {
 	}
 
 	s.CloneImage = &v
+}
+
+// SetTemplateDepth sets the TemplateDepth field.
+//
+// When the provided Settings type is nil, it
+// will set nothing and immediately return.
+func (s *Settings) SetTemplateDepth(v int) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.TemplateDepth = &v
+}
+
+// SetStarlarkExecLimit sets the StarlarkExecLimit field.
+//
+// When the provided Settings type is nil, it
+// will set nothing and immediately return.
+func (s *Settings) SetStarlarkExecLimit(v uint64) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.StarlarkExecLimit = &v
 }
 
 // SetQueueRoutes sets the QueueRoutes field.

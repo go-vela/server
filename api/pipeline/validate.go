@@ -92,12 +92,7 @@ func ValidatePipeline(c *gin.Context) {
 	r.SetPipelineType(p.GetType())
 
 	// create the compiler object
-	compiler := compiler.FromContext(c).
-		Duplicate().
-		WithCommit(p.GetCommit()).
-		WithMetadata(m).
-		WithRepo(r).
-		WithUser(u)
+	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)
 
 	ruleData := prepareRuleData(c)
 

@@ -74,23 +74,12 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	settings, err := database.GetSettings(context.Background())
-	if settings == nil || err != nil {
-		// ignore error and attempt to create initial settings record
-		settings = api.NewSettings(c)
-
-		_, err = database.CreateSettings(context.Background(), settings)
-		if err != nil {
-			return err
-		}
-	}
-
 	compiler, err := setupCompiler(c)
 	if err != nil {
 		return err
 	}
 
-	queue, err := setupQueue(c, settings)
+	queue, err := setupQueue(c)
 	if err != nil {
 		return err
 	}
@@ -109,6 +98,20 @@ func server(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	settings, err := database.GetSettings(context.Background())
+	if settings == nil || err != nil {
+		// ignore error and attempt to create initial settings record
+		settings = api.NewSettings(c)
+
+		_, err = database.CreateSettings(context.Background(), settings)
+		if err != nil {
+			return err
+		}
+	}
+
+	queue.UpdateFromSettings(settings)
+	compiler.UpdateFromSettings(settings)
 
 	router := router.Load(
 		middleware.Settings(database),
@@ -242,7 +245,7 @@ func server(c *cli.Context) error {
 			compiler.UpdateFromSettings(settings)
 			queue.UpdateFromSettings(settings)
 
-			err = processSchedules(ctx, start, settings, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
+			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

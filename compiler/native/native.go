@@ -29,9 +29,9 @@ type client struct {
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
-	// CloneImage          string
-	TemplateDepth     int
-	StarlarkExecLimit uint64
+	CloneImage          string
+	TemplateDepth       int
+	StarlarkExecLimit   uint64
 
 	build          *library.Build
 	comment        string
@@ -42,7 +42,6 @@ type client struct {
 	metadata       *internal.Metadata
 	repo           *api.Repo
 	user           *api.User
-	settings       *api.Settings
 	labels         []string
 }
 
@@ -120,7 +119,6 @@ func (c *client) Duplicate() compiler.Engine {
 	cc.ModificationService = c.ModificationService
 	cc.TemplateDepth = c.TemplateDepth
 	cc.StarlarkExecLimit = c.StarlarkExecLimit
-	cc.settings = c.settings
 
 	return cc
 }
