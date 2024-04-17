@@ -175,20 +175,20 @@ func UpdateSettings(c *gin.Context) {
 // the platform settings singleton from the configured backend.
 func DeleteSettings(c *gin.Context) {
 	// capture middleware values
-	// s := sMiddleware.FromContext(c)
-	// ctx := c.Request.Context()
+	s := sMiddleware.FromContext(c)
+	ctx := c.Request.Context()
 
 	logrus.Info("Admin: deleting settings")
 
 	// send API call to remove the settings record
-	// err := database.FromContext(c).DeleteSettings(ctx, ss)
-	// if err != nil {
-	// 	retErr := fmt.Errorf("unable to delete platform settings: %w", err)
+	err := database.FromContext(c).DeleteSettings(ctx, s)
+	if err != nil {
+		retErr := fmt.Errorf("unable to delete platform settings: %w", err)
 
-	// 	util.HandleError(c, http.StatusInternalServerError, retErr)
+		util.HandleError(c, http.StatusInternalServerError, retErr)
 
-	// 	return
-	// }
+		return
+	}
 
 	c.JSON(http.StatusOK, "platform settings deleted")
 }
