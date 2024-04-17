@@ -67,6 +67,6 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin settings endpoint
 		_admin.GET("/settings", admin.GetSettings)
 		_admin.PUT("/settings", admin.UpdateSettings)
-		_admin.DELETE("/settings", admin.RemoveSettings)
+		_admin.DELETE("/settings", admin.DeleteSettings)
 	} // end of admin endpoints
 }

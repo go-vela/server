@@ -40,8 +40,8 @@ const (
 			"repo_allowlist": [],
 			"schedule_allowlist": []
 		}`
-	// RemoveSettingsResp represents a JSON return for deleting a settings record.
-	RemoveSettingsResp = `
+	// DeleteSettingsResp represents a JSON return for deleting a settings record.
+	DeleteSettingsResp = `
 		{
 			"id": 1,
 			"compiler": {},
@@ -71,11 +71,11 @@ func updateSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, body)
 }
 
-// removeSettings has a param :settings returns mock JSON for a http DELETE.
+// deleteSettings has a param :settings returns mock JSON for a http DELETE.
 //
 // Pass "0" to :settings to test receiving a http 404 response.
-func removeSettings(c *gin.Context) {
-	data := []byte(RemoveSettingsResp)
+func deleteSettings(c *gin.Context) {
+	data := []byte(DeleteSettingsResp)
 
 	var body settings.Platform
 	_ = json.Unmarshal(data, &body)

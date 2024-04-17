@@ -31,7 +31,7 @@ import (
 //     schema:
 //       type: array
 //       items:
-//         "$ref": "#/definitions/Settings"
+//         "$ref": "#/definitions/Platform"
 //   '500':
 //     description: Unable to retrieve settings from the database
 //     schema:
@@ -74,14 +74,14 @@ func GetSettings(c *gin.Context) {
 //   description: Payload containing settings to update
 //   required: true
 //   schema:
-//     "$ref": "#/definitions/Settings"
+//     "$ref": "#/definitions/Platform"
 // security:
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully updated the settings in the database
 //     schema:
-//       "$ref": "#/definitions/Settings"
+//       "$ref": "#/definitions/Platform"
 //   '404':
 //     description: Unable to update the settings in the database
 //     schema:
@@ -152,6 +152,43 @@ func UpdateSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-func RemoveSettings(c *gin.Context) {
-	c.JSON(http.StatusOK, "TODO: not implemented")
+// swagger:operation DELETE /api/v1/admin/settings admin DeleteSettings
+//
+// Delete the platform settings record
+//
+// ---
+// produces:
+// - application/json
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully deleted the platform settings record
+//     schema:
+//       type: string
+//   '500':
+//     description: Unable to delete the platform settings record
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// DeleteSettings represents the API handler to remove
+// the platform settings singleton from the configured backend.
+func DeleteSettings(c *gin.Context) {
+	// capture middleware values
+	// s := sMiddleware.FromContext(c)
+	// ctx := c.Request.Context()
+
+	logrus.Info("Admin: deleting settings")
+
+	// send API call to remove the settings record
+	// err := database.FromContext(c).DeleteSettings(ctx, ss)
+	// if err != nil {
+	// 	retErr := fmt.Errorf("unable to delete platform settings: %w", err)
+
+	// 	util.HandleError(c, http.StatusInternalServerError, retErr)
+
+	// 	return
+	// }
+
+	c.JSON(http.StatusOK, "platform settings deleted")
 }

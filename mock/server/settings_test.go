@@ -67,7 +67,7 @@ func TestSettings_UpdateResp(t *testing.T) {
 func TestSettings_RemoveResp(t *testing.T) {
 	testSettings := settings.Platform{}
 
-	err := json.Unmarshal([]byte(RemoveSettingsResp), &testSettings)
+	err := json.Unmarshal([]byte(DeleteSettingsResp), &testSettings)
 	if err != nil {
 		t.Errorf("error unmarshaling settings: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestSettings_RemoveResp(t *testing.T) {
 	for i := 0; i < tSettings.NumField(); i++ {
 		f := reflect.ValueOf(testSettings).Field(i)
 		if f.IsNil() {
-			t.Errorf("RemoveSettingsResp missing field %s", tSettings.Field(i).Name)
+			t.Errorf("DeleteSettingsResp missing field %s", tSettings.Field(i).Name)
 		}
 	}
 }
