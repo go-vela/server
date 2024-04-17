@@ -13,13 +13,10 @@ import (
 func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
 
 	_scheduleOne := testAPISchedule()
 	_scheduleOne.SetID(1)
-	_scheduleOne.SetRepoID(1)
+	_scheduleOne.SetRepo(_repo)
 	_scheduleOne.SetName("nightly")
 	_scheduleOne.SetEntry("0 0 * * *")
 	_scheduleOne.SetCreatedAt(1)
@@ -30,7 +27,7 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 
 	_scheduleTwo := testAPISchedule()
 	_scheduleTwo.SetID(2)
-	_scheduleTwo.SetRepoID(2)
+	_scheduleTwo.SetRepo(_repo)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")
 	_scheduleTwo.SetCreatedAt(1)
@@ -43,7 +40,7 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
 
 	// create expected result in mock
-	_rows := sqlmock.NewRows([]string{"count"}).AddRow(1)
+	_rows := sqlmock.NewRows([]string{"count"}).AddRow(2)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT count(*) FROM "schedules" WHERE repo_id = $1`).WithArgs(1).WillReturnRows(_rows)
@@ -72,13 +69,13 @@ func TestSchedule_Engine_CountSchedulesForRepo(t *testing.T) {
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     1,
+			want:     2,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     1,
+			want:     2,
 		},
 	}
 

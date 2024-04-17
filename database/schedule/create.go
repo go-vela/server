@@ -27,7 +27,14 @@ func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Sche
 	}
 
 	// send query to the database
-	result := e.client.Table(constants.TableSchedule).Create(schedule)
+	err = e.client.Table(constants.TableSchedule).Create(schedule).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return schedule.ToAPI(), result.Error
+	// set repo to provided repo if creation successful
+	result := schedule.ToAPI()
+	result.SetRepo(s.GetRepo())
+
+	return result, nil
 }

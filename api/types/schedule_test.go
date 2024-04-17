@@ -38,8 +38,8 @@ func TestTypes_Schedule_Getters(t *testing.T) {
 				t.Errorf("GetID is %v, want %v", test.schedule.GetID(), test.want.GetID())
 			}
 
-			if test.schedule.GetRepoID() != test.want.GetRepoID() {
-				t.Errorf("GetRepoID is %v, want %v", test.schedule.GetRepoID(), test.want.GetRepoID())
+			if test.schedule.GetRepo().GetID() != test.want.GetRepo().GetID() {
+				t.Errorf("GetRepoID is %v, want %v", test.schedule.GetRepo().GetID(), test.want.GetRepo().GetID())
 			}
 
 			if test.schedule.GetActive() != test.want.GetActive() {
@@ -112,7 +112,7 @@ func TestTypes_Schedule_Setters(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			test.schedule.SetID(test.want.GetID())
-			test.schedule.SetRepoID(test.want.GetRepoID())
+			test.schedule.SetRepo(test.want.GetRepo())
 			test.schedule.SetActive(test.want.GetActive())
 			test.schedule.SetName(test.want.GetName())
 			test.schedule.SetEntry(test.want.GetEntry())
@@ -128,8 +128,8 @@ func TestTypes_Schedule_Setters(t *testing.T) {
 				t.Errorf("SetID is %v, want %v", test.schedule.GetID(), test.want.GetID())
 			}
 
-			if test.schedule.GetRepoID() != test.want.GetRepoID() {
-				t.Errorf("SetRepoID is %v, want %v", test.schedule.GetRepoID(), test.want.GetRepoID())
+			if test.schedule.GetRepo().GetID() != test.want.GetRepo().GetID() {
+				t.Errorf("SetRepoID is %v, want %v", test.schedule.GetRepo().GetID(), test.want.GetRepo().GetID())
 			}
 
 			if test.schedule.GetActive() != test.want.GetActive() {
@@ -185,7 +185,7 @@ func TestTypes_Schedule_String(t *testing.T) {
   Entry: %s,
   ID: %d,
   Name: %s,
-  RepoID: %d,
+  Repo: %v,
   ScheduledAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -198,7 +198,7 @@ func TestTypes_Schedule_String(t *testing.T) {
 		s.GetEntry(),
 		s.GetID(),
 		s.GetName(),
-		s.GetRepoID(),
+		s.GetRepo(),
 		s.GetScheduledAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),
@@ -216,7 +216,7 @@ func TestTypes_Schedule_String(t *testing.T) {
 func testSchedule() *Schedule {
 	s := new(Schedule)
 	s.SetID(1)
-	s.SetRepoID(1)
+	s.SetRepo(testRepo())
 	s.SetActive(true)
 	s.SetName("nightly")
 	s.SetEntry("0 0 * * *")

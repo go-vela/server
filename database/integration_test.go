@@ -1219,7 +1219,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
-		repo := resources.Repos[schedule.GetRepoID()-1]
+		repo := resources.Repos[schedule.GetRepo().GetID()-1]
 		got, err := db.GetScheduleForRepo(ctx, repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
@@ -2302,7 +2302,7 @@ func newResources() *Resources {
 
 	scheduleOne := new(api.Schedule)
 	scheduleOne.SetID(1)
-	scheduleOne.SetRepoID(1)
+	scheduleOne.SetRepo(repoOne)
 	scheduleOne.SetActive(true)
 	scheduleOne.SetName("nightly")
 	scheduleOne.SetEntry("0 0 * * *")
@@ -2315,7 +2315,7 @@ func newResources() *Resources {
 
 	scheduleTwo := new(api.Schedule)
 	scheduleTwo.SetID(2)
-	scheduleTwo.SetRepoID(1)
+	scheduleTwo.SetRepo(repoOne)
 	scheduleTwo.SetActive(true)
 	scheduleTwo.SetName("hourly")
 	scheduleTwo.SetEntry("0 * * * *")

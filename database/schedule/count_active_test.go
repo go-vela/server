@@ -11,9 +11,12 @@ import (
 )
 
 func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
+	_repo := testRepo()
+	_repo.SetID(1)
+
 	_scheduleOne := testAPISchedule()
 	_scheduleOne.SetID(1)
-	_scheduleOne.SetRepoID(1)
+	_scheduleOne.SetRepo(_repo)
 	_scheduleOne.SetActive(true)
 	_scheduleOne.SetName("nightly")
 	_scheduleOne.SetEntry("0 0 * * *")
@@ -25,7 +28,7 @@ func TestSchedule_Engine_CountActiveSchedules(t *testing.T) {
 
 	_scheduleTwo := testAPISchedule()
 	_scheduleTwo.SetID(2)
-	_scheduleTwo.SetRepoID(2)
+	_scheduleTwo.SetRepo(_repo)
 	_scheduleTwo.SetActive(false)
 	_scheduleTwo.SetName("hourly")
 	_scheduleTwo.SetEntry("0 * * * *")

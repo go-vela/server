@@ -19,6 +19,7 @@ func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, erro
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableSchedule).
+		Preload("Repo").
 		Where("id = ?", id).
 		Take(s).
 		Error

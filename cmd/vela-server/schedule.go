@@ -147,7 +147,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 // processSchedule will, given a schedule, process it and trigger a new build.
 func processSchedule(ctx context.Context, s *api.Schedule, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	// send API call to capture the repo for the schedule
-	r, err := database.GetRepo(ctx, s.GetRepoID())
+	r, err := database.GetRepo(ctx, s.GetRepo().GetID())
 	if err != nil {
 		return fmt.Errorf("unable to fetch repo: %w", err)
 	}

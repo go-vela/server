@@ -13,13 +13,10 @@ import (
 func TestSchedule_Engine_UpdateSchedule_Config(t *testing.T) {
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
 
 	_schedule := testAPISchedule()
 	_schedule.SetID(1)
-	_schedule.SetRepoID(1)
+	_schedule.SetRepo(_repo)
 	_schedule.SetName("nightly")
 	_schedule.SetEntry("0 0 * * *")
 	_schedule.SetCreatedAt(1)
@@ -93,13 +90,10 @@ WHERE "id" = $12`).
 func TestSchedule_Engine_UpdateSchedule_NotConfig(t *testing.T) {
 	_repo := testRepo()
 	_repo.SetID(1)
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
 
 	_schedule := testAPISchedule()
 	_schedule.SetID(1)
-	_schedule.SetRepoID(1)
+	_schedule.SetRepo(_repo)
 	_schedule.SetName("nightly")
 	_schedule.SetEntry("0 0 * * *")
 	_schedule.SetCreatedAt(1)

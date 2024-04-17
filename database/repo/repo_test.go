@@ -180,10 +180,6 @@ func testAPIRepo() *api.Repo {
 	return &api.Repo{
 		ID:           new(int64),
 		Owner:        testOwner(),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
 		Hash:         new(string),
 		Org:          new(string),
 		Name:         new(string),
@@ -191,13 +187,18 @@ func testAPIRepo() *api.Repo {
 		Link:         new(string),
 		Clone:        new(string),
 		Branch:       new(string),
+		Topics:       new([]string),
+		BuildLimit:   new(int64),
+		Timeout:      new(int64),
+		Counter:      new(int),
 		Visibility:   new(string),
-		PreviousName: new(string),
-		ApproveBuild: new(string),
 		Private:      new(bool),
 		Trusted:      new(bool),
 		Active:       new(bool),
 		AllowEvents:  testEvents(),
+		PipelineType: new(string),
+		PreviousName: new(string),
+		ApproveBuild: new(string),
 	}
 }
 

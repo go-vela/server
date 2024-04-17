@@ -11,9 +11,12 @@ import (
 )
 
 func TestSchedule_Engine_CreateSchedule(t *testing.T) {
+	_repo := testRepo()
+	_repo.SetID(1)
+
 	_schedule := testAPISchedule()
 	_schedule.SetID(1)
-	_schedule.SetRepoID(1)
+	_schedule.SetRepo(_repo)
 	_schedule.SetName("nightly")
 	_schedule.SetEntry("0 0 * * *")
 	_schedule.SetCreatedAt(1)

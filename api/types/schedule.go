@@ -11,7 +11,7 @@ import (
 // swagger:model Schedule
 type Schedule struct {
 	ID          *int64  `json:"id,omitempty"`
-	RepoID      *int64  `json:"repo_id,omitempty"`
+	Repo        *Repo   `json:"repo,omitempty"`
 	Active      *bool   `json:"active,omitempty"`
 	Name        *string `json:"name,omitempty"`
 	Entry       *string `json:"entry,omitempty"`
@@ -24,8 +24,10 @@ type Schedule struct {
 	Error       *string `json:"error,omitempty"`
 }
 
-// GetID returns the ID field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetID returns the ID field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetID() int64 {
 	// return zero value if Schedule type or ID field is nil
 	if s == nil || s.ID == nil {
@@ -35,19 +37,23 @@ func (s *Schedule) GetID() int64 {
 	return *s.ID
 }
 
-// GetRepoID returns the RepoID field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
-func (s *Schedule) GetRepoID() int64 {
+// GetRepo returns the Repo field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Schedule) GetRepo() *Repo {
 	// return zero value if Schedule type or RepoID field is nil
-	if s == nil || s.RepoID == nil {
-		return 0
+	if s == nil || s.Repo == nil {
+		return new(Repo)
 	}
 
-	return *s.RepoID
+	return s.Repo
 }
 
-// GetActive returns the Active field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetActive returns the Active field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetActive() bool {
 	// return zero value if Schedule type or Active field is nil
 	if s == nil || s.Active == nil {
@@ -57,8 +63,10 @@ func (s *Schedule) GetActive() bool {
 	return *s.Active
 }
 
-// GetName returns the Name field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetName returns the Name field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetName() string {
 	// return zero value if Schedule type or Name field is nil
 	if s == nil || s.Name == nil {
@@ -68,8 +76,10 @@ func (s *Schedule) GetName() string {
 	return *s.Name
 }
 
-// GetEntry returns the Entry field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetEntry returns the Entry field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetEntry() string {
 	// return zero value if Schedule type or Entry field is nil
 	if s == nil || s.Entry == nil {
@@ -79,8 +89,10 @@ func (s *Schedule) GetEntry() string {
 	return *s.Entry
 }
 
-// GetCreatedAt returns the CreatedAt field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetCreatedAt returns the CreatedAt field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetCreatedAt() int64 {
 	// return zero value if Schedule type or CreatedAt field is nil
 	if s == nil || s.CreatedAt == nil {
@@ -90,8 +102,10 @@ func (s *Schedule) GetCreatedAt() int64 {
 	return *s.CreatedAt
 }
 
-// GetCreatedBy returns the CreatedBy field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetCreatedBy returns the CreatedBy field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetCreatedBy() string {
 	// return zero value if Schedule type or CreatedBy field is nil
 	if s == nil || s.CreatedBy == nil {
@@ -101,8 +115,10 @@ func (s *Schedule) GetCreatedBy() string {
 	return *s.CreatedBy
 }
 
-// GetUpdatedAt returns the UpdatedAt field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetUpdatedAt returns the UpdatedAt field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetUpdatedAt() int64 {
 	// return zero value if Schedule type or UpdatedAt field is nil
 	if s == nil || s.UpdatedAt == nil {
@@ -112,8 +128,10 @@ func (s *Schedule) GetUpdatedAt() int64 {
 	return *s.UpdatedAt
 }
 
-// GetUpdatedBy returns the UpdatedBy field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetUpdatedBy returns the UpdatedBy field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetUpdatedBy() string {
 	// return zero value if Schedule type or UpdatedBy field is nil
 	if s == nil || s.UpdatedBy == nil {
@@ -123,8 +141,10 @@ func (s *Schedule) GetUpdatedBy() string {
 	return *s.UpdatedBy
 }
 
-// GetScheduledAt returns the ScheduledAt field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetScheduledAt returns the ScheduledAt field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetScheduledAt() int64 {
 	// return zero value if Schedule type or ScheduledAt field is nil
 	if s == nil || s.ScheduledAt == nil {
@@ -134,8 +154,10 @@ func (s *Schedule) GetScheduledAt() int64 {
 	return *s.ScheduledAt
 }
 
-// GetBranch returns the Branch field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetBranch returns the Branch field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetBranch() string {
 	// return zero value if Schedule type or ScheduledAt field is nil
 	if s == nil || s.Branch == nil {
@@ -145,8 +167,10 @@ func (s *Schedule) GetBranch() string {
 	return *s.Branch
 }
 
-// GetError returns the Error field from the provided Schedule. If the object is nil,
-// or the field within the object is nil, it returns the zero value instead.
+// GetError returns the Error field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
 func (s *Schedule) GetError() string {
 	// return zero value if Schedule type or Error field is nil
 	if s == nil || s.Error == nil {
@@ -156,8 +180,10 @@ func (s *Schedule) GetError() string {
 	return *s.Error
 }
 
-// SetID sets the ID field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetID sets the ID field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetID(id int64) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -167,19 +193,23 @@ func (s *Schedule) SetID(id int64) {
 	s.ID = &id
 }
 
-// SetRepoID sets the RepoID field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
-func (s *Schedule) SetRepoID(repoID int64) {
+// SetRepo sets the Repo field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
+func (s *Schedule) SetRepo(v *Repo) {
 	// return if Schedule type is nil
 	if s == nil {
 		return
 	}
 
-	s.RepoID = &repoID
+	s.Repo = v
 }
 
-// SetActive sets the Active field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetActive sets the Active field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetActive(active bool) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -189,8 +219,10 @@ func (s *Schedule) SetActive(active bool) {
 	s.Active = &active
 }
 
-// SetName sets the Name field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetName sets the Name field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetName(name string) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -200,8 +232,10 @@ func (s *Schedule) SetName(name string) {
 	s.Name = &name
 }
 
-// SetEntry sets the Entry field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetEntry sets the Entry field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetEntry(entry string) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -211,8 +245,10 @@ func (s *Schedule) SetEntry(entry string) {
 	s.Entry = &entry
 }
 
-// SetCreatedAt sets the CreatedAt field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetCreatedAt sets the CreatedAt field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetCreatedAt(createdAt int64) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -222,8 +258,10 @@ func (s *Schedule) SetCreatedAt(createdAt int64) {
 	s.CreatedAt = &createdAt
 }
 
-// SetCreatedBy sets the CreatedBy field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetCreatedBy sets the CreatedBy field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetCreatedBy(createdBy string) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -233,8 +271,10 @@ func (s *Schedule) SetCreatedBy(createdBy string) {
 	s.CreatedBy = &createdBy
 }
 
-// SetUpdatedAt sets the UpdatedAt field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetUpdatedAt sets the UpdatedAt field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetUpdatedAt(updatedAt int64) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -244,8 +284,10 @@ func (s *Schedule) SetUpdatedAt(updatedAt int64) {
 	s.UpdatedAt = &updatedAt
 }
 
-// SetUpdatedBy sets the UpdatedBy field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetUpdatedBy sets the UpdatedBy field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetUpdatedBy(updatedBy string) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -255,8 +297,10 @@ func (s *Schedule) SetUpdatedBy(updatedBy string) {
 	s.UpdatedBy = &updatedBy
 }
 
-// SetScheduledAt sets the ScheduledAt field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetScheduledAt sets the ScheduledAt field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetScheduledAt(scheduledAt int64) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -266,8 +310,10 @@ func (s *Schedule) SetScheduledAt(scheduledAt int64) {
 	s.ScheduledAt = &scheduledAt
 }
 
-// SetBranch sets the Branch field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetBranch sets the Branch field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetBranch(branch string) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -277,8 +323,10 @@ func (s *Schedule) SetBranch(branch string) {
 	s.Branch = &branch
 }
 
-// SetError sets the Error field in the provided Schedule. If the object is nil,
-// it will set nothing and immediately return making this a no-op.
+// SetError sets the Error field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
 func (s *Schedule) SetError(err string) {
 	// return if Schedule type is nil
 	if s == nil {
@@ -297,7 +345,7 @@ func (s *Schedule) String() string {
   Entry: %s,
   ID: %d,
   Name: %s,
-  RepoID: %d,
+  Repo: %v,
   ScheduledAt: %d,
   UpdatedAt: %d,
   UpdatedBy: %s,
@@ -310,7 +358,7 @@ func (s *Schedule) String() string {
 		s.GetEntry(),
 		s.GetID(),
 		s.GetName(),
-		s.GetRepoID(),
+		s.GetRepo(),
 		s.GetScheduledAt(),
 		s.GetUpdatedAt(),
 		s.GetUpdatedBy(),

@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
 )
@@ -70,6 +71,8 @@ type (
 		ScheduledAt sql.NullInt64  `sql:"scheduled_at"`
 		Branch      sql.NullString `sql:"branch"`
 		Error       sql.NullString `sql:"error"`
+
+		Repo repo.Repo `gorm:"foreignKey:RepoID"`
 	}
 )
 
@@ -115,30 +118,12 @@ func New(opts ...EngineOpt) (*engine, error) {
 	return e, nil
 }
 
-// FromAPI converts the api.Schedule type to a database Schedule type.
-func FromAPI(s *api.Schedule) *Schedule {
-	schedule := &Schedule{
-		ID:          sql.NullInt64{Int64: s.GetID(), Valid: true},
-		RepoID:      sql.NullInt64{Int64: s.GetRepoID(), Valid: true},
-		Active:      sql.NullBool{Bool: s.GetActive(), Valid: true},
-		Name:        sql.NullString{String: s.GetName(), Valid: true},
-		Entry:       sql.NullString{String: s.GetEntry(), Valid: true},
-		CreatedAt:   sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
-		CreatedBy:   sql.NullString{String: s.GetCreatedBy(), Valid: true},
-		UpdatedAt:   sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
-		UpdatedBy:   sql.NullString{String: s.GetUpdatedBy(), Valid: true},
-		ScheduledAt: sql.NullInt64{Int64: s.GetScheduledAt(), Valid: true},
-		Branch:      sql.NullString{String: s.GetBranch(), Valid: true},
-		Error:       sql.NullString{String: s.GetError(), Valid: true},
-	}
-
-	return schedule.Nullify()
-}
-
-// Nullify ensures the valid flag for the sql.Null types are properly set.
+// Nullify ensures the valid flag for
+// the sql.Null types are properly set.
 //
-// When a field within the Schedule type is the zero value for the field, the
-// valid flag is set to false causing it to be NULL in the database.
+// When a field within the Schedule type is the zero
+// value for the field, the valid flag is set to
+// false causing it to be NULL in the database.
 func (s *Schedule) Nullify() *Schedule {
 	if s == nil {
 		return nil
@@ -172,25 +157,29 @@ func (s *Schedule) Nullify() *Schedule {
 	return s
 }
 
-// ToAPI converts the Schedule type to a api.Schedule type.
+// ToAPI converts the Schedule type
+// to an API Schedule type.
 func (s *Schedule) ToAPI() *api.Schedule {
-	return &api.Schedule{
-		ID:          &s.ID.Int64,
-		RepoID:      &s.RepoID.Int64,
-		Active:      &s.Active.Bool,
-		Name:        &s.Name.String,
-		Entry:       &s.Entry.String,
-		CreatedAt:   &s.CreatedAt.Int64,
-		CreatedBy:   &s.CreatedBy.String,
-		UpdatedAt:   &s.UpdatedAt.Int64,
-		UpdatedBy:   &s.UpdatedBy.String,
-		ScheduledAt: &s.ScheduledAt.Int64,
-		Branch:      &s.Branch.String,
-		Error:       &s.Error.String,
-	}
+	schedule := new(api.Schedule)
+
+	schedule.SetID(s.ID.Int64)
+	schedule.SetRepo(s.Repo.ToAPI())
+	schedule.SetActive(s.Active.Bool)
+	schedule.SetName(s.Name.String)
+	schedule.SetEntry(s.Entry.String)
+	schedule.SetCreatedAt(s.CreatedAt.Int64)
+	schedule.SetCreatedBy(s.CreatedBy.String)
+	schedule.SetUpdatedAt(s.UpdatedAt.Int64)
+	schedule.SetUpdatedBy(s.UpdatedBy.String)
+	schedule.SetScheduledAt(s.ScheduledAt.Int64)
+	schedule.SetBranch(s.Branch.String)
+	schedule.SetError(s.Error.String)
+
+	return schedule
 }
 
-// Validate verifies the necessary fields for the Schedule type are populated correctly.
+// Validate verifies the necessary fields for
+// the Schedule type are populated correctly.
 func (s *Schedule) Validate() error {
 	// verify the RepoID field is populated
 	if s.RepoID.Int64 <= 0 {
@@ -217,4 +206,25 @@ func (s *Schedule) Validate() error {
 	s.Entry = sql.NullString{String: util.Sanitize(s.Entry.String), Valid: s.Entry.Valid}
 
 	return nil
+}
+
+// FromAPI converts the API Schedule type
+// to a database Schedule type.
+func FromAPI(s *api.Schedule) *Schedule {
+	schedule := &Schedule{
+		ID:          sql.NullInt64{Int64: s.GetID(), Valid: true},
+		RepoID:      sql.NullInt64{Int64: s.GetRepo().GetID(), Valid: true},
+		Active:      sql.NullBool{Bool: s.GetActive(), Valid: true},
+		Name:        sql.NullString{String: s.GetName(), Valid: true},
+		Entry:       sql.NullString{String: s.GetEntry(), Valid: true},
+		CreatedAt:   sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
+		CreatedBy:   sql.NullString{String: s.GetCreatedBy(), Valid: true},
+		UpdatedAt:   sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
+		UpdatedBy:   sql.NullString{String: s.GetUpdatedBy(), Valid: true},
+		ScheduledAt: sql.NullInt64{Int64: s.GetScheduledAt(), Valid: true},
+		Branch:      sql.NullString{String: s.GetBranch(), Valid: true},
+		Error:       sql.NullString{String: s.GetError(), Valid: true},
+	}
+
+	return schedule.Nullify()
 }

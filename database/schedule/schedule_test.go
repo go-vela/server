@@ -17,6 +17,7 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/actions"
 )
 
 func TestSchedule_New(t *testing.T) {
@@ -177,7 +178,7 @@ func testSqlite(t *testing.T) *engine {
 func testAPISchedule() *api.Schedule {
 	return &api.Schedule{
 		ID:          new(int64),
-		RepoID:      new(int64),
+		Repo:        testRepo(),
 		Active:      new(bool),
 		Name:        new(string),
 		Entry:       new(string),
@@ -188,6 +189,74 @@ func testAPISchedule() *api.Schedule {
 		ScheduledAt: new(int64),
 		Branch:      new(string),
 		Error:       new(string),
+	}
+}
+
+// testRepo is a test helper function to create a API Repo type with all fields set to their zero values.
+func testRepo() *api.Repo {
+	return &api.Repo{
+		ID:           new(int64),
+		Owner:        testOwner(),
+		Hash:         new(string),
+		Org:          new(string),
+		Name:         new(string),
+		FullName:     new(string),
+		Link:         new(string),
+		Clone:        new(string),
+		Branch:       new(string),
+		Topics:       new([]string),
+		BuildLimit:   new(int64),
+		Timeout:      new(int64),
+		Counter:      new(int),
+		Visibility:   new(string),
+		Private:      new(bool),
+		Trusted:      new(bool),
+		Active:       new(bool),
+		AllowEvents:  testEvents(),
+		PipelineType: new(string),
+		PreviousName: new(string),
+		ApproveBuild: new(string),
+	}
+}
+
+func testEvents() *api.Events {
+	return &api.Events{
+		Push: &actions.Push{
+			Branch:       new(bool),
+			Tag:          new(bool),
+			DeleteBranch: new(bool),
+			DeleteTag:    new(bool),
+		},
+		PullRequest: &actions.Pull{
+			Opened:      new(bool),
+			Edited:      new(bool),
+			Synchronize: new(bool),
+			Reopened:    new(bool),
+			Labeled:     new(bool),
+			Unlabeled:   new(bool),
+		},
+		Deployment: &actions.Deploy{
+			Created: new(bool),
+		},
+		Comment: &actions.Comment{
+			Created: new(bool),
+			Edited:  new(bool),
+		},
+		Schedule: &actions.Schedule{
+			Run: new(bool),
+		},
+	}
+}
+
+func testOwner() *api.User {
+	return &api.User{
+		ID:           new(int64),
+		Name:         new(string),
+		RefreshToken: new(string),
+		Token:        new(string),
+		Favorites:    new([]string),
+		Active:       new(bool),
+		Admin:        new(bool),
 	}
 }
 
@@ -210,9 +279,13 @@ func (t NowTimestamp) Match(v driver.Value) bool {
 }
 
 func TestSchedule_FromAPI(t *testing.T) {
+	// setup types
 	s := new(api.Schedule)
+	repo := testRepo()
+	repo.SetID(1)
+
 	s.SetID(1)
-	s.SetRepoID(1)
+	s.SetRepo(repo)
 	s.SetActive(true)
 	s.SetName("nightly")
 	s.SetEntry("0 0 * * *")
@@ -226,7 +299,9 @@ func TestSchedule_FromAPI(t *testing.T) {
 
 	want := testSchedule()
 
+	// run test
 	got := FromAPI(s)
+
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("ScheduleFromAPI is %v, want %v", got, want)
 	}
@@ -279,10 +354,12 @@ func TestSchedule_Nullify(t *testing.T) {
 }
 
 func TestSchedule_ToAPI(t *testing.T) {
-	want := new(api.Schedule)
+	repo := testRepo()
+
+	want := testAPISchedule()
 	want.SetID(1)
-	want.SetRepoID(1)
 	want.SetActive(true)
+	want.SetRepo(repo)
 	want.SetName("nightly")
 	want.SetEntry("0 0 * * *")
 	want.SetCreatedAt(time.Now().UTC().Unix())
@@ -294,6 +371,7 @@ func TestSchedule_ToAPI(t *testing.T) {
 	want.SetError("unable to trigger build for schedule nightly: unknown character")
 
 	got := testSchedule().ToAPI()
+
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("ToAPI is %v, want %v", got, want)
 	}
@@ -382,28 +460,5 @@ func testSchedule() *Schedule {
 		ScheduledAt: sql.NullInt64{Int64: time.Now().Add(time.Hour * 2).UTC().Unix(), Valid: true},
 		Branch:      sql.NullString{String: "main", Valid: true},
 		Error:       sql.NullString{String: "unable to trigger build for schedule nightly: unknown character", Valid: true},
-	}
-}
-
-// testRepo is a test helper function to create a API Repo type with all fields set to their zero values.
-func testRepo() *api.Repo {
-	return &api.Repo{
-		ID:           new(int64),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
-		Hash:         new(string),
-		Org:          new(string),
-		Name:         new(string),
-		FullName:     new(string),
-		Link:         new(string),
-		Clone:        new(string),
-		Branch:       new(string),
-		Visibility:   new(string),
-		PreviousName: new(string),
-		Private:      new(bool),
-		Trusted:      new(bool),
-		Active:       new(bool),
 	}
 }

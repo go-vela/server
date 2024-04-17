@@ -40,6 +40,7 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 	// send query to the database and store result in variable
 	err = e.client.
 		Table(constants.TableSchedule).
+		Preload("Repo").
 		Where("repo_id = ?", r.GetID()).
 		Order("id DESC").
 		Limit(perPage).

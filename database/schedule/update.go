@@ -36,5 +36,13 @@ func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields boo
 		err = e.client.Table(constants.TableSchedule).Model(schedule).UpdateColumn("scheduled_at", s.GetScheduledAt()).Error
 	}
 
-	return schedule.ToAPI(), err
+	if err != nil {
+		return nil, err
+	}
+
+	// set repo to provided repo if creation successful
+	result := schedule.ToAPI()
+	result.SetRepo(s.GetRepo())
+
+	return result, nil
 }

@@ -131,7 +131,7 @@ func CreateSchedule(c *gin.Context) {
 
 	// update fields in schedule object
 	s.SetCreatedBy(u.GetName())
-	s.SetRepoID(r.GetID())
+	s.SetRepo(r)
 	s.SetName(input.GetName())
 	s.SetEntry(input.GetEntry())
 	s.SetCreatedAt(time.Now().UTC().Unix())
