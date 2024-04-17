@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-vela/server/database/repo"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
@@ -78,7 +77,7 @@ func TestBuild_Engine_CountBuildsForOrg(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Repo{})
+	err = _sqlite.client.AutoMigrate(&repo.Repo{})
 	if err != nil {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}

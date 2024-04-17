@@ -133,7 +133,7 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.User{})
+	err = _sqlite.client.AutoMigrate(&user.User{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}

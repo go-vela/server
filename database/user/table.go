@@ -21,6 +21,7 @@ users (
 	favorites      VARCHAR(5000),
 	active         BOOLEAN,
 	admin          BOOLEAN,
+	dashboards     VARCHAR(5000),
 	UNIQUE(name)
 );
 `
@@ -37,6 +38,7 @@ users (
 	favorites      TEXT,
 	active         BOOLEAN,
 	admin          BOOLEAN,
+	dashboards     TEXT,
 	UNIQUE(name)
 );
 `

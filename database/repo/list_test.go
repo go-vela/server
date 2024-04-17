@@ -12,7 +12,6 @@ import (
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestRepo_Engine_ListRepos(t *testing.T) {
@@ -82,7 +81,7 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.User{})
+	err = _sqlite.client.AutoMigrate(&user.User{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}

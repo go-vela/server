@@ -125,7 +125,7 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 		ScmHandlers(baseAPI)
 
 		// Search endpoints
-		SearchHandlers(baseAPI)
+		DashboardHandlers(baseAPI)
 
 		// Secret endpoints
 		SecretHandlers(baseAPI)
