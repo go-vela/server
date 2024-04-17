@@ -56,7 +56,7 @@ type (
 		logger *logrus.Entry
 	}
 
-	// Dashboard is the database representation of a user.
+	// Dashboard is the database representation of a dashboard.
 	Dashboard struct {
 		ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4()"`
 		Name      sql.NullString `sql:"name"`
