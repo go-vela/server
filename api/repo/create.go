@@ -199,6 +199,7 @@ func CreateRepo(c *gin.Context) {
 
 			return
 		}
+
 		r.SetPipelineType(input.GetPipelineType())
 	}
 

@@ -25,7 +25,7 @@ import (
 	"github.com/go-vela/server/router/middleware"
 )
 
-//nolint:funlen // ignore function length
+//nolint:funlen,gocyclo // ignore function length and cyclomatic complexity
 func server(c *cli.Context) error {
 	// set log formatter
 	switch c.String("log-formatter") {
@@ -195,6 +195,7 @@ func server(c *cli.Context) error {
 			if err != nil {
 				logrus.Error(err)
 			}
+
 			done()
 		case <-gctx.Done():
 			logrus.Info("closing signal goroutine")
@@ -213,6 +214,7 @@ func server(c *cli.Context) error {
 	// spawn goroutine for starting the server
 	g.Go(func() error {
 		logrus.Infof("starting server on %s", addr.Host)
+
 		err = srv.ListenAndServe()
 		if err != nil {
 			// log a message indicating the failure of the server
@@ -225,6 +227,7 @@ func server(c *cli.Context) error {
 	// spawn goroutine for starting the scheduler
 	g.Go(func() error {
 		logrus.Info("starting scheduler")
+
 		for {
 			// track the starting time for when the server begins processing schedules
 			//
