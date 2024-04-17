@@ -10,14 +10,14 @@ import (
 //
 // swagger:model Platform
 type Platform struct {
-	ID *int64 `json:"id,omitempty"`
+	ID *int64 `json:"id"`
 
-	*Queue    `json:"queue,omitempty"`
-	*Compiler `json:"compiler,omitempty"`
+	*Queue    `json:"queue"`
+	*Compiler `json:"compiler"`
 
 	// misc
-	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"`
-	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty"`
+	RepoAllowlist     *[]string `json:"repo_allowlist"`
+	ScheduleAllowlist *[]string `json:"schedule_allowlist"`
 }
 
 // GetID returns the ID field.

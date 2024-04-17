@@ -178,18 +178,21 @@ func (s *Platform) Nullify() *Platform {
 // ToAPI converts the Settings type
 // to an API Settings type.
 func (s *Platform) ToAPI() *settings.Platform {
-	settings := new(settings.Platform)
+	ss := new(settings.Platform)
+	ss.SetID(s.ID.Int64)
 
-	settings.SetID(s.ID.Int64)
-	settings.SetCloneImage(s.CloneImage.String)
-	settings.SetTemplateDepth(int(s.TemplateDepth.Int64))
-	settings.SetStarlarkExecLimit(uint64(s.StarlarkExecLimit.Int64))
-	settings.SetCloneImage(s.CloneImage.String)
-	settings.SetRoutes(s.Routes)
-	settings.SetRepoAllowlist(s.RepoAllowlist)
-	settings.SetScheduleAllowlist(s.ScheduleAllowlist)
+	ss.SetRepoAllowlist(s.RepoAllowlist)
+	ss.SetScheduleAllowlist(s.ScheduleAllowlist)
 
-	return settings
+	ss.Compiler = &settings.Compiler{}
+	ss.SetCloneImage(s.CloneImage.String)
+	ss.SetTemplateDepth(int(s.TemplateDepth.Int64))
+	ss.SetStarlarkExecLimit(uint64(s.StarlarkExecLimit.Int64))
+
+	ss.Queue = &settings.Queue{}
+	ss.SetRoutes(s.Routes)
+
+	return ss
 }
 
 // Validate verifies the necessary fields for
