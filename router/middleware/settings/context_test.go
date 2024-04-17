@@ -15,9 +15,13 @@ func TestSettings_FromContext(t *testing.T) {
 	num := int64(1)
 	cloneImage := "target/vela-git"
 
-	want := &api.Settings{
-		ID:         &num,
+	cs := &api.CompilerSettings{
 		CloneImage: &cloneImage,
+	}
+
+	want := &api.Settings{
+		ID:               &num,
+		CompilerSettings: cs,
 	}
 
 	// setup context
@@ -79,9 +83,13 @@ func TestSettings_ToContext(t *testing.T) {
 	num := int64(1)
 	cloneImage := "target/vela-git"
 
-	want := &api.Settings{
-		ID:         &num,
+	cs := &api.CompilerSettings{
 		CloneImage: &cloneImage,
+	}
+
+	want := &api.Settings{
+		ID:               &num,
+		CompilerSettings: cs,
 	}
 
 	// setup context

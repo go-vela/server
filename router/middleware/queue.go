@@ -15,7 +15,7 @@ func Queue(q queue.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		s := settings.FromContext(c)
 
-		q.UpdateFromSettings(s)
+		q.SetSettings(s)
 
 		queue.WithGinContext(c, q)
 

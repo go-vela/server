@@ -6,11 +6,16 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-// UpdateFromSettings sets the api settings type in the Engine.
-func (c *client) UpdateFromSettings(s *api.Settings) {
+// SetSettings sets the api settings type.
+func (c *client) GetSettings() *api.CompilerSettings {
+	return c.CompilerSettings
+}
+
+// SetSettings sets the api settings type.
+func (c *client) SetSettings(s *api.Settings) {
 	if s != nil {
-		c.CloneImage = s.GetCloneImage()
-		c.TemplateDepth = int(s.GetTemplateDepth())
-		c.StarlarkExecLimit = s.GetStarlarkExecLimit()
+		c.SetCloneImage(s.GetCloneImage())
+		c.SetTemplateDepth(s.GetTemplateDepth())
+		c.SetStarlarkExecLimit(s.GetStarlarkExecLimit())
 	}
 }

@@ -147,7 +147,10 @@ type Engine interface {
 	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine
-	// UpdateFromSettings defines a function that takes api settings
+	// GetSettings defines a function that returns new api settings
+	// with the compiler Engine fields filled.
+	GetSettings() *api.CompilerSettings
+	// SetSettings defines a function that takes api settings
 	// and updates the compiler Engine.
-	UpdateFromSettings(*api.Settings)
+	SetSettings(*api.Settings)
 }

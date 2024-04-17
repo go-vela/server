@@ -39,8 +39,11 @@ type Service interface {
 	// channel a build gets placed within the queue.
 	Route(*pipeline.Worker) (string, error)
 
-	// UpdateFromSettings defines a function that updates
-	// runtime config within the queue using api settings.
-	UpdateFromSettings(*api.Settings)
-	GetChannels(*api.Settings) []string
+	// GetSettings defines a function that returns
+	// queue settings.
+	GetSettings() *api.QueueSettings
+
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*api.Settings)
 }

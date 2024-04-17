@@ -29,9 +29,8 @@ type client struct {
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
-	CloneImage          string
-	TemplateDepth       int
-	StarlarkExecLimit   uint64
+
+	*api.CompilerSettings
 
 	build          *library.Build
 	comment        string
@@ -70,14 +69,16 @@ func New(ctx *cli.Context) (*client, error) {
 
 	c.Github = github
 
+	c.CompilerSettings = new(api.CompilerSettings)
+
 	// set the clone image to use for the injected clone step
-	// c.CloneImage = ctx.String("clone-image")
+	c.SetCloneImage(ctx.String("clone-image"))
 
 	// set the template depth to use for nested templates
-	c.TemplateDepth = ctx.Int("max-template-depth")
+	c.SetTemplateDepth(ctx.Int("max-template-depth"))
 
 	// set the starlark execution step limit for compiling starlark pipelines
-	c.StarlarkExecLimit = ctx.Uint64("compiler-starlark-exec-limit")
+	c.SetStarlarkExecLimit(ctx.Uint64("compiler-starlark-exec-limit"))
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))

@@ -4,8 +4,6 @@ package types
 
 import (
 	"fmt"
-
-	"github.com/urfave/cli/v2"
 )
 
 // Settings is the API representation of platform settings.
@@ -13,29 +11,9 @@ import (
 // swagger:model Settings
 type Settings struct {
 	ID                *int64    `json:"id,omitempty"`
-	CloneImage        *string   `json:"clone_image,omitempty"`
-	TemplateDepth     *int      `json:"template_depth,omitempty"`
-	StarlarkExecLimit *uint64   `json:"starlark_exec_limit,omitempty"`
-	QueueRoutes       *[]string `json:"queue_routes,omitempty"`
-}
-
-// NewSettings returns a new Settings record.
-func NewSettings(c *cli.Context) *Settings {
-	s := new(Settings)
-
-	// singleton record ID should always be 1
-	s.SetID(1)
-
-	// set the clone image to use for the injected clone step
-	s.SetCloneImage(c.String("clone-image"))
-
-	// set the queue routes (channels) to use for builds
-	s.SetQueueRoutes(c.StringSlice("queue.routes"))
-
-	// set the queue routes (channels) to use for builds
-	s.SetQueueRoutes(c.StringSlice("queue.routes"))
-
-	return s
+	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty"`
+	*QueueSettings    `json:"queue,omitempty"`
+	*CompilerSettings `json:"compiler,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -51,58 +29,6 @@ func (s *Settings) GetID() int64 {
 	return *s.ID
 }
 
-// GetCloneImage returns the CloneImage field.
-//
-// When the provided Settings type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (s *Settings) GetCloneImage() string {
-	// return zero value if Settings type or CloneImage field is nil
-	if s == nil || s.CloneImage == nil {
-		return ""
-	}
-
-	return *s.CloneImage
-}
-
-// GetTemplateDepth returns the TemplateDepth field.
-//
-// When the provided Settings type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (s *Settings) GetTemplateDepth() int {
-	// return zero value if Settings type or TemplateDepth field is nil
-	if s == nil || s.TemplateDepth == nil {
-		return 0
-	}
-
-	return *s.TemplateDepth
-}
-
-// GetStarlarkExecLimit returns the StarlarkExecLimit field.
-//
-// When the provided Settings type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (s *Settings) GetStarlarkExecLimit() uint64 {
-	// return zero value if Settings type or StarlarkExecLimit field is nil
-	if s == nil || s.StarlarkExecLimit == nil {
-		return 0
-	}
-
-	return *s.StarlarkExecLimit
-}
-
-// GetQueueRoutes returns the QueueRoutes field.
-//
-// When the provided Settings type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (s *Settings) GetQueueRoutes() []string {
-	// return zero value if Settings type or QueueRoutes field is nil
-	if s == nil || s.QueueRoutes == nil {
-		return []string{}
-	}
-
-	return *s.QueueRoutes
-}
-
 // SetID sets the ID field.
 //
 // When the provided Settings type is nil, it
@@ -116,56 +42,56 @@ func (s *Settings) SetID(v int64) {
 	s.ID = &v
 }
 
-// SetCloneImage sets the CloneImage field.
+// SetCompilerSettings sets the CompilerSettings field.
 //
-// When the provided Settings type is nil, it
+// When the provided CompilerSettings type is nil, it
 // will set nothing and immediately return.
-func (s *Settings) SetCloneImage(v string) {
+func (s *Settings) SetCompilerSettings(cs *CompilerSettings) {
 	// return if Settings type is nil
 	if s == nil {
 		return
 	}
 
-	s.CloneImage = &v
+	s.CompilerSettings = cs
 }
 
-// SetTemplateDepth sets the TemplateDepth field.
+// SetQueueSettings sets the QueueSettings field.
 //
-// When the provided Settings type is nil, it
+// When the provided QueueSettings type is nil, it
 // will set nothing and immediately return.
-func (s *Settings) SetTemplateDepth(v int) {
+func (s *Settings) SetQueueSettings(qs *QueueSettings) {
 	// return if Settings type is nil
 	if s == nil {
 		return
 	}
 
-	s.TemplateDepth = &v
+	s.QueueSettings = qs
 }
 
-// SetStarlarkExecLimit sets the StarlarkExecLimit field.
+// GetRepoAllowlist returns the RepoAllowlist field.
 //
-// When the provided Settings type is nil, it
-// will set nothing and immediately return.
-func (s *Settings) SetStarlarkExecLimit(v uint64) {
-	// return if Settings type is nil
-	if s == nil {
-		return
+// When the provided Settings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Settings) GetRepoAllowlist() []string {
+	// return zero value if Settings type or RepoAllowlist field is nil
+	if s == nil || s.RepoAllowlist == nil {
+		return []string{}
 	}
 
-	s.StarlarkExecLimit = &v
+	return *s.RepoAllowlist
 }
 
-// SetQueueRoutes sets the QueueRoutes field.
+// SetRepoAllowlist sets the RepoAllowlist field.
 //
 // When the provided Settings type is nil, it
 // will set nothing and immediately return.
-func (s *Settings) SetQueueRoutes(v []string) {
+func (s *Settings) SetRepoAllowlist(v []string) {
 	// return if Settings type is nil
 	if s == nil {
 		return
 	}
 
-	s.QueueRoutes = &v
+	s.RepoAllowlist = &v
 }
 
 // String implements the Stringer interface for the Settings type.
@@ -199,4 +125,118 @@ VELA_QUEUE_ROUTES: '%s'
 		s.GetCloneImage(),
 		s.GetQueueRoutes(),
 	)
+}
+
+type CompilerSettings struct {
+	CloneImage        *string `json:"clone_image,omitempty"`
+	TemplateDepth     *int    `json:"template_depth,omitempty"`
+	StarlarkExecLimit *uint64 `json:"starlark_exec_limit,omitempty"`
+}
+
+// GetCloneImage returns the CloneImage field.
+//
+// When the provided CompilerSettings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *CompilerSettings) GetCloneImage() string {
+	// return zero value if Settings type or CloneImage field is nil
+	if s == nil || s.CloneImage == nil {
+		return ""
+	}
+
+	return *s.CloneImage
+}
+
+// GetTemplateDepth returns the TemplateDepth field.
+//
+// When the provided CompilerSettings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *CompilerSettings) GetTemplateDepth() int {
+	// return zero value if Settings type or TemplateDepth field is nil
+	if s == nil || s.TemplateDepth == nil {
+		return 0
+	}
+
+	return *s.TemplateDepth
+}
+
+// GetStarlarkExecLimit returns the StarlarkExecLimit field.
+//
+// When the provided CompilerSettings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *CompilerSettings) GetStarlarkExecLimit() uint64 {
+	// return zero value if Settings type or StarlarkExecLimit field is nil
+	if s == nil || s.StarlarkExecLimit == nil {
+		return 0
+	}
+
+	return *s.StarlarkExecLimit
+}
+
+// SetCloneImage sets the CloneImage field.
+//
+// When the provided CompilerSettings type is nil, it
+// will set nothing and immediately return.
+func (s *CompilerSettings) SetCloneImage(v string) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.CloneImage = &v
+}
+
+// SetTemplateDepth sets the TemplateDepth field.
+//
+// When the provided CompilerSettings type is nil, it
+// will set nothing and immediately return.
+func (s *CompilerSettings) SetTemplateDepth(v int) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.TemplateDepth = &v
+}
+
+// SetStarlarkExecLimit sets the StarlarkExecLimit field.
+//
+// When the provided CompilerSettings type is nil, it
+// will set nothing and immediately return.
+func (s *CompilerSettings) SetStarlarkExecLimit(v uint64) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.StarlarkExecLimit = &v
+}
+
+type QueueSettings struct {
+	Routes *[]string `json:"routes,omitempty"`
+}
+
+// GetQueueRoutes returns the QueueRoutes field.
+//
+// When the provided QueueSettings type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *QueueSettings) GetQueueRoutes() []string {
+	// return zero value if Settings type or QueueRoutes field is nil
+	if s == nil || s.Routes == nil {
+		return []string{}
+	}
+
+	return *s.Routes
+}
+
+// SetQueueRoutes sets the QueueRoutes field.
+//
+// When the provided Settings type is nil, it
+// will set nothing and immediately return.
+func (s *QueueSettings) SetQueueRoutes(v []string) {
+	// return if Settings type is nil
+	if s == nil {
+		return
+	}
+
+	s.Routes = &v
 }

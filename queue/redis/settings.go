@@ -6,13 +6,14 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-// UpdateFromSettings takes settings and updates the queue.
-func (c *client) UpdateFromSettings(s *api.Settings) {
-	c.Logger.Tracef("updating queue using settings: %v", s.GetQueueRoutes())
-
-	c.config.Channels = s.GetQueueRoutes()
+// SetSettings sets the api settings type in the Engine.
+func (c *client) GetSettings() *api.QueueSettings {
+	return c.QueueSettings
 }
 
-func (c *client) GetChannels(s *api.Settings) []string {
-	return c.config.Channels
+// SetSettings sets the api settings type in the Engine.
+func (c *client) SetSettings(s *api.Settings) {
+	if s != nil {
+		c.SetQueueRoutes(s.GetQueueRoutes())
+	}
 }

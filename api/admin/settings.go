@@ -61,7 +61,38 @@ func GetSettings(c *gin.Context) {
 	}
 }
 
-// todo: swagger and comments
+// swagger:operation PUT /api/v1/admin/settings admin AdminUpdateSettings
+//
+// Update the settings singleton in the database
+//
+// ---
+// produces:
+// - application/json
+// parameters:
+// - in: body
+//   name: body
+//   description: Payload containing settings to update
+//   required: true
+//   schema:
+//     "$ref": "#/definitions/Settings"
+// security:
+//   - ApiKeyAuth: []
+// responses:
+//   '200':
+//     description: Successfully updated the settings in the database
+//     schema:
+//       "$ref": "#/definitions/Settings"
+//   '404':
+//     description: Unable to update the settings in the database
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '501':
+//     description: Unable to update the settings in the database
+//     schema:
+//       "$ref": "#/definitions/Error"
+
+// UpdateSettings represents the API handler to
+// update the settings singleton stored in the database.
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
 	s := settings.FromContext(c)
@@ -93,9 +124,14 @@ func UpdateSettings(c *gin.Context) {
 		s.StarlarkExecLimit = input.StarlarkExecLimit
 	}
 
-	if input.QueueRoutes != nil {
+	if input.Routes != nil {
 		// update routes if set
 		s.SetQueueRoutes(input.GetQueueRoutes())
+	}
+
+	if input.RepoAllowlist != nil {
+		// update allowlist if set
+		s.SetRepoAllowlist(input.GetRepoAllowlist())
 	}
 
 	// send API call to update the repo

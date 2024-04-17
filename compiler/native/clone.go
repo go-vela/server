@@ -30,7 +30,7 @@ func (c *client) CloneStage(p *yaml.Build) (*yaml.Build, error) {
 		Steps: yaml.StepSlice{
 			&yaml.Step{
 				Detach:     false,
-				Image:      c.CloneImage,
+				Image:      c.GetCloneImage(),
 				Name:       cloneStepName,
 				Privileged: false,
 				Pull:       constants.PullNotPresent,
@@ -63,7 +63,7 @@ func (c *client) CloneStep(p *yaml.Build) (*yaml.Build, error) {
 	// create new clone step
 	clone := &yaml.Step{
 		Detach:     false,
-		Image:      c.CloneImage,
+		Image:      c.GetCloneImage(),
 		Name:       cloneStepName,
 		Privileged: false,
 		Pull:       constants.PullNotPresent,

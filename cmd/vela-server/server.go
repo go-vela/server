@@ -14,12 +14,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	api "github.com/go-vela/server/api/types"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 	"k8s.io/apimachinery/pkg/util/wait"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
@@ -69,12 +69,12 @@ func server(c *cli.Context) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
-	database, err := database.FromCLIContext(c)
+	compiler, err := setupCompiler(c)
 	if err != nil {
 		return err
 	}
 
-	compiler, err := setupCompiler(c)
+	database, err := database.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
@@ -102,16 +102,28 @@ func server(c *cli.Context) error {
 	settings, err := database.GetSettings(context.Background())
 	if settings == nil || err != nil {
 		// ignore error and attempt to create initial settings record
-		settings = api.NewSettings(c)
+		settings := new(api.Settings)
 
+		// singleton record ID should always be 1
+		settings.SetID(1)
+
+		// read in defaults supplied from the cli runtime
+		compilerSettings := compiler.GetSettings()
+		settings.SetCompilerSettings(compilerSettings)
+
+		queueSettings := queue.GetSettings()
+		settings.SetQueueSettings(queueSettings)
+
+		// create the settings record in the database
 		_, err = database.CreateSettings(context.Background(), settings)
 		if err != nil {
 			return err
 		}
 	}
 
-	queue.UpdateFromSettings(settings)
-	compiler.UpdateFromSettings(settings)
+	// update any internal settings
+	queue.SetSettings(settings)
+	compiler.SetSettings(settings)
 
 	router := router.Load(
 		middleware.Settings(database),
@@ -242,8 +254,8 @@ func server(c *cli.Context) error {
 				continue
 			}
 
-			compiler.UpdateFromSettings(settings)
-			queue.UpdateFromSettings(settings)
+			compiler.SetSettings(settings)
+			queue.SetSettings(settings)
 
 			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
 			if err != nil {

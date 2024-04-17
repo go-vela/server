@@ -65,7 +65,7 @@ func TestRedis_Pop(t *testing.T) {
 		t.Errorf("unable to create queue service: %v", err)
 	}
 	// overwrite channel to be invalid
-	badChannel.config.Channels = nil
+	badChannel.SetQueueRoutes(nil)
 
 	signed = sign.Sign(out, bytes, badChannel.config.PrivateKey)
 

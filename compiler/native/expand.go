@@ -28,7 +28,7 @@ func (c *client) ExpandStages(s *yaml.Build, tmpls map[string]*yaml.Template, r 
 	// iterate through all stages
 	for _, stage := range s.Stages {
 		// inject the templates into the steps for the stage
-		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.TemplateDepth)
+		p, err := c.ExpandSteps(&yaml.Build{Steps: stage.Steps, Secrets: s.Secrets, Services: s.Services, Environment: s.Environment}, tmpls, r, c.GetTemplateDepth())
 		if err != nil {
 			return nil, err
 		}
@@ -345,7 +345,7 @@ func (c *client) mergeTemplate(bytes []byte, tmpl *yaml.Template, step *yaml.Ste
 		return native.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables)
 	case constants.PipelineTypeStarlark:
 		//nolint:lll // ignore long line length due to return
-		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.StarlarkExecLimit)
+		return starlark.Render(string(bytes), step.Name, step.Template.Name, step.Environment, step.Template.Variables, c.GetStarlarkExecLimit())
 	default:
 		//nolint:lll // ignore long line length due to return
 		return &yaml.Build{}, fmt.Errorf("format of %s is unsupported", tmpl.Format)

@@ -28,10 +28,5 @@ func setupQueue(c *cli.Context) (queue.Service, error) {
 	// setup the queue
 	//
 	// https://pkg.go.dev/github.com/go-vela/server/queue?tab=doc#New
-	q, err := queue.New(_setup)
-	if err != nil {
-		return nil, err
-	}
-
-	return q, nil
+	return queue.New(_setup)
 }

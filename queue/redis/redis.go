@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	api "github.com/go-vela/server/api/types"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 )
@@ -16,8 +17,6 @@ import (
 type config struct {
 	// specifies the address to use for the Redis client
 	Address string
-	// specifies a list of channels for managing builds for the Redis client
-	Channels []string
 	// enables the Redis client to integrate with a Redis cluster
 	Cluster bool
 	// specifies the timeout to use for the Redis client
@@ -32,6 +31,7 @@ type client struct {
 	config  *config
 	Redis   *redis.Client
 	Options *redis.Options
+	*api.QueueSettings
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }

@@ -44,6 +44,16 @@ func getSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, body)
 }
 
+// createSettings returns mock JSON for a http POST.
+func createSettings(c *gin.Context) {
+	data := []byte(CreateSettingsResp)
+
+	var body api.Settings
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusCreated, body)
+}
+
 // updateSettings returns mock JSON for a http PUT.
 func updateSettings(c *gin.Context) {
 	data := []byte(UpdateSettingsResp)

@@ -75,7 +75,7 @@ func (c *client) Compile(v interface{}) (*pipeline.Build, *library.Pipeline, err
 
 	switch {
 	case p.Metadata.RenderInline:
-		newPipeline, err := c.compileInline(p, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -110,7 +110,7 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 	_pipeline.SetType(c.repo.GetPipelineType())
 
 	if p.Metadata.RenderInline {
-		newPipeline, err := c.compileInline(p, c.TemplateDepth)
+		newPipeline, err := c.compileInline(p, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -167,7 +167,7 @@ func (c *client) CompileLite(v interface{}, ruleData *pipeline.RuleData, substit
 
 	case len(p.Steps) > 0:
 		// inject the templates into the steps
-		p, err = c.ExpandSteps(p, templates, ruleData, c.TemplateDepth)
+		p, err = c.ExpandSteps(p, templates, ruleData, c.GetTemplateDepth())
 		if err != nil {
 			return nil, _pipeline, err
 		}
@@ -318,7 +318,7 @@ func (c *client) compileSteps(p *yaml.Build, _pipeline *library.Pipeline, tmpls 
 	}
 
 	// inject the templates into the steps
-	p, err = c.ExpandSteps(p, tmpls, r, c.TemplateDepth)
+	p, err = c.ExpandSteps(p, tmpls, r, c.GetTemplateDepth())
 	if err != nil {
 		return nil, _pipeline, err
 	}

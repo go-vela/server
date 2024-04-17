@@ -111,8 +111,8 @@ func TestRedis_ClientOpt_WithChannels(t *testing.T) {
 			t.Errorf("WithChannels returned err: %v", err)
 		}
 
-		if !reflect.DeepEqual(_service.config.Channels, test.want) {
-			t.Errorf("WithChannels is %v, want %v", _service.config.Channels, test.want)
+		if !reflect.DeepEqual(_service.GetQueueRoutes(), test.want) {
+			t.Errorf("WithChannels is %v, want %v", _service.GetQueueRoutes(), test.want)
 		}
 	}
 }
