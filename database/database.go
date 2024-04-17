@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
@@ -63,6 +64,7 @@ type (
 
 		settings.SettingsInterface
 		build.BuildInterface
+		dashboard.DashboardInterface
 		executable.BuildExecutableInterface
 		deployment.DeploymentInterface
 		hook.HookInterface

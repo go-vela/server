@@ -9,7 +9,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-// Events is the library representation of the various events that generate a
+// Events is the API representation of the various events that generate a
 // webhook from the SCM.
 type Events struct {
 	Push        *actions.Push     `json:"push"`
