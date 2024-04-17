@@ -5,9 +5,9 @@ package settings
 import (
 	"testing"
 
-	"github.com/go-vela/server/api/types/settings"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-vela/server/api/types/settings"
 )
 
 func TestSettings_FromContext(t *testing.T) {

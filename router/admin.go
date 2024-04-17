@@ -26,7 +26,7 @@ import (
 // POST   	 /api/v1/admin/workers/:worker/register.
 // GET    	 /api/v1/admin/settings
 // PUT    	 /api/v1/admin/settings
-// DELETE    /api/v1/admin/settings
+// DELETE    /api/v1/admin/settings.
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())

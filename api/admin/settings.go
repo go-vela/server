@@ -8,11 +8,12 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database"
 	sMiddleware "github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/util"
-	"github.com/sirupsen/logrus"
 )
 
 // swagger:operation GET /api/v1/admin/settings admin GetSettings

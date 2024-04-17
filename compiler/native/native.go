@@ -5,11 +5,10 @@ package native
 import (
 	"time"
 
-	api "github.com/go-vela/server/api/types"
-
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"

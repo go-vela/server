@@ -10,12 +10,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/go-vela/server/util"
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/go-vela/server/api/types/settings"
-	"gorm.io/gorm"
+	"github.com/go-vela/server/util"
 )
 
 const (

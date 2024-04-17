@@ -6,9 +6,10 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/settings"
-	"github.com/sirupsen/logrus"
 )
 
 // Settings is a middleware function that fetches the latest settings and
