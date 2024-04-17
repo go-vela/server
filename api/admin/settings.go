@@ -112,20 +112,21 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
-	if input.CloneImage != nil {
-		s.CloneImage = input.CloneImage
+	if input.Compiler != nil {
+		if input.CloneImage != nil {
+			s.CloneImage = input.CloneImage
+		}
+
+		if input.TemplateDepth != nil {
+			s.TemplateDepth = input.TemplateDepth
+		}
+
+		if input.StarlarkExecLimit != nil {
+			s.StarlarkExecLimit = input.StarlarkExecLimit
+		}
 	}
 
-	if input.TemplateDepth != nil {
-		s.TemplateDepth = input.TemplateDepth
-	}
-
-	if input.StarlarkExecLimit != nil {
-		s.StarlarkExecLimit = input.StarlarkExecLimit
-	}
-
-	if input.Routes != nil {
-		// update routes if set
+	if input.Queue != nil {
 		s.SetRoutes(input.GetRoutes())
 	}
 
