@@ -15,11 +15,13 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
+	sMiddleware "github.com/go-vela/server/router/middleware/settings"
 )
 
 func TestMiddleware_CompilerNative(t *testing.T) {
 	// setup types
 	var got compiler.Engine
+	got, _ = native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
 
 	wantCloneImage := "target/vela-git"
 	want, _ := native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
@@ -30,19 +32,25 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	context, engine := gin.CreateTestContext(resp)
+
+	engine.Use(func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			s := settings.Platform{
+				Compiler: &settings.Compiler{},
+			}
+			s.SetCloneImage(wantCloneImage)
+
+			sMiddleware.ToContext(c, &s)
+
+			c.Next()
+		}
+	}(),
+	)
+
+	engine.Use(Compiler(got))
+
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
-	// setup mock server
-	engine.Use(Compiler(want))
-	// setup mock server
-	engine.Use(func(c *gin.Context) {
-		s := new(settings.Platform)
-		// todo: this should fail
-		// s.SetCloneImage(wantCloneImage)
-
-		c.Set("settings", s)
-		c.Next()
-	})
 	engine.GET("/health", func(c *gin.Context) {
 		got = compiler.FromContext(c)
 
