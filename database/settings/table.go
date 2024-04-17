@@ -17,7 +17,7 @@ settings (
 	id                		SERIAL PRIMARY KEY,
 	compiler          		JSON DEFAULT NULL,
 	queue         	  		JSON DEFAULT NULL,
-	repo_allowlist	  		VARCHAR(1000)
+	repo_allowlist	  		VARCHAR(1000),
 	schedule_allowlist	    VARCHAR(1000)
 );
 `
@@ -30,7 +30,7 @@ settings (
 	id                 	   INTEGER PRIMARY KEY AUTOINCREMENT,
 	compiler           	   TEXT,
 	queue         	   	   TEXT,
-	repo_allowlist	   	   VARCHAR(1000)
+	repo_allowlist	   	   VARCHAR(1000),
 	schedule_allowlist	   VARCHAR(1000)
 );
 `
