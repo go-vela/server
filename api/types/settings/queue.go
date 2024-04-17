@@ -35,5 +35,6 @@ func (qs *Queue) SetRoutes(v []string) {
 func QueueMockEmpty() Queue {
 	qs := Queue{}
 	qs.SetRoutes([]string{})
+
 	return qs
 }

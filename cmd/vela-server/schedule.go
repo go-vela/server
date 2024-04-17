@@ -31,7 +31,6 @@ const (
 
 func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
 	logrus.Infof("processing active schedules to create builds")
-	// todo: replace allowList with settings.allowList
 
 	// send API call to capture the list of active schedules
 	schedules, err := database.ListActiveSchedules(ctx)

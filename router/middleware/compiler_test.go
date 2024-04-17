@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/native"
 )
@@ -20,7 +21,9 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 	// setup types
 	var got compiler.Engine
 
+	wantCloneImage := "target/vela-git"
 	want, _ := native.New(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	want.SetCloneImage(wantCloneImage)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -31,6 +34,15 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 
 	// setup mock server
 	engine.Use(Compiler(want))
+	// setup mock server
+	engine.Use(func(c *gin.Context) {
+		s := new(settings.Platform)
+		// todo: this should fail
+		// s.SetCloneImage(wantCloneImage)
+
+		c.Set("settings", s)
+		c.Next()
+	})
 	engine.GET("/health", func(c *gin.Context) {
 		got = compiler.FromContext(c)
 

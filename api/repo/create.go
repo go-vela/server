@@ -15,6 +15,7 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
@@ -71,7 +72,8 @@ import (
 func CreateRepo(c *gin.Context) {
 	// capture middleware values
 	u := user.Retrieve(c)
-	allowlist := c.Value("allowlist").([]string)
+	s := settings.FromContext(c)
+
 	defaultBuildLimit := c.Value("defaultBuildLimit").(int64)
 	defaultTimeout := c.Value("defaultTimeout").(int64)
 	maxBuildLimit := c.Value("maxBuildLimit").(int64)
@@ -217,7 +219,7 @@ func CreateRepo(c *gin.Context) {
 	)
 
 	// ensure repo is allowed to be activated
-	if !util.CheckAllowlist(r, allowlist) {
+	if !util.CheckAllowlist(r, s.GetRepoAllowlist()) {
 		retErr := fmt.Errorf("unable to activate repo: %s is not on allowlist", r.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)

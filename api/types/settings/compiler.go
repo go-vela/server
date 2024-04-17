@@ -91,5 +91,6 @@ func CompilerMockEmpty() Compiler {
 	cs.SetCloneImage("")
 	cs.SetTemplateDepth(0)
 	cs.SetStarlarkExecLimit(0)
+
 	return cs
 }

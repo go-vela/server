@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -9,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	settings "github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database"
 	sMiddleware "github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/util"
@@ -145,4 +144,8 @@ func UpdateSettings(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, s)
+}
+
+func RemoveSettings(c *gin.Context) {
+	c.JSON(http.StatusOK, "TODO: not implemented")
 }

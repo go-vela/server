@@ -25,6 +25,7 @@ import (
 	"github.com/go-vela/server/router/middleware"
 )
 
+//nolint:funlen // ignore function length
 func server(c *cli.Context) error {
 	// set log formatter
 	switch c.String("log-formatter") {
@@ -143,7 +144,6 @@ func server(c *cli.Context) error {
 		middleware.QueueSigningPrivateKey(c.String("queue.private-key")),
 		middleware.QueueSigningPublicKey(c.String("queue.public-key")),
 		middleware.QueueAddress(c.String("queue.addr")),
-		middleware.Allowlist(),
 		middleware.DefaultBuildLimit(c.Int64("default-build-limit")),
 		middleware.DefaultTimeout(c.Int64("default-build-timeout")),
 		middleware.MaxBuildLimit(c.Int64("max-build-limit")),
@@ -190,6 +190,7 @@ func server(c *cli.Context) error {
 		select {
 		case sig := <-signalChannel:
 			logrus.Infof("received signal: %s", sig)
+
 			err := srv.Shutdown(ctx)
 			if err != nil {
 				logrus.Error(err)
@@ -197,10 +198,12 @@ func server(c *cli.Context) error {
 			done()
 		case <-gctx.Done():
 			logrus.Info("closing signal goroutine")
+
 			err := srv.Shutdown(ctx)
 			if err != nil {
 				logrus.Error(err)
 			}
+
 			return gctx.Err()
 		}
 
@@ -260,7 +263,8 @@ func server(c *cli.Context) error {
 			compiler.SetSettings(s)
 			queue.SetSettings(s)
 
-			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, c.StringSlice("vela-schedule-allowlist"))
+			// todo: SCHEDULES allowlist, not repo!!
+			err = processSchedules(ctx, start, compiler, database, metadata, queue, scm, s.GetRepoAllowlist())
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {

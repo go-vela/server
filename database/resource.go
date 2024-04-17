@@ -22,6 +22,8 @@ import (
 )
 
 // NewResources creates and returns the database agnostic engines for resources.
+//
+//nolint:funlen // ignore function length
 func (e *engine) NewResources(ctx context.Context) error {
 	var err error
 
