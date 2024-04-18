@@ -231,15 +231,16 @@ func testEvents() *api.Events {
 	}
 }
 
+// testOwner is a helper function that returns a sanitized user.
 func testOwner() *api.User {
+	mask := constants.SecretMask
+
 	return &api.User{
 		ID:           new(int64),
 		Name:         new(string),
-		RefreshToken: new(string),
-		Token:        new(string),
-		Favorites:    new([]string),
+		RefreshToken: &mask,
+		Token:        &mask,
 		Active:       new(bool),
-		Admin:        new(bool),
 	}
 }
 
@@ -427,8 +428,8 @@ func TestRepo_ToAPI(t *testing.T) {
 	// run test
 	got := testRepo().ToAPI()
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToAPI is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ToAPI() mismatch (-want +got):\n%s", diff)
 	}
 }
 
