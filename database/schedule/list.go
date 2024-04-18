@@ -33,6 +33,7 @@ func (e *engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
 	err = e.client.
 		Table(constants.TableSchedule).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Find(&s).
 		Error
 	if err != nil {

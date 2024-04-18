@@ -41,6 +41,7 @@ func (e *engine) ListSchedulesForRepo(ctx context.Context, r *api.Repo, page, pe
 	err = e.client.
 		Table(constants.TableSchedule).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Order("id DESC").
 		Limit(perPage).

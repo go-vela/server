@@ -33,6 +33,7 @@ func (e *engine) ListActiveSchedules(ctx context.Context) ([]*api.Schedule, erro
 	err = e.client.
 		Table(constants.TableSchedule).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("active = ?", true).
 		Find(&s).
 		Error

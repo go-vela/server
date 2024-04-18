@@ -1153,11 +1153,25 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
-	ctx := context.TODO()
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos
+	for _, repo := range resources.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
 
 	// create the schedules
 	for _, schedule := range resources.Schedules {
-		_, err := db.CreateSchedule(ctx, schedule)
+		_, err := db.CreateSchedule(context.TODO(), schedule)
 		if err != nil {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1165,7 +1179,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateSchedule"] = true
 
 	// count the schedules
-	count, err := db.CountSchedules(ctx)
+	count, err := db.CountSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
@@ -1175,7 +1189,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
-	count, err = db.CountSchedulesForRepo(ctx, resources.Repos[0])
+	count, err = db.CountSchedulesForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -1185,7 +1199,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
-	list, err := db.ListSchedules(ctx)
+	list, err := db.ListSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -1195,7 +1209,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSchedules"] = true
 
 	// list the active schedules
-	list, err = db.ListActiveSchedules(ctx)
+	list, err = db.ListActiveSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -1205,7 +1219,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
-	list, count, err = db.ListSchedulesForRepo(ctx, resources.Repos[0], 1, 10)
+	list, count, err = db.ListSchedulesForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -1220,7 +1234,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
 		repo := resources.Repos[schedule.GetRepo().GetID()-1]
-		got, err := db.GetScheduleForRepo(ctx, repo, schedule.GetName())
+		got, err := db.GetScheduleForRepo(context.TODO(), repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
@@ -1233,7 +1247,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
-		got, err := db.UpdateSchedule(ctx, schedule, true)
+		got, err := db.UpdateSchedule(context.TODO(), schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1247,12 +1261,28 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the schedules
 	for _, schedule := range resources.Schedules {
-		err = db.DeleteSchedule(ctx, schedule)
+		err = db.DeleteSchedule(context.TODO(), schedule)
 		if err != nil {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
 	}
 	methods["DeleteSchedule"] = true
+
+	// delete the repos
+	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2239,8 +2269,8 @@ func newResources() *Resources {
 	userOne := new(api.User)
 	userOne.SetID(1)
 	userOne.SetName("octocat")
-	userOne.SetToken("superSecretToken")
 	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetToken("superSecretToken")
 	userOne.SetFavorites([]string{"github/octocat"})
 	userOne.SetActive(true)
 	userOne.SetAdmin(false)
@@ -2248,8 +2278,8 @@ func newResources() *Resources {
 	userTwo := new(api.User)
 	userTwo.SetID(2)
 	userTwo.SetName("octokitty")
-	userTwo.SetToken("superSecretToken")
 	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetToken("superSecretToken")
 	userTwo.SetFavorites([]string{"github/octocat"})
 	userTwo.SetActive(true)
 	userTwo.SetAdmin(false)
@@ -2272,10 +2302,10 @@ func newResources() *Resources {
 	repoOne.SetPrivate(false)
 	repoOne.SetTrusted(false)
 	repoOne.SetActive(true)
+	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	repoOne.SetPipelineType("")
 	repoOne.SetPreviousName("")
 	repoOne.SetApproveBuild(constants.ApproveNever)
-	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
@@ -2295,10 +2325,10 @@ func newResources() *Resources {
 	repoTwo.SetPrivate(false)
 	repoTwo.SetTrusted(false)
 	repoTwo.SetActive(true)
+	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	repoTwo.SetPipelineType("")
 	repoTwo.SetPreviousName("")
 	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
-	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	scheduleOne := new(api.Schedule)
 	scheduleOne.SetID(1)

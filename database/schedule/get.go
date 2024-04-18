@@ -20,6 +20,7 @@ func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, erro
 	err := e.client.
 		Table(constants.TableSchedule).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("id = ?", id).
 		Take(s).
 		Error

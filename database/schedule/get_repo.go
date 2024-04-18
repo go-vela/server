@@ -26,6 +26,7 @@ func (e *engine) GetScheduleForRepo(ctx context.Context, r *api.Repo, name strin
 	err := e.client.
 		Table(constants.TableSchedule).
 		Preload("Repo").
+		Preload("Repo.Owner").
 		Where("repo_id = ?", r.GetID()).
 		Where("name = ?", name).
 		Take(s).
