@@ -28,7 +28,7 @@ func (e *engine) GetDeployment(ctx context.Context, id int64) (*library.Deployme
 		return nil, err
 	}
 
-	builds := []*api.Build{}
+	builds := []*library.Build{}
 
 	for _, a := range d.Builds {
 		bID, err := strconv.ParseInt(a, 10, 64)

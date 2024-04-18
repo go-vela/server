@@ -13,8 +13,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestService_New(t *testing.T) {
@@ -162,65 +160,6 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-// testBuild is a test helper function to create a library
-// Build type with all fields set to their zero values.
-func testBuild() *api.Build {
-	return &api.Build{
-		ID:           new(int64),
-		RepoID:       new(int64),
-		PipelineID:   new(int64),
-		Number:       new(int),
-		Parent:       new(int),
-		Event:        new(string),
-		EventAction:  new(string),
-		Status:       new(string),
-		Error:        new(string),
-		Enqueued:     new(int64),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Deploy:       new(string),
-		Clone:        new(string),
-		Source:       new(string),
-		Title:        new(string),
-		Message:      new(string),
-		Commit:       new(string),
-		Sender:       new(string),
-		Author:       new(string),
-		Email:        new(string),
-		Link:         new(string),
-		Branch:       new(string),
-		Ref:          new(string),
-		BaseRef:      new(string),
-		HeadRef:      new(string),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
-}
-
-// testService is a test helper function to create a library
-// Service type with all fields set to their zero values.
-func testService() *library.Service {
-	return &library.Service{
-		ID:           new(int64),
-		BuildID:      new(int64),
-		RepoID:       new(int64),
-		Number:       new(int),
-		Name:         new(string),
-		Image:        new(string),
-		Status:       new(string),
-		Error:        new(string),
-		ExitCode:     new(int),
-		Created:      new(int64),
-		Started:      new(int64),
-		Finished:     new(int64),
-		Host:         new(string),
-		Runtime:      new(string),
-		Distribution: new(string),
-	}
 }
 
 // This will be used with the github.com/DATA-DOG/go-sqlmock library to compare values

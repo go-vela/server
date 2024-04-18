@@ -10,15 +10,21 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestRepo_Engine_ListRepos(t *testing.T) {
 	// setup types
-	_repoOne := testAPIRepo()
+	_owner := testutils.APIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
+
+	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
+	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -28,8 +34,9 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoOne.SetTopics([]string{})
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_repoTwo := testAPIRepo()
+	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
+	_repoTwo.SetOwner(_owner)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")
@@ -38,14 +45,6 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 	_repoTwo.SetPipelineType("yaml")
 	_repoTwo.SetTopics([]string{})
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
-
-	_owner := testOwner()
-	_owner.SetID(1)
-	_owner.SetName("foo")
-	_owner.SetToken("bar")
-
-	_repoOne.SetOwner(_owner)
-	_repoTwo.SetOwner(_owner)
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -83,12 +82,12 @@ func TestRepo_Engine_ListRepos(t *testing.T) {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.User{})
+	err = _sqlite.client.AutoMigrate(&types.User{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableUser).Create(user.FromAPI(_owner)).Error
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}

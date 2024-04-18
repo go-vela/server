@@ -5,6 +5,7 @@ package service
 import (
 	"context"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/library"
 )
 

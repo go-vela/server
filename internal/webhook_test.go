@@ -5,6 +5,7 @@ package internal
 import (
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
 )
 

@@ -11,10 +11,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
-	"github.com/go-vela/types/raw"
 )
 
 func TestDeployment_New(t *testing.T) {
@@ -164,49 +160,4 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-// testDeployment is a test helper function to create a library
-// Deployment type with all fields set to their zero values.
-func testDeployment() *library.Deployment {
-	builds := []*api.Build{}
-	return &library.Deployment{
-		ID:          new(int64),
-		RepoID:      new(int64),
-		Number:      new(int64),
-		URL:         new(string),
-		Commit:      new(string),
-		Ref:         new(string),
-		Task:        new(string),
-		Target:      new(string),
-		Description: new(string),
-		Payload:     new(raw.StringSliceMap),
-		CreatedAt:   new(int64),
-		CreatedBy:   new(string),
-		Builds:      builds,
-	}
-}
-
-// testRepo is a test helper function to create a library
-// Repo type with all fields set to their zero values.
-func testRepo() *api.Repo {
-	return &api.Repo{
-		ID:           new(int64),
-		BuildLimit:   new(int64),
-		Timeout:      new(int64),
-		Counter:      new(int),
-		PipelineType: new(string),
-		Hash:         new(string),
-		Org:          new(string),
-		Name:         new(string),
-		FullName:     new(string),
-		Link:         new(string),
-		Clone:        new(string),
-		Branch:       new(string),
-		Visibility:   new(string),
-		PreviousName: new(string),
-		Private:      new(bool),
-		Trusted:      new(bool),
-		Active:       new(bool),
-	}
 }

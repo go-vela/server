@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -99,7 +100,7 @@ func GetBuildExecutable(c *gin.Context) {
 
 // PublishBuildExecutable marshals a pipeline.Build into bytes and pushes that data to the build_executables table to be
 // requested by a worker whenever the build has been picked up.
-func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipeline.Build, b *library.Build) error {
+func PublishBuildExecutable(ctx context.Context, db database.Interface, p *pipeline.Build, b *types.Build) error {
 	// marshal pipeline build into byte data to add to the build executable object
 	byteExecutable, err := json.Marshal(p)
 	if err != nil {

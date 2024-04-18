@@ -8,8 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-vela/types/raw"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/go-vela/types/raw"
 )
 
 func TestTypes_Build_Duration(t *testing.T) {

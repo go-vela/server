@@ -8,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_CountBuildsForDeployment(t *testing.T) {
 	// setup types
-	_repo := testAPIRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -24,28 +26,28 @@ func TestBuild_Engine_CountBuildsForDeployment(t *testing.T) {
 	_repo.SetTopics([]string{})
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_owner := testAPIUser()
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
 
 	_repo.SetOwner(_owner)
 
-	_buildOne := testAPIBuild()
+	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
 	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
 	_buildOne.SetSource("https://github.com/github/octocat/deployments/1")
 
-	_buildTwo := testAPIBuild()
+	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
 	_buildTwo.SetSource("https://github.com/github/octocat/deployments/1")
 
-	_deployment := testDeployment()
+	_deployment := testutils.APIDeployment()
 	_deployment.SetID(1)
 	_deployment.SetRepoID(1)
 	_deployment.SetURL("https://github.com/github/octocat/deployments/1")

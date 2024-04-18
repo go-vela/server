@@ -54,7 +54,7 @@ func TestStep_Establish(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	want := new(library.Step)
@@ -223,7 +223,7 @@ func TestStep_Establish_NoStepParameter(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -282,7 +282,7 @@ func TestStep_Establish_InvalidStepParameter(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -341,7 +341,7 @@ func TestStep_Establish_NoStep(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database

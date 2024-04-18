@@ -9,6 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -18,7 +19,7 @@ import (
 // without execution. This will kill all resources,
 // like steps and services, for the build in the
 // configured backend.
-func CleanBuild(ctx context.Context, database database.Interface, b *library.Build, services []*library.Service, steps []*library.Step, e error) {
+func CleanBuild(ctx context.Context, database database.Interface, b *types.Build, services []*library.Service, steps []*library.Step, e error) {
 	// update fields in build object
 	b.SetError(fmt.Sprintf("unable to publish to queue: %s", e.Error()))
 	b.SetStatus(constants.StatusError)

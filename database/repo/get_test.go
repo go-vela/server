@@ -10,14 +10,14 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestRepo_Engine_GetRepo(t *testing.T) {
 	// setup types
-	_repo := testAPIRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -28,7 +28,7 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	_repo.SetTopics([]string{})
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_owner := testOwner()
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
@@ -59,12 +59,12 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.User{})
+	err = _sqlite.client.AutoMigrate(&types.User{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableUser).Create(user.FromAPI(_owner)).Error
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}

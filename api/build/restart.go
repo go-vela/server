@@ -112,7 +112,6 @@ func RestartBuild(c *gin.Context) {
 	// restart form
 	config := CompileAndPublishConfig{
 		Build:    b,
-		Repo:     r,
 		Metadata: m,
 		BaseErr:  "unable to restart build",
 		Source:   "restart",

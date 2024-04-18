@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -20,7 +21,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/repos/{org}/{repo}/builds builds CreateBuild
@@ -93,7 +93,7 @@ func CreateBuild(c *gin.Context) {
 	logger.Infof("creating new build for repo %s", r.GetFullName())
 
 	// capture body from API request
-	input := new(library.Build)
+	input := new(types.Build)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -103,6 +103,8 @@ func CreateBuild(c *gin.Context) {
 
 		return
 	}
+
+	input.SetRepo(r)
 
 	// verify the build has a valid event and the repo allows that event type
 	if !r.GetAllowEvents().Allowed(input.GetEvent(), input.GetEventAction()) {
@@ -116,7 +118,6 @@ func CreateBuild(c *gin.Context) {
 	// create config
 	config := CompileAndPublishConfig{
 		Build:    input,
-		Repo:     r,
 		Metadata: m,
 		BaseErr:  "unable to create build",
 		Source:   "create",

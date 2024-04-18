@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -17,7 +18,7 @@ func (e *engine) DeleteBuild(ctx context.Context, b *api.Build) error {
 		"build": b.GetNumber(),
 	}).Tracef("deleting build %d from the database", b.GetNumber())
 
-	build := FromAPI(b)
+	build := types.BuildFromAPI(b)
 
 	// send query to the database
 	return e.client.

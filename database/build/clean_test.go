@@ -8,12 +8,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	// setup types
-	_repo := testAPIRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.SetHash("baz")
 	_repo.SetOrg("foo")
@@ -24,21 +26,21 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	_repo.SetTopics([]string{})
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_owner := testAPIUser()
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
 
 	_repo.SetOwner(_owner)
 
-	_buildOne := testAPIBuild()
+	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
 	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetCreated(1)
 	_buildOne.SetStatus("pending")
 
-	_buildTwo := testAPIBuild()
+	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
@@ -46,14 +48,14 @@ func TestBuild_Engine_CleanBuilds(t *testing.T) {
 	_buildTwo.SetStatus("running")
 
 	// setup types
-	_buildThree := testAPIBuild()
+	_buildThree := testutils.APIBuild()
 	_buildThree.SetID(3)
 	_buildThree.SetRepo(_repo)
 	_buildThree.SetNumber(3)
 	_buildThree.SetCreated(1)
 	_buildThree.SetStatus("success")
 
-	_buildFour := testAPIBuild()
+	_buildFour := testutils.APIBuild()
 	_buildFour.SetID(4)
 	_buildFour.SetRepo(_repo)
 	_buildFour.SetNumber(4)

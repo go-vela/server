@@ -8,16 +8,19 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_UpdateBuild(t *testing.T) {
 	// setup types
-	_owner := testAPIUser()
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
 
-	_repo := testAPIRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.SetOwner(_owner)
 	_repo.SetHash("baz")
@@ -25,8 +28,9 @@ func TestBuild_Engine_UpdateBuild(t *testing.T) {
 	_repo.SetName("bar")
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
+	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_build := testAPIBuild()
+	_build := testutils.APIBuild()
 	_build.SetID(1)
 	_build.SetRepo(_repo)
 	_build.SetNumber(1)

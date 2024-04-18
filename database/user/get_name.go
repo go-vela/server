@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -18,7 +19,7 @@ func (e *engine) GetUserForName(ctx context.Context, name string) (*api.User, er
 	}).Tracef("getting user %s from the database", name)
 
 	// variable to store query results
-	u := new(User)
+	u := new(types.User)
 
 	// send query to the database and store result in variable
 	err := e.client.

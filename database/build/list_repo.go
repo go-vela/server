@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -22,7 +23,7 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 
 	// variables to store query results and return values
 	count := int64(0)
-	b := new([]Build)
+	b := new([]types.Build)
 	builds := []*api.Build{}
 
 	// count the results
@@ -60,6 +61,11 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 	for _, build := range *b {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
+
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+		}
 
 		// convert query result to library type
 		//

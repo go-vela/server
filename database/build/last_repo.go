@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -21,7 +22,7 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 	}).Tracef("getting last build for repo %s from the database", r.GetFullName())
 
 	// variable to store query results
-	b := new(Build)
+	b := new(types.Build)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -41,6 +42,13 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 		}
 
 		return nil, err
+	}
+
+	err = b.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
+
+		return b.ToAPI(), nil
 	}
 
 	return b.ToAPI(), nil

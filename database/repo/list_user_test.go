@@ -11,28 +11,21 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	// setup types
-	_buildOne := new(api.Build)
-	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
-	_buildOne.SetNumber(1)
-	_buildOne.SetCreated(time.Now().UTC().Unix())
+	_owner := testutils.APIUser()
+	_owner.SetID(1)
+	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
-	_buildTwo := new(api.Build)
-	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(2)
-	_buildTwo.SetNumber(1)
-	_buildTwo.SetCreated(time.Now().UTC().Unix())
-
-	_repoOne := testAPIRepo()
+	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
-	_repoOne.GetOwner().SetID(1)
+	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -42,9 +35,9 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_repoOne.SetTopics([]string{})
 	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_repoTwo := testAPIRepo()
+	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.GetOwner().SetID(1)
+	_repoTwo.SetOwner(_owner)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")
@@ -54,13 +47,17 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 	_repoTwo.SetTopics([]string{})
 	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_owner := testOwner()
-	_owner.SetID(1)
-	_owner.SetName("foo")
-	_owner.SetToken("bar")
+	_buildOne := new(api.Build)
+	_buildOne.SetID(1)
+	_buildOne.SetRepo(_repoOne)
+	_buildOne.SetNumber(1)
+	_buildOne.SetCreated(time.Now().UTC().Unix())
 
-	_repoOne.SetOwner(_owner)
-	_repoTwo.SetOwner(_owner)
+	_buildTwo := new(api.Build)
+	_buildTwo.SetID(2)
+	_buildTwo.SetRepo(_repoTwo)
+	_buildTwo.SetNumber(1)
+	_buildTwo.SetCreated(time.Now().UTC().Unix())
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -118,29 +115,29 @@ func TestRepo_Engine_ListReposForUser(t *testing.T) {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Build{})
+	err = _sqlite.client.Migrator().CreateTable(&types.User{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableBuild).Create(database.BuildFromLibrary(_buildOne).Crop()).Error
-	if err != nil {
-		t.Errorf("unable to create test build for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.Table(constants.TableBuild).Create(database.BuildFromLibrary(_buildTwo).Crop()).Error
-	if err != nil {
-		t.Errorf("unable to create test build for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.AutoMigrate(&database.User{})
-	if err != nil {
-		t.Errorf("unable to create build table for sqlite: %v", err)
-	}
-
-	err = _sqlite.client.Table(constants.TableUser).Create(user.FromAPI(_owner)).Error
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Migrator().CreateTable(&types.Build{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildOne)).Error
+	if err != nil {
+		t.Errorf("unable to create test build for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableBuild).Create(types.BuildFromAPI(_buildTwo)).Error
+	if err != nil {
+		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
 	// setup tests

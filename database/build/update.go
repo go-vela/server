@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -18,7 +19,7 @@ func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 		"build": b.GetNumber(),
 	}).Tracef("updating build %d in the database", b.GetNumber())
 
-	build := FromAPI(b)
+	build := types.BuildFromAPI(b)
 
 	// validate the necessary fields are populated
 	//
@@ -32,7 +33,13 @@ func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 	build = build.Crop()
 
 	// send query to the database
-	result := e.client.Table(constants.TableBuild).Save(build)
+	err = e.client.Table(constants.TableBuild).Save(build).Error
+	if err != nil {
+		return nil, err
+	}
 
-	return build.ToAPI(), result.Error
+	result := build.ToAPI()
+	result.SetRepo(b.GetRepo())
+
+	return result, nil
 }

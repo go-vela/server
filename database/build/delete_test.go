@@ -7,16 +7,18 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_DeleteBuild(t *testing.T) {
 	// setup types
-	_owner := testAPIUser()
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
 
-	_repo := testAPIRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")
@@ -25,7 +27,7 @@ func TestBuild_Engine_DeleteBuild(t *testing.T) {
 	_repo.SetFullName("foo/bar")
 	_repo.SetVisibility("public")
 
-	_build := testAPIBuild()
+	_build := testutils.APIBuild()
 	_build.SetID(1)
 	_build.SetRepo(_repo)
 	_build.SetNumber(1)

@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -21,7 +22,7 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 
 	// variables to store query results and return values
 	count := int64(0)
-	b := new([]Build)
+	b := new([]types.Build)
 	builds := []*api.Build{}
 
 	// count the results
@@ -40,6 +41,8 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 
 	err = e.client.
 		Table(constants.TableBuild).
+		Preload("Repo").
+		Preload("Repo.Owner").
 		Select("builds.*").
 		Joins("JOIN repos ON builds.repo_id = repos.id").
 		Where("repos.org = ?", org).
@@ -58,6 +61,11 @@ func (e *engine) ListBuildsForOrg(ctx context.Context, org string, filters map[s
 	for _, build := range *b {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
+
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo: %v", err)
+		}
 
 		// convert query result to library type
 		//

@@ -409,7 +409,7 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -498,7 +498,7 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	u := new(api.User)
@@ -593,7 +593,7 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -682,7 +682,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -768,7 +768,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -854,7 +854,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -1847,7 +1847,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 
 	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	mto := &token.MintTokenOpts{

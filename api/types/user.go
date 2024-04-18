@@ -4,8 +4,6 @@ package types
 
 import (
 	"fmt"
-
-	"github.com/go-vela/types/constants"
 )
 
 // User is the API representation of a user.
@@ -21,21 +19,13 @@ type User struct {
 	Admin        *bool     `json:"admin,omitempty"`
 }
 
-// Sanitize creates a duplicate of the User without the token values.
-func (u *User) Sanitize() *User {
-	// create a variable since constants can not be addressable
-	//
-	// https://golang.org/ref/spec#Address_operators
-	value := constants.SecretMask
-
+// ToOwner removes personal info from a user.
+func (u *User) ToOwner() *User {
 	return &User{
-		ID:           u.ID,
-		Name:         u.Name,
-		RefreshToken: &value,
-		Token:        &value,
-		Favorites:    u.Favorites,
-		Active:       u.Active,
-		Admin:        u.Admin,
+		ID:     u.ID,
+		Name:   u.Name,
+		Token:  u.Token,
+		Active: u.Active,
 	}
 }
 

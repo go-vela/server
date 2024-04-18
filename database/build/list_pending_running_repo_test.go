@@ -4,25 +4,25 @@ package build
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/repo"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	// setup types
-	_owner := testAPIUser()
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")
 
-	_repoOne := testAPIRepo()
+	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
 	_repoOne.SetOwner(_owner)
 	_repoOne.SetHash("baz")
@@ -31,20 +31,22 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_repoOne.SetFullName("foo/bar")
 	_repoOne.SetVisibility("public")
 	_repoOne.SetPipelineType("yaml")
+	_repoOne.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoOne.SetTopics([]string{})
 
-	_repoTwo := testAPIRepo()
+	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
-	_repoOne.SetOwner(_owner)
+	_repoTwo.SetOwner(_owner)
 	_repoTwo.SetHash("bar")
 	_repoTwo.SetOrg("foo")
 	_repoTwo.SetName("baz")
 	_repoTwo.SetFullName("foo/baz")
 	_repoTwo.SetVisibility("public")
 	_repoTwo.SetPipelineType("yaml")
+	_repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 	_repoTwo.SetTopics([]string{})
 
-	_buildOne := testAPIBuild()
+	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
 	_buildOne.SetRepo(_repoOne)
 	_buildOne.SetNumber(1)
@@ -52,7 +54,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_buildOne.SetCreated(1)
 	_buildOne.SetDeployPayload(nil)
 
-	_buildTwo := testAPIBuild()
+	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
 	_buildTwo.SetRepo(_repoOne)
 	_buildTwo.SetNumber(2)
@@ -60,7 +62,7 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 	_buildTwo.SetCreated(1)
 	_buildTwo.SetDeployPayload(nil)
 
-	_buildThree := testAPIBuild()
+	_buildThree := testutils.APIBuild()
 	_buildThree.SetID(3)
 	_buildThree.SetRepo(_repoTwo)
 	_buildThree.SetNumber(1)
@@ -77,8 +79,18 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 		AddRow(2, 1, nil, 2, 0, "", "", "pending", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0).
 		AddRow(1, 1, nil, 1, 0, "", "", "running", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0)
 
+	_repoRows := sqlmock.NewRows(
+		[]string{"id", "user_id", "hash", "org", "name", "full_name", "link", "clone", "branch", "topics", "build_limit", "timeout", "counter", "visibility", "private", "trusted", "active", "allow_events", "pipeline_type", "previous_name", "approve_build"}).
+		AddRow(1, 1, "baz", "foo", "bar", "foo/bar", "", "", "", "{}", 0, 0, 0, "public", false, false, false, 1, "yaml", "", "")
+
+	_userRows := sqlmock.NewRows(
+		[]string{"id", "name", "token", "hash", "active", "admin"}).
+		AddRow(1, "foo", "bar", "baz", false, false)
+
 	// ensure the mock expects the name query
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND (status = 'running' OR status = 'pending' OR status = 'pending approval')`).WithArgs(1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "repos" WHERE "repos"."id" = $1`).WithArgs(1).WillReturnRows(_repoRows)
+	_mock.ExpectQuery(`SELECT * FROM "users" WHERE "users"."id" = $1`).WithArgs(1).WillReturnRows(_userRows)
 
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
@@ -98,19 +110,29 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 		t.Errorf("unable to create test build for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Repo{})
+	err = _sqlite.client.AutoMigrate(&types.Repo{})
 	if err != nil {
 		t.Errorf("unable to create repo table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repoOne)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repoOne)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repoTwo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repoTwo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.AutoMigrate(&types.User{})
+	if err != nil {
+		t.Errorf("unable to create build table for sqlite: %v", err)
+	}
+
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
+	if err != nil {
+		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
 
 	// setup tests
@@ -151,8 +173,8 @@ func TestBuild_Engine_ListPendingAndRunningBuildsForRepo(t *testing.T) {
 				t.Errorf("ListPendingAndRunningBuildsForRepo for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("ListPendingAndRunningBuildsForRepo for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("ListPendingAndRunningBuildsForRepo for %s mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

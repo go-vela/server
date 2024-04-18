@@ -12,13 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api"
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/repos/{org}/{repo}/builds builds ListBuildsForRepo
@@ -122,7 +122,7 @@ func ListBuildsForRepo(c *gin.Context) {
 	// variables that will hold the build list, build list filters and total count
 	var (
 		filters = map[string]interface{}{}
-		b       []*library.Build
+		b       []*types.Build
 		t       int64
 	)
 

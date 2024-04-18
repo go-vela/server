@@ -342,12 +342,8 @@ func testRepo() *Repo {
 
 	e, _ := testEvents()
 
-	owner := new(User)
-	owner.SetID(1)
-	owner.SetName("octocat")
-
 	r.SetID(1)
-	r.SetOwner(owner)
+	r.SetOwner(testUser())
 	r.SetOrg("github")
 	r.SetName("octocat")
 	r.SetFullName("github/octocat")

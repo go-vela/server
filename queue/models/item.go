@@ -15,16 +15,14 @@ const ItemVersion uint64 = 3
 // Item is the queue representation of an item to publish to the queue.
 type Item struct {
 	Build *api.Build `json:"build"`
-	Repo  *api.Repo  `json:"repo"`
 	// The 0-value is the implicit ItemVersion for queued Items that pre-date adding the field.
 	ItemVersion uint64 `json:"item_version"`
 }
 
 // ToItem creates a queue item from a build, repo and user.
-func ToItem(b *api.Build, r *api.Repo) *Item {
+func ToItem(b *api.Build) *Item {
 	return &Item{
 		Build:       b,
-		Repo:        r,
 		ItemVersion: ItemVersion,
 	}
 }

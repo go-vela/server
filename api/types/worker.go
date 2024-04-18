@@ -4,26 +4,24 @@ package types
 
 import (
 	"fmt"
-
-	"github.com/go-vela/types/library"
 )
 
 // Worker is the API representation of a worker.
 //
 // swagger:model Worker
 type Worker struct {
-	ID                  *int64            `json:"id,omitempty"`
-	Hostname            *string           `json:"hostname,omitempty"`
-	Address             *string           `json:"address,omitempty"`
-	Routes              *[]string         `json:"routes,omitempty"`
-	Active              *bool             `json:"active,omitempty"`
-	Status              *string           `json:"status,omitempty"`
-	LastStatusUpdateAt  *int64            `json:"last_status_update_at,omitempty"`
-	RunningBuilds       *[]*library.Build `json:"running_builds,omitempty"`
-	LastBuildStartedAt  *int64            `json:"last_build_started_at,omitempty"`
-	LastBuildFinishedAt *int64            `json:"last_build_finished_at,omitempty"`
-	LastCheckedIn       *int64            `json:"last_checked_in,omitempty"`
-	BuildLimit          *int64            `json:"build_limit,omitempty"`
+	ID                  *int64    `json:"id,omitempty"`
+	Hostname            *string   `json:"hostname,omitempty"`
+	Address             *string   `json:"address,omitempty"`
+	Routes              *[]string `json:"routes,omitempty"`
+	Active              *bool     `json:"active,omitempty"`
+	Status              *string   `json:"status,omitempty"`
+	LastStatusUpdateAt  *int64    `json:"last_status_update_at,omitempty"`
+	RunningBuilds       *[]*Build `json:"running_builds,omitempty"`
+	LastBuildStartedAt  *int64    `json:"last_build_started_at,omitempty"`
+	LastBuildFinishedAt *int64    `json:"last_build_finished_at,omitempty"`
+	LastCheckedIn       *int64    `json:"last_checked_in,omitempty"`
+	BuildLimit          *int64    `json:"build_limit,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -121,10 +119,10 @@ func (w *Worker) GetLastStatusUpdateAt() int64 {
 //
 // When the provided Worker type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (w *Worker) GetRunningBuilds() []*library.Build {
+func (w *Worker) GetRunningBuilds() []*Build {
 	// return zero value if Worker type or RunningBuilds field is nil
 	if w == nil || w.RunningBuilds == nil {
-		return []*library.Build{}
+		return []*Build{}
 	}
 
 	return *w.RunningBuilds
@@ -277,7 +275,7 @@ func (w *Worker) SetLastStatusUpdateAt(v int64) {
 //
 // When the provided Worker type is nil, it
 // will set nothing and immediately return.
-func (w *Worker) SetRunningBuilds(builds []*library.Build) {
+func (w *Worker) SetRunningBuilds(builds []*Build) {
 	// return if Worker type is nil
 	if w == nil {
 		return

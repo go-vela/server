@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -14,7 +15,7 @@ func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) 
 	e.logger.Trace("listing all pending and running builds from the database")
 
 	// variables to store query results and return value
-	b := new([]QueueBuild)
+	b := new([]types.QueueBuild)
 	builds := []*api.QueueBuild{}
 
 	// send query to the database and store result in variable

@@ -8,13 +8,16 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/types/library"
 )
 
 func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
-	builds := []*api.Build{}
+	builds := []*library.Build{}
 
 	// setup types
-	_deploymentOne := testDeployment()
+	_deploymentOne := testutils.APIDeployment()
 	_deploymentOne.SetID(1)
 	_deploymentOne.SetRepoID(1)
 	_deploymentOne.SetNumber(1)
@@ -29,7 +32,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	_deploymentOne.SetCreatedBy("octocat")
 	_deploymentOne.SetBuilds(builds)
 
-	_deploymentTwo := testDeployment()
+	_deploymentTwo := testutils.APIDeployment()
 	_deploymentTwo.SetID(2)
 	_deploymentTwo.SetRepoID(2)
 	_deploymentTwo.SetNumber(2)
@@ -44,7 +47,7 @@ func TestDeployment_Engine_CountDeploymentsForRepo(t *testing.T) {
 	_deploymentTwo.SetCreatedBy("octocat")
 	_deploymentTwo.SetBuilds(builds)
 
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.GetOwner().SetID(1)
 	_repo.SetOrg("foo")

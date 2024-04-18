@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -21,7 +22,7 @@ func (e *engine) CleanBuilds(ctx context.Context, msg string, before int64) (int
 	b.SetError(msg)
 	b.SetFinished(time.Now().UTC().Unix())
 
-	build := FromAPI(b)
+	build := types.BuildFromAPI(b)
 
 	// send query to the database
 	result := e.client.

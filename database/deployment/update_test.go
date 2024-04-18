@@ -7,13 +7,16 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/types/library"
 )
 
 func TestDeployment_Engine_UpdateDeployment(t *testing.T) {
-	builds := []*api.Build{}
+	builds := []*library.Build{}
 
 	// setup types
-	_deploymentOne := testDeployment()
+	_deploymentOne := testutils.APIDeployment()
 	_deploymentOne.SetID(1)
 	_deploymentOne.SetRepoID(1)
 	_deploymentOne.SetNumber(1)

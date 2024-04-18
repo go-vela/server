@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -15,7 +16,7 @@ func (e *engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
 
 	// variables to store query results and return value
 	count := int64(0)
-	b := new([]Build)
+	b := new([]types.Build)
 	builds := []*api.Build{}
 
 	// count the results
@@ -44,6 +45,11 @@ func (e *engine) ListBuilds(ctx context.Context) ([]*api.Build, error) {
 	for _, build := range *b {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
+
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo: %v", err)
+		}
 
 		builds = append(builds, tmp.ToAPI())
 	}

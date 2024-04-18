@@ -47,7 +47,28 @@ var (
 	_signingPrivateKey = "tCIevHOBq6DdN5SSBtteXUusjjd0fOqzk2eyi0DMq04NewmShNKQeUbbp3vkvIckb4pCxc+vxUo+mYf/vzOaSg=="
 	_signingPublicKey  = "DXsJkoTSkHlG26d75LyHJG+KQsXPr8VKPpmH/78zmko="
 	_build             = &api.Build{
-		ID:           Int64(1),
+		ID: Int64(1),
+		Repo: &api.Repo{
+			ID: Int64(1),
+			Owner: &api.User{
+				ID:     Int64(1),
+				Name:   String("octocat"),
+				Token:  nil,
+				Active: Bool(true),
+				Admin:  Bool(false),
+			},
+			Org:        String("github"),
+			Name:       String("octocat"),
+			FullName:   String("github/octocat"),
+			Link:       String("https://github.com/github/octocat"),
+			Clone:      String("https://github.com/github/octocat.git"),
+			Branch:     String("main"),
+			Timeout:    Int64(60),
+			Visibility: String("public"),
+			Private:    Bool(false),
+			Trusted:    Bool(false),
+			Active:     Bool(true),
+		},
 		Number:       Int(1),
 		Parent:       Int(1),
 		Event:        String("push"),
@@ -71,28 +92,6 @@ var (
 		Host:         String("example.company.com"),
 		Runtime:      String("docker"),
 		Distribution: String("linux"),
-	}
-
-	_repo = &api.Repo{
-		ID: Int64(1),
-		Owner: &api.User{
-			ID:     Int64(1),
-			Name:   String("octocat"),
-			Token:  nil,
-			Active: Bool(true),
-			Admin:  Bool(false),
-		},
-		Org:        String("github"),
-		Name:       String("octocat"),
-		FullName:   String("github/octocat"),
-		Link:       String("https://github.com/github/octocat"),
-		Clone:      String("https://github.com/github/octocat.git"),
-		Branch:     String("main"),
-		Timeout:    Int64(60),
-		Visibility: String("public"),
-		Private:    Bool(false),
-		Trusted:    Bool(false),
-		Active:     Bool(true),
 	}
 )
 

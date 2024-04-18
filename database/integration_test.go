@@ -171,6 +171,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create the users for build related functions (owners of repos)
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
 		_, err := db.CreateRepo(context.TODO(), repo)
@@ -179,19 +187,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 
-	buildOne := new(api.BuildQueue)
+	buildOne := new(api.QueueBuild)
 	buildOne.SetCreated(1563474076)
 	buildOne.SetFullName("github/octocat")
 	buildOne.SetNumber(1)
 	buildOne.SetStatus("running")
 
-	buildTwo := new(api.BuildQueue)
+	buildTwo := new(api.QueueBuild)
 	buildTwo.SetCreated(1563474076)
 	buildTwo.SetFullName("github/octocat")
 	buildTwo.SetNumber(2)
 	buildTwo.SetStatus("running")
 
-	queueBuilds := []*api.BuildQueue{buildOne, buildTwo}
+	queueBuilds := []*api.QueueBuild{buildOne, buildTwo}
 
 	// create the builds
 	for _, build := range resources.Builds {
@@ -323,7 +331,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
-		repo := resources.Repos[build.GetRepoID()-1]
+		repo := resources.Repos[build.GetRepo().GetID()-1]
 		got, err = db.GetBuildForRepo(context.TODO(), repo, build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
@@ -378,6 +386,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		err = db.DeleteRepo(context.TODO(), repo)
 		if err != nil {
 			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// delete the users for the build related functions
+	for _, user := range resources.Users {
+		err = db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
 		}
 	}
 
@@ -2009,9 +2025,73 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 }
 
 func newResources() *Resources {
+	userOne := new(api.User)
+	userOne.SetID(1)
+	userOne.SetName("octocat")
+	userOne.SetToken("superSecretToken")
+	userOne.SetRefreshToken("superSecretRefreshToken")
+	userOne.SetFavorites([]string{"github/octocat"})
+	userOne.SetActive(true)
+	userOne.SetAdmin(false)
+
+	userTwo := new(api.User)
+	userTwo.SetID(2)
+	userTwo.SetName("octokitty")
+	userTwo.SetToken("superSecretToken")
+	userTwo.SetRefreshToken("superSecretRefreshToken")
+	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetActive(true)
+	userTwo.SetAdmin(false)
+
+	repoOne := new(api.Repo)
+	repoOne.SetID(1)
+	repoOne.SetOwner(userOne)
+	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoOne.SetOrg("github")
+	repoOne.SetName("octocat")
+	repoOne.SetFullName("github/octocat")
+	repoOne.SetLink("https://github.com/github/octocat")
+	repoOne.SetClone("https://github.com/github/octocat.git")
+	repoOne.SetBranch("main")
+	repoOne.SetTopics([]string{"cloud", "security"})
+	repoOne.SetBuildLimit(10)
+	repoOne.SetTimeout(30)
+	repoOne.SetCounter(0)
+	repoOne.SetVisibility("public")
+	repoOne.SetPrivate(false)
+	repoOne.SetTrusted(false)
+	repoOne.SetActive(true)
+	repoOne.SetPipelineType("")
+	repoOne.SetPreviousName("")
+	repoOne.SetApproveBuild(constants.ApproveNever)
+	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+
+	repoTwo := new(api.Repo)
+	repoTwo.SetID(2)
+	repoTwo.SetOwner(userOne)
+	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoTwo.SetOrg("github")
+	repoTwo.SetName("octokitty")
+	repoTwo.SetFullName("github/octokitty")
+	repoTwo.SetLink("https://github.com/github/octokitty")
+	repoTwo.SetClone("https://github.com/github/octokitty.git")
+	repoTwo.SetBranch("main")
+	repoTwo.SetTopics([]string{"cloud", "security"})
+	repoTwo.SetBuildLimit(10)
+	repoTwo.SetTimeout(30)
+	repoTwo.SetCounter(0)
+	repoTwo.SetVisibility("public")
+	repoTwo.SetPrivate(false)
+	repoTwo.SetTrusted(false)
+	repoTwo.SetActive(true)
+	repoTwo.SetPipelineType("")
+	repoTwo.SetPreviousName("")
+	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
+	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+
 	buildOne := new(api.Build)
 	buildOne.SetID(1)
-	buildOne.SetRepoID(1)
+	buildOne.SetRepo(repoOne)
 	buildOne.SetPipelineID(1)
 	buildOne.SetNumber(1)
 	buildOne.SetParent(1)
@@ -2047,7 +2127,7 @@ func newResources() *Resources {
 
 	buildTwo := new(api.Build)
 	buildTwo.SetID(2)
-	buildTwo.SetRepoID(1)
+	buildTwo.SetRepo(repoOne)
 	buildTwo.SetPipelineID(1)
 	buildTwo.SetNumber(2)
 	buildTwo.SetParent(1)
@@ -2091,7 +2171,7 @@ func newResources() *Resources {
 	executableTwo.SetBuildID(2)
 	executableTwo.SetData([]byte("foo"))
 
-	builds := []*api.Build{}
+	builds := []*library.Build{}
 	deploymentOne := new(library.Deployment)
 	deploymentOne.SetID(1)
 	deploymentOne.SetNumber(1)
@@ -2235,70 +2315,6 @@ func newResources() *Resources {
 	pipelineTwo.SetSteps(true)
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
-
-	userOne := new(api.User)
-	userOne.SetID(1)
-	userOne.SetName("octocat")
-	userOne.SetToken("superSecretToken")
-	userOne.SetRefreshToken("superSecretRefreshToken")
-	userOne.SetFavorites([]string{"github/octocat"})
-	userOne.SetActive(true)
-	userOne.SetAdmin(false)
-
-	userTwo := new(api.User)
-	userTwo.SetID(2)
-	userTwo.SetName("octokitty")
-	userTwo.SetToken("superSecretToken")
-	userTwo.SetRefreshToken("superSecretRefreshToken")
-	userTwo.SetFavorites([]string{"github/octocat"})
-	userTwo.SetActive(true)
-	userTwo.SetAdmin(false)
-
-	repoOne := new(api.Repo)
-	repoOne.SetID(1)
-	repoOne.SetOwner(userOne)
-	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	repoOne.SetOrg("github")
-	repoOne.SetName("octocat")
-	repoOne.SetFullName("github/octocat")
-	repoOne.SetLink("https://github.com/github/octocat")
-	repoOne.SetClone("https://github.com/github/octocat.git")
-	repoOne.SetBranch("main")
-	repoOne.SetTopics([]string{"cloud", "security"})
-	repoOne.SetBuildLimit(10)
-	repoOne.SetTimeout(30)
-	repoOne.SetCounter(0)
-	repoOne.SetVisibility("public")
-	repoOne.SetPrivate(false)
-	repoOne.SetTrusted(false)
-	repoOne.SetActive(true)
-	repoOne.SetPipelineType("")
-	repoOne.SetPreviousName("")
-	repoOne.SetApproveBuild(constants.ApproveNever)
-	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
-
-	repoTwo := new(api.Repo)
-	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne)
-	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	repoTwo.SetOrg("github")
-	repoTwo.SetName("octokitty")
-	repoTwo.SetFullName("github/octokitty")
-	repoTwo.SetLink("https://github.com/github/octokitty")
-	repoTwo.SetClone("https://github.com/github/octokitty.git")
-	repoTwo.SetBranch("main")
-	repoTwo.SetTopics([]string{"cloud", "security"})
-	repoTwo.SetBuildLimit(10)
-	repoTwo.SetTimeout(30)
-	repoTwo.SetCounter(0)
-	repoTwo.SetVisibility("public")
-	repoTwo.SetPrivate(false)
-	repoTwo.SetTrusted(false)
-	repoTwo.SetActive(true)
-	repoTwo.SetPipelineType("")
-	repoTwo.SetPreviousName("")
-	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
-	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
 
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)

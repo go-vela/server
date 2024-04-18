@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -14,7 +15,7 @@ func (e *engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
 	e.logger.Tracef("getting build %d from the database", id)
 
 	// variable to store query results
-	b := new(Build)
+	b := new(types.Build)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -26,6 +27,13 @@ func (e *engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
 		Error
 	if err != nil {
 		return nil, err
+	}
+
+	err = b.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo: %v", err)
+
+		return b.ToAPI(), nil
 	}
 
 	return b.ToAPI(), nil

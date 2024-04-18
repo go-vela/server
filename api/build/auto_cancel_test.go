@@ -5,8 +5,8 @@ package build
 import (
 	"testing"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 )
 
@@ -25,17 +25,17 @@ func Test_isCancelable(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		target  *library.Build
-		current *library.Build
+		target  *types.Build
+		current *types.Build
 		want    bool
 	}{
 		{
 			name: "Wrong Event",
-			target: &library.Build{
+			target: &types.Build{
 				Event:  &tagEvent,
 				Branch: &branchDev,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
@@ -43,11 +43,11 @@ func Test_isCancelable(t *testing.T) {
 		},
 		{
 			name: "Cancelable Push",
-			target: &library.Build{
+			target: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
@@ -55,11 +55,11 @@ func Test_isCancelable(t *testing.T) {
 		},
 		{
 			name: "Push Branch Mismatch",
-			target: &library.Build{
+			target: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchPatch,
 			},
@@ -67,11 +67,11 @@ func Test_isCancelable(t *testing.T) {
 		},
 		{
 			name: "Event Mismatch",
-			target: &library.Build{
+			target: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:   &pullEvent,
 				Branch:  &branchDev,
 				HeadRef: &branchPatch,
@@ -80,13 +80,13 @@ func Test_isCancelable(t *testing.T) {
 		},
 		{
 			name: "Cancelable Pull",
-			target: &library.Build{
+			target: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
 				EventAction: &actionOpened,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
@@ -96,13 +96,13 @@ func Test_isCancelable(t *testing.T) {
 		},
 		{
 			name: "Pull Head Ref Mismatch",
-			target: &library.Build{
+			target: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
 				EventAction: &actionSync,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchDev,
@@ -112,13 +112,13 @@ func Test_isCancelable(t *testing.T) {
 		},
 		{
 			name: "Pull Ineligible Action",
-			target: &library.Build{
+			target: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchPatch,
 				EventAction: &actionEdited,
 			},
-			current: &library.Build{
+			current: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				HeadRef:     &branchDev,
@@ -154,7 +154,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 	tests := []struct {
 		name   string
 		opts   *pipeline.CancelOptions
-		build  *library.Build
+		build  *types.Build
 		branch string
 		want   bool
 	}{
@@ -165,7 +165,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       true,
 				DefaultBranch: true,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:  &tagEvent,
 				Branch: &branchPatch,
 			},
@@ -179,7 +179,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       false,
 				DefaultBranch: false,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchPatch,
 			},
@@ -193,7 +193,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       true,
 				DefaultBranch: false,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchPatch,
 			},
@@ -207,7 +207,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       true,
 				DefaultBranch: true,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
@@ -221,7 +221,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       true,
 				DefaultBranch: false,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:  &pushEvent,
 				Branch: &branchDev,
 			},
@@ -235,7 +235,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       true,
 				DefaultBranch: false,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				EventAction: &actionSync,
@@ -250,7 +250,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       true,
 				DefaultBranch: false,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				EventAction: &actionOpened,
@@ -265,7 +265,7 @@ func Test_ShouldAutoCancel(t *testing.T) {
 				Pending:       false,
 				DefaultBranch: false,
 			},
-			build: &library.Build{
+			build: &types.Build{
 				Event:       &pullEvent,
 				Branch:      &branchDev,
 				EventAction: &actionOpened,

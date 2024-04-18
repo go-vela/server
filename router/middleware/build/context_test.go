@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+
+	api "github.com/go-vela/server/api/types"
 )
 
 func TestBuild_FromContext(t *testing.T) {

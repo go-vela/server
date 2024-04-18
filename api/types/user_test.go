@@ -6,20 +6,20 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
-
-	"github.com/go-vela/types/constants"
 )
 
 func TestTypes_User_Sanitize(t *testing.T) {
 	// setup types
 	u := testUser()
 
-	want := testUser()
-	want.SetToken(constants.SecretMask)
-	want.SetRefreshToken(constants.SecretMask)
+	want := new(User)
+	want.SetID(u.GetID())
+	want.SetName(u.GetName())
+	want.SetToken(u.GetToken())
+	want.SetActive(u.GetActive())
 
 	// run test
-	got := u.Sanitize()
+	got := u.ToOwner()
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Sanitize is %v, want %v", got, want)
