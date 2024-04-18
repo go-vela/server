@@ -4,6 +4,7 @@ package database
 
 import (
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
@@ -38,6 +39,9 @@ type Interface interface {
 
 	// BuildExecutableInterface defines the interface for build executables stored in the database.
 	executable.BuildExecutableInterface
+
+	// DashboardInterface defines the interface for builds store in the database.
+	dashboard.DashboardInterface
 
 	// DeploymentInterface defines the interface for deployments stored in the database.
 	deployment.DeploymentInterface

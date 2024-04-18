@@ -14,7 +14,10 @@ func TestTypes_User_Sanitize(t *testing.T) {
 	// setup types
 	u := testUser()
 
-	want := testUser()
+	want := new(User)
+	want.SetID(1)
+	want.SetName("octocat")
+	want.SetActive(true)
 	want.SetToken(constants.SecretMask)
 	want.SetRefreshToken(constants.SecretMask)
 
@@ -88,6 +91,10 @@ func TestTypes_User_Getters(t *testing.T) {
 		if test.user.GetAdmin() != test.want.GetAdmin() {
 			t.Errorf("GetAdmin is %v, want %v", test.user.GetAdmin(), test.want.GetAdmin())
 		}
+
+		if !reflect.DeepEqual(test.user.GetDashboards(), test.want.GetDashboards()) {
+			t.Errorf("GetDashboards is %v, want %v", test.user.GetDashboards(), test.want.GetDashboards())
+		}
 	}
 }
 
@@ -119,6 +126,7 @@ func TestTypes_User_Setters(t *testing.T) {
 		test.user.SetFavorites(test.want.GetFavorites())
 		test.user.SetActive(test.want.GetActive())
 		test.user.SetAdmin(test.want.GetAdmin())
+		test.user.SetDashboards(test.want.GetDashboards())
 
 		if test.user.GetID() != test.want.GetID() {
 			t.Errorf("SetID is %v, want %v", test.user.GetID(), test.want.GetID())
@@ -147,6 +155,10 @@ func TestTypes_User_Setters(t *testing.T) {
 		if test.user.GetAdmin() != test.want.GetAdmin() {
 			t.Errorf("SetAdmin is %v, want %v", test.user.GetAdmin(), test.want.GetAdmin())
 		}
+
+		if !reflect.DeepEqual(test.user.GetDashboards(), test.want.GetDashboards()) {
+			t.Errorf("SetDashboards is %v, want %v", test.user.GetDashboards(), test.want.GetDashboards())
+		}
 	}
 }
 
@@ -157,6 +169,7 @@ func TestTypes_User_String(t *testing.T) {
 	want := fmt.Sprintf(`{
   Active: %t,
   Admin: %t,
+  Dashboards: %s,
   Favorites: %s,
   ID: %d,
   Name: %s,
@@ -164,6 +177,7 @@ func TestTypes_User_String(t *testing.T) {
 }`,
 		u.GetActive(),
 		u.GetAdmin(),
+		u.GetDashboards(),
 		u.GetFavorites(),
 		u.GetID(),
 		u.GetName(),
@@ -189,6 +203,7 @@ func testUser() *User {
 	u.SetFavorites([]string{"github/octocat"})
 	u.SetActive(true)
 	u.SetAdmin(false)
+	u.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7", "ba657dab-bc6e-421f-9188-86272bd0069a"})
 
 	return u
 }

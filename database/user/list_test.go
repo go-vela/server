@@ -19,12 +19,14 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
 	_userOne.SetFavorites([]string{})
+	_userOne.SetDashboards([]string{})
 
 	_userTwo := testAPIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
 	_userTwo.SetFavorites([]string{})
+	_userTwo.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -37,9 +39,9 @@ func TestUser_Engine_ListUsers(t *testing.T) {
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
-		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin"}).
-		AddRow(1, "foo", "", "bar", "baz", "{}", false, false).
-		AddRow(2, "baz", "", "bar", "foo", "{}", false, false)
+		[]string{"id", "name", "refresh_token", "token", "hash", "favorites", "active", "admin", "dashboards"}).
+		AddRow(1, "foo", "", "bar", "baz", "{}", false, false, "{}").
+		AddRow(2, "baz", "", "bar", "foo", "{}", false, false, "{}")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "users"`).WillReturnRows(_rows)
