@@ -24,6 +24,11 @@ func TestRepo_Decrypt(t *testing.T) {
 		t.Errorf("unable to encrypt repo: %v", err)
 	}
 
+	err = encrypted.Owner.Encrypt(key)
+	if err != nil {
+		t.Errorf("unable to encrypt user: %v", err)
+	}
+
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -159,7 +164,12 @@ func TestRepo_ToAPI(t *testing.T) {
 	// setup types
 	want := new(api.Repo)
 	e := api.NewEventsFromMask(1)
-	owner := testutils.APIUser()
+
+	owner := testutils.APIUser().CropPreferences()
+	owner.SetID(1)
+	owner.SetName("octocat")
+	owner.SetActive(true)
+	owner.SetToken("superSecretToken")
 
 	want.SetID(1)
 	want.SetOwner(owner)
@@ -186,8 +196,8 @@ func TestRepo_ToAPI(t *testing.T) {
 	// run test
 	got := testRepo().ToAPI()
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ToAPI is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ToAPI() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -307,7 +317,7 @@ func TestRepo_Validate(t *testing.T) {
 	}
 }
 
-func TestRepo_FromAPI(t *testing.T) {
+func TestTypes_RepoFromAPI(t *testing.T) {
 	// setup types
 	r := new(api.Repo)
 	owner := testutils.APIUser()
@@ -336,6 +346,7 @@ func TestRepo_FromAPI(t *testing.T) {
 	r.SetApproveBuild(constants.ApproveNever)
 
 	want := testRepo()
+	want.Owner = User{}
 
 	// run test
 	got := RepoFromAPI(r)
@@ -370,5 +381,7 @@ func testRepo() *Repo {
 		PipelineType: sql.NullString{String: "yaml", Valid: true},
 		PreviousName: sql.NullString{String: "oldName", Valid: true},
 		ApproveBuild: sql.NullString{String: constants.ApproveNever, Valid: true},
+
+		Owner: *testUser(),
 	}
 }

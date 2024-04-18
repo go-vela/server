@@ -14,6 +14,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/build"
+	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
@@ -34,6 +35,7 @@ import (
 // Resources represents the object containing test resources.
 type Resources struct {
 	Builds      []*api.Build
+	Dashboards  []*api.Dashboard
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
@@ -120,6 +122,8 @@ func TestDatabase_Integration(t *testing.T) {
 			}
 
 			t.Run("test_builds", func(t *testing.T) { testBuilds(t, db, resources) })
+
+			t.Run("test_dashboards", func(t *testing.T) { testDashboards(t, db, resources) })
 
 			t.Run("test_deployments", func(t *testing.T) { testDeployments(t, db, resources) })
 
@@ -296,6 +300,18 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	}
 	methods["ListBuildsForRepo"] = true
 
+	list, err = db.ListBuildsForDashboardRepo(context.TODO(), resources.Repos[0], []string{"main"}, []string{"push"})
+	if err != nil {
+		t.Errorf("unable to list build for dashboard repo %d: %v", resources.Repos[0].GetID(), err)
+	}
+	if len(list) != 1 {
+		t.Errorf("Number of results for ListBuildsForDashboardRepo() is %v, want %v", len(list), 1)
+	}
+	if !cmp.Equal(list, []*api.Build{resources.Builds[0]}) {
+		t.Errorf("ListBuildsForDashboardRepo() is %v, want %v", list, []*api.Build{resources.Builds[0]})
+	}
+	methods["ListBuildsForDashboardRepo"] = true
+
 	// list the pending / running builds for a repo
 	list, err = db.ListPendingAndRunningBuildsForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
@@ -401,6 +417,90 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for builds", method)
+		}
+	}
+}
+
+func testDashboards(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for schedules
+	methods := make(map[string]bool)
+	// capture the element type of the schedule interface
+	element := reflect.TypeOf(new(dashboard.DashboardInterface)).Elem()
+	// iterate through all methods found in the schedule interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for schedules
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	ctx := context.TODO()
+
+	// create the dashboard
+	for _, dashboard := range resources.Dashboards {
+		_, err := db.CreateDashboard(ctx, dashboard)
+		if err != nil {
+			t.Errorf("unable to create dashboard %s: %v", dashboard.GetID(), err)
+		}
+	}
+	methods["CreateDashboard"] = true
+
+	// lookup the dashboards by ID
+	for _, dashboard := range resources.Dashboards {
+		got, err := db.GetDashboard(ctx, dashboard.GetID())
+		if err != nil {
+			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
+		}
+
+		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
+		cmpAdmins := []*api.User{}
+		for _, admin := range got.GetAdmins() {
+			admin.SetToken(constants.SecretMask)
+			admin.SetRefreshToken(constants.SecretMask)
+
+			cmpAdmins = append(cmpAdmins, admin)
+		}
+
+		got.SetAdmins(cmpAdmins)
+
+		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
+			t.Errorf("GetDashboard() is %v, want %v", got, dashboard)
+		}
+	}
+	methods["GetDashboard"] = true
+
+	// update the dashboards
+	for _, dashboard := range resources.Dashboards {
+		dashboard.SetUpdatedAt(time.Now().UTC().Unix())
+		got, err := db.UpdateDashboard(ctx, dashboard)
+		if err != nil {
+			t.Errorf("unable to update dashboard %s: %v", dashboard.GetID(), err)
+		}
+
+		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
+			t.Errorf("UpdateDashboard() is %v, want %v", got, dashboard)
+		}
+	}
+	methods["UpdateDashboard"] = true
+
+	// delete the schedules
+	for _, dashboard := range resources.Dashboards {
+		err := db.DeleteDashboard(ctx, dashboard)
+		if err != nil {
+			t.Errorf("unable to delete schedule %s: %v", dashboard.GetID(), err)
+		}
+	}
+	methods["DeleteDashboard"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for dashboards", method)
 		}
 	}
 }
@@ -1833,6 +1933,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	userOne.SetToken("")
 	userOne.SetRefreshToken("")
 	userOne.SetFavorites(nil)
+	userOne.SetDashboards(nil)
 	userOne.SetActive(false)
 	userOne.SetAdmin(false)
 
@@ -1842,6 +1943,7 @@ func testUsers(t *testing.T, db Interface, resources *Resources) {
 	userTwo.SetToken("")
 	userTwo.SetRefreshToken("")
 	userTwo.SetFavorites(nil)
+	userTwo.SetDashboards(nil)
 	userTwo.SetActive(false)
 	userTwo.SetAdmin(false)
 
@@ -2033,6 +2135,7 @@ func newResources() *Resources {
 	userOne.SetFavorites([]string{"github/octocat"})
 	userOne.SetActive(true)
 	userOne.SetAdmin(false)
+	userOne.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
 
 	userTwo := new(api.User)
 	userTwo.SetID(2)
@@ -2160,6 +2263,32 @@ func newResources() *Resources {
 	buildTwo.SetDistribution("linux")
 	buildTwo.SetApprovedAt(1563474078)
 	buildTwo.SetApprovedBy("OctoCat")
+
+	dashRepo := new(api.DashboardRepo)
+	dashRepo.SetID(1)
+	dashRepo.SetName("go-vela/server")
+	dashRepo.SetBranches([]string{"main"})
+	dashRepo.SetEvents([]string{"push"})
+
+	dashboardOne := new(api.Dashboard)
+	dashboardOne.SetID("ba657dab-bc6e-421f-9188-86272bd0069a")
+	dashboardOne.SetName("vela")
+	dashboardOne.SetCreatedAt(1)
+	dashboardOne.SetCreatedBy("octocat")
+	dashboardOne.SetUpdatedAt(2)
+	dashboardOne.SetUpdatedBy("octokitty")
+	dashboardOne.SetAdmins([]*api.User{userOne.CropPreferences(), userTwo.CropPreferences()})
+	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
+
+	dashboardTwo := new(api.Dashboard)
+	dashboardTwo.SetID("45bcf19b-c151-4e2d-b8c6-80a62ba2eae7")
+	dashboardTwo.SetName("vela")
+	dashboardTwo.SetCreatedAt(1)
+	dashboardTwo.SetCreatedBy("octocat")
+	dashboardTwo.SetUpdatedAt(2)
+	dashboardTwo.SetUpdatedBy("octokitty")
+	dashboardTwo.SetAdmins([]*api.User{userOne.CropPreferences(), userTwo.CropPreferences()})
+	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
 	executableOne.SetID(1)
@@ -2501,6 +2630,7 @@ func newResources() *Resources {
 
 	return &Resources{
 		Builds:      []*api.Build{buildOne, buildTwo},
+		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},

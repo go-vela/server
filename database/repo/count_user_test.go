@@ -9,15 +9,18 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 )
 
 func TestRepo_Engine_CountReposForUser(t *testing.T) {
 	// setup types
+	_user := testutils.APIUser()
+	_user.SetID(1)
+	_user.SetName("foo")
+
 	_repoOne := testutils.APIRepo()
 	_repoOne.SetID(1)
-	_repoOne.GetOwner().SetID(1)
+	_repoOne.SetOwner(_user)
 	_repoOne.SetHash("baz")
 	_repoOne.SetOrg("foo")
 	_repoOne.SetName("bar")
@@ -26,17 +29,12 @@ func TestRepo_Engine_CountReposForUser(t *testing.T) {
 
 	_repoTwo := testutils.APIRepo()
 	_repoTwo.SetID(2)
-	_repoTwo.GetOwner().SetID(1)
+	_repoTwo.SetOwner(_user)
 	_repoTwo.SetHash("baz")
 	_repoTwo.SetOrg("bar")
 	_repoTwo.SetName("foo")
 	_repoTwo.SetFullName("bar/foo")
 	_repoTwo.SetVisibility("public")
-
-	_user := new(api.User)
-	_user.SetID(1)
-	_user.SetName("foo")
-	_user.SetToken("bar")
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

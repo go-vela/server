@@ -155,6 +155,7 @@ func TestUser_ToAPI(t *testing.T) {
 	want.SetFavorites([]string{"github/octocat"})
 	want.SetActive(true)
 	want.SetAdmin(false)
+	want.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
 
 	// run test
 	got := testUser().ToAPI()
@@ -203,7 +204,16 @@ func TestUser_Validate(t *testing.T) {
 				ID:        sql.NullInt64{Int64: 1, Valid: true},
 				Name:      sql.NullString{String: "octocat", Valid: true},
 				Token:     sql.NullString{String: "superSecretToken", Valid: true},
-				Favorites: exceededFavorites(),
+				Favorites: exceededField(),
+			},
+		},
+		{ // invalid dashboards set for user
+			failure: true,
+			user: &User{
+				ID:         sql.NullInt64{Int64: 1, Valid: true},
+				Name:       sql.NullString{String: "octocat", Valid: true},
+				Token:      sql.NullString{String: "superSecretToken", Valid: true},
+				Dashboards: exceededField(),
 			},
 		},
 	}
@@ -237,6 +247,7 @@ func TestFromAPI(t *testing.T) {
 	u.SetFavorites([]string{"github/octocat"})
 	u.SetActive(true)
 	u.SetAdmin(false)
+	u.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
 
 	want := testUser()
 
@@ -259,22 +270,23 @@ func testUser() *User {
 		Favorites:    []string{"github/octocat"},
 		Active:       sql.NullBool{Bool: true, Valid: true},
 		Admin:        sql.NullBool{Bool: false, Valid: true},
+		Dashboards:   []string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"},
 	}
 }
 
-// exceededFavorites returns a list of valid favorites that exceed the maximum size.
-func exceededFavorites() []string {
+// exceededField returns a list of strings that exceed the maximum size of a field.
+func exceededField() []string {
 	// initialize empty favorites
-	favorites := []string{}
+	values := []string{}
 
-	// add enough favorites to exceed the character limit
+	// add enough strings to exceed the character limit
 	for i := 0; i < 500; i++ {
-		// construct favorite
+		// construct field
 		// use i to adhere to unique favorites
-		favorite := "github/octocat-" + strconv.Itoa(i)
+		field := "github/octocat-" + strconv.Itoa(i)
 
-		favorites = append(favorites, favorite)
+		values = append(values, field)
 	}
 
-	return favorites
+	return values
 }

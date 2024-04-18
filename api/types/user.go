@@ -17,10 +17,11 @@ type User struct {
 	Favorites    *[]string `json:"favorites,omitempty"`
 	Active       *bool     `json:"active,omitempty"`
 	Admin        *bool     `json:"admin,omitempty"`
+	Dashboards   *[]string `json:"dashboards,omitempty"`
 }
 
-// ToOwner removes personal info from a user.
-func (u *User) ToOwner() *User {
+// CropPreferences removes personal info from a user.
+func (u *User) CropPreferences() *User {
 	return &User{
 		ID:     u.ID,
 		Name:   u.Name,
@@ -131,6 +132,19 @@ func (u *User) GetFavorites() []string {
 	return *u.Favorites
 }
 
+// GetDashboards returns the Dashboards field.
+//
+// When the provided User type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (u *User) GetDashboards() []string {
+	// return zero value if User type or Favorites field is nil
+	if u == nil || u.Dashboards == nil {
+		return []string{}
+	}
+
+	return *u.Dashboards
+}
+
 // SetID sets the ID field.
 //
 // When the provided User type is nil, it
@@ -222,11 +236,25 @@ func (u *User) SetFavorites(v []string) {
 	u.Favorites = &v
 }
 
+// SetDashboard sets the Dashboard field.
+//
+// When the provided User type is nil, it
+// will set nothing and immediately return.
+func (u *User) SetDashboards(v []string) {
+	// return if User type is nil
+	if u == nil {
+		return
+	}
+
+	u.Dashboards = &v
+}
+
 // String implements the Stringer interface for the User type.
 func (u *User) String() string {
 	return fmt.Sprintf(`{
   Active: %t,
   Admin: %t,
+  Dashboards: %s,
   Favorites: %s,
   ID: %d,
   Name: %s,
@@ -234,6 +262,7 @@ func (u *User) String() string {
 }`,
 		u.GetActive(),
 		u.GetAdmin(),
+		u.GetDashboards(),
 		u.GetFavorites(),
 		u.GetID(),
 		u.GetName(),

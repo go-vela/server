@@ -39,6 +39,10 @@ var (
 	// ErrExceededFavoritesLimit defines the error type when a
 	// User type has Favorites field provided that exceeds the database limit.
 	ErrExceededFavoritesLimit = errors.New("exceeded favorites limit")
+
+	// ErrExceededDashboardsLimit defines the error type when a
+	// User type has Dashboards field provided that exceeds the database limit.
+	ErrExceededDashboardsLimit = errors.New("exceeded dashboards limit")
 )
 
 // User is the database representation of a user.
@@ -50,6 +54,7 @@ type User struct {
 	Favorites    pq.StringArray `sql:"favorites" gorm:"type:varchar(5000)"`
 	Active       sql.NullBool   `sql:"active"`
 	Admin        sql.NullBool   `sql:"admin"`
+	Dashboards   pq.StringArray `sql:"dashboards" gorm:"type:varchar(5000)"`
 }
 
 // Decrypt will manipulate the existing user tokens by
@@ -175,6 +180,7 @@ func (u *User) ToAPI() *api.User {
 	user.SetActive(u.Active.Bool)
 	user.SetAdmin(u.Admin.Bool)
 	user.SetFavorites(u.Favorites)
+	user.SetDashboards(u.Dashboards)
 
 	return user
 }
@@ -210,6 +216,19 @@ func (u *User) Validate() error {
 		return ErrExceededFavoritesLimit
 	}
 
+	// calculate totalDashboards size of dashboards
+	totalDashboards := 0
+	for _, d := range u.Dashboards {
+		totalDashboards += len(d)
+	}
+
+	// verify the Dashboards field is within the database constraints
+	// len is to factor in number of comma separators included in the database field,
+	// removing 1 due to the last item not having an appended comma
+	if (totalDashboards + len(u.Dashboards) - 1) > constants.FavoritesMaxSize {
+		return ErrExceededDashboardsLimit
+	}
+
 	// ensure that all User string fields
 	// that can be returned as JSON are sanitized
 	// to avoid unsafe HTML content
@@ -235,6 +254,7 @@ func UserFromAPI(u *api.User) *User {
 		Active:       sql.NullBool{Bool: u.GetActive(), Valid: true},
 		Admin:        sql.NullBool{Bool: u.GetAdmin(), Valid: true},
 		Favorites:    pq.StringArray(u.GetFavorites()),
+		Dashboards:   pq.StringArray(u.GetDashboards()),
 	}
 
 	return user.Nullify()

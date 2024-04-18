@@ -17,7 +17,7 @@ import (
 
 func TestBuild_Engine_ListBuilds(t *testing.T) {
 	// setup types
-	_owner := testutils.APIUser()
+	_owner := testutils.APIUser().CropPreferences()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")

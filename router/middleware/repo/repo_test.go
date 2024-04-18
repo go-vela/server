@@ -13,6 +13,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/router/middleware/org"
 )
 
@@ -36,14 +37,11 @@ func TestRepo_Retrieve(t *testing.T) {
 
 func TestRepo_Establish(t *testing.T) {
 	// setup types
-	owner := new(api.User)
+	owner := testutils.APIUser().CropPreferences()
 	owner.SetID(1)
 	owner.SetName("foo")
 	owner.SetActive(false)
-	owner.SetAdmin(false)
-	owner.SetFavorites([]string{})
-	owner.SetToken("baz")
-	owner.SetRefreshToken("fresh")
+	owner.SetToken("bar")
 
 	want := new(api.Repo)
 	want.SetID(1)

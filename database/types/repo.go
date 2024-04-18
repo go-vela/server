@@ -224,7 +224,7 @@ func (r *Repo) ToAPI() *api.Repo {
 	repo := new(api.Repo)
 
 	repo.SetID(r.ID.Int64)
-	repo.SetOwner(r.Owner.ToAPI())
+	repo.SetOwner(r.Owner.ToAPI().CropPreferences())
 	repo.SetHash(r.Hash.String)
 	repo.SetOrg(r.Org.String)
 	repo.SetName(r.Name.String)

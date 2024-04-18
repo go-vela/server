@@ -137,6 +137,7 @@ func APIUser() *api.User {
 		RefreshToken: new(string),
 		Token:        new(string),
 		Favorites:    new([]string),
+		Dashboards:   new([]string),
 		Active:       new(bool),
 		Admin:        new(bool),
 	}
@@ -241,5 +242,28 @@ func APIPipeline() *library.Pipeline {
 		Steps:           new(bool),
 		Templates:       new(bool),
 		Data:            new([]byte),
+	}
+}
+
+// APIDashboard is a test helper function to create an API
+// Dashboard type with all fields set to their zero values.
+func APIDashboard() *api.Dashboard {
+	return &api.Dashboard{
+		ID:        new(string),
+		Name:      new(string),
+		CreatedAt: new(int64),
+		CreatedBy: new(string),
+		UpdatedAt: new(int64),
+		UpdatedBy: new(string),
+		Admins:    &[]*api.User{APIUser()},
+		Repos:     &[]*api.DashboardRepo{APIDashboardRepo()},
+	}
+}
+
+func APIDashboardRepo() *api.DashboardRepo {
+	return &api.DashboardRepo{
+		ID:       new(int64),
+		Branches: new([]string),
+		Events:   new([]string),
 	}
 }

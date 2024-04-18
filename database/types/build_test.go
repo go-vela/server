@@ -112,7 +112,7 @@ func TestBuild_ToAPI(t *testing.T) {
 	want := new(api.Build)
 
 	want.SetID(1)
-	want.SetRepo(testutils.APIRepo())
+	want.SetRepo(testRepo().ToAPI())
 	want.SetPipelineID(1)
 	want.SetNumber(1)
 	want.SetParent(1)
@@ -243,6 +243,7 @@ func TestBuild_BuildFromAPI(t *testing.T) {
 	b.SetApprovedBy("OctoCat")
 
 	want := testBuild()
+	want.Repo = Repo{}
 
 	// run test
 	got := BuildFromAPI(b)
@@ -302,5 +303,7 @@ func testBuild() *Build {
 		Distribution:  sql.NullString{String: "linux", Valid: true},
 		ApprovedAt:    sql.NullInt64{Int64: 1563474076, Valid: true},
 		ApprovedBy:    sql.NullString{String: "OctoCat", Valid: true},
+
+		Repo: *testRepo(),
 	}
 }

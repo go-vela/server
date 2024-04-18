@@ -20,12 +20,14 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
 	_userOne.SetFavorites([]string{})
+	_userOne.SetDashboards([]string{})
 
 	_userTwo := testutils.APIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")
 	_userTwo.SetFavorites([]string{})
+	_userTwo.SetDashboards([]string{})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -62,10 +64,12 @@ func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	_userOne.RefreshToken = new(string)
 	_userOne.Token = new(string)
 	_userOne.Favorites = new([]string)
+	_userOne.Dashboards = new([]string)
 
 	_userTwo.RefreshToken = new(string)
 	_userTwo.Token = new(string)
 	_userTwo.Favorites = new([]string)
+	_userTwo.Dashboards = new([]string)
 
 	// setup tests
 	tests := []struct {
