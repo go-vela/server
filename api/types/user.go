@@ -4,8 +4,6 @@ package types
 
 import (
 	"fmt"
-
-	"github.com/go-vela/types/constants"
 )
 
 // User is the API representation of a user.
@@ -22,18 +20,15 @@ type User struct {
 	Dashboards   *[]string `json:"dashboards,omitempty"`
 }
 
-// Sanitize creates a duplicate of the User without the token values.
-func (u *User) Sanitize() *User {
-	// create a variable since constants can not be addressable
-	//
-	// https://golang.org/ref/spec#Address_operators
-	value := constants.SecretMask
-
+// Crop creates a duplicate of the User with certain fields cropped.
+//
+// Generally used for cropping large fields that aren't useful for all API calls like favorites and dashboards.
+func (u *User) Crop() *User {
 	return &User{
 		ID:           u.ID,
 		Name:         u.Name,
-		RefreshToken: &value,
-		Token:        &value,
+		RefreshToken: u.RefreshToken,
+		Token:        u.Token,
 		Active:       u.Active,
 	}
 }
