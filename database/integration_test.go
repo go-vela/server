@@ -2216,7 +2216,7 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	dashboardOne.SetAdmins([]*api.User{userOne.Sanitize(), userTwo.Sanitize()})
+	dashboardOne.SetAdmins([]*api.User{userOne.Crop(), userTwo.Crop()})
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
@@ -2226,7 +2226,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins([]*api.User{userOne.Sanitize(), userTwo.Sanitize()})
+	dashboardTwo.SetAdmins([]*api.User{userOne.Crop(), userTwo.Crop()})
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
@@ -2386,7 +2386,7 @@ func newResources() *Resources {
 
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetOwner(userOne.Sanitize())
+	repoOne.SetOwner(userOne.Crop())
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2409,7 +2409,7 @@ func newResources() *Resources {
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne.Sanitize())
+	repoTwo.SetOwner(userOne.Crop())
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
