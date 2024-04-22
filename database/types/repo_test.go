@@ -165,11 +165,12 @@ func TestTypes_Repo_ToAPI(t *testing.T) {
 	want := new(api.Repo)
 	e := api.NewEventsFromMask(1)
 
-	owner := testutils.APIUser().CropPreferences()
+	owner := testutils.APIUser().Crop()
 	owner.SetID(1)
 	owner.SetName("octocat")
 	owner.SetActive(true)
 	owner.SetToken("superSecretToken")
+	owner.SetRefreshToken("superSecretRefreshToken")
 
 	want.SetID(1)
 	want.SetOwner(owner)

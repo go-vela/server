@@ -39,11 +39,11 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 	// ListBuildsForDashboardRepo does not return the repo object but the repo ID is needed to create builds
 	_wantBuildOne := *_buildOne
 	_wantBuildOne.Repo = testutils.APIRepo()
-	_wantBuildOne.Repo.Owner = testutils.APIUser().CropPreferences()
+	_wantBuildOne.Repo.Owner = testutils.APIUser().Crop()
 
 	_wantBuildTwo := *_buildTwo
 	_wantBuildTwo.Repo = testutils.APIRepo()
-	_wantBuildTwo.Repo.Owner = testutils.APIUser().CropPreferences()
+	_wantBuildTwo.Repo.Owner = testutils.APIUser().Crop()
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

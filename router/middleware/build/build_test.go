@@ -39,7 +39,7 @@ func TestBuild_Retrieve(t *testing.T) {
 
 func TestBuild_Establish(t *testing.T) {
 	// setup types
-	owner := testutils.APIUser().CropPreferences()
+	owner := testutils.APIUser().Crop()
 	owner.SetID(1)
 	owner.SetName("octocat")
 	owner.SetToken("foo")

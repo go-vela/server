@@ -8,21 +8,20 @@ import (
 	"testing"
 )
 
-func TestTypes_User_Sanitize(t *testing.T) {
+func TestTypes_User_Crop(t *testing.T) {
 	// setup types
 	u := testUser()
 
-	want := new(User)
-	want.SetID(u.GetID())
-	want.SetName(u.GetName())
-	want.SetToken(u.GetToken())
-	want.SetActive(u.GetActive())
+	want := testUser()
+	want.Favorites = nil
+	want.Dashboards = nil
+	want.Admin = nil
 
 	// run test
-	got := u.CropPreferences()
+	got := u.Crop()
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Sanitize is %v, want %v", got, want)
+		t.Errorf("Crop is %v, want %v", got, want)
 	}
 }
 

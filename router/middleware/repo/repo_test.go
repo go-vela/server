@@ -37,7 +37,7 @@ func TestRepo_Retrieve(t *testing.T) {
 
 func TestRepo_Establish(t *testing.T) {
 	// setup types
-	owner := testutils.APIUser().CropPreferences()
+	owner := testutils.APIUser().Crop()
 	owner.SetID(1)
 	owner.SetName("foo")
 	owner.SetActive(false)

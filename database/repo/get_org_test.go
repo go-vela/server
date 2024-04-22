@@ -28,7 +28,7 @@ func TestRepo_Engine_GetRepoForOrg(t *testing.T) {
 	_repo.SetTopics([]string{})
 	_repo.SetAllowEvents(api.NewEventsFromMask(1))
 
-	_owner := testutils.APIUser().CropPreferences()
+	_owner := testutils.APIUser().Crop()
 	_owner.SetID(1)
 	_owner.SetName("foo")
 	_owner.SetToken("bar")

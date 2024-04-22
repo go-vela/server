@@ -312,7 +312,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	// ListBuildsForDashboardRepo does not contain nested repo
 	wantBuild := *resources.Builds[0]
 	wantBuild.Repo = testutils.APIRepo()
-	wantBuild.Repo.Owner = testutils.APIUser().CropPreferences()
+	wantBuild.Repo.Owner = testutils.APIUser().Crop()
 
 	if diff := cmp.Diff([]*api.Build{&wantBuild}, list); diff != "" {
 		t.Errorf("ListBuildsForDashboardRepo() mismatch (-want +got):\n%s", diff)
@@ -461,17 +461,18 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		got, err := db.GetDashboard(ctx, dashboard.GetID())
 		if err != nil {
-			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to get dashboard %s: %v", dashboard.GetID(), err)
 		}
 
-		// JSON marshaling does not include comparing token due to `-` struct tag
-		cmpAdmins := got.GetAdmins()
-		for i, admin := range cmpAdmins {
-			admin.SetToken(resources.Users[i].GetToken())
+		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
+		cmpAdmins := []*api.User{}
+		for _, admin := range got.GetAdmins() {
+			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
+		got.SetAdmins(cmpAdmins)
 
-		if diff := cmp.Diff(dashboard, got, CmpOptApproxUpdatedAt()); diff != "" {
-			t.Errorf("GetDashboard() mismatch (-want +got):\n%s", diff)
+		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
+			t.Errorf("GetDashboard() is %v, want %v", got, dashboard)
 		}
 	}
 	methods["GetDashboard"] = true
@@ -500,7 +501,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		err := db.DeleteDashboard(ctx, dashboard)
 		if err != nil {
-			t.Errorf("unable to delete schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to delete dashboard %s: %v", dashboard.GetID(), err)
 		}
 	}
 	methods["DeleteDashboard"] = true
@@ -2157,7 +2158,7 @@ func newResources() *Resources {
 
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetOwner(userOne.CropPreferences())
+	repoOne.SetOwner(userOne.Crop())
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2180,7 +2181,7 @@ func newResources() *Resources {
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne.CropPreferences())
+	repoTwo.SetOwner(userOne.Crop())
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
@@ -2279,6 +2280,13 @@ func newResources() *Resources {
 	dashRepo.SetBranches([]string{"main"})
 	dashRepo.SetEvents([]string{"push"})
 
+	// crop and set "-" JSON tag fields to nil for dashboard admins
+	dashboardAdmins := []*api.User{userOne.Crop(), userTwo.Crop()}
+	for _, admin := range dashboardAdmins {
+		admin.Token = nil
+		admin.RefreshToken = nil
+	}
+
 	dashboardOne := new(api.Dashboard)
 	dashboardOne.SetID("ba657dab-bc6e-421f-9188-86272bd0069a")
 	dashboardOne.SetName("vela")
@@ -2286,7 +2294,7 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	dashboardOne.SetAdmins([]*api.User{userOne.CropPreferences(), userTwo.CropPreferences()})
+	dashboardOne.SetAdmins(dashboardAdmins)
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
@@ -2296,7 +2304,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins([]*api.User{userOne.CropPreferences(), userTwo.CropPreferences()})
+	dashboardTwo.SetAdmins(dashboardAdmins)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)

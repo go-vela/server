@@ -20,13 +20,16 @@ type User struct {
 	Dashboards   *[]string `json:"dashboards,omitempty"`
 }
 
-// CropPreferences removes personal info from a user.
-func (u *User) CropPreferences() *User {
+// Crop creates a duplicate of the User with certain fields cropped.
+//
+// Generally used for cropping large fields that aren't useful for all API calls like favorites and dashboards.
+func (u *User) Crop() *User {
 	return &User{
-		ID:     u.ID,
-		Name:   u.Name,
-		Token:  u.Token,
-		Active: u.Active,
+		ID:           u.ID,
+		Name:         u.Name,
+		RefreshToken: u.RefreshToken,
+		Token:        u.Token,
+		Active:       u.Active,
 	}
 }
 
