@@ -2229,7 +2229,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins([]*api.User{userOne.Crop(), userTwo.Crop()})
+	dashboardTwo.SetAdmins(admns)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
