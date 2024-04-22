@@ -25,6 +25,7 @@ import (
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
@@ -307,8 +308,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if len(list) != 1 {
 		t.Errorf("Number of results for ListBuildsForDashboardRepo() is %v, want %v", len(list), 1)
 	}
-	if !cmp.Equal(list, []*api.Build{resources.Builds[0]}) {
-		t.Errorf("ListBuildsForDashboardRepo() is %v, want %v", list, []*api.Build{resources.Builds[0]})
+
+	// ListBuildsForDashboardRepo does not contain nested repo
+	wantBuild := *resources.Builds[0]
+	wantBuild.Repo = testutils.APIRepo()
+	wantBuild.Repo.Owner = testutils.APIUser().CropPreferences()
+
+	if diff := cmp.Diff([]*api.Build{&wantBuild}, list); diff != "" {
+		t.Errorf("ListBuildsForDashboardRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForDashboardRepo"] = true
 
@@ -457,19 +464,14 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
 		}
 
-		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
-		cmpAdmins := []*api.User{}
-		for _, admin := range got.GetAdmins() {
-			admin.SetToken(constants.SecretMask)
-			admin.SetRefreshToken(constants.SecretMask)
-
-			cmpAdmins = append(cmpAdmins, admin)
+		// JSON marshaling does not include comparing token due to `-` struct tag
+		cmpAdmins := got.GetAdmins()
+		for i, admin := range cmpAdmins {
+			admin.SetToken(resources.Users[i].GetToken())
 		}
 
-		got.SetAdmins(cmpAdmins)
-
-		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
-			t.Errorf("GetDashboard() is %v, want %v", got, dashboard)
+		if diff := cmp.Diff(dashboard, got, CmpOptApproxUpdatedAt()); diff != "" {
+			t.Errorf("GetDashboard() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["GetDashboard"] = true
@@ -482,8 +484,14 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update dashboard %s: %v", dashboard.GetID(), err)
 		}
 
-		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
-			t.Errorf("UpdateDashboard() is %v, want %v", got, dashboard)
+		// JSON marshaling does not include comparing token due to `-` struct tag
+		cmpAdmins := got.GetAdmins()
+		for i, admin := range cmpAdmins {
+			admin.SetToken(resources.Users[i].GetToken())
+		}
+
+		if diff := cmp.Diff(dashboard, got, CmpOptApproxUpdatedAt()); diff != "" {
+			t.Errorf("UpdateDashboard() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["UpdateDashboard"] = true
@@ -2143,12 +2151,13 @@ func newResources() *Resources {
 	userTwo.SetToken("superSecretToken")
 	userTwo.SetRefreshToken("superSecretRefreshToken")
 	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
 	userTwo.SetActive(true)
 	userTwo.SetAdmin(false)
 
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetOwner(userOne)
+	repoOne.SetOwner(userOne.CropPreferences())
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2171,7 +2180,7 @@ func newResources() *Resources {
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne)
+	repoTwo.SetOwner(userOne.CropPreferences())
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
