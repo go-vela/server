@@ -444,9 +444,8 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
 		cmpAdmins := []*api.User{}
 		for _, admin := range got.GetAdmins() {
-			admin.Token = nil
-			admin.RefreshToken = nil
-			cmpAdmins = append(cmpAdmins, admin)
+
+			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
 
 		got.SetAdmins(cmpAdmins)
