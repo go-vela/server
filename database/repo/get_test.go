@@ -30,6 +30,7 @@ func TestRepo_Engine_GetRepo(t *testing.T) {
 	_owner := testOwner()
 	_owner.SetID(1)
 	_owner.SetName("foo")
+	_owner.SetToken("bar")
 
 	_repo.SetOwner(_owner)
 

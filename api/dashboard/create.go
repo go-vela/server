@@ -143,7 +143,7 @@ func CreateDashboard(c *gin.Context) {
 // when a user is inactive or not found in the database. It returns a sanitized slice of admins.
 func createAdminSet(c context.Context, caller *types.User, users []*types.User) ([]*types.User, error) {
 	// add user creating the dashboard to admin list
-	admins := []*types.User{caller.Sanitize()}
+	admins := []*types.User{caller.Crop()}
 
 	dupMap := make(map[string]bool)
 
@@ -158,7 +158,7 @@ func createAdminSet(c context.Context, caller *types.User, users []*types.User) 
 			return nil, fmt.Errorf("unable to create dashboard: %s is not an active user", u.GetName())
 		}
 
-		admins = append(admins, dbUser.Sanitize())
+		admins = append(admins, dbUser.Crop())
 
 		dupMap[dbUser.GetName()] = true
 	}

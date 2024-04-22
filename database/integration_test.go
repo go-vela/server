@@ -438,18 +438,14 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		got, err := db.GetDashboard(ctx, dashboard.GetID())
 		if err != nil {
-			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to get dashboard %s: %v", dashboard.GetID(), err)
 		}
 
 		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
 		cmpAdmins := []*api.User{}
 		for _, admin := range got.GetAdmins() {
-			admin.SetToken(constants.SecretMask)
-			admin.SetRefreshToken(constants.SecretMask)
-
-			cmpAdmins = append(cmpAdmins, admin)
+			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
-
 		got.SetAdmins(cmpAdmins)
 
 		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
@@ -476,7 +472,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		err := db.DeleteDashboard(ctx, dashboard)
 		if err != nil {
-			t.Errorf("unable to delete schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to delete dashboard %s: %v", dashboard.GetID(), err)
 		}
 	}
 	methods["DeleteDashboard"] = true
@@ -2131,6 +2127,13 @@ func newResources() *Resources {
 	userTwo.SetAdmin(false)
 	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7", "ba657dab-bc6e-421f-9188-86272bd0069a"})
 
+	// crop and set "-" JSON tag fields to nil for dashboard admins
+	dashboardAdmins := []*api.User{userOne.Crop(), userTwo.Crop()}
+	for _, admin := range dashboardAdmins {
+		admin.Token = nil
+		admin.RefreshToken = nil
+	}
+
 	buildOne := new(library.Build)
 	buildOne.SetID(1)
 	buildOne.SetRepoID(1)
@@ -2216,7 +2219,7 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	dashboardOne.SetAdmins([]*api.User{userOne.Sanitize(), userTwo.Sanitize()})
+	dashboardOne.SetAdmins(dashboardAdmins)
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
@@ -2226,7 +2229,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins([]*api.User{userOne.Sanitize(), userTwo.Sanitize()})
+	dashboardTwo.SetAdmins(dashboardAdmins)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
@@ -2386,7 +2389,7 @@ func newResources() *Resources {
 
 	repoOne := new(api.Repo)
 	repoOne.SetID(1)
-	repoOne.SetOwner(userOne.Sanitize())
+	repoOne.SetOwner(userOne.Crop())
 	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoOne.SetOrg("github")
 	repoOne.SetName("octocat")
@@ -2409,7 +2412,7 @@ func newResources() *Resources {
 
 	repoTwo := new(api.Repo)
 	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne.Sanitize())
+	repoTwo.SetOwner(userOne.Crop())
 	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	repoTwo.SetOrg("github")
 	repoTwo.SetName("octokitty")
