@@ -446,7 +446,6 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 		for _, admin := range got.GetAdmins() {
 			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
-
 		got.SetAdmins(cmpAdmins)
 
 		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
