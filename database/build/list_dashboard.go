@@ -47,9 +47,6 @@ func (e *engine) ListBuildsForDashboardRepo(ctx context.Context, r *api.Repo, br
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
 		builds = append(builds, tmp.ToAPI())
 	}
 

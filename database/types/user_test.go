@@ -11,7 +11,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-func TestUser_Decrypt(t *testing.T) {
+func TestTypes_User_Decrypt(t *testing.T) {
 	// setup types
 	key := "C639A572E14D5075C526FDDD43E4ECF6"
 	encrypted := testUser()
@@ -62,7 +62,7 @@ func TestUser_Decrypt(t *testing.T) {
 	}
 }
 
-func TestUser_Encrypt(t *testing.T) {
+func TestTypes_User_Encrypt(t *testing.T) {
 	// setup types
 	key := "C639A572E14D5075C526FDDD43E4ECF6"
 
@@ -102,7 +102,7 @@ func TestUser_Encrypt(t *testing.T) {
 	}
 }
 
-func TestUser_Nullify(t *testing.T) {
+func TestTypes_User_Nullify(t *testing.T) {
 	// setup types
 	var u *User
 
@@ -144,7 +144,7 @@ func TestUser_Nullify(t *testing.T) {
 	}
 }
 
-func TestUser_ToAPI(t *testing.T) {
+func TestTypes_User_ToAPI(t *testing.T) {
 	// setup types
 	want := new(api.User)
 
@@ -165,7 +165,7 @@ func TestUser_ToAPI(t *testing.T) {
 	}
 }
 
-func TestUser_Validate(t *testing.T) {
+func TestTypes_User_Validate(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool

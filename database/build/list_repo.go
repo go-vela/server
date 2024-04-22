@@ -67,9 +67,6 @@ func (e *engine) ListBuildsForRepo(ctx context.Context, r *api.Repo, filters map
 			e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
 		builds = append(builds, tmp.ToAPI())
 	}
 

@@ -19,7 +19,7 @@ type Item struct {
 	ItemVersion uint64 `json:"item_version"`
 }
 
-// ToItem creates a queue item from a build, repo and user.
+// ToItem creates a queue item from a build.
 func ToItem(b *api.Build) *Item {
 	return &Item{
 		Build:       b,

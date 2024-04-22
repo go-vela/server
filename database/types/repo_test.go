@@ -14,7 +14,7 @@ import (
 	"github.com/go-vela/types/constants"
 )
 
-func TestRepo_Decrypt(t *testing.T) {
+func TestTypes_Repo_Decrypt(t *testing.T) {
 	// setup types
 	key := "C639A572E14D5075C526FDDD43E4ECF6"
 	encrypted := testRepo()
@@ -70,7 +70,7 @@ func TestRepo_Decrypt(t *testing.T) {
 	}
 }
 
-func TestRepo_Encrypt(t *testing.T) {
+func TestTypes_Repo_Encrypt(t *testing.T) {
 	// setup types
 	key := "C639A572E14D5075C526FDDD43E4ECF6"
 
@@ -110,7 +110,7 @@ func TestRepo_Encrypt(t *testing.T) {
 	}
 }
 
-func TestRepo_Nullify(t *testing.T) {
+func TestTypes_Repo_Nullify(t *testing.T) {
 	// setup types
 	var r *Repo
 
@@ -160,7 +160,7 @@ func TestRepo_Nullify(t *testing.T) {
 	}
 }
 
-func TestRepo_ToAPI(t *testing.T) {
+func TestTypes_Repo_ToAPI(t *testing.T) {
 	// setup types
 	want := new(api.Repo)
 	e := api.NewEventsFromMask(1)
@@ -201,7 +201,7 @@ func TestRepo_ToAPI(t *testing.T) {
 	}
 }
 
-func TestRepo_Validate(t *testing.T) {
+func TestTypes_Repo_Validate(t *testing.T) {
 	// setup types
 	topics := []string{}
 	longTopic := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

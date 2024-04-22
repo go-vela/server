@@ -42,9 +42,6 @@ func (e *engine) ListPendingAndRunningBuildsForRepo(ctx context.Context, repo *a
 			e.logger.Errorf("unable to decrypt repo %s/%s: %v", repo.GetOrg(), repo.GetName(), err)
 		}
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
 		builds = append(builds, tmp.ToAPI())
 	}
 

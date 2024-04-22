@@ -36,9 +36,6 @@ func (e *engine) ListPendingAndRunningBuilds(ctx context.Context, after string) 
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := build
 
-		// convert query result to library type
-		//
-		// https://pkg.go.dev/github.com/go-vela/types/database#Build.ToLibrary
 		builds = append(builds, tmp.ToAPI())
 	}
 

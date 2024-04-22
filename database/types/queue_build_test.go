@@ -10,7 +10,7 @@ import (
 	api "github.com/go-vela/server/api/types"
 )
 
-func TestQueueBuild_ToAPI(t *testing.T) {
+func TestTypes_QueueBuild_ToAPI(t *testing.T) {
 	// setup types
 	want := new(api.QueueBuild)
 
@@ -27,7 +27,7 @@ func TestQueueBuild_ToAPI(t *testing.T) {
 	}
 }
 
-func TestQueueBuild_FromAPI(t *testing.T) {
+func TestTypes_QueueBuild_FromAPI(t *testing.T) {
 	// setup types
 	b := new(api.QueueBuild)
 

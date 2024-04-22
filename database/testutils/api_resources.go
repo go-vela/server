@@ -10,9 +10,9 @@ import (
 )
 
 // API TEST RESOURCES
+//
+// These are API resources initialized to their zero values for testing.
 
-// TestAPIBuild is a test helper function to create a API
-// Build type with all fields set to their zero values.
 func APIBuild() *api.Build {
 	return &api.Build{
 		ID:           new(int64),
@@ -51,8 +51,6 @@ func APIBuild() *api.Build {
 	}
 }
 
-// TestDeployment is a test helper function to create a library
-// Repo type with all fields set to their zero values.
 func APIDeployment() *library.Deployment {
 	builds := []*library.Build{}
 
@@ -102,8 +100,6 @@ func APIEvents() *api.Events {
 	}
 }
 
-// TestAPIRepo is a test helper function to create an API
-// Repo type with all fields set to their zero values.
 func APIRepo() *api.Repo {
 	return &api.Repo{
 		ID:           new(int64),
@@ -143,8 +139,6 @@ func APIUser() *api.User {
 	}
 }
 
-// APIHook is a test helper function to create a library
-// Hook type with all fields set to their zero values.
 func APIHook() *library.Hook {
 	return &library.Hook{
 		ID:          new(int64),
@@ -164,8 +158,6 @@ func APIHook() *library.Hook {
 	}
 }
 
-// APILog is a test helper function to create a library
-// Log type with all fields set to their zero values.
 func APILog() *library.Log {
 	return &library.Log{
 		ID:        new(int64),
@@ -177,8 +169,6 @@ func APILog() *library.Log {
 	}
 }
 
-// APIService is a test helper function to create a library
-// Service type with all fields set to their zero values.
 func APIService() *library.Service {
 	return &library.Service{
 		ID:           new(int64),
@@ -199,8 +189,6 @@ func APIService() *library.Service {
 	}
 }
 
-// APIStep is a test helper function to create a library
-// Step type with all fields set to their zero values.
 func APIStep() *library.Step {
 	return &library.Step{
 		ID:           new(int64),
@@ -223,8 +211,6 @@ func APIStep() *library.Step {
 	}
 }
 
-// APIPipeline is a test helper function to create a library
-// Pipeline type with all fields set to their zero values.
 func APIPipeline() *library.Pipeline {
 	return &library.Pipeline{
 		ID:              new(int64),
@@ -245,8 +231,6 @@ func APIPipeline() *library.Pipeline {
 	}
 }
 
-// APIDashboard is a test helper function to create an API
-// Dashboard type with all fields set to their zero values.
 func APIDashboard() *api.Dashboard {
 	return &api.Dashboard{
 		ID:        new(string),

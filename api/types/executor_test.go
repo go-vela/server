@@ -49,10 +49,6 @@ func TestTypes_Executor_Getters(t *testing.T) {
 			t.Errorf("GetBuild is %v, want %v", test.executor.GetBuild(), test.want.GetBuild())
 		}
 
-		if !reflect.DeepEqual(test.executor.GetRepo(), test.want.GetRepo()) {
-			t.Errorf("GetRepo is %v, want %v", test.executor.GetRepo(), test.want.GetRepo())
-		}
-
 		if !reflect.DeepEqual(test.executor.GetPipeline(), test.want.GetPipeline()) {
 			t.Errorf("GetPipeline is %v, want %v", test.executor.GetPipeline(), test.want.GetPipeline())
 		}
@@ -85,7 +81,6 @@ func TestTypes_Executor_Setters(t *testing.T) {
 		test.executor.SetRuntime(test.want.GetRuntime())
 		test.executor.SetDistribution(test.want.GetDistribution())
 		test.executor.SetBuild(test.want.GetBuild())
-		test.executor.SetRepo(test.want.GetRepo())
 		test.executor.SetPipeline(test.want.GetPipeline())
 
 		if test.executor.GetID() != test.want.GetID() {
@@ -108,10 +103,6 @@ func TestTypes_Executor_Setters(t *testing.T) {
 			t.Errorf("SetBuild is %v, want %v", test.executor.GetBuild(), test.want.GetBuild())
 		}
 
-		if !reflect.DeepEqual(test.executor.GetRepo(), test.want.GetRepo()) {
-			t.Errorf("SetRepo is %v, want %v", test.executor.GetRepo(), test.want.GetRepo())
-		}
-
 		if !reflect.DeepEqual(test.executor.GetPipeline(), test.want.GetPipeline()) {
 			t.Errorf("SetPipeline is %v, want %v", test.executor.GetPipeline(), test.want.GetPipeline())
 		}
@@ -127,7 +118,6 @@ func TestTypes_Executor_String(t *testing.T) {
   Distribution: %s,
   Host: %s,
   ID: %d,
-  Repo: %v,
   Runtime: %s,
   Pipeline: %v,
 }`,
@@ -135,7 +125,6 @@ func TestTypes_Executor_String(t *testing.T) {
 		e.GetDistribution(),
 		e.GetHost(),
 		e.GetID(),
-		strings.ReplaceAll(e.Repo.String(), " ", "  "),
 		e.GetRuntime(),
 		e.GetPipeline(),
 	)
@@ -158,7 +147,6 @@ func testExecutor() *Executor {
 	e.SetRuntime("docker")
 	e.SetDistribution("linux")
 	e.SetBuild(*testBuild())
-	e.SetRepo(*testRepo())
 	e.SetPipeline(pipeline.Build{
 		Version: "1",
 		ID:      "github_octocat_1",

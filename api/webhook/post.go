@@ -373,7 +373,9 @@ func PostWebhook(c *gin.Context) {
 			}
 		} else {
 			build := append(d.GetBuilds(), b.ToLibrary())
+
 			d.SetBuilds(build)
+
 			_, err := database.FromContext(c).UpdateDeployment(ctx, d)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to update deployment %s/%d: %w", baseErr, repo.GetFullName(), d.GetNumber(), err)
@@ -400,7 +402,7 @@ func PostWebhook(c *gin.Context) {
 
 			for _, rB := range rBs {
 				// call auto cancel routine
-				canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
+				canceled, err := build.AutoCancel(c, b, rB, p.Metadata.AutoCancel)
 				if err != nil {
 					// continue cancel loop if error, but log based on type of error
 					if canceled {

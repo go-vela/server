@@ -15,7 +15,7 @@ import (
 	"github.com/go-vela/types/raw"
 )
 
-func TestBuild_Crop(t *testing.T) {
+func TestTypes_Build_Crop(t *testing.T) {
 	// setup types
 	title := randomString(1001)
 	message := randomString(2001)
@@ -39,7 +39,7 @@ func TestBuild_Crop(t *testing.T) {
 	}
 }
 
-func TestBuild_Nullify(t *testing.T) {
+func TestTypes_Build_Nullify(t *testing.T) {
 	// setup types
 	var b *Build
 
@@ -107,7 +107,7 @@ func TestBuild_Nullify(t *testing.T) {
 	}
 }
 
-func TestBuild_ToAPI(t *testing.T) {
+func TestTypes_Build_ToAPI(t *testing.T) {
 	// setup types
 	want := new(api.Build)
 
@@ -155,7 +155,7 @@ func TestBuild_ToAPI(t *testing.T) {
 	}
 }
 
-func TestBuild_Validate(t *testing.T) {
+func TestTypes_Build_Validate(t *testing.T) {
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -199,7 +199,7 @@ func TestBuild_Validate(t *testing.T) {
 	}
 }
 
-func TestBuild_BuildFromAPI(t *testing.T) {
+func TestTypes_Build_BuildFromAPI(t *testing.T) {
 	// setup types
 	b := new(api.Build)
 

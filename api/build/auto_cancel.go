@@ -22,7 +22,7 @@ import (
 
 // AutoCancel is a helper function that checks to see if any pending or running
 // builds for the repo can be replaced by the current build.
-func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, r *types.Repo, cancelOpts *pipeline.CancelOptions) (bool, error) {
+func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, cancelOpts *pipeline.CancelOptions) (bool, error) {
 	// if build is the current build, continue
 	if rB.GetID() == b.GetID() {
 		return false, nil
@@ -51,7 +51,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, r *types.Repo, 
 			}
 		case strings.EqualFold(status, constants.StatusRunning) && cancelOpts.Running:
 			// call cancelRunning routine for builds already running on worker
-			err := cancelRunning(c, rB, r)
+			err := cancelRunning(c, rB)
 			if err != nil {
 				return false, err
 			}
@@ -74,7 +74,7 @@ func AutoCancel(c *gin.Context, b *types.Build, rB *types.Build, r *types.Repo, 
 
 // cancelRunning is a helper function that determines the executor currently running a build and sends an API call
 // to that executor's worker to cancel the build.
-func cancelRunning(c *gin.Context, b *types.Build, r *types.Repo) error {
+func cancelRunning(c *gin.Context, b *types.Build) error {
 	e := new([]types.Executor)
 	// retrieve the worker
 	w, err := database.FromContext(c).GetWorkerForHostname(c, b.GetHost())
@@ -132,7 +132,7 @@ func cancelRunning(c *gin.Context, b *types.Build, r *types.Repo) error {
 
 	for _, executor := range *e {
 		// check each executor on the worker running the build to see if it's running the build we want to cancel
-		if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+		if executor.Build.GetID() == b.GetID() {
 			// prepare the request to the worker
 			client := http.DefaultClient
 			client.Timeout = 30 * time.Second

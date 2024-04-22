@@ -21,9 +21,6 @@ func (e *engine) UpdateBuild(ctx context.Context, b *api.Build) (*api.Build, err
 
 	build := types.BuildFromAPI(b)
 
-	// validate the necessary fields are populated
-	//
-	// https://pkg.go.dev/github.com/go-vela/types/database#Build.Validate
 	err := build.Validate()
 	if err != nil {
 		return nil, err

@@ -89,7 +89,7 @@ func UpdateBuild(c *gin.Context) {
 	}).Infof("updating build %s", entry)
 
 	// capture body from API request
-	input := new(library.Build)
+	input := new(types.Build)
 
 	err := c.Bind(input)
 	if err != nil {
