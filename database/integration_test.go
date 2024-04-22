@@ -2127,6 +2127,13 @@ func newResources() *Resources {
 	userTwo.SetAdmin(false)
 	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7", "ba657dab-bc6e-421f-9188-86272bd0069a"})
 
+	// crop and set "-" JSON tag fields to nil for dashboard admins
+	dashboardAdmins := []*api.User{userOne.Crop(), userTwo.Crop()}
+	for _, admin := range dashboardAdmins {
+		admin.Token = nil
+		admin.RefreshToken = nil
+	}
+
 	buildOne := new(library.Build)
 	buildOne.SetID(1)
 	buildOne.SetRepoID(1)
@@ -2212,14 +2219,7 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	admns := []*api.User{userOne.Crop(), userTwo.Crop()}
-	// set "-" JSON tag fields to nil
-	for _, admin := range admns {
-		admin.Token = nil
-		admin.RefreshToken = nil
-	}
-
-	dashboardOne.SetAdmins(admns)
+	dashboardOne.SetAdmins(dashboardAdmins)
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
@@ -2229,7 +2229,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins(admns)
+	dashboardTwo.SetAdmins(dashboardAdmins)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
