@@ -232,13 +232,11 @@ func testEvents() *api.Events {
 
 // testOwner is a helper function that returns a sanitized user.
 func testOwner() *api.User {
-	mask := constants.SecretMask
-
 	return &api.User{
 		ID:           new(int64),
 		Name:         new(string),
-		RefreshToken: &mask,
-		Token:        &mask,
+		RefreshToken: new(string),
+		Token:        new(string),
 		Active:       new(bool),
 	}
 }
