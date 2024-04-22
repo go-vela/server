@@ -438,14 +438,14 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		got, err := db.GetDashboard(ctx, dashboard.GetID())
 		if err != nil {
-			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to get dashboard %s: %v", dashboard.GetID(), err)
 		}
 
 		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
 		cmpAdmins := []*api.User{}
 		for _, admin := range got.GetAdmins() {
-			admin.SetToken(constants.SecretMask)
-			admin.SetRefreshToken(constants.SecretMask)
+			// admin.SetToken(constants.SecretMask)
+			// admin.SetRefreshToken(constants.SecretMask)
 
 			cmpAdmins = append(cmpAdmins, admin)
 		}
@@ -476,7 +476,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		err := db.DeleteDashboard(ctx, dashboard)
 		if err != nil {
-			t.Errorf("unable to delete schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to delete dashboard %s: %v", dashboard.GetID(), err)
 		}
 	}
 	methods["DeleteDashboard"] = true
