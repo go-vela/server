@@ -145,7 +145,6 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 
 		for k, v := range e.Data {
 			switch k {
-
 			// map fields attached to requests
 			case "ip":
 				data["client.ip"] = v
