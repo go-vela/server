@@ -444,9 +444,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
 		cmpAdmins := []*api.User{}
 		for _, admin := range got.GetAdmins() {
-			a := admin.Crop()
-			a.Token = nil
-			cmpAdmins = append(cmpAdmins, a)
+			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
 
 		got.SetAdmins(cmpAdmins)
@@ -2215,7 +2213,14 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	dashboardOne.SetAdmins([]*api.User{userOne.Crop(), userTwo.Crop()})
+	admns := []*api.User{userOne.Crop(), userTwo.Crop()}
+	// set "-" JSON tag fields to nil
+	for _, admin := range admns {
+		admin.Token = nil
+		admin.RefreshToken = nil
+	}
+
+	dashboardOne.SetAdmins(admns)
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
