@@ -145,6 +145,7 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 
 		for k, v := range e.Data {
 			switch k {
+			// map fields attached to requests
 			case "ip":
 				data["client.ip"] = v
 			case "latency":
@@ -159,6 +160,11 @@ func (f *ECSFormatter) Format(e *logrus.Entry) ([]byte, error) {
 				data["user_agent.name"] = v
 			case "version":
 				data["user_agent.version"] = v
+
+			// map other fields
+			case "user":
+				data["user.name"] = v
+
 			default:
 				extraData[k] = v
 			}

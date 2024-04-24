@@ -10,12 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/search/builds/{id} builds GetBuildByID
@@ -50,12 +48,6 @@ import (
 // GetBuildByID represents the API handler to capture a
 // build by its id from the configured backend.
 func GetBuildByID(c *gin.Context) {
-	// Variables that will hold the library types of the build and repo
-	var (
-		b *library.Build
-		r *types.Repo
-	)
-
 	// Capture user from middleware
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
@@ -80,7 +72,7 @@ func GetBuildByID(c *gin.Context) {
 	}).Infof("reading build %d", id)
 
 	// Get build from database
-	b, err = database.FromContext(c).GetBuild(ctx, id)
+	b, err := database.FromContext(c).GetBuild(ctx, id)
 	if err != nil {
 		retErr := fmt.Errorf("unable to get build: %w", err)
 
@@ -89,21 +81,11 @@ func GetBuildByID(c *gin.Context) {
 		return
 	}
 
-	// Get repo from database using repo ID field from build
-	r, err = database.FromContext(c).GetRepo(ctx, b.GetRepoID())
-	if err != nil {
-		retErr := fmt.Errorf("unable to get repo: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
 	// Capture user access from SCM. We do this in order to ensure user has access and is not
 	// just retrieving any build using a random id number.
-	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), r.GetOrg(), r.GetName())
+	perm, err := scm.FromContext(c).RepoAccess(ctx, u.GetName(), u.GetToken(), b.GetRepo().GetOrg(), b.GetRepo().GetName())
 	if err != nil {
-		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), r.GetFullName())
+		logrus.Errorf("unable to get user %s access level for repo %s", u.GetName(), b.GetRepo().GetFullName())
 	}
 
 	// Ensure that user has at least read access to repo to return the build

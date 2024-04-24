@@ -6,26 +6,22 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
-
-	"github.com/go-vela/types/constants"
 )
 
-func TestTypes_User_Sanitize(t *testing.T) {
+func TestTypes_User_Crop(t *testing.T) {
 	// setup types
 	u := testUser()
 
-	want := new(User)
-	want.SetID(1)
-	want.SetName("octocat")
-	want.SetActive(true)
-	want.SetToken(constants.SecretMask)
-	want.SetRefreshToken(constants.SecretMask)
+	want := testUser()
+	want.Favorites = nil
+	want.Dashboards = nil
+	want.Admin = nil
 
 	// run test
-	got := u.Sanitize()
+	got := u.Crop()
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Sanitize is %v, want %v", got, want)
+		t.Errorf("Crop is %v, want %v", got, want)
 	}
 }
 

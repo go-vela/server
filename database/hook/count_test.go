@@ -8,11 +8,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestHook_Engine_CountHooks(t *testing.T) {
 	// setup types
-	_hookOne := testHook()
+	_hookOne := testutils.APIHook()
 	_hookOne.SetID(1)
 	_hookOne.SetRepoID(1)
 	_hookOne.SetBuildID(1)
@@ -20,7 +22,7 @@ func TestHook_Engine_CountHooks(t *testing.T) {
 	_hookOne.SetSourceID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_hookOne.SetWebhookID(1)
 
-	_hookTwo := testHook()
+	_hookTwo := testutils.APIHook()
 	_hookTwo.SetID(2)
 	_hookTwo.SetRepoID(1)
 	_hookTwo.SetBuildID(2)

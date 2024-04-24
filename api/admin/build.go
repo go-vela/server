@@ -12,9 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/admin/builds/queue admin AllBuildsQueue
@@ -107,7 +107,7 @@ func UpdateBuild(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	// capture body from API request
-	input := new(library.Build)
+	input := new(types.Build)
 
 	err := c.Bind(input)
 	if err != nil {

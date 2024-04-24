@@ -498,7 +498,7 @@ func errorHandler(resp *http.Response, err error, attempts int) (*http.Response,
 }
 
 // modifyConfig sends the configuration to external http endpoint for modification.
-func (c *client) modifyConfig(build *yaml.Build, libraryBuild *library.Build, repo *api.Repo) (*yaml.Build, error) {
+func (c *client) modifyConfig(build *yaml.Build, libraryBuild *api.Build, repo *api.Repo) (*yaml.Build, error) {
 	// create request to send to endpoint
 	data, err := yml.Marshal(build)
 	if err != nil {

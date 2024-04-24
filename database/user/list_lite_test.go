@@ -10,18 +10,19 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestUser_Engine_ListLiteUsers(t *testing.T) {
 	// setup types
-	_userOne := testAPIUser()
+	_userOne := testutils.APIUser()
 	_userOne.SetID(1)
 	_userOne.SetName("foo")
 	_userOne.SetToken("bar")
 	_userOne.SetFavorites([]string{})
 	_userOne.SetDashboards([]string{})
 
-	_userTwo := testAPIUser()
+	_userTwo := testutils.APIUser()
 	_userTwo.SetID(2)
 	_userTwo.SetName("baz")
 	_userTwo.SetToken("bar")

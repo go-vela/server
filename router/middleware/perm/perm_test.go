@@ -24,7 +24,6 @@ import (
 	"github.com/go-vela/server/scm"
 	"github.com/go-vela/server/scm/github"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestPerm_MustPlatformAdmin(t *testing.T) {
@@ -408,9 +407,9 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -497,9 +496,9 @@ func TestPerm_MustBuildAccess_PlatAdmin(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	u := new(api.User)
@@ -592,9 +591,9 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -681,9 +680,9 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -767,9 +766,9 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -853,9 +852,9 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	tm := &token.Manager{
@@ -1846,9 +1845,9 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("private")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	mto := &token.MintTokenOpts{

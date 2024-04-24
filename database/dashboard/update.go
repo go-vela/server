@@ -9,6 +9,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // UpdateDashboard updates an existing dashboard in the database.
@@ -17,7 +18,7 @@ func (e *engine) UpdateDashboard(ctx context.Context, d *api.Dashboard) (*api.Da
 		"dashboard": d.GetID(),
 	}).Tracef("creating dashboard %s in the database", d.GetID())
 
-	dashboard := FromAPI(d)
+	dashboard := types.DashboardFromAPI(d)
 
 	err := dashboard.Validate()
 	if err != nil {

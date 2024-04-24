@@ -29,7 +29,7 @@ type PullRequest struct {
 type Webhook struct {
 	Hook        *library.Hook
 	Repo        *api.Repo
-	Build       *library.Build
+	Build       *api.Build
 	PullRequest PullRequest
 	Deployment  *library.Deployment
 }

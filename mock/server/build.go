@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
 )
@@ -18,7 +19,52 @@ const (
 	// BuildResp represents a JSON return for a single build.
 	BuildResp = `{
   "id": 1,
-  "repo_id": 1,
+  "repo": {
+	"id": 1,
+    "owner": {
+	  	"id": 1,
+	  	"name": "octocat",
+	  	"favorites": [],
+		"active": true,
+    	"admin": false
+  	},
+  	"org": "github",
+	"counter": 10,
+	"name": "octocat",
+	"full_name": "github/octocat",
+	"link": "https://github.com/github/octocat",
+	"clone": "https://github.com/github/octocat",
+	"branch": "main",
+	"build_limit": 10,
+	"timeout": 60,
+	"visibility": "public",
+	"private": false,
+	"trusted": true,
+	"pipeline_type": "yaml",
+	"topics": [],
+	"active": true,
+	"allow_events": {
+		"push": {
+			"branch": true,
+			"tag": true
+		},
+		"pull_request": {
+			"opened": true,
+			"synchronize": true,
+			"reopened": true,
+			"edited": false
+		},
+		"deployment": {
+			"created": true
+		},
+		"comment": {
+			"created": false,
+			"edited": false
+		}
+  	},
+  "approve_build": "fork-always",
+  "previous_name": ""
+ },
   "pipeline_id": 1,
   "number": 1,
   "parent": 1,
@@ -171,7 +217,7 @@ const (
 func getBuilds(c *gin.Context) {
 	data := []byte(BuildsResp)
 
-	var body []library.Build
+	var body []api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -191,7 +237,7 @@ func getBuild(c *gin.Context) {
 
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -223,7 +269,7 @@ func getLogs(c *gin.Context) {
 func addBuild(c *gin.Context) {
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -247,7 +293,7 @@ func updateBuild(c *gin.Context) {
 
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -286,7 +332,7 @@ func restartBuild(c *gin.Context) {
 
 	data := []byte(BuildResp)
 
-	var body library.Build
+	var body api.Build
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusCreated, body)
@@ -340,7 +386,7 @@ func buildQueue(c *gin.Context) {
 
 	data := []byte(BuildQueueResp)
 
-	var body []library.BuildQueue
+	var body []api.QueueBuild
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)

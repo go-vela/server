@@ -27,8 +27,7 @@ import (
 
 // CompileAndPublishConfig is a struct that contains information for the CompileAndPublish function.
 type CompileAndPublishConfig struct {
-	Build    *library.Build
-	Repo     *types.Repo
+	Build    *types.Build
 	Metadata *internal.Metadata
 	BaseErr  string
 	Source   string
@@ -50,11 +49,11 @@ func CompileAndPublish(
 	compiler compiler.Engine,
 	queue queue.Service,
 ) (*pipeline.Build, *models.Item, int, error) {
-	logrus.Debugf("generating queue items for build %s/%d", cfg.Repo.GetFullName(), cfg.Build.GetNumber())
+	logrus.Debugf("generating queue items for build %s/%d", cfg.Build.GetRepo().GetFullName(), cfg.Build.GetNumber())
 
 	// assign variables from form for readibility
-	r := cfg.Repo
-	u := cfg.Repo.GetOwner()
+	r := cfg.Build.GetRepo()
+	u := cfg.Build.GetRepo().GetOwner()
 	b := cfg.Build
 	baseErr := cfg.BaseErr
 
@@ -410,12 +409,12 @@ func CompileAndPublish(
 		return nil, nil, http.StatusInternalServerError, retErr
 	}
 
-	return p, models.ToItem(b, repo), http.StatusCreated, nil
+	return p, models.ToItem(b), http.StatusCreated, nil
 }
 
 // getPRNumberFromBuild is a helper function to
 // extract the pull request number from a Build.
-func getPRNumberFromBuild(b *library.Build) (int, error) {
+func getPRNumberFromBuild(b *types.Build) (int, error) {
 	// parse out pull request number from base ref
 	//
 	// pattern: refs/pull/1/head

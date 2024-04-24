@@ -281,7 +281,7 @@ func (c *client) Update(ctx context.Context, u *api.User, r *api.Repo, hookID in
 }
 
 // Status sends the commit status for the given SHA from the GitHub repo.
-func (c *client) Status(ctx context.Context, u *api.User, b *library.Build, org, name string) error {
+func (c *client) Status(ctx context.Context, u *api.User, b *api.Build, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,
@@ -394,7 +394,7 @@ func (c *client) Status(ctx context.Context, u *api.User, b *library.Build, org,
 }
 
 // StepStatus sends the commit status for the given SHA to the GitHub repo with the step as the context.
-func (c *client) StepStatus(ctx context.Context, u *api.User, b *library.Build, s *library.Step, org, name string) error {
+func (c *client) StepStatus(ctx context.Context, u *api.User, b *api.Build, s *library.Step, org, name string) error {
 	c.Logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   org,

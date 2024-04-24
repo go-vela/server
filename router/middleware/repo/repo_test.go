@@ -13,8 +13,8 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/types/constants"
 )
 
 func TestRepo_Retrieve(t *testing.T) {
@@ -37,12 +37,11 @@ func TestRepo_Retrieve(t *testing.T) {
 
 func TestRepo_Establish(t *testing.T) {
 	// setup types
-	owner := new(api.User)
+	owner := testutils.APIUser().Crop()
 	owner.SetID(1)
 	owner.SetName("foo")
 	owner.SetActive(false)
-	owner.SetToken(constants.SecretMask)
-	owner.SetRefreshToken(constants.SecretMask)
+	owner.SetToken("bar")
 
 	want := new(api.Repo)
 	want.SetID(1)
