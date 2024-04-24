@@ -47,8 +47,6 @@ func (e *engine) LastBuildForRepo(ctx context.Context, r *api.Repo, branch strin
 	err = b.Repo.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		e.logger.Errorf("unable to decrypt repo %s/%s: %v", r.GetOrg(), r.GetName(), err)
-
-		return b.ToAPI(), nil
 	}
 
 	return b.ToAPI(), nil
