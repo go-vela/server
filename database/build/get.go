@@ -32,8 +32,6 @@ func (e *engine) GetBuild(ctx context.Context, id int64) (*api.Build, error) {
 	err = b.Repo.Decrypt(e.config.EncryptionKey)
 	if err != nil {
 		e.logger.Errorf("unable to decrypt repo: %v", err)
-
-		return b.ToAPI(), nil
 	}
 
 	return b.ToAPI(), nil
