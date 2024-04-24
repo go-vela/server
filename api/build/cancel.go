@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -105,7 +104,7 @@ func CancelBuild(c *gin.Context) {
 
 		for _, executor := range e {
 			// check each executor on the worker running the build to see if it's running the build we want to cancel
-			if strings.EqualFold(executor.Repo.GetFullName(), r.GetFullName()) && *executor.GetBuild().Number == b.GetNumber() {
+			if executor.Build.GetID() == b.GetID() {
 				// prepare the request to the worker
 				client := http.DefaultClient
 				client.Timeout = 30 * time.Second

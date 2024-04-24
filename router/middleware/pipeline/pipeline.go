@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -74,13 +75,15 @@ func Establish() gin.HandlerFunc {
 				return
 			}
 
+			b := new(api.Build)
+			b.SetRepo(r)
+
 			// parse and compile the pipeline configuration file
 			_, pipeline, err = compiler.FromContext(c).
 				Duplicate().
 				WithCommit(p).
 				WithMetadata(c.MustGet("metadata").(*internal.Metadata)).
-				WithRepo(r).
-				WithUser(u).
+				WithBuild(b).
 				Compile(config)
 			if err != nil {
 				retErr := fmt.Errorf("unable to compile pipeline configuration for %s: %w", entry, err)

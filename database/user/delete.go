@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -18,7 +19,7 @@ func (e *engine) DeleteUser(ctx context.Context, u *api.User) error {
 	}).Tracef("deleting user %s from the database", u.GetName())
 
 	// cast the API type to database type
-	user := FromAPI(u)
+	user := types.UserFromAPI(u)
 
 	// send query to the database
 	return e.client.

@@ -850,9 +850,12 @@ func TestGithub_Status_Deployment(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventDeploy)
 	b.SetStatus(constants.StatusRunning)
@@ -895,9 +898,12 @@ func TestGithub_Status_Running(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventPush)
 	b.SetStatus(constants.StatusRunning)
@@ -956,9 +962,12 @@ func TestGithub_Status_Success(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventPush)
 	b.SetStatus(constants.StatusRunning)
@@ -1017,9 +1026,12 @@ func TestGithub_Status_Failure(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventPush)
 	b.SetStatus(constants.StatusRunning)
@@ -1078,9 +1090,12 @@ func TestGithub_Status_Killed(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventPush)
 	b.SetStatus(constants.StatusRunning)
@@ -1139,9 +1154,12 @@ func TestGithub_Status_Skipped(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventPush)
 	b.SetStatus(constants.StatusSkipped)
@@ -1200,9 +1218,12 @@ func TestGithub_Status_Error(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
-	b := new(library.Build)
+	r := new(api.Repo)
+	r.SetID(1)
+
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 	b.SetEvent(constants.EventPush)
 	b.SetStatus(constants.StatusRunning)

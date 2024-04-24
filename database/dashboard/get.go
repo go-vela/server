@@ -7,6 +7,7 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
+	"github.com/go-vela/server/database/types"
 )
 
 // GetDashboard gets a dashboard by UUID from the database.
@@ -14,17 +15,17 @@ func (e *engine) GetDashboard(ctx context.Context, id string) (*api.Dashboard, e
 	e.logger.Tracef("getting dashboard %s from the database", id)
 
 	// variable to store query results
-	r := new(Dashboard)
+	d := new(types.Dashboard)
 
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(constants.TableDashboard).
 		Where("id = ?", id).
-		Take(r).
+		Take(d).
 		Error
 	if err != nil {
 		return nil, err
 	}
 
-	return r.ToAPI(), nil
+	return d.ToAPI(), nil
 }

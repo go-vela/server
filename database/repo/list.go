@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -15,7 +16,7 @@ func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 
 	// variables to store query results and return value
 	count := int64(0)
-	r := new([]Repo)
+	r := new([]types.Repo)
 	repos := []*api.Repo{}
 
 	// count the results
@@ -53,12 +54,6 @@ func (e *engine) ListRepos(ctx context.Context) ([]*api.Repo, error) {
 			// by logging the error instead of returning it
 			// which allows us to fetch unencrypted repos
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
-		}
-
-		// decrypt owner fields
-		err = tmp.Owner.Decrypt(e.config.EncryptionKey)
-		if err != nil {
-			e.logger.Errorf("unable to decrypt repo owner %d: %v", tmp.ID.Int64, err)
 		}
 
 		// convert query result to library type

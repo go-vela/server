@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -15,7 +16,7 @@ func (e *engine) ListUsers(ctx context.Context) ([]*api.User, error) {
 
 	// variables to store query results and return value
 	count := int64(0)
-	u := new([]User)
+	u := new([]types.User)
 	users := []*api.User{}
 
 	// count the results

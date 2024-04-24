@@ -10,12 +10,13 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestPipeline_Engine_GetPipelineForRepo(t *testing.T) {
 	// setup types
-	_pipeline := testPipeline()
+	_pipeline := testutils.APIPipeline()
 	_pipeline.SetID(1)
 	_pipeline.SetRepoID(1)
 	_pipeline.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")

@@ -10,6 +10,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestDashboard_Engine_CreateDashboard(t *testing.T) {
@@ -26,7 +27,7 @@ func TestDashboard_Engine_CreateDashboard(t *testing.T) {
 	_admin.SetActive(true)
 	_admins := []*api.User{_admin}
 
-	_dashboard := testDashboard()
+	_dashboard := testutils.APIDashboard()
 	_dashboard.SetID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_dashboard.SetName("dash")
 	_dashboard.SetCreatedAt(1)

@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -19,7 +20,7 @@ func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo
 	}).Tracef("getting repo %s/%s from the database", org, name)
 
 	// variable to store query results
-	r := new(Repo)
+	r := new(types.Repo)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -42,15 +43,6 @@ func (e *engine) GetRepoForOrg(ctx context.Context, org, name string) (*api.Repo
 		// by logging the error instead of returning it
 		// which allows us to fetch unencrypted repos
 		e.logger.Errorf("unable to decrypt repo %s/%s: %v", org, name, err)
-
-		// return the unencrypted repo
-		return r.ToAPI(), nil
-	}
-
-	// decrypt owner fields
-	err = r.Owner.Decrypt(e.config.EncryptionKey)
-	if err != nil {
-		e.logger.Errorf("unable to decrypt repo owner %s/%s: %v", org, name, err)
 
 		// return the unencrypted repo
 		return r.ToAPI(), nil

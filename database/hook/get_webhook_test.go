@@ -9,12 +9,13 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestHook_Engine_GetHookByWebhookID(t *testing.T) {
 	// setup types
-	_hook := testHook()
+	_hook := testutils.APIHook()
 	_hook.SetID(1)
 	_hook.SetRepoID(1)
 	_hook.SetBuildID(1)

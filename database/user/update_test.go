@@ -8,11 +8,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestUser_Engine_UpdateUser(t *testing.T) {
 	// setup types
-	_user := testAPIUser()
+	_user := testutils.APIUser()
 	_user.SetID(1)
 	_user.SetName("foo")
 	_user.SetToken("bar")

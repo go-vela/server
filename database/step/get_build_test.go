@@ -9,17 +9,18 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestStep_Engine_GetStepForBuild(t *testing.T) {
 	// setup types
-	_build := testBuild()
+	_build := testutils.APIBuild()
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(testutils.APIRepo())
 	_build.SetNumber(1)
 
-	_step := testStep()
+	_step := testutils.APIStep()
 	_step.SetID(1)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)

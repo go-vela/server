@@ -13,7 +13,6 @@ import (
 	"gorm.io/gorm"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/types/library"
 )
 
 func TestWorker_New(t *testing.T) {
@@ -108,27 +107,27 @@ func TestWorker_New(t *testing.T) {
 }
 
 func TestWorker_convertToBuilds(t *testing.T) {
-	_buildOne := new(library.Build)
+	_buildOne := new(api.Build)
 	_buildOne.SetID(1)
 
-	_buildTwo := new(library.Build)
+	_buildTwo := new(api.Build)
 	_buildTwo.SetID(2)
 
 	// setup tests
 	tests := []struct {
 		name string
 		ids  []string
-		want []*library.Build
+		want []*api.Build
 	}{
 		{
 			name: "one id",
 			ids:  []string{"1"},
-			want: []*library.Build{_buildOne},
+			want: []*api.Build{_buildOne},
 		},
 		{
 			name: "multiple ids",
 			ids:  []string{"1", "2"},
-			want: []*library.Build{_buildOne, _buildTwo},
+			want: []*api.Build{_buildOne, _buildTwo},
 		},
 		{
 			name: "not int64",
@@ -210,7 +209,7 @@ func testSqlite(t *testing.T) *engine {
 // testWorker is a test helper function to create a library
 // Worker type with all fields set to their zero values.
 func testWorker() *api.Worker {
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 
 	return &api.Worker{
@@ -221,7 +220,7 @@ func testWorker() *api.Worker {
 		Active:              new(bool),
 		Status:              new(string),
 		LastStatusUpdateAt:  new(int64),
-		RunningBuilds:       &[]*library.Build{b},
+		RunningBuilds:       &[]*api.Build{b},
 		LastBuildStartedAt:  new(int64),
 		LastBuildFinishedAt: new(int64),
 		LastCheckedIn:       new(int64),
