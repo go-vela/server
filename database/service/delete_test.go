@@ -7,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestService_Engine_DeleteService(t *testing.T) {
 	// setup types
-	_service := testService()
+	_service := testutils.APIService()
 	_service.SetID(1)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)

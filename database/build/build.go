@@ -15,6 +15,8 @@ import (
 type (
 	// config represents the settings required to create the engine that implements the BuildInterface interface.
 	config struct {
+		// specifies the encryption key to use for the Build engine
+		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Build engine
 		SkipCreation bool
 	}

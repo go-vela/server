@@ -7,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestHook_Engine_CreateHook(t *testing.T) {
 	// setup types
-	_hook := testHook()
+	_hook := testutils.APIHook()
 	_hook.SetID(1)
 	_hook.SetRepoID(1)
 	_hook.SetBuildID(1)

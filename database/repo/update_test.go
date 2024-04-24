@@ -10,12 +10,13 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/constants"
 )
 
 func TestRepo_Engine_UpdateRepo(t *testing.T) {
 	// setup types
-	_repo := testAPIRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
 	_repo.GetOwner().SetID(1)
 	_repo.SetHash("baz")

@@ -9,18 +9,19 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestDashboard_Engine_DeleteDashboard(t *testing.T) {
 	// setup types
-	_dashboard := testDashboard()
+	_dashboard := testutils.APIDashboard()
 	_dashboard.SetID("c8da1302-07d6-11ea-882f-4893bca275b8")
 	_dashboard.SetName("vela")
 	_dashboard.SetCreatedAt(1)
 	_dashboard.SetCreatedBy("user1")
 	_dashboard.SetUpdatedAt(1)
 	_dashboard.SetUpdatedBy("user2")
-	_dashboard.SetRepos([]*api.DashboardRepo{testDashboardRepo()})
+	_dashboard.SetRepos([]*api.DashboardRepo{testutils.APIDashboardRepo()})
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

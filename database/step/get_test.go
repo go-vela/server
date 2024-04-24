@@ -9,18 +9,20 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestStep_Engine_GetStep(t *testing.T) {
 	// setup types
-	_step := testStep()
+	_step := testutils.APIStep()
 	_step.SetID(1)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)
 	_step.SetNumber(1)
 	_step.SetName("foo")
 	_step.SetImage("bar")
+
 	ctx := context.TODO()
 
 	_postgres, _mock := testPostgres(t)

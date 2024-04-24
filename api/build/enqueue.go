@@ -16,11 +16,11 @@ import (
 
 // Enqueue is a helper function that pushes a queue item (build, repo, user) to the queue.
 func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, item *models.Item, route string) {
-	logrus.Infof("Converting queue item to json for build %d for %s", item.Build.GetNumber(), item.Repo.GetFullName())
+	logrus.Infof("Converting queue item to json for build %d for %s", item.Build.GetNumber(), item.Build.GetRepo().GetFullName())
 
 	byteItem, err := json.Marshal(item)
 	if err != nil {
-		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", item.Build.GetNumber(), item.Repo.GetFullName(), err)
+		logrus.Errorf("Failed to convert item to json for build %d for %s: %v", item.Build.GetNumber(), item.Build.GetRepo().GetFullName(), err)
 
 		// error out the build
 		CleanBuild(ctx, db, item.Build, nil, nil, err)
@@ -28,16 +28,16 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 		return
 	}
 
-	logrus.Infof("Pushing item for build %d for %s to queue route %s", item.Build.GetNumber(), item.Repo.GetFullName(), route)
+	logrus.Infof("Pushing item for build %d for %s to queue route %s", item.Build.GetNumber(), item.Build.GetRepo().GetFullName(), route)
 
 	// push item on to the queue
 	err = queue.Push(context.Background(), route, byteItem)
 	if err != nil {
-		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", item.Build.GetNumber(), item.Repo.GetFullName(), err)
+		logrus.Errorf("Retrying; Failed to publish build %d for %s: %v", item.Build.GetNumber(), item.Build.GetRepo().GetFullName(), err)
 
 		err = queue.Push(context.Background(), route, byteItem)
 		if err != nil {
-			logrus.Errorf("Failed to publish build %d for %s: %v", item.Build.GetNumber(), item.Repo.GetFullName(), err)
+			logrus.Errorf("Failed to publish build %d for %s: %v", item.Build.GetNumber(), item.Build.GetRepo().GetFullName(), err)
 
 			// error out the build
 			CleanBuild(ctx, db, item.Build, nil, nil, err)
@@ -52,6 +52,6 @@ func Enqueue(ctx context.Context, queue queue.Service, db database.Interface, it
 	// update the build in the db to reflect the time it was enqueued
 	_, err = db.UpdateBuild(ctx, item.Build)
 	if err != nil {
-		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", item.Build.GetNumber(), item.Repo.GetFullName(), err)
+		logrus.Errorf("Failed to update build %d during publish to queue for %s: %v", item.Build.GetNumber(), item.Build.GetRepo().GetFullName(), err)
 	}
 }

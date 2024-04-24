@@ -7,8 +7,6 @@ import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/go-vela/types/library"
 )
 
 func TestTypes_Worker_Getters(t *testing.T) {
@@ -202,7 +200,7 @@ func TestTypes_Worker_String(t *testing.T) {
 // testWorker is a test helper function to create a Worker
 // type with all fields set to a fake value.
 func testWorker() *Worker {
-	b := new(library.Build)
+	b := new(Build)
 	b.SetID(1)
 
 	w := new(Worker)
@@ -214,7 +212,7 @@ func testWorker() *Worker {
 	w.SetActive(true)
 	w.SetStatus("available")
 	w.SetLastStatusUpdateAt(time.Time{}.UTC().Unix())
-	w.SetRunningBuilds([]*library.Build{b})
+	w.SetRunningBuilds([]*Build{b})
 	w.SetLastBuildStartedAt(time.Time{}.UTC().Unix())
 	w.SetLastBuildFinishedAt(time.Time{}.UTC().Unix())
 	w.SetLastCheckedIn(time.Time{}.UTC().Unix())

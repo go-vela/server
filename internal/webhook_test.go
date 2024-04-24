@@ -5,8 +5,8 @@ package internal
 import (
 	"testing"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 func TestWebhook_ShouldSkip(t *testing.T) {
@@ -92,8 +92,8 @@ func TestWebhook_ShouldSkip(t *testing.T) {
 	}
 }
 
-func testPushBuild(message, title, event string) *library.Build {
-	b := new(library.Build)
+func testPushBuild(message, title, event string) *api.Build {
+	b := new(api.Build)
 
 	b.SetEvent(event)
 

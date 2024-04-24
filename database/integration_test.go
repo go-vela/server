@@ -25,6 +25,7 @@ import (
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
 	"github.com/go-vela/server/database/step"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 	"github.com/go-vela/types/constants"
@@ -34,7 +35,7 @@ import (
 
 // Resources represents the object containing test resources.
 type Resources struct {
-	Builds      []*library.Build
+	Builds      []*api.Build
 	Dashboards  []*api.Dashboard
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
@@ -175,6 +176,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
+	// create the users for build related functions (owners of repos)
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// create the repos for build related functions
 	for _, repo := range resources.Repos {
 		_, err := db.CreateRepo(context.TODO(), repo)
@@ -183,19 +192,19 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 
-	buildOne := new(library.BuildQueue)
+	buildOne := new(api.QueueBuild)
 	buildOne.SetCreated(1563474076)
 	buildOne.SetFullName("github/octocat")
 	buildOne.SetNumber(1)
 	buildOne.SetStatus("running")
 
-	buildTwo := new(library.BuildQueue)
+	buildTwo := new(api.QueueBuild)
 	buildTwo.SetCreated(1563474076)
 	buildTwo.SetFullName("github/octocat")
 	buildTwo.SetNumber(2)
 	buildTwo.SetStatus("running")
 
-	queueBuilds := []*library.BuildQueue{buildOne, buildTwo}
+	queueBuilds := []*api.QueueBuild{buildOne, buildTwo}
 
 	// create the builds
 	for _, build := range resources.Builds {
@@ -287,7 +296,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Builds[1], resources.Builds[0]}, list); diff != "" {
 		t.Errorf("ListBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForRepo"] = true
@@ -299,8 +308,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if len(list) != 1 {
 		t.Errorf("Number of results for ListBuildsForDashboardRepo() is %v, want %v", len(list), 1)
 	}
-	if !cmp.Equal(list, []*library.Build{resources.Builds[0]}) {
-		t.Errorf("ListBuildsForDashboardRepo() is %v, want %v", list, []*library.Build{resources.Builds[0]})
+
+	// ListBuildsForDashboardRepo does not contain nested repo
+	wantBuild := *resources.Builds[0]
+	wantBuild.Repo = testutils.APIRepo()
+	wantBuild.Repo.Owner = testutils.APIUser().Crop()
+
+	if diff := cmp.Diff([]*api.Build{&wantBuild}, list); diff != "" {
+		t.Errorf("ListBuildsForDashboardRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListBuildsForDashboardRepo"] = true
 
@@ -312,7 +327,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 	if int(count) != len(resources.Builds) {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() is %v, want %v", count, len(resources.Builds))
 	}
-	if diff := cmp.Diff([]*library.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
+	if diff := cmp.Diff([]*api.Build{resources.Builds[0], resources.Builds[1]}, list); diff != "" {
 		t.Errorf("ListPendingAndRunningBuildsForRepo() mismatch (-want +got):\n%s", diff)
 	}
 	methods["ListPendingAndRunningBuildsForRepo"] = true
@@ -339,7 +354,7 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 
 	// lookup the builds by repo and number
 	for _, build := range resources.Builds {
-		repo := resources.Repos[build.GetRepoID()-1]
+		repo := resources.Repos[build.GetRepo().GetID()-1]
 		got, err = db.GetBuildForRepo(context.TODO(), repo, build.GetNumber())
 		if err != nil {
 			t.Errorf("unable to get build %d for repo %d: %v", build.GetID(), repo.GetID(), err)
@@ -397,6 +412,14 @@ func testBuilds(t *testing.T, db Interface, resources *Resources) {
 		}
 	}
 
+	// delete the users for the build related functions
+	for _, user := range resources.Users {
+		err = db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
+
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {
@@ -438,18 +461,14 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		got, err := db.GetDashboard(ctx, dashboard.GetID())
 		if err != nil {
-			t.Errorf("unable to get schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to get dashboard %s: %v", dashboard.GetID(), err)
 		}
 
 		// JSON tags of `-` prevent unmarshaling of tokens, but they are sanitized anyway
 		cmpAdmins := []*api.User{}
 		for _, admin := range got.GetAdmins() {
-			admin.SetToken(constants.SecretMask)
-			admin.SetRefreshToken(constants.SecretMask)
-
-			cmpAdmins = append(cmpAdmins, admin)
+			cmpAdmins = append(cmpAdmins, admin.Crop())
 		}
-
 		got.SetAdmins(cmpAdmins)
 
 		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
@@ -466,8 +485,14 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to update dashboard %s: %v", dashboard.GetID(), err)
 		}
 
-		if !cmp.Equal(got, dashboard, CmpOptApproxUpdatedAt()) {
-			t.Errorf("UpdateDashboard() is %v, want %v", got, dashboard)
+		// JSON marshaling does not include comparing token due to `-` struct tag
+		cmpAdmins := got.GetAdmins()
+		for i, admin := range cmpAdmins {
+			admin.SetToken(resources.Users[i].GetToken())
+		}
+
+		if diff := cmp.Diff(dashboard, got, CmpOptApproxUpdatedAt()); diff != "" {
+			t.Errorf("UpdateDashboard() mismatch (-want +got):\n%s", diff)
 		}
 	}
 	methods["UpdateDashboard"] = true
@@ -476,7 +501,7 @@ func testDashboards(t *testing.T, db Interface, resources *Resources) {
 	for _, dashboard := range resources.Dashboards {
 		err := db.DeleteDashboard(ctx, dashboard)
 		if err != nil {
-			t.Errorf("unable to delete schedule %s: %v", dashboard.GetID(), err)
+			t.Errorf("unable to delete dashboard %s: %v", dashboard.GetID(), err)
 		}
 	}
 	methods["DeleteDashboard"] = true
@@ -2127,13 +2152,59 @@ func newResources() *Resources {
 	userTwo.SetToken("superSecretToken")
 	userTwo.SetRefreshToken("superSecretRefreshToken")
 	userTwo.SetFavorites([]string{"github/octocat"})
+	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
 	userTwo.SetActive(true)
 	userTwo.SetAdmin(false)
-	userTwo.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7", "ba657dab-bc6e-421f-9188-86272bd0069a"})
 
-	buildOne := new(library.Build)
+	repoOne := new(api.Repo)
+	repoOne.SetID(1)
+	repoOne.SetOwner(userOne.Crop())
+	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoOne.SetOrg("github")
+	repoOne.SetName("octocat")
+	repoOne.SetFullName("github/octocat")
+	repoOne.SetLink("https://github.com/github/octocat")
+	repoOne.SetClone("https://github.com/github/octocat.git")
+	repoOne.SetBranch("main")
+	repoOne.SetTopics([]string{"cloud", "security"})
+	repoOne.SetBuildLimit(10)
+	repoOne.SetTimeout(30)
+	repoOne.SetCounter(0)
+	repoOne.SetVisibility("public")
+	repoOne.SetPrivate(false)
+	repoOne.SetTrusted(false)
+	repoOne.SetActive(true)
+	repoOne.SetPipelineType("")
+	repoOne.SetPreviousName("")
+	repoOne.SetApproveBuild(constants.ApproveNever)
+	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
+
+	repoTwo := new(api.Repo)
+	repoTwo.SetID(2)
+	repoTwo.SetOwner(userOne.Crop())
+	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
+	repoTwo.SetOrg("github")
+	repoTwo.SetName("octokitty")
+	repoTwo.SetFullName("github/octokitty")
+	repoTwo.SetLink("https://github.com/github/octokitty")
+	repoTwo.SetClone("https://github.com/github/octokitty.git")
+	repoTwo.SetBranch("main")
+	repoTwo.SetTopics([]string{"cloud", "security"})
+	repoTwo.SetBuildLimit(10)
+	repoTwo.SetTimeout(30)
+	repoTwo.SetCounter(0)
+	repoTwo.SetVisibility("public")
+	repoTwo.SetPrivate(false)
+	repoTwo.SetTrusted(false)
+	repoTwo.SetActive(true)
+	repoTwo.SetPipelineType("")
+	repoTwo.SetPreviousName("")
+	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
+	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
+
+	buildOne := new(api.Build)
 	buildOne.SetID(1)
-	buildOne.SetRepoID(1)
+	buildOne.SetRepo(repoOne)
 	buildOne.SetPipelineID(1)
 	buildOne.SetNumber(1)
 	buildOne.SetParent(1)
@@ -2167,9 +2238,9 @@ func newResources() *Resources {
 	buildOne.SetApprovedAt(1563474078)
 	buildOne.SetApprovedBy("OctoCat")
 
-	buildTwo := new(library.Build)
+	buildTwo := new(api.Build)
 	buildTwo.SetID(2)
-	buildTwo.SetRepoID(1)
+	buildTwo.SetRepo(repoOne)
 	buildTwo.SetPipelineID(1)
 	buildTwo.SetNumber(2)
 	buildTwo.SetParent(1)
@@ -2209,6 +2280,13 @@ func newResources() *Resources {
 	dashRepo.SetBranches([]string{"main"})
 	dashRepo.SetEvents([]string{"push"})
 
+	// crop and set "-" JSON tag fields to nil for dashboard admins
+	dashboardAdmins := []*api.User{userOne.Crop(), userTwo.Crop()}
+	for _, admin := range dashboardAdmins {
+		admin.Token = nil
+		admin.RefreshToken = nil
+	}
+
 	dashboardOne := new(api.Dashboard)
 	dashboardOne.SetID("ba657dab-bc6e-421f-9188-86272bd0069a")
 	dashboardOne.SetName("vela")
@@ -2216,7 +2294,7 @@ func newResources() *Resources {
 	dashboardOne.SetCreatedBy("octocat")
 	dashboardOne.SetUpdatedAt(2)
 	dashboardOne.SetUpdatedBy("octokitty")
-	dashboardOne.SetAdmins([]*api.User{userOne.Crop(), userTwo.Crop()})
+	dashboardOne.SetAdmins(dashboardAdmins)
 	dashboardOne.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	dashboardTwo := new(api.Dashboard)
@@ -2226,7 +2304,7 @@ func newResources() *Resources {
 	dashboardTwo.SetCreatedBy("octocat")
 	dashboardTwo.SetUpdatedAt(2)
 	dashboardTwo.SetUpdatedBy("octokitty")
-	dashboardTwo.SetAdmins([]*api.User{userOne.Crop(), userTwo.Crop()})
+	dashboardTwo.SetAdmins(dashboardAdmins)
 	dashboardTwo.SetRepos([]*api.DashboardRepo{dashRepo})
 
 	executableOne := new(library.BuildExecutable)
@@ -2384,52 +2462,6 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
-	repoOne := new(api.Repo)
-	repoOne.SetID(1)
-	repoOne.SetOwner(userOne.Crop())
-	repoOne.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	repoOne.SetOrg("github")
-	repoOne.SetName("octocat")
-	repoOne.SetFullName("github/octocat")
-	repoOne.SetLink("https://github.com/github/octocat")
-	repoOne.SetClone("https://github.com/github/octocat.git")
-	repoOne.SetBranch("main")
-	repoOne.SetTopics([]string{"cloud", "security"})
-	repoOne.SetBuildLimit(10)
-	repoOne.SetTimeout(30)
-	repoOne.SetCounter(0)
-	repoOne.SetVisibility("public")
-	repoOne.SetPrivate(false)
-	repoOne.SetTrusted(false)
-	repoOne.SetActive(true)
-	repoOne.SetPipelineType("")
-	repoOne.SetPreviousName("")
-	repoOne.SetApproveBuild(constants.ApproveNever)
-	repoOne.SetAllowEvents(api.NewEventsFromMask(1))
-
-	repoTwo := new(api.Repo)
-	repoTwo.SetID(2)
-	repoTwo.SetOwner(userOne.Crop())
-	repoTwo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
-	repoTwo.SetOrg("github")
-	repoTwo.SetName("octokitty")
-	repoTwo.SetFullName("github/octokitty")
-	repoTwo.SetLink("https://github.com/github/octokitty")
-	repoTwo.SetClone("https://github.com/github/octokitty.git")
-	repoTwo.SetBranch("main")
-	repoTwo.SetTopics([]string{"cloud", "security"})
-	repoTwo.SetBuildLimit(10)
-	repoTwo.SetTimeout(30)
-	repoTwo.SetCounter(0)
-	repoTwo.SetVisibility("public")
-	repoTwo.SetPrivate(false)
-	repoTwo.SetTrusted(false)
-	repoTwo.SetActive(true)
-	repoTwo.SetPipelineType("")
-	repoTwo.SetPreviousName("")
-	repoTwo.SetApproveBuild(constants.ApproveForkAlways)
-	repoTwo.SetAllowEvents(api.NewEventsFromMask(1))
-
 	scheduleOne := new(library.Schedule)
 	scheduleOne.SetID(1)
 	scheduleOne.SetRepoID(1)
@@ -2579,10 +2611,10 @@ func newResources() *Resources {
 	stepTwo.SetDistribution("linux")
 	stepTwo.SetReportAs("test")
 
-	_bPartialOne := new(library.Build)
+	_bPartialOne := new(api.Build)
 	_bPartialOne.SetID(1)
 
-	_bPartialTwo := new(library.Build)
+	_bPartialTwo := new(api.Build)
 	_bPartialTwo.SetID(2)
 
 	workerOne := new(api.Worker)
@@ -2593,7 +2625,7 @@ func newResources() *Resources {
 	workerOne.SetActive(true)
 	workerOne.SetStatus("available")
 	workerOne.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerOne.SetRunningBuilds([]*library.Build{_bPartialOne})
+	workerOne.SetRunningBuilds([]*api.Build{_bPartialOne})
 	workerOne.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerOne.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerOne.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
@@ -2607,14 +2639,14 @@ func newResources() *Resources {
 	workerTwo.SetActive(true)
 	workerTwo.SetStatus("available")
 	workerTwo.SetLastStatusUpdateAt(time.Now().UTC().Unix())
-	workerTwo.SetRunningBuilds([]*library.Build{_bPartialTwo})
+	workerTwo.SetRunningBuilds([]*api.Build{_bPartialTwo})
 	workerTwo.SetLastBuildStartedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastBuildFinishedAt(time.Now().UTC().Unix())
 	workerTwo.SetLastCheckedIn(time.Now().UTC().Unix() - 60)
 	workerTwo.SetBuildLimit(1)
 
 	return &Resources{
-		Builds:      []*library.Build{buildOne, buildTwo},
+		Builds:      []*api.Build{buildOne, buildTwo},
 		Dashboards:  []*api.Dashboard{dashboardOne, dashboardTwo},
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},

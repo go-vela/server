@@ -12,7 +12,6 @@ import (
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/scm"
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 )
 
@@ -21,7 +20,7 @@ import (
 // and services, for the build in the configured backend.
 // TODO:
 // - return build and error.
-func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *library.Build, r *types.Repo) error {
+func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build, r *types.Repo) error {
 	// update fields in build object
 	b.SetCreated(time.Now().UTC().Unix())
 
@@ -51,7 +50,7 @@ func PlanBuild(ctx context.Context, database database.Interface, scm scm.Service
 	}
 
 	// plan all steps for the build
-	steps, err := step.PlanSteps(ctx, database, scm, p, b, r)
+	steps, err := step.PlanSteps(ctx, database, scm, p, b)
 	if err != nil {
 		// clean up the objects from the pipeline in the database
 		CleanBuild(ctx, database, b, services, steps, err)
