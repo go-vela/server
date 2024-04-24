@@ -9,36 +9,41 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 	// setup types
-	_buildOne := testBuild()
+	_repo := testutils.APIRepo()
+	_repo.SetID(1)
+
+	_buildOne := testutils.APIBuild()
 	_buildOne.SetID(1)
-	_buildOne.SetRepoID(1)
+	_buildOne.SetRepo(_repo)
 	_buildOne.SetNumber(1)
 	_buildOne.SetDeployPayload(nil)
 	_buildOne.SetCreated(1)
 	_buildOne.SetEvent("push")
 	_buildOne.SetBranch("main")
 
-	_buildTwo := testBuild()
+	_buildTwo := testutils.APIBuild()
 	_buildTwo.SetID(2)
-	_buildTwo.SetRepoID(1)
+	_buildTwo.SetRepo(_repo)
 	_buildTwo.SetNumber(2)
 	_buildTwo.SetDeployPayload(nil)
 	_buildTwo.SetCreated(2)
 	_buildTwo.SetEvent("pull_request")
 	_buildTwo.SetBranch("main")
 
-	_repo := testRepo()
-	_repo.SetID(1)
-	_repo.SetHash("baz")
-	_repo.SetOrg("foo")
-	_repo.SetName("bar")
-	_repo.SetFullName("foo/bar")
-	_repo.SetVisibility("public")
+	// ListBuildsForDashboardRepo does not return the repo object but the repo ID is needed to create builds
+	_wantBuildOne := *_buildOne
+	_wantBuildOne.Repo = testutils.APIRepo()
+	_wantBuildOne.Repo.Owner = testutils.APIUser().Crop()
+
+	_wantBuildTwo := *_buildTwo
+	_wantBuildTwo.Repo = testutils.APIRepo()
+	_wantBuildTwo.Repo.Owner = testutils.APIUser().Crop()
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -70,19 +75,19 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 		failure  bool
 		name     string
 		database *engine
-		want     []*library.Build
+		want     []*api.Build
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []*library.Build{_buildTwo, _buildOne},
+			want:     []*api.Build{&_wantBuildTwo, &_wantBuildOne},
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []*library.Build{_buildTwo, _buildOne},
+			want:     []*api.Build{&_wantBuildTwo, &_wantBuildOne},
 		},
 	}
 
@@ -103,7 +108,7 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 				t.Errorf("ListBuildsForRepo for %s returned err: %v", test.name, err)
 			}
 
-			if diff := cmp.Diff(got, test.want); diff != "" {
+			if diff := cmp.Diff(test.want, got); diff != "" {
 				t.Errorf("GetDashboard mismatch (-want +got):\n%s", diff)
 			}
 		})

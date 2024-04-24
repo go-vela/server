@@ -8,11 +8,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestPipeline_Engine_CountPipelines(t *testing.T) {
 	// setup types
-	_pipelineOne := testPipeline()
+	_pipelineOne := testutils.APIPipeline()
 	_pipelineOne.SetID(1)
 	_pipelineOne.SetRepoID(1)
 	_pipelineOne.SetCommit("48afb5bdc41ad69bf22588491333f7cf71135163")
@@ -20,7 +22,7 @@ func TestPipeline_Engine_CountPipelines(t *testing.T) {
 	_pipelineOne.SetType("yaml")
 	_pipelineOne.SetVersion("1")
 
-	_pipelineTwo := testPipeline()
+	_pipelineTwo := testutils.APIPipeline()
 	_pipelineTwo.SetID(2)
 	_pipelineTwo.SetRepoID(2)
 	_pipelineTwo.SetCommit("a49aaf4afae6431a79239c95247a2b169fd9f067")

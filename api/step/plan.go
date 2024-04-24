@@ -20,7 +20,7 @@ import (
 // PlanSteps is a helper function to plan all steps
 // in the build for execution. This creates the steps
 // for the build in the configured backend.
-func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *library.Build, repo *types.Repo) ([]*library.Step, error) {
+func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service, p *pipeline.Build, b *types.Build) ([]*library.Step, error) {
 	// variable to store planned steps
 	steps := []*library.Step{}
 
@@ -29,7 +29,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 		// iterate through all steps for each pipeline stage
 		for _, step := range stage.Steps {
 			// create the step object
-			s, err := planStep(ctx, database, scm, b, step, repo, stage.Name)
+			s, err := planStep(ctx, database, scm, b, step, stage.Name)
 			if err != nil {
 				return steps, err
 			}
@@ -40,7 +40,7 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 
 	// iterate through all pipeline steps
 	for _, step := range p.Steps {
-		s, err := planStep(ctx, database, scm, b, step, repo, "")
+		s, err := planStep(ctx, database, scm, b, step, "")
 		if err != nil {
 			return steps, err
 		}
@@ -51,11 +51,11 @@ func PlanSteps(ctx context.Context, database database.Interface, scm scm.Service
 	return steps, nil
 }
 
-func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *library.Build, c *pipeline.Container, repo *types.Repo, stage string) (*library.Step, error) {
+func planStep(ctx context.Context, database database.Interface, scm scm.Service, b *types.Build, c *pipeline.Container, stage string) (*library.Step, error) {
 	// create the step object
 	s := new(library.Step)
 	s.SetBuildID(b.GetID())
-	s.SetRepoID(b.GetRepoID())
+	s.SetRepoID(b.GetRepo().GetID())
 	s.SetNumber(c.Number)
 	s.SetName(c.Name)
 	s.SetImage(c.Image)
@@ -82,7 +82,7 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 	l := new(library.Log)
 	l.SetStepID(s.GetID())
 	l.SetBuildID(b.GetID())
-	l.SetRepoID(b.GetRepoID())
+	l.SetRepoID(b.GetRepo().GetID())
 	l.SetData([]byte{})
 
 	// send API call to create the step logs
@@ -93,7 +93,7 @@ func planStep(ctx context.Context, database database.Interface, scm scm.Service,
 
 	if len(s.GetReportAs()) > 0 {
 		// send API call to set the status on the commit
-		err = scm.StepStatus(ctx, repo.GetOwner(), b, s, repo.GetOrg(), repo.GetName())
+		err = scm.StepStatus(ctx, b.GetRepo().GetOwner(), b, s, b.GetRepo().GetOrg(), b.GetRepo().GetName())
 		if err != nil {
 			logrus.Errorf("unable to set commit status for build: %v", err)
 		}

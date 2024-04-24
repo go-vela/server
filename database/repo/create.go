@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -21,7 +22,7 @@ func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	}).Tracef("creating repo %s in the database", r.GetFullName())
 
 	// cast the library type to database type
-	repo := FromAPI(r)
+	repo := types.RepoFromAPI(r)
 
 	// validate the necessary fields are populated
 	err := repo.Validate()
@@ -46,8 +47,6 @@ func (e *engine) CreateRepo(ctx context.Context, r *api.Repo) (*api.Repo, error)
 	if err != nil {
 		// only log to preserve backwards compatibility
 		e.logger.Errorf("unable to decrypt repo %d: %v", r.GetID(), err)
-
-		return repo.ToAPI(), nil
 	}
 
 	// set owner to provided owner if creation successful

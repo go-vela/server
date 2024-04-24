@@ -7,12 +7,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/library"
 )
 
 // CountStepsForBuild gets the count of steps by build ID from the database.
-func (e *engine) CountStepsForBuild(ctx context.Context, b *library.Build, filters map[string]interface{}) (int64, error) {
+func (e *engine) CountStepsForBuild(ctx context.Context, b *api.Build, filters map[string]interface{}) (int64, error) {
 	e.logger.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 	}).Tracef("getting count of steps for build %d from the database", b.GetNumber())

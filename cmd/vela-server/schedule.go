@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-vela/server/api/build"
 	"github.com/go-vela/server/api/types/settings"
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -156,7 +157,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, settings *setting
 
 	url := strings.TrimSuffix(r.GetClone(), ".git")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetAuthor(s.GetCreatedBy())
 	b.SetBranch(s.GetBranch())
 	b.SetClone(r.GetClone())
@@ -164,7 +165,7 @@ func processSchedule(ctx context.Context, s *library.Schedule, settings *setting
 	b.SetEvent(constants.EventSchedule)
 	b.SetMessage(fmt.Sprintf("triggered for %s schedule with %s entry", s.GetName(), s.GetEntry()))
 	b.SetRef(fmt.Sprintf("refs/heads/%s", b.GetBranch()))
-	b.SetRepoID(r.GetID())
+	b.SetRepo(r)
 	b.SetSender(s.GetUpdatedBy())
 	b.SetSource(fmt.Sprintf("%s/tree/%s", url, b.GetBranch()))
 	b.SetStatus(constants.StatusPending)
@@ -173,7 +174,6 @@ func processSchedule(ctx context.Context, s *library.Schedule, settings *setting
 	// schedule form
 	config := build.CompileAndPublishConfig{
 		Build:    b,
-		Repo:     r,
 		Metadata: metadata,
 		BaseErr:  "unable to schedule build",
 		Source:   "schedule",

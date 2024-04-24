@@ -122,7 +122,7 @@ func ApproveBuild(c *gin.Context) {
 		ctx,
 		queue.FromGinContext(c),
 		database.FromContext(c),
-		models.ToItem(b, r),
+		models.ToItem(b),
 		b.GetHost(),
 	)
 

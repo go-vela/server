@@ -19,7 +19,6 @@ func TestRedis_Pop(t *testing.T) {
 	// use global variables in redis_test.go
 	_item := &models.Item{
 		Build: _build,
-		Repo:  _repo,
 	}
 
 	var signed []byte

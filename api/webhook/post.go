@@ -208,7 +208,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// set the RepoID fields
-	b.SetRepoID(repo.GetID())
+	b.SetRepo(repo)
 	h.SetRepoID(repo.GetID())
 
 	// send API call to capture the last hook for the repo
@@ -299,7 +299,6 @@ func PostWebhook(c *gin.Context) {
 	// construct CompileAndPublishConfig
 	config := build.CompileAndPublishConfig{
 		Build:    b,
-		Repo:     repo,
 		Metadata: m,
 		BaseErr:  baseErr,
 		Source:   "webhook",
@@ -338,7 +337,7 @@ func PostWebhook(c *gin.Context) {
 	}
 
 	// capture the build and repo from the items
-	b, repo = item.Build, item.Repo
+	b = item.Build
 
 	// set hook build_id to the generated build id
 	h.SetBuildID(b.GetID())
@@ -351,7 +350,7 @@ func PostWebhook(c *gin.Context) {
 				deployment := webhook.Deployment
 
 				deployment.SetRepoID(repo.GetID())
-				deployment.SetBuilds([]*library.Build{b})
+				deployment.SetBuilds([]*library.Build{b.ToLibrary()})
 
 				_, err := database.FromContext(c).CreateDeployment(c, deployment)
 				if err != nil {
@@ -373,8 +372,10 @@ func PostWebhook(c *gin.Context) {
 				return
 			}
 		} else {
-			build := append(d.GetBuilds(), b)
+			build := append(d.GetBuilds(), b.ToLibrary())
+
 			d.SetBuilds(build)
+
 			_, err := database.FromContext(c).UpdateDeployment(ctx, d)
 			if err != nil {
 				retErr := fmt.Errorf("%s: failed to update deployment %s/%d: %w", baseErr, repo.GetFullName(), d.GetNumber(), err)
@@ -401,7 +402,7 @@ func PostWebhook(c *gin.Context) {
 
 			for _, rB := range rBs {
 				// call auto cancel routine
-				canceled, err := build.AutoCancel(c, b, rB, repo, p.Metadata.AutoCancel)
+				canceled, err := build.AutoCancel(c, b, rB, p.Metadata.AutoCancel)
 				if err != nil {
 					// continue cancel loop if error, but log based on type of error
 					if canceled {
@@ -650,7 +651,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 		return nil, fmt.Errorf("unable to get build count for repo %s: %w", dbR.GetFullName(), err)
 	}
 
-	builds := []*library.Build{}
+	builds := []*types.Build{}
 	page = 1
 	// capture all builds belonging to repo in database
 	for build := int64(0); build < t; build += 100 {
@@ -701,7 +702,7 @@ func RenameRepository(ctx context.Context, h *library.Hook, r *types.Repo, c *gi
 
 // gatekeepBuild is a helper function that will set the status of a build to 'pending approval' and
 // send a status update to the SCM.
-func gatekeepBuild(c *gin.Context, b *library.Build, r *types.Repo) error {
+func gatekeepBuild(c *gin.Context, b *types.Build, r *types.Repo) error {
 	logrus.Debugf("fork PR build %s/%d waiting for approval", r.GetFullName(), b.GetNumber())
 	b.SetStatus(constants.StatusPendingApproval)
 

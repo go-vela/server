@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -20,7 +21,7 @@ func (e *engine) UpdateUser(ctx context.Context, u *api.User) (*api.User, error)
 	}).Tracef("updating user %s in the database", u.GetName())
 
 	// cast the library type to database type
-	user := FromAPI(u)
+	user := types.UserFromAPI(u)
 
 	// validate the necessary fields are populated
 	err := user.Validate()

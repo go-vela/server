@@ -13,7 +13,6 @@ import (
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/types/library"
 )
 
 func TestWorker_Retrieve(t *testing.T) {
@@ -36,7 +35,7 @@ func TestWorker_Retrieve(t *testing.T) {
 
 func TestWorker_Establish(t *testing.T) {
 	// setup types
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
 
 	want := new(api.Worker)
@@ -47,7 +46,7 @@ func TestWorker_Establish(t *testing.T) {
 	want.SetActive(true)
 	want.SetStatus("available")
 	want.SetLastStatusUpdateAt(12345)
-	want.SetRunningBuilds([]*library.Build{b})
+	want.SetRunningBuilds([]*api.Build{b})
 	want.SetLastBuildStartedAt(12345)
 	want.SetLastBuildFinishedAt(12345)
 	want.SetLastCheckedIn(12345)

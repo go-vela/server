@@ -51,9 +51,9 @@ func TestService_Establish(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	want := new(library.Service)
@@ -215,9 +215,9 @@ func TestService_Establish_NoServiceParameter(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -274,9 +274,9 @@ func TestService_Establish_InvalidServiceParameter(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database
@@ -330,9 +330,9 @@ func TestService_Establish_NoService(t *testing.T) {
 	r.SetFullName("foo/bar")
 	r.SetVisibility("public")
 
-	b := new(library.Build)
+	b := new(api.Build)
 	b.SetID(1)
-	b.SetRepoID(1)
+	b.SetRepo(r)
 	b.SetNumber(1)
 
 	// setup database

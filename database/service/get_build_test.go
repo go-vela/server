@@ -9,17 +9,18 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
 func TestService_Engine_GetServiceForBuild(t *testing.T) {
 	// setup types
-	_build := testBuild()
+	_build := testutils.APIBuild()
 	_build.SetID(1)
-	_build.SetRepoID(1)
+	_build.SetRepo(testutils.APIRepo())
 	_build.SetNumber(1)
 
-	_service := testService()
+	_service := testutils.APIService()
 	_service.SetID(1)
 	_service.SetRepoID(1)
 	_service.SetBuildID(1)

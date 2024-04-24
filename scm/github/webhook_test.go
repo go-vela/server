@@ -67,7 +67,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent("push")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95")
@@ -145,7 +145,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent("push")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
 	wantBuild.SetSource("https://github.com/Codertocat/Hello-World/commit/9c93babf58917cd6f6f6772b5df2b098f507ff95")
@@ -221,7 +221,7 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent("delete")
 	wantBuild.SetEventAction("branch")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -298,7 +298,7 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics([]string{"go", "vela"})
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent("delete")
 	wantBuild.SetEventAction("tag")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -357,7 +357,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent("pull_request")
 	wantBuild.SetEventAction("opened")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -373,7 +373,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetBaseRef("main")
 	wantBuild.SetHeadRef("changes")
 
-	wantBuild2 := new(library.Build)
+	wantBuild2 := new(api.Build)
 	wantBuild2.SetEvent("pull_request")
 	wantBuild2.SetEventAction("labeled")
 	wantBuild2.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -389,7 +389,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild2.SetBaseRef("main")
 	wantBuild2.SetHeadRef("changes")
 
-	wantBuild3 := new(library.Build)
+	wantBuild3 := new(api.Build)
 	wantBuild3.SetEvent("pull_request")
 	wantBuild3.SetEventAction("unlabeled")
 	wantBuild3.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -405,7 +405,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild3.SetBaseRef("main")
 	wantBuild3.SetHeadRef("changes")
 
-	wantBuild4 := new(library.Build)
+	wantBuild4 := new(api.Build)
 	wantBuild4.SetEvent("pull_request")
 	wantBuild4.SetEventAction("edited")
 	wantBuild4.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -588,7 +588,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent(constants.EventDeploy)
 	wantBuild.SetEventAction(constants.ActionCreated)
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -619,7 +619,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 		file              string
 		hook              *library.Hook
 		repo              *api.Repo
-		build             *library.Build
+		build             *api.Build
 		deploymentPayload raw.StringSliceMap
 		deployment        *library.Deployment
 	}
@@ -723,7 +723,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent(constants.EventDeploy)
 	wantBuild.SetEventAction(constants.ActionCreated)
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")
@@ -994,7 +994,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantRepo.SetPrivate(false)
 	wantRepo.SetTopics(nil)
 
-	wantBuild := new(library.Build)
+	wantBuild := new(api.Build)
 	wantBuild.SetEvent("comment")
 	wantBuild.SetEventAction("created")
 	wantBuild.SetClone("https://github.com/Codertocat/Hello-World.git")

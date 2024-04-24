@@ -7,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/go-vela/server/database/testutils"
 )
 
 func TestStep_Engine_DeleteStep(t *testing.T) {
 	// setup types
-	_step := testStep()
+	_step := testutils.APIStep()
 	_step.SetID(1)
 	_step.SetRepoID(1)
 	_step.SetBuildID(1)

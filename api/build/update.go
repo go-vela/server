@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
@@ -88,7 +89,7 @@ func UpdateBuild(c *gin.Context) {
 	}).Infof("updating build %s", entry)
 
 	// capture body from API request
-	input := new(library.Build)
+	input := new(types.Build)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -178,7 +179,7 @@ func UpdateBuild(c *gin.Context) {
 }
 
 // UpdateComponentStatuses updates all components (steps and services) for a build to a given status.
-func UpdateComponentStatuses(c *gin.Context, b *library.Build, status string) error {
+func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) error {
 	ctx := c.Request.Context()
 
 	// retrieve the steps for the build from the step table

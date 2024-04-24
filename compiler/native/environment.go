@@ -282,7 +282,7 @@ func appendMap(originalMap, otherMap map[string]string) map[string]string {
 }
 
 // helper function that creates the standard set of environment variables for a pipeline.
-func environment(b *library.Build, m *internal.Metadata, r *api.Repo, u *api.User) map[string]string {
+func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) map[string]string {
 	// set default workspace
 	workspace := constants.WorkspaceDefault
 	notImplemented := "TODO"

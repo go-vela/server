@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
 )
 
@@ -18,8 +17,7 @@ type Executor struct {
 	Host         *string         `json:"host,omitempty"`
 	Runtime      *string         `json:"runtime,omitempty"`
 	Distribution *string         `json:"distribution,omitempty"`
-	Build        *library.Build  `json:"build,omitempty"`
-	Repo         *Repo           `json:"repo,omitempty"`
+	Build        *Build          `json:"build,omitempty"`
 	Pipeline     *pipeline.Build `json:"pipeline,omitempty"`
 }
 
@@ -79,26 +77,13 @@ func (e *Executor) GetDistribution() string {
 //
 // When the provided Executor type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (e *Executor) GetBuild() library.Build {
+func (e *Executor) GetBuild() Build {
 	// return zero value if Executor type or Build field is nil
 	if e == nil || e.Build == nil {
-		return library.Build{}
+		return Build{}
 	}
 
 	return *e.Build
-}
-
-// GetRepo returns the Repo field.
-//
-// When the provided Executor type is nil, or the field within
-// the type is nil, it returns the zero value for the field.
-func (e *Executor) GetRepo() Repo {
-	// return zero value if Executor type or Repo field is nil
-	if e == nil || e.Repo == nil {
-		return Repo{}
-	}
-
-	return *e.Repo
 }
 
 // GetPipeline returns the Pipeline field.
@@ -170,26 +155,13 @@ func (e *Executor) SetDistribution(v string) {
 //
 // When the provided Executor type is nil, it
 // will set nothing and immediately return.
-func (e *Executor) SetBuild(v library.Build) {
+func (e *Executor) SetBuild(v Build) {
 	// return if Executor type is nil
 	if e == nil {
 		return
 	}
 
 	e.Build = &v
-}
-
-// SetRepo sets the Repo field.
-//
-// When the provided Executor type is nil, it
-// will set nothing and immediately return.
-func (e *Executor) SetRepo(v Repo) {
-	// return if Executor type is nil
-	if e == nil {
-		return
-	}
-
-	e.Repo = &v
 }
 
 // SetPipeline sets the pipeline Build field.
@@ -212,7 +184,6 @@ func (e *Executor) String() string {
   Distribution: %s,
   Host: %s,
   ID: %d,
-  Repo: %v,
   Runtime: %s,
   Pipeline: %v,
 }`,
@@ -220,7 +191,6 @@ func (e *Executor) String() string {
 		e.GetDistribution(),
 		e.GetHost(),
 		e.GetID(),
-		strings.ReplaceAll(e.Repo.String(), " ", "  "),
 		e.GetRuntime(),
 		e.GetPipeline(),
 	)

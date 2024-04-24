@@ -45,6 +45,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 		build.WithClient(e.client),
 		build.WithLogger(e.logger),
 		build.WithSkipCreation(e.config.SkipCreation),
+		build.WithEncryptionKey(e.config.EncryptionKey),
 	)
 	if err != nil {
 		return err

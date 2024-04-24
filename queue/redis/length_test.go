@@ -17,7 +17,6 @@ func TestRedis_Length(t *testing.T) {
 	// use global variables in redis_test.go
 	_item := &models.Item{
 		Build: _build,
-		Repo:  _repo,
 	}
 
 	// setup queue item

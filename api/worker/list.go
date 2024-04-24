@@ -11,10 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation GET /api/v1/workers workers ListWorkers
@@ -98,7 +98,7 @@ func ListWorkers(c *gin.Context) {
 	}
 
 	for _, w := range workers {
-		rBs := []*library.Build{}
+		rBs := []*types.Build{}
 
 		for _, b := range w.GetRunningBuilds() {
 			build, err := database.FromContext(c).GetBuild(ctx, b.GetID())
