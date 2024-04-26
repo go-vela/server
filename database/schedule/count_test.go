@@ -7,10 +7,11 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/constants"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestSchedule_Engine_CountSchedules(t *testing.T) {

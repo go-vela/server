@@ -3,9 +3,8 @@
 package types
 
 import (
-	"errors"
-
 	"database/sql"
+	"errors"
 
 	"github.com/adhocore/gronx"
 
