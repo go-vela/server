@@ -45,7 +45,7 @@ import (
 //       "$ref": "#/definitions/Error"
 
 // AllBuildsQueue represents the API handler to
-// captures all running and pending builds stored in the database.
+// capture all running and pending builds stored in the database.
 func AllBuildsQueue(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()

@@ -4,31 +4,32 @@ package schedule
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database/repo"
-	"github.com/go-vela/server/database/user"
+	"github.com/go-vela/server/database/testutils"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
 )
 
 func TestSchedule_Engine_GetSchedule(t *testing.T) {
-	_owner := testOwner()
+	// setup types
+	_owner := testutils.APIUser()
 	_owner.SetID(1)
 	_owner.SetName("octocat")
-	_owner.SetRefreshToken("superSecretRefreshToken")
 	_owner.SetToken("superSecretToken")
+	_owner.SetRefreshToken("superSecretRefreshToken")
 	_owner.SetFavorites([]string{"github/octocat"})
 	_owner.SetActive(true)
 	_owner.SetAdmin(false)
+	_owner.SetDashboards([]string{"45bcf19b-c151-4e2d-b8c6-80a62ba2eae7"})
 
-	_repo := testRepo()
+	_repo := testutils.APIRepo()
 	_repo.SetID(1)
-	_repo.SetOwner(_owner)
+	_repo.SetOwner(_owner.Crop())
 	_repo.SetHash("MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy")
 	_repo.SetOrg("github")
 	_repo.SetName("octocat")
@@ -49,7 +50,7 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 	_repo.SetPreviousName("")
 	_repo.SetApproveBuild(constants.ApproveNever)
 
-	_schedule := testAPISchedule()
+	_schedule := testutils.APISchedule()
 	_schedule.SetID(1)
 	_schedule.SetRepo(_repo)
 	_schedule.SetActive(true)
@@ -76,8 +77,8 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 		AddRow(1, 1, "MzM4N2MzMDAtNmY4Mi00OTA5LWFhZDAtNWIzMTlkNTJkODMy", "github", "octocat", "github/octocat", "https://github.com/github/octocat", "https://github.com/github/octocat.git", "main", "{cloud,security}", 10, 30, 0, "public", false, false, true, 1, "", "", constants.ApproveNever)
 
 	_userRows := sqlmock.NewRows(
-		[]string{"id", "refresh_token", "token", "name", "favorites", "active", "admin"}).
-		AddRow(1, "superSecretRefreshToken", "superSecretToken", "octocat", "{github/octocat}", true, false)
+		[]string{"id", "name", "token", "refresh_token", "favorites", "active", "admin", "dashboards"}).
+		AddRow(1, "octocat", "superSecretToken", "superSecretRefreshToken", "{}", true, false, "{}")
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "schedules" WHERE id = $1 LIMIT $2`).WithArgs(1, 1).WillReturnRows(_rows)
@@ -92,22 +93,22 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 		t.Errorf("unable to create test schedule for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.Repo{})
+	err = _sqlite.client.AutoMigrate(&types.Repo{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableRepo).Create(repo.FromAPI(_repo)).Error
+	err = _sqlite.client.Table(constants.TableRepo).Create(types.RepoFromAPI(_repo)).Error
 	if err != nil {
 		t.Errorf("unable to create test repo for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.AutoMigrate(&database.User{})
+	err = _sqlite.client.AutoMigrate(&types.User{})
 	if err != nil {
 		t.Errorf("unable to create build table for sqlite: %v", err)
 	}
 
-	err = _sqlite.client.Table(constants.TableUser).Create(user.FromAPI(_owner)).Error
+	err = _sqlite.client.Table(constants.TableUser).Create(types.UserFromAPI(_owner)).Error
 	if err != nil {
 		t.Errorf("unable to create test user for sqlite: %v", err)
 	}
@@ -150,8 +151,8 @@ func TestSchedule_Engine_GetSchedule(t *testing.T) {
 				t.Errorf("GetSchedule for %s returned err: %v", test.name, err)
 			}
 
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("GetSchedule for %s is %v, want %v", test.name, got, test.want)
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("GetSchedule for %s mismatch (-want +got):\n%s", test.name, diff)
 			}
 		})
 	}

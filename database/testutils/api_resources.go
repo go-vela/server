@@ -169,6 +169,23 @@ func APILog() *library.Log {
 	}
 }
 
+func APISchedule() *api.Schedule {
+	return &api.Schedule{
+		ID:          new(int64),
+		Repo:        APIRepo(),
+		Active:      new(bool),
+		Name:        new(string),
+		Entry:       new(string),
+		CreatedAt:   new(int64),
+		CreatedBy:   new(string),
+		UpdatedAt:   new(int64),
+		UpdatedBy:   new(string),
+		ScheduledAt: new(int64),
+		Branch:      new(string),
+		Error:       new(string),
+	}
+}
+
 func APIService() *library.Service {
 	return &library.Service{
 		ID:           new(int64),

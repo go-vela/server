@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -15,7 +16,7 @@ func (e *engine) ListActiveSchedules(ctx context.Context) ([]*api.Schedule, erro
 
 	// variables to store query results and return value
 	count := int64(0)
-	s := new([]Schedule)
+	s := new([]types.Schedule)
 	schedules := []*api.Schedule{}
 
 	// count the results
@@ -45,6 +46,12 @@ func (e *engine) ListActiveSchedules(ctx context.Context) ([]*api.Schedule, erro
 	for _, schedule := range *s {
 		// https://golang.org/doc/faq#closures_and_goroutines
 		tmp := schedule
+
+		// decrypt hash value for repo
+		err = tmp.Repo.Decrypt(e.config.EncryptionKey)
+		if err != nil {
+			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.Repo.ID.Int64, err)
+		}
 
 		// convert query result to API type
 		schedules = append(schedules, tmp.ToAPI())

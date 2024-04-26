@@ -6,6 +6,7 @@ import (
 	"context"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -14,7 +15,7 @@ func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, erro
 	e.logger.Tracef("getting schedule %d from the database", id)
 
 	// variable to store query results
-	s := new(Schedule)
+	s := new(types.Schedule)
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -26,6 +27,12 @@ func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, erro
 		Error
 	if err != nil {
 		return nil, err
+	}
+
+	// decrypt hash value for repo
+	err = s.Repo.Decrypt(e.config.EncryptionKey)
+	if err != nil {
+		e.logger.Errorf("unable to decrypt repo %d: %v", s.Repo.ID.Int64, err)
 	}
 
 	return s.ToAPI(), nil

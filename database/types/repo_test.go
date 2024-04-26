@@ -353,7 +353,7 @@ func TestTypes_RepoFromAPI(t *testing.T) {
 	got := RepoFromAPI(r)
 
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("FromAPI() mismatch (-want +got):\n%s", diff)
+		t.Errorf("RepoFromAPI() mismatch (-want +got):\n%s", diff)
 	}
 }
 

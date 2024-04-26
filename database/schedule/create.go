@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -18,7 +19,7 @@ func (e *engine) CreateSchedule(ctx context.Context, s *api.Schedule) (*api.Sche
 	}).Tracef("creating schedule %s in the database", s.GetName())
 
 	// cast the API type to database type
-	schedule := FromAPI(s)
+	schedule := types.ScheduleFromAPI(s)
 
 	// validate the necessary fields are populated
 	err := schedule.Validate()

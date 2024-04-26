@@ -2504,6 +2504,7 @@ func newResources() *Resources {
 	scheduleOne.SetUpdatedBy("octokitty")
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleOne.SetBranch("main")
+	scheduleOne.SetError("no version: YAML property provided")
 
 	scheduleTwo := new(api.Schedule)
 	scheduleTwo.SetID(2)
@@ -2517,6 +2518,7 @@ func newResources() *Resources {
 	scheduleTwo.SetUpdatedBy("octokitty")
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleTwo.SetBranch("main")
+	scheduleTwo.SetError("no version: YAML property provided")
 
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)
