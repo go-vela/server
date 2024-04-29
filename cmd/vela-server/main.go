@@ -175,6 +175,12 @@ func main() {
 			Usage:   "sets the duration of the worker register token",
 			Value:   1 * time.Minute,
 		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_ID_TOKEN_DURATION", "ID_TOKEN_DURATION"},
+			Name:    "id-token-duration",
+			Usage:   "sets the duration of the id token",
+			Value:   5 * time.Minute,
+		},
 		// Compiler Flags
 		&cli.BoolFlag{
 			EnvVars: []string{"VELA_COMPILER_GITHUB", "COMPILER_GITHUB"},

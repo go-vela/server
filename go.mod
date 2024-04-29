@@ -45,6 +45,8 @@ require (
 	k8s.io/apimachinery v0.29.2
 )
 
+require github.com/stretchr/testify v1.9.0 // indirect
+
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect

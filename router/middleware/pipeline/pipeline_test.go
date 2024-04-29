@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
@@ -227,8 +226,7 @@ func TestPipeline_Establish_NoPipeline(t *testing.T) {
 	secret := "superSecret"
 
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}

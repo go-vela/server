@@ -10,6 +10,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/keyset"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -81,6 +82,14 @@ func (e *engine) NewResources(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// create the database agnostic engine for keysets
+	e.KeySetInterface, err = keyset.New(
+		keyset.WithContext(e.ctx),
+		keyset.WithClient(e.client),
+		keyset.WithLogger(e.logger),
+		keyset.WithSkipCreation(e.config.SkipCreation),
+	)
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(

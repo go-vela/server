@@ -97,12 +97,17 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	tm, err := setupTokenManager(c, database)
+	if err != nil {
+		return err
+	}
+
 	router := router.Load(
 		middleware.Compiler(compiler),
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
 		middleware.Metadata(metadata),
-		middleware.TokenManager(setupTokenManager(c)),
+		middleware.TokenManager(tm),
 		middleware.Queue(queue),
 		middleware.RequestVersion,
 		middleware.Secret(c.String("vela-secret")),

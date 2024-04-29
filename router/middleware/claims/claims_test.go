@@ -61,8 +61,7 @@ func TestClaims_Establish(t *testing.T) {
 	user.SetFavorites([]string{})
 
 	tm := &token.Manager{
-		PrivateKey:                  "123abc",
-		SignMethod:                  jwt.SigningMethodHS256,
+		PrivateKeyHMAC:              "123abc",
 		UserAccessTokenDuration:     time.Minute * 5,
 		UserRefreshTokenDuration:    time.Minute * 30,
 		WorkerAuthTokenDuration:     time.Minute * 20,
@@ -223,8 +222,7 @@ func TestClaims_Establish(t *testing.T) {
 func TestClaims_Establish_NoToken(t *testing.T) {
 	// setup types
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}
@@ -249,8 +247,7 @@ func TestClaims_Establish_NoToken(t *testing.T) {
 func TestClaims_Establish_BadToken(t *testing.T) {
 	// setup types
 	tm := &token.Manager{
-		PrivateKey:               "123abc",
-		SignMethod:               jwt.SigningMethodHS256,
+		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
 		UserRefreshTokenDuration: time.Minute * 30,
 	}

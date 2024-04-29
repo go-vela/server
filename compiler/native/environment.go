@@ -315,6 +315,7 @@ func environment(b *api.Build, m *internal.Metadata, r *api.Repo, u *api.User) m
 		env["VELA_NETRC_MACHINE"] = m.Source.Host
 		env["VELA_QUEUE"] = m.Queue.Driver
 		env["VELA_SOURCE"] = m.Source.Driver
+		env["VELA_ID_TOKEN_REQUEST_URL"] = fmt.Sprintf("%s/api/v1/repos/%s/builds/%d/id_token", m.Vela.Address, r.GetFullName(), b.GetNumber())
 		channel = m.Queue.Channel
 		workspace = fmt.Sprintf("%s/%s/%s/%s", workspace, m.Source.Host, r.GetOrg(), r.GetName())
 	}

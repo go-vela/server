@@ -89,6 +89,10 @@ func Load(options ...gin.HandlerFunc) *gin.Engine {
 	// Webhook endpoint
 	r.POST("/webhook", webhook.PostWebhook)
 
+	// JWKS endpoints
+	r.GET("_services/token/.well-known/openid-configuration", api.GetOpenIDConfig)
+	r.GET("_services/token/.well-known/jwks", api.GetJWKS)
+
 	// Authentication endpoints
 	authenticate := r.Group("/authenticate")
 	{
