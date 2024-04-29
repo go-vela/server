@@ -10,22 +10,19 @@ import (
 //
 // swagger:model Platform
 type Platform struct {
-	ID *int64 `json:"id"`
-
-	*Queue    `json:"queue"`
-	*Compiler `json:"compiler"`
-
-	// misc
+	ID                *int64 `json:"id"`
+	*Queue            `json:"queue"`
+	*Compiler         `json:"compiler"`
 	RepoAllowlist     *[]string `json:"repo_allowlist"`
 	ScheduleAllowlist *[]string `json:"schedule_allowlist"`
 }
 
 // GetID returns the ID field.
 //
-// When the provided Settings type is nil, or the field within
+// When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (s *Platform) GetID() int64 {
-	// return zero value if Settings type or ID field is nil
+	// return zero value if Platform type or ID field is nil
 	if s == nil || s.ID == nil {
 		return 0
 	}
@@ -33,51 +30,38 @@ func (s *Platform) GetID() int64 {
 	return *s.ID
 }
 
-// SetID sets the ID field.
+// GetCompiler returns the Compiler field.
 //
-// When the provided Settings type is nil, it
-// will set nothing and immediately return.
-func (s *Platform) SetID(v int64) {
-	// return if Settings type is nil
-	if s == nil {
-		return
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Platform) GetCompiler() Compiler {
+	// return zero value if Platform type or Compiler field is nil
+	if s == nil || s.Compiler == nil {
+		return Compiler{}
 	}
 
-	s.ID = &v
+	return *s.Compiler
 }
 
-// SetCompilerSettings sets the CompilerSettings field.
+// GetQueue returns the Queue field.
 //
-// When the provided CompilerSettings type is nil, it
-// will set nothing and immediately return.
-func (s *Platform) SetCompilerSettings(cs Compiler) {
-	// return if Settings type is nil
-	if s == nil {
-		return
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Platform) GetQueue() Queue {
+	// return zero value if Platform type or Queue field is nil
+	if s == nil || s.Queue == nil {
+		return Queue{}
 	}
 
-	s.Compiler = &cs
-}
-
-// SetQueueSettings sets the QueueSettings field.
-//
-// When the provided QueueSettings type is nil, it
-// will set nothing and immediately return.
-func (s *Platform) SetQueueSettings(qs Queue) {
-	// return if Settings type is nil
-	if s == nil {
-		return
-	}
-
-	s.Queue = &qs
+	return *s.Queue
 }
 
 // GetRepoAllowlist returns the RepoAllowlist field.
 //
-// When the provided Settings type is nil, or the field within
+// When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (s *Platform) GetRepoAllowlist() []string {
-	// return zero value if Settings type or RepoAllowlist field is nil
+	// return zero value if Platform type or RepoAllowlist field is nil
 	if s == nil || s.RepoAllowlist == nil {
 		return []string{}
 	}
@@ -85,25 +69,12 @@ func (s *Platform) GetRepoAllowlist() []string {
 	return *s.RepoAllowlist
 }
 
-// SetRepoAllowlist sets the RepoAllowlist field.
-//
-// When the provided Settings type is nil, it
-// will set nothing and immediately return.
-func (s *Platform) SetRepoAllowlist(v []string) {
-	// return if Settings type is nil
-	if s == nil {
-		return
-	}
-
-	s.RepoAllowlist = &v
-}
-
 // GetScheduleAllowlist returns the ScheduleAllowlist field.
 //
-// When the provided Settings type is nil, or the field within
+// When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (s *Platform) GetScheduleAllowlist() []string {
-	// return zero value if Settings type or ScheduleAllowlist field is nil
+	// return zero value if Platform type or ScheduleAllowlist field is nil
 	if s == nil || s.ScheduleAllowlist == nil {
 		return []string{}
 	}
@@ -111,12 +82,64 @@ func (s *Platform) GetScheduleAllowlist() []string {
 	return *s.ScheduleAllowlist
 }
 
+// SetID sets the ID field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetID(v int64) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.ID = &v
+}
+
+// SetCompiler sets the Compiler field.
+//
+// When the provided Compiler type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetCompiler(cs Compiler) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.Compiler = &cs
+}
+
+// SetQueue sets the Queue field.
+//
+// When the provided Queue type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetQueue(qs Queue) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.Queue = &qs
+}
+
+// SetRepoAllowlist sets the RepoAllowlist field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetRepoAllowlist(v []string) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.RepoAllowlist = &v
+}
+
 // SetScheduleAllowlist sets the RepoAllowlist field.
 //
-// When the provided Settings type is nil, it
+// When the provided Platform type is nil, it
 // will set nothing and immediately return.
 func (s *Platform) SetScheduleAllowlist(v []string) {
-	// return if Settings type is nil
+	// return if Platform type is nil
 	if s == nil {
 		return
 	}
@@ -124,37 +147,22 @@ func (s *Platform) SetScheduleAllowlist(v []string) {
 	s.ScheduleAllowlist = &v
 }
 
-// String implements the Stringer interface for the Settings type.
+// String implements the Stringer interface for the Platform type.
 func (s *Platform) String() string {
+	cs := s.GetCompiler()
+	qs := s.GetQueue()
+
 	return fmt.Sprintf(`{
   ID: %d,
-  CloneImage: %s,
-  QueueRoutes: %v,
-  other stuff: %v,
+  Compiler: %v,
+  Queue: %v,
+  RepoAllowlist: %v,
+  ScheduleAllowlist: %v,
 }`,
 		s.GetID(),
-		s.GetCloneImage(),
-		s.GetRoutes(),
-		s.GetRoutes(),
-	)
-}
-
-// ToEnv converts the Settings type to a string format compatible with standard posix environments.
-func (s *Platform) ToEnv() string {
-	return fmt.Sprintf(`VELA_CLONE_IMAGE='%s'
-VELA_QUEUE_ROUTES='%v'
-`,
-		s.GetCloneImage(),
-		s.GetRoutes(),
-	)
-}
-
-// ToYAML converts the Settings type to a YAML string.
-func (s *Platform) ToYAML() string {
-	return fmt.Sprintf(`VELA_CLONE_IMAGE: '%s'
-VELA_QUEUE_ROUTES: '%s'
-`,
-		s.GetCloneImage(),
-		s.GetRoutes(),
+		cs.String(),
+		qs.String(),
+		s.GetRepoAllowlist(),
+		s.GetScheduleAllowlist(),
 	)
 }

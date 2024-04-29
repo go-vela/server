@@ -2,6 +2,8 @@
 
 package settings
 
+import "fmt"
+
 type Compiler struct {
 	CloneImage        *string `json:"clone_image,omitempty"`
 	TemplateDepth     *int    `json:"template_depth,omitempty"`
@@ -10,7 +12,7 @@ type Compiler struct {
 
 // GetCloneImage returns the CloneImage field.
 //
-// When the provided CompilerSettings type is nil, or the field within
+// When the provided Compiler type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (cs *Compiler) GetCloneImage() string {
 	// return zero value if Settings type or CloneImage field is nil
@@ -23,7 +25,7 @@ func (cs *Compiler) GetCloneImage() string {
 
 // GetTemplateDepth returns the TemplateDepth field.
 //
-// When the provided CompilerSettings type is nil, or the field within
+// When the provided Compiler type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (cs *Compiler) GetTemplateDepth() int {
 	// return zero value if Settings type or TemplateDepth field is nil
@@ -36,7 +38,7 @@ func (cs *Compiler) GetTemplateDepth() int {
 
 // GetStarlarkExecLimit returns the StarlarkExecLimit field.
 //
-// When the provided CompilerSettings type is nil, or the field within
+// When the provided Compiler type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (cs *Compiler) GetStarlarkExecLimit() uint64 {
 	// return zero value if Settings type or StarlarkExecLimit field is nil
@@ -49,7 +51,7 @@ func (cs *Compiler) GetStarlarkExecLimit() uint64 {
 
 // SetCloneImage sets the CloneImage field.
 //
-// When the provided CompilerSettings type is nil, it
+// When the provided Compiler type is nil, it
 // will set nothing and immediately return.
 func (cs *Compiler) SetCloneImage(v string) {
 	// return if Settings type is nil
@@ -62,7 +64,7 @@ func (cs *Compiler) SetCloneImage(v string) {
 
 // SetTemplateDepth sets the TemplateDepth field.
 //
-// When the provided CompilerSettings type is nil, it
+// When the provided Compiler type is nil, it
 // will set nothing and immediately return.
 func (cs *Compiler) SetTemplateDepth(v int) {
 	// return if Settings type is nil
@@ -75,7 +77,7 @@ func (cs *Compiler) SetTemplateDepth(v int) {
 
 // SetStarlarkExecLimit sets the StarlarkExecLimit field.
 //
-// When the provided CompilerSettings type is nil, it
+// When the provided Compiler type is nil, it
 // will set nothing and immediately return.
 func (cs *Compiler) SetStarlarkExecLimit(v uint64) {
 	// return if Settings type is nil
@@ -86,6 +88,20 @@ func (cs *Compiler) SetStarlarkExecLimit(v uint64) {
 	cs.StarlarkExecLimit = &v
 }
 
+// String implements the Stringer interface for the Compiler type.
+func (cs *Compiler) String() string {
+	return fmt.Sprintf(`{
+  CloneImage: %s,
+  TemplateDepth: %d,
+  StarlarkExecLimit: %d,
+}`,
+		cs.GetCloneImage(),
+		cs.GetTemplateDepth(),
+		cs.GetStarlarkExecLimit(),
+	)
+}
+
+// CompilerMockEmpty returns an empty Compiler type.
 func CompilerMockEmpty() Compiler {
 	cs := Compiler{}
 	cs.SetCloneImage("")

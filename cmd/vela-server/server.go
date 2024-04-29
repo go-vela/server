@@ -110,10 +110,10 @@ func server(c *cli.Context) error {
 
 		// read in defaults supplied from the cli runtime
 		compilerSettings := compiler.GetSettings()
-		s.SetCompilerSettings(compilerSettings)
+		s.SetCompiler(compilerSettings)
 
 		queueSettings := queue.GetSettings()
-		s.SetQueueSettings(queueSettings)
+		s.SetQueue(queueSettings)
 
 		// set repos permitted to be added
 		s.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))

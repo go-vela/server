@@ -5,7 +5,6 @@ package admin
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -45,20 +44,7 @@ func GetSettings(c *gin.Context) {
 
 	logrus.Info("Admin: reading settings")
 
-	output := strings.ToLower(c.Query("output"))
-
-	switch output {
-	case "env":
-		exported := s.ToEnv()
-		c.String(http.StatusOK, exported)
-	case "yaml":
-		exported := s.ToYAML()
-		c.String(http.StatusOK, exported)
-	case "json":
-		fallthrough
-	default:
-		c.JSON(http.StatusOK, s)
-	}
+	c.JSON(http.StatusOK, s)
 }
 
 // swagger:operation PUT /api/v1/admin/settings admin AdminUpdateSettings

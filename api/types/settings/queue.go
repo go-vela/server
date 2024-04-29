@@ -2,6 +2,8 @@
 
 package settings
 
+import "fmt"
+
 type Queue struct {
 	Routes *[]string `json:"routes,omitempty"`
 }
@@ -32,6 +34,16 @@ func (qs *Queue) SetRoutes(v []string) {
 	qs.Routes = &v
 }
 
+// String implements the Stringer interface for the Queue type.
+func (qs *Queue) String() string {
+	return fmt.Sprintf(`{
+  Routes: %v,
+}`,
+		qs.GetRoutes(),
+	)
+}
+
+// QueueMockEmpty returns an empty Queue type.
 func QueueMockEmpty() Queue {
 	qs := Queue{}
 	qs.SetRoutes([]string{})
