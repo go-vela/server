@@ -19,6 +19,4 @@ type SettingsInterface interface {
 	GetSettings(context.Context) (*settings.Platform, error)
 	// UpdateSettings defines a function that updates platform settings.
 	UpdateSettings(context.Context, *settings.Platform) (*settings.Platform, error)
-	// DeleteSettings defines a function that deletes platform settings.
-	DeleteSettings(context.Context, *settings.Platform) error
 }

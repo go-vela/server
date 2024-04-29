@@ -41,7 +41,7 @@ func (cs *Compiler) GetTemplateDepth() int {
 // When the provided Compiler type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (cs *Compiler) GetStarlarkExecLimit() uint64 {
-	// return zero value if Settings type or StarlarkExecLimit field is nil
+	// return zero value if Compiler type or StarlarkExecLimit field is nil
 	if cs == nil || cs.StarlarkExecLimit == nil {
 		return 0
 	}
@@ -54,7 +54,7 @@ func (cs *Compiler) GetStarlarkExecLimit() uint64 {
 // When the provided Compiler type is nil, it
 // will set nothing and immediately return.
 func (cs *Compiler) SetCloneImage(v string) {
-	// return if Settings type is nil
+	// return if Compiler type is nil
 	if cs == nil {
 		return
 	}
@@ -67,7 +67,7 @@ func (cs *Compiler) SetCloneImage(v string) {
 // When the provided Compiler type is nil, it
 // will set nothing and immediately return.
 func (cs *Compiler) SetTemplateDepth(v int) {
-	// return if Settings type is nil
+	// return if Compiler type is nil
 	if cs == nil {
 		return
 	}
@@ -80,7 +80,7 @@ func (cs *Compiler) SetTemplateDepth(v int) {
 // When the provided Compiler type is nil, it
 // will set nothing and immediately return.
 func (cs *Compiler) SetStarlarkExecLimit(v uint64) {
-	// return if Settings type is nil
+	// return if Compiler type is nil
 	if cs == nil {
 		return
 	}

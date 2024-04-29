@@ -102,7 +102,11 @@ func server(c *cli.Context) error {
 
 	s, err := database.GetSettings(context.Background())
 	if s == nil || err != nil {
-		// ignore error and attempt to create initial settings record
+		// only log error and attempt to create initial settings record
+		if err != nil {
+			logrus.WithError(err).Error("unable to get platform settings")
+		}
+
 		s := new(settings.Platform)
 
 		// singleton record ID should always be 1
@@ -255,11 +259,15 @@ func server(c *cli.Context) error {
 			time.Sleep(jitter)
 
 			s, err = database.GetSettings(context.Background())
-			if s == nil || err != nil {
-				if s == nil {
-					err = errors.New("settings not found")
-				}
+			if s == nil {
+				err = errors.New("settings not found")
 
+				logrus.WithError(err).Warn("unable to get platform settings")
+
+				continue
+			}
+
+			if err != nil {
 				logrus.WithError(err).Warn("unable to get platform settings")
 
 				continue

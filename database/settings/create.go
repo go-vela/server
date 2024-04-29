@@ -8,7 +8,7 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 )
 
-// CreateSettings updates a platform settings in the database.
+// CreateSettings creates a platform settings record in the database.
 func (e *engine) CreateSettings(ctx context.Context, s *settings.Platform) (*settings.Platform, error) {
 	e.logger.Tracef("creating platform settings in the database with %v", s.String())
 

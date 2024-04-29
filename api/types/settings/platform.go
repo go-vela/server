@@ -166,3 +166,16 @@ func (s *Platform) String() string {
 		s.GetScheduleAllowlist(),
 	)
 }
+
+// PlatformMockEmpty returns an empty Platform type.
+func PlatformMockEmpty() Platform {
+	s := Platform{}
+
+	s.SetCompiler(CompilerMockEmpty())
+	s.SetQueue(QueueMockEmpty())
+
+	s.SetRepoAllowlist([]string{})
+	s.SetScheduleAllowlist([]string{})
+
+	return s
+}

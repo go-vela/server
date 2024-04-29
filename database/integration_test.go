@@ -2182,15 +2182,6 @@ func testSettings(t *testing.T, db Interface, resources *Resources) {
 	methods["UpdateSettings"] = true
 	methods["GetSettings"] = true
 
-	// delete the settings
-	for _, s := range resources.Platform {
-		err := db.DeleteSettings(context.TODO(), s)
-		if err != nil {
-			t.Errorf("unable to delete settings %d: %v", s.GetID(), err)
-		}
-	}
-	methods["DeleteSettings"] = true
-
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {

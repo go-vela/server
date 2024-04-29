@@ -18,7 +18,6 @@ func (e *engine) GetSettings(ctx context.Context) (*settings.Platform, error) {
 	// send query to the database and store result in variable
 	err := e.client.
 		Table(TableSettings).
-		// todo: how to ensure this is always a singleton at the first row
 		Where("id = ?", 1).
 		Take(s).
 		Error

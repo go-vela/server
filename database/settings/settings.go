@@ -60,8 +60,8 @@ type (
 		Compiler
 		Queue
 
-		RepoAllowlist     pq.StringArray `sql:"repo_allowlist" gorm:"type:varchar(1000)"`
-		ScheduleAllowlist pq.StringArray `sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+		RepoAllowlist     pq.StringArray `json:"repo_allowlist" sql:"repo_allowlist" gorm:"type:varchar(1000)"`
+		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
 	}
 
 	// Compiler is the database representation of compiler settings.
@@ -73,7 +73,7 @@ type (
 
 	// Queue is the database representation of queue settings.
 	Queue struct {
-		Routes pq.StringArray `sql:"routes" gorm:"type:varchar(1000)"`
+		Routes pq.StringArray `json:"routes" sql:"routes" gorm:"type:varchar(1000)"`
 	}
 )
 
@@ -146,8 +146,6 @@ func New(opts ...EngineOpt) (*engine, error) {
 		return nil, fmt.Errorf("unable to create %s table: %w", TableSettings, err)
 	}
 
-	// todo: need indexes?
-
 	return e, nil
 }
 
@@ -201,6 +199,15 @@ func (s *Platform) Validate() error {
 	// verify the CloneImage field is populated
 	if len(s.CloneImage.String) == 0 {
 		return ErrEmptyCloneImage
+	}
+
+	// verify compiler settings are within limits
+	if s.TemplateDepth.Int64 <= 0 {
+		return fmt.Errorf("template depth must be greater than zero, got: %d", s.TemplateDepth.Int64)
+	}
+
+	if s.StarlarkExecLimit.Int64 <= 0 {
+		return fmt.Errorf("starlark exec limit must be greater than zero, got: %d", s.StarlarkExecLimit.Int64)
 	}
 
 	// ensure that all Settings string fields

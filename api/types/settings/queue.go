@@ -10,10 +10,10 @@ type Queue struct {
 
 // GetRoutes returns the Routes field.
 //
-// When the provided QueueSettings type is nil, or the field within
+// When the provided Queue type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
 func (qs *Queue) GetRoutes() []string {
-	// return zero value if Settings type or Routes field is nil
+	// return zero value if Queue type or Routes field is nil
 	if qs == nil || qs.Routes == nil {
 		return []string{}
 	}
@@ -23,10 +23,10 @@ func (qs *Queue) GetRoutes() []string {
 
 // SetRoutes sets the Routes field.
 //
-// When the provided Settings type is nil, it
+// When the provided Queue type is nil, it
 // will set nothing and immediately return.
 func (qs *Queue) SetRoutes(v []string) {
-	// return if Settings type is nil
+	// return if Queue type is nil
 	if qs == nil {
 		return
 	}

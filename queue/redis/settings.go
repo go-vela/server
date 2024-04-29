@@ -6,7 +6,7 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 )
 
-// SetSettings sets the api settings type in the Engine.
+// GetSettings retrieves the api settings type in the Engine.
 func (c *client) GetSettings() settings.Queue {
 	return c.Queue
 }
