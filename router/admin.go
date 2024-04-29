@@ -64,9 +64,8 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin worker endpoint
 		_admin.POST("/workers/:worker/register", admin.RegisterToken)
 
-		// Admin settings endpoint
+		// Admin settings endpoints
 		_admin.GET("/settings", admin.GetSettings)
 		_admin.PUT("/settings", admin.UpdateSettings)
-		_admin.DELETE("/settings", admin.DeleteSettings)
 	} // end of admin endpoints
 }

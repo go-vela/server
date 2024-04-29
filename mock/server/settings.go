@@ -16,38 +16,44 @@ const (
 	SettingsResp = `
 		{
 			"id": 1,
-			"compiler": {},
-			"queue": {},
-			"repo_allowlist": [],
-			"schedule_allowlist": []
+			"compiler": {
+				"clone_image": "target/vela-git",
+				"template_depth": 3,
+				"starlark_exec_limit": 100
+			},
+			"queue": {
+				"routes": [
+					"vela"
+				]
+			},
+			"repo_allowlist": [
+				"*"
+			],
+			"schedule_allowlist": [
+				"octocat/hello-world"
+			]
 		}`
 
-	// CreateSettingsResp represents a JSON return for creating a settings record.
-	CreateSettingsResp = `
-		{
-			"id": 1,
-			"compiler": {},
-			"queue": {},
-			"repo_allowlist": [],
-			"schedule_allowlist": []
-		}`
 	// UpdateSettingsResp represents a JSON return for modifying a settings field.
 	UpdateSettingsResp = `
 		{
 			"id": 1,
-			"compiler": {},
-			"queue": {},
+			"compiler": {
+				"clone_image": "target/vela-git:latest",
+				"template_depth": 5,
+				"starlark_exec_limit": 123
+			},
+			"queue": {
+				"routes": [
+					"vela",
+					"large"
+				]
+			},
 			"repo_allowlist": [],
-			"schedule_allowlist": []
-		}`
-	// DeleteSettingsResp represents a JSON return for deleting a settings record.
-	DeleteSettingsResp = `
-		{
-			"id": 1,
-			"compiler": {},
-			"queue": {},
-			"repo_allowlist": [],
-			"schedule_allowlist": []
+			"schedule_allowlist": [
+				"octocat/hello-world",
+				"octocat/*"
+			]
 		}`
 )
 
@@ -64,18 +70,6 @@ func getSettings(c *gin.Context) {
 // updateSettings returns mock JSON for a http PUT.
 func updateSettings(c *gin.Context) {
 	data := []byte(UpdateSettingsResp)
-
-	var body settings.Platform
-	_ = json.Unmarshal(data, &body)
-
-	c.JSON(http.StatusOK, body)
-}
-
-// deleteSettings has a param :settings returns mock JSON for a http DELETE.
-//
-// Pass "0" to :settings to test receiving a http 404 response.
-func deleteSettings(c *gin.Context) {
-	data := []byte(DeleteSettingsResp)
 
 	var body settings.Platform
 	_ = json.Unmarshal(data, &body)

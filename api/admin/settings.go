@@ -47,9 +47,9 @@ func GetSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, s)
 }
 
-// swagger:operation PUT /api/v1/admin/settings admin AdminUpdateSettings
+// swagger:operation PUT /api/v1/admin/settings admin UpdateSettings
 //
-// Update the settings singleton in the database
+// Update the settings singleton in the database.
 //
 // ---
 // produces:
@@ -113,7 +113,9 @@ func UpdateSettings(c *gin.Context) {
 	}
 
 	if input.Queue != nil {
-		s.SetRoutes(input.GetRoutes())
+		if input.Queue.Routes != nil {
+			s.SetRoutes(input.GetRoutes())
+		}
 	}
 
 	if input.RepoAllowlist != nil {
@@ -126,7 +128,7 @@ func UpdateSettings(c *gin.Context) {
 		s.SetScheduleAllowlist(input.GetScheduleAllowlist())
 	}
 
-	// send API call to update the repo
+	// send API call to update the settings
 	s, err = database.FromContext(c).UpdateSettings(ctx, s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update settings: %w", err)
@@ -137,45 +139,4 @@ func UpdateSettings(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, s)
-}
-
-// swagger:operation DELETE /api/v1/admin/settings admin DeleteSettings
-//
-// Delete the platform settings record
-//
-// ---
-// produces:
-// - application/json
-// security:
-//   - ApiKeyAuth: []
-// responses:
-//   '200':
-//     description: Successfully deleted the platform settings record
-//     schema:
-//       type: string
-//   '500':
-//     description: Unable to delete the platform settings record
-//     schema:
-//       "$ref": "#/definitions/Error"
-
-// DeleteSettings represents the API handler to remove
-// the platform settings singleton from the configured backend.
-func DeleteSettings(c *gin.Context) {
-	// capture middleware values
-	s := sMiddleware.FromContext(c)
-	ctx := c.Request.Context()
-
-	logrus.Info("Admin: deleting settings")
-
-	// send API call to remove the settings record
-	err := database.FromContext(c).DeleteSettings(ctx, s)
-	if err != nil {
-		retErr := fmt.Errorf("unable to delete platform settings: %w", err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, "platform settings deleted")
 }
