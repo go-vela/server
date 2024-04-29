@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package keyset
+package jwk
 
 import (
 	"context"
@@ -9,22 +9,22 @@ import (
 )
 
 const (
-	// CreatePostgresTable represents a query to create the Postgres keysets table.
+	// CreatePostgresTable represents a query to create the Postgres jwks table.
 	CreatePostgresTable = `
 CREATE TABLE
 IF NOT EXISTS
-keysets (
+jwks (
 	id     UUID PRIMARY KEY,
 	active BOOLEAN,
 	key    JSON DEFAULT NULL
 );
 `
 
-	// CreateSqliteTable represents a query to create the Sqlite keysets table.
+	// CreateSqliteTable represents a query to create the Sqlite jwks table.
 	CreateSqliteTable = `
 CREATE TABLE
 IF NOT EXISTS
-keysets (
+jwks (
 	id     TEXT PRIMARY KEY,
 	active BOOLEAN,
 	key    TEXT
@@ -32,19 +32,19 @@ keysets (
 `
 )
 
-// CreateKeySetTable creates the build executables table in the database.
-func (e *engine) CreateKeySetTable(ctx context.Context, driver string) error {
-	e.logger.Tracef("creating keysets table in the database")
+// CreateJWKTable creates the jwks table in the database.
+func (e *engine) CreateJWKTable(ctx context.Context, driver string) error {
+	e.logger.Tracef("creating jwks table in the database")
 
 	// handle the driver provided to create the table
 	switch driver {
 	case constants.DriverPostgres:
-		// create the keysets table for Postgres
+		// create the jwks table for Postgres
 		return e.client.Exec(CreatePostgresTable).Error
 	case constants.DriverSqlite:
 		fallthrough
 	default:
-		// create the keysets table for Sqlite
+		// create the jwks table for Sqlite
 		return e.client.Exec(CreateSqliteTable).Error
 	}
 }

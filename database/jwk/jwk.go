@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package keyset
+package jwk
 
 import (
 	"context"
@@ -67,8 +67,8 @@ func New(opts ...EngineOpt) (*engine, error) {
 		return e, nil
 	}
 
-	// create the key sets table
-	err := e.CreateKeySetTable(e.ctx, e.client.Config.Dialector.Name())
+	// create the JWK table
+	err := e.CreateJWKTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableKeySet, err)
 	}

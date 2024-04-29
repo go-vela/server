@@ -54,10 +54,6 @@ import (
 //     description: Bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '409':
-//     description: Conflict (requested id token for build not in running state)
-//     schema:
-//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to generate id token
 //     schema:

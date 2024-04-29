@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package keyset
+package jwk
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/go-vela/server/database/types"
 )
 
-// ListKeySets gets a list of all schedules from the database.
-func (e *engine) ListKeySets(ctx context.Context) ([]api.JWK, error) {
+// ListJWKs gets a list of all configured JWKs from the database.
+func (e *engine) ListJWKs(_ context.Context) ([]api.JWK, error) {
 	e.logger.Trace("listing all keysets from the database")
 
 	k := new([]types.JWK)

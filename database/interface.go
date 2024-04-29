@@ -8,7 +8,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
-	"github.com/go-vela/server/database/keyset"
+	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -50,8 +50,8 @@ type Interface interface {
 	// HookInterface defines the interface for hooks stored in the database.
 	hook.HookInterface
 
-	// KeySetInterface defines the interface for key sets stored in the database.
-	keyset.KeySetInterface
+	// JWKInterface defines the interface for JWKs stored in the database.
+	jwk.JWKInterface
 
 	// LogInterface defines the interface for logs stored in the database.
 	log.LogInterface

@@ -27,7 +27,7 @@ import (
 //   '200':
 //     description: Successfully retrieved the Vela OpenID Configuration
 //     schema:
-//       "$ref": "#/definitions/PublicKey"
+//       "$ref": "#/definitions/OpenIDConfig"
 
 // GetOpenIDConfig represents the API handler for requests for configurations in the Vela OpenID service.
 func GetOpenIDConfig(c *gin.Context) {

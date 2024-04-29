@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package keyset
+package jwk
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/go-vela/server/database/types"
 )
 
-// GetKeySet gets a key by UUID from the database if active.
-func (e *engine) GetActiveKeySet(ctx context.Context, id string) (api.JWK, error) {
+// GetActiveJWK gets a JWK by UUID (kid) from the database if active.
+func (e *engine) GetActiveJWK(_ context.Context, id string) (api.JWK, error) {
 	e.logger.Tracef("getting key %s from the database", id)
 
 	// variable to store query results

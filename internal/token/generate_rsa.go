@@ -9,36 +9,44 @@ import (
 	"encoding/base64"
 	"strconv"
 
-	api "github.com/go-vela/server/api/types"
-	"github.com/go-vela/server/database"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database"
 )
 
-// MintToken mints a Vela JWT Token given a set of options.
+// GenerateRSA creates an RSA key pair and sets it in the token manager and saves the JWK in the database.
 func (tm *Manager) GenerateRSA(db database.Interface) error {
+	// generate key pair
 	privateRSAKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return err
 	}
 
+	// assign KID to key pair
 	kid, err := uuid.NewRandom()
 	if err != nil {
 		return err
 	}
 
+	// abstract the JWK from the public key information
 	key := api.JWK{
 		Algorithm: jwt.SigningMethodRS256.Name,
 		Kid:       kid.String(),
+		Use:       "sig",
+		Kty:       "RSA",
 		N:         base64.RawURLEncoding.EncodeToString(privateRSAKey.PublicKey.N.Bytes()),
 		E:         base64.RawURLEncoding.EncodeToString([]byte(strconv.Itoa(privateRSAKey.PublicKey.E))),
 	}
 
-	err = db.CreateKeySet(context.TODO(), key)
+	// create the JWK in the database
+	err = db.CreateJWK(context.TODO(), key)
 	if err != nil {
 		return err
 	}
 
+	// create the RSA key set for token manager
 	keySet := RSAKeySet{
 		PrivateKey: privateRSAKey,
 		KID:        kid.String(),

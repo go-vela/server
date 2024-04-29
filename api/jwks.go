@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
@@ -26,14 +27,14 @@ import (
 //   '200':
 //     description: Successfully retrieved the Vela JWKS
 //     schema:
-//       "$ref": "#/definitions/PublicKey"
+//       "$ref": "#/definitions/JWKS"
 
 // GetJWKS represents the API handler for requests to public keys in the Vela OpenID service.
 func GetJWKS(c *gin.Context) {
-	// retrieve token manager from context
-	keys, err := database.FromContext(c).ListKeySets(c)
+	// retrieve JWKs from the database
+	keys, err := database.FromContext(c).ListJWKs(c)
 	if err != nil {
-		retErr := fmt.Errorf("unable to get key sets: %w", err)
+		retErr := fmt.Errorf("unable to get key set: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 	}
 

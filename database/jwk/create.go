@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package keyset
+package jwk
 
 import (
 	"context"
@@ -13,8 +13,8 @@ import (
 	"github.com/go-vela/server/database/types"
 )
 
-// CreateKeySet creates a new dashboard in the database.
-func (e *engine) CreateKeySet(ctx context.Context, j api.JWK) error {
+// CreateJWK creates a new JWK in the database.
+func (e *engine) CreateJWK(_ context.Context, j api.JWK) error {
 	e.logger.WithFields(logrus.Fields{
 		"jwk": j.Kid,
 	}).Tracef("creating key %s in the database", j.Kid)
@@ -29,5 +29,4 @@ func (e *engine) CreateKeySet(ctx context.Context, j api.JWK) error {
 
 	// send query to the database
 	return e.client.Table(constants.TableKeySet).Create(key).Error
-
 }

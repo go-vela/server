@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package keyset
+package jwk
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 )
 
 // RotateKeys removes all inactive keys and sets active keys to inactive.
-func (e *engine) RotateKeys(ctx context.Context) error {
+func (e *engine) RotateKeys(_ context.Context) error {
 	e.logger.Trace("rotating keysets in the database")
 
 	k := types.JWK{}

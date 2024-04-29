@@ -119,10 +119,12 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 	return token, nil
 }
 
+// MintIDToken mints a Vela JWT ID Token for a build.
 func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (string, error) {
 	// initialize claims struct
 	var claims = new(Claims)
 
+	// validate provided claims
 	if len(mto.Repo) == 0 {
 		return "", errors.New("missing repo for ID token")
 	}
@@ -135,30 +137,35 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 		return "", errors.New("missing build id for ID token")
 	}
 
+	// set claims based on input
 	claims.BuildNumber = mto.BuildNumber
 	claims.Repo = mto.Repo
 	claims.Subject = fmt.Sprintf("%s/%s", mto.Repo, mto.Commit)
 	claims.Audience = mto.Audience
+	claims.TokenType = mto.TokenType
 
+	// set standard claims
 	claims.IssuedAt = jwt.NewNumericDate(time.Now())
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(mto.TokenDuration))
-	claims.TokenType = mto.TokenType
 	claims.Issuer = tm.Issuer
 
 	tk := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
-	_, err := db.GetActiveKeySet(context.TODO(), tm.RSAKeySet.KID)
+	// verify key is active in the database before signing
+	_, err := db.GetActiveJWK(context.TODO(), tm.RSAKeySet.KID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", fmt.Errorf("unable to get active key set: %w", err)
 		}
 
+		// generate a new RSA key set if previous key is inactive (rotated)
 		err = tm.GenerateRSA(db)
 		if err != nil {
 			return "", fmt.Errorf("unable to generate RSA key set: %w", err)
 		}
 	}
 
+	// set KID header
 	tk.Header["kid"] = tm.RSAKeySet.KID
 
 	//sign token with configured private signing key

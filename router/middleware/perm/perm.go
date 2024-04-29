@@ -186,8 +186,9 @@ func MustIDRequestToken() gin.HandlerFunc {
 			"repo": cl.Subject,
 		}).Debugf("verifying worker %s has a valid build token", cl.Subject)
 
+		// verify expected type
 		if !strings.EqualFold(cl.TokenType, constants.IDRequestTokenType) {
-			retErr := fmt.Errorf("invalid token: must provide a worker request ID token")
+			retErr := fmt.Errorf("invalid token: must provide a valid request ID token")
 			util.HandleError(c, http.StatusUnauthorized, retErr)
 
 			return
@@ -195,12 +196,12 @@ func MustIDRequestToken() gin.HandlerFunc {
 
 		// if build is not in a running state, then an ID token should not be needed
 		if !strings.EqualFold(b.GetStatus(), constants.StatusRunning) {
-			retErr := fmt.Errorf("invalid request: build %d is not in a running state", b.GetID())
-			util.HandleError(c, http.StatusBadRequest, retErr)
+			util.HandleError(c, http.StatusBadRequest, fmt.Errorf("invalid request"))
 
 			return
 		}
 
+		// verify expected build id
 		if b.GetID() != cl.BuildID {
 			logrus.WithFields(logrus.Fields{
 				"user":  cl.Subject,

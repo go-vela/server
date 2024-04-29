@@ -2,6 +2,7 @@
 
 package types
 
+// OpenIDConfig is a struct that represents the OpenID Connect configuration.
 type OpenIDConfig struct {
 	Issuer          string   `json:"issuer"`
 	JWKSAddress     string   `json:"jwks_uri"`
@@ -9,7 +10,7 @@ type OpenIDConfig struct {
 	Algorithms      []string `json:"id_token_signing_alg_values_supported"`
 }
 
-// JWKS is a slice of JWKs
+// JWKS is a slice of JWKs.
 type JWKS struct {
 	Keys []JWK `json:"keys"`
 }

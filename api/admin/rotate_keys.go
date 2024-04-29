@@ -13,7 +13,7 @@ import (
 	"github.com/go-vela/server/util"
 )
 
-// swagger:operation POST /api/v1/admin/rotate_oidc admin AdminRotateOIDCKeys
+// swagger:operation POST /api/v1/admin/rotate_oidc_keys admin AdminRotateOIDCKeys
 //
 // Rotate RSA Keys
 //
@@ -25,11 +25,11 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the repo in the database
+//     description: Successfully rotated OIDC provider keys
 //     schema:
-//       "$ref": "#/definitions/Repo"
-//   '501':
-//     description: Unable to update the repo in the database
+//     type: string
+//   '500':
+//     description: Error unable to rotate OIDC provider keys
 //     schema:
 //       "$ref": "#/definitions/Error"
 
