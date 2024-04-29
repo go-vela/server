@@ -101,13 +101,14 @@ func server(c *cli.Context) error {
 	}
 
 	s, err := database.GetSettings(context.Background())
-	if s == nil || err != nil {
-		// only log error and attempt to create initial settings record
+	if c.Bool("vela-reinitialize-settings-on-startup") || s == nil || err != nil {
+		// only log errors
 		if err != nil {
 			logrus.WithError(err).Error("unable to get platform settings")
 		}
 
-		s := new(settings.Platform)
+		// create initial settings record
+		s = new(settings.Platform)
 
 		// singleton record ID should always be 1
 		s.SetID(1)

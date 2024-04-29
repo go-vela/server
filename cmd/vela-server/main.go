@@ -79,6 +79,12 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
+		&cli.BoolFlag{
+			EnvVars: []string{"VELA_REINITIALIZE_SETTINGS_ON_STARTUP"},
+			Name:    "vela-reinitialize-settings-on-startup",
+			Usage:   "instructs the server to reinitialize the settings singleton on startup, overwriting any updates currently stored in the database and restoring them to the configured environment values",
+			Value:   false,
+		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
 			Name:    "vela-server-private-key",
