@@ -37,7 +37,7 @@ settings (
 )
 
 // CreateSettingsTable creates the settings table in the database.
-func (e *engine) CreateSettingsTable(ctx context.Context, driver string) error {
+func (e *engine) CreateSettingsTable(_ context.Context, driver string) error {
 	e.logger.Tracef("creating settings table in the database")
 
 	// handle the driver provided to create the table

@@ -9,7 +9,7 @@ import (
 )
 
 // UpdateSettings updates a platform settings in the database.
-func (e *engine) UpdateSettings(ctx context.Context, s *settings.Platform) (*settings.Platform, error) {
+func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*settings.Platform, error) {
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the api type to database type
