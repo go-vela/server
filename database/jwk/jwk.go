@@ -70,7 +70,7 @@ func New(opts ...EngineOpt) (*engine, error) {
 	// create the JWK table
 	err := e.CreateJWKTable(e.ctx, e.client.Config.Dialector.Name())
 	if err != nil {
-		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableKeySet, err)
+		return nil, fmt.Errorf("unable to create %s table: %w", constants.TableJWK, err)
 	}
 
 	return e, nil

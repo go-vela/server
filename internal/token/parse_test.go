@@ -21,6 +21,11 @@ func TestTokenManager_ParseToken(t *testing.T) {
 	u.SetName("foo")
 	u.SetToken("bar")
 
+	b := new(api.Build)
+	b.SetID(1)
+	b.SetNumber(1)
+	b.SetSender("octocat")
+
 	tm := &Manager{
 		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
@@ -73,7 +78,7 @@ func TestTokenManager_ParseToken(t *testing.T) {
 		{
 			TokenType: constants.WorkerBuildTokenType,
 			Mto: &MintTokenOpts{
-				BuildID:       1,
+				Build:         b,
 				Repo:          "foo/bar",
 				Hostname:      "worker",
 				TokenType:     constants.WorkerBuildTokenType,

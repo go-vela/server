@@ -43,6 +43,14 @@ import (
 //   description: Build number
 //   required: true
 //   type: integer
+// - in: query
+//   name: image
+//   description: Add image to token claims
+//   type: string
+// - in: query
+//   name: request
+//   description: Add request input to token claims
+//   type: string
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -77,6 +85,9 @@ func GetIDRequestToken(c *gin.Context) {
 		"user":  cl.Subject,
 	}).Infof("generating ID request token for build %s/%d", r.GetFullName(), b.GetNumber())
 
+	image := c.Query("image")
+	request := c.Query("request")
+
 	// retrieve token manager from context
 	tm := c.MustGet("token-manager").(*token.Manager)
 
@@ -84,12 +95,13 @@ func GetIDRequestToken(c *gin.Context) {
 
 	// set mint token options
 	idmto := &token.MintTokenOpts{
-		BuildID:       b.GetID(),
-		BuildNumber:   b.GetNumber(),
+		Build:         b,
 		Repo:          r.GetFullName(),
 		TokenType:     constants.IDRequestTokenType,
 		Commit:        b.GetCommit(),
 		TokenDuration: exp,
+		Image:         image,
+		Request:       request,
 	}
 
 	// mint token

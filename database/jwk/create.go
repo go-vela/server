@@ -28,5 +28,5 @@ func (e *engine) CreateJWK(_ context.Context, j api.JWK) error {
 	}
 
 	// send query to the database
-	return e.client.Table(constants.TableKeySet).Create(key).Error
+	return e.client.Table(constants.TableJWK).Create(key).Error
 }

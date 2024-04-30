@@ -18,7 +18,7 @@ func (e *engine) RotateKeys(_ context.Context) error {
 
 	// remove inactive keys
 	err := e.client.
-		Table(constants.TableKeySet).
+		Table(constants.TableJWK).
 		Where("active = ?", false).
 		Delete(&k).
 		Error
@@ -28,7 +28,7 @@ func (e *engine) RotateKeys(_ context.Context) error {
 
 	// set active keys to inactive
 	err = e.client.
-		Table(constants.TableKeySet).
+		Table(constants.TableJWK).
 		Where("active = ?", true).
 		Update("active", sql.NullBool{Bool: false, Valid: true}).
 		Error

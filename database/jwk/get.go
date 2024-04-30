@@ -19,7 +19,7 @@ func (e *engine) GetActiveJWK(_ context.Context, id string) (api.JWK, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
-		Table(constants.TableKeySet).
+		Table(constants.TableJWK).
 		Where("id = ?", id).
 		Where("active = ?", true).
 		Take(j).

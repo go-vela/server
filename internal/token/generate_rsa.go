@@ -25,7 +25,7 @@ func (tm *Manager) GenerateRSA(db database.Interface) error {
 	}
 
 	// assign KID to key pair
-	kid, err := uuid.NewRandom()
+	kid, err := uuid.NewV7()
 	if err != nil {
 		return err
 	}

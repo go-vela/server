@@ -36,6 +36,8 @@ func GetJWKS(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to get key set: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
+
+		return
 	}
 
 	c.JSON(http.StatusOK, types.JWKS{Keys: keys})

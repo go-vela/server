@@ -19,7 +19,7 @@ func (e *engine) ListJWKs(_ context.Context) ([]api.JWK, error) {
 
 	// send query to the database and store result in variable
 	err := e.client.
-		Table(constants.TableKeySet).
+		Table(constants.TableJWK).
 		Find(&k).
 		Error
 	if err != nil {

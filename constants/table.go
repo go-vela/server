@@ -5,6 +5,6 @@ package constants
 const (
 	// TableDashboard defines the table type for the database dashboards table.
 	TableDashboard = "dashboards"
-	// TableKeySet defines the table type for the database keysets table.
-	TableKeySet = "keysets"
+	// TableJWK defines the table type for the database jwks table.
+	TableJWK = "jwks"
 )

@@ -413,7 +413,7 @@ func TestPerm_MustBuildAccess(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -587,6 +587,9 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
+	wB := new(api.Build)
+	wB.SetID(2)
+
 	tm := &token.Manager{
 		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
@@ -595,7 +598,7 @@ func TestPerm_MustBuildToken_WrongBuild(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       2,
+		Build:         wB,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -685,7 +688,7 @@ func TestPerm_MustIDRequestToken(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "foo/bar/456def",
-		BuildID:       b.GetID(),
+		Build:         b,
 		Commit:        b.GetCommit(),
 		Repo:          r.GetFullName(),
 		TokenDuration: time.Minute * 30,
@@ -785,7 +788,7 @@ func TestPerm_MustIDRequestToken_NotRunning(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "foo/bar/456def",
-		BuildID:       b.GetID(),
+		Build:         b,
 		Commit:        b.GetCommit(),
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
@@ -868,6 +871,9 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 	b.SetRepo(r)
 	b.SetNumber(1)
 
+	wB := new(api.Build)
+	wB.SetID(2)
+
 	tm := &token.Manager{
 		PrivateKeyHMAC:           "123abc",
 		UserAccessTokenDuration:  time.Minute * 5,
@@ -876,7 +882,7 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "foo/bar/456def",
-		BuildID:       2,
+		Build:         wB,
 		Commit:        b.GetCommit(),
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
@@ -965,7 +971,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Repo(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -1050,7 +1056,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Org(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -1135,7 +1141,7 @@ func TestPerm_MustSecretAdmin_BuildToken_Shared(t *testing.T) {
 
 	mto := &token.MintTokenOpts{
 		Hostname:      "worker",
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.WorkerBuildTokenType,
@@ -2113,7 +2119,7 @@ func TestPerm_MustRead_WorkerBuildToken(t *testing.T) {
 		Hostname:      "worker",
 		TokenDuration: time.Minute * 35,
 		TokenType:     constants.WorkerBuildTokenType,
-		BuildID:       1,
+		Build:         b,
 		Repo:          "foo/bar",
 	}
 

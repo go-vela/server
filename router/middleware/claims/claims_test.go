@@ -60,6 +60,11 @@ func TestClaims_Establish(t *testing.T) {
 	user.SetAdmin(false)
 	user.SetFavorites([]string{})
 
+	build := new(api.Build)
+	build.SetID(1)
+	build.SetNumber(1)
+	build.SetSender("octocat")
+
 	tm := &token.Manager{
 		PrivateKeyHMAC:              "123abc",
 		UserAccessTokenDuration:     time.Minute * 5,
@@ -111,7 +116,7 @@ func TestClaims_Establish(t *testing.T) {
 			},
 			Mto: &token.MintTokenOpts{
 				Hostname:      "host",
-				BuildID:       1,
+				Build:         build,
 				Repo:          "foo/bar",
 				TokenDuration: time.Minute * 35,
 				TokenType:     constants.WorkerBuildTokenType,

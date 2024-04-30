@@ -251,3 +251,14 @@ func APIDashboardRepo() *api.DashboardRepo {
 		Events:   new([]string),
 	}
 }
+
+func APIJWK() api.JWK {
+	return api.JWK{
+		Kid:       "",
+		Kty:       "",
+		Algorithm: "",
+		Use:       "",
+		N:         "",
+		E:         "",
+	}
+}

@@ -99,7 +99,7 @@ func GetBuildToken(c *gin.Context) {
 	// set mint token options
 	bmto := &token.MintTokenOpts{
 		Hostname:      cl.Subject,
-		BuildID:       b.GetID(),
+		Build:         b,
 		Repo:          r.GetFullName(),
 		TokenType:     constants.WorkerBuildTokenType,
 		TokenDuration: exp,

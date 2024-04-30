@@ -82,11 +82,13 @@ func GetIDToken(c *gin.Context) {
 
 	// set mint token options
 	idmto := &token.MintTokenOpts{
-		BuildNumber:   b.GetNumber(),
+		Build:         b,
 		Repo:          r.GetFullName(),
 		TokenType:     constants.IDTokenType,
 		Commit:        b.GetCommit(),
 		TokenDuration: tm.IDTokenDuration,
+		Image:         cl.Image,
+		Request:       cl.Request,
 	}
 
 	// if audience is provided, include that in claims

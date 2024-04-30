@@ -22,16 +22,6 @@ func WithClient(client *gorm.DB) EngineOpt {
 	}
 }
 
-// WithDriver sets the driver type in the database engine for key sets.
-func WithDriver(driver string) EngineOpt {
-	return func(e *engine) error {
-		// set the driver type in the key set engine
-		e.config.Driver = driver
-
-		return nil
-	}
-}
-
 // WithLogger sets the github.com/sirupsen/logrus logger in the database engine for key sets.
 func WithLogger(logger *logrus.Entry) EngineOpt {
 	return func(e *engine) error {

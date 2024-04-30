@@ -21,18 +21,20 @@ import (
 type Claims struct {
 	BuildID     int64  `json:"build_id,omitempty"`
 	BuildNumber int    `json:"build_number,omitempty"`
+	BuildSender string `json:"build_sender,omitempty"`
 	IsActive    bool   `json:"is_active,omitempty"`
 	IsAdmin     bool   `json:"is_admin,omitempty"`
 	Repo        string `json:"repo,omitempty"`
 	TokenType   string `json:"token_type,omitempty"`
+	Image       string `json:"image,omitempty"`
+	Request     string `json:"request,omitempty"`
 	jwt.RegisteredClaims
 }
 
 // MintTokenOpts is a type to inform the token minter how to construct
 // the token.
 type MintTokenOpts struct {
-	BuildID       int64
-	BuildNumber   int
+	Build         *api.Build
 	Hostname      string
 	Repo          string
 	TokenDuration time.Duration
@@ -40,6 +42,8 @@ type MintTokenOpts struct {
 	User          *api.User
 	Audience      []string
 	Commit        string
+	Image         string
+	Request       string
 }
 
 // MintToken mints a Vela JWT Token given a set of options.
@@ -59,7 +63,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		claims.Subject = mto.User.GetName()
 
 	case constants.WorkerBuildTokenType:
-		if mto.BuildID == 0 {
+		if mto.Build.GetID() == 0 {
 			return "", errors.New("missing build id for build token")
 		}
 
@@ -71,7 +75,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 			return "", errors.New("missing host name for build token")
 		}
 
-		claims.BuildID = mto.BuildID
+		claims.BuildID = mto.Build.GetID()
 		claims.Repo = mto.Repo
 		claims.Subject = mto.Hostname
 
@@ -91,14 +95,17 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 			return "", errors.New("missing commit for ID request token")
 		}
 
-		if mto.BuildID == 0 {
+		if mto.Build.GetID() == 0 {
 			return "", errors.New("missing build id for ID request token")
 		}
 
 		claims.Repo = mto.Repo
 		claims.Subject = fmt.Sprintf("%s/%s", mto.Repo, mto.Commit)
-		claims.BuildID = mto.BuildID
-		claims.BuildNumber = mto.BuildNumber
+		claims.BuildID = mto.Build.GetID()
+		claims.BuildNumber = mto.Build.GetNumber()
+		claims.BuildSender = mto.Build.GetSender()
+		claims.Image = mto.Image
+		claims.Request = mto.Request
 
 	default:
 		return "", errors.New("invalid token type")
@@ -133,16 +140,19 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 		return "", errors.New("missing commit for ID token")
 	}
 
-	if mto.BuildNumber == 0 {
+	if mto.Build.GetNumber() == 0 {
 		return "", errors.New("missing build id for ID token")
 	}
 
 	// set claims based on input
-	claims.BuildNumber = mto.BuildNumber
+	claims.BuildNumber = mto.Build.GetNumber()
+	claims.BuildSender = mto.Build.GetSender()
 	claims.Repo = mto.Repo
 	claims.Subject = fmt.Sprintf("%s/%s", mto.Repo, mto.Commit)
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
+	claims.Image = mto.Image
+	claims.Request = mto.Request
 
 	// set standard claims
 	claims.IssuedAt = jwt.NewNumericDate(time.Now())
