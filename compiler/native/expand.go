@@ -51,7 +51,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 
 	// return if max template depth has been reached
 	if depth == 0 {
-		retErr := fmt.Errorf("max template depth of %d exceeded", c.TemplateDepth)
+		retErr := fmt.Errorf("max template depth of %d exceeded", c.GetTemplateDepth())
 
 		return s, retErr
 	}
