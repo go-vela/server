@@ -54,7 +54,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		// amount of time to get to the end of the list.
 		schedule, err := database.GetSchedule(ctx, s.GetID())
 		if err != nil {
-			logError(ctx, database, err, schedule)
+			handleError(ctx, database, err, schedule)
 
 			continue
 		}
@@ -74,7 +74,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		// i.e. if it's 4:02 on five minute intervals, this will be 4:00
 		prevTime, err := gronx.PrevTick(schedule.GetEntry(), true)
 		if err != nil {
-			logError(ctx, database, err, schedule)
+			handleError(ctx, database, err, schedule)
 
 			continue
 		}
@@ -84,7 +84,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		// i.e. if it's 4:02 on five minute intervals, this will be 4:05
 		nextTime, err := gronx.NextTickAfter(schedule.GetEntry(), scheduled, true)
 		if err != nil {
-			logError(ctx, database, err, schedule)
+			handleError(ctx, database, err, schedule)
 
 			continue
 		}
@@ -116,7 +116,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		// send API call to update schedule for ensuring scheduled_at field is set
 		_, err = database.UpdateSchedule(ctx, schedule, false)
 		if err != nil {
-			logError(ctx, database, err, schedule)
+			handleError(ctx, database, err, schedule)
 
 			continue
 		}
@@ -124,7 +124,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		// process the schedule and trigger a new build
 		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm, allowList)
 		if err != nil {
-			logError(ctx, database, err, schedule)
+			handleError(ctx, database, err, schedule)
 
 			continue
 		}
@@ -134,7 +134,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		// send API call to update schedule with the error message field cleared
 		_, err = database.UpdateSchedule(ctx, schedule, true)
 		if err != nil {
-			logError(ctx, database, err, schedule)
+			handleError(ctx, database, err, schedule)
 
 			continue
 		}
@@ -213,7 +213,7 @@ func processSchedule(ctx context.Context, s *api.Schedule, compiler compiler.Eng
 	return nil
 }
 
-func logError(ctx context.Context, database database.Interface, err error, schedule *api.Schedule) {
+func handleError(ctx context.Context, database database.Interface, err error, schedule *api.Schedule) {
 	// log the error message
 	logrus.WithError(err).Warnf("%s %s: %s", scheduleErr, schedule.GetName(), err.Error())
 
