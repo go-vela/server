@@ -29,7 +29,7 @@ var (
 type (
 	// Dashboard is the database representation of a dashboard.
 	Dashboard struct {
-		ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4()"`
+		ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v7()"`
 		Name      sql.NullString `sql:"name"`
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		CreatedBy sql.NullString `sql:"created_by"`
