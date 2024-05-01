@@ -15,6 +15,9 @@ type Platform struct {
 	*Compiler         `json:"compiler"`
 	RepoAllowlist     *[]string `json:"repo_allowlist"`
 	ScheduleAllowlist *[]string `json:"schedule_allowlist"`
+	CreatedAt         *int64    `json:"created_at,omitempty"`
+	UpdatedAt         *int64    `json:"updated_at,omitempty"`
+	UpdatedBy         *string   `json:"updated_by,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -82,6 +85,45 @@ func (s *Platform) GetScheduleAllowlist() []string {
 	return *s.ScheduleAllowlist
 }
 
+// GetCreatedAt returns the CreatedAt field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Platform) GetCreatedAt() int64 {
+	// return zero value if Platform type or CreatedAt field is nil
+	if s == nil || s.CreatedAt == nil {
+		return 0
+	}
+
+	return *s.CreatedAt
+}
+
+// GetUpdatedAt returns the UpdatedAt field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Platform) GetUpdatedAt() int64 {
+	// return zero value if Platform type or UpdatedAt field is nil
+	if s == nil || s.UpdatedAt == nil {
+		return 0
+	}
+
+	return *s.UpdatedAt
+}
+
+// GetUpdatedBy returns the UpdatedBy field.
+//
+// When the provided Platform type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Platform) GetUpdatedBy() string {
+	// return zero value if Platform type or UpdatedBy field is nil
+	if s == nil || s.UpdatedBy == nil {
+		return ""
+	}
+
+	return *s.UpdatedBy
+}
+
 // SetID sets the ID field.
 //
 // When the provided Platform type is nil, it
@@ -147,6 +189,45 @@ func (s *Platform) SetScheduleAllowlist(v []string) {
 	s.ScheduleAllowlist = &v
 }
 
+// SetCreatedAt sets the CreatedAt field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetCreatedAt(v int64) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.CreatedAt = &v
+}
+
+// SetUpdatedAt sets the UpdatedAt field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetUpdatedAt(v int64) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.UpdatedAt = &v
+}
+
+// SetUpdatedBy sets the UpdatedBy field.
+//
+// When the provided Platform type is nil, it
+// will set nothing and immediately return.
+func (s *Platform) SetUpdatedBy(v string) {
+	// return if Platform type is nil
+	if s == nil {
+		return
+	}
+
+	s.UpdatedBy = &v
+}
+
 // String implements the Stringer interface for the Platform type.
 func (s *Platform) String() string {
 	cs := s.GetCompiler()
@@ -158,12 +239,18 @@ func (s *Platform) String() string {
   Queue: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
+  CreatedAt: %d,
+  UpdatedAt: %d,
+  UpdatedBy: %s,
 }`,
 		s.GetID(),
 		cs.String(),
 		qs.String(),
 		s.GetRepoAllowlist(),
 		s.GetScheduleAllowlist(),
+		s.GetCreatedAt(),
+		s.GetUpdatedAt(),
+		s.GetUpdatedBy(),
 	)
 }
 

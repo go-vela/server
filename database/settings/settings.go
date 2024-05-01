@@ -62,6 +62,10 @@ type (
 
 		RepoAllowlist     pq.StringArray `json:"repo_allowlist" sql:"repo_allowlist" gorm:"type:varchar(1000)"`
 		ScheduleAllowlist pq.StringArray `json:"schedule_allowlist" sql:"schedule_allowlist" gorm:"type:varchar(1000)"`
+
+		CreatedAt sql.NullInt64  `sql:"created_at"`
+		UpdatedAt sql.NullInt64  `sql:"updated_at"`
+		UpdatedBy sql.NullString `sql:"updated_by"`
 	}
 
 	// Compiler is the database representation of compiler settings.
@@ -170,6 +174,21 @@ func (s *Platform) Nullify() *Platform {
 		s.CloneImage.Valid = false
 	}
 
+	// check if the CreatedAt field should be false
+	if s.CreatedAt.Int64 == 0 {
+		s.CreatedAt.Valid = false
+	}
+
+	// check if the UpdatedAt field should be false
+	if s.UpdatedAt.Int64 == 0 {
+		s.UpdatedAt.Valid = false
+	}
+
+	// check if the UpdatedBy field should be false
+	if len(s.UpdatedBy.String) == 0 {
+		s.UpdatedBy.Valid = false
+	}
+
 	return s
 }
 
@@ -189,6 +208,10 @@ func (s *Platform) ToAPI() *settings.Platform {
 
 	ss.Queue = &settings.Queue{}
 	ss.SetRoutes(s.Routes)
+
+	ss.SetCreatedAt(s.CreatedAt.Int64)
+	ss.SetUpdatedAt(s.UpdatedAt.Int64)
+	ss.SetUpdatedBy(s.UpdatedBy.String)
 
 	return ss
 }
@@ -251,6 +274,9 @@ func FromAPI(s *settings.Platform) *Platform {
 		},
 		RepoAllowlist:     pq.StringArray(s.GetRepoAllowlist()),
 		ScheduleAllowlist: pq.StringArray(s.GetScheduleAllowlist()),
+		CreatedAt:         sql.NullInt64{Int64: s.GetCreatedAt(), Valid: true},
+		UpdatedAt:         sql.NullInt64{Int64: s.GetUpdatedAt(), Valid: true},
+		UpdatedBy:         sql.NullString{String: s.GetUpdatedBy(), Valid: true},
 	}
 
 	return settings.Nullify()

@@ -31,7 +31,10 @@ const (
 			],
 			"schedule_allowlist": [
 				"octocat/hello-world"
-			]
+			],
+			"created_at": 1,
+			"updated_at": 1,
+			"updated_by": "octocat"
 		}`
 
 	// UpdateSettingsResp represents a JSON return for modifying a settings field.
@@ -53,7 +56,10 @@ const (
 			"schedule_allowlist": [
 				"octocat/hello-world",
 				"octocat/*"
-			]
+			],
+			"created_at": 1,
+			"updated_at": 1,
+			"updated_by": "octocat"
 		}`
 )
 

@@ -113,6 +113,8 @@ func server(c *cli.Context) error {
 		// singleton record ID should always be 1
 		s.SetID(1)
 
+		s.SetCreatedAt(time.Now().UTC().Unix())
+
 		// read in defaults supplied from the cli runtime
 		compilerSettings := compiler.GetSettings()
 		s.SetCompiler(compilerSettings)
@@ -138,6 +140,10 @@ func server(c *cli.Context) error {
 	compiler.SetSettings(s)
 
 	router := router.Load(
+		// settings middleware must be first
+		// todo: figure out if deterministic order matters
+		//
+		// we arleady depend on establish running in order, so mayube this is fine
 		middleware.Settings(database),
 		middleware.Compiler(compiler),
 		middleware.Database(database),

@@ -5,6 +5,7 @@ package admin
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -12,6 +13,7 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database"
 	sMiddleware "github.com/go-vela/server/router/middleware/settings"
+	uMiddleware "github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -82,12 +84,16 @@ func GetSettings(c *gin.Context) {
 func UpdateSettings(c *gin.Context) {
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
+	u := uMiddleware.FromContext(c)
 	ctx := c.Request.Context()
 
 	logrus.Info("Admin: updating settings")
 
 	// capture body from API request
 	input := new(settings.Platform)
+
+	input.SetUpdatedAt(time.Now().UTC().Unix())
+	input.SetUpdatedBy(u.GetName())
 
 	err := c.Bind(input)
 	if err != nil {

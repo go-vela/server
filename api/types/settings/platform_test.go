@@ -103,12 +103,18 @@ func TestTypes_Platform_String(t *testing.T) {
   Queue: %v,
   RepoAllowlist: %v,
   ScheduleAllowlist: %v,
+  CreatedAt: %d,
+  UpdatedAt: %d,
+  UpdatedBy: %s,
 }`,
 		s.GetID(),
 		cs.String(),
 		qs.String(),
 		s.GetRepoAllowlist(),
 		s.GetScheduleAllowlist(),
+		s.GetCreatedAt(),
+		s.GetUpdatedAt(),
+		s.GetUpdatedBy(),
 	)
 
 	// run test

@@ -18,7 +18,10 @@ settings (
 	compiler          		JSON DEFAULT NULL,
 	queue         	  		JSON DEFAULT NULL,
 	repo_allowlist	  		VARCHAR(1000),
-	schedule_allowlist	    VARCHAR(1000)
+	schedule_allowlist	    VARCHAR(1000),
+	created_at         INTEGER,
+	updated_at         INTEGER,
+	updated_by         VARCHAR(250)
 );
 `
 
@@ -31,7 +34,10 @@ settings (
 	compiler           	   TEXT,
 	queue         	   	   TEXT,
 	repo_allowlist	   	   VARCHAR(1000),
-	schedule_allowlist	   VARCHAR(1000)
+	schedule_allowlist	   VARCHAR(1000),
+	created_at         INTEGER,
+	updated_at         INTEGER,
+	updated_by         TEXT
 );
 `
 )
