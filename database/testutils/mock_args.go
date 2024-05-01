@@ -1,4 +1,6 @@
-package mock
+// SPDX-License-Identifier: Apache-2.0
+
+package testutils
 
 import (
 	"database/sql/driver"
@@ -26,6 +28,7 @@ func (t NowTimestamp) Match(v driver.Value) bool {
 	if !ok {
 		return false
 	}
+
 	now := time.Now().Unix()
 
 	return now-ts < 10

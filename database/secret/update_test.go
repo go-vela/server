@@ -9,7 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	dbMock "github.com/go-vela/server/mock/database"
+	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/library"
 )
 
@@ -61,21 +61,21 @@ func TestSecret_Engine_UpdateSecret(t *testing.T) {
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
 WHERE "id" = $15`).
-		WithArgs("foo", "bar", nil, "baz", dbMock.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", dbMock.AnyArgument{}, "user2", 1).
+		WithArgs("foo", "bar", nil, "baz", testutils.AnyArgument{}, "repo", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the org query
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
 WHERE "id" = $15`).
-		WithArgs("foo", "*", nil, "bar", dbMock.AnyArgument{}, "org", nil, 1, false, false, 1, "user", dbMock.AnyArgument{}, "user2", 2).
+		WithArgs("foo", "*", nil, "bar", testutils.AnyArgument{}, "org", nil, 1, false, false, 1, "user", testutils.AnyArgument{}, "user2", 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	// ensure the mock expects the shared query
 	_mock.ExpectExec(`UPDATE "secrets"
 SET "org"=$1,"repo"=$2,"team"=$3,"name"=$4,"value"=$5,"type"=$6,"images"=$7,"allow_events"=$8,"allow_command"=$9,"allow_substitution"=$10,"created_at"=$11,"created_by"=$12,"updated_at"=$13,"updated_by"=$14
 WHERE "id" = $15`).
-		WithArgs("foo", nil, "bar", "baz", dbMock.AnyArgument{}, "shared", nil, 1, false, false, 1, "user", dbMock.NowTimestamp{}, "user2", 3).
+		WithArgs("foo", nil, "bar", "baz", testutils.AnyArgument{}, "shared", nil, 1, false, false, 1, "user", testutils.NowTimestamp{}, "user2", 3).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)
