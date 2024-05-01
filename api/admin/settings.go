@@ -5,7 +5,6 @@ package admin
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -92,9 +91,6 @@ func UpdateSettings(c *gin.Context) {
 	// capture body from API request
 	input := new(settings.Platform)
 
-	input.SetUpdatedAt(time.Now().UTC().Unix())
-	input.SetUpdatedBy(u.GetName())
-
 	err := c.Bind(input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for settings: %w", err)
@@ -131,6 +127,8 @@ func UpdateSettings(c *gin.Context) {
 	if input.ScheduleAllowlist != nil {
 		s.SetScheduleAllowlist(input.GetScheduleAllowlist())
 	}
+
+	s.SetUpdatedBy(u.GetName())
 
 	// send API call to update the settings
 	s, err = database.FromContext(c).UpdateSettings(ctx, s)
