@@ -22,7 +22,7 @@ func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*setti
 	}
 
 	// send query to the database
-	err = e.client.Table(TableSettings).Save(settings).Error
+	err = e.client.Table(TableSettings).Save(settings.Nullify()).Error
 	if err != nil {
 		return nil, err
 	}

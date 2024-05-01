@@ -28,27 +28,26 @@ var (
 	ErrEmptyCloneImage = errors.New("empty settings clone image provided")
 )
 
-// todo: comments Build->Settings
 type (
-	// config represents the settings required to create the engine that implements the BuildInterface interface.
+	// config represents the settings required to create the engine that implements the SettingsInterface interface.
 	config struct {
-		// specifies to skip creating tables and indexes for the Build engine
+		// specifies to skip creating tables and indexes for the Settings engine
 		SkipCreation bool
 	}
 
-	// engine represents the build functionality that implements the BuildInterface interface.
+	// engine represents the settings functionality that implements the SettingsInterface interface.
 	engine struct {
-		// engine configuration settings used in build functions
+		// engine configuration settings used in settings functions
 		config *config
 
 		ctx context.Context
 
-		// gorm.io/gorm database client used in build functions
+		// gorm.io/gorm database client used in settings functions
 		//
 		// https://pkg.go.dev/gorm.io/gorm#DB
 		client *gorm.DB
 
-		// sirupsen/logrus logger used in build functions
+		// sirupsen/logrus logger used in settings functions
 		//
 		// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 		logger *logrus.Entry
@@ -117,11 +116,11 @@ func (r *Queue) Scan(value interface{}) error {
 	}
 }
 
-// New creates and returns a Vela service for integrating with builds in the database.
+// New creates and returns a Vela service for integrating with settingss in the database.
 //
 //nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (*engine, error) {
-	// create new Build engine
+	// create new Settings engine
 	e := new(engine)
 
 	// create new fields
@@ -175,18 +174,13 @@ func (s *Platform) Nullify() *Platform {
 	}
 
 	// check if the CreatedAt field should be false
-	if s.CreatedAt.Int64 == 0 {
+	if s.CreatedAt.Int64 < 0 {
 		s.CreatedAt.Valid = false
 	}
 
 	// check if the UpdatedAt field should be false
-	if s.UpdatedAt.Int64 == 0 {
+	if s.UpdatedAt.Int64 < 0 {
 		s.UpdatedAt.Valid = false
-	}
-
-	// check if the UpdatedBy field should be false
-	if len(s.UpdatedBy.String) == 0 {
-		s.UpdatedBy.Valid = false
 	}
 
 	return s
@@ -254,6 +248,14 @@ func (s *Platform) Validate() error {
 	// to avoid unsafe HTML content
 	for i, v := range s.ScheduleAllowlist {
 		s.ScheduleAllowlist[i] = util.Sanitize(v)
+	}
+
+	if s.CreatedAt.Int64 < 0 {
+		return fmt.Errorf("created_at must be greater than zero, got: %d", s.CreatedAt.Int64)
+	}
+
+	if s.UpdatedAt.Int64 < 0 {
+		return fmt.Errorf("updated_at must be greater than zero, got: %d", s.UpdatedAt.Int64)
 	}
 
 	return nil

@@ -19,9 +19,9 @@ settings (
 	queue         	  		JSON DEFAULT NULL,
 	repo_allowlist	  		VARCHAR(1000),
 	schedule_allowlist	    VARCHAR(1000),
-	created_at         INTEGER,
-	updated_at         INTEGER,
-	updated_by         VARCHAR(250)
+	created_at         		INTEGER,
+	updated_at         		INTEGER,
+	updated_by         		VARCHAR(250)
 );
 `
 
@@ -30,14 +30,14 @@ settings (
 CREATE TABLE
 IF NOT EXISTS
 settings (
-	id                 	   INTEGER PRIMARY KEY AUTOINCREMENT,
-	compiler           	   TEXT,
-	queue         	   	   TEXT,
-	repo_allowlist	   	   VARCHAR(1000),
-	schedule_allowlist	   VARCHAR(1000),
-	created_at         INTEGER,
-	updated_at         INTEGER,
-	updated_by         TEXT
+	id                 	   	INTEGER PRIMARY KEY AUTOINCREMENT,
+	compiler           	   	TEXT,
+	queue         	   	   	TEXT,
+	repo_allowlist	   	   	VARCHAR(1000),
+	schedule_allowlist	   	VARCHAR(1000),
+	created_at         		INTEGER,
+	updated_at         		INTEGER,
+	updated_by         		TEXT
 );
 `
 )
