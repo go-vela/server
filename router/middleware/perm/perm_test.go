@@ -689,7 +689,6 @@ func TestPerm_MustIDRequestToken(t *testing.T) {
 	mto := &token.MintTokenOpts{
 		Hostname:      "foo/bar/456def",
 		Build:         b,
-		Commit:        b.GetCommit(),
 		Repo:          r.GetFullName(),
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.IDRequestTokenType,
@@ -789,7 +788,6 @@ func TestPerm_MustIDRequestToken_NotRunning(t *testing.T) {
 	mto := &token.MintTokenOpts{
 		Hostname:      "foo/bar/456def",
 		Build:         b,
-		Commit:        b.GetCommit(),
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.IDRequestTokenType,
@@ -883,7 +881,6 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 	mto := &token.MintTokenOpts{
 		Hostname:      "foo/bar/456def",
 		Build:         wB,
-		Commit:        b.GetCommit(),
 		Repo:          "foo/bar",
 		TokenDuration: time.Minute * 30,
 		TokenType:     constants.IDRequestTokenType,

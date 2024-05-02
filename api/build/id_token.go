@@ -85,7 +85,6 @@ func GetIDToken(c *gin.Context) {
 		Build:         b,
 		Repo:          r.GetFullName(),
 		TokenType:     constants.IDTokenType,
-		Commit:        b.GetCommit(),
 		TokenDuration: tm.IDTokenDuration,
 		Image:         cl.Image,
 		Request:       cl.Request,

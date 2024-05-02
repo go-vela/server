@@ -41,7 +41,6 @@ type MintTokenOpts struct {
 	TokenType     string
 	User          *api.User
 	Audience      []string
-	Commit        string
 	Image         string
 	Request       string
 }
@@ -91,8 +90,8 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 			return "", errors.New("missing repo for ID request token")
 		}
 
-		if len(mto.Commit) == 0 {
-			return "", errors.New("missing commit for ID request token")
+		if mto.Build == nil {
+			return "", errors.New("missing build for ID request token")
 		}
 
 		if mto.Build.GetID() == 0 {
@@ -100,7 +99,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		}
 
 		claims.Repo = mto.Repo
-		claims.Subject = fmt.Sprintf("%s/%s", mto.Repo, mto.Commit)
+		claims.Subject = fmt.Sprintf("repo:%s:ref:%s", mto.Repo, mto.Build.GetRef())
 		claims.BuildID = mto.Build.GetID()
 		claims.BuildNumber = mto.Build.GetNumber()
 		claims.BuildSender = mto.Build.GetSender()
@@ -136,8 +135,8 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 		return "", errors.New("missing repo for ID token")
 	}
 
-	if len(mto.Commit) == 0 {
-		return "", errors.New("missing commit for ID token")
+	if mto.Build == nil {
+		return "", errors.New("missing build for ID token")
 	}
 
 	if mto.Build.GetNumber() == 0 {
@@ -148,7 +147,7 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 	claims.BuildNumber = mto.Build.GetNumber()
 	claims.BuildSender = mto.Build.GetSender()
 	claims.Repo = mto.Repo
-	claims.Subject = fmt.Sprintf("%s/%s", mto.Repo, mto.Commit)
+	claims.Subject = fmt.Sprintf("repo:%s:ref:%s", mto.Repo, mto.Build.GetRef())
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
