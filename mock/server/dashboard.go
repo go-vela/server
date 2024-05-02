@@ -44,68 +44,166 @@ const (
   ]
 }`
 
+	// DashCardResp represents a JSON return for a DashCard.
+	DashCardResp = `{
+    "dashboard": {
+        "id": "6e9f84c3-d853-4afb-b56e-99ff200264c0",
+        "name": "dashboard-1",
+        "created_at": 1714677999,
+        "created_by": "Octocat",
+        "updated_at": 1714678173,
+        "updated_by": "Octocat",
+        "admins": [
+            {
+                "id": 1,
+                "name": "Octocat",
+                "active": true
+            }
+        ],
+        "repos": [
+            {
+                "id": 2,
+                "name": "Octocat/test-repo"
+            },
+            {
+                "id": 1,
+                "name": "Octocat/test-repo-2"
+            }
+        ]
+    },
+    "repos": [
+        {
+            "org": "Octocat",
+            "name": "test-repo",
+            "counter": 1,
+            "builds": [
+                {
+                    "number": 1,
+                    "started": 1714678666,
+                    "finished": 1714678672,
+                    "sender": "Octocat",
+                    "status": "failure",
+                    "event": "deployment",
+                    "branch": "refs/heads/main",
+                    "link": "http://vela/Octocat/test-repo/1"
+                }
+            ]
+        },
+        {
+            "org": "Octocat",
+            "name": "test-repo-2"
+        }
+    ]
+}`
+
 	// DashboardsResp represents a JSON return for one to many builds.
-	DashboardsResp = `[
+	DashCardsResp = `[
 {
-  "id": "c976470d-34c1-49b2-9a98-1035871c576b",
-  "name": "my-dashboard",
-  "created_at": 1714573212,
-  "created_by": "Octocat",
-  "updated_at": 1714573212,
-  "updated_by": "Octocat",
-  "admins": [
-    {
-      "id": 1,
-      "name": "Octocat",
-      "active": true
-    }
-  ],
-  "repos": [
-    {
-      "id": 1,
-      "name": "Octocat/vela-repo",
-      "branches": [
-        "main"
-      ],
-      "events": [
-        "push"
-      ]
-    }
-  ]
+    "dashboard": {
+        "id": "6e9f84c3-d853-4afb-b56e-99ff200264c0",
+        "name": "dashboard-1",
+        "created_at": 1714677999,
+        "created_by": "Octocat",
+        "updated_at": 1714678173,
+        "updated_by": "Octocat",
+        "admins": [
+            {
+                "id": 1,
+                "name": "Octocat",
+                "active": true
+            }
+        ],
+        "repos": [
+            {
+                "id": 2,
+                "name": "Octocat/test-repo"
+            },
+            {
+                "id": 1,
+                "name": "Octocat/test-repo-2"
+            }
+        ]
+    },
+    "repos": [
+        {
+            "org": "Octocat",
+            "name": "test-repo",
+            "counter": 1,
+            "builds": [
+                {
+                    "number": 1,
+                    "started": 1714678666,
+                    "finished": 1714678672,
+                    "sender": "Octocat",
+                    "status": "failure",
+                    "event": "deployment",
+                    "branch": "refs/heads/main",
+                    "link": "http://vela/Octocat/test-repo/1"
+                }
+            ]
+        },
+        {
+            "org": "Octocat",
+            "name": "test-repo-2"
+        }
+    ]
 },
 {
-  "id": "c976470d-34c1-49b2-9a98-1035871c576c",
-  "name": "my-second-dashboard",
-  "created_at": 1714573212,
-  "created_by": "Octocat",
-  "updated_at": 1714573212,
-  "updated_by": "Octocat",
-  "admins": [
-    {
-      "id": 1,
-      "name": "Octocat",
-      "active": true
-    }
-  ],
-  "repos": [
-    {
-      "id": 1,
-      "name": "Octocat/vela-repo",
-      "branches": [
-        "main"
-      ],
-      "events": [
-        "push"
-      ]
-    }
-  ]
+    "dashboard": {
+        "id": "6e9f84c3-d853-4afb-b56e-99ff200264c1",
+        "name": "dashboard-2",
+        "created_at": 1714677999,
+        "created_by": "Octocat",
+        "updated_at": 1714678173,
+        "updated_by": "Octocat",
+        "admins": [
+            {
+                "id": 1,
+                "name": "Octocat",
+                "active": true
+            }
+        ],
+        "repos": [
+            {
+                "id": 2,
+                "name": "Octocat/test-repo"
+            },
+            {
+                "id": 1,
+                "name": "Octocat/test-repo-2"
+            }
+        ]
+    },
+    "repos": [
+        {
+            "org": "Octocat",
+            "name": "test-repo",
+            "counter": 1,
+            "builds": [
+                {
+                    "number": 1,
+                    "started": 1714678666,
+                    "finished": 1714678672,
+                    "sender": "Octocat",
+                    "status": "failure",
+                    "event": "deployment",
+                    "branch": "refs/heads/main",
+                    "link": "http://vela/Octocat/test-repo/1"
+                }
+            ]
+        },
+        {
+            "org": "Octocat",
+            "name": "test-repo-2"
+        }
+    ]
 }
 ]`
 )
 
 // getDashboards returns mock JSON for a http GET.
 func getDashboards(c *gin.Context) {
-	data := []byte(DashboardsResp)
+	data := []byte(DashCardsResp)
 
 	var body []api.Dashboard
 	_ = json.Unmarshal(data, &body)
@@ -125,7 +223,7 @@ func getDashboard(c *gin.Context) {
 		return
 	}
 
-	data := []byte(DashboardResp)
+	data := []byte(DashCardResp)
 
 	var body api.Dashboard
 	_ = json.Unmarshal(data, &body)

@@ -26,17 +26,32 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 		}
 	}
 
-	testDashboards := []api.Dashboard{}
-	err = json.Unmarshal([]byte(DashboardsResp), &testDashboards)
+	testDashCard := api.DashCard{}
+
+	err = json.Unmarshal([]byte(DashCardResp), &testDashCard)
+	if err != nil {
+		t.Errorf("error unmarshaling build: %v", err)
+	}
+
+	tDashCard := reflect.TypeOf(testDashCard)
+
+	for i := 0; i < tDashCard.NumField(); i++ {
+		if reflect.ValueOf(testDashCard).Field(i).IsNil() {
+			t.Errorf("DashCardResp missing field %s", tDashCard.Field(i).Name)
+		}
+	}
+
+	testDashCards := []api.DashCard{}
+	err = json.Unmarshal([]byte(DashCardsResp), &testDashCards)
 	if err != nil {
 		t.Errorf("error unmarshaling builds: %v", err)
 	}
 
-	for _, testDashboard := range testDashboards {
-		tDashboard := reflect.TypeOf(testDashboard)
+	for _, testDashCard := range testDashCards {
+		tDashCard := reflect.TypeOf(testDashCard)
 
-		for i := 0; i < tDashboard.NumField(); i++ {
-			if reflect.ValueOf(testDashboard).Field(i).IsNil() {
+		for i := 0; i < tDashCard.NumField(); i++ {
+			if reflect.ValueOf(testDashCard).Field(i).IsNil() {
 				t.Errorf("DashboardsResp missing field %s", tDashboard.Field(i).Name)
 			}
 		}
