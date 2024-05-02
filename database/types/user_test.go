@@ -204,7 +204,7 @@ func TestTypes_User_Validate(t *testing.T) {
 				ID:        sql.NullInt64{Int64: 1, Valid: true},
 				Name:      sql.NullString{String: "octocat", Valid: true},
 				Token:     sql.NullString{String: "superSecretToken", Valid: true},
-				Favorites: exceededField(),
+				Favorites: exceededField(500),
 			},
 		},
 		{ // invalid dashboards set for user
@@ -213,7 +213,7 @@ func TestTypes_User_Validate(t *testing.T) {
 				ID:         sql.NullInt64{Int64: 1, Valid: true},
 				Name:       sql.NullString{String: "octocat", Valid: true},
 				Token:      sql.NullString{String: "superSecretToken", Valid: true},
-				Dashboards: exceededField(),
+				Dashboards: exceededField(11),
 			},
 		},
 	}
@@ -275,12 +275,12 @@ func testUser() *User {
 }
 
 // exceededField returns a list of strings that exceed the maximum size of a field.
-func exceededField() []string {
+func exceededField(indexes int) []string {
 	// initialize empty favorites
 	values := []string{}
 
 	// add enough strings to exceed the character limit
-	for i := 0; i < 500; i++ {
+	for i := 0; i < indexes; i++ {
 		// construct field
 		// use i to adhere to unique favorites
 		field := "github/octocat-" + strconv.Itoa(i)
