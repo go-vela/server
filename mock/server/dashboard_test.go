@@ -15,7 +15,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 
 	err := json.Unmarshal([]byte(DashboardResp), &testDashboard)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling dashboard: %v", err)
 	}
 
 	tDashboard := reflect.TypeOf(testDashboard)
@@ -30,7 +30,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 
 	err = json.Unmarshal([]byte(DashCardResp), &testDashCard)
 	if err != nil {
-		t.Errorf("error unmarshaling build: %v", err)
+		t.Errorf("error unmarshaling dash card: %v", err)
 	}
 
 	tDashCard := reflect.TypeOf(testDashCard)
@@ -44,7 +44,7 @@ func TestDashboard_ActiveDashboardResp(t *testing.T) {
 	testDashCards := []api.DashCard{}
 	err = json.Unmarshal([]byte(DashCardsResp), &testDashCards)
 	if err != nil {
-		t.Errorf("error unmarshaling builds: %v", err)
+		t.Errorf("error unmarshaling dash cards: %v", err)
 	}
 
 	for _, testDashCard := range testDashCards {

@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	// DashboardResp represents a JSON return for a single build.
+	// DashboardResp represents a JSON return for a dashboard.
 	DashboardResp = `{
   "id": "c976470d-34c1-49b2-9a98-1035871c576b",
   "name": "my-dashboard",
@@ -96,7 +96,7 @@ const (
     ]
 }`
 
-	// DashboardsResp represents a JSON return for one to many builds.
+	// DashCardsResp represents a JSON return for multiple DashCards.
 	DashCardsResp = `[
 {
     "dashboard": {
