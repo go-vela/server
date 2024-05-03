@@ -11,8 +11,8 @@ import (
 	"github.com/lib/pq"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/constants"
 )
 
 var (
@@ -216,16 +216,8 @@ func (u *User) Validate() error {
 		return ErrExceededFavoritesLimit
 	}
 
-	// calculate totalDashboards size of dashboards
-	totalDashboards := 0
-	for _, d := range u.Dashboards {
-		totalDashboards += len(d)
-	}
-
-	// verify the Dashboards field is within the database constraints
-	// len is to factor in number of comma separators included in the database field,
-	// removing 1 due to the last item not having an appended comma
-	if (totalDashboards + len(u.Dashboards) - 1) > constants.FavoritesMaxSize {
+	// validate number of dashboards
+	if len(u.Dashboards) > constants.UserDashboardLimit {
 		return ErrExceededDashboardsLimit
 	}
 

@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/util"
 )
 
@@ -28,7 +29,7 @@ var (
 type (
 	// Dashboard is the database representation of a dashboard.
 	Dashboard struct {
-		ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4()"`
+		ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v7()"`
 		Name      sql.NullString `sql:"name"`
 		CreatedAt sql.NullInt64  `sql:"created_at"`
 		CreatedBy sql.NullString `sql:"created_by"`
@@ -140,6 +141,11 @@ func (d *Dashboard) Validate() error {
 	// verify the Name field is populated
 	if len(d.Name.String) == 0 {
 		return ErrEmptyDashName
+	}
+
+	// verify the number of repos
+	if len(d.Repos) > constants.DashboardRepoLimit {
+		return fmt.Errorf("exceeded repos limit of %d", constants.DashboardRepoLimit)
 	}
 
 	// ensure that all Dashboard string fields

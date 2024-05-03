@@ -90,6 +90,17 @@ func TestTypes_Dashboard_ToAPI(t *testing.T) {
 func TestTypes_Dashboard_Validate(t *testing.T) {
 	uuid, _ := uuid.Parse("c8da1302-07d6-11ea-882f-4893bca275b8")
 
+	dashRepo := new(api.DashboardRepo)
+	dashRepo.SetName("dashboard-repo")
+
+	dashRepos := []*api.DashboardRepo{}
+	for i := 0; i < 11; i++ {
+		dashRepos = append(dashRepos, dashRepo)
+	}
+
+	exceededReposDashboard := testDashboard()
+	exceededReposDashboard.Repos = DashReposJSON(dashRepos)
+
 	// setup tests
 	tests := []struct {
 		failure   bool
@@ -104,6 +115,10 @@ func TestTypes_Dashboard_Validate(t *testing.T) {
 			dashboard: &Dashboard{
 				ID: uuid,
 			},
+		},
+		{ // hit repo limit
+			failure:   true,
+			dashboard: exceededReposDashboard,
 		},
 	}
 
