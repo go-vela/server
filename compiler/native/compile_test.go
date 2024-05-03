@@ -3317,7 +3317,7 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: yaml.Ruleset{
 							If: yaml.Rules{
-								Event:  []string{"deployment"},
+								Event:  []string{"deployment:created"},
 								Target: []string{"production"},
 							},
 							Matcher:  "filepath",
@@ -3396,7 +3396,7 @@ func Test_CompileLite(t *testing.T) {
 				pipelineType: "",
 				substitute:   true,
 				ruleData: &pipeline.RuleData{
-					Event:  "deployment",
+					Event:  "deployment:created",
 					Target: "production",
 					Path:   []string{"README.md"},
 				},
@@ -3421,7 +3421,7 @@ func Test_CompileLite(t *testing.T) {
 						Pull:     "not_present",
 						Ruleset: yaml.Ruleset{
 							If: yaml.Rules{
-								Event:  []string{"deployment"},
+								Event:  []string{"deployment:created"},
 								Target: []string{"production"},
 							},
 							Matcher:  "filepath",
