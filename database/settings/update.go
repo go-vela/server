@@ -13,21 +13,21 @@ func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*setti
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the api type to database type
-	s_ := FromAPI(s)
+	dbS := FromAPI(s)
 
 	// validate the necessary fields are populated
-	err := s_.Validate()
+	err := dbS.Validate()
 	if err != nil {
 		return nil, err
 	}
 
 	// send query to the database
-	err = e.client.Table(TableSettings).Save(s_.Nullify()).Error
+	err = e.client.Table(TableSettings).Save(dbS.Nullify()).Error
 	if err != nil {
 		return nil, err
 	}
 
-	s = s_.ToAPI()
+	s = dbS.ToAPI()
 
 	return s, nil
 }
