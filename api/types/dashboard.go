@@ -12,6 +12,7 @@ type RepoPartial struct {
 	Org     string         `json:"org,omitempty"`
 	Name    string         `json:"name,omitempty"`
 	Counter int            `json:"counter,omitempty"`
+	Active  bool           `json:"active,omitempty"`
 	Builds  []BuildPartial `json:"builds,omitempty"`
 }
 
