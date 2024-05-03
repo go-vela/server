@@ -40,6 +40,7 @@ type Resources struct {
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
+	JWKs        []*api.JWK
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
 	Repos       []*api.Repo
@@ -131,6 +132,8 @@ func TestDatabase_Integration(t *testing.T) {
 			t.Run("test_executables", func(t *testing.T) { testExecutables(t, db, resources) })
 
 			t.Run("test_hooks", func(t *testing.T) { testHooks(t, db, resources) })
+
+			t.Run("test_jwks", func(t *testing.T) { testJWKs(t, db, resources) })
 
 			t.Run("test_logs", func(t *testing.T) { testLogs(t, db, resources) })
 
@@ -845,6 +848,77 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for hooks", method)
+		}
+	}
+}
+
+func testJWKs(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for logs
+	methods := make(map[string]bool)
+	// capture the element type of the log interface
+	element := reflect.TypeOf(new(log.LogInterface)).Elem()
+	// iterate through all methods found in the log interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for logs
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	for _, jwk := range resources.JWKs {
+		err := db.CreateJWK(context.TODO(), *jwk)
+		if err != nil {
+			t.Errorf("unable to create jwk %s: %v", jwk.Kid, err)
+		}
+	}
+	methods["CreateJWK"] = true
+
+	list, err := db.ListJWKs(context.TODO())
+	if err != nil {
+		t.Errorf("unable to list jwks: %v", err)
+	}
+
+	if diff := cmp.Diff(resources.JWKs, list); diff != "" {
+		t.Errorf("ListJWKs() mismatch (-want +got):\n%s", diff)
+	}
+
+	methods["ListJWKs"] = true
+
+	for _, jwk := range resources.JWKs {
+		got, err := db.GetActiveJWK(context.TODO(), jwk.Kid)
+		if err != nil {
+			t.Errorf("unable to get jwk %s: %v", jwk.Kid, err)
+		}
+
+		if !cmp.Equal(jwk, got) {
+			t.Errorf("GetJWK() is %v, want %v", got, jwk)
+		}
+	}
+
+	methods["GetActiveJWK"] = true
+
+	err = db.RotateKeys(context.TODO())
+	if err != nil {
+		t.Errorf("unable to rotate keys: %v", err)
+	}
+
+	for _, jwk := range resources.JWKs {
+		_, err := db.GetActiveJWK(context.TODO(), jwk.Kid)
+		if err == nil {
+			t.Errorf("GetActiveJWK() should return err after rotation")
+		}
+	}
+
+	methods["RotateKeys"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for logs", method)
 		}
 	}
 }
@@ -2396,6 +2470,24 @@ func newResources() *Resources {
 	hookThree.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookThree.SetWebhookID(78910)
 
+	jwkOne := &api.JWK{
+		Algorithm: "RS256",
+		Kid:       "c8da1302-07d6-11ea-882f-4893bca275b8",
+		Kty:       "rsa",
+		Use:       "sig",
+		N:         "123456",
+		E:         "123",
+	}
+
+	jwkTwo := &api.JWK{
+		Algorithm: "RS256",
+		Kid:       "c8da1302-07d6-11ea-882f-4893bca275b9",
+		Kty:       "rsa",
+		Use:       "sig",
+		N:         "789101",
+		E:         "456",
+	}
+
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)
 	logServiceOne.SetBuildID(1)
@@ -2651,6 +2743,7 @@ func newResources() *Resources {
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
+		JWKs:        []*api.JWK{jwkOne, jwkTwo},
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
