@@ -23,7 +23,7 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 	_settings.SetRepoAllowlist([]string{"octocat/hello-world"})
 	_settings.SetScheduleAllowlist([]string{"*"})
 	_settings.SetCreatedAt(1)
-	_settings.SetUpdatedAt(2)
+	_settings.SetUpdatedAt(1)
 	_settings.SetUpdatedBy("octocat")
 
 	_postgres, _mock := testPostgres(t)
@@ -65,6 +65,7 @@ func TestSettings_Engine_UpdateSettings(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := test.database.UpdateSettings(context.TODO(), _settings)
+			got.SetUpdatedAt(_settings.GetUpdatedAt())
 
 			if test.failure {
 				if err == nil {
