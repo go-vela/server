@@ -43,6 +43,12 @@ func FakeHandler() http.Handler {
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/token", buildToken)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/executable", buildExecutable)
 
+	// mock endpoints for dashboard calls
+	e.GET("/api/v1/dashboards/:dashboard", getDashboard)
+	e.GET("/api/v1/user/dashboards", getDashboards)
+	e.POST("/api/v1/dashboards", addDashboard)
+	e.PUT("/api/v1/dashboards/:dashboard", updateDashboard)
+
 	// mock endpoints for deployment calls
 	e.GET("/api/v1/deployments/:org/:repo", getDeployments)
 	e.POST("/api/v1/deployments/:org/:repo", addDeployment)
