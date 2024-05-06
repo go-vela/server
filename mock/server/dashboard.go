@@ -205,7 +205,7 @@ const (
 func getDashboards(c *gin.Context) {
 	data := []byte(DashCardsResp)
 
-	var body []api.Dashboard
+	var body []api.DashCard
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
@@ -225,7 +225,7 @@ func getDashboard(c *gin.Context) {
 
 	data := []byte(DashCardResp)
 
-	var body api.Dashboard
+	var body api.DashCard
 	_ = json.Unmarshal(data, &body)
 
 	c.JSON(http.StatusOK, body)
