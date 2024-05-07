@@ -98,6 +98,7 @@ func buildRepoPartials(c context.Context, repos []*types.DashboardRepo) ([]types
 		repo.Org = dbRepo.GetOrg()
 		repo.Name = dbRepo.GetName()
 		repo.Counter = dbRepo.GetCounter()
+		repo.Active = dbRepo.GetActive()
 
 		// list last 5 builds for repo given the branch and event filters
 		builds, err := database.FromContext(c).ListBuildsForDashboardRepo(c, dbRepo, r.GetBranches(), r.GetEvents())
