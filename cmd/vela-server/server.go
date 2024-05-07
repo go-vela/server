@@ -100,11 +100,11 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	jitter := wait.Jitter(60*time.Second, 0.5)
+	jitter := wait.Jitter(5*time.Second, 0.5)
 
 	logrus.Infof("sleeping for %v before initializing settings", jitter)
 
-	// sleep for a duration of time before processing schedules
+	// sleep for a duration of time before initializing settings
 	time.Sleep(jitter)
 
 	s, err := database.GetSettings(context.Background())
