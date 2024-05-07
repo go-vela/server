@@ -100,6 +100,13 @@ func server(c *cli.Context) error {
 		return err
 	}
 
+	jitter := wait.Jitter(60*time.Second, 0.5)
+
+	logrus.Infof("sleeping for %v before initializing settings", jitter)
+
+	// sleep for a duration of time before processing schedules
+	time.Sleep(jitter)
+
 	s, err := database.GetSettings(context.Background())
 	if c.Bool("vela-reinitialize-settings-on-startup") || s == nil || err != nil {
 		// only log errors
@@ -114,6 +121,8 @@ func server(c *cli.Context) error {
 		s.SetID(1)
 
 		s.SetCreatedAt(time.Now().UTC().Unix())
+		s.SetUpdatedAt(time.Now().UTC().Unix())
+		s.SetUpdatedBy("vela-server")
 
 		// read in defaults supplied from the cli runtime
 		compilerSettings := compiler.GetSettings()
