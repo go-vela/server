@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/database/types"
 )
 
 // CreateSettings creates a platform settings record in the database.
@@ -13,7 +14,7 @@ func (e *engine) CreateSettings(_ context.Context, s *settings.Platform) (*setti
 	e.logger.Tracef("creating platform settings in the database with %v", s.String())
 
 	// cast the api type to database type
-	settings := FromAPI(s)
+	settings := types.FromAPI(s)
 
 	// validate the necessary fields are populated
 	err := settings.Validate()

@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/database/types"
 )
 
 // UpdateSettings updates a platform settings in the database.
@@ -13,7 +14,7 @@ func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*setti
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the api type to database type
-	dbS := FromAPI(s)
+	dbS := types.FromAPI(s)
 
 	// validate the necessary fields are populated
 	err := dbS.Validate()

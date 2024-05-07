@@ -102,15 +102,15 @@ func UpdateSettings(c *gin.Context) {
 
 	if input.Compiler != nil {
 		if input.CloneImage != nil {
-			s.CloneImage = input.CloneImage
+			s.SetCloneImage(*input.CloneImage)
 		}
 
 		if input.TemplateDepth != nil {
-			s.TemplateDepth = input.TemplateDepth
+			s.SetTemplateDepth(*input.TemplateDepth)
 		}
 
 		if input.StarlarkExecLimit != nil {
-			s.StarlarkExecLimit = input.StarlarkExecLimit
+			s.SetStarlarkExecLimit(*input.StarlarkExecLimit)
 		}
 	}
 
