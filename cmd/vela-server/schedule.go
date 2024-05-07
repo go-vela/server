@@ -129,14 +129,17 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 			continue
 		}
 
-		schedule.SetError("")
+		// successfully scheduled build so clear error message, if not already cleared
+		if schedule.GetError() != "" {
+			schedule.SetError("")
 
-		// send API call to update schedule with the error message field cleared
-		_, err = database.UpdateSchedule(ctx, schedule, true)
-		if err != nil {
-			handleError(ctx, database, err, schedule)
+			// send API call to update schedule with the error message field cleared
+			_, err = database.UpdateSchedule(ctx, schedule, true)
+			if err != nil {
+				handleError(ctx, database, err, schedule)
 
-			continue
+				continue
+			}
 		}
 	}
 

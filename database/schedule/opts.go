@@ -22,10 +22,10 @@ func WithClient(client *gorm.DB) EngineOpt {
 	}
 }
 
-// WithEncryptionKey sets the encryption key in the database engine for Repos.
+// WithEncryptionKey sets the encryption key in the database engine for Schedules.
 func WithEncryptionKey(key string) EngineOpt {
 	return func(e *engine) error {
-		// set the encryption key in the repo engine
+		// set the encryption key in the schedule engine
 		e.config.EncryptionKey = key
 
 		return nil
