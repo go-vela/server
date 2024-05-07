@@ -7,11 +7,12 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-vela/server/api/types/settings"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"github.com/go-vela/server/api/types/settings"
 )
 
 func TestSettings_New(t *testing.T) {
