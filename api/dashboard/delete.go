@@ -40,6 +40,10 @@ import (
 //     description: Unauthorized to delete dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to find dashboard
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Server error when deleting dashboard
 //     schema:
