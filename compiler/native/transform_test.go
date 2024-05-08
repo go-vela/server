@@ -220,7 +220,7 @@ func TestNative_TransformStages(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := New(c)
+		compiler, err := FromCLIContext(c)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}
@@ -439,7 +439,7 @@ func TestNative_TransformSteps(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		compiler, err := New(c)
+		compiler, err := FromCLIContext(c)
 		if err != nil {
 			t.Errorf("unable to create new compiler: %v", err)
 		}

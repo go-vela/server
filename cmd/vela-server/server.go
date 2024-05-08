@@ -19,7 +19,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/go-vela/server/api/types/settings"
+	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/queue"
 	"github.com/go-vela/server/router"
 	"github.com/go-vela/server/router/middleware"
 )
@@ -69,7 +71,7 @@ func server(c *cli.Context) error {
 		logrus.SetLevel(logrus.PanicLevel)
 	}
 
-	compiler, err := setupCompiler(c)
+	compiler, err := native.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
@@ -79,7 +81,7 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	queue, err := setupQueue(c)
+	queue, err := queue.FromCLIContext(c)
 	if err != nil {
 		return err
 	}
@@ -152,6 +154,7 @@ func server(c *cli.Context) error {
 	compiler.SetSettings(s)
 
 	router := router.Load(
+		middleware.CLI(c),
 		middleware.Settings(s),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
@@ -249,10 +252,7 @@ func server(c *cli.Context) error {
 			}
 
 			// update the internal fields for the shared settings record
-			s.SetCompiler(s_.GetCompiler())
-			s.SetQueue(s_.GetQueue())
-			s.SetRepoAllowlist(s_.GetRepoAllowlist())
-			s.SetScheduleAllowlist(s_.GetScheduleAllowlist())
+			s.Update(s_)
 		}
 	})
 

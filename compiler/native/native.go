@@ -43,10 +43,10 @@ type client struct {
 	labels         []string
 }
 
-// New returns a Pipeline implementation that integrates with the supported registries.
+// FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
 //
 //nolint:revive // ignore returning unexported client
-func New(ctx *cli.Context) (*client, error) {
+func FromCLIContext(ctx *cli.Context) (*client, error) {
 	logrus.Debug("Creating registry clients from CLI configuration")
 
 	c := new(client)

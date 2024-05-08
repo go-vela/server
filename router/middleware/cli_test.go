@@ -7,16 +7,20 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli/v2"
 )
 
-func TestMiddleware_Worker(t *testing.T) {
+func TestMiddleware_CLI(t *testing.T) {
 	// setup types
-	var got time.Duration
+	want := &cli.Context{
+		App: &cli.App{
+			Name: "foo",
+		},
+	}
 
-	want := 5 * time.Minute
+	got := &cli.Context{}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -26,9 +30,9 @@ func TestMiddleware_Worker(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Worker(want))
+	engine.Use(CLI(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("worker_active_interval").(time.Duration)
+		got = c.Value("cli").(*cli.Context)
 
 		c.Status(http.StatusOK)
 	})
@@ -37,10 +41,10 @@ func TestMiddleware_Worker(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Worker returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("CLI returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Worker is %v, want %v", got, want)
+		t.Errorf("CLI is %v, want %v", got, want)
 	}
 }

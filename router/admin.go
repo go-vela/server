@@ -26,7 +26,7 @@ import (
 // POST   	 /api/v1/admin/workers/:worker/register.
 // GET    	 /api/v1/admin/settings
 // PUT    	 /api/v1/admin/settings
-// DELETE    /api/v1/admin/settings.
+// DELETE	 /api/v1/admin/settings.
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
@@ -67,5 +67,6 @@ func AdminHandlers(base *gin.RouterGroup) {
 		// Admin settings endpoints
 		_admin.GET("/settings", admin.GetSettings)
 		_admin.PUT("/settings", admin.UpdateSettings)
+		_admin.DELETE("/settings", admin.RestoreSettings)
 	} // end of admin endpoints
 }

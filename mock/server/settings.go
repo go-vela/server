@@ -61,6 +61,31 @@ const (
 			"updated_at": 1,
 			"updated_by": "octocat"
 		}`
+
+	// RestoreSettingsResp represents a JSON return for restoring the settings record to the defaults.
+	RestoreSettingsResp = `
+	{
+		"id": 1,
+		"compiler": {
+			"clone_image": "target/vela-git:latest",
+			"template_depth": 5,
+			"starlark_exec_limit": 123
+		},
+		"queue": {
+			"routes": [
+				"vela",
+				"large"
+			]
+		},
+		"repo_allowlist": [],
+		"schedule_allowlist": [
+			"octocat/hello-world",
+			"octocat/*"
+		],
+		"created_at": 1,
+		"updated_at": 1,
+		"updated_by": "octocat"
+	}`
 )
 
 // getSettings has a param :settings returns mock JSON for a http GET.
@@ -76,6 +101,16 @@ func getSettings(c *gin.Context) {
 // updateSettings returns mock JSON for a http PUT.
 func updateSettings(c *gin.Context) {
 	data := []byte(UpdateSettingsResp)
+
+	var body settings.Platform
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// restoreSettings returns mock JSON for a http DELETE.
+func restoreSettings(c *gin.Context) {
+	data := []byte(RestoreSettingsResp)
 
 	var body settings.Platform
 	_ = json.Unmarshal(data, &body)

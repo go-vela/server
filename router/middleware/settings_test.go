@@ -7,16 +7,17 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-vela/server/api/types/settings"
 )
 
-func TestMiddleware_Worker(t *testing.T) {
+func TestMiddleware_Settings(t *testing.T) {
 	// setup types
-	var got time.Duration
+	want := settings.PlatformMockEmpty()
+	want.SetCloneImage("target/vela-git")
 
-	want := 5 * time.Minute
+	got := settings.PlatformMockEmpty()
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -26,9 +27,9 @@ func TestMiddleware_Worker(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Worker(want))
+	engine.Use(Settings(&want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("worker_active_interval").(time.Duration)
+		got = *c.Value("settings").(*settings.Platform)
 
 		c.Status(http.StatusOK)
 	})
@@ -37,10 +38,10 @@ func TestMiddleware_Worker(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Worker returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("Settings returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Worker is %v, want %v", got, want)
+		t.Errorf("Settings is %v, want %v", got, want)
 	}
 }

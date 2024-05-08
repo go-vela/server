@@ -21,7 +21,7 @@ func TestNative_Validate_NoVersion(t *testing.T) {
 	p := &yaml.Build{}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -42,7 +42,7 @@ func TestNative_Validate_NoStagesOrSteps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -85,7 +85,7 @@ func TestNative_Validate_StagesAndSteps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -122,7 +122,7 @@ func TestNative_Validate_Services(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -159,7 +159,7 @@ func TestNative_Validate_Services_NoName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -196,7 +196,7 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -231,7 +231,7 @@ func TestNative_Validate_Stages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -265,7 +265,7 @@ func TestNative_Validate_Stages_NoName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -299,7 +299,7 @@ func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -333,7 +333,7 @@ func TestNative_Validate_Stages_NoImage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -367,7 +367,7 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -403,7 +403,7 @@ func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -433,7 +433,7 @@ func TestNative_Validate_Steps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -461,7 +461,7 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -490,7 +490,7 @@ func TestNative_Validate_Steps_NoImage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -519,7 +519,7 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -556,7 +556,7 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -595,7 +595,7 @@ func TestNative_Validate_MultiReportAs(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

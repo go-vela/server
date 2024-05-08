@@ -61,7 +61,7 @@ func TestNative_InitStage(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -109,7 +109,7 @@ func TestNative_InitStep(t *testing.T) {
 		},
 	}
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

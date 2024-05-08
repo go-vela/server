@@ -144,7 +144,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	// run test -- missing private github
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err = New(c)
+	compiler, err = FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -346,7 +346,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -615,7 +615,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	wantEnvironment := raw.StringSliceMap{}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -708,7 +708,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -870,7 +870,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -972,7 +972,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}
@@ -1058,7 +1058,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating new compiler returned err: %v", err)
 	}

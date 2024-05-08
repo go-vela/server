@@ -22,7 +22,6 @@ var (
 )
 
 type (
-
 	// Platform is the database representation of platform settings.
 	Platform struct {
 		ID sql.NullInt64 `sql:"id"`

@@ -26,7 +26,7 @@ func TestNative_New(t *testing.T) {
 	}
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -56,7 +56,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 	}
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -86,7 +86,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 	}
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 
 	if err != nil {
 		t.Errorf("New returned err: %v", err)
@@ -105,10 +105,10 @@ func TestNative_DuplicateStripBuild(t *testing.T) {
 	id := int64(1)
 	b := &api.Build{ID: &id}
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -128,11 +128,11 @@ func TestNative_WithBuild(t *testing.T) {
 	id := int64(1)
 	b := &api.Build{ID: &id}
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.build = b
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -149,11 +149,11 @@ func TestNative_WithFiles(t *testing.T) {
 
 	f := []string{"foo"}
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.files = f
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -169,11 +169,11 @@ func TestNative_WithComment(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	comment := "ok to test"
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.comment = comment
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -189,11 +189,11 @@ func TestNative_WithLocal(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	local := true
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.local = true
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -209,11 +209,11 @@ func TestNative_WithLocalTemplates(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	localTemplates := []string{"example:tmpl.yml", "exmpl:template.yml"}
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.localTemplates = []string{"example:tmpl.yml", "exmpl:template.yml"}
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -248,11 +248,11 @@ func TestNative_WithMetadata(t *testing.T) {
 		},
 	}
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.metadata = m
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -274,11 +274,11 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 
 	private, _ := github.New(url, token)
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.PrivateGithub = private
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -296,11 +296,11 @@ func TestNative_WithRepo(t *testing.T) {
 	id := int64(1)
 	r := &api.Repo{ID: &id}
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.repo = r
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -318,11 +318,11 @@ func TestNative_WithUser(t *testing.T) {
 	id := int64(1)
 	u := &api.User{ID: &id}
 
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.user = u
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -338,11 +338,11 @@ func TestNative_WithLabels(t *testing.T) {
 	c := cli.NewContext(nil, set, nil)
 
 	labels := []string{"documentation", "enhancement"}
-	want, _ := New(c)
+	want, _ := FromCLIContext(c)
 	want.labels = []string{"documentation", "enhancement"}
 
 	// run test
-	got, err := New(c)
+	got, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

@@ -87,7 +87,7 @@ func TestNative_ScriptStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Creating compiler returned err: %v", err)
 	}
@@ -313,7 +313,7 @@ func TestNative_ScriptSteps(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := New(c)
+			compiler, err := FromCLIContext(c)
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}

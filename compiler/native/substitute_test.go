@@ -112,7 +112,7 @@ func Test_client_SubstituteStages(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := New(c)
+			compiler, err := FromCLIContext(c)
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
@@ -236,7 +236,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compiler, err := New(c)
+			compiler, err := FromCLIContext(c)
 			if err != nil {
 				t.Errorf("Creating compiler returned err: %v", err)
 			}
