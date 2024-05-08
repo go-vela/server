@@ -239,10 +239,10 @@ func (s *Platform) Update(newSettings *Platform) {
 		return
 	}
 
-	s.SetCompiler(s_.GetCompiler())
-	s.SetQueue(s_.GetQueue())
-	s.SetRepoAllowlist(s_.GetRepoAllowlist())
-	s.SetScheduleAllowlist(s_.GetScheduleAllowlist())
+	s.SetCompiler(newSettings.GetCompiler())
+	s.SetQueue(newSettings.GetQueue())
+	s.SetRepoAllowlist(newSettings.GetRepoAllowlist())
+	s.SetScheduleAllowlist(newSettings.GetScheduleAllowlist())
 }
 
 // String implements the Stringer interface for the Platform type.
