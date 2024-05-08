@@ -45,3 +45,21 @@ func TestSettings_UpdateResp(t *testing.T) {
 		}
 	}
 }
+
+func TestSettings_RestoreResp(t *testing.T) {
+	testSettings := settings.Platform{}
+
+	err := json.Unmarshal([]byte(RestoreSettingsResp), &testSettings)
+	if err != nil {
+		t.Errorf("error unmarshaling settings: %v", err)
+	}
+
+	tSettings := reflect.TypeOf(testSettings)
+
+	for i := 0; i < tSettings.NumField(); i++ {
+		f := reflect.ValueOf(testSettings).Field(i)
+		if f.IsNil() {
+			t.Errorf("RestoreSettingsResp missing field %s", tSettings.Field(i).Name)
+		}
+	}
+}

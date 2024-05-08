@@ -9,7 +9,7 @@ import (
 	cliMiddleware "github.com/go-vela/server/router/middleware/cli"
 )
 
-// CLI is a middleware function that attaches the urface cli client
+// CLI is a middleware function that attaches the cli client
 // to the context of every http.Request.
 func CLI(cliCtx *cli.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {

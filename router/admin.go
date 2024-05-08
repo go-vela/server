@@ -23,7 +23,7 @@ import (
 // PUT    	 /api/v1/admin/service
 // PUT    	 /api/v1/admin/step
 // PUT    	 /api/v1/admin/user
-// POST   	 /api/v1/admin/workers/:worker/register.
+// POST   	 /api/v1/admin/workers/:worker/register
 // GET    	 /api/v1/admin/settings
 // PUT    	 /api/v1/admin/settings
 // DELETE	 /api/v1/admin/settings.
