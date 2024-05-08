@@ -230,12 +230,12 @@ func (s *Platform) SetUpdatedBy(v string) {
 
 // Update takes another settings record and updates the internal fields, intended
 // to be used when the refreshing settings record shared across the server.
-func (s *Platform) Update(s_ *Platform) {
+func (s *Platform) Update(newSettings *Platform) {
 	if s == nil {
 		return
 	}
 
-	if s_ == nil {
+	if newSettings == nil {
 		return
 	}
 

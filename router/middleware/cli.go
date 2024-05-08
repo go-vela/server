@@ -4,8 +4,9 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	cliMiddleware "github.com/go-vela/server/router/middleware/cli"
 	"github.com/urfave/cli/v2"
+
+	cliMiddleware "github.com/go-vela/server/router/middleware/cli"
 )
 
 // CLI is a middleware function that attaches the urface cli client

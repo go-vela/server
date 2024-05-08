@@ -244,7 +244,7 @@ func server(c *cli.Context) error {
 		for {
 			time.Sleep(interval)
 
-			s_, err := database.GetSettings(context.Background())
+			newSettings, err := database.GetSettings(context.Background())
 			if err != nil {
 				logrus.WithError(err).Warn("unable to refresh platform settings")
 
@@ -252,7 +252,7 @@ func server(c *cli.Context) error {
 			}
 
 			// update the internal fields for the shared settings record
-			s.Update(s_)
+			s.Update(newSettings)
 		}
 	})
 
