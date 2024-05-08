@@ -22,6 +22,16 @@ func WithClient(client *gorm.DB) EngineOpt {
 	}
 }
 
+// WithEncryptionKey sets the encryption key in the database engine for Schedules.
+func WithEncryptionKey(key string) EngineOpt {
+	return func(e *engine) error {
+		// set the encryption key in the schedule engine
+		e.config.EncryptionKey = key
+
+		return nil
+	}
+}
+
 // WithLogger sets the github.com/sirupsen/logrus logger in the database engine for Schedules.
 func WithLogger(logger *logrus.Entry) EngineOpt {
 	return func(e *engine) error {

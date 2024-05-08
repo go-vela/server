@@ -70,7 +70,7 @@ import (
 //     schema:
 //       "$ref": "#/definitions/Error"
 
-// CreateBuild represents the API handler to approve a build to run in the configured backend.
+// ApproveBuild represents the API handler to approve a build to run in the configured backend.
 func ApproveBuild(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)

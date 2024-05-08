@@ -7,19 +7,19 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
-	"github.com/go-vela/types/database"
-	"github.com/go-vela/types/library"
 )
 
 // DeleteSchedule deletes an existing schedule from the database.
-func (e *engine) DeleteSchedule(ctx context.Context, s *library.Schedule) error {
+func (e *engine) DeleteSchedule(ctx context.Context, s *api.Schedule) error {
 	e.logger.WithFields(logrus.Fields{
 		"schedule": s.GetName(),
 	}).Tracef("deleting schedule %s in the database", s.GetName())
 
-	// cast the library type to database type
-	schedule := database.ScheduleFromLibrary(s)
+	// cast the API type to database type
+	schedule := types.ScheduleFromAPI(s)
 
 	// send query to the database
 	return e.client.

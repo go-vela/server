@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/schedules/{org}/{repo} schedules CreateSchedule
@@ -83,7 +83,7 @@ func CreateSchedule(c *gin.Context) {
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
 	// capture body from API request
-	input := new(library.Schedule)
+	input := new(api.Schedule)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -129,11 +129,11 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	schedule := new(library.Schedule)
+	schedule := new(api.Schedule)
 
 	// update fields in schedule object
 	schedule.SetCreatedBy(u.GetName())
-	schedule.SetRepoID(r.GetID())
+	schedule.SetRepo(r)
 	schedule.SetName(input.GetName())
 	schedule.SetEntry(input.GetEntry())
 	schedule.SetCreatedAt(time.Now().UTC().Unix())

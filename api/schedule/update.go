@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/schedule"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation PUT /api/v1/schedules/{org}/{repo}/{schedule} schedules UpdateSchedule
@@ -88,7 +88,7 @@ func UpdateSchedule(c *gin.Context) {
 	}).Infof("updating schedule %s", scheduleName)
 
 	// capture body from API request
-	input := new(library.Schedule)
+	input := new(api.Schedule)
 
 	err := c.Bind(input)
 	if err != nil {

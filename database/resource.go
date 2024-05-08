@@ -136,6 +136,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	e.ScheduleInterface, err = schedule.New(
 		schedule.WithContext(e.ctx),
 		schedule.WithClient(e.client),
+		schedule.WithEncryptionKey(e.config.EncryptionKey),
 		schedule.WithLogger(e.logger),
 		schedule.WithSkipCreation(e.config.SkipCreation),
 	)
