@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestTypes_Platform_Getters(t *testing.T) {
@@ -91,6 +93,42 @@ func TestTypes_Platform_Setters(t *testing.T) {
 	}
 }
 
+func TestTypes_Platform_Update(t *testing.T) {
+	// setup types
+	s := testPlatformSettings()
+
+	// update fields
+	sUpdate := testPlatformSettings()
+	sUpdate.SetCompiler(Compiler{})
+	sUpdate.SetQueue(Queue{})
+	sUpdate.SetRepoAllowlist([]string{"foo"})
+	sUpdate.SetScheduleAllowlist([]string{"bar"})
+
+	// setup tests
+	tests := []struct {
+		platform *Platform
+		want     *Platform
+	}{
+		{
+			platform: s,
+			want:     testPlatformSettings(),
+		},
+		{
+			platform: s,
+			want:     sUpdate,
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		test.platform.Update(test.want)
+
+		if diff := cmp.Diff(test.want, test.platform); diff != "" {
+			t.Errorf("(Update: -want +got):\n%s", diff)
+		}
+	}
+}
+
 func TestTypes_Platform_String(t *testing.T) {
 	// setup types
 	s := testPlatformSettings()
@@ -128,6 +166,15 @@ func TestTypes_Platform_String(t *testing.T) {
 // testPlatformSettings is a test helper function to create a Platform
 // type with all fields set to a fake value.
 func testPlatformSettings() *Platform {
+	// setup platform
+	s := new(Platform)
+	s.SetID(1)
+	s.SetCreatedAt(1)
+	s.SetUpdatedAt(1)
+	s.SetUpdatedBy("vela-server")
+	s.SetRepoAllowlist([]string{"foo", "bar"})
+	s.SetScheduleAllowlist([]string{"*"})
+
 	// setup types
 	// setup compiler
 	cs := new(Compiler)
@@ -140,9 +187,6 @@ func testPlatformSettings() *Platform {
 	qs := new(Queue)
 
 	qs.SetRoutes([]string{"vela"})
-
-	// setup platform
-	s := new(Platform)
 
 	s.SetCompiler(*cs)
 	s.SetQueue(*qs)

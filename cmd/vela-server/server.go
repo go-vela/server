@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -100,16 +99,19 @@ func server(c *cli.Context) error {
 		return err
 	}
 
-	jitter := wait.Jitter(5*time.Second, 0.5)
+	jitter := wait.Jitter(5*time.Second, 2.0)
 
-	logrus.Infof("sleeping for %v before initializing settings", jitter)
+	logrus.Infof("retrieving initial platform settings after %v delay", jitter)
 
-	// sleep for a duration of time before initializing settings
 	time.Sleep(jitter)
 
 	s, err := database.GetSettings(context.Background())
-	if c.Bool("vela-reinitialize-settings-on-startup") || s == nil || err != nil {
+	if s == nil || err != nil {
 		// only log errors
+		if s == nil {
+			logrus.Error("unable to get platform settings")
+		}
+
 		if err != nil {
 			logrus.WithError(err).Error("unable to get platform settings")
 		}
@@ -144,16 +146,13 @@ func server(c *cli.Context) error {
 		}
 	}
 
-	// update any internal settings
+	// update any internal settings, this occurs in middleware
+	// to keep settings refreshed for each request
 	queue.SetSettings(s)
 	compiler.SetSettings(s)
 
 	router := router.Load(
-		// settings middleware must be first
-		// todo: figure out if deterministic order matters
-		//
-		// we arleady depend on establish running in order, so mayube this is fine
-		middleware.Settings(database),
+		middleware.Settings(s),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
@@ -233,6 +232,30 @@ func server(c *cli.Context) error {
 		return nil
 	})
 
+	// spawn goroutine for refreshing settings
+	g.Go(func() error {
+		interval := c.Duration("settings-refresh-interval")
+
+		logrus.Infof("refreshing platform settings every %v", interval)
+
+		for {
+			time.Sleep(interval)
+
+			s_, err := database.GetSettings(context.Background())
+			if err != nil {
+				logrus.WithError(err).Warn("unable to refresh platform settings")
+
+				continue
+			}
+
+			// update the internal fields for the shared settings record
+			s.SetCompiler(s_.GetCompiler())
+			s.SetQueue(s_.GetQueue())
+			s.SetRepoAllowlist(s_.GetRepoAllowlist())
+			s.SetScheduleAllowlist(s_.GetScheduleAllowlist())
+		}
+	})
+
 	// spawn goroutine for starting the server
 	g.Go(func() error {
 		logrus.Infof("starting server on %s", addr.Host)
@@ -274,21 +297,7 @@ func server(c *cli.Context) error {
 			// sleep for a duration of time before processing schedules
 			time.Sleep(jitter)
 
-			s, err = database.GetSettings(context.Background())
-			if s == nil {
-				err = errors.New("settings not found")
-
-				logrus.WithError(err).Warn("unable to get platform settings")
-
-				continue
-			}
-
-			if err != nil {
-				logrus.WithError(err).Warn("unable to get platform settings")
-
-				continue
-			}
-
+			// update internal settings updated through refresh
 			compiler.SetSettings(s)
 			queue.SetSettings(s)
 

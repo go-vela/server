@@ -228,6 +228,23 @@ func (s *Platform) SetUpdatedBy(v string) {
 	s.UpdatedBy = &v
 }
 
+// Update takes another settings record and updates the internal fields, intended
+// to be used when the refreshing settings record shared across the server.
+func (s *Platform) Update(s_ *Platform) {
+	if s == nil {
+		return
+	}
+
+	if s_ == nil {
+		return
+	}
+
+	s.SetCompiler(s_.GetCompiler())
+	s.SetQueue(s_.GetQueue())
+	s.SetRepoAllowlist(s_.GetRepoAllowlist())
+	s.SetScheduleAllowlist(s_.GetScheduleAllowlist())
+}
+
 // String implements the Stringer interface for the Platform type.
 func (s *Platform) String() string {
 	cs := s.GetCompiler()

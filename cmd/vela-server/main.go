@@ -79,11 +79,11 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
-		&cli.BoolFlag{
-			EnvVars: []string{"VELA_REINITIALIZE_SETTINGS_ON_STARTUP"},
-			Name:    "vela-reinitialize-settings-on-startup",
-			Usage:   "instructs the server to reinitialize the settings singleton on startup, overwriting any updates currently stored in the database and restoring them to the configured environment values",
-			Value:   false,
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_PLATFORM_SETTINGS_REFRESH_INTERVAL", "VELA_SETTINGS_REFRESH_INTERVAL"},
+			Name:    "settings-refresh-interval",
+			Usage:   "interval at which platform settings will be refreshed",
+			Value:   5 * time.Second,
 		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
