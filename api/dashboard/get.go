@@ -42,6 +42,10 @@ import (
 //     description: Unauthorized to retrieve dashboard
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to find dashboard
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Server error when retrieving dashboard
 //     schema:
