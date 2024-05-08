@@ -9,15 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // Retrieve gets the schedule in the given context.
-func Retrieve(c *gin.Context) *library.Schedule {
+func Retrieve(c *gin.Context) *api.Schedule {
 	return FromContext(c)
 }
 

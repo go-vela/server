@@ -43,7 +43,7 @@ type Resources struct {
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
 	Repos       []*api.Repo
-	Schedules   []*library.Schedule
+	Schedules   []*api.Schedule
 	Secrets     []*library.Secret
 	Services    []*library.Service
 	Steps       []*library.Step
@@ -1278,11 +1278,25 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
-	ctx := context.TODO()
+	// create owners
+	for _, user := range resources.Users {
+		_, err := db.CreateUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to create user %d: %v", user.GetID(), err)
+		}
+	}
+
+	// create the repos
+	for _, repo := range resources.Repos {
+		_, err := db.CreateRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to create repo %d: %v", repo.GetID(), err)
+		}
+	}
 
 	// create the schedules
 	for _, schedule := range resources.Schedules {
-		_, err := db.CreateSchedule(ctx, schedule)
+		_, err := db.CreateSchedule(context.TODO(), schedule)
 		if err != nil {
 			t.Errorf("unable to create schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1290,7 +1304,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CreateSchedule"] = true
 
 	// count the schedules
-	count, err := db.CountSchedules(ctx)
+	count, err := db.CountSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to count schedules: %v", err)
 	}
@@ -1300,7 +1314,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedules"] = true
 
 	// count the schedules for a repo
-	count, err = db.CountSchedulesForRepo(ctx, resources.Repos[0])
+	count, err = db.CountSchedulesForRepo(context.TODO(), resources.Repos[0])
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
@@ -1310,7 +1324,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["CountSchedulesForRepo"] = true
 
 	// list the schedules
-	list, err := db.ListSchedules(ctx)
+	list, err := db.ListSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -1320,7 +1334,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListSchedules"] = true
 
 	// list the active schedules
-	list, err = db.ListActiveSchedules(ctx)
+	list, err = db.ListActiveSchedules(context.TODO())
 	if err != nil {
 		t.Errorf("unable to list schedules: %v", err)
 	}
@@ -1330,22 +1344,22 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	methods["ListActiveSchedules"] = true
 
 	// list the schedules for a repo
-	list, count, err = db.ListSchedulesForRepo(ctx, resources.Repos[0], 1, 10)
+	list, count, err = db.ListSchedulesForRepo(context.TODO(), resources.Repos[0], 1, 10)
 	if err != nil {
 		t.Errorf("unable to count schedules for repo %d: %v", resources.Repos[0].GetID(), err)
 	}
 	if int(count) != len(resources.Schedules) {
 		t.Errorf("ListSchedulesForRepo() is %v, want %v", count, len(resources.Schedules))
 	}
-	if !cmp.Equal(list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
-		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*library.Schedule{resources.Schedules[1], resources.Schedules[0]})
+	if !cmp.Equal(list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]}, CmpOptApproxUpdatedAt()) {
+		t.Errorf("ListSchedulesForRepo() is %v, want %v", list, []*api.Schedule{resources.Schedules[1], resources.Schedules[0]})
 	}
 	methods["ListSchedulesForRepo"] = true
 
 	// lookup the schedules by name
 	for _, schedule := range resources.Schedules {
-		repo := resources.Repos[schedule.GetRepoID()-1]
-		got, err := db.GetScheduleForRepo(ctx, repo, schedule.GetName())
+		repo := resources.Repos[schedule.GetRepo().GetID()-1]
+		got, err := db.GetScheduleForRepo(context.TODO(), repo, schedule.GetName())
 		if err != nil {
 			t.Errorf("unable to get schedule %d for repo %d: %v", schedule.GetID(), repo.GetID(), err)
 		}
@@ -1358,7 +1372,7 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 	// update the schedules
 	for _, schedule := range resources.Schedules {
 		schedule.SetUpdatedAt(time.Now().UTC().Unix())
-		got, err := db.UpdateSchedule(ctx, schedule, true)
+		got, err := db.UpdateSchedule(context.TODO(), schedule, true)
 		if err != nil {
 			t.Errorf("unable to update schedule %d: %v", schedule.GetID(), err)
 		}
@@ -1372,12 +1386,28 @@ func testSchedules(t *testing.T, db Interface, resources *Resources) {
 
 	// delete the schedules
 	for _, schedule := range resources.Schedules {
-		err = db.DeleteSchedule(ctx, schedule)
+		err = db.DeleteSchedule(context.TODO(), schedule)
 		if err != nil {
 			t.Errorf("unable to delete schedule %d: %v", schedule.GetID(), err)
 		}
 	}
 	methods["DeleteSchedule"] = true
+
+	// delete the repos
+	for _, repo := range resources.Repos {
+		err = db.DeleteRepo(context.TODO(), repo)
+		if err != nil {
+			t.Errorf("unable to delete repo %d: %v", repo.GetID(), err)
+		}
+	}
+
+	// delete the owners
+	for _, user := range resources.Users {
+		err := db.DeleteUser(context.TODO(), user)
+		if err != nil {
+			t.Errorf("unable to delete user %d: %v", user.GetID(), err)
+		}
+	}
 
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
@@ -2462,9 +2492,9 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
-	scheduleOne := new(library.Schedule)
+	scheduleOne := new(api.Schedule)
 	scheduleOne.SetID(1)
-	scheduleOne.SetRepoID(1)
+	scheduleOne.SetRepo(repoOne)
 	scheduleOne.SetActive(true)
 	scheduleOne.SetName("nightly")
 	scheduleOne.SetEntry("0 0 * * *")
@@ -2474,10 +2504,11 @@ func newResources() *Resources {
 	scheduleOne.SetUpdatedBy("octokitty")
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleOne.SetBranch("main")
+	scheduleOne.SetError("no version: YAML property provided")
 
-	scheduleTwo := new(library.Schedule)
+	scheduleTwo := new(api.Schedule)
 	scheduleTwo.SetID(2)
-	scheduleTwo.SetRepoID(1)
+	scheduleTwo.SetRepo(repoOne)
 	scheduleTwo.SetActive(true)
 	scheduleTwo.SetName("hourly")
 	scheduleTwo.SetEntry("0 * * * *")
@@ -2487,6 +2518,7 @@ func newResources() *Resources {
 	scheduleTwo.SetUpdatedBy("octokitty")
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleTwo.SetBranch("main")
+	scheduleTwo.SetError("no version: YAML property provided")
 
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)
@@ -2654,7 +2686,7 @@ func newResources() *Resources {
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},
-		Schedules:   []*library.Schedule{scheduleOne, scheduleTwo},
+		Schedules:   []*api.Schedule{scheduleOne, scheduleTwo},
 		Secrets:     []*library.Secret{secretOrg, secretRepo, secretShared},
 		Services:    []*library.Service{serviceOne, serviceTwo},
 		Steps:       []*library.Step{stepOne, stepTwo},

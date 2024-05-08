@@ -5,7 +5,7 @@ package schedule
 import (
 	"context"
 
-	"github.com/go-vela/types/library"
+	api "github.com/go-vela/server/api/types"
 )
 
 const key = "schedule"
@@ -16,13 +16,13 @@ type Setter interface {
 }
 
 // FromContext returns the Schedule associated with this context.
-func FromContext(c context.Context) *library.Schedule {
+func FromContext(c context.Context) *api.Schedule {
 	value := c.Value(key)
 	if value == nil {
 		return nil
 	}
 
-	s, ok := value.(*library.Schedule)
+	s, ok := value.(*api.Schedule)
 	if !ok {
 		return nil
 	}
@@ -32,6 +32,6 @@ func FromContext(c context.Context) *library.Schedule {
 
 // ToContext adds the Schedule to this context if it supports
 // the Setter interface.
-func ToContext(c Setter, s *library.Schedule) {
+func ToContext(c Setter, s *api.Schedule) {
 	c.Set(key, s)
 }
