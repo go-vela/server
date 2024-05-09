@@ -60,6 +60,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	secrets := s.Secrets
 	services := s.Services
 	environment := s.Environment
+	templates := s.Templates
 
 	if len(environment) == 0 {
 		environment = make(raw.StringSliceMap)
@@ -139,6 +140,8 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 				return s, fmt.Errorf("cannot use render_inline inside a called template (%s)", step.Template.Name)
 			}
 
+			templates = append(templates, tmplBuild.Templates...)
+
 			tmplBuild, err = c.ExpandSteps(tmplBuild, mapFromTemplates(tmplBuild.Templates), r, depth-1)
 			if err != nil {
 				return s, err
@@ -202,6 +205,7 @@ func (c *client) ExpandSteps(s *yaml.Build, tmpls map[string]*yaml.Template, r *
 	s.Secrets = secrets
 	s.Services = services
 	s.Environment = environment
+	s.Templates = templates
 
 	return s, nil
 }
