@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-// Platform is the API representation of platform settings.
+// Platform is the API representation of platform settingps.
 //
 // swagger:model Platform
 type Platform struct {
@@ -24,231 +24,231 @@ type Platform struct {
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetID() int64 {
+func (ps *Platform) GetID() int64 {
 	// return zero value if Platform type or ID field is nil
-	if s == nil || s.ID == nil {
+	if ps == nil || ps.ID == nil {
 		return 0
 	}
 
-	return *s.ID
+	return *ps.ID
 }
 
 // GetCompiler returns the Compiler field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetCompiler() Compiler {
+func (ps *Platform) GetCompiler() Compiler {
 	// return zero value if Platform type or Compiler field is nil
-	if s == nil || s.Compiler == nil {
+	if ps == nil || ps.Compiler == nil {
 		return Compiler{}
 	}
 
-	return *s.Compiler
+	return *ps.Compiler
 }
 
 // GetQueue returns the Queue field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetQueue() Queue {
+func (ps *Platform) GetQueue() Queue {
 	// return zero value if Platform type or Queue field is nil
-	if s == nil || s.Queue == nil {
+	if ps == nil || ps.Queue == nil {
 		return Queue{}
 	}
 
-	return *s.Queue
+	return *ps.Queue
 }
 
 // GetRepoAllowlist returns the RepoAllowlist field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetRepoAllowlist() []string {
+func (ps *Platform) GetRepoAllowlist() []string {
 	// return zero value if Platform type or RepoAllowlist field is nil
-	if s == nil || s.RepoAllowlist == nil {
+	if ps == nil || ps.RepoAllowlist == nil {
 		return []string{}
 	}
 
-	return *s.RepoAllowlist
+	return *ps.RepoAllowlist
 }
 
 // GetScheduleAllowlist returns the ScheduleAllowlist field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetScheduleAllowlist() []string {
+func (ps *Platform) GetScheduleAllowlist() []string {
 	// return zero value if Platform type or ScheduleAllowlist field is nil
-	if s == nil || s.ScheduleAllowlist == nil {
+	if ps == nil || ps.ScheduleAllowlist == nil {
 		return []string{}
 	}
 
-	return *s.ScheduleAllowlist
+	return *ps.ScheduleAllowlist
 }
 
 // GetCreatedAt returns the CreatedAt field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetCreatedAt() int64 {
+func (ps *Platform) GetCreatedAt() int64 {
 	// return zero value if Platform type or CreatedAt field is nil
-	if s == nil || s.CreatedAt == nil {
+	if ps == nil || ps.CreatedAt == nil {
 		return 0
 	}
 
-	return *s.CreatedAt
+	return *ps.CreatedAt
 }
 
 // GetUpdatedAt returns the UpdatedAt field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetUpdatedAt() int64 {
+func (ps *Platform) GetUpdatedAt() int64 {
 	// return zero value if Platform type or UpdatedAt field is nil
-	if s == nil || s.UpdatedAt == nil {
+	if ps == nil || ps.UpdatedAt == nil {
 		return 0
 	}
 
-	return *s.UpdatedAt
+	return *ps.UpdatedAt
 }
 
 // GetUpdatedBy returns the UpdatedBy field.
 //
 // When the provided Platform type is nil, or the field within
 // the type is nil, it returns the zero value for the field.
-func (s *Platform) GetUpdatedBy() string {
+func (ps *Platform) GetUpdatedBy() string {
 	// return zero value if Platform type or UpdatedBy field is nil
-	if s == nil || s.UpdatedBy == nil {
+	if ps == nil || ps.UpdatedBy == nil {
 		return ""
 	}
 
-	return *s.UpdatedBy
+	return *ps.UpdatedBy
 }
 
 // SetID sets the ID field.
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetID(v int64) {
+func (ps *Platform) SetID(v int64) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.ID = &v
+	ps.ID = &v
 }
 
 // SetCompiler sets the Compiler field.
 //
 // When the provided Compiler type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetCompiler(cs Compiler) {
+func (ps *Platform) SetCompiler(cs Compiler) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.Compiler = &cs
+	ps.Compiler = &cs
 }
 
 // SetQueue sets the Queue field.
 //
 // When the provided Queue type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetQueue(qs Queue) {
+func (ps *Platform) SetQueue(qs Queue) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.Queue = &qs
+	ps.Queue = &qs
 }
 
 // SetRepoAllowlist sets the RepoAllowlist field.
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetRepoAllowlist(v []string) {
+func (ps *Platform) SetRepoAllowlist(v []string) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.RepoAllowlist = &v
+	ps.RepoAllowlist = &v
 }
 
 // SetScheduleAllowlist sets the RepoAllowlist field.
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetScheduleAllowlist(v []string) {
+func (ps *Platform) SetScheduleAllowlist(v []string) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.ScheduleAllowlist = &v
+	ps.ScheduleAllowlist = &v
 }
 
 // SetCreatedAt sets the CreatedAt field.
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetCreatedAt(v int64) {
+func (ps *Platform) SetCreatedAt(v int64) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.CreatedAt = &v
+	ps.CreatedAt = &v
 }
 
 // SetUpdatedAt sets the UpdatedAt field.
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetUpdatedAt(v int64) {
+func (ps *Platform) SetUpdatedAt(v int64) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.UpdatedAt = &v
+	ps.UpdatedAt = &v
 }
 
 // SetUpdatedBy sets the UpdatedBy field.
 //
 // When the provided Platform type is nil, it
 // will set nothing and immediately return.
-func (s *Platform) SetUpdatedBy(v string) {
+func (ps *Platform) SetUpdatedBy(v string) {
 	// return if Platform type is nil
-	if s == nil {
+	if ps == nil {
 		return
 	}
 
-	s.UpdatedBy = &v
+	ps.UpdatedBy = &v
 }
 
 // Update takes another settings record and updates the internal fields, intended
 // to be used when the refreshing settings record shared across the server.
-func (s *Platform) Update(newSettings *Platform) {
-	if s == nil {
+func (ps *Platform) Update(newSettingps *Platform) {
+	if ps == nil {
 		return
 	}
 
-	if newSettings == nil {
+	if newSettingps == nil {
 		return
 	}
 
-	s.SetCompiler(newSettings.GetCompiler())
-	s.SetQueue(newSettings.GetQueue())
-	s.SetRepoAllowlist(newSettings.GetRepoAllowlist())
-	s.SetScheduleAllowlist(newSettings.GetScheduleAllowlist())
+	ps.SetCompiler(newSettingps.GetCompiler())
+	ps.SetQueue(newSettingps.GetQueue())
+	ps.SetRepoAllowlist(newSettingps.GetRepoAllowlist())
+	ps.SetScheduleAllowlist(newSettingps.GetScheduleAllowlist())
 }
 
 // String implements the Stringer interface for the Platform type.
-func (s *Platform) String() string {
-	cs := s.GetCompiler()
-	qs := s.GetQueue()
+func (ps *Platform) String() string {
+	cs := ps.GetCompiler()
+	qs := ps.GetQueue()
 
 	return fmt.Sprintf(`{
   ID: %d,
@@ -260,26 +260,26 @@ func (s *Platform) String() string {
   UpdatedAt: %d,
   UpdatedBy: %s,
 }`,
-		s.GetID(),
+		ps.GetID(),
 		cs.String(),
 		qs.String(),
-		s.GetRepoAllowlist(),
-		s.GetScheduleAllowlist(),
-		s.GetCreatedAt(),
-		s.GetUpdatedAt(),
-		s.GetUpdatedBy(),
+		ps.GetRepoAllowlist(),
+		ps.GetScheduleAllowlist(),
+		ps.GetCreatedAt(),
+		ps.GetUpdatedAt(),
+		ps.GetUpdatedBy(),
 	)
 }
 
 // PlatformMockEmpty returns an empty Platform type.
 func PlatformMockEmpty() Platform {
-	s := Platform{}
+	ps := Platform{}
 
-	s.SetCompiler(CompilerMockEmpty())
-	s.SetQueue(QueueMockEmpty())
+	ps.SetCompiler(CompilerMockEmpty())
+	ps.SetQueue(QueueMockEmpty())
 
-	s.SetRepoAllowlist([]string{})
-	s.SetScheduleAllowlist([]string{})
+	ps.SetRepoAllowlist([]string{})
+	ps.SetScheduleAllowlist([]string{})
 
-	return s
+	return ps
 }

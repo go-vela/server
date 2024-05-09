@@ -48,7 +48,7 @@ func TestTypes_Platform_Getters(t *testing.T) {
 
 func TestTypes_Platform_Setters(t *testing.T) {
 	// setup types
-	var s *Platform
+	var ps *Platform
 
 	// setup tests
 	tests := []struct {
@@ -60,7 +60,7 @@ func TestTypes_Platform_Setters(t *testing.T) {
 			want:     testPlatformSettings(),
 		},
 		{
-			platform: s,
+			platform: ps,
 			want:     new(Platform),
 		},
 	}

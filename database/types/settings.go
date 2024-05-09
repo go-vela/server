@@ -91,104 +91,104 @@ func (r *Queue) Scan(value interface{}) error {
 // When a field within the Settings type is the zero
 // value for the field, the valid flag is set to
 // false causing it to be NULL in the database.
-func (s *Platform) Nullify() *Platform {
-	if s == nil {
+func (ps *Platform) Nullify() *Platform {
+	if ps == nil {
 		return nil
 	}
 
 	// check if the ID field should be false
-	if s.ID.Int64 == 0 {
-		s.ID.Valid = false
+	if ps.ID.Int64 == 0 {
+		ps.ID.Valid = false
 	}
 
 	// check if the CloneImage field should be false
-	if len(s.CloneImage.String) == 0 {
-		s.CloneImage.Valid = false
+	if len(ps.CloneImage.String) == 0 {
+		ps.CloneImage.Valid = false
 	}
 
 	// check if the CreatedAt field should be false
-	if s.CreatedAt.Int64 < 0 {
-		s.CreatedAt.Valid = false
+	if ps.CreatedAt.Int64 < 0 {
+		ps.CreatedAt.Valid = false
 	}
 
 	// check if the UpdatedAt field should be false
-	if s.UpdatedAt.Int64 < 0 {
-		s.UpdatedAt.Valid = false
+	if ps.UpdatedAt.Int64 < 0 {
+		ps.UpdatedAt.Valid = false
 	}
 
-	return s
+	return ps
 }
 
 // ToAPI converts the Settings type
 // to an API Settings type.
-func (s *Platform) ToAPI() *settings.Platform {
-	ss := new(settings.Platform)
-	ss.SetID(s.ID.Int64)
+func (ps *Platform) ToAPI() *settings.Platform {
+	psApi := new(settings.Platform)
+	psApi.SetID(ps.ID.Int64)
 
-	ss.SetRepoAllowlist(s.RepoAllowlist)
-	ss.SetScheduleAllowlist(s.ScheduleAllowlist)
+	psApi.SetRepoAllowlist(ps.RepoAllowlist)
+	psApi.SetScheduleAllowlist(ps.ScheduleAllowlist)
 
-	ss.Compiler = &settings.Compiler{}
-	ss.SetCloneImage(s.CloneImage.String)
-	ss.SetTemplateDepth(int(s.TemplateDepth.Int64))
-	ss.SetStarlarkExecLimit(uint64(s.StarlarkExecLimit.Int64))
+	psApi.Compiler = &settings.Compiler{}
+	psApi.SetCloneImage(ps.CloneImage.String)
+	psApi.SetTemplateDepth(int(ps.TemplateDepth.Int64))
+	psApi.SetStarlarkExecLimit(uint64(ps.StarlarkExecLimit.Int64))
 
-	ss.Queue = &settings.Queue{}
-	ss.SetRoutes(s.Routes)
+	psApi.Queue = &settings.Queue{}
+	psApi.SetRoutes(ps.Routes)
 
-	ss.SetCreatedAt(s.CreatedAt.Int64)
-	ss.SetUpdatedAt(s.UpdatedAt.Int64)
-	ss.SetUpdatedBy(s.UpdatedBy.String)
+	psApi.SetCreatedAt(ps.CreatedAt.Int64)
+	psApi.SetUpdatedAt(ps.UpdatedAt.Int64)
+	psApi.SetUpdatedBy(ps.UpdatedBy.String)
 
-	return ss
+	return psApi
 }
 
 // Validate verifies the necessary fields for
 // the Settings type are populated correctly.
-func (s *Platform) Validate() error {
+func (ps *Platform) Validate() error {
 	// verify the CloneImage field is populated
-	if len(s.CloneImage.String) == 0 {
+	if len(ps.CloneImage.String) == 0 {
 		return ErrEmptyCloneImage
 	}
 
 	// verify compiler settings are within limits
-	if s.TemplateDepth.Int64 <= 0 {
-		return fmt.Errorf("template depth must be greater than zero, got: %d", s.TemplateDepth.Int64)
+	if ps.TemplateDepth.Int64 <= 0 {
+		return fmt.Errorf("template depth must be greater than zero, got: %d", ps.TemplateDepth.Int64)
 	}
 
-	if s.StarlarkExecLimit.Int64 <= 0 {
-		return fmt.Errorf("starlark exec limit must be greater than zero, got: %d", s.StarlarkExecLimit.Int64)
+	if ps.StarlarkExecLimit.Int64 <= 0 {
+		return fmt.Errorf("starlark exec limit must be greater than zero, got: %d", ps.StarlarkExecLimit.Int64)
 	}
 
 	// ensure that all Settings string fields
 	// that can be returned as JSON are sanitized
 	// to avoid unsafe HTML content
-	s.CloneImage = sql.NullString{String: util.Sanitize(s.CloneImage.String), Valid: s.CloneImage.Valid}
+	ps.CloneImage = sql.NullString{String: util.Sanitize(ps.CloneImage.String), Valid: ps.CloneImage.Valid}
 
 	// ensure that all Queue.Routes are sanitized
 	// to avoid unsafe HTML content
-	for i, v := range s.Routes {
-		s.Routes[i] = util.Sanitize(v)
+	for i, v := range ps.Routes {
+		ps.Routes[i] = util.Sanitize(v)
 	}
 
 	// ensure that all RepoAllowlist are sanitized
 	// to avoid unsafe HTML content
-	for i, v := range s.RepoAllowlist {
-		s.RepoAllowlist[i] = util.Sanitize(v)
+	for i, v := range ps.RepoAllowlist {
+		ps.RepoAllowlist[i] = util.Sanitize(v)
 	}
 
 	// ensure that all ScheduleAllowlist are sanitized
 	// to avoid unsafe HTML content
-	for i, v := range s.ScheduleAllowlist {
-		s.ScheduleAllowlist[i] = util.Sanitize(v)
+	for i, v := range ps.ScheduleAllowlist {
+		ps.ScheduleAllowlist[i] = util.Sanitize(v)
 	}
 
-	if s.CreatedAt.Int64 < 0 {
-		return fmt.Errorf("created_at must be greater than zero, got: %d", s.CreatedAt.Int64)
+	if ps.CreatedAt.Int64 < 0 {
+		return fmt.Errorf("created_at must be greater than zero, got: %d", ps.CreatedAt.Int64)
 	}
 
-	if s.UpdatedAt.Int64 < 0 {
-		return fmt.Errorf("updated_at must be greater than zero, got: %d", s.UpdatedAt.Int64)
+	if ps.UpdatedAt.Int64 < 0 {
+		return fmt.Errorf("updated_at must be greater than zero, got: %d", ps.UpdatedAt.Int64)
 	}
 
 	return nil

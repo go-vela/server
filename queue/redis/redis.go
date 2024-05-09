@@ -32,7 +32,9 @@ type client struct {
 	config  *config
 	Redis   *redis.Client
 	Options *redis.Options
+
 	settings.Queue
+
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 }

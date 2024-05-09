@@ -12,7 +12,7 @@ import (
 
 func TestTypes_Platform_Nullify(t *testing.T) {
 	// setup types
-	var s *Platform
+	var ps *Platform
 
 	want := &Platform{
 		ID: sql.NullInt64{Int64: 0, Valid: false},
@@ -28,7 +28,7 @@ func TestTypes_Platform_Nullify(t *testing.T) {
 			want: testPlatform(),
 		},
 		{
-			repo: s,
+			repo: ps,
 			want: nil,
 		},
 		{
