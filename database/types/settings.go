@@ -122,25 +122,25 @@ func (ps *Platform) Nullify() *Platform {
 // ToAPI converts the Settings type
 // to an API Settings type.
 func (ps *Platform) ToAPI() *settings.Platform {
-	psApi := new(settings.Platform)
-	psApi.SetID(ps.ID.Int64)
+	psAPI := new(settings.Platform)
+	psAPI.SetID(ps.ID.Int64)
 
-	psApi.SetRepoAllowlist(ps.RepoAllowlist)
-	psApi.SetScheduleAllowlist(ps.ScheduleAllowlist)
+	psAPI.SetRepoAllowlist(ps.RepoAllowlist)
+	psAPI.SetScheduleAllowlist(ps.ScheduleAllowlist)
 
-	psApi.Compiler = &settings.Compiler{}
-	psApi.SetCloneImage(ps.CloneImage.String)
-	psApi.SetTemplateDepth(int(ps.TemplateDepth.Int64))
-	psApi.SetStarlarkExecLimit(uint64(ps.StarlarkExecLimit.Int64))
+	psAPI.Compiler = &settings.Compiler{}
+	psAPI.SetCloneImage(ps.CloneImage.String)
+	psAPI.SetTemplateDepth(int(ps.TemplateDepth.Int64))
+	psAPI.SetStarlarkExecLimit(uint64(ps.StarlarkExecLimit.Int64))
 
-	psApi.Queue = &settings.Queue{}
-	psApi.SetRoutes(ps.Routes)
+	psAPI.Queue = &settings.Queue{}
+	psAPI.SetRoutes(ps.Routes)
 
-	psApi.SetCreatedAt(ps.CreatedAt.Int64)
-	psApi.SetUpdatedAt(ps.UpdatedAt.Int64)
-	psApi.SetUpdatedBy(ps.UpdatedBy.String)
+	psAPI.SetCreatedAt(ps.CreatedAt.Int64)
+	psAPI.SetUpdatedAt(ps.UpdatedAt.Int64)
+	psAPI.SetUpdatedBy(ps.UpdatedBy.String)
 
-	return psApi
+	return psAPI
 }
 
 // Validate verifies the necessary fields for
