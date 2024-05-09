@@ -31,13 +31,12 @@ import (
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully retrieved settings from the database
+//     description: Successfully retrieved settings
+//     type: json
 //     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Platform"
-//   '500':
-//     description: Unable to retrieve settings from the database
+//       "$ref": "#/definitions/Platform"
+//   '404':
+//     description: Unable to retrieve settings
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -49,12 +48,22 @@ func GetSettings(c *gin.Context) {
 
 	logrus.Info("Admin: reading settings")
 
+	// check captured value because we aren't retrieving settings from the database
+	// instead we are retrieving the auto-refreshed middleware value
+	if s == nil {
+		retErr := fmt.Errorf("settings not found")
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
+
 	c.JSON(http.StatusOK, s)
 }
 
 // swagger:operation PUT /api/v1/admin/settings admin UpdateSettings
 //
-// Update the settings singleton in the database.
+// Update the platform settings singleton in the database.
 //
 // ---
 // produces:
@@ -70,15 +79,20 @@ func GetSettings(c *gin.Context) {
 //   - ApiKeyAuth: []
 // responses:
 //   '200':
-//     description: Successfully updated the settings in the database
+//     description: Successfully updated platform settings in the database
+//     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
-//   '404':
-//     description: Unable to update the settings in the database
+//   '400':
+//     description: Unable to update settings — bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '501':
-//     description: Unable to update the settings in the database
+//   '404':
+//     description: Unable to retrieve platform settings to update
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '500':
+//     description: Unable to update platform settings in the database
 //     schema:
 //       "$ref": "#/definitions/Error"
 
@@ -91,6 +105,16 @@ func UpdateSettings(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	logrus.Info("Admin: updating settings")
+
+	// check captured value because we aren't retrieving settings from the database
+	// instead we are retrieving the auto-refreshed middleware value
+	if s == nil {
+		retErr := fmt.Errorf("settings not found")
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
 
 	// capture body from API request
 	input := new(settings.Platform)
@@ -159,10 +183,13 @@ func UpdateSettings(c *gin.Context) {
 // responses:
 //   '200':
 //     description: Successfully restored default settings in the database
+//     type: json
 //     schema:
-//       type: array
-//       items:
-//         "$ref": "#/definitions/Platform"
+//       "$ref": "#/definitions/Platform"
+//   '404':
+//     description: Unable to retrieve settings to restore
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to restore settings in the database
 //     schema:
@@ -178,6 +205,16 @@ func RestoreSettings(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	logrus.Info("Admin: restoring settings")
+
+	// check captured value because we aren't retrieving settings from the database
+	// instead we are retrieving the auto-refreshed middleware value
+	if s == nil {
+		retErr := fmt.Errorf("settings not found")
+
+		util.HandleError(c, http.StatusNotFound, retErr)
+
+		return
+	}
 
 	compiler, err := native.FromCLIContext(cliCtx)
 	if err != nil {
