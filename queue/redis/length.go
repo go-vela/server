@@ -6,9 +6,9 @@ import (
 	"context"
 )
 
-// Length tallies all items present in the configured channels in the queue.
+// Length tallies all items present in the configured routes in the queue.
 func (c *client) Length(ctx context.Context) (int64, error) {
-	c.Logger.Tracef("reading length of all configured channels in queue")
+	c.Logger.Tracef("reading length of all configured routes in queue")
 
 	total := int64(0)
 

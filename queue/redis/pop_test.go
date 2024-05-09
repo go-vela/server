@@ -76,10 +76,10 @@ func TestRedis_Pop(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		failure  bool
-		redis    *client
-		want     *models.Item
-		channels []string
+		failure bool
+		redis   *client
+		want    *models.Item
+		routes  []string
 	}{
 		{
 			failure: false,
@@ -87,10 +87,10 @@ func TestRedis_Pop(t *testing.T) {
 			want:    _item,
 		},
 		{
-			failure:  false,
-			redis:    _redis,
-			want:     _item,
-			channels: []string{"custom"},
+			failure: false,
+			redis:   _redis,
+			want:    _item,
+			routes:  []string{"custom"},
 		},
 		{
 			failure: false,
@@ -106,7 +106,7 @@ func TestRedis_Pop(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		got, err := test.redis.Pop(context.Background(), test.channels)
+		got, err := test.redis.Pop(context.Background(), test.routes)
 
 		if test.failure {
 			if err == nil {

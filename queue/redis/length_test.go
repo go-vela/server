@@ -33,26 +33,26 @@ func TestRedis_Length(t *testing.T) {
 
 	// setup tests
 	tests := []struct {
-		channels []string
-		want     int64
+		routes []string
+		want   int64
 	}{
 		{
-			channels: []string{"vela"},
-			want:     1,
+			routes: []string{"vela"},
+			want:   1,
 		},
 		{
-			channels: []string{"vela", "vela:second", "vela:third"},
-			want:     4,
+			routes: []string{"vela", "vela:second", "vela:third"},
+			want:   4,
 		},
 		{
-			channels: []string{"vela", "vela:second", "phony"},
-			want:     6,
+			routes: []string{"vela", "vela:second", "phony"},
+			want:   6,
 		},
 	}
 
 	// run tests
 	for _, test := range tests {
-		for _, channel := range test.channels {
+		for _, channel := range test.routes {
 			err := _redis.Push(context.Background(), channel, bytes)
 			if err != nil {
 				t.Errorf("unable to push item to queue: %v", err)

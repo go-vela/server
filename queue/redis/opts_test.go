@@ -64,7 +64,7 @@ func TestRedis_ClientOpt_WithAddress(t *testing.T) {
 	}
 }
 
-func TestRedis_ClientOpt_WithChannels(t *testing.T) {
+func TestRedis_ClientOpt_WithRoutes(t *testing.T) {
 	// setup tests
 	// create a local fake redis instance
 	//
@@ -76,19 +76,19 @@ func TestRedis_ClientOpt_WithChannels(t *testing.T) {
 	defer _redis.Close()
 
 	tests := []struct {
-		failure  bool
-		channels []string
-		want     []string
+		failure bool
+		routes  []string
+		want    []string
 	}{
 		{
-			failure:  false,
-			channels: []string{"foo", "bar"},
-			want:     []string{"foo", "bar"},
+			failure: false,
+			routes:  []string{"foo", "bar"},
+			want:    []string{"foo", "bar"},
 		},
 		{
-			failure:  true,
-			channels: []string{},
-			want:     []string{},
+			failure: true,
+			routes:  []string{},
+			want:    []string{},
 		},
 	}
 
@@ -96,23 +96,23 @@ func TestRedis_ClientOpt_WithChannels(t *testing.T) {
 	for _, test := range tests {
 		_service, err := New(
 			WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
-			WithChannels(test.channels...),
+			WithRoutes(test.routes...),
 		)
 
 		if test.failure {
 			if err == nil {
-				t.Errorf("WithChannels should have returned err")
+				t.Errorf("WithRoutes should have returned err")
 			}
 
 			continue
 		}
 
 		if err != nil {
-			t.Errorf("WithChannels returned err: %v", err)
+			t.Errorf("WithRoutes returned err: %v", err)
 		}
 
 		if !reflect.DeepEqual(_service.GetRoutes(), test.want) {
-			t.Errorf("WithChannels is %v, want %v", _service.GetRoutes(), test.want)
+			t.Errorf("WithRoutes is %v, want %v", _service.GetRoutes(), test.want)
 		}
 	}
 }

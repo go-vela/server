@@ -177,7 +177,7 @@ func pingQueue(c *client) error {
 // This function is intended for running tests only.
 //
 //nolint:revive // ignore returning unexported client
-func NewTest(signingPrivateKey, signingPublicKey string, channels ...string) (*client, error) {
+func NewTest(signingPrivateKey, signingPublicKey string, routes ...string) (*client, error) {
 	// create a local fake redis instance
 	//
 	// https://pkg.go.dev/github.com/alicebob/miniredis/v2#Run
@@ -188,7 +188,7 @@ func NewTest(signingPrivateKey, signingPublicKey string, channels ...string) (*c
 
 	return New(
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
-		WithChannels(channels...),
+		WithRoutes(routes...),
 		WithCluster(false),
 		WithPrivateKey(signingPrivateKey),
 		WithPublicKey(signingPublicKey),
