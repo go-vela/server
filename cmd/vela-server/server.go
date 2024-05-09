@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -16,6 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/go-vela/server/api/types/settings"
@@ -107,42 +109,40 @@ func server(c *cli.Context) error {
 
 	time.Sleep(jitter)
 
-	s, err := database.GetSettings(context.Background())
-	if s == nil || err != nil {
-		// only log errors
-		if s == nil {
-			logrus.Error("unable to get platform settings")
-		}
+	ps, err := database.GetSettings(context.Background())
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
 
-		if err != nil {
-			logrus.WithError(err).Error("unable to get platform settings")
-		}
+	// platform settings record does not exist
+	if err != nil {
+		logrus.Info("creating initial platform settings")
 
 		// create initial settings record
-		s = new(settings.Platform)
+		ps = new(settings.Platform)
 
 		// singleton record ID should always be 1
-		s.SetID(1)
+		ps.SetID(1)
 
-		s.SetCreatedAt(time.Now().UTC().Unix())
-		s.SetUpdatedAt(time.Now().UTC().Unix())
-		s.SetUpdatedBy("vela-server")
+		ps.SetCreatedAt(time.Now().UTC().Unix())
+		ps.SetUpdatedAt(time.Now().UTC().Unix())
+		ps.SetUpdatedBy("vela-server")
 
 		// read in defaults supplied from the cli runtime
 		compilerSettings := compiler.GetSettings()
-		s.SetCompiler(compilerSettings)
+		ps.SetCompiler(compilerSettings)
 
 		queueSettings := queue.GetSettings()
-		s.SetQueue(queueSettings)
+		ps.SetQueue(queueSettings)
 
 		// set repos permitted to be added
-		s.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))
+		ps.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))
 
 		// set repos permitted to use schedules
-		s.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
+		ps.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
 
 		// create the settings record in the database
-		_, err = database.CreateSettings(context.Background(), s)
+		_, err = database.CreateSettings(context.Background(), ps)
 		if err != nil {
 			return err
 		}
@@ -150,12 +150,12 @@ func server(c *cli.Context) error {
 
 	// update any internal settings, this occurs in middleware
 	// to keep settings refreshed for each request
-	queue.SetSettings(s)
-	compiler.SetSettings(s)
+	queue.SetSettings(ps)
+	compiler.SetSettings(ps)
 
 	router := router.Load(
 		middleware.CLI(c),
-		middleware.Settings(s),
+		middleware.Settings(ps),
 		middleware.Compiler(compiler),
 		middleware.Database(database),
 		middleware.Logger(logrus.StandardLogger(), time.RFC3339),
@@ -252,7 +252,7 @@ func server(c *cli.Context) error {
 			}
 
 			// update the internal fields for the shared settings record
-			s.Update(newSettings)
+			ps.Update(newSettings)
 		}
 	})
 
@@ -298,10 +298,10 @@ func server(c *cli.Context) error {
 			time.Sleep(jitter)
 
 			// update internal settings updated through refresh
-			compiler.SetSettings(s)
-			queue.SetSettings(s)
+			compiler.SetSettings(ps)
+			queue.SetSettings(ps)
 
-			err = processSchedules(ctx, start, s, compiler, database, metadata, queue, scm)
+			err = processSchedules(ctx, start, ps, compiler, database, metadata, queue, scm)
 			if err != nil {
 				logrus.WithError(err).Warn("unable to process schedules")
 			} else {
