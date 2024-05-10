@@ -5,6 +5,7 @@ package pipeline
 import (
 	"bytes"
 	"net/http"
+	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/gin-gonic/gin"
@@ -67,12 +68,15 @@ func GetPipeline(c *gin.Context) {
 		"user":     u.GetName(),
 	}).Infof("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
 
-	buf := new(bytes.Buffer)
-	err := quick.Highlight(buf, string(p.GetData()), "yaml", "terminal16", "monokai")
-	if err == nil {
+	// syntax highlight the data when query param color is present
+	if strings.ToLower(c.Query("color")) == "true" {
+		buf := new(bytes.Buffer)
+		err := quick.Highlight(buf, string(p.GetData()), "yaml", "terminal16", "monokai")
+		if err == nil {
+			p.SetData(buf.Bytes())
+		}
 		p.SetData(buf.Bytes())
 	}
-	p.SetData(buf.Bytes())
 
 	c.JSON(http.StatusOK, p)
 }
