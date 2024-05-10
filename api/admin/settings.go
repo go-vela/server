@@ -121,6 +121,9 @@ func UpdateSettings(c *gin.Context) {
 	_s := new(settings.Platform)
 	_s.Update(s)
 
+	// ensure we update the singleton record
+	_s.SetID(1)
+
 	// capture body from API request
 	input := new(settings.Platform)
 
