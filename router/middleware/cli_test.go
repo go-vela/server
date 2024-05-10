@@ -9,12 +9,18 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli/v2"
 )
 
-func TestMiddleware_Allowlist(t *testing.T) {
+func TestMiddleware_CLI(t *testing.T) {
 	// setup types
-	got := []string{""}
-	want := []string{"foobar"}
+	want := &cli.Context{
+		App: &cli.App{
+			Name: "foo",
+		},
+	}
+
+	got := &cli.Context{}
 
 	// setup context
 	gin.SetMode(gin.TestMode)
@@ -24,9 +30,9 @@ func TestMiddleware_Allowlist(t *testing.T) {
 	context.Request, _ = http.NewRequest(http.MethodGet, "/health", nil)
 
 	// setup mock server
-	engine.Use(Allowlist(want))
+	engine.Use(CLI(want))
 	engine.GET("/health", func(c *gin.Context) {
-		got = c.Value("allowlist").([]string)
+		got = c.Value("cli").(*cli.Context)
 
 		c.Status(http.StatusOK)
 	})
@@ -35,10 +41,10 @@ func TestMiddleware_Allowlist(t *testing.T) {
 	engine.ServeHTTP(context.Writer, context.Request)
 
 	if resp.Code != http.StatusOK {
-		t.Errorf("Secret returned %v, want %v", resp.Code, http.StatusOK)
+		t.Errorf("CLI returned %v, want %v", resp.Code, http.StatusOK)
 	}
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Secret is %v, want %v", got, want)
+		t.Errorf("CLI is %v, want %v", got, want)
 	}
 }

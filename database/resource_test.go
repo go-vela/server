@@ -19,6 +19,7 @@ import (
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	"github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
@@ -28,6 +29,8 @@ func TestDatabase_Engine_NewResources(t *testing.T) {
 	_postgres, _mock := testPostgres(t)
 	defer _postgres.Close()
 
+	// ensure the mock expects the settings queries
+	_mock.ExpectExec(settings.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	// ensure the mock expects the build queries
 	_mock.ExpectExec(build.CreatePostgresTable).WillReturnResult(sqlmock.NewResult(1, 1))
 	_mock.ExpectExec(build.CreateCreatedIndex).WillReturnResult(sqlmock.NewResult(1, 1))

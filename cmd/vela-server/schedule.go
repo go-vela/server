@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-vela/server/api/build"
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal"
@@ -29,7 +30,7 @@ const (
 	scheduleWait = "waiting to trigger build for schedule"
 )
 
-func processSchedules(ctx context.Context, start time.Time, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
+func processSchedules(ctx context.Context, start time.Time, settings *settings.Platform, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service) error {
 	logrus.Infof("processing active schedules to create builds")
 
 	// send API call to capture the list of active schedules
@@ -122,7 +123,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 		}
 
 		// process the schedule and trigger a new build
-		err = processSchedule(ctx, schedule, compiler, database, metadata, queue, scm, allowList)
+		err = processSchedule(ctx, schedule, settings, compiler, database, metadata, queue, scm)
 		if err != nil {
 			handleError(ctx, database, err, schedule)
 
@@ -147,7 +148,7 @@ func processSchedules(ctx context.Context, start time.Time, compiler compiler.En
 }
 
 // processSchedule will, given a schedule, process it and trigger a new build.
-func processSchedule(ctx context.Context, s *api.Schedule, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service, allowList []string) error {
+func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Platform, compiler compiler.Engine, database database.Interface, metadata *internal.Metadata, queue queue.Service, scm scm.Service) error {
 	// send API call to capture the repo for the schedule
 	r, err := database.GetRepo(ctx, s.GetRepo().GetID())
 	if err != nil {
@@ -155,7 +156,7 @@ func processSchedule(ctx context.Context, s *api.Schedule, compiler compiler.Eng
 	}
 
 	// ensure repo has not been removed from allow list
-	if !util.CheckAllowlist(r, allowList) {
+	if !util.CheckAllowlist(r, settings.GetScheduleAllowlist()) {
 		return fmt.Errorf("skipping schedule: repo %s no longer on allow list", r.GetFullName())
 	}
 

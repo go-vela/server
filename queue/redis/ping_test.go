@@ -22,7 +22,7 @@ func TestRedis_Ping_Good(t *testing.T) {
 	// setup redis mock
 	goodRedis, err := New(
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
-		WithChannels("foo"),
+		WithRoutes("foo"),
 		WithCluster(false),
 		WithTimeout(5*time.Second),
 	)
@@ -49,7 +49,7 @@ func TestRedis_Ping_Bad(t *testing.T) {
 	// setup redis mock
 	badRedis, _ := New(
 		WithAddress(fmt.Sprintf("redis://%s", _redis.Addr())),
-		WithChannels("foo"),
+		WithRoutes("foo"),
 		WithCluster(false),
 		WithTimeout(5*time.Second),
 	)

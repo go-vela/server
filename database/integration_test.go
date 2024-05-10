@@ -13,6 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/database/build"
 	"github.com/go-vela/server/database/dashboard"
 	"github.com/go-vela/server/database/deployment"
@@ -24,6 +25,7 @@ import (
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	dbSettings "github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/server/database/user"
@@ -49,6 +51,7 @@ type Resources struct {
 	Steps       []*library.Step
 	Users       []*api.User
 	Workers     []*api.Worker
+	Platform    []*settings.Platform
 }
 
 func TestDatabase_Integration(t *testing.T) {
@@ -149,6 +152,8 @@ func TestDatabase_Integration(t *testing.T) {
 			t.Run("test_users", func(t *testing.T) { testUsers(t, db, resources) })
 
 			t.Run("test_workers", func(t *testing.T) { testWorkers(t, db, resources) })
+
+			t.Run("test_settings", func(t *testing.T) { testSettings(t, db, resources) })
 
 			err = db.Close()
 			if err != nil {
@@ -2161,6 +2166,56 @@ func testWorkers(t *testing.T, db Interface, resources *Resources) {
 	for method, called := range methods {
 		if !called {
 			t.Errorf("method %s was not called for workers", method)
+		}
+	}
+}
+
+func testSettings(t *testing.T, db Interface, resources *Resources) {
+	// create a variable to track the number of methods called for settings
+	methods := make(map[string]bool)
+	// capture the element type of the settings interface
+	element := reflect.TypeOf(new(dbSettings.SettingsInterface)).Elem()
+	// iterate through all methods found in the settings interface
+	for i := 0; i < element.NumMethod(); i++ {
+		// skip tracking the methods to create indexes and tables for settings
+		// since those are already called when the database engine starts
+		if strings.Contains(element.Method(i).Name, "Index") ||
+			strings.Contains(element.Method(i).Name, "Table") {
+			continue
+		}
+
+		// add the method name to the list of functions
+		methods[element.Method(i).Name] = false
+	}
+
+	// create the settings
+	for _, s := range resources.Platform {
+		_, err := db.CreateSettings(context.TODO(), s)
+		if err != nil {
+			t.Errorf("unable to create settings %d: %v", s.GetID(), err)
+		}
+	}
+	methods["CreateSettings"] = true
+
+	// update the settings
+	for _, s := range resources.Platform {
+		s.SetCloneImage("target/vela-git:abc123")
+		got, err := db.UpdateSettings(context.TODO(), s)
+		if err != nil {
+			t.Errorf("unable to update settings %d: %v", s.GetID(), err)
+		}
+
+		if !cmp.Equal(got, s) {
+			t.Errorf("UpdateSettings() is %v, want %v", got, s)
+		}
+	}
+	methods["UpdateSettings"] = true
+	methods["GetSettings"] = true
+
+	// ensure we called all the methods we expected to
+	for method, called := range methods {
+		if !called {
+			t.Errorf("method %s was not called for settings", method)
 		}
 	}
 }

@@ -3,16 +3,19 @@
 package native
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler"
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/internal/image"
 )
 
 type ModificationConfig struct {
@@ -27,9 +30,8 @@ type client struct {
 	PrivateGithub       registry.Service
 	UsePrivateGithub    bool
 	ModificationService ModificationConfig
-	CloneImage          string
-	TemplateDepth       int
-	StarlarkExecLimit   uint64
+
+	settings.Compiler
 
 	build          *api.Build
 	comment        string
@@ -43,10 +45,10 @@ type client struct {
 	labels         []string
 }
 
-// New returns a Pipeline implementation that integrates with the supported registries.
+// FromCLIContext returns a Pipeline implementation that integrates with the supported registries.
 //
 //nolint:revive // ignore returning unexported client
-func New(ctx *cli.Context) (*client, error) {
+func FromCLIContext(ctx *cli.Context) (*client, error) {
 	logrus.Debug("Creating registry clients from CLI configuration")
 
 	c := new(client)
@@ -68,14 +70,24 @@ func New(ctx *cli.Context) (*client, error) {
 
 	c.Github = github
 
+	c.Compiler = settings.Compiler{}
+
+	cloneImage := ctx.String("clone-image")
+
+	// validate clone image
+	_, err = image.ParseWithError(cloneImage)
+	if err != nil {
+		return nil, fmt.Errorf("invalid clone image %s: %w", cloneImage, err)
+	}
+
 	// set the clone image to use for the injected clone step
-	c.CloneImage = ctx.String("clone-image")
+	c.SetCloneImage(cloneImage)
 
 	// set the template depth to use for nested templates
-	c.TemplateDepth = ctx.Int("max-template-depth")
+	c.SetTemplateDepth(ctx.Int("max-template-depth"))
 
 	// set the starlark execution step limit for compiling starlark pipelines
-	c.StarlarkExecLimit = ctx.Uint64("compiler-starlark-exec-limit")
+	c.SetStarlarkExecLimit(ctx.Uint64("compiler-starlark-exec-limit"))
 
 	if ctx.Bool("github-driver") {
 		logrus.Tracef("setting up Private GitHub Client for %s", ctx.String("github-url"))
