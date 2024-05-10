@@ -117,6 +117,10 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
+	// duplicate settings to not alter the shared pointer
+	_s := new(settings.Platform)
+	_s.Update(s)
+
 	// capture body from API request
 	input := new(settings.Platform)
 
@@ -143,36 +147,36 @@ func UpdateSettings(c *gin.Context) {
 				return
 			}
 
-			s.SetCloneImage(cloneImage)
+			_s.SetCloneImage(cloneImage)
 		}
 
 		if input.TemplateDepth != nil {
-			s.SetTemplateDepth(*input.TemplateDepth)
+			_s.SetTemplateDepth(*input.TemplateDepth)
 		}
 
 		if input.StarlarkExecLimit != nil {
-			s.SetStarlarkExecLimit(*input.StarlarkExecLimit)
+			_s.SetStarlarkExecLimit(*input.StarlarkExecLimit)
 		}
 	}
 
 	if input.Queue != nil {
 		if input.Queue.Routes != nil {
-			s.SetRoutes(input.GetRoutes())
+			_s.SetRoutes(input.GetRoutes())
 		}
 	}
 
 	if input.RepoAllowlist != nil {
-		s.SetRepoAllowlist(input.GetRepoAllowlist())
+		_s.SetRepoAllowlist(input.GetRepoAllowlist())
 	}
 
 	if input.ScheduleAllowlist != nil {
-		s.SetScheduleAllowlist(input.GetScheduleAllowlist())
+		_s.SetScheduleAllowlist(input.GetScheduleAllowlist())
 	}
 
-	s.SetUpdatedBy(u.GetName())
+	_s.SetUpdatedBy(u.GetName())
 
 	// send API call to update the settings
-	s, err = database.FromContext(c).UpdateSettings(ctx, s)
+	_s, err = database.FromContext(c).UpdateSettings(ctx, _s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update settings: %w", err)
 
@@ -181,7 +185,7 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, s)
+	c.JSON(http.StatusOK, _s)
 }
 
 // swagger:operation DELETE /api/v1/admin/settings admin RestoreSettings
