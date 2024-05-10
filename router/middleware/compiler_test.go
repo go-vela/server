@@ -25,7 +25,7 @@ func TestMiddleware_CompilerNative(t *testing.T) {
 
 	fs := flag.NewFlagSet("", flag.ExitOnError)
 	fs.String("clone-image", "", "")
-	fs.Set("clone-image", defaultCloneImage)
+	_ = fs.Set("clone-image", defaultCloneImage)
 
 	cliCtx := cli.NewContext(nil, fs, nil)
 
