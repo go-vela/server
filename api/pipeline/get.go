@@ -3,8 +3,10 @@
 package pipeline
 
 import (
+	"bytes"
 	"net/http"
 
+	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
@@ -64,6 +66,13 @@ func GetPipeline(c *gin.Context) {
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
 	}).Infof("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
+
+	buf := new(bytes.Buffer)
+	err := quick.Highlight(buf, string(p.GetData()), "yaml", "terminal16", "monokai")
+	if err == nil {
+		p.SetData(buf.Bytes())
+	}
+	p.SetData(buf.Bytes())
 
 	c.JSON(http.StatusOK, p)
 }
