@@ -11,6 +11,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/aws/aws-sdk-go v1.51.0
 	github.com/buildkite/yaml v0.0.0-20181016232759-0caa5f0796e3
+	github.com/distribution/reference v0.6.0
 	github.com/drone/envsubst v1.0.3
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-gonic/gin v1.9.1
@@ -99,6 +100,7 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.48.0 // indirect

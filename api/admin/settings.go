@@ -13,6 +13,7 @@ import (
 	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/internal/image"
 	"github.com/go-vela/server/queue"
 	cliMiddleware "github.com/go-vela/server/router/middleware/cli"
 	sMiddleware "github.com/go-vela/server/router/middleware/settings"
@@ -130,7 +131,19 @@ func UpdateSettings(c *gin.Context) {
 
 	if input.Compiler != nil {
 		if input.CloneImage != nil {
-			s.SetCloneImage(*input.CloneImage)
+			// validate clone image
+			cloneImage := *input.CloneImage
+
+			_, err = image.ParseWithError(cloneImage)
+			if err != nil {
+				retErr := fmt.Errorf("invalid clone image %s: %v", cloneImage, err)
+
+				util.HandleError(c, http.StatusBadRequest, retErr)
+
+				return
+			}
+
+			s.SetCloneImage(cloneImage)
 		}
 
 		if input.TemplateDepth != nil {

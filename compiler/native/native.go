@@ -3,6 +3,7 @@
 package native
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-vela/server/compiler/registry"
 	"github.com/go-vela/server/compiler/registry/github"
 	"github.com/go-vela/server/internal"
+	"github.com/go-vela/server/internal/image"
 )
 
 type ModificationConfig struct {
@@ -70,8 +72,16 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 
 	c.Compiler = settings.Compiler{}
 
+	cloneImage := ctx.String("clone-image")
+
+	// validate clone image
+	_, err = image.ParseWithError(cloneImage)
+	if err != nil {
+		return nil, fmt.Errorf("invalid clone image %s: %v", cloneImage, err)
+	}
+
 	// set the clone image to use for the injected clone step
-	c.SetCloneImage(ctx.String("clone-image"))
+	c.SetCloneImage(cloneImage)
 
 	// set the template depth to use for nested templates
 	c.SetTemplateDepth(ctx.Int("max-template-depth"))
