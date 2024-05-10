@@ -897,7 +897,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment, Templates: yaml.TemplateSlice{test.tmpls["chain"]}}, test.tmpls, new(pipeline.RuleData), compiler.TemplateDepth)
+			build, err := compiler.ExpandSteps(&yaml.Build{Steps: steps, Services: yaml.ServiceSlice{}, Environment: globalEnvironment, Templates: yaml.TemplateSlice{test.tmpls["chain"]}}, test.tmpls, new(pipeline.RuleData), compiler.GetTemplateDepth())
 			if err != nil {
 				t.Errorf("ExpandSteps_Type%s returned err: %v", test.name, err)
 			}
