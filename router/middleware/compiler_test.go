@@ -20,12 +20,20 @@ import (
 
 func TestMiddleware_CompilerNative(t *testing.T) {
 	// setup types
-	var got compiler.Engine
-	got, _ = native.FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	defaultCloneImage := "target/vela-git"
+	wantCloneImage := "target/vela-git:latest"
 
-	wantCloneImage := "target/vela-git"
-	want, _ := native.FromCLIContext(cli.NewContext(nil, flag.NewFlagSet("test", 0), nil))
+	fs := flag.NewFlagSet("", flag.ExitOnError)
+	fs.String("clone-image", "", "")
+	fs.Set("clone-image", defaultCloneImage)
+
+	cliCtx := cli.NewContext(nil, fs, nil)
+
+	want, _ := native.FromCLIContext(cliCtx)
 	want.SetCloneImage(wantCloneImage)
+
+	var got compiler.Engine
+	got, _ = native.FromCLIContext(cliCtx)
 
 	// setup context
 	gin.SetMode(gin.TestMode)
