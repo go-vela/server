@@ -77,7 +77,7 @@ func FromCLIContext(ctx *cli.Context) (*client, error) {
 	// validate clone image
 	_, err = image.ParseWithError(cloneImage)
 	if err != nil {
-		return nil, fmt.Errorf("invalid clone image %s: %v", cloneImage, err)
+		return nil, fmt.Errorf("invalid clone image %s: %w", cloneImage, err)
 	}
 
 	// set the clone image to use for the injected clone step

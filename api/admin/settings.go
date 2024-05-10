@@ -136,7 +136,7 @@ func UpdateSettings(c *gin.Context) {
 
 			_, err = image.ParseWithError(cloneImage)
 			if err != nil {
-				retErr := fmt.Errorf("invalid clone image %s: %v", cloneImage, err)
+				retErr := fmt.Errorf("invalid clone image %s: %w", cloneImage, err)
 
 				util.HandleError(c, http.StatusBadRequest, retErr)
 
