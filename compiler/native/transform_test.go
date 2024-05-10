@@ -17,6 +17,7 @@ import (
 func TestNative_TransformStages(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &internal.Metadata{
@@ -257,6 +258,7 @@ func TestNative_TransformStages(t *testing.T) {
 func TestNative_TransformSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &internal.Metadata{

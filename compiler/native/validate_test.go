@@ -16,6 +16,7 @@ import (
 func TestNative_Validate_NoVersion(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	p := &yaml.Build{}
@@ -35,6 +36,7 @@ func TestNative_Validate_NoVersion(t *testing.T) {
 func TestNative_Validate_NoStagesOrSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	p := &yaml.Build{
@@ -56,6 +58,7 @@ func TestNative_Validate_NoStagesOrSteps(t *testing.T) {
 func TestNative_Validate_StagesAndSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -99,6 +102,7 @@ func TestNative_Validate_StagesAndSteps(t *testing.T) {
 func TestNative_Validate_Services(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -136,6 +140,7 @@ func TestNative_Validate_Services(t *testing.T) {
 func TestNative_Validate_Services_NoName(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -173,6 +178,7 @@ func TestNative_Validate_Services_NoName(t *testing.T) {
 func TestNative_Validate_Services_NoImage(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -210,6 +216,7 @@ func TestNative_Validate_Services_NoImage(t *testing.T) {
 func TestNative_Validate_Stages(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -245,6 +252,7 @@ func TestNative_Validate_Stages(t *testing.T) {
 func TestNative_Validate_Stages_NoName(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -279,6 +287,7 @@ func TestNative_Validate_Stages_NoName(t *testing.T) {
 func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -313,6 +322,7 @@ func TestNative_Validate_Stages_NoStepName(t *testing.T) {
 func TestNative_Validate_Stages_NoImage(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -347,6 +357,7 @@ func TestNative_Validate_Stages_NoImage(t *testing.T) {
 func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -381,6 +392,7 @@ func TestNative_Validate_Stages_NoCommands(t *testing.T) {
 func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -417,6 +429,7 @@ func TestNative_Validate_Stages_NeedsSelfReference(t *testing.T) {
 func TestNative_Validate_Steps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -447,6 +460,7 @@ func TestNative_Validate_Steps(t *testing.T) {
 func TestNative_Validate_Steps_NoName(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	p := &yaml.Build{
@@ -475,6 +489,7 @@ func TestNative_Validate_Steps_NoName(t *testing.T) {
 func TestNative_Validate_Steps_NoImage(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -504,6 +519,7 @@ func TestNative_Validate_Steps_NoImage(t *testing.T) {
 func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -533,6 +549,7 @@ func TestNative_Validate_Steps_NoCommands(t *testing.T) {
 func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -571,6 +588,7 @@ func TestNative_Validate_Steps_ExceedReportAs(t *testing.T) {
 func TestNative_Validate_MultiReportAs(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"

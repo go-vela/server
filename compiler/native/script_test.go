@@ -16,6 +16,7 @@ import (
 func TestNative_ScriptStages(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	baseEnv := environment(nil, nil, nil, nil)
@@ -105,6 +106,7 @@ func TestNative_ScriptStages(t *testing.T) {
 func TestNative_ScriptSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	emptyEnv := environment(nil, nil, nil, nil)

@@ -18,12 +18,14 @@ import (
 func TestNative_New(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 	public, _ := github.New("", "")
 	want := &client{
 		Github:   public,
 		Compiler: settings.CompilerMockEmpty(),
 	}
+	want.SetCloneImage(defaultCloneImage)
 
 	// run test
 	got, err := FromCLIContext(c)
@@ -45,6 +47,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", url, "doc")
 	set.String("github-token", token, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 	public, _ := github.New("", "")
 	private, _ := github.New(url, token)
@@ -54,6 +57,7 @@ func TestNative_New_PrivateGithub(t *testing.T) {
 		UsePrivateGithub: true,
 		Compiler:         settings.CompilerMockEmpty(),
 	}
+	want.SetCloneImage(defaultCloneImage)
 
 	// run test
 	got, err := FromCLIContext(c)
@@ -75,6 +79,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", url, "doc")
 	set.String("github-token", token, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 	public, _ := github.New("", "")
 	private, _ := github.New(url, token)
@@ -84,6 +89,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 		UsePrivateGithub: true,
 		Compiler:         settings.CompilerMockEmpty(),
 	}
+	want.SetCloneImage(defaultCloneImage)
 
 	// run test
 	got, err := FromCLIContext(c)
@@ -100,6 +106,7 @@ func TestNative_DuplicateRetainSettings(t *testing.T) {
 func TestNative_DuplicateStripBuild(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
@@ -123,6 +130,7 @@ func TestNative_DuplicateStripBuild(t *testing.T) {
 func TestNative_WithBuild(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
@@ -145,6 +153,7 @@ func TestNative_WithBuild(t *testing.T) {
 func TestNative_WithFiles(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	f := []string{"foo"}
@@ -166,6 +175,7 @@ func TestNative_WithFiles(t *testing.T) {
 func TestNative_WithComment(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	comment := "ok to test"
@@ -186,6 +196,7 @@ func TestNative_WithComment(t *testing.T) {
 func TestNative_WithLocal(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	local := true
@@ -206,6 +217,7 @@ func TestNative_WithLocal(t *testing.T) {
 func TestNative_WithLocalTemplates(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	localTemplates := []string{"example:tmpl.yml", "exmpl:template.yml"}
@@ -226,6 +238,7 @@ func TestNative_WithLocalTemplates(t *testing.T) {
 func TestNative_WithMetadata(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	m := &internal.Metadata{
@@ -270,6 +283,7 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 	set.Bool("github-driver", true, "doc")
 	set.String("github-url", url, "doc")
 	set.String("github-token", token, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	private, _ := github.New(url, token)
@@ -291,6 +305,7 @@ func TestNative_WithPrivateGitHub(t *testing.T) {
 func TestNative_WithRepo(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
@@ -313,6 +328,7 @@ func TestNative_WithRepo(t *testing.T) {
 func TestNative_WithUser(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	id := int64(1)
@@ -335,6 +351,7 @@ func TestNative_WithUser(t *testing.T) {
 func TestNative_WithLabels(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	labels := []string{"documentation", "enhancement"}

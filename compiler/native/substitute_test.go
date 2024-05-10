@@ -19,6 +19,7 @@ func Test_client_SubstituteStages(t *testing.T) {
 
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tests := []struct {
@@ -137,6 +138,7 @@ func Test_client_SubstituteSteps(t *testing.T) {
 
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tests := []struct {

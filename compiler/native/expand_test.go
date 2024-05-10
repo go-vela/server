@@ -44,6 +44,7 @@ func TestNative_ExpandStages(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tmpls := map[string]*yaml.Template{
@@ -226,6 +227,7 @@ func TestNative_ExpandSteps(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	testRepo := new(api.Repo)
@@ -404,6 +406,7 @@ func TestNative_ExpandStepsMulti(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tmpls := map[string]*yaml.Template{
@@ -670,6 +673,7 @@ func TestNative_ExpandStepsStarlark(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	tmpls := map[string]*yaml.Template{
@@ -760,6 +764,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	testBuild := new(api.Build)
@@ -928,6 +933,7 @@ func TestNative_ExpandSteps_TemplateCallTemplate_CircularFail(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	testBuild := new(api.Build)
@@ -1014,6 +1020,7 @@ func TestNative_ExpandSteps_CallTemplateWithRenderInline(t *testing.T) {
 	set.String("github-url", s.URL, "doc")
 	set.String("github-token", "", "doc")
 	set.Int("max-template-depth", 5, "doc")
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	testBuild := new(api.Build)

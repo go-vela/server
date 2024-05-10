@@ -15,6 +15,7 @@ import (
 func TestNative_InitStage(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -79,6 +80,7 @@ func TestNative_InitStage(t *testing.T) {
 func TestNative_InitStep(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
