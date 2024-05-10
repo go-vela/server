@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package image provides the ability for Vela to manage
-// and manipulate a images.
+// and manipulate images.
 //
 // Usage:
 //
