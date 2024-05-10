@@ -194,9 +194,9 @@ func (ps *Platform) Validate() error {
 	return nil
 }
 
-// FromAPI converts the API Settings type
+// SettingsFromAPI converts the API Settings type
 // to a database Settings type.
-func FromAPI(s *settings.Platform) *Platform {
+func SettingsFromAPI(s *settings.Platform) *Platform {
 	settings := &Platform{
 		ID: sql.NullInt64{Int64: s.GetID(), Valid: true},
 		Compiler: Compiler{
