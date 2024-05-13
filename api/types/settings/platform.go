@@ -11,13 +11,13 @@ import (
 // swagger:model Platform
 type Platform struct {
 	ID                *int64 `json:"id"`
-	*Queue            `json:"queue"`
-	*Compiler         `json:"compiler"`
-	RepoAllowlist     *[]string `json:"repo_allowlist"`
-	ScheduleAllowlist *[]string `json:"schedule_allowlist"`
-	CreatedAt         *int64    `json:"created_at,omitempty"`
-	UpdatedAt         *int64    `json:"updated_at,omitempty"`
-	UpdatedBy         *string   `json:"updated_by,omitempty"`
+	*Compiler         `json:"compiler,omitempty" yaml:"compiler,omitempty"`
+	*Queue            `json:"queue,omitempty" yaml:"queue,omitempty"`
+	RepoAllowlist     *[]string `json:"repo_allowlist,omitempty" yaml:"repo_allowlist,omitempty"`
+	ScheduleAllowlist *[]string `json:"schedule_allowlist,omitempty" yaml:"schedule_allowlist,omitempty"`
+	CreatedAt         *int64    `json:"created_at,omitempty" yaml:"created_at,omitempty"`
+	UpdatedAt         *int64    `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
+	UpdatedBy         *string   `json:"updated_by,omitempty" yaml:"updated_by,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -243,6 +243,10 @@ func (ps *Platform) Update(newSettingps *Platform) {
 	ps.SetQueue(newSettingps.GetQueue())
 	ps.SetRepoAllowlist(newSettingps.GetRepoAllowlist())
 	ps.SetScheduleAllowlist(newSettingps.GetScheduleAllowlist())
+
+	ps.SetCreatedAt(newSettingps.GetCreatedAt())
+	ps.SetUpdatedAt(newSettingps.GetUpdatedAt())
+	ps.SetUpdatedBy(newSettingps.GetUpdatedBy())
 }
 
 // String implements the Stringer interface for the Platform type.
