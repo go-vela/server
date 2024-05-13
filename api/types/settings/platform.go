@@ -230,23 +230,23 @@ func (ps *Platform) SetUpdatedBy(v string) {
 
 // Update takes another settings record and updates the internal fields, intended
 // to be used when the refreshing settings record shared across the server.
-func (ps *Platform) Update(newSettingps *Platform) {
+func (ps *Platform) Update(_ps *Platform) {
 	if ps == nil {
 		return
 	}
 
-	if newSettingps == nil {
+	if _ps == nil {
 		return
 	}
 
-	ps.SetCompiler(newSettingps.GetCompiler())
-	ps.SetQueue(newSettingps.GetQueue())
-	ps.SetRepoAllowlist(newSettingps.GetRepoAllowlist())
-	ps.SetScheduleAllowlist(newSettingps.GetScheduleAllowlist())
+	ps.SetCompiler(_ps.GetCompiler())
+	ps.SetQueue(_ps.GetQueue())
+	ps.SetRepoAllowlist(_ps.GetRepoAllowlist())
+	ps.SetScheduleAllowlist(_ps.GetScheduleAllowlist())
 
-	ps.SetCreatedAt(newSettingps.GetCreatedAt())
-	ps.SetUpdatedAt(newSettingps.GetUpdatedAt())
-	ps.SetUpdatedBy(newSettingps.GetUpdatedBy())
+	ps.SetCreatedAt(_ps.GetCreatedAt())
+	ps.SetUpdatedAt(_ps.GetUpdatedAt())
+	ps.SetUpdatedBy(_ps.GetUpdatedBy())
 }
 
 // String implements the Stringer interface for the Platform type.
