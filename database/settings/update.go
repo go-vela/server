@@ -14,7 +14,7 @@ func (e *engine) UpdateSettings(_ context.Context, s *settings.Platform) (*setti
 	e.logger.Trace("updating platform settings in the database")
 
 	// cast the api type to database type
-	dbS := types.FromAPI(s)
+	dbS := types.SettingsFromAPI(s)
 
 	// validate the necessary fields are populated
 	err := dbS.Validate()

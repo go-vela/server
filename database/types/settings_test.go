@@ -166,7 +166,7 @@ func TestTypes_Platform_PlatformFromAPI(t *testing.T) {
 	want := testPlatform()
 
 	// run test
-	got := FromAPI(s)
+	got := SettingsFromAPI(s)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("PlatformFromAPI is %v, want %v", got, want)

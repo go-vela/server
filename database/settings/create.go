@@ -14,7 +14,7 @@ func (e *engine) CreateSettings(_ context.Context, s *settings.Platform) (*setti
 	e.logger.Tracef("creating platform settings in the database with %v", s.String())
 
 	// cast the api type to database type
-	settings := types.FromAPI(s)
+	settings := types.SettingsFromAPI(s)
 
 	// validate the necessary fields are populated
 	err := settings.Validate()
