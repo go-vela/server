@@ -5,9 +5,9 @@ package settings
 import "fmt"
 
 type Compiler struct {
-	CloneImage        *string `json:"clone_image,omitempty"`
-	TemplateDepth     *int    `json:"template_depth,omitempty"`
-	StarlarkExecLimit *uint64 `json:"starlark_exec_limit,omitempty"`
+	CloneImage        *string `json:"clone_image,omitempty" yaml:"clone_image,omitempty"`
+	TemplateDepth     *int    `json:"template_depth,omitempty" yaml:"template_depth,omitempty"`
+	StarlarkExecLimit *uint64 `json:"starlark_exec_limit,omitempty" yaml:"starlark_exec_limit,omitempty"`
 }
 
 // GetCloneImage returns the CloneImage field.
