@@ -16,7 +16,7 @@ import (
 	"github.com/go-vela/types/library"
 )
 
-// swagger:operation POST /api/v1/admin/workers/{worker}/register-token admin RegisterToken
+// swagger:operation POST /api/v1/admin/workers/{worker}/register admin RegisterToken
 //
 // Get a worker registration token
 //
