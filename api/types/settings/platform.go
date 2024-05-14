@@ -22,7 +22,7 @@ type Platform struct {
 	UpdatedBy         *string   `json:"updated_by,omitempty" yaml:"updated_by,omitempty"`
 }
 
-// FromCLIContext returns a new Platform record.
+// FromCLIContext returns a new Platform record from a cli context.
 func FromCLIContext(c *cli.Context) *Platform {
 	ps := new(Platform)
 
