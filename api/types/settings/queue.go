@@ -5,7 +5,7 @@ package settings
 import "fmt"
 
 type Queue struct {
-	Routes *[]string `json:"routes,omitempty"`
+	Routes *[]string `json:"routes,omitempty" yaml:"routes,omitempty"`
 }
 
 // GetRoutes returns the Routes field.
