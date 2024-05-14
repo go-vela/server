@@ -4,6 +4,8 @@ package settings
 
 import (
 	"fmt"
+
+	"github.com/urfave/cli/v2"
 )
 
 // Platform is the API representation of platform settingps.
@@ -18,6 +20,19 @@ type Platform struct {
 	CreatedAt         *int64    `json:"created_at,omitempty" yaml:"created_at,omitempty"`
 	UpdatedAt         *int64    `json:"updated_at,omitempty" yaml:"updated_at,omitempty"`
 	UpdatedBy         *string   `json:"updated_by,omitempty" yaml:"updated_by,omitempty"`
+}
+
+// FromCLIContext returns a new Platform record.
+func FromCLIContext(c *cli.Context) *Platform {
+	ps := new(Platform)
+
+	// set repos permitted to be added
+	ps.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))
+
+	// set repos permitted to use schedules
+	ps.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
+
+	return ps
 }
 
 // GetID returns the ID field.

@@ -119,7 +119,7 @@ func server(c *cli.Context) error {
 		logrus.Info("creating initial platform settings")
 
 		// create initial settings record
-		ps = new(settings.Platform)
+		ps = settings.FromCLIContext(c)
 
 		// singleton record ID should always be 1
 		ps.SetID(1)
@@ -134,12 +134,6 @@ func server(c *cli.Context) error {
 
 		queueSettings := queue.GetSettings()
 		ps.SetQueue(queueSettings)
-
-		// set repos permitted to be added
-		ps.SetRepoAllowlist(c.StringSlice("vela-repo-allowlist"))
-
-		// set repos permitted to use schedules
-		ps.SetScheduleAllowlist(c.StringSlice("vela-schedule-allowlist"))
 
 		// create the settings record in the database
 		_, err = database.CreateSettings(context.Background(), ps)

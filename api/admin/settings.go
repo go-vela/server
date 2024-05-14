@@ -254,18 +254,21 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	s.SetUpdatedAt(time.Now().UTC().Unix())
-	s.SetUpdatedBy(u.GetName())
+	// initialize a new settings record
+	_s := settings.FromCLIContext(cliCtx)
+
+	_s.SetUpdatedAt(time.Now().UTC().Unix())
+	_s.SetUpdatedBy(u.GetName())
 
 	// read in defaults supplied from the cli runtime
 	compilerSettings := compiler.GetSettings()
-	s.SetCompiler(compilerSettings)
+	_s.SetCompiler(compilerSettings)
 
 	queueSettings := queue.GetSettings()
-	s.SetQueue(queueSettings)
+	_s.SetQueue(queueSettings)
 
 	// send API call to update the settings
-	s, err = database.FromContext(c).UpdateSettings(ctx, s)
+	s, err = database.FromContext(c).UpdateSettings(ctx, _s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update (restore) settings: %w", err)
 
