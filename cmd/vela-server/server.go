@@ -246,7 +246,7 @@ func server(c *cli.Context) error {
 			}
 
 			// update the internal fields for the shared settings record
-			ps.Update(newSettings)
+			ps.FromSettings(newSettings)
 		}
 	})
 

@@ -119,7 +119,7 @@ func UpdateSettings(c *gin.Context) {
 
 	// duplicate settings to not alter the shared pointer
 	_s := new(settings.Platform)
-	_s.Update(s)
+	_s.FromSettings(s)
 
 	// ensure we update the singleton record
 	_s.SetID(1)

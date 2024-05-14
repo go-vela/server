@@ -243,9 +243,9 @@ func (ps *Platform) SetUpdatedBy(v string) {
 	ps.UpdatedBy = &v
 }
 
-// Update takes another settings record and updates the internal fields, intended
-// to be used when the refreshing settings record shared across the server.
-func (ps *Platform) Update(_ps *Platform) {
+// FromSettings takes another settings record and updates the internal fields,
+// used when the updating settings and refreshing the record shared across the server.
+func (ps *Platform) FromSettings(_ps *Platform) {
 	if ps == nil {
 		return
 	}
