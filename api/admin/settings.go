@@ -36,6 +36,10 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve settings
 //     schema:
@@ -86,6 +90,10 @@ func GetSettings(c *gin.Context) {
 //       "$ref": "#/definitions/Platform"
 //   '400':
 //     description: Unable to update settings — bad request
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '404':
@@ -206,6 +214,10 @@ func UpdateSettings(c *gin.Context) {
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve settings to restore
 //     schema:
