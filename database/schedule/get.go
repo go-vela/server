@@ -4,9 +4,6 @@ package schedule
 
 import (
 	"context"
-	"time"
-
-	"github.com/adhocore/gronx"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/types"
@@ -38,13 +35,5 @@ func (e *engine) GetSchedule(ctx context.Context, id int64) (*api.Schedule, erro
 		e.logger.Errorf("unable to decrypt repo %d: %v", s.Repo.ID.Int64, err)
 	}
 
-	// set repo to provided repo if creation successful
-	result := s.ToAPI()
-
-	// set next scheduled run
-	t := time.Now().UTC()
-	nextTime, _ := gronx.NextTickAfter(*result.Entry, t, false)
-	result.SetNextRun(nextTime.Unix())
-
-	return result, nil
+	return s.ToAPI(), nil
 }

@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adhocore/gronx"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 	"github.com/go-vela/types/constants"
@@ -93,6 +95,9 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	repo.SetPreviousName("oldName")
 	repo.SetApproveBuild(constants.ApproveNever)
 
+	currTime := time.Now().UTC()
+	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
+
 	want := testutils.APISchedule()
 	want.SetID(1)
 	want.SetActive(true)
@@ -106,7 +111,7 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	want.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	want.SetBranch("main")
 	want.SetError("unable to trigger build for schedule nightly: unknown character")
-	want.SetNextRun(0)
+	want.SetNextRun(nextTime.Unix())
 
 	// run test
 	got := testSchedule().ToAPI()
