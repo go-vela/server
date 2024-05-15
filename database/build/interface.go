@@ -28,7 +28,7 @@ type BuildInterface interface {
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CleanBuilds defines a function that sets pending or running builds to error created before a given time.
-	CleanBuilds(context.Context, string, int64) (int64, error)
+	CleanBuilds(context.Context, string, []string, int64) ([]*api.Build, int64, error)
 	// CountBuilds defines a function that gets the count of all builds.
 	CountBuilds(context.Context) (int64, error)
 	// CountBuildsForDeployment defines a function that gets the count of builds by deployment url.

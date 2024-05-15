@@ -19,6 +19,8 @@ type (
 		EncryptionKey string
 		// specifies to skip creating tables and indexes for the Build engine
 		SkipCreation bool
+		// specifies the driver for proper clean query
+		Driver string
 	}
 
 	// engine represents the build functionality that implements the BuildInterface interface.

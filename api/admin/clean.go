@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 )
 
@@ -64,7 +63,9 @@ func CleanResources(c *gin.Context) {
 	u := user.Retrieve(c)
 	ctx := c.Request.Context()
 
-	logrus.Infof("platform admin %s: updating pending resources in database", u.GetName())
+	report := types.CleanReport{}
+
+	logrus.Infof("platform admin %s: cleaning pending/running resources in database", u.GetName())
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -86,8 +87,16 @@ func CleanResources(c *gin.Context) {
 		msg = *input.Message
 	}
 
+	if len(c.Query("before")) == 0 {
+		retErr := fmt.Errorf("`before` query parameter is required")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	// capture before query parameter, default to max build timeout
-	before, err := strconv.ParseInt(c.DefaultQuery("before", fmt.Sprint((time.Now().Add(-(time.Minute * (constants.BuildTimeoutMax + 5)))).Unix())), 10, 64)
+	before, err := strconv.ParseInt(c.Query("before"), 10, 64)
 	if err != nil {
 		retErr := fmt.Errorf("unable to convert before query parameter %s to int64: %w", c.Query("before"), err)
 
@@ -96,51 +105,65 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	// send API call to clean builds
-	builds, err := database.FromContext(c).CleanBuilds(ctx, msg, before)
-	if err != nil {
-		retErr := fmt.Errorf("unable to update builds: %w", err)
+	if cleanBuilds, _ := strconv.ParseBool(c.Query("builds")); cleanBuilds {
+		// append pending approval to statuses if requested
+		statuses := []string{constants.StatusRunning, constants.StatusPending}
+		if cleanPendingApproval, _ := strconv.ParseBool(c.Query("pending_approval_builds")); cleanPendingApproval {
+			statuses = append(statuses, constants.StatusPendingApproval)
+		}
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+		// send API call to clean builds
+		report.Builds, err = database.FromContext(c).CleanBuilds(ctx, msg, statuses, before)
+		if err != nil {
+			retErr := fmt.Errorf("unable to update builds: %w", err)
 
-		return
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), report.Builds)
+
+		// clean executables
+		report.Executables, err = database.FromContext(c).CleanBuildExecutables(ctx)
+		if err != nil {
+			retErr := fmt.Errorf("%d builds cleaned. unable to clean build executables: %w", report.Builds, err)
+
+			util.HandleError(c, http.StatusInternalServerError, retErr)
+
+			return
+		}
+
+		logrus.Infof("platform admin %s: cleaned %d build executables in database", u.GetName(), report.Executables)
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
+	if cleanServices, _ := strconv.ParseBool(c.Query("services")); cleanServices {
+		// clean services
+		report.Services, err = database.FromContext(c).CleanServices(ctx, msg, before)
+		if err != nil {
+			retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. unable to update services: %w", report.Builds, report.Executables, err)
 
-	// clean executables
-	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
-	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. unable to clean build executables: %w", builds, err)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+			return
+		}
 
-		return
+		logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), report.Services)
 	}
 
-	// clean services
-	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
-	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. unable to update services: %w", builds, executables, err)
+	if cleanSteps, _ := strconv.ParseBool(c.Query("steps")); cleanSteps {
+		// clean steps
+		report.Steps, err = database.FromContext(c).CleanSteps(ctx, msg, before)
+		if err != nil {
+			retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. %d services cleaned. unable to update steps: %w", report.Builds, report.Executables, report.Services, err)
 
-		util.HandleError(c, http.StatusInternalServerError, retErr)
+			util.HandleError(c, http.StatusInternalServerError, retErr)
 
-		return
+			return
+		}
+
+		logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), report.Steps)
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
-
-	// clean steps
-	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
-	if err != nil {
-		retErr := fmt.Errorf("%d builds cleaned. %d executables cleaned. %d services cleaned. unable to update steps: %w", builds, executables, services, err)
-
-		util.HandleError(c, http.StatusInternalServerError, retErr)
-
-		return
-	}
-
-	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
-
-	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
+	c.JSON(http.StatusOK, report)
 }

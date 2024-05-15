@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -172,6 +173,7 @@ func testPostgres(t *testing.T) (*engine, sqlmock.Sqlmock) {
 		WithClient(_postgres),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
+		WithDriver(constants.DriverPostgres),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 	)
 	if err != nil {
@@ -196,6 +198,7 @@ func testSqlite(t *testing.T) *engine {
 		WithClient(_sqlite),
 		WithLogger(logrus.NewEntry(logrus.StandardLogger())),
 		WithSkipCreation(false),
+		WithDriver(constants.DriverSqlite),
 		WithEncryptionKey("A1B2C3D4E5G6H7I8J9K0LMNOPQRSTUVW"),
 	)
 	if err != nil {

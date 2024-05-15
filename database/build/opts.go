@@ -52,6 +52,16 @@ func WithSkipCreation(skipCreation bool) EngineOpt {
 	}
 }
 
+// WithDriver sets the driver type in the database engine for build executables.
+func WithDriver(driver string) EngineOpt {
+	return func(e *engine) error {
+		// set the driver type in the build executable engine
+		e.config.Driver = driver
+
+		return nil
+	}
+}
+
 // WithContext sets the context in the database engine for Builds.
 func WithContext(ctx context.Context) EngineOpt {
 	return func(e *engine) error {
