@@ -4,7 +4,9 @@ package schedule
 
 import (
 	"context"
+	"time"
 
+	"github.com/adhocore/gronx"
 	"github.com/sirupsen/logrus"
 
 	api "github.com/go-vela/server/api/types"
@@ -41,9 +43,14 @@ func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields boo
 		return nil, err
 	}
 
-	// set repo to provided repo if creation successful
+	// set repo to provided repo if update successful
 	result := schedule.ToAPI()
 	result.SetRepo(s.GetRepo())
+
+	// set next scheduled run
+	t := time.Now().UTC()
+	nextTime, _ := gronx.NextTickAfter(*result.Entry, t, false)
+	result.SetNextRun(nextTime.Unix())
 
 	return result, nil
 }

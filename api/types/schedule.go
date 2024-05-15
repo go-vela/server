@@ -22,6 +22,7 @@ type Schedule struct {
 	ScheduledAt *int64  `json:"scheduled_at,omitempty"`
 	Branch      *string `json:"branch,omitempty"`
 	Error       *string `json:"error,omitempty"`
+	NextRun     *int64  `json:"next_run,omitempty"`
 }
 
 // GetID returns the ID field.
@@ -180,6 +181,19 @@ func (s *Schedule) GetError() string {
 	return *s.Error
 }
 
+// GetNextRun returns the NextRun field.
+//
+// When the provided Schedule type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (s *Schedule) GetNextRun() int64 {
+	// return zero value if Schedule type or NextRun field is nil
+	if s == nil || s.NextRun == nil {
+		return 0
+	}
+
+	return *s.NextRun
+}
+
 // SetID sets the ID field.
 //
 // When the provided Schedule type is nil, it
@@ -336,6 +350,19 @@ func (s *Schedule) SetError(err string) {
 	s.Error = &err
 }
 
+// SetNextRun sets the NextRun field.
+//
+// When the provided Schedule type is nil, it
+// will set nothing and immediately return.
+func (s *Schedule) SetNextRun(err int64) {
+	// return if Schedule type is nil
+	if s == nil {
+		return
+	}
+
+	s.NextRun = &err
+}
+
 // String implements the Stringer interface for the Schedule type.
 func (s *Schedule) String() string {
 	return fmt.Sprintf(`{
@@ -351,6 +378,7 @@ func (s *Schedule) String() string {
   UpdatedBy: %s,
   Branch: %s,
   Error: %s,
+  NextRun: %d,
 }`,
 		s.GetActive(),
 		s.GetCreatedAt(),
@@ -364,5 +392,6 @@ func (s *Schedule) String() string {
 		s.GetUpdatedBy(),
 		s.GetBranch(),
 		s.GetError(),
+		s.GetNextRun(),
 	)
 }

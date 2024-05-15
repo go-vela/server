@@ -5,8 +5,10 @@ package schedule
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
@@ -50,6 +52,9 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	_repo.SetPreviousName("")
 	_repo.SetApproveBuild(constants.ApproveNever)
 
+	currTime := time.Now().UTC()
+	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
+
 	_scheduleOne := testutils.APISchedule()
 	_scheduleOne.SetID(1)
 	_scheduleOne.SetRepo(_repo)
@@ -63,6 +68,10 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	_scheduleOne.SetScheduledAt(2013476291)
 	_scheduleOne.SetBranch("main")
 	_scheduleOne.SetError("no version: YAML property provided")
+	_scheduleOne.SetNextRun(nextTime.Unix())
+
+	currTime = time.Now().UTC()
+	nextTime, _ = gronx.NextTickAfter("0 * * * *", currTime, false)
 
 	_scheduleTwo := testutils.APISchedule()
 	_scheduleTwo.SetID(2)
@@ -77,6 +86,7 @@ func TestSchedule_Engine_ListSchedulesForRepo(t *testing.T) {
 	_scheduleTwo.SetScheduledAt(2013476291)
 	_scheduleTwo.SetBranch("main")
 	_scheduleTwo.SetError("no version: YAML property provided")
+	_scheduleTwo.SetNextRun(nextTime.Unix())
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

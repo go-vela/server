@@ -4,7 +4,9 @@ package schedule
 
 import (
 	"context"
+	"time"
 
+	"github.com/adhocore/gronx"
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/types"
 	"github.com/go-vela/types/constants"
@@ -52,8 +54,14 @@ func (e *engine) ListSchedules(ctx context.Context) ([]*api.Schedule, error) {
 			e.logger.Errorf("unable to decrypt repo %d: %v", tmp.ID.Int64, err)
 		}
 
+		// determine next scheduled run
+		apiSchedule := tmp.ToAPI()
+		t := time.Now().UTC()
+		nextTime, _ := gronx.NextTickAfter(*apiSchedule.Entry, t, false)
+		apiSchedule.SetNextRun(nextTime.Unix())
+
 		// convert query result to API type
-		schedules = append(schedules, tmp.ToAPI())
+		schedules = append(schedules, apiSchedule)
 	}
 
 	return schedules, nil

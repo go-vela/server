@@ -106,6 +106,7 @@ func TestTypes_Schedule_ToAPI(t *testing.T) {
 	want.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	want.SetBranch("main")
 	want.SetError("unable to trigger build for schedule nightly: unknown character")
+	want.SetNextRun(0)
 
 	// run test
 	got := testSchedule().ToAPI()

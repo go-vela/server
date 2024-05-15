@@ -99,6 +99,7 @@ func (s *Schedule) ToAPI() *api.Schedule {
 	schedule.SetScheduledAt(s.ScheduledAt.Int64)
 	schedule.SetBranch(s.Branch.String)
 	schedule.SetError(s.Error.String)
+	schedule.SetNextRun(0)
 
 	return schedule
 }
