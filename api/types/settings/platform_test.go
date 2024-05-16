@@ -121,7 +121,7 @@ func TestTypes_Platform_Update(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		test.platform.Update(test.want)
+		test.platform.FromSettings(test.want)
 
 		if diff := cmp.Diff(test.want, test.platform); diff != "" {
 			t.Errorf("(Update: -want +got):\n%s", diff)
