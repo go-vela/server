@@ -354,13 +354,13 @@ func (s *Schedule) SetError(err string) {
 //
 // When the provided Schedule type is nil, it
 // will set nothing and immediately return.
-func (s *Schedule) SetNextRun(err int64) {
+func (s *Schedule) SetNextRun(nextRun int64) {
 	// return if Schedule type is nil
 	if s == nil {
 		return
 	}
 
-	s.NextRun = &err
+	s.NextRun = &nextRun
 }
 
 // String implements the Stringer interface for the Schedule type.
