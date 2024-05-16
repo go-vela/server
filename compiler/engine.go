@@ -4,6 +4,7 @@ package compiler
 
 import (
 	api "github.com/go-vela/server/api/types"
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/internal"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
@@ -144,7 +145,13 @@ type Engine interface {
 	// WithLabel defines a function that sets
 	// the label(s) in the Engine.
 	WithLabels([]string) Engine
-	// WithUser defines a function that sets
+	// WithPrivateGitHub defines a function that sets
 	// the private github client in the Engine.
 	WithPrivateGitHub(string, string) Engine
+	// GetSettings defines a function that returns new api settings
+	// with the compiler Engine fields filled.
+	GetSettings() settings.Compiler
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*settings.Platform)
 }

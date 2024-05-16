@@ -20,6 +20,7 @@ import (
 func TestNative_EnvironmentStages(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	str := "foo"
@@ -60,7 +61,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -78,6 +79,7 @@ func TestNative_EnvironmentStages(t *testing.T) {
 func TestNative_EnvironmentSteps(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
@@ -205,7 +207,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 	}
 
 	// run test non-local
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -253,6 +255,7 @@ func TestNative_EnvironmentSteps(t *testing.T) {
 func TestNative_EnvironmentServices(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
@@ -380,7 +383,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}
@@ -398,6 +401,7 @@ func TestNative_EnvironmentServices(t *testing.T) {
 func TestNative_EnvironmentSecrets(t *testing.T) {
 	// setup types
 	set := flag.NewFlagSet("test", 0)
+	set.String("clone-image", defaultCloneImage, "doc")
 	c := cli.NewContext(nil, set, nil)
 
 	e := raw.StringSliceMap{
@@ -538,7 +542,7 @@ func TestNative_EnvironmentSecrets(t *testing.T) {
 	}
 
 	// run test
-	compiler, err := New(c)
+	compiler, err := FromCLIContext(c)
 	if err != nil {
 		t.Errorf("Unable to create new compiler: %v", err)
 	}

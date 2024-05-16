@@ -17,14 +17,28 @@ import (
 	"github.com/go-vela/server/database/schedule"
 	"github.com/go-vela/server/database/secret"
 	"github.com/go-vela/server/database/service"
+	"github.com/go-vela/server/database/settings"
 	"github.com/go-vela/server/database/step"
 	"github.com/go-vela/server/database/user"
 	"github.com/go-vela/server/database/worker"
 )
 
 // NewResources creates and returns the database agnostic engines for resources.
+//
+//nolint:funlen // ignore function length
 func (e *engine) NewResources(ctx context.Context) error {
 	var err error
+
+	// create the database agnostic engine for settings
+	e.SettingsInterface, err = settings.New(
+		settings.WithContext(e.ctx),
+		settings.WithClient(e.client),
+		settings.WithLogger(e.logger),
+		settings.WithSkipCreation(e.config.SkipCreation),
+	)
+	if err != nil {
+		return err
+	}
 
 	// create the database agnostic engine for builds
 	e.BuildInterface, err = build.New(
@@ -131,6 +145,7 @@ func (e *engine) NewResources(ctx context.Context) error {
 	e.ScheduleInterface, err = schedule.New(
 		schedule.WithContext(e.ctx),
 		schedule.WithClient(e.client),
+		schedule.WithEncryptionKey(e.config.EncryptionKey),
 		schedule.WithLogger(e.logger),
 		schedule.WithSkipCreation(e.config.SkipCreation),
 	)

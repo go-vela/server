@@ -5,6 +5,7 @@ package queue
 import (
 	"context"
 
+	"github.com/go-vela/server/api/types/settings"
 	"github.com/go-vela/server/queue/models"
 	"github.com/go-vela/types/pipeline"
 )
@@ -37,4 +38,12 @@ type Service interface {
 	// Route defines a function that decides which
 	// channel a build gets placed within the queue.
 	Route(*pipeline.Worker) (string, error)
+
+	// GetSettings defines a function that returns
+	// queue settings.
+	GetSettings() settings.Queue
+
+	// SetSettings defines a function that takes api settings
+	// and updates the compiler Engine.
+	SetSettings(*settings.Platform)
 }

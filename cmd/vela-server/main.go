@@ -79,6 +79,12 @@ func main() {
 			Name:    "vela-secret",
 			Usage:   "secret used for server <-> agent communication",
 		},
+		&cli.DurationFlag{
+			EnvVars: []string{"VELA_PLATFORM_SETTINGS_REFRESH_INTERVAL", "VELA_SETTINGS_REFRESH_INTERVAL"},
+			Name:    "settings-refresh-interval",
+			Usage:   "interval at which platform settings will be refreshed",
+			Value:   5 * time.Second,
+		},
 		&cli.StringFlag{
 			EnvVars: []string{"VELA_SERVER_PRIVATE_KEY"},
 			Name:    "vela-server-private-key",

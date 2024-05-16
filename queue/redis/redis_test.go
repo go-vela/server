@@ -125,7 +125,7 @@ func TestRedis_New(t *testing.T) {
 	for _, test := range tests {
 		_, err := New(
 			WithAddress(test.address),
-			WithChannels("foo"),
+			WithRoutes("foo"),
 			WithCluster(false),
 			WithTimeout(5*time.Second),
 		)

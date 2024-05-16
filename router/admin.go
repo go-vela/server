@@ -12,18 +12,21 @@ import (
 // AdminHandlers is a function that extends the provided base router group
 // with the API handlers for admin functionality.
 //
-// GET    /api/v1/admin/builds/queue
-// GET    /api/v1/admin/build/:id
-// PUT    /api/v1/admin/build
-// PUT    /api/v1/admin/clean
-// PUT    /api/v1/admin/deployment
-// PUT    /api/v1/admin/hook
-// PUT    /api/v1/admin/repo
-// PUT    /api/v1/admin/secret
-// PUT    /api/v1/admin/service
-// PUT    /api/v1/admin/step
-// PUT    /api/v1/admin/user
-// POST   /api/v1/admin/workers/:worker/register.
+// GET    	 /api/v1/admin/builds/queue
+// GET    	 /api/v1/admin/build/:id
+// PUT    	 /api/v1/admin/build
+// PUT    	 /api/v1/admin/clean
+// PUT    	 /api/v1/admin/deployment
+// PUT    	 /api/v1/admin/hook
+// PUT    	 /api/v1/admin/repo
+// PUT    	 /api/v1/admin/secret
+// PUT    	 /api/v1/admin/service
+// PUT    	 /api/v1/admin/step
+// PUT    	 /api/v1/admin/user
+// POST   	 /api/v1/admin/workers/:worker/register
+// GET    	 /api/v1/admin/settings
+// PUT    	 /api/v1/admin/settings
+// DELETE	 /api/v1/admin/settings.
 func AdminHandlers(base *gin.RouterGroup) {
 	// Admin endpoints
 	_admin := base.Group("/admin", perm.MustPlatformAdmin())
@@ -63,5 +66,10 @@ func AdminHandlers(base *gin.RouterGroup) {
 
 		// Admin worker endpoint
 		_admin.POST("/workers/:worker/register", admin.RegisterToken)
+
+		// Admin settings endpoints
+		_admin.GET("/settings", admin.GetSettings)
+		_admin.PUT("/settings", admin.UpdateSettings)
+		_admin.DELETE("/settings", admin.RestoreSettings)
 	} // end of admin endpoints
 }

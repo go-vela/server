@@ -11,11 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/router/middleware/repo"
+	"github.com/go-vela/server/router/middleware/settings"
 	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
-	"github.com/go-vela/types/library"
 )
 
 // swagger:operation POST /api/v1/schedules/{org}/{repo} schedules CreateSchedule
@@ -77,11 +78,12 @@ func CreateSchedule(c *gin.Context) {
 	u := user.Retrieve(c)
 	r := repo.Retrieve(c)
 	ctx := c.Request.Context()
-	allowlist := c.Value("allowlistschedule").([]string)
+	s := settings.FromContext(c)
+
 	minimumFrequency := c.Value("scheduleminimumfrequency").(time.Duration)
 
 	// capture body from API request
-	input := new(library.Schedule)
+	input := new(api.Schedule)
 
 	err := c.Bind(input)
 	if err != nil {
@@ -119,7 +121,7 @@ func CreateSchedule(c *gin.Context) {
 	}).Infof("creating new schedule %s", input.GetName())
 
 	// ensure repo is allowed to create new schedules
-	if !util.CheckAllowlist(r, allowlist) {
+	if !util.CheckAllowlist(r, s.GetScheduleAllowlist()) {
 		retErr := fmt.Errorf("unable to create schedule %s: %s is not on allowlist", input.GetName(), r.GetFullName())
 
 		util.HandleError(c, http.StatusForbidden, retErr)
@@ -127,29 +129,29 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	s := new(library.Schedule)
+	schedule := new(api.Schedule)
 
 	// update fields in schedule object
-	s.SetCreatedBy(u.GetName())
-	s.SetRepoID(r.GetID())
-	s.SetName(input.GetName())
-	s.SetEntry(input.GetEntry())
-	s.SetCreatedAt(time.Now().UTC().Unix())
-	s.SetUpdatedAt(time.Now().UTC().Unix())
-	s.SetUpdatedBy(u.GetName())
+	schedule.SetCreatedBy(u.GetName())
+	schedule.SetRepo(r)
+	schedule.SetName(input.GetName())
+	schedule.SetEntry(input.GetEntry())
+	schedule.SetCreatedAt(time.Now().UTC().Unix())
+	schedule.SetUpdatedAt(time.Now().UTC().Unix())
+	schedule.SetUpdatedBy(u.GetName())
 
 	if input.GetBranch() == "" {
-		s.SetBranch(r.GetBranch())
+		schedule.SetBranch(r.GetBranch())
 	} else {
-		s.SetBranch(input.GetBranch())
+		schedule.SetBranch(input.GetBranch())
 	}
 
 	// set the active field based off the input provided
 	if input.Active == nil {
 		// default active field to true
-		s.SetActive(true)
+		schedule.SetActive(true)
 	} else {
-		s.SetActive(input.GetActive())
+		schedule.SetActive(input.GetActive())
 	}
 
 	// send API call to capture the schedule from the database
@@ -178,7 +180,7 @@ func CreateSchedule(c *gin.Context) {
 		dbSchedule.SetActive(true)
 
 		// send API call to update the schedule
-		s, err = database.FromContext(c).UpdateSchedule(ctx, dbSchedule, true)
+		schedule, err = database.FromContext(c).UpdateSchedule(ctx, dbSchedule, true)
 		if err != nil {
 			retErr := fmt.Errorf("unable to set schedule %s to active: %w", dbSchedule.GetName(), err)
 
@@ -188,7 +190,7 @@ func CreateSchedule(c *gin.Context) {
 		}
 	} else {
 		// send API call to create the schedule
-		s, err = database.FromContext(c).CreateSchedule(ctx, s)
+		schedule, err = database.FromContext(c).CreateSchedule(ctx, schedule)
 		if err != nil {
 			retErr := fmt.Errorf("unable to create new schedule %s: %w", r.GetName(), err)
 
@@ -198,7 +200,7 @@ func CreateSchedule(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusCreated, s)
+	c.JSON(http.StatusCreated, schedule)
 }
 
 // validateEntry validates the entry for a minimum frequency.
