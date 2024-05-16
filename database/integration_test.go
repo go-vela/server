@@ -42,7 +42,7 @@ type Resources struct {
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
-	JWKs        []*api.JWK
+	JWKs        []api.JWK
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
 	Repos       []*api.Repo
@@ -875,7 +875,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	}
 
 	for _, jwk := range resources.JWKs {
-		err := db.CreateJWK(context.TODO(), *jwk)
+		err := db.CreateJWK(context.TODO(), jwk)
 		if err != nil {
 			t.Errorf("unable to create jwk %s: %v", jwk.Kid, err)
 		}
@@ -2555,7 +2555,7 @@ func newResources() *Resources {
 	hookThree.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookThree.SetWebhookID(78910)
 
-	jwkOne := &api.JWK{
+	jwkOne := api.JWK{
 		Algorithm: "RS256",
 		Kid:       "c8da1302-07d6-11ea-882f-4893bca275b8",
 		Kty:       "rsa",
@@ -2564,7 +2564,7 @@ func newResources() *Resources {
 		E:         "123",
 	}
 
-	jwkTwo := &api.JWK{
+	jwkTwo := api.JWK{
 		Algorithm: "RS256",
 		Kid:       "c8da1302-07d6-11ea-882f-4893bca275b9",
 		Kty:       "rsa",
@@ -2830,7 +2830,7 @@ func newResources() *Resources {
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
-		JWKs:        []*api.JWK{jwkOne, jwkTwo},
+		JWKs:        []api.JWK{jwkOne, jwkTwo},
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},

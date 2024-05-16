@@ -934,8 +934,8 @@ func TestPerm_MustIDRequestToken_WrongBuild(t *testing.T) {
 	// run test
 	engine.ServeHTTP(context.Writer, context.Request)
 
-	if resp.Code != http.StatusUnauthorized {
-		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusOK)
+	if resp.Code != http.StatusBadRequest {
+		t.Errorf("MustBuildAccess returned %v, want %v", resp.Code, http.StatusBadRequest)
 	}
 }
 

@@ -3,6 +3,8 @@
 package types
 
 // OpenIDConfig is a struct that represents the OpenID Connect configuration.
+//
+// swagger:model OpenIDConfig
 type OpenIDConfig struct {
 	Issuer          string   `json:"issuer"`
 	JWKSAddress     string   `json:"jwks_uri"`
@@ -11,6 +13,8 @@ type OpenIDConfig struct {
 }
 
 // JWKS is a slice of JWKs.
+//
+// swagger:model JWKS
 type JWKS struct {
 	Keys []JWK `json:"keys"`
 }
