@@ -26,7 +26,10 @@ func setupTokenManager(c *cli.Context, db database.Interface) (*token.Manager, e
 	}
 
 	// generate a new RSA key pair
-	tm.GenerateRSA(db)
+	err := tm.GenerateRSA(db)
+	if err != nil {
+		return nil, err
+	}
 
 	return tm, nil
 }

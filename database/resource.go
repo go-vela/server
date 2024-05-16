@@ -104,6 +104,9 @@ func (e *engine) NewResources(ctx context.Context) error {
 		jwk.WithLogger(e.logger),
 		jwk.WithSkipCreation(e.config.SkipCreation),
 	)
+	if err != nil {
+		return err
+	}
 
 	// create the database agnostic engine for logs
 	e.LogInterface, err = log.New(
