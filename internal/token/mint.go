@@ -99,7 +99,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		}
 
 		claims.Repo = mto.Repo
-		claims.Subject = fmt.Sprintf("repo:%s:ref:%s", mto.Repo, mto.Build.GetRef())
+		claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 		claims.BuildID = mto.Build.GetID()
 		claims.BuildNumber = mto.Build.GetNumber()
 		claims.BuildSender = mto.Build.GetSender()
@@ -147,7 +147,7 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 	claims.BuildNumber = mto.Build.GetNumber()
 	claims.BuildSender = mto.Build.GetSender()
 	claims.Repo = mto.Repo
-	claims.Subject = fmt.Sprintf("repo:%s:ref:%s", mto.Repo, mto.Build.GetRef())
+	claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image

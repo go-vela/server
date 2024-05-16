@@ -2,8 +2,6 @@ module github.com/go-vela/server
 
 go 1.21.9
 
-replace github.com/go-vela/types => ../types
-
 require (
 	github.com/Bose/minisentinel v0.0.0-20200130220412-917c5a9223bb
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -18,7 +16,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
-	github.com/go-vela/types v0.23.4-0.20240417135026-fb4a95c30338
+	github.com/go-vela/types v0.23.4-0.20240516161114-57d6b8f77b10
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v61 v61.0.0
