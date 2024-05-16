@@ -36,6 +36,10 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve settings
 //     schema:
@@ -88,6 +92,10 @@ func GetSettings(c *gin.Context) {
 //     description: Unable to update settings — bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve platform settings to update
 //     schema:
@@ -119,7 +127,7 @@ func UpdateSettings(c *gin.Context) {
 
 	// duplicate settings to not alter the shared pointer
 	_s := new(settings.Platform)
-	_s.Update(s)
+	_s.FromSettings(s)
 
 	// ensure we update the singleton record
 	_s.SetID(1)
@@ -206,6 +214,10 @@ func UpdateSettings(c *gin.Context) {
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Platform"
+//   '401':
+//     description: Unauthorized
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '404':
 //     description: Unable to retrieve settings to restore
 //     schema:
@@ -254,18 +266,21 @@ func RestoreSettings(c *gin.Context) {
 		return
 	}
 
-	s.SetUpdatedAt(time.Now().UTC().Unix())
-	s.SetUpdatedBy(u.GetName())
+	// initialize a new settings record
+	_s := settings.FromCLIContext(cliCtx)
+
+	_s.SetUpdatedAt(time.Now().UTC().Unix())
+	_s.SetUpdatedBy(u.GetName())
 
 	// read in defaults supplied from the cli runtime
 	compilerSettings := compiler.GetSettings()
-	s.SetCompiler(compilerSettings)
+	_s.SetCompiler(compilerSettings)
 
 	queueSettings := queue.GetSettings()
-	s.SetQueue(queueSettings)
+	_s.SetQueue(queueSettings)
 
 	// send API call to update the settings
-	s, err = database.FromContext(c).UpdateSettings(ctx, s)
+	s, err = database.FromContext(c).UpdateSettings(ctx, _s)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update (restore) settings: %w", err)
 
