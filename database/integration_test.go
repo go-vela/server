@@ -19,6 +19,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
+	"github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -858,13 +859,13 @@ func testHooks(t *testing.T, db Interface, resources *Resources) {
 }
 
 func testJWKs(t *testing.T, db Interface, resources *Resources) {
-	// create a variable to track the number of methods called for logs
+	// create a variable to track the number of methods called for jwks
 	methods := make(map[string]bool)
-	// capture the element type of the log interface
-	element := reflect.TypeOf(new(log.LogInterface)).Elem()
-	// iterate through all methods found in the log interface
+	// capture the element type of the jwk interface
+	element := reflect.TypeOf(new(jwk.JWKInterface)).Elem()
+	// iterate through all methods found in the jwk interface
 	for i := 0; i < element.NumMethod(); i++ {
-		// skip tracking the methods to create indexes and tables for logs
+		// skip tracking the methods to create indexes and tables for jwks
 		// since those are already called when the database engine starts
 		if strings.Contains(element.Method(i).Name, "Table") {
 			continue
@@ -923,7 +924,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	// ensure we called all the methods we expected to
 	for method, called := range methods {
 		if !called {
-			t.Errorf("method %s was not called for logs", method)
+			t.Errorf("method %s was not called for jwks", method)
 		}
 	}
 }
