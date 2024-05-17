@@ -104,7 +104,7 @@ func (s *Schedule) ToAPI() *api.Schedule {
 	schedule.SetBranch(s.Branch.String)
 	schedule.SetError(s.Error.String)
 
-	if err != nil {
+	if err == nil {
 		schedule.SetNextRun(nextTime.Unix())
 	} else {
 		schedule.SetNextRun(0)
