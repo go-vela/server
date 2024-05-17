@@ -3,11 +3,12 @@
 package token
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
-	"strconv"
+	"encoding/binary"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -30,6 +31,14 @@ func (tm *Manager) GenerateRSA(db database.Interface) error {
 		return err
 	}
 
+	// convert exponent to binary data to encode in base64
+	e := new(bytes.Buffer)
+
+	err = binary.Write(e, binary.BigEndian, int64(privateRSAKey.PublicKey.E))
+	if err != nil {
+		return err
+	}
+
 	// abstract the JWK from the public key information
 	key := api.JWK{
 		Algorithm: jwt.SigningMethodRS256.Name,
@@ -37,7 +46,7 @@ func (tm *Manager) GenerateRSA(db database.Interface) error {
 		Use:       "sig",
 		Kty:       "RSA",
 		N:         base64.RawURLEncoding.EncodeToString(privateRSAKey.PublicKey.N.Bytes()),
-		E:         base64.RawURLEncoding.EncodeToString([]byte(strconv.Itoa(privateRSAKey.PublicKey.E))),
+		E:         base64.RawURLEncoding.EncodeToString(e.Bytes()),
 	}
 
 	// create the JWK in the database
