@@ -81,6 +81,10 @@ func TestTypes_Schedule_Getters(t *testing.T) {
 			if test.schedule.GetError() != test.want.GetError() {
 				t.Errorf("GetError is %v, want %v", test.schedule.GetError(), test.want.GetError())
 			}
+
+			if test.schedule.GetNextRun() != test.want.GetNextRun() {
+				t.Errorf("GetNextRun is %v, want %v", test.schedule.GetNextRun(), test.want.GetNextRun())
+			}
 		})
 	}
 }
@@ -123,6 +127,7 @@ func TestTypes_Schedule_Setters(t *testing.T) {
 			test.schedule.SetScheduledAt(test.want.GetScheduledAt())
 			test.schedule.SetBranch(test.want.GetBranch())
 			test.schedule.SetError(test.want.GetError())
+			test.schedule.SetNextRun(test.want.GetNextRun())
 
 			if test.schedule.GetID() != test.want.GetID() {
 				t.Errorf("SetID is %v, want %v", test.schedule.GetID(), test.want.GetID())
@@ -171,6 +176,10 @@ func TestTypes_Schedule_Setters(t *testing.T) {
 			if test.schedule.GetError() != test.want.GetError() {
 				t.Errorf("SetError is %v, want %v", test.schedule.GetError(), test.want.GetError())
 			}
+
+			if test.schedule.GetNextRun() != test.want.GetNextRun() {
+				t.Errorf("SetNextRun is %v, want %v", test.schedule.GetNextRun(), test.want.GetNextRun())
+			}
 		})
 	}
 }
@@ -191,6 +200,7 @@ func TestTypes_Schedule_String(t *testing.T) {
   UpdatedBy: %s,
   Branch: %s,
   Error: %s,
+  NextRun: %d,
 }`,
 		s.GetActive(),
 		s.GetCreatedAt(),
@@ -204,6 +214,7 @@ func TestTypes_Schedule_String(t *testing.T) {
 		s.GetUpdatedBy(),
 		s.GetBranch(),
 		s.GetError(),
+		s.GetNextRun(),
 	)
 
 	got := s.String()
@@ -227,6 +238,7 @@ func testSchedule() *Schedule {
 	s.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	s.SetBranch("main")
 	s.SetError("unable to trigger build for schedule nightly: unknown character")
+	s.SetNextRun(time.Now().Add((time.Hour * 2) + 24).UTC().Unix())
 
 	return s
 }
