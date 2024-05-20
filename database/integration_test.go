@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
 
 	api "github.com/go-vela/server/api/types"
@@ -2640,6 +2641,9 @@ func newResources() *Resources {
 	pipelineTwo.SetTemplates(false)
 	pipelineTwo.SetData([]byte("version: 1"))
 
+	currTime := time.Now().UTC()
+	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
+
 	scheduleOne := new(api.Schedule)
 	scheduleOne.SetID(1)
 	scheduleOne.SetRepo(repoOne)
@@ -2653,6 +2657,10 @@ func newResources() *Resources {
 	scheduleOne.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleOne.SetBranch("main")
 	scheduleOne.SetError("no version: YAML property provided")
+	scheduleOne.SetNextRun(nextTime.Unix())
+
+	currTime = time.Now().UTC()
+	nextTime, _ = gronx.NextTickAfter("0 * * * *", currTime, false)
 
 	scheduleTwo := new(api.Schedule)
 	scheduleTwo.SetID(2)
@@ -2667,6 +2675,7 @@ func newResources() *Resources {
 	scheduleTwo.SetScheduledAt(time.Now().Add(time.Hour * 2).UTC().Unix())
 	scheduleTwo.SetBranch("main")
 	scheduleTwo.SetError("no version: YAML property provided")
+	scheduleTwo.SetNextRun(nextTime.Unix())
 
 	secretOrg := new(library.Secret)
 	secretOrg.SetID(1)

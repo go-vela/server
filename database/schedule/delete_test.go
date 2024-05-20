@@ -5,8 +5,10 @@ package schedule
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/adhocore/gronx"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
@@ -48,6 +50,9 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_repo.SetPreviousName("")
 	_repo.SetApproveBuild(constants.ApproveNever)
 
+	currTime := time.Now().UTC()
+	nextTime, _ := gronx.NextTickAfter("0 0 * * *", currTime, false)
+
 	_schedule := testutils.APISchedule()
 	_schedule.SetID(1)
 	_schedule.SetRepo(_repo)
@@ -61,6 +66,7 @@ func TestSchedule_Engine_DeleteSchedule(t *testing.T) {
 	_schedule.SetScheduledAt(2013476291)
 	_schedule.SetBranch("main")
 	_schedule.SetError("no version: YAML property provided")
+	_schedule.SetNextRun(nextTime.Unix())
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()

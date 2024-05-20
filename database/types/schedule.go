@@ -5,6 +5,7 @@ package types
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/adhocore/gronx"
 
@@ -87,6 +88,9 @@ func (s *Schedule) Nullify() *Schedule {
 func (s *Schedule) ToAPI() *api.Schedule {
 	schedule := new(api.Schedule)
 
+	t := time.Now().UTC()
+	nextTime, err := gronx.NextTickAfter(s.Entry.String, t, false)
+
 	schedule.SetID(s.ID.Int64)
 	schedule.SetRepo(s.Repo.ToAPI())
 	schedule.SetActive(s.Active.Bool)
@@ -99,6 +103,12 @@ func (s *Schedule) ToAPI() *api.Schedule {
 	schedule.SetScheduledAt(s.ScheduledAt.Int64)
 	schedule.SetBranch(s.Branch.String)
 	schedule.SetError(s.Error.String)
+
+	if err == nil {
+		schedule.SetNextRun(nextTime.Unix())
+	} else {
+		schedule.SetNextRun(0)
+	}
 
 	return schedule
 }

@@ -41,7 +41,7 @@ func (e *engine) UpdateSchedule(ctx context.Context, s *api.Schedule, fields boo
 		return nil, err
 	}
 
-	// set repo to provided repo if creation successful
+	// set repo to provided repo if update successful
 	result := schedule.ToAPI()
 	result.SetRepo(s.GetRepo())
 
