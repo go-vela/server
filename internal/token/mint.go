@@ -28,6 +28,7 @@ type Claims struct {
 	TokenType   string `json:"token_type,omitempty"`
 	Image       string `json:"image,omitempty"`
 	Request     string `json:"request,omitempty"`
+	Commands    bool   `json:"commands,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -43,6 +44,7 @@ type MintTokenOpts struct {
 	Audience      []string
 	Image         string
 	Request       string
+	Commands      bool
 }
 
 // MintToken mints a Vela JWT Token given a set of options.
@@ -105,6 +107,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		claims.BuildSender = mto.Build.GetSender()
 		claims.Image = mto.Image
 		claims.Request = mto.Request
+		claims.Commands = mto.Commands
 
 	default:
 		return "", errors.New("invalid token type")
@@ -152,6 +155,7 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 	claims.TokenType = mto.TokenType
 	claims.Image = mto.Image
 	claims.Request = mto.Request
+	claims.Commands = mto.Commands
 
 	// set standard claims
 	claims.IssuedAt = jwt.NewNumericDate(time.Now())

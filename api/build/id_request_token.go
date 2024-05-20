@@ -5,6 +5,7 @@ package build
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -87,6 +88,7 @@ func GetIDRequestToken(c *gin.Context) {
 
 	image := c.Query("image")
 	request := c.Query("request")
+	commands, _ := strconv.ParseBool(c.Query("commands"))
 
 	// retrieve token manager from context
 	tm := c.MustGet("token-manager").(*token.Manager)
@@ -101,6 +103,7 @@ func GetIDRequestToken(c *gin.Context) {
 		TokenDuration: exp,
 		Image:         image,
 		Request:       request,
+		Commands:      commands,
 	}
 
 	// mint token

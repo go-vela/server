@@ -34,7 +34,7 @@ func GetOpenIDConfig(c *gin.Context) {
 	m := c.MustGet("metadata").(*internal.Metadata)
 
 	config := types.OpenIDConfig{
-		Issuer:      m.Vela.Address,
+		Issuer:      fmt.Sprintf("%s/_services/token", m.Vela.Address),
 		JWKSAddress: fmt.Sprintf("%s/%s", m.Vela.Address, "_services/token/.well-known/jwks"),
 		SupportedClaims: []string{
 			"sub",

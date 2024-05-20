@@ -88,6 +88,7 @@ func GetIDToken(c *gin.Context) {
 		TokenDuration: tm.IDTokenDuration,
 		Image:         cl.Image,
 		Request:       cl.Request,
+		Commands:      cl.Commands,
 	}
 
 	// if audience is provided, include that in claims
