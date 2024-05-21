@@ -21,7 +21,7 @@ import (
 type Claims struct {
 	BuildID     int64  `json:"build_id,omitempty"`
 	BuildNumber int    `json:"build_number,omitempty"`
-	BuildSender string `json:"build_sender,omitempty"`
+	Actor       string `json:"actor,omitempty"`
 	IsActive    bool   `json:"is_active,omitempty"`
 	IsAdmin     bool   `json:"is_admin,omitempty"`
 	Repo        string `json:"repo,omitempty"`
@@ -104,7 +104,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 		claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 		claims.BuildID = mto.Build.GetID()
 		claims.BuildNumber = mto.Build.GetNumber()
-		claims.BuildSender = mto.Build.GetSender()
+		claims.Actor = mto.Build.GetSender()
 		claims.Image = mto.Image
 		claims.Request = mto.Request
 		claims.Commands = mto.Commands
@@ -148,7 +148,7 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 
 	// set claims based on input
 	claims.BuildNumber = mto.Build.GetNumber()
-	claims.BuildSender = mto.Build.GetSender()
+	claims.Actor = mto.Build.GetSender()
 	claims.Repo = mto.Repo
 	claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 	claims.Audience = mto.Audience
