@@ -73,7 +73,8 @@ const (
 		"updated_by": "octocat",
 		"scheduled_at": 0,
 		"branch": "main",
-		"error": "error message"
+		"error": "error message",
+		"next_run": 0
 	}`
 	SchedulesResp = `[
 	{
@@ -133,7 +134,8 @@ const (
 		"updated_by": "octocat",
 		"scheduled_at": 0,
 		"branch": "main",
-		"error": "error message"
+		"error": "error message",
+		"next_run": 0
 	},
 	{
 		"id": 1,
@@ -193,7 +195,8 @@ const (
 		"scheduled_at": 0,
 		"repo_id": 1,
 		"branch": "main",
-		"error": "error message"
+		"error": "error message",
+		"next_run": 0
 	}]`
 )
 
