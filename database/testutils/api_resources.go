@@ -3,10 +3,15 @@
 package testutils
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
+	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/jwk"
 )
 
 // API TEST RESOURCES
@@ -269,13 +274,22 @@ func APIDashboardRepo() *api.DashboardRepo {
 	}
 }
 
-func APIJWK() api.JWK {
-	return api.JWK{
-		Kid:       "",
-		Kty:       "",
-		Algorithm: "",
-		Use:       "",
-		N:         "",
-		E:         "",
+func JWK() jwk.RSAPublicKey {
+	privateRSAKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil
 	}
+
+	// assign KID to key pair
+	kid, err := uuid.NewV7()
+	if err != nil {
+		return nil
+	}
+
+	j := jwk.NewRSAPublicKey()
+	_ = j.FromRaw(&privateRSAKey.PublicKey)
+
+	_ = j.Set(jwk.KeyIDKey, kid.String())
+
+	return j
 }

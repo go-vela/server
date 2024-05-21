@@ -4,6 +4,7 @@ package jwk
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -13,8 +14,11 @@ import (
 
 func TestJWK_Engine_CreateJWK(t *testing.T) {
 	// setup types
-	_jwk := testutils.APIJWK()
-	_jwk.Kid = "c8da1302-07d6-11ea-882f-4893bca275b8"
+	_jwk := testutils.JWK()
+	_jwkBytes, err := json.Marshal(_jwk)
+	if err != nil {
+		t.Errorf("unable to marshal JWK: %v", err)
+	}
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -23,7 +27,7 @@ func TestJWK_Engine_CreateJWK(t *testing.T) {
 	_mock.ExpectExec(`INSERT INTO "jwks"
 ("id","active","key")
 VALUES ($1,$2,$3)`).
-		WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8", true, `{"alg":"","use":"","x5t":"","kid":"c8da1302-07d6-11ea-882f-4893bca275b8","kty":"","x5c":null,"n":"","e":""}`).
+		WithArgs(_jwk.KeyID(), true, _jwkBytes).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	_sqlite := testSqlite(t)

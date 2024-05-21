@@ -45,6 +45,8 @@ func FakeHandler() http.Handler {
 	e.DELETE("/api/v1/repos/:org/:repo/builds/:build", removeBuild)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/token", buildToken)
 	e.GET("/api/v1/repos/:org/:repo/builds/:build/executable", buildExecutable)
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/id_token", idToken)
+	e.GET("/api/v1/repos/:org/:repo/builds/:build/id_request_token", idTokenRequestToken)
 
 	// mock endpoints for dashboard calls
 	e.GET("/api/v1/dashboards/:dashboard", getDashboard)
@@ -145,6 +147,10 @@ func FakeHandler() http.Handler {
 	e.POST("/authenticate/token", getAuthenticateFromToken)
 	e.GET("/validate-token", validateToken)
 	e.GET("/validate-oauth", validateOAuthToken)
+
+	// mock endpoints for oidc calls
+	e.GET("/_services/token/.well-known/openid-configuration", openIDConfig)
+	e.GET("/_services/token/.well-known/jwks", getJWKS)
 
 	// mock endpoint for queue credentials
 	e.GET("/api/v1/queue/info", getQueueCreds)

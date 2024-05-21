@@ -7,7 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lestrrat-go/jwx/jwk"
 
+	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
@@ -19,6 +21,41 @@ const (
 	TokenRefreshResp = `{
   "token": "header.payload.signature"
 }`
+
+	// OpenIDConfigResp represents a JSON return for an OpenID configuration.
+	OpenIDConfigResp = `{
+  "issuer": "https://vela.com/_services/token",
+  "jwks_uri": "https://vela.com/_services/token/.well-known/jwks",
+  "supported_claims": [
+    "sub",
+    "exp",
+    "iat",
+    "iss",
+    "aud",
+    "build_number",
+    "repo",
+    "token_type",
+    "actor",
+    "commands",
+    "image",
+    "request"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "RS256"
+  ]
+}`
+
+	// JWKSResp represents a JSON return for the JWKS.
+	JWKSResp = `{
+  "keys": [
+	{
+  	"e": "AQAB",
+  	"kid": "f7ec4ab7-c9a2-440e-bfb3-83b6599479ea",
+  	"kty": "RSA",
+  	"n": "weh9G_J6yZEugOFo6MQ057t_ExafteA_zVRS3CEPWiOgBLLRymh-KS6aCW-kHVuyBsnWNrCcc5cRJ6ISFnQMtkJtbpV_72qbw0zhFLiYomZDh5nb5dqCoiWIVNG8_a_My9jhXAIghs8MLbG-_Tj9jZb3K3n3Ies-Cg1E5SWO3YX8I1_X7ZlgqhEbktoy2RvR_crQA_fi1jRW5Q6PldIJmu4FIeXN_ny_sgg6ZQtTImFderUy1aUxUnpjilU-yv13eJejYQnJ7rExJVsDqq3B_CnYD2ioJC6b7aoEPvCpZ_1VgTTnQt6nedmr2Hih3GHgDNsM-BFr63aG3qZ5v9bVRw"
+	}
+  ]
+`
 )
 
 // getTokenRefresh returns mock JSON for a http GET.
@@ -99,4 +136,24 @@ func validateOAuthToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "oauth token was created by vela")
+}
+
+// openIDConfig returns a mock response for a http GET.
+func openIDConfig(c *gin.Context) {
+	data := []byte(OpenIDConfigResp)
+
+	var body api.OpenIDConfig
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
+}
+
+// getJWKS returns a mock response for a http GET.
+func getJWKS(c *gin.Context) {
+	data := []byte(JWKSResp)
+
+	var body jwk.RSAPublicKey
+	_ = json.Unmarshal(data, &body)
+
+	c.JSON(http.StatusOK, body)
 }

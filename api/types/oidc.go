@@ -2,6 +2,8 @@
 
 package types
 
+import "github.com/golang-jwt/jwt/v5"
+
 // OpenIDConfig is a struct that represents the OpenID Connect configuration.
 //
 // swagger:model OpenIDConfig
@@ -12,22 +14,15 @@ type OpenIDConfig struct {
 	Algorithms      []string `json:"id_token_signing_alg_values_supported"`
 }
 
-// JWKS is a slice of JWKs.
-//
-// swagger:model JWKS
-type JWKS struct {
-	Keys []JWK `json:"keys"`
-}
-
-// JWK represents a JSON Web Key parsed with fields as the correct Go types.
-type JWK struct {
-	Algorithm string   `json:"alg"`
-	Use       string   `json:"use"`
-	X5t       string   `json:"x5t"`
-	Kid       string   `json:"kid"`
-	Kty       string   `json:"kty"`
-	X5c       []string `json:"x5c"`
-
-	N string `json:"n"` // modulus
-	E string `json:"e"` // public exponent
+// OpenIDClaims struct is an extension of the JWT standard claims. It
+// includes information relevant to OIDC services.
+type OpenIDClaims struct {
+	BuildNumber int    `json:"build_number,omitempty"`
+	Actor       string `json:"actor,omitempty"`
+	Repo        string `json:"repo,omitempty"`
+	TokenType   string `json:"token_type,omitempty"`
+	Image       string `json:"image,omitempty"`
+	Request     string `json:"request,omitempty"`
+	Commands    bool   `json:"commands,omitempty"`
+	jwt.RegisteredClaims
 }

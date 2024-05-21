@@ -4,20 +4,17 @@ package types
 
 import (
 	"database/sql"
-	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
-
-	api "github.com/go-vela/server/api/types"
+	"github.com/lestrrat-go/jwx/jwk"
 )
 
 var (
-	// ErrEmptyKID defines the error type when a
-	// JWK type has an empty ID field provided.
-	ErrEmptyKID = errors.New("empty key identifier provided")
+	// ErrInvalidKID defines the error type when a
+	// JWK type has an invalid ID field provided.
+	ErrInvalidKID = errors.New("invalid key identifier provided")
 )
 
 type (
@@ -25,29 +22,9 @@ type (
 	JWK struct {
 		ID     uuid.UUID    `gorm:"type:uuid"`
 		Active sql.NullBool `sql:"active"`
-		Key    KeyJSON      `sql:"key"`
+		Key    []byte       `sql:"key"`
 	}
-
-	KeyJSON api.JWK
 )
-
-// Value - Implementation of valuer for database/sql for KeyJSON.
-func (k KeyJSON) Value() (driver.Value, error) {
-	valueString, err := json.Marshal(k)
-	return string(valueString), err
-}
-
-// Scan - Implement the database/sql scanner interface for KeyJSON.
-func (k *KeyJSON) Scan(value interface{}) error {
-	switch v := value.(type) {
-	case []byte:
-		return json.Unmarshal(v, &k)
-	case string:
-		return json.Unmarshal([]byte(v), &k)
-	default:
-		return fmt.Errorf("wrong type for key: %T", v)
-	}
-}
 
 // Nullify ensures the valid flag for
 // the sql.Null types are properly set.
@@ -65,38 +42,36 @@ func (j *JWK) Nullify() *JWK {
 
 // ToAPI converts the JWK type
 // to an API JWK type.
-func (j *JWK) ToAPI() api.JWK {
-	return api.JWK(j.Key)
-}
+func (j *JWK) ToAPI() jwk.RSAPublicKey {
+	parsedKey, _ := jwk.ParseKey(j.Key)
 
-// Validate verifies the necessary fields for
-// the JWK type are populated correctly.
-func (j *JWK) Validate() error {
-	// verify the Name field is populated
-	if len(j.ID.String()) == 0 {
-		return ErrEmptyKID
+	switch jwk := parsedKey.(type) {
+	case jwk.RSAPublicKey:
+		return jwk
+	default:
+		return nil
 	}
-
-	return nil
 }
 
 // JWKFromAPI converts the API JWK type
 // to a database JWK type.
-func JWKFromAPI(j api.JWK) *JWK {
+func JWKFromAPI(j jwk.RSAPublicKey) *JWK {
 	var (
 		id  uuid.UUID
 		err error
 	)
 
-	id, err = uuid.Parse(j.Kid)
+	id, err = uuid.Parse(j.KeyID())
 	if err != nil {
 		return nil
 	}
 
-	dashboard := &JWK{
+	bytesKey, _ := json.Marshal(j)
+
+	jwk := &JWK{
 		ID:  id,
-		Key: KeyJSON(j),
+		Key: bytesKey,
 	}
 
-	return dashboard.Nullify()
+	return jwk.Nullify()
 }

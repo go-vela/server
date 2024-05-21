@@ -5,7 +5,7 @@ package jwk
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
+	"github.com/lestrrat-go/jwx/jwk"
 )
 
 // JWKInterface represents the Vela interface for JWK
@@ -23,11 +23,11 @@ type JWKInterface interface {
 	// https://en.wikipedia.org/wiki/Data_manipulation_language
 
 	// CreateJWK defines a function that creates a JWK.
-	CreateJWK(context.Context, api.JWK) error
+	CreateJWK(context.Context, jwk.RSAPublicKey) error
 	// RotateKeys defines a function that rotates JWKs.
 	RotateKeys(context.Context) error
 	// ListJWKs defines a function that lists all JWKs configured.
-	ListJWKs(context.Context) ([]api.JWK, error)
+	ListJWKs(context.Context) (jwk.Set, error)
 	// GetJWK defines a function that gets a JWK by the provided key ID.
-	GetActiveJWK(context.Context, string) (api.JWK, error)
+	GetActiveJWK(context.Context, string) (jwk.RSAPublicKey, error)
 }

@@ -5,17 +5,17 @@ package jwk
 import (
 	"context"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
+	"github.com/lestrrat-go/jwx/jwk"
 )
 
 // ListJWKs gets a list of all configured JWKs from the database.
-func (e *engine) ListJWKs(_ context.Context) ([]api.JWK, error) {
+func (e *engine) ListJWKs(_ context.Context) (jwk.Set, error) {
 	e.logger.Trace("listing all keysets from the database")
 
 	k := new([]types.JWK)
-	keys := []api.JWK{}
+	keySet := jwk.NewSet()
 
 	// send query to the database and store result in variable
 	err := e.client.
@@ -32,8 +32,8 @@ func (e *engine) ListJWKs(_ context.Context) ([]api.JWK, error) {
 		tmp := key
 
 		// convert query result to API type
-		keys = append(keys, tmp.ToAPI())
+		keySet.Add(tmp.ToAPI())
 	}
 
-	return keys, nil
+	return keySet, nil
 }

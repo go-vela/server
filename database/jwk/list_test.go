@@ -4,32 +4,29 @@ package jwk
 
 import (
 	"context"
+	"encoding/json"
 	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/lestrrat-go/jwx/jwk"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database/testutils"
 )
 
 func TestJWK_Engine_ListJWKs(t *testing.T) {
 	// setup types
-	_jwkOne := testutils.APIJWK()
-	_jwkOne.Kid = "c8da1302-07d6-11ea-882f-4893bca275b8"
-	_jwkOne.Algorithm = "RS256"
-	_jwkOne.Kty = "rsa"
-	_jwkOne.Use = "sig"
-	_jwkOne.N = "123456"
-	_jwkOne.E = "123"
+	_jwkOne := testutils.JWK()
+	_jwkOneBytes, err := json.Marshal(_jwkOne)
+	if err != nil {
+		t.Errorf("unable to marshal JWK: %v", err)
+	}
 
-	_jwkTwo := testutils.APIJWK()
-	_jwkTwo.Kid = "c8da1302-07d6-11ea-882f-4893bca275b9"
-	_jwkTwo.Algorithm = "RS256"
-	_jwkTwo.Kty = "rsa"
-	_jwkTwo.Use = "sig"
-	_jwkTwo.N = "123789"
-	_jwkTwo.E = "456"
+	_jwkTwo := testutils.JWK()
+	_jwkTwoBytes, err := json.Marshal(_jwkTwo)
+	if err != nil {
+		t.Errorf("unable to marshal JWK: %v", err)
+	}
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -37,8 +34,8 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "active", "key"}).
-		AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", true, []byte(`{"alg":"RS256","use":"sig","x5t":"","kid":"c8da1302-07d6-11ea-882f-4893bca275b8","kty":"rsa","x5c":null,"n":"123456","e":"123"}`)).
-		AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", true, []byte(`{"alg":"RS256","use":"sig","x5t":"","kid":"c8da1302-07d6-11ea-882f-4893bca275b9","kty":"rsa","x5c":null,"n":"123789","e":"456"}`))
+		AddRow(_jwkOne.KeyID(), true, _jwkOneBytes).
+		AddRow(_jwkTwo.KeyID(), true, _jwkTwoBytes)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "jwks"`).WillReturnRows(_rows)
@@ -46,7 +43,7 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateJWK(context.TODO(), _jwkOne)
+	err = _sqlite.CreateJWK(context.TODO(), _jwkOne)
 	if err != nil {
 		t.Errorf("unable to create test jwk for sqlite: %v", err)
 	}
@@ -56,24 +53,28 @@ func TestJWK_Engine_ListJWKs(t *testing.T) {
 		t.Errorf("unable to create test jwk for sqlite: %v", err)
 	}
 
+	wantSet := jwk.NewSet()
+	wantSet.Add(_jwkOne)
+	wantSet.Add(_jwkTwo)
+
 	// setup tests
 	tests := []struct {
 		failure  bool
 		name     string
 		database *engine
-		want     []api.JWK
+		want     jwk.Set
 	}{
 		{
 			failure:  false,
 			name:     "postgres",
 			database: _postgres,
-			want:     []api.JWK{_jwkOne, _jwkTwo},
+			want:     wantSet,
 		},
 		{
 			failure:  false,
 			name:     "sqlite3",
 			database: _sqlite,
-			want:     []api.JWK{_jwkOne, _jwkTwo},
+			want:     wantSet,
 		},
 	}
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/adhocore/gronx"
 	"github.com/google/go-cmp/cmp"
+	"github.com/lestrrat-go/jwx/jwk"
 
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/settings"
@@ -20,7 +21,7 @@ import (
 	"github.com/go-vela/server/database/deployment"
 	"github.com/go-vela/server/database/executable"
 	"github.com/go-vela/server/database/hook"
-	"github.com/go-vela/server/database/jwk"
+	dbJWK "github.com/go-vela/server/database/jwk"
 	"github.com/go-vela/server/database/log"
 	"github.com/go-vela/server/database/pipeline"
 	"github.com/go-vela/server/database/repo"
@@ -44,7 +45,7 @@ type Resources struct {
 	Deployments []*library.Deployment
 	Executables []*library.BuildExecutable
 	Hooks       []*library.Hook
-	JWKs        []api.JWK
+	JWKs        jwk.Set
 	Logs        []*library.Log
 	Pipelines   []*library.Pipeline
 	Repos       []*api.Repo
@@ -863,7 +864,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 	// create a variable to track the number of methods called for jwks
 	methods := make(map[string]bool)
 	// capture the element type of the jwk interface
-	element := reflect.TypeOf(new(jwk.JWKInterface)).Elem()
+	element := reflect.TypeOf(new(dbJWK.JWKInterface)).Elem()
 	// iterate through all methods found in the jwk interface
 	for i := 0; i < element.NumMethod(); i++ {
 		// skip tracking the methods to create indexes and tables for jwks
@@ -876,10 +877,14 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 		methods[element.Method(i).Name] = false
 	}
 
-	for _, jwk := range resources.JWKs {
-		err := db.CreateJWK(context.TODO(), jwk)
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Get(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		err := db.CreateJWK(context.TODO(), jkPub)
 		if err != nil {
-			t.Errorf("unable to create jwk %s: %v", jwk.Kid, err)
+			t.Errorf("unable to create jwk %s: %v", jkPub.KeyID(), err)
 		}
 	}
 	methods["CreateJWK"] = true
@@ -895,14 +900,18 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 
 	methods["ListJWKs"] = true
 
-	for _, jwk := range resources.JWKs {
-		got, err := db.GetActiveJWK(context.TODO(), jwk.Kid)
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Get(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		got, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
 		if err != nil {
-			t.Errorf("unable to get jwk %s: %v", jwk.Kid, err)
+			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
 		}
 
-		if !cmp.Equal(jwk, got) {
-			t.Errorf("GetJWK() is %v, want %v", got, jwk)
+		if !cmp.Equal(jkPub, got) {
+			t.Errorf("GetJWK() is %v, want %v", got, jkPub)
 		}
 	}
 
@@ -913,8 +922,12 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to rotate keys: %v", err)
 	}
 
-	for _, jwk := range resources.JWKs {
-		_, err := db.GetActiveJWK(context.TODO(), jwk.Kid)
+	for i := 0; i < resources.JWKs.Len(); i++ {
+		jk, _ := resources.JWKs.Get(i)
+
+		jkPub, _ := jk.(jwk.RSAPublicKey)
+
+		_, err := db.GetActiveJWK(context.TODO(), jkPub.KeyID())
 		if err == nil {
 			t.Errorf("GetActiveJWK() should return err after rotation")
 		}
@@ -2557,23 +2570,12 @@ func newResources() *Resources {
 	hookThree.SetLink("https://github.com/github/octocat/settings/hooks/1")
 	hookThree.SetWebhookID(78910)
 
-	jwkOne := api.JWK{
-		Algorithm: "RS256",
-		Kid:       "c8da1302-07d6-11ea-882f-4893bca275b8",
-		Kty:       "rsa",
-		Use:       "sig",
-		N:         "123456",
-		E:         "123",
-	}
+	jwkOne := testutils.JWK()
+	jwkTwo := testutils.JWK()
 
-	jwkTwo := api.JWK{
-		Algorithm: "RS256",
-		Kid:       "c8da1302-07d6-11ea-882f-4893bca275b9",
-		Kty:       "rsa",
-		Use:       "sig",
-		N:         "789101",
-		E:         "456",
-	}
+	jwkSet := jwk.NewSet()
+	jwkSet.Add(jwkOne)
+	jwkSet.Add(jwkTwo)
 
 	logServiceOne := new(library.Log)
 	logServiceOne.SetID(1)
@@ -2840,7 +2842,7 @@ func newResources() *Resources {
 		Deployments: []*library.Deployment{deploymentOne, deploymentTwo},
 		Executables: []*library.BuildExecutable{executableOne, executableTwo},
 		Hooks:       []*library.Hook{hookOne, hookTwo, hookThree},
-		JWKs:        []api.JWK{jwkOne, jwkTwo},
+		JWKs:        jwkSet,
 		Logs:        []*library.Log{logServiceOne, logServiceTwo, logStepOne, logStepTwo},
 		Pipelines:   []*library.Pipeline{pipelineOne, pipelineTwo},
 		Repos:       []*api.Repo{repoOne, repoTwo},

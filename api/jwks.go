@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
 )
@@ -40,5 +39,5 @@ func GetJWKS(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, types.JWKS{Keys: keys})
+	c.JSON(http.StatusOK, keys)
 }

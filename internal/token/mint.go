@@ -131,7 +131,7 @@ func (tm *Manager) MintToken(mto *MintTokenOpts) (string, error) {
 // MintIDToken mints a Vela JWT ID Token for a build.
 func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (string, error) {
 	// initialize claims struct
-	var claims = new(Claims)
+	var claims = new(api.OpenIDClaims)
 
 	// validate provided claims
 	if len(mto.Repo) == 0 {

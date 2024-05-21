@@ -6,26 +6,21 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/sirupsen/logrus"
 
-	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
 )
 
 // CreateJWK creates a new JWK in the database.
-func (e *engine) CreateJWK(_ context.Context, j api.JWK) error {
+func (e *engine) CreateJWK(_ context.Context, j jwk.RSAPublicKey) error {
 	e.logger.WithFields(logrus.Fields{
-		"jwk": j.Kid,
-	}).Tracef("creating key %s in the database", j.Kid)
+		"jwk": j.KeyID(),
+	}).Tracef("creating key %s in the database", j.KeyID())
 
 	key := types.JWKFromAPI(j)
 	key.Active = sql.NullBool{Bool: true, Valid: true}
-
-	err := key.Validate()
-	if err != nil {
-		return err
-	}
 
 	// send query to the database
 	return e.client.Table(constants.TableJWK).Create(key).Error

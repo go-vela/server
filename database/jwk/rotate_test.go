@@ -4,6 +4,7 @@ package jwk
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -13,21 +14,17 @@ import (
 
 func TestJWK_Engine_RotateKeys(t *testing.T) {
 	// setup types
-	_jwkOne := testutils.APIJWK()
-	_jwkOne.Kid = "c8da1302-07d6-11ea-882f-4893bca275b8"
-	_jwkOne.Algorithm = "RS256"
-	_jwkOne.Kty = "rsa"
-	_jwkOne.Use = "sig"
-	_jwkOne.N = "123456"
-	_jwkOne.E = "123"
+	_jwkOne := testutils.JWK()
+	_jwkOneBytes, err := json.Marshal(_jwkOne)
+	if err != nil {
+		t.Errorf("unable to marshal JWK: %v", err)
+	}
 
-	_jwkTwo := testutils.APIJWK()
-	_jwkTwo.Kid = "c8da1302-07d6-11ea-882f-4893bca275b9"
-	_jwkTwo.Algorithm = "RS256"
-	_jwkTwo.Kty = "rsa"
-	_jwkTwo.Use = "sig"
-	_jwkTwo.N = "123789"
-	_jwkTwo.E = "456"
+	_jwkTwo := testutils.JWK()
+	_jwkTwoBytes, err := json.Marshal(_jwkTwo)
+	if err != nil {
+		t.Errorf("unable to marshal JWK: %v", err)
+	}
 
 	_postgres, _mock := testPostgres(t)
 	defer func() { _sql, _ := _postgres.client.DB(); _sql.Close() }()
@@ -35,18 +32,18 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 	// create expected result in mock
 	_rows := sqlmock.NewRows(
 		[]string{"id", "active", "key"},
-	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b8", true, []byte(`{"alg":"RS256","use":"sig","x5t":"","kid":"c8da1302-07d6-11ea-882f-4893bca275b8","kty":"rsa","x5c":null,"n":"123456","e":"123"}`))
+	).AddRow(_jwkOne.KeyID(), true, _jwkOneBytes)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b8", true, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(_jwkOne.KeyID(), true, 1).WillReturnRows(_rows)
 
 	// create expected result in mock
 	_rows = sqlmock.NewRows(
 		[]string{"id", "active", "key"},
-	).AddRow("c8da1302-07d6-11ea-882f-4893bca275b9", true, []byte(`{"alg":"RS256","use":"sig","x5t":"","kid":"c8da1302-07d6-11ea-882f-4893bca275b9","kty":"rsa","x5c":null,"n":"123789","e":"456"}`))
+	).AddRow(_jwkTwo.KeyID(), true, _jwkTwoBytes)
 
 	// ensure the mock expects the query
-	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs("c8da1302-07d6-11ea-882f-4893bca275b9", true, 1).WillReturnRows(_rows)
+	_mock.ExpectQuery(`SELECT * FROM "jwks" WHERE id = $1 AND active = $2 LIMIT $3`).WithArgs(_jwkTwo.KeyID(), true, 1).WillReturnRows(_rows)
 
 	_mock.ExpectExec(`DELETE FROM "jwks" WHERE active = $1`).
 		WithArgs(false).
@@ -59,7 +56,7 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 	_sqlite := testSqlite(t)
 	defer func() { _sql, _ := _sqlite.client.DB(); _sql.Close() }()
 
-	err := _sqlite.CreateJWK(context.TODO(), _jwkOne)
+	err = _sqlite.CreateJWK(context.TODO(), _jwkOne)
 	if err != nil {
 		t.Errorf("unable to create test jwk for sqlite: %v", err)
 	}
@@ -90,12 +87,12 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := test.database.GetActiveJWK(context.TODO(), _jwkOne.Kid)
+			_, err := test.database.GetActiveJWK(context.TODO(), _jwkOne.KeyID())
 			if err != nil {
 				t.Errorf("GetActiveJWK for %s returned err: %v", test.name, err)
 			}
 
-			_, err = test.database.GetActiveJWK(context.TODO(), _jwkTwo.Kid)
+			_, err = test.database.GetActiveJWK(context.TODO(), _jwkTwo.KeyID())
 			if err != nil {
 				t.Errorf("GetActiveJWK for %s returned err: %v", test.name, err)
 			}
@@ -114,12 +111,12 @@ func TestJWK_Engine_RotateKeys(t *testing.T) {
 				t.Errorf("RotateKeys for %s returned err: %v", test.name, err)
 			}
 
-			_, err = test.database.GetActiveJWK(context.TODO(), _jwkOne.Kid)
+			_, err = test.database.GetActiveJWK(context.TODO(), _jwkOne.KeyID())
 			if err == nil {
 				t.Errorf("GetActiveJWK for %s should have returned err", test.name)
 			}
 
-			_, err = test.database.GetActiveJWK(context.TODO(), _jwkTwo.Kid)
+			_, err = test.database.GetActiveJWK(context.TODO(), _jwkTwo.KeyID())
 			if err == nil {
 				t.Errorf("GetActiveJWK for %s should have returned err", test.name)
 			}
