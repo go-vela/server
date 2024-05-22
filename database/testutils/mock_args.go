@@ -38,7 +38,7 @@ func (t NowTimestamp) Match(v driver.Value) bool {
 	return now-ts < 10
 }
 
-var JwkOpts = cmp.Options{
+var JwkKeyOpts = cmp.Options{
 	cmp.FilterValues(func(x, y interface{}) bool {
 		_, xOk := x.(jwk.RSAPublicKey)
 		_, yOk := y.(jwk.RSAPublicKey)

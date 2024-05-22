@@ -79,7 +79,7 @@ func TestJWK_Engine_GetJWK(t *testing.T) {
 				t.Errorf("GetActiveJWK for %s returned err: %v", test.name, err)
 			}
 
-			if diff := cmp.Diff(test.want, got, testutils.JwkOpts); diff != "" {
+			if diff := cmp.Diff(test.want, got, testutils.JwkKeyOpts); diff != "" {
 				t.Errorf("GetActiveJWK mismatch (-want +got):\n%s", diff)
 			}
 		})

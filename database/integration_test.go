@@ -894,8 +894,8 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 		t.Errorf("unable to list jwks: %v", err)
 	}
 
-	if diff := cmp.Diff(resources.JWKs, list); diff != "" {
-		t.Errorf("ListJWKs() mismatch (-want +got):\n%s", diff)
+	if !reflect.DeepEqual(resources.JWKs, list) {
+		t.Errorf("ListJWKs() mismatch, want %v, got %v", resources.JWKs, list)
 	}
 
 	methods["ListJWKs"] = true
@@ -910,7 +910,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
 		}
 
-		if !cmp.Equal(jkPub, got, testutils.JwkOpts) {
+		if !cmp.Equal(jkPub, got, testutils.JwkKeyOpts) {
 			t.Errorf("GetJWK() is %v, want %v", got, jkPub)
 		}
 	}
