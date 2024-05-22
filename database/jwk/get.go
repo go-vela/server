@@ -5,9 +5,10 @@ package jwk
 import (
 	"context"
 
+	"github.com/lestrrat-go/jwx/jwk"
+
 	"github.com/go-vela/server/constants"
 	"github.com/go-vela/server/database/types"
-	"github.com/lestrrat-go/jwx/jwk"
 )
 
 // GetActiveJWK gets a JWK by UUID (kid) from the database if active.

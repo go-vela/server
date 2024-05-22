@@ -910,7 +910,7 @@ func testJWKs(t *testing.T, db Interface, resources *Resources) {
 			t.Errorf("unable to get jwk %s: %v", jkPub.KeyID(), err)
 		}
 
-		if !cmp.Equal(jkPub, got) {
+		if !cmp.Equal(jkPub, got, testutils.JwkOpts) {
 			t.Errorf("GetJWK() is %v, want %v", got, jkPub)
 		}
 	}

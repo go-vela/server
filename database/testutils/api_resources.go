@@ -6,12 +6,13 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 
+	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/jwk"
+
 	api "github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/api/types/actions"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/raw"
-	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/jwk"
 )
 
 // API TEST RESOURCES

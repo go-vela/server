@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/google/go-cmp/cmp"
-	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -162,27 +160,4 @@ func testSqlite(t *testing.T) *engine {
 	}
 
 	return _engine
-}
-
-var jwkOpts = cmp.Options{
-	cmp.FilterValues(func(x, y interface{}) bool {
-		_, xOk := x.(jwk.RSAPublicKey)
-		_, yOk := y.(jwk.RSAPublicKey)
-		return xOk && yOk
-	}, cmp.Comparer(func(x, y interface{}) bool {
-		xJWK := x.(jwk.RSAPublicKey)
-		yJWK := y.(jwk.RSAPublicKey)
-
-		var rawXKey, rawYKey interface{}
-
-		if err := xJWK.Raw(&rawXKey); err != nil {
-			return false
-		}
-
-		if err := yJWK.Raw(&rawYKey); err != nil {
-			return false
-		}
-
-		return reflect.DeepEqual(rawXKey, rawYKey) && xJWK.KeyID() == yJWK.KeyID()
-	})),
 }
