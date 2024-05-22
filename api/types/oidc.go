@@ -2,7 +2,10 @@
 
 package types
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/lestrrat-go/jwx/jwk"
+)
 
 // OpenIDConfig is a struct that represents the OpenID Connect configuration.
 //
@@ -25,4 +28,11 @@ type OpenIDClaims struct {
 	Request     string `json:"request,omitempty"`
 	Commands    bool   `json:"commands,omitempty"`
 	jwt.RegisteredClaims
+}
+
+// JWKSet is a wrapper of lestrrat-go/jwx/jwk.Set for API Swagger gen.
+//
+// swagger:model JWKSet
+type JWKSet struct {
+	jwk.Set
 }
