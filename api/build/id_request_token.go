@@ -15,8 +15,6 @@ import (
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/claims"
-	"github.com/go-vela/server/router/middleware/org"
-	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -52,6 +50,10 @@ import (
 //   name: request
 //   description: Add request input to token claims
 //   type: string
+// - in: query
+//   name: commands
+//   description: Add commands input to token claims
+//   type: boolean
 // security:
 //   - ApiKeyAuth: []
 // responses:
@@ -63,6 +65,14 @@ import (
 //     description: Bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
+//   '401':
+//     description: Unauthorized request
+//     schema:
+//       "$ref": "#/definitions/Error"
+//   '404':
+//     description: Unable to find build
+//     schema:
+//       "$ref": "#/definitions/Error"
 //   '500':
 //     description: Unable to generate ID request token
 //     schema:
@@ -72,8 +82,6 @@ import (
 func GetIDRequestToken(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
-	o := org.Retrieve(c)
-	r := repo.Retrieve(c)
 	cl := claims.Retrieve(c)
 
 	// update engine logger with API metadata
@@ -81,10 +89,10 @@ func GetIDRequestToken(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
-		"org":   o,
-		"repo":  r.GetName(),
+		"org":   b.GetRepo().GetOrg(),
+		"repo":  b.GetRepo().GetName(),
 		"user":  cl.Subject,
-	}).Infof("generating ID request token for build %s/%d", r.GetFullName(), b.GetNumber())
+	}).Infof("generating ID request token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
 	image := c.Query("image")
 	request := c.Query("request")
@@ -93,12 +101,12 @@ func GetIDRequestToken(c *gin.Context) {
 	// retrieve token manager from context
 	tm := c.MustGet("token-manager").(*token.Manager)
 
-	exp := (time.Duration(r.GetTimeout()) * time.Minute) + tm.BuildTokenBufferDuration
+	exp := (time.Duration(b.GetRepo().GetTimeout()) * time.Minute) + tm.BuildTokenBufferDuration
 
 	// set mint token options
 	idmto := &token.MintTokenOpts{
 		Build:         b,
-		Repo:          r.GetFullName(),
+		Repo:          b.GetRepo().GetFullName(),
 		TokenType:     constants.IDRequestTokenType,
 		TokenDuration: exp,
 		Image:         image,
@@ -107,7 +115,7 @@ func GetIDRequestToken(c *gin.Context) {
 	}
 
 	// mint token
-	bt, err := tm.MintToken(idmto)
+	idrt, err := tm.MintToken(idmto)
 	if err != nil {
 		retErr := fmt.Errorf("unable to generate ID request token: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
@@ -115,5 +123,5 @@ func GetIDRequestToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, library.Token{Token: &bt})
+	c.JSON(http.StatusOK, library.Token{Token: &idrt})
 }

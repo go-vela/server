@@ -49,6 +49,9 @@ func GetOpenIDConfig(c *gin.Context) {
 			"commands",
 			"image",
 			"request",
+			"event",
+			"sha",
+			"ref",
 		},
 		Algorithms: []string{
 			jwt.SigningMethodRS256.Name,

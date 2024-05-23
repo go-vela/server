@@ -27,6 +27,9 @@ type OpenIDClaims struct {
 	Image       string `json:"image,omitempty"`
 	Request     string `json:"request,omitempty"`
 	Commands    bool   `json:"commands,omitempty"`
+	Event       string `json:"event,omitempty"`
+	Ref         string `json:"ref,omitempty"`
+	SHA         string `json:"sha,omitempty"`
 	jwt.RegisteredClaims
 }
 

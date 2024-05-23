@@ -27,7 +27,7 @@ import (
 //   '200':
 //     description: Successfully rotated OIDC provider keys
 //     schema:
-//     type: string
+//       type: string
 //   '500':
 //     description: Error unable to rotate OIDC provider keys
 //     schema:

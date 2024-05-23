@@ -150,6 +150,9 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 	claims.BuildNumber = mto.Build.GetNumber()
 	claims.Actor = mto.Build.GetSender()
 	claims.Repo = mto.Repo
+	claims.Event = fmt.Sprintf("%s:%s", mto.Build.GetEvent(), mto.Build.GetEventAction())
+	claims.SHA = mto.Build.GetCommit()
+	claims.Ref = mto.Build.GetRef()
 	claims.Subject = fmt.Sprintf("repo:%s:ref:%s:event:%s", mto.Repo, mto.Build.GetRef(), mto.Build.GetEvent())
 	claims.Audience = mto.Audience
 	claims.TokenType = mto.TokenType
@@ -168,13 +171,13 @@ func (tm *Manager) MintIDToken(mto *MintTokenOpts, db database.Interface) (strin
 	_, err := db.GetActiveJWK(context.TODO(), tm.RSAKeySet.KID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", fmt.Errorf("unable to get active key set: %w", err)
+			return "", fmt.Errorf("unable to get active public key: %w", err)
 		}
 
-		// generate a new RSA key set if previous key is inactive (rotated)
+		// generate a new RSA key pair if previous key is inactive (rotated)
 		err = tm.GenerateRSA(db)
 		if err != nil {
-			return "", fmt.Errorf("unable to generate RSA key set: %w", err)
+			return "", fmt.Errorf("unable to generate RSA key pair: %w", err)
 		}
 	}
 

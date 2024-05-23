@@ -182,9 +182,9 @@ func main() {
 			Value:   1 * time.Minute,
 		},
 		&cli.DurationFlag{
-			EnvVars: []string{"VELA_ID_TOKEN_DURATION", "ID_TOKEN_DURATION"},
+			EnvVars: []string{"VELA_OPEN_ID_TOKEN_DURATION", "OPEN_ID_TOKEN_DURATION"},
 			Name:    "id-token-duration",
-			Usage:   "sets the duration of the id token",
+			Usage:   "sets the duration of an OpenID token requested during a build (should be short)",
 			Value:   5 * time.Minute,
 		},
 		// Compiler Flags

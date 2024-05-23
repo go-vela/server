@@ -27,6 +27,10 @@ import (
 //     description: Successfully retrieved the Vela JWKS
 //     schema:
 //       "$ref": "#/definitions/JWKSet"
+//   '500':
+//     description: Unable to get the Vela JWKS
+//     schema:
+//       "$ref": "#/definitions/Error"
 
 // GetJWKS represents the API handler for requests to public keys in the Vela OpenID service.
 func GetJWKS(c *gin.Context) {

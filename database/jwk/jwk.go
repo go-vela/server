@@ -13,15 +13,15 @@ import (
 )
 
 type (
-	// config represents the settings required to create the engine that implements the KeySetService interface.
+	// config represents the settings required to create the engine that implements the JWKService interface.
 	config struct {
-		// specifies to skip creating tables and indexes for the KeySet engine
+		// specifies to skip creating tables and indexes for the JWK engine
 		SkipCreation bool
 		// specifies the driver for proper popping query
 		Driver string
 	}
 
-	// engine represents the key set functionality that implements the KeySetService interface.
+	// engine represents the key set functionality that implements the JWKService interface.
 	engine struct {
 		// engine configuration settings used in key set functions
 		config *config
@@ -44,7 +44,7 @@ type (
 //
 //nolint:revive // ignore returning unexported engine
 func New(opts ...EngineOpt) (*engine, error) {
-	// create new KeySet engine
+	// create new JWK engine
 	e := new(engine)
 
 	// create new fields
