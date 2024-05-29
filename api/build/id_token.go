@@ -77,15 +77,16 @@ func GetIDToken(c *gin.Context) {
 	// capture middleware values
 	b := build.Retrieve(c)
 	cl := claims.Retrieve(c)
+	ctx := c.Request.Context()
 
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
-		"build": b.GetNumber(),
-		"org":   b.GetRepo().GetOrg(),
-		"repo":  b.GetRepo().GetName(),
-		"user":  cl.Subject,
+		"build":   b.GetNumber(),
+		"org":     b.GetRepo().GetOrg(),
+		"repo":    b.GetRepo().GetName(),
+		"subject": cl.Subject,
 	}).Infof("generating ID token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
 	// retrieve token manager from context
@@ -108,7 +109,7 @@ func GetIDToken(c *gin.Context) {
 	}
 
 	// mint token
-	idt, err := tm.MintIDToken(idmto, database.FromContext(c))
+	idt, err := tm.MintIDToken(ctx, idmto, database.FromContext(c))
 	if err != nil {
 		retErr := fmt.Errorf("unable to generate build token: %w", err)
 		util.HandleError(c, http.StatusInternalServerError, retErr)
