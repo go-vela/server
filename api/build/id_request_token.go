@@ -95,7 +95,7 @@ func GetIDRequestToken(c *gin.Context) {
 		"user":  cl.Subject,
 	}).Infof("generating ID request token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
-	image := util.Sanitize(c.Query("image"))
+	image := c.Query("image")
 	if len(image) == 0 {
 		retErr := errors.New("no step 'image' provided in query parameters")
 
@@ -104,7 +104,7 @@ func GetIDRequestToken(c *gin.Context) {
 		return
 	}
 
-	request := util.Sanitize(c.Query("request"))
+	request := c.Query("request")
 	if len(request) == 0 {
 		retErr := errors.New("no 'request' provided in query parameters")
 
@@ -133,8 +133,8 @@ func GetIDRequestToken(c *gin.Context) {
 		Repo:          b.GetRepo().GetFullName(),
 		TokenType:     constants.IDRequestTokenType,
 		TokenDuration: exp,
-		Image:         image,
-		Request:       request,
+		Image:         util.Sanitize(image),
+		Request:       util.Sanitize(request),
 		Commands:      commands,
 	}
 
