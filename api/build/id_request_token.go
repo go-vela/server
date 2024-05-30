@@ -3,6 +3,7 @@
 package build
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -94,11 +95,27 @@ func GetIDRequestToken(c *gin.Context) {
 		"user":  cl.Subject,
 	}).Infof("generating ID request token for build %s/%d", b.GetRepo().GetFullName(), b.GetNumber())
 
-	image := c.Query("image")
-	request := c.Query("request")
+	image := util.Sanitize(c.Query("image"))
+	if len(image) == 0 {
+		retErr := errors.New("no step 'image' provided in query parameters")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	request := util.Sanitize(c.Query("request"))
+	if len(request) == 0 {
+		retErr := errors.New("no 'request' provided in query parameters")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
 	commands, err := strconv.ParseBool(c.Query("commands"))
 	if err != nil {
-		retErr := fmt.Errorf("unable to parse 'commands' query %s: %w", c.Query("commands"), err)
+		retErr := fmt.Errorf("unable to parse 'commands' query parameter as boolean %s: %w", c.Query("commands"), err)
 
 		util.HandleError(c, http.StatusBadRequest, retErr)
 
@@ -125,6 +142,7 @@ func GetIDRequestToken(c *gin.Context) {
 	idrt, err := tm.MintToken(idmto)
 	if err != nil {
 		retErr := fmt.Errorf("unable to generate ID request token: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
