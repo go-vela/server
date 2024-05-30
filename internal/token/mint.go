@@ -151,18 +151,17 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 		return "", errors.New("missing build sender for ID token")
 	}
 
-	// set claims based on input
-	claims.BuildNumber = mto.Build.GetNumber()
-	claims.BuildID = mto.Build.GetID()
-	claims.Actor = mto.Build.GetSender()
-
 	// retrieve the user id for the actor
 	u, err := db.GetUserForName(ctx, mto.Build.GetSender())
 	if err != nil {
 		return "", errors.New("unable to retrieve build sender user ID for ID token")
 	}
 
+	// set claims based on input
+	claims.Actor = mto.Build.GetSender()
 	claims.ActorID = strconv.Itoa(int(u.GetID()))
+	claims.BuildNumber = mto.Build.GetNumber()
+	claims.BuildID = mto.Build.GetID()
 	claims.Repo = mto.Repo
 	claims.Event = fmt.Sprintf("%s:%s", mto.Build.GetEvent(), mto.Build.GetEventAction())
 	claims.SHA = mto.Build.GetCommit()

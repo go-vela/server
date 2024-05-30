@@ -32,7 +32,6 @@ import (
 // GetOpenIDConfig represents the API handler for requests for configurations in the Vela OpenID service.
 func GetOpenIDConfig(c *gin.Context) {
 	m := c.MustGet("metadata").(*internal.Metadata)
-
 	config := types.OpenIDConfig{
 		Issuer:      fmt.Sprintf("%s/_services/token", m.Vela.Address),
 		JWKSAddress: fmt.Sprintf("%s/%s", m.Vela.Address, "_services/token/.well-known/jwks"),
@@ -43,9 +42,11 @@ func GetOpenIDConfig(c *gin.Context) {
 			"iss",
 			"aud",
 			"build_number",
+			"build_id",
 			"repo",
 			"token_type",
 			"actor",
+			"actor_id",
 			"commands",
 			"image",
 			"request",
