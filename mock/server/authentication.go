@@ -33,9 +33,11 @@ const (
     "iss",
     "aud",
     "build_number",
+    "build_id",
     "repo",
     "token_type",
     "actor",
+    "actor_id",
     "commands",
     "image",
     "request"
