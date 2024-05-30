@@ -14,7 +14,7 @@ import (
 )
 
 // GenerateRSA creates an RSA key pair and sets it in the token manager and saves the JWK in the database.
-func (tm *Manager) GenerateRSA(db database.Interface) error {
+func (tm *Manager) GenerateRSA(ctx context.Context, db database.Interface) error {
 	// generate key pair
 	privateRSAKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

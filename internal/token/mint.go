@@ -181,14 +181,14 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	tk := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
 	// verify key is active in the database before signing
-	_, err = db.GetActiveJWK(context.TODO(), tm.RSAKeySet.KID)
+	_, err = db.GetActiveJWK(ctx, tm.RSAKeySet.KID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", fmt.Errorf("unable to get active public key: %w", err)
 		}
 
 		// generate a new RSA key pair if previous key is inactive (rotated)
-		err = tm.GenerateRSA(db)
+		err = tm.GenerateRSA(ctx, db)
 		if err != nil {
 			return "", fmt.Errorf("unable to generate RSA key pair: %w", err)
 		}
