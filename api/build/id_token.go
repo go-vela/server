@@ -105,7 +105,13 @@ func GetIDToken(c *gin.Context) {
 
 	// if audience is provided, include that in claims
 	if len(c.QueryArray("audience")) > 0 {
-		idmto.Audience = c.QueryArray("audience")
+		audience := []string{}
+		for _, a := range c.QueryArray("audience") {
+			if len(a) > 0 {
+				audience = append(audience, util.Sanitize(a))
+			}
+		}
+		idmto.Audience = audience
 	}
 
 	// mint token
