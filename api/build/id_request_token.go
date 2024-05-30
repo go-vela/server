@@ -96,7 +96,14 @@ func GetIDRequestToken(c *gin.Context) {
 
 	image := c.Query("image")
 	request := c.Query("request")
-	commands, _ := strconv.ParseBool(c.Query("commands"))
+	commands, err := strconv.ParseBool(c.Query("commands"))
+	if err != nil {
+		retErr := fmt.Errorf("unable to parse 'commands' query %s: %w", c.Query("commands"), err)
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
 
 	// retrieve token manager from context
 	tm := c.MustGet("token-manager").(*token.Manager)
