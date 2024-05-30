@@ -104,20 +104,31 @@ func GetIDToken(c *gin.Context) {
 	}
 
 	// if audience is provided, include that in claims
+	audience := []string{}
+
 	if len(c.QueryArray("audience")) > 0 {
-		audience := []string{}
 		for _, a := range c.QueryArray("audience") {
 			if len(a) > 0 {
 				audience = append(audience, util.Sanitize(a))
 			}
 		}
-		idmto.Audience = audience
 	}
+
+	if len(audience) == 0 {
+		retErr := fmt.Errorf("unable to generate ID token: %s", "no audience provided")
+
+		util.HandleError(c, http.StatusBadRequest, retErr)
+
+		return
+	}
+
+	idmto.Audience = audience
 
 	// mint token
 	idt, err := tm.MintIDToken(ctx, idmto, database.FromContext(c))
 	if err != nil {
-		retErr := fmt.Errorf("unable to generate build token: %w", err)
+		retErr := fmt.Errorf("unable to generate ID token: %w", err)
+
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 
 		return
