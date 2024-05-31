@@ -98,7 +98,7 @@ func ListServices(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("reading services for build %s", entry)
+	}).Debugf("reading services for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

@@ -141,7 +141,7 @@ func ListSecrets(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("listing secrets %s from %s service", entry, e)
+	logrus.WithFields(fields).Debugf("listing secrets %s from %s service", entry, e)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

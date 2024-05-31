@@ -91,7 +91,7 @@ func CreateStepLog(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("creating logs for step %s", entry)
+	}).Debugf("creating logs for step %s", entry)
 
 	// capture body from API request
 	input := new(library.Log)

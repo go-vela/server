@@ -62,7 +62,7 @@ func GetSchedule(c *gin.Context) {
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
 		"schedule": s.GetName(),
-	}).Infof("reading schedule %s", s.GetName())
+	}).Debugf("reading schedule %s", s.GetName())
 
 	c.JSON(http.StatusOK, s)
 }

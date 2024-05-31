@@ -61,10 +61,8 @@ import (
 // update any user stored in the database.
 func CleanResources(c *gin.Context) {
 	// capture middleware values
-	u := user.Retrieve(c)
 	ctx := c.Request.Context()
-
-	logrus.Infof("platform admin %s: updating pending resources in database", u.GetName())
+	u := user.Retrieve(c)
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -106,7 +104,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
+	logrus.Debugf("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
 
 	// clean executables
 	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
@@ -128,7 +126,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("platform admin %s: cleaned %d services in database", u.GetName(), services)
+	logrus.Debugf("platform admin %s: cleaned %d services in database", u.GetName(), services)
 
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
@@ -139,8 +137,6 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
-
-	logrus.Infof("platform admin %s: cleaned %d steps in database", u.GetName(), steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

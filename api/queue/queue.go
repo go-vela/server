@@ -38,7 +38,7 @@ func Info(c *gin.Context) {
 
 	logrus.WithFields(logrus.Fields{
 		"user": cl.Subject,
-	}).Info("requesting queue credentials with registration token")
+	}).Debug("requesting queue credentials with registration token")
 
 	// extract the public key that was packed into gin context
 	k := c.MustGet("public-key").(string)

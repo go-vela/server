@@ -80,7 +80,7 @@ func CreatePipeline(c *gin.Context) {
 		"user": u.GetName(),
 	})
 
-	logger.Infof("creating new pipeline for repo %s", r.GetFullName())
+	logger.Debugf("creating new pipeline for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Pipeline)

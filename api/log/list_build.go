@@ -87,7 +87,7 @@ func ListLogsForBuild(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("listing logs for build %s", entry)
+	}).Debugf("listing logs for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

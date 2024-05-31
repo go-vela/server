@@ -87,7 +87,7 @@ func UpdateHook(c *gin.Context) {
 		"hook": hook,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("updating hook %s", entry)
+	}).Debugf("updating hook %s", entry)
 
 	// capture body from API request
 	input := new(library.Hook)

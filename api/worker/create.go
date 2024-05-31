@@ -88,7 +88,7 @@ func CreateWorker(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"user":   u.GetName(),
 		"worker": input.GetHostname(),
-	}).Infof("creating new worker %s", input.GetHostname())
+	}).Debugf("creating new worker %s", input.GetHostname())
 
 	_, err = database.FromContext(c).CreateWorker(ctx, input)
 	if err != nil {

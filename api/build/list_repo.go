@@ -139,7 +139,7 @@ func ListBuildsForRepo(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("listing builds for repo %s", r.GetFullName())
+	}).Debugf("listing builds for repo %s", r.GetFullName())
 
 	// capture the branch name parameter
 	branch := c.Query("branch")

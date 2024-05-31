@@ -82,7 +82,7 @@ func CreateDashboard(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("creating new dashboard %s", input.GetName())
+	}).Debugf("creating new dashboard %s", input.GetName())
 
 	d := new(types.Dashboard)
 

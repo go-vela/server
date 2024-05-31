@@ -69,7 +69,7 @@ func CreateDeployment(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("creating new deployment for repo %s", r.GetFullName())
+	}).Debugf("creating new deployment for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Deployment)

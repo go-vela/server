@@ -86,7 +86,7 @@ func ValidatePipeline(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("validating pipeline %s", entry)
+	}).Debugf("validating pipeline %s", entry)
 
 	// ensure we use the expected pipeline type when compiling
 	r.SetPipelineType(p.GetType())

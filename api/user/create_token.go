@@ -48,7 +48,7 @@ func CreateToken(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("composing token for user %s", u.GetName())
+	}).Debugf("composing token for user %s", u.GetName())
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 

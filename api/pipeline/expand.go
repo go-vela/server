@@ -88,7 +88,7 @@ func ExpandPipeline(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("expanding templates for pipeline %s", entry)
+	}).Debugf("expanding templates for pipeline %s", entry)
 
 	// ensure we use the expected pipeline type when compiling
 	r.SetPipelineType(p.GetType())

@@ -118,7 +118,7 @@ func CreateSchedule(c *gin.Context) {
 		"org":  r.GetOrg(),
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("creating new schedule %s", input.GetName())
+	}).Debugf("creating new schedule %s", input.GetName())
 
 	// ensure repo is allowed to create new schedules
 	if !util.CheckAllowlist(r, s.GetScheduleAllowlist()) {

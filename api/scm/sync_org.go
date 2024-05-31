@@ -73,7 +73,7 @@ func SyncReposForOrg(c *gin.Context) {
 		"user": u.GetName(),
 	})
 
-	logger.Infof("syncing repos for org %s", o)
+	logger.Debugf("syncing repos for org %s", o)
 
 	// see if the user is an org admin
 	perm, err := scm.FromContext(c).OrgAccess(ctx, u, o)

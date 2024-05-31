@@ -88,7 +88,7 @@ func ListPipelines(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("listing pipelines for repo %s", r.GetFullName())
+	}).Debugf("listing pipelines for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

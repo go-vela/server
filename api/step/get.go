@@ -70,7 +70,7 @@ func GetStep(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
+	}).Debugf("reading step %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

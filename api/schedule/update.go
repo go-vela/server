@@ -85,7 +85,7 @@ func UpdateSchedule(c *gin.Context) {
 		"schedule": scheduleName,
 		"repo":     r.GetName(),
 		"org":      r.GetOrg(),
-	}).Infof("updating schedule %s", scheduleName)
+	}).Debugf("updating schedule %s", scheduleName)
 
 	// capture body from API request
 	input := new(api.Schedule)

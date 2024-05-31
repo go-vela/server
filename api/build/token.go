@@ -80,7 +80,7 @@ func GetBuildToken(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  cl.Subject,
-	}).Infof("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
+	}).Debugf("generating build token for build %s/%d", r.GetFullName(), b.GetNumber())
 
 	// if build is not in a pending state, then a build token should not be needed - conflict
 	if !strings.EqualFold(b.GetStatus(), constants.StatusPending) {

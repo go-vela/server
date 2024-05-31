@@ -74,7 +74,7 @@ func CreateHook(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("creating new hook for repo %s", r.GetFullName())
+	}).Debugf("creating new hook for repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(library.Hook)

@@ -62,7 +62,7 @@ func DeleteDashboard(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
 		"user":      u.GetName(),
-	}).Infof("deleting dashboard %s", d.GetID())
+	}).Debugf("deleting dashboard %s", d.GetID())
 
 	if !isAdmin(d, u) {
 		retErr := fmt.Errorf("unable to delete dashboard %s: user is not an admin", d.GetID())

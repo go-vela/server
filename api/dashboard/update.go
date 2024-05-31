@@ -79,7 +79,7 @@ func UpdateDashboard(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
-	}).Infof("updating dashboard %s", d.GetID())
+	}).Debugf("updating dashboard %s", d.GetID())
 
 	// capture body from API request
 	input := new(types.Dashboard)

@@ -159,9 +159,7 @@ func GetBuildGraph(c *gin.Context) {
 
 	baseErr := "unable to retrieve graph"
 
-	logger.Infof("constructing graph for build %s", entry)
-
-	logger.Info("retrieving pipeline configuration")
+	logger.Debugf("constructing graph for build %s and retrieving pipeline configuration", entry)
 
 	var config []byte
 
@@ -206,7 +204,7 @@ func GetBuildGraph(c *gin.Context) {
 		}
 	}
 
-	logger.Info("compiling pipeline configuration")
+	logger.Debug("compiling pipeline configuration")
 
 	// parse and compile the pipeline configuration file
 	p, _, err := compiler.FromContext(c).
@@ -327,7 +325,7 @@ func GetBuildGraph(c *gin.Context) {
 		return
 	}
 
-	logger.Info("generating build graph")
+	logger.Debug("generating build graph")
 
 	// create nodes from pipeline stages
 	nodes := make(map[int]*node)

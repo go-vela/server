@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -48,8 +47,6 @@ import (
 // UpdateRepo represents the API handler to
 // update any repo stored in the database.
 func UpdateRepo(c *gin.Context) {
-	logrus.Info("Admin: updating repo in database")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 

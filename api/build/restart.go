@@ -103,6 +103,8 @@ func RestartBuild(c *gin.Context) {
 		"user":  u.GetName(),
 	})
 
+	logger.Debugf("restarting build %d", b.GetNumber())
+
 	// a build that is in a pending approval state cannot be restarted
 	if strings.EqualFold(b.GetStatus(), constants.StatusPendingApproval) {
 		retErr := fmt.Errorf("unable to restart build %s/%d: cannot restart a build pending approval", r.GetFullName(), b.GetNumber())
@@ -136,7 +138,6 @@ func RestartBuild(c *gin.Context) {
 		compiler.FromContext(c),
 		queue.FromContext(c),
 	)
-
 	if err != nil {
 		util.HandleError(c, code, err)
 

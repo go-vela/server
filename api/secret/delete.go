@@ -105,7 +105,7 @@ func DeleteSecret(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("deleting secret %s from %s service", entry, e)
+	logrus.WithFields(fields).Debugf("deleting secret %s from %s service", entry, e)
 
 	// send API call to remove the secret
 	err := secret.FromContext(c, e).Delete(ctx, t, o, n, s)

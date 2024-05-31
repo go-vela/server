@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/internal/token"
@@ -61,6 +62,8 @@ func PostAuthToken(c *gin.Context) {
 		return
 	}
 
+	logrus.Debug("user authenticated via SCM using PAT")
+
 	// check if the user exists
 	u, err = database.FromContext(c).GetUserForName(ctx, u.GetName())
 	if err != nil {
@@ -70,6 +73,8 @@ func PostAuthToken(c *gin.Context) {
 
 		return
 	}
+
+	logrus.Infof("user %#q successfully authenticated via SCM PAT", u.GetName())
 
 	// We don't need refresh token for this scenario
 	// We only need access token and are configured based on the config defined
@@ -82,12 +87,13 @@ func PostAuthToken(c *gin.Context) {
 		TokenDuration: tm.UserAccessTokenDuration,
 	}
 	at, err := tm.MintToken(amto)
-
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusServiceUnavailable, retErr)
 	}
+
+	logrus.Debugf("new access token created for user %#q via SCM PAT", u.GetName())
 
 	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})

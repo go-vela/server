@@ -98,7 +98,7 @@ func ListSteps(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("listing steps for build %s", entry)
+	}).Debugf("listing steps for build %s", entry)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

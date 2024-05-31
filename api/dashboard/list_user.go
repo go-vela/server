@@ -56,7 +56,7 @@ func ListUserDashboards(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("listing dashboards for user %s", u.GetName())
+	}).Debugf("listing dashboards for user %s", u.GetName())
 
 	var dashCards []types.DashCard
 

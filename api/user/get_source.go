@@ -47,7 +47,7 @@ func GetSourceRepos(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("reading available SCM repos for user %s", u.GetName())
+	}).Debugf("reading available SCM repos for user %s", u.GetName())
 
 	// variables to capture requested data
 	dbRepos := []*types.Repo{}

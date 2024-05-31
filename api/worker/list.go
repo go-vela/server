@@ -64,7 +64,7 @@ func ListWorkers(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Info("reading workers")
+	}).Debug("reading workers")
 
 	active := c.Query("active")
 

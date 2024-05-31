@@ -85,7 +85,7 @@ func CreateStep(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("creating new step for build %s", entry)
+	}).Debugf("creating new step for build %s", entry)
 
 	// capture body from API request
 	input := new(library.Step)

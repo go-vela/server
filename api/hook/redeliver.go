@@ -81,7 +81,7 @@ func RedeliverHook(c *gin.Context) {
 		"hook": hook,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("redelivering hook %s", entry)
+	}).Debugf("redelivering hook %s", entry)
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {

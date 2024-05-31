@@ -83,7 +83,7 @@ func UpdatePipeline(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("updating pipeline %s", entry)
+	}).Debugf("updating pipeline %s", entry)
 
 	// capture body from API request
 	input := new(library.Pipeline)

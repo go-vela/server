@@ -73,7 +73,7 @@ func DeleteSchedule(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("deleting schedule %s", s.GetName())
+	}).Debugf("deleting schedule %s", s.GetName())
 
 	err := database.FromContext(c).DeleteSchedule(ctx, s)
 	if err != nil {

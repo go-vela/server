@@ -82,7 +82,7 @@ func GetStepLog(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("reading logs for step %s", entry)
+	}).Debugf("reading logs for step %s", entry)
 
 	// send API call to capture the step logs
 	l, err := database.FromContext(c).GetLogForStep(ctx, s)

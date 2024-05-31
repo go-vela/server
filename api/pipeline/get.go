@@ -63,7 +63,7 @@ func GetPipeline(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
+	}).Debugf("reading pipeline %s/%s", r.GetFullName(), p.GetCommit())
 
 	c.JSON(http.StatusOK, p)
 }

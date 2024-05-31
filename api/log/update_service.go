@@ -93,7 +93,7 @@ func UpdateServiceLog(c *gin.Context) {
 		"repo":    r.GetName(),
 		"service": s.GetNumber(),
 		"user":    u.GetName(),
-	}).Infof("updating logs for service %s", entry)
+	}).Debugf("updating logs for service %s", entry)
 
 	// send API call to capture the service logs
 	l, err := database.FromContext(c).GetLogForService(ctx, s)

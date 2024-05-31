@@ -86,7 +86,7 @@ func UpdateBuild(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  cl.Subject,
-	}).Infof("updating build %s", entry)
+	}).Debugf("updating build %s", entry)
 
 	// capture body from API request
 	input := new(types.Build)

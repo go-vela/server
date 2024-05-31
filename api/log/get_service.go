@@ -81,7 +81,7 @@ func GetServiceLog(c *gin.Context) {
 		"repo":    r.GetName(),
 		"service": s.GetNumber(),
 		"user":    u.GetName(),
-	}).Infof("reading logs for service %s", entry)
+	}).Debugf("reading logs for service %s", entry)
 
 	// send API call to capture the service logs
 	l, err := database.FromContext(c).GetLogForService(ctx, s)

@@ -102,7 +102,7 @@ func CreateRepo(c *gin.Context) {
 		"org":  input.GetOrg(),
 		"repo": input.GetName(),
 		"user": u.GetName(),
-	}).Infof("creating new repo %s", input.GetFullName())
+	}).Debugf("creating new repo %s", input.GetFullName())
 
 	// get repo information from the source
 	r, _, err := scm.FromContext(c).GetRepo(ctx, u, input)

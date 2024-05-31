@@ -52,7 +52,7 @@ func Logout(c *gin.Context) {
 		"user": u.GetName(),
 	})
 
-	logger.Infof("logging out user %s", u.GetName())
+	logger.Debugf("logging out user %s", u.GetName())
 
 	// parse the address for the backend server
 	// so we can set it for the cookie domain

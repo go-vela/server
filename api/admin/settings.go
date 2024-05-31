@@ -48,10 +48,11 @@ import (
 // GetSettings represents the API handler to
 // captures settings stored in the database.
 func GetSettings(c *gin.Context) {
+	logrus.Debug("platform admin: reading platform settings")
+
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
-
-	logrus.Info("Admin: reading settings")
+	u := uMiddleware.FromContext(c)
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value
@@ -62,6 +63,8 @@ func GetSettings(c *gin.Context) {
 
 		return
 	}
+
+	logrus.Debugf("platform admin %#q retrieved platform settings", u.GetName())
 
 	c.JSON(http.StatusOK, s)
 }
@@ -108,12 +111,12 @@ func GetSettings(c *gin.Context) {
 // UpdateSettings represents the API handler to
 // update the settings singleton stored in the database.
 func UpdateSettings(c *gin.Context) {
+	logrus.Debug("platform admin: updating platform settings")
+
 	// capture middleware values
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
 	ctx := c.Request.Context()
-
-	logrus.Info("Admin: updating settings")
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value
@@ -196,6 +199,8 @@ func UpdateSettings(c *gin.Context) {
 		return
 	}
 
+	logrus.Debugf("platform admin %#q updated platform settings", u.GetName())
+
 	c.JSON(http.StatusOK, _s)
 }
 
@@ -231,12 +236,10 @@ func UpdateSettings(c *gin.Context) {
 // restore settings stored in the database to the environment defaults.
 func RestoreSettings(c *gin.Context) {
 	// capture middleware values
+	ctx := c.Request.Context()
+	cliCtx := cliMiddleware.FromContext(c)
 	s := sMiddleware.FromContext(c)
 	u := uMiddleware.FromContext(c)
-	cliCtx := cliMiddleware.FromContext(c)
-	ctx := c.Request.Context()
-
-	logrus.Info("Admin: restoring settings")
 
 	// check captured value because we aren't retrieving settings from the database
 	// instead we are retrieving the auto-refreshed middleware value

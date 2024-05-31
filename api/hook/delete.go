@@ -80,7 +80,7 @@ func DeleteHook(c *gin.Context) {
 		"hook": hook,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("deleting hook %s", entry)
+	}).Debugf("deleting hook %s", entry)
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {

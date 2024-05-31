@@ -81,7 +81,7 @@ func DeleteStepLog(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("deleting logs for step %s", entry)
+	}).Debugf("deleting logs for step %s", entry)
 
 	// send API call to capture the step logs
 	l, err := database.FromContext(c).GetLogForStep(ctx, s)

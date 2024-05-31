@@ -54,7 +54,6 @@ func GetBuildByID(c *gin.Context) {
 
 	// Parse build ID from path
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-
 	if err != nil {
 		retErr := fmt.Errorf("unable to parse build id: %w", err)
 
@@ -69,7 +68,7 @@ func GetBuildByID(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"build": id,
 		"user":  u.GetName(),
-	}).Infof("reading build %d", id)
+	}).Debugf("reading build %d", id)
 
 	// Get build from database
 	b, err := database.FromContext(c).GetBuild(ctx, id)

@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
@@ -47,11 +46,11 @@ import (
 // UpdateStep represents the API handler to
 // update any step stored in the database.
 func UpdateStep(c *gin.Context) {
-	logrus.Info("Admin: updating step in database")
+	// capture middleware values
+	ctx := c.Request.Context()
 
 	// capture body from API request
 	input := new(library.Step)
-	ctx := c.Request.Context()
 
 	err := c.Bind(input)
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-vela/server/router/middleware/build"
 	"github.com/go-vela/server/router/middleware/org"
+	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
 	"github.com/go-vela/server/router/middleware/service"
 	"github.com/go-vela/server/router/middleware/step"
@@ -48,9 +49,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 
 		c.Next()
 
-		end := time.Now()
-
-		latency := end.Sub(start)
+		latency := time.Since(start)
 
 		// prevent us from logging the health endpoint
 		if c.Request.URL.Path != "/health" {
@@ -73,6 +72,7 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 			build := build.Retrieve(c)
 			if build != nil {
 				fields["build"] = build.Number
+				fields["build_id"] = build.ID
 			}
 
 			org := org.Retrieve(c)
@@ -80,29 +80,39 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 				fields["org"] = org
 			}
 
+			pipeline := pipeline.Retrieve(c)
+			if pipeline != nil {
+				fields["pipeline"] = pipeline.ID
+			}
+
 			repo := repo.Retrieve(c)
 			if repo != nil {
 				fields["repo"] = repo.Name
+				fields["repo_id"] = repo.ID
 			}
 
 			service := service.Retrieve(c)
 			if service != nil {
 				fields["service"] = service.Number
+				fields["service_id"] = service.ID
 			}
 
 			step := step.Retrieve(c)
 			if step != nil {
 				fields["step"] = step.Number
+				fields["step_id"] = step.ID
 			}
 
 			user := user.Retrieve(c)
 			if user != nil {
 				fields["user"] = user.Name
+				fields["user_id"] = user.ID
 			}
 
 			worker := worker.Retrieve(c)
 			if worker != nil {
 				fields["worker"] = worker.Hostname
+				fields["worker_id"] = worker.ID
 			}
 
 			entry := logger.WithFields(fields)

@@ -92,7 +92,7 @@ func UpdateService(c *gin.Context) {
 		"repo":    r.GetName(),
 		"service": s.GetNumber(),
 		"user":    u.GetName(),
-	}).Infof("updating service %s", entry)
+	}).Debugf("updating service %s", entry)
 
 	// capture body from API request
 	input := new(library.Service)

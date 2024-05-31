@@ -93,7 +93,7 @@ func UpdateStepLog(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("updating logs for step %s", entry)
+	}).Debugf("updating logs for step %s", entry)
 
 	// send API call to capture the step logs
 	l, err := database.FromContext(c).GetLogForStep(ctx, s)

@@ -81,7 +81,7 @@ func DeleteService(c *gin.Context) {
 		"repo":    r.GetName(),
 		"service": s.GetNumber(),
 		"user":    u.GetName(),
-	}).Infof("deleting service %s", entry)
+	}).Debugf("deleting service %s", entry)
 
 	// send API call to remove the service
 	err := database.FromContext(c).DeleteService(ctx, s)

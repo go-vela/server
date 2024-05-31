@@ -61,7 +61,7 @@ func UpdateCurrentUser(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("updating current user %s", u.GetName())
+	}).Debugf("updating current user %s", u.GetName())
 
 	// capture body from API request
 	input := new(types.User)

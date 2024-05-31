@@ -87,7 +87,7 @@ func UpdateRepo(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("updating repo %s", r.GetFullName())
+	}).Debugf("updating repo %s", r.GetFullName())
 
 	// capture body from API request
 	input := new(types.Repo)
@@ -260,7 +260,7 @@ func UpdateRepo(c *gin.Context) {
 				"org":  o,
 				"repo": r.GetName(),
 				"user": u.GetName(),
-			}).Infof("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
+			}).Debugf("platform admin %s updating repo webhook events for repo %s", admn, r.GetFullName())
 
 			u = r.GetOwner()
 		}

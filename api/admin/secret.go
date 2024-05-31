@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
 	"github.com/go-vela/server/util"
@@ -48,8 +47,6 @@ import (
 // UpdateSecret represents the API handler to
 // update any secret stored in the database.
 func UpdateSecret(c *gin.Context) {
-	logrus.Info("Admin: updating secret in database")
-
 	// capture middleware values
 	ctx := c.Request.Context()
 

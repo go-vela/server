@@ -80,7 +80,7 @@ func DeleteStep(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("deleting step %s", entry)
+	}).Debugf("deleting step %s", entry)
 
 	// send API call to remove the step
 	err := database.FromContext(c).DeleteStep(ctx, s)

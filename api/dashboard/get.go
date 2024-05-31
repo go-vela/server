@@ -66,7 +66,7 @@ func GetDashboard(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"dashboard": d.GetID(),
 		"user":      u.GetName(),
-	}).Infof("reading dashboard %s", d.GetID())
+	}).Debugf("reading dashboard %s", d.GetID())
 
 	// initialize DashCard and set dashboard to the dashboard info pulled from database
 	dashboard := new(types.DashCard)

@@ -107,7 +107,7 @@ func GetSecret(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("reading secret %s from %s service", entry, e)
+	logrus.WithFields(fields).Debugf("reading secret %s from %s service", entry, e)
 
 	// send API call to capture the secret
 	secret, err := secret.FromContext(c, e).Get(ctx, t, o, n, s)

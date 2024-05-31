@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -49,10 +49,9 @@ import (
 // UpdateService represents the API handler to
 // update any service stored in the database.
 func UpdateService(c *gin.Context) {
-	logrus.Info("Admin: updating service in database")
-
 	// capture middleware values
 	ctx := c.Request.Context()
+	u := user.Retrieve(c)
 
 	// capture body from API request
 	input := new(library.Service)

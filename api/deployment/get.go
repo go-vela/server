@@ -76,7 +76,7 @@ func GetDeployment(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("reading deployment %s", entry)
+	}).Debugf("reading deployment %s", entry)
 
 	number, err := strconv.Atoi(deployment)
 	if err != nil {

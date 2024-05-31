@@ -69,7 +69,7 @@ func UpdateWorker(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"user":   u.GetName(),
 		"worker": w.GetHostname(),
-	}).Infof("updating worker %s", w.GetHostname())
+	}).Debugf("updating worker %s", w.GetHostname())
 
 	// capture body from API request
 	input := new(types.Worker)

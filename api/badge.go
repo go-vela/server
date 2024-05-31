@@ -55,7 +55,7 @@ func GetBadge(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"org":  o,
 		"repo": r.GetName(),
-	}).Infof("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
+	}).Debugf("creating latest build badge for repo %s on branch %s", r.GetFullName(), branch)
 
 	// send API call to capture the last build for the repo and branch
 	b, err := database.FromContext(c).LastBuildForRepo(ctx, r, branch)

@@ -76,7 +76,7 @@ func GetHook(c *gin.Context) {
 		"hook": hook,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("reading hook %s", entry)
+	}).Debugf("reading hook %s", entry)
 
 	number, err := strconv.Atoi(hook)
 	if err != nil {

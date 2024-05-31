@@ -88,7 +88,7 @@ func CompilePipeline(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("compiling pipeline %s", entry)
+	}).Debugf("compiling pipeline %s", entry)
 
 	// ensure we use the expected pipeline type when compiling
 	r.SetPipelineType(p.GetType())

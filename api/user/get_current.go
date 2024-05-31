@@ -37,7 +37,7 @@ func GetCurrentUser(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("reading current user %s", u.GetName())
+	}).Debugf("reading current user %s", u.GetName())
 
 	c.JSON(http.StatusOK, u)
 }

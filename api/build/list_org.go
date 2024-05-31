@@ -117,7 +117,7 @@ func ListBuildsForOrg(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"org":  o,
 		"user": u.GetName(),
-	}).Infof("listing builds for org %s", o)
+	}).Debugf("listing builds for org %s", o)
 
 	// capture the branch name parameter
 	branch := c.Query("branch")
@@ -201,7 +201,6 @@ func ListBuildsForOrg(c *gin.Context) {
 
 	// send API call to capture the list of builds for the org (and event type if passed in)
 	b, t, err = database.FromContext(c).ListBuildsForOrg(ctx, o, filters, page, perPage)
-
 	if err != nil {
 		retErr := fmt.Errorf("unable to list builds for org %s: %w", o, err)
 

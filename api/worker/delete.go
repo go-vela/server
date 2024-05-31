@@ -54,7 +54,7 @@ func DeleteWorker(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"user":   u.GetName(),
 		"worker": w.GetHostname(),
-	}).Infof("deleting worker %s", w.GetHostname())
+	}).Debugf("deleting worker %s", w.GetHostname())
 
 	// send API call to remove the step
 	err := database.FromContext(c).DeleteWorker(ctx, w)

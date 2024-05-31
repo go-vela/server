@@ -55,7 +55,7 @@ func GetWorker(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"user":   u.GetName(),
 		"worker": w.GetHostname(),
-	}).Infof("reading worker %s", w.GetHostname())
+	}).Debugf("reading worker %s", w.GetHostname())
 
 	rBs := []*types.Build{}
 

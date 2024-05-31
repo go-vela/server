@@ -93,7 +93,7 @@ func UpdateStep(c *gin.Context) {
 		"repo":  r.GetName(),
 		"step":  s.GetNumber(),
 		"user":  u.GetName(),
-	}).Infof("updating step %s", entry)
+	}).Debugf("updating step %s", entry)
 
 	// capture body from API request
 	input := new(library.Step)

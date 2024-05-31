@@ -79,7 +79,7 @@ func SyncRepo(c *gin.Context) {
 		"user": u.GetName(),
 	})
 
-	logger.Infof("syncing repo %s", r.GetFullName())
+	logger.Debugf("syncing repo %s", r.GetFullName())
 
 	// retrieve repo from source code manager service
 	_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, r)

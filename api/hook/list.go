@@ -88,7 +88,7 @@ func ListHooks(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("reading hooks for repo %s", r.GetFullName())
+	}).Debugf("reading hooks for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

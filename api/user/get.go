@@ -52,7 +52,7 @@ func GetUser(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("reading user %s", user)
+	}).Debugf("reading user %s", user)
 
 	// send API call to capture the user
 	u, err := database.FromContext(c).GetUserForName(ctx, user)

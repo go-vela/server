@@ -76,7 +76,7 @@ func DeleteBuild(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("deleting build %s", entry)
+	}).Debugf("deleting build %s", entry)
 
 	// send API call to remove the build
 	err := database.FromContext(c).DeleteBuild(ctx, b)

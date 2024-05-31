@@ -95,7 +95,7 @@ func ListReposForOrg(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"org":  o,
 		"user": u.GetName(),
-	}).Infof("listing repos for org %s", o)
+	}).Debugf("listing repos for org %s", o)
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

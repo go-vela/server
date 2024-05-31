@@ -69,7 +69,7 @@ func CreateUser(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("creating new user %s", input.GetName())
+	}).Debugf("creating new user %s", input.GetName())
 
 	// send API call to create the user
 	user, err := database.FromContext(c).CreateUser(ctx, input)

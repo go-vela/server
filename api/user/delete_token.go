@@ -48,7 +48,7 @@ func DeleteToken(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"user": u.GetName(),
-	}).Infof("revoking token for user %s", u.GetName())
+	}).Debugf("revoking token for user %s", u.GetName())
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 

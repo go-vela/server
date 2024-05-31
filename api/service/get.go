@@ -79,7 +79,7 @@ func GetService(c *gin.Context) {
 		"repo":    r.GetName(),
 		"service": s.GetNumber(),
 		"user":    u.GetName(),
-	}).Infof("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
+	}).Debugf("reading service %s/%d/%d", r.GetFullName(), b.GetNumber(), s.GetNumber())
 
 	c.JSON(http.StatusOK, s)
 }

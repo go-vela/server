@@ -92,7 +92,7 @@ func GetTemplates(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("reading templates from pipeline %s", entry)
+	}).Debugf("reading templates from pipeline %s", entry)
 
 	// create the compiler object
 	compiler := compiler.FromContext(c).Duplicate().WithCommit(p.GetCommit()).WithMetadata(m).WithRepo(r).WithUser(u)

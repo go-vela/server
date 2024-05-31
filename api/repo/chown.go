@@ -62,7 +62,7 @@ func ChownRepo(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
+	}).Debugf("changing owner of repo %s to %s", r.GetFullName(), u.GetName())
 
 	// update repo owner
 	r.SetOwner(u)

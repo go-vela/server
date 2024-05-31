@@ -63,7 +63,7 @@ func GetBuild(c *gin.Context) {
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  u.GetName(),
-	}).Infof("reading build %s/%d", r.GetFullName(), b.GetNumber())
+	}).Debugf("reading build %s/%d", r.GetFullName(), b.GetNumber())
 
 	c.JSON(http.StatusOK, b)
 }

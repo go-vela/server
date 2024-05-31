@@ -76,7 +76,7 @@ func DeletePipeline(c *gin.Context) {
 		"pipeline": p.GetCommit(),
 		"repo":     r.GetName(),
 		"user":     u.GetName(),
-	}).Infof("deleting pipeline %s", entry)
+	}).Debugf("deleting pipeline %s", entry)
 
 	// send API call to remove the build
 	err := database.FromContext(c).DeletePipeline(ctx, p)

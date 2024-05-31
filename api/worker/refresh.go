@@ -93,7 +93,7 @@ func Refresh(c *gin.Context) {
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logrus.WithFields(logrus.Fields{
 		"worker": w.GetHostname(),
-	}).Infof("refreshing worker %s authentication", w.GetHostname())
+	}).Debugf("refreshing worker %s authentication", w.GetHostname())
 
 	switch cl.TokenType {
 	// if symmetric token configured, send back symmetric token

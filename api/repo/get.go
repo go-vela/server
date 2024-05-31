@@ -54,7 +54,7 @@ func GetRepo(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("reading repo %s", r.GetFullName())
+	}).Debugf("reading repo %s", r.GetFullName())
 
 	c.JSON(http.StatusOK, r)
 }

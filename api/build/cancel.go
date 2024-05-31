@@ -53,7 +53,7 @@ import (
 //   '200':
 //     description: Successfully canceled the build
 //     schema:
-//       type: string
+//       "$ref": "#/definitions/Build"
 //   '400':
 //     description: Unable to cancel build
 //     schema:
@@ -84,12 +84,14 @@ func CancelBuild(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(logrus.Fields{
+	logger := logrus.WithFields(logrus.Fields{
 		"build": b.GetNumber(),
 		"org":   o,
 		"repo":  r.GetName(),
 		"user":  user.GetName(),
-	}).Infof("canceling build %s", entry)
+	})
+
+	logger.Debugf("canceling build %s", entry)
 
 	switch b.GetStatus() {
 	case constants.StatusRunning:

@@ -91,7 +91,7 @@ func CreateServiceLog(c *gin.Context) {
 		"repo":    r.GetName(),
 		"service": s.GetNumber(),
 		"user":    u.GetName(),
-	}).Infof("creating logs for service %s", entry)
+	}).Debugf("creating logs for service %s", entry)
 
 	// capture body from API request
 	input := new(library.Log)

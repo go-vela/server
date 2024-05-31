@@ -117,7 +117,7 @@ func UpdateSecret(c *gin.Context) {
 	// update engine logger with API metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
-	logrus.WithFields(fields).Infof("updating secret %s for %s service", entry, e)
+	logrus.WithFields(fields).Debugf("updating secret %s for %s service", entry, e)
 
 	// capture body from API request
 	input := new(library.Secret)

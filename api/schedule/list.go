@@ -83,7 +83,7 @@ func ListSchedules(c *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"repo": r.GetName(),
 		"org":  r.GetOrg(),
-	}).Infof("listing schedules for repo %s", r.GetFullName())
+	}).Debugf("listing schedules for repo %s", r.GetFullName())
 
 	// capture page query parameter if present
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))

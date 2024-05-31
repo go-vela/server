@@ -67,7 +67,7 @@ func RepairRepo(c *gin.Context) {
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
-	}).Infof("repairing repo %s", r.GetFullName())
+	}).Debugf("repairing repo %s", r.GetFullName())
 
 	// check if we should create the webhook
 	if c.Value("webhookvalidation").(bool) {
