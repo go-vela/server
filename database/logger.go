@@ -58,8 +58,7 @@ func (l *gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (stri
 	}
 
 	if err != nil && (!errors.Is(err, gorm.ErrRecordNotFound) || !l.SkipErrRecordNotFound) {
-		fields[logrus.ErrorKey] = err
-		logrus.WithContext(ctx).WithFields(fields).Error("gorm error")
+		logrus.WithContext(ctx).WithError(err).WithFields(fields).Error("gorm error")
 		return
 	}
 
