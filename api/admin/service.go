@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -51,7 +50,6 @@ import (
 func UpdateService(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
 	// capture body from API request
 	input := new(library.Service)

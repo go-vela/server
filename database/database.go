@@ -116,16 +116,22 @@ func New(opts ...EngineOpt) (Interface, error) {
 
 	e.logger.Trace("creating database engine from configuration")
 	// process the database driver being provided
+
+	// configure gorm to use logrus as internal logger
+	gormConfig := &gorm.Config{
+		Logger: NewGormLogger(e.Driver()),
+	}
+
 	switch e.config.Driver {
 	case constants.DriverPostgres:
 		// create the new Postgres database client
-		e.client, err = gorm.Open(postgres.Open(e.config.Address), &gorm.Config{})
+		e.client, err = gorm.Open(postgres.Open(e.config.Address), gormConfig)
 		if err != nil {
 			return nil, err
 		}
 	case constants.DriverSqlite:
 		// create the new Sqlite database client
-		e.client, err = gorm.Open(sqlite.Open(e.config.Address), &gorm.Config{})
+		e.client, err = gorm.Open(sqlite.Open(e.config.Address), gormConfig)
 		if err != nil {
 			return nil, err
 		}

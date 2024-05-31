@@ -39,7 +39,7 @@ import (
 //     description: Unable to update the hook in the database
 //     schema:
 //       "$ref": "#/definitions/Error"
-//   '501':
+//   '500':
 //     description: Unable to update the hook in the database
 //     schema:
 //       "$ref": "#/definitions/Error"

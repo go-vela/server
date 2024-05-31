@@ -14,7 +14,6 @@ import (
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
-	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -51,7 +50,6 @@ func AllBuildsQueue(c *gin.Context) {
 	logrus.Debug("admin: reading running and pending builds")
 	// capture middleware values
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
 	// default timestamp to 24 hours ago if user did not provide it as query parameter
 	after := c.DefaultQuery("after", strconv.FormatInt(time.Now().UTC().Add(-24*time.Hour).Unix(), 10))
@@ -104,7 +102,6 @@ func AllBuildsQueue(c *gin.Context) {
 func UpdateBuild(c *gin.Context) {
 	// capture middleware values
 	ctx := c.Request.Context()
-	u := user.Retrieve(c)
 
 	// capture body from API request
 	input := new(types.Build)
