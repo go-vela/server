@@ -13,59 +13,67 @@ import (
 	"gorm.io/gorm/utils"
 )
 
-type gormLogger struct {
-	SlowThreshold         time.Duration
-	SourceField           string
-	SkipErrRecordNotFound bool
-	DriverName            string
+// GormLogger is a custom logger for Gorm.
+type GormLogger struct {
+	slowThreshold         time.Duration
+	skipErrRecordNotFound bool
+	showSQL               bool
+	entry                 *logrus.Entry
 }
 
-func NewGormLogger(driver string) *gormLogger {
-	return &gormLogger{
-		SkipErrRecordNotFound: true,
-		DriverName:            driver,
+// NewGormLogger creates a new Gorm logger.
+func NewGormLogger(logger *logrus.Entry, slowThreshold time.Duration, skipNotFound, showSQL bool) *GormLogger {
+	return &GormLogger{
+		skipErrRecordNotFound: skipNotFound,
+		slowThreshold:         slowThreshold,
+		showSQL:               showSQL,
+		entry:                 logger,
 	}
 }
 
-func (l *gormLogger) LogMode(logger.LogLevel) logger.Interface {
+// LogMode sets the log mode for the logger.
+func (l *GormLogger) LogMode(logger.LogLevel) logger.Interface {
 	return l
 }
 
-func (l *gormLogger) Info(ctx context.Context, s string, args ...interface{}) {
-	logrus.WithContext(ctx).WithField("database", l.DriverName).Info(s, args)
+// Info implements the logger.Interface.
+func (l *GormLogger) Info(ctx context.Context, msg string, args ...interface{}) {
+	l.entry.WithContext(ctx).Info(msg, args)
 }
 
-func (l *gormLogger) Warn(ctx context.Context, s string, args ...interface{}) {
-	logrus.WithContext(ctx).WithField("database", l.DriverName).Warn(s, args)
+// Warn implements the logger.Interface.
+func (l *GormLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
+	l.entry.WithContext(ctx).Warn(msg, args)
 }
 
-func (l *gormLogger) Error(ctx context.Context, s string, args ...interface{}) {
-	logrus.WithContext(ctx).WithField("database", l.DriverName).Error(s, args)
+// Error implements the logger.Interface.
+func (l *GormLogger) Error(ctx context.Context, msg string, args ...interface{}) {
+	l.entry.WithContext(ctx).Error(msg, args)
 }
 
-func (l *gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+// Trace implements the logger.Interface.
+func (l *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
 	elapsed := time.Since(begin)
 	sql, rows := fc()
 	fields := logrus.Fields{
-		"database": l.DriverName,
-		"rows":     rows,
-		"elapsed":  elapsed,
-		"sql":      sql,
+		"rows":    rows,
+		"elapsed": elapsed,
+		"source":  utils.FileWithLineNum(),
 	}
 
-	if l.SourceField != "" {
-		fields[l.SourceField] = utils.FileWithLineNum()
+	if l.showSQL {
+		fields["sql"] = sql
 	}
 
-	if err != nil && (!errors.Is(err, gorm.ErrRecordNotFound) || !l.SkipErrRecordNotFound) {
-		logrus.WithContext(ctx).WithError(err).WithFields(fields).Error("gorm error")
+	if err != nil && (!errors.Is(err, gorm.ErrRecordNotFound) || !l.skipErrRecordNotFound) {
+		l.entry.WithContext(ctx).WithError(err).WithFields(fields).Error("gorm error")
 		return
 	}
 
-	if l.SlowThreshold != 0 && elapsed > l.SlowThreshold {
-		logrus.WithContext(ctx).WithFields(fields).Warn("slow query")
+	if l.slowThreshold != 0 && elapsed > l.slowThreshold {
+		l.entry.WithContext(ctx).WithFields(fields).Warnf("gorm warn SLOW QUERY >= %s, took %s", l.slowThreshold, elapsed)
 		return
 	}
 
-	logrus.WithContext(ctx).WithFields(fields).Infof("gorm trace")
+	l.entry.WithContext(ctx).WithFields(fields).Infof("gorm info")
 }
