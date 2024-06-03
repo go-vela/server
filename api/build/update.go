@@ -182,6 +182,13 @@ func UpdateBuild(c *gin.Context) {
 func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) error {
 	ctx := c.Request.Context()
 
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":       util.EscapeValue(c.ClientIP()),
+		"build":    b.GetNumber(),
+		"build_id": b.GetID(),
+		"repo":     b.GetRepo().GetFullName(),
+	})
+
 	// retrieve the steps for the build from the step table
 	steps := []*library.Step{}
 	page := 1
@@ -214,6 +221,11 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 		if err != nil {
 			return err
 		}
+
+		logger.WithFields(logrus.Fields{
+			"step":    step.GetNumber(),
+			"step_id": step.GetID(),
+		}).Infof("step updated")
 	}
 
 	// retrieve the services for the build from the service table
@@ -247,6 +259,11 @@ func UpdateComponentStatuses(c *gin.Context, b *types.Build, status string) erro
 		if err != nil {
 			return err
 		}
+
+		logger.WithFields(logrus.Fields{
+			"service":    service.GetNumber(),
+			"service_id": service.GetID(),
+		}).Info("service updated")
 	}
 
 	return nil
