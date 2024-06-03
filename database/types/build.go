@@ -54,6 +54,7 @@ type Build struct {
 	Message       sql.NullString     `sql:"message"`
 	Commit        sql.NullString     `sql:"commit"`
 	Sender        sql.NullString     `sql:"sender"`
+	SenderSCMID   sql.NullString     `sql:"sender_scm_id"`
 	Author        sql.NullString     `sql:"author"`
 	Email         sql.NullString     `sql:"email"`
 	Link          sql.NullString     `sql:"link"`
@@ -209,6 +210,11 @@ func (b *Build) Nullify() *Build {
 		b.Sender.Valid = false
 	}
 
+	// check if the SenderSCMID field should be false
+	if len(b.SenderSCMID.String) == 0 {
+		b.SenderSCMID.Valid = false
+	}
+
 	// check if the Author field should be false
 	if len(b.Author.String) == 0 {
 		b.Author.Valid = false
@@ -299,6 +305,7 @@ func (b *Build) ToAPI() *api.Build {
 	build.SetMessage(b.Message.String)
 	build.SetCommit(b.Commit.String)
 	build.SetSender(b.Sender.String)
+	build.SetSenderSCMID(b.SenderSCMID.String)
 	build.SetAuthor(b.Author.String)
 	build.SetEmail(b.Email.String)
 	build.SetLink(b.Link.String)
@@ -342,6 +349,7 @@ func (b *Build) Validate() error {
 	b.Message = sql.NullString{String: util.Sanitize(b.Message.String), Valid: b.Message.Valid}
 	b.Commit = sql.NullString{String: util.Sanitize(b.Commit.String), Valid: b.Commit.Valid}
 	b.Sender = sql.NullString{String: util.Sanitize(b.Sender.String), Valid: b.Sender.Valid}
+	b.SenderSCMID = sql.NullString{String: util.Sanitize(b.SenderSCMID.String), Valid: b.SenderSCMID.Valid}
 	b.Author = sql.NullString{String: util.Sanitize(b.Author.String), Valid: b.Author.Valid}
 	b.Email = sql.NullString{String: util.Sanitize(b.Email.String), Valid: b.Email.Valid}
 	b.Link = sql.NullString{String: util.Sanitize(b.Link.String), Valid: b.Link.Valid}
@@ -383,6 +391,7 @@ func BuildFromAPI(b *api.Build) *Build {
 		Message:       sql.NullString{String: b.GetMessage(), Valid: true},
 		Commit:        sql.NullString{String: b.GetCommit(), Valid: true},
 		Sender:        sql.NullString{String: b.GetSender(), Valid: true},
+		SenderSCMID:   sql.NullString{String: b.GetSenderSCMID(), Valid: true},
 		Author:        sql.NullString{String: b.GetAuthor(), Valid: true},
 		Email:         sql.NullString{String: b.GetEmail(), Valid: true},
 		Link:          sql.NullString{String: b.GetLink(), Valid: true},

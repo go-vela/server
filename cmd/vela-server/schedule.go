@@ -179,6 +179,10 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 	b.SetRef(fmt.Sprintf("refs/heads/%s", b.GetBranch()))
 	b.SetRepo(r)
 	b.SetSender(s.GetUpdatedBy())
+	// todo: sender_scm_id:
+	//  - (a) auth with repo token and convert username to scm id
+	//  - (b) attach scm user id to schedule updated_by_id (lol)
+
 	b.SetSource(fmt.Sprintf("%s/tree/%s", url, b.GetBranch()))
 	b.SetStatus(constants.StatusPending)
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventSchedule, url))

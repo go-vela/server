@@ -112,8 +112,14 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
-	// set sender to the user who initiated the restart and parent to the previous build
+	// set sender to the user who initiated the restart and
 	b.SetSender(cl.Subject)
+	// todo: sender_scm_id:
+	//  vela username is the claims subject
+	//  - (a) auth with repo token and convert username to scm id
+	//  - (b) attach scm id to claims
+
+	// parent to the previous build
 	b.SetParent(b.GetNumber())
 
 	logger.Debugf("Generating queue items for build %s", entry)
