@@ -8,8 +8,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -36,7 +38,11 @@ import (
 //     type: json
 //     schema:
 //       "$ref": "#/definitions/Service"
-//   '404':
+//   '401':
+//     description: Unauthorized to update the service in the database
+//     schema:
+//       "$ref": "#/definitions/Error
+//   '400':
 //     description: Unable to update the service in the database
 //     schema:
 //       "$ref": "#/definitions/Error"
@@ -48,8 +54,18 @@ import (
 // UpdateService represents the API handler to
 // update any service stored in the database.
 func UpdateService(c *gin.Context) {
+	logrus.Debug("platform admin: updating service")
+
 	// capture middleware values
 	ctx := c.Request.Context()
+	u := user.Retrieve(c)
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":      util.EscapeValue(c.ClientIP()),
+		"path":    util.EscapeValue(c.Request.URL.Path),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	})
 
 	// capture body from API request
 	input := new(library.Service)
@@ -58,10 +74,15 @@ func UpdateService(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for service %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"service_id": input.GetID(),
+		"service":    util.EscapeValue(input.GetName()),
+	}).Info("attempting to update service")
 
 	// send API call to update the service
 	s, err := database.FromContext(c).UpdateService(ctx, input)
@@ -72,6 +93,11 @@ func UpdateService(c *gin.Context) {
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"service_id": s.GetID(),
+		"service":    s.GetName(),
+	}).Info("updated service")
 
 	c.JSON(http.StatusOK, s)
 }

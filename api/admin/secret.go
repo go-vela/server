@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
 package admin
 
 import (
@@ -8,8 +7,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
@@ -35,8 +36,12 @@ import (
 //     description: Successfully updated the secret in the database
 //     schema:
 //       "$ref": "#/definitions/Secret"
-//   '404':
-//     description: Unable to update the secret in the database
+//   '401':
+//     description: Unauthorized to update the secret in the database
+//     schema:
+//       "$ref": "#/definitions/Error
+//   '400':
+//     description: Unable to update the secret in the database - bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '501':
@@ -47,8 +52,18 @@ import (
 // UpdateSecret represents the API handler to
 // update any secret stored in the database.
 func UpdateSecret(c *gin.Context) {
+	logrus.Debug("platform admin: updating secret")
+
 	// capture middleware values
 	ctx := c.Request.Context()
+	u := user.Retrieve(c)
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":      util.EscapeValue(c.ClientIP()),
+		"path":    util.EscapeValue(c.Request.URL.Path),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	})
 
 	// capture body from API request
 	input := new(library.Secret)
@@ -57,10 +72,19 @@ func UpdateSecret(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for secret %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"secret_id": input.GetID(),
+		"org":       util.EscapeValue(input.GetOrg()),
+		"repo":      util.EscapeValue(input.GetRepo()),
+		"type":      util.EscapeValue(input.GetType()),
+		"name":      util.EscapeValue(input.GetName()),
+		"team":      util.EscapeValue(input.GetTeam()),
+	}).Info("attempting to update secret")
 
 	// send API call to update the secret
 	s, err := database.FromContext(c).UpdateSecret(ctx, input)
@@ -71,6 +95,15 @@ func UpdateSecret(c *gin.Context) {
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"secret_id": s.GetID(),
+		"org":       s.GetOrg(),
+		"repo":      s.GetRepo(),
+		"type":      s.GetType(),
+		"name":      s.GetName(),
+		"team":      s.GetTeam(),
+	}).Info("secret updated")
 
 	c.JSON(http.StatusOK, s)
 }

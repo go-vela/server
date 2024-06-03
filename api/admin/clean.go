@@ -43,15 +43,15 @@ import (
 //   '200':
 //     description: Successfully updated pending resources with error message
 //     schema:
-//     type: string
+//       type: string
 //   '400':
 //     description: Unable to update resources — bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '401':
-//     description: Unable to update resources — unauthorized
+//     description: Unauthorized to clean resources
 //     schema:
-//       "$ref": "#/definitions/Error"
+//       "$ref": "#/definitions/Error
 //   '500':
 //     description: Unable to update resources
 //     schema:
@@ -60,9 +60,18 @@ import (
 // CleanResources represents the API handler to
 // update any user stored in the database.
 func CleanResources(c *gin.Context) {
+	logrus.Debug("platform admin: cleaning resources")
+
 	// capture middleware values
 	ctx := c.Request.Context()
 	u := user.Retrieve(c)
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":      util.EscapeValue(c.ClientIP()),
+		"path":    util.EscapeValue(c.Request.URL.Path),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	})
 
 	// default error message
 	msg := "build cleaned by platform admin"
@@ -81,7 +90,7 @@ func CleanResources(c *gin.Context) {
 
 	// if a message is provided, set the error message to that
 	if input.Message != nil {
-		msg = *input.Message
+		msg = util.EscapeValue(*input.Message)
 	}
 
 	// capture before query parameter, default to max build timeout
@@ -104,7 +113,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Debugf("platform admin %s: cleaned %d builds in database", u.GetName(), builds)
+	logger.Debugf("cleaned %d builds in database", builds)
 
 	// clean executables
 	executables, err := database.FromContext(c).CleanBuildExecutables(ctx)
@@ -116,6 +125,8 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
+	logger.Debugf("cleaned %d executables in database", executables)
+
 	// clean services
 	services, err := database.FromContext(c).CleanServices(ctx, msg, before)
 	if err != nil {
@@ -126,7 +137,7 @@ func CleanResources(c *gin.Context) {
 		return
 	}
 
-	logrus.Debugf("platform admin %s: cleaned %d services in database", u.GetName(), services)
+	logger.Debugf("cleaned %d services in database", services)
 
 	// clean steps
 	steps, err := database.FromContext(c).CleanSteps(ctx, msg, before)
@@ -137,6 +148,8 @@ func CleanResources(c *gin.Context) {
 
 		return
 	}
+
+	logger.Debugf("cleaned %d steps in database", steps)
 
 	c.JSON(http.StatusOK, fmt.Sprintf("%d builds cleaned. %d executables cleaned. %d services cleaned. %d steps cleaned.", builds, executables, services, steps))
 }

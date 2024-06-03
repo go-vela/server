@@ -17,6 +17,10 @@ import (
 // - application/json
 // parameters:
 // responses:
+//   '401':
+//     description: Unauthorized to update deployment
+//     schema:
+//       "$ref": "#/definitions/Error
 //   '501':
 //     description: This endpoint is not implemented
 //     schema:

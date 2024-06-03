@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-//nolint:dupl // ignore similar code
+//nolint:dupl // ignore similar code with service.go
 package admin
 
 import (
@@ -8,9 +8,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -35,8 +37,12 @@ import (
 //     description: Successfully updated the repo in the database
 //     schema:
 //       "$ref": "#/definitions/Repo"
-//   '404':
-//     description: Unable to update the repo in the database
+//   '401':
+//     description: Unauthorized to update the repo in the database
+//     schema:
+//       "$ref": "#/definitions/Error
+//   '400':
+//     description: Unable to update the repo in the database - bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '501':
@@ -47,8 +53,18 @@ import (
 // UpdateRepo represents the API handler to
 // update any repo stored in the database.
 func UpdateRepo(c *gin.Context) {
+	logrus.Debug("platform admin: updating repo")
+
 	// capture middleware values
 	ctx := c.Request.Context()
+	u := user.Retrieve(c)
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":      util.EscapeValue(c.ClientIP()),
+		"path":    util.EscapeValue(c.Request.URL.Path),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	})
 
 	// capture body from API request
 	input := new(types.Repo)
@@ -57,10 +73,15 @@ func UpdateRepo(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for repo %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"repo_id": input.GetID(),
+		"repo":    util.EscapeValue(input.GetFullName()),
+	}).Info("attempting to update repo")
 
 	// send API call to update the repo
 	r, err := database.FromContext(c).UpdateRepo(ctx, input)
@@ -71,6 +92,11 @@ func UpdateRepo(c *gin.Context) {
 
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"repo_id": r.GetID(),
+		"repo":    r.GetFullName(),
+	}).Info("repo updated")
 
 	c.JSON(http.StatusOK, r)
 }

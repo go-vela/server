@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/internal/token"
 	"github.com/go-vela/server/util"
@@ -42,6 +43,8 @@ import (
 // RegisterToken represents the API handler to
 // generate a registration token for onboarding a worker.
 func RegisterToken(c *gin.Context) {
+	logrus.Debug("platform admin: generating worker registration token")
+
 	// capture middleware values
 	host := util.PathParameter(c, "worker")
 

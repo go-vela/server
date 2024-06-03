@@ -8,9 +8,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
+	"github.com/go-vela/server/router/middleware/user"
 	"github.com/go-vela/server/util"
 )
 
@@ -35,8 +37,12 @@ import (
 //     description: Successfully updated the user in the database
 //     schema:
 //       "$ref": "#/definitions/User"
-//   '404':
-//     description: Unable to update the user in the database
+//   '401':
+//     description: Unauthorized to update the user in the database
+//     schema:
+//       "$ref": "#/definitions/Error
+//   '400':
+//     description: Unable to update the user in the database - bad request
 //     schema:
 //       "$ref": "#/definitions/Error"
 //   '500':
@@ -47,8 +53,18 @@ import (
 // UpdateUser represents the API handler to
 // update any user stored in the database.
 func UpdateUser(c *gin.Context) {
+	logrus.Debug("platform admin: updating user")
+
 	// capture middleware values
 	ctx := c.Request.Context()
+	u := user.Retrieve(c)
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":      util.EscapeValue(c.ClientIP()),
+		"path":    util.EscapeValue(c.Request.URL.Path),
+		"user":    u.GetName(),
+		"user_id": u.GetID(),
+	})
 
 	// capture body from API request
 	input := new(types.User)
@@ -57,13 +73,18 @@ func UpdateUser(c *gin.Context) {
 	if err != nil {
 		retErr := fmt.Errorf("unable to decode JSON for user %d: %w", input.GetID(), err)
 
-		util.HandleError(c, http.StatusNotFound, retErr)
+		util.HandleError(c, http.StatusBadRequest, retErr)
 
 		return
 	}
 
+	logger.WithFields(logrus.Fields{
+		"target_user_id": input.GetID(),
+		"target_user":    util.EscapeValue(input.GetName()),
+	}).Info("attempting to update user")
+
 	// send API call to update the user
-	u, err := database.FromContext(c).UpdateUser(ctx, input)
+	tu, err := database.FromContext(c).UpdateUser(ctx, input)
 	if err != nil {
 		retErr := fmt.Errorf("unable to update user %d: %w", input.GetID(), err)
 
@@ -72,5 +93,10 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, u)
+	logger.WithFields(logrus.Fields{
+		"target_user_id": tu.GetID(),
+		"target_user":    tu.GetName(),
+	}).Info("updated user")
+
+	c.JSON(http.StatusOK, tu)
 }
