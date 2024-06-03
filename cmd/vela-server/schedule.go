@@ -186,10 +186,10 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 		return fmt.Errorf("unable to get user for name %s: %w", s.GetUpdatedBy(), err)
 	}
 
-	// fetch user scm id
-	senderID, err := scm.GetUserID(ctx, u)
+	// fetch scm user id
+	senderID, err := scm.GetUserID(ctx, u.GetName(), u.GetToken())
 	if err != nil {
-		return fmt.Errorf("unable to get user scm id for %s: %w", u.GetName(), err)
+		return fmt.Errorf("unable to get SCM user id for %s: %w", u.GetName(), err)
 	}
 
 	b.SetSenderSCMID(senderID)

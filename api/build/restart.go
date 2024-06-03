@@ -116,10 +116,10 @@ func RestartBuild(c *gin.Context) {
 	// set sender to the user who initiated the restart and
 	b.SetSender(cl.Subject)
 
-	// fetch user scm id
-	senderID, err := scm.GetUserID(ctx, u)
+	// fetch scm user id
+	senderID, err := scm.GetUserID(ctx, u.GetName(), u.GetToken())
 	if err != nil {
-		retErr := fmt.Errorf("unable to get user scm id for %s: %w", u.GetName(), err)
+		retErr := fmt.Errorf("unable to get SCM user id for %s: %w", u.GetName(), err)
 
 		util.HandleError(c, http.StatusInternalServerError, retErr)
 

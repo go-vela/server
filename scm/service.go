@@ -44,8 +44,8 @@ type Service interface {
 	// User SCM Interface Functions
 
 	// GetUserID defines a function that captures
-	// the scm user attached to a Vela user.
-	GetUserID(context.Context, *api.User) (string, error)
+	// the scm user id attached to the username.
+	GetUserID(context.Context, string, string) (string, error)
 
 	// Access SCM Interface Functions
 

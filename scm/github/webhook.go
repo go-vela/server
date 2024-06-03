@@ -69,7 +69,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
-		return c.processPushEvent(h, event)
+		return c.processPushEvent(ctx, h, event)
 	case *github.PullRequestEvent:
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
@@ -128,7 +128,7 @@ func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo,
 }
 
 // processPushEvent is a helper function to process the push event.
-func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
+func (c *client) processPushEvent(ctx context.Context, h *library.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -178,11 +178,6 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	// ensure the build sender is set
 	if len(b.GetSender()) == 0 {
 		b.SetSender(payload.GetPusher().GetName())
-		// todo: sender_scm_id:
-		//   commit_author/pusher has no ID attached in gh api payload
-		//  - (a) auth with repo token and convert username to scm id
-		//  - (b) error out when payload didnt have a sender
-		//  - (c) dont set an scm id...
 	}
 
 	// ensure the build email is set
