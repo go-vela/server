@@ -41,6 +41,12 @@ type Service interface {
 	// the OAuth workflow for the session.
 	Login(context.Context, http.ResponseWriter, *http.Request) (string, error)
 
+	// User SCM Interface Functions
+
+	// GetUserID defines a function that captures
+	// the scm user attached to a Vela user.
+	GetUserID(context.Context, *api.User) (string, error)
+
 	// Access SCM Interface Functions
 
 	// OrgAccess defines a function that captures

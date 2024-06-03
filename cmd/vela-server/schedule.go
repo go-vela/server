@@ -179,9 +179,20 @@ func processSchedule(ctx context.Context, s *api.Schedule, settings *settings.Pl
 	b.SetRef(fmt.Sprintf("refs/heads/%s", b.GetBranch()))
 	b.SetRepo(r)
 	b.SetSender(s.GetUpdatedBy())
-	// todo: sender_scm_id:
-	//  - (a) auth with repo token and convert username to scm id
-	//  - (b) attach scm user id to schedule updated_by_id (lol)
+
+	// send API call to capture the user for the schedule trigger
+	u, err := database.GetUserForName(ctx, s.GetUpdatedBy())
+	if err != nil {
+		return fmt.Errorf("unable to get user for name %s: %w", s.GetUpdatedBy(), err)
+	}
+
+	// fetch user scm id
+	senderID, err := scm.GetUserID(ctx, u)
+	if err != nil {
+		return fmt.Errorf("unable to get user scm id for %s: %w", u.GetName(), err)
+	}
+
+	b.SetSenderSCMID(senderID)
 
 	b.SetSource(fmt.Sprintf("%s/tree/%s", url, b.GetBranch()))
 	b.SetStatus(constants.StatusPending)
