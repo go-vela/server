@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/api/types"
 	"github.com/go-vela/server/database"
@@ -60,6 +61,11 @@ import (
 // the API or UI.
 func GetAuthToken(c *gin.Context) {
 	var err error
+
+	logger := logrus.WithFields(logrus.Fields{
+		"ip":   util.EscapeValue(c.ClientIP()),
+		"path": util.EscapeValue(c.Request.URL.Path),
+	})
 
 	tm := c.MustGet("token-manager").(*token.Manager)
 	// capture middleware values
@@ -132,6 +138,8 @@ func GetAuthToken(c *gin.Context) {
 			return
 		}
 
+		logger.Infof("new user %#q created", u.GetName())
+
 		// return the jwt access token
 		c.JSON(http.StatusOK, library.Token{Token: &at})
 
@@ -164,6 +172,8 @@ func GetAuthToken(c *gin.Context) {
 
 		return
 	}
+
+	logger.Infof("user %#q updated", u.GetName())
 
 	// return the user with their jwt access token
 	c.JSON(http.StatusOK, library.Token{Token: &at})

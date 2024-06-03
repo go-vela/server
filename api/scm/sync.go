@@ -74,6 +74,8 @@ func SyncRepo(c *gin.Context) {
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logger := logrus.WithFields(logrus.Fields{
+		"ip":   util.EscapeValue(c.ClientIP()),
+		"path": util.EscapeValue(c.Request.URL.Path),
 		"org":  o,
 		"repo": r.GetName(),
 		"user": u.GetName(),
@@ -83,7 +85,6 @@ func SyncRepo(c *gin.Context) {
 
 	// retrieve repo from source code manager service
 	_, respCode, err := scm.FromContext(c).GetRepo(ctx, u, r)
-
 	// if there is an error retrieving repo, we know it is deleted: set to inactive
 	if err != nil {
 		if respCode == http.StatusNotFound {
@@ -99,6 +100,8 @@ func SyncRepo(c *gin.Context) {
 
 				return
 			}
+
+			logger.Infof("repo %#q has been updated (set to inactive)", r.GetFullName())
 
 			// exit with success as hook sync will be unnecessary
 			c.JSON(http.StatusOK, r)
@@ -157,6 +160,8 @@ func SyncRepo(c *gin.Context) {
 
 					return
 				}
+
+				logger.Infof("repo %#q has been updated (set to inactive)", r.GetFullName())
 
 				c.JSON(http.StatusOK, r)
 

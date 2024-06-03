@@ -86,6 +86,7 @@ func PostAuthToken(c *gin.Context) {
 		TokenType:     constants.UserAccessTokenType,
 		TokenDuration: tm.UserAccessTokenDuration,
 	}
+
 	at, err := tm.MintToken(amto)
 	if err != nil {
 		retErr := fmt.Errorf("unable to compose token for user %s: %w", u.GetName(), err)

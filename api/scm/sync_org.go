@@ -69,6 +69,8 @@ func SyncReposForOrg(c *gin.Context) {
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#Entry.WithFields
 	logger := logrus.WithFields(logrus.Fields{
+		"ip":   util.EscapeValue(c.ClientIP()),
+		"path": util.EscapeValue(c.Request.URL.Path),
 		"org":  o,
 		"user": u.GetName(),
 	})
@@ -135,6 +137,8 @@ func SyncReposForOrg(c *gin.Context) {
 					return
 				}
 
+				logger.Infof("repo %#q has been updated (set to inactive)", repo.GetFullName())
+
 				results = append(results, repo)
 			} else {
 				retErr := fmt.Errorf("error while retrieving repo %s from %s: %w", repo.GetFullName(), scm.FromContext(c).Driver(), err)
@@ -174,6 +178,8 @@ func SyncReposForOrg(c *gin.Context) {
 
 						return
 					}
+
+					logger.Infof("repo %#q has been updated (set to inactive)", repo.GetFullName())
 
 					results = append(results, repo)
 

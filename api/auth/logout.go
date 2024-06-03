@@ -82,6 +82,8 @@ func Logout(c *gin.Context) {
 		return
 	}
 
+	logger.Infof("updated user %#q", u.GetName())
+
 	// return 200 for successful logout
 	c.JSON(http.StatusOK, "ok")
 }

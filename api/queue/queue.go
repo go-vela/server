@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/router/middleware/claims"
+	"github.com/go-vela/server/util"
 	"github.com/go-vela/types/library"
 )
 
@@ -37,8 +38,10 @@ func Info(c *gin.Context) {
 	cl := claims.Retrieve(c)
 
 	logrus.WithFields(logrus.Fields{
+		"ip":   util.EscapeValue(c.ClientIP()),
+		"path": util.EscapeValue(c.Request.URL.Path),
 		"user": cl.Subject,
-	}).Debug("requesting queue credentials with registration token")
+	}).Info("requesting queue credentials with registration token")
 
 	// extract the public key that was packed into gin context
 	k := c.MustGet("public-key").(string)

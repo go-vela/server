@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-vela/server/router/middleware/build"
+	"github.com/go-vela/server/router/middleware/claims"
 	"github.com/go-vela/server/router/middleware/org"
 	"github.com/go-vela/server/router/middleware/pipeline"
 	"github.com/go-vela/server/router/middleware/repo"
@@ -104,7 +105,11 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 			}
 
 			user := user.Retrieve(c)
-			if user != nil {
+			// we check to make sure user name is populated
+			// because when it's not a user token, we still
+			// inject an empty user object into the context
+			// which results in log entries with 'user: null'
+			if user != nil && user.GetName() != "" {
 				fields["user"] = user.Name
 				fields["user_id"] = user.ID
 			}
@@ -113,6 +118,18 @@ func Logger(logger *logrus.Logger, timeFormat string) gin.HandlerFunc {
 			if worker != nil {
 				fields["worker"] = worker.Hostname
 				fields["worker_id"] = worker.ID
+			}
+
+			// if there's no user or worker in the context
+			// of this request, we log claims subject
+			_, hasUser := fields["user"]
+			_, hasWorker := fields["worker"]
+
+			if !hasUser && !hasWorker {
+				claims := claims.Retrieve(c)
+				if claims != nil {
+					fields["claims_subject"] = claims.Subject
+				}
 			}
 
 			entry := logger.WithFields(fields)
