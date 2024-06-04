@@ -37,7 +37,7 @@ const (
     "repo",
     "token_type",
     "actor",
-    "actor_id",
+    "actor_scm_id",
     "commands",
     "image",
     "request"

@@ -23,7 +23,7 @@ type OpenIDClaims struct {
 	BuildNumber int    `json:"build_number,omitempty"`
 	BuildID     int64  `json:"build_id,omitempty"`
 	Actor       string `json:"actor,omitempty"`
-	ActorID     string `json:"actor_id,omitempty"`
+	ActorSCMID  string `json:"actor_scm_id,omitempty"`
 	Repo        string `json:"repo,omitempty"`
 	TokenType   string `json:"token_type,omitempty"`
 	Image       string `json:"image,omitempty"`

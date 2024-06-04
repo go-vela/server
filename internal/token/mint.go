@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -151,15 +150,9 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 		return "", errors.New("missing build sender for ID token")
 	}
 
-	// retrieve the user id for the actor
-	u, err := db.GetUserForName(ctx, mto.Build.GetSender())
-	if err != nil {
-		return "", errors.New("unable to retrieve build sender user ID for ID token")
-	}
-
 	// set claims based on input
 	claims.Actor = mto.Build.GetSender()
-	claims.ActorID = strconv.Itoa(int(u.GetID()))
+	claims.ActorSCMID = mto.Build.GetSenderSCMID()
 	claims.BuildNumber = mto.Build.GetNumber()
 	claims.BuildID = mto.Build.GetID()
 	claims.Repo = mto.Repo
@@ -181,7 +174,7 @@ func (tm *Manager) MintIDToken(ctx context.Context, mto *MintTokenOpts, db datab
 	tk := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
 	// verify key is active in the database before signing
-	_, err = db.GetActiveJWK(ctx, tm.RSAKeySet.KID)
+	_, err := db.GetActiveJWK(ctx, tm.RSAKeySet.KID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", fmt.Errorf("unable to get active public key: %w", err)
