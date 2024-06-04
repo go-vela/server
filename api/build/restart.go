@@ -117,7 +117,7 @@ func RestartBuild(c *gin.Context) {
 	b.SetSender(cl.Subject)
 
 	// fetch scm user id
-	senderID, err := scm.GetUserID(ctx, u.GetName(), u.GetToken())
+	senderID, err := scm.GetUserID(ctx, u.GetName(), r.GetOwner().GetToken())
 	if err != nil {
 		retErr := fmt.Errorf("unable to get SCM user id for %s: %w", u.GetName(), err)
 
