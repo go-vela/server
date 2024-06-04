@@ -113,7 +113,7 @@ func RestartBuild(c *gin.Context) {
 		return
 	}
 
-	// set sender to the user who initiated the restart and
+	// set sender to the user who initiated the restart
 	b.SetSender(cl.Subject)
 
 	// fetch scm user id
