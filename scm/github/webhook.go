@@ -69,7 +69,7 @@ func (c *client) ProcessWebhook(ctx context.Context, request *http.Request) (*in
 	// process the event from the webhook
 	switch event := event.(type) {
 	case *github.PushEvent:
-		return c.processPushEvent(h, event)
+		return c.processPushEvent(ctx, h, event)
 	case *github.PullRequestEvent:
 		return c.processPREvent(h, event)
 	case *github.DeploymentEvent:
@@ -128,7 +128,7 @@ func (c *client) RedeliverWebhook(ctx context.Context, u *api.User, r *api.Repo,
 }
 
 // processPushEvent is a helper function to process the push event.
-func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
+func (c *client) processPushEvent(ctx context.Context, h *library.Hook, payload *github.PushEvent) (*internal.Webhook, error) {
 	c.Logger.WithFields(logrus.Fields{
 		"org":  payload.GetRepo().GetOwner().GetLogin(),
 		"repo": payload.GetRepo().GetName(),
@@ -156,6 +156,7 @@ func (c *client) processPushEvent(h *library.Hook, payload *github.PushEvent) (*
 	b.SetMessage(payload.GetHeadCommit().GetMessage())
 	b.SetCommit(payload.GetHeadCommit().GetID())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetHeadCommit().GetAuthor().GetLogin())
 	b.SetEmail(payload.GetHeadCommit().GetAuthor().GetEmail())
 	b.SetBranch(strings.TrimPrefix(payload.GetRef(), "refs/heads/"))
@@ -275,7 +276,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
 
-	// convert payload to library build
+	// convert payload to api build
 	b := new(api.Build)
 	b.SetEvent(constants.EventPull)
 	b.SetEventAction(payload.GetAction())
@@ -285,6 +286,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	b.SetMessage(payload.GetPullRequest().GetTitle())
 	b.SetCommit(payload.GetPullRequest().GetHead().GetSHA())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetPullRequest().GetUser().GetLogin())
 	b.SetEmail(payload.GetPullRequest().GetUser().GetEmail())
 	b.SetBranch(payload.GetPullRequest().GetBase().GetRef())
@@ -305,6 +307,7 @@ func (c *client) processPREvent(h *library.Hook, payload *github.PullRequestEven
 	// ensure the build sender is set
 	if len(b.GetSender()) == 0 {
 		b.SetSender(payload.GetPullRequest().GetUser().GetLogin())
+		b.SetSenderSCMID(fmt.Sprint(payload.GetPullRequest().GetUser().GetID()))
 	}
 
 	// ensure the build email is set
@@ -360,7 +363,7 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	r.SetPrivate(repo.GetPrivate())
 	r.SetTopics(repo.Topics)
 
-	// convert payload to library build
+	// convert payload to api build
 	b := new(api.Build)
 	b.SetEvent(constants.EventDeploy)
 	b.SetEventAction(constants.ActionCreated)
@@ -372,6 +375,8 @@ func (c *client) processDeploymentEvent(h *library.Hook, payload *github.Deploym
 	b.SetMessage(payload.GetDeployment().GetDescription())
 	b.SetCommit(payload.GetDeployment().GetSHA())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
+
 	b.SetAuthor(payload.GetDeployment().GetCreator().GetLogin())
 	b.SetEmail(payload.GetDeployment().GetCreator().GetEmail())
 	b.SetBranch(payload.GetDeployment().GetRef())
@@ -485,6 +490,7 @@ func (c *client) processIssueCommentEvent(h *library.Hook, payload *github.Issue
 	b.SetTitle(fmt.Sprintf("%s received from %s", constants.EventComment, repo.GetHTMLURL()))
 	b.SetMessage(payload.Issue.GetTitle())
 	b.SetSender(payload.GetSender().GetLogin())
+	b.SetSenderSCMID(fmt.Sprint(payload.GetSender().GetID()))
 	b.SetAuthor(payload.GetIssue().GetUser().GetLogin())
 	b.SetEmail(payload.GetIssue().GetUser().GetEmail())
 	b.SetRef(fmt.Sprintf("refs/pull/%d/head", payload.GetIssue().GetNumber()))

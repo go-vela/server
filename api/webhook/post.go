@@ -207,6 +207,25 @@ func PostWebhook(c *gin.Context) {
 		return
 	}
 
+	// attach a sender SCM id if the webhook payload from the SCM has no sender id
+	// the code in ProcessWebhook implies that the sender may not always be present
+	// fallbacks like pusher/commit_author do not have an id
+	if len(b.GetSenderSCMID()) == 0 || b.GetSenderSCMID() == "0" {
+		// fetch scm user id for pusher
+		senderID, err := scm.FromContext(c).GetUserID(ctx, b.GetSender(), repo.GetOwner().GetToken())
+		if err != nil {
+			retErr := fmt.Errorf("unable to assign sender SCM id: %w", err)
+			util.HandleError(c, http.StatusBadRequest, retErr)
+
+			h.SetStatus(constants.StatusFailure)
+			h.SetError(retErr.Error())
+
+			return
+		}
+
+		b.SetSenderSCMID(senderID)
+	}
+
 	// set the RepoID fields
 	b.SetRepo(repo)
 	h.SetRepoID(repo.GetID())
