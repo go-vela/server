@@ -42,6 +42,7 @@ func APIBuild() *api.Build {
 		Message:      new(string),
 		Commit:       new(string),
 		Sender:       new(string),
+		SenderSCMID:  new(string),
 		Author:       new(string),
 		Email:        new(string),
 		Link:         new(string),

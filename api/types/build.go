@@ -38,6 +38,7 @@ type Build struct {
 	Message       *string             `json:"message,omitempty"`
 	Commit        *string             `json:"commit,omitempty"`
 	Sender        *string             `json:"sender,omitempty"`
+	SenderSCMID   *string             `json:"sender_scm_id,omitempty"`
 	Author        *string             `json:"author,omitempty"`
 	Email         *string             `json:"email,omitempty"`
 	Link          *string             `json:"link,omitempty"`
@@ -86,33 +87,34 @@ func (b *Build) Duration() string {
 // provided from the fields of the Build type.
 func (b *Build) Environment(workspace, channel string) map[string]string {
 	envs := map[string]string{
-		"VELA_BUILD_APPROVED_AT":  ToString(b.GetApprovedAt()),
-		"VELA_BUILD_APPROVED_BY":  ToString(b.GetApprovedBy()),
-		"VELA_BUILD_AUTHOR":       ToString(b.GetAuthor()),
-		"VELA_BUILD_AUTHOR_EMAIL": ToString(b.GetEmail()),
-		"VELA_BUILD_BASE_REF":     ToString(b.GetBaseRef()),
-		"VELA_BUILD_BRANCH":       ToString(b.GetBranch()),
-		"VELA_BUILD_CHANNEL":      ToString(channel),
-		"VELA_BUILD_CLONE":        ToString(b.GetClone()),
-		"VELA_BUILD_COMMIT":       ToString(b.GetCommit()),
-		"VELA_BUILD_CREATED":      ToString(b.GetCreated()),
-		"VELA_BUILD_DISTRIBUTION": ToString(b.GetDistribution()),
-		"VELA_BUILD_ENQUEUED":     ToString(b.GetEnqueued()),
-		"VELA_BUILD_EVENT":        ToString(b.GetEvent()),
-		"VELA_BUILD_EVENT_ACTION": ToString(b.GetEventAction()),
-		"VELA_BUILD_HOST":         ToString(b.GetHost()),
-		"VELA_BUILD_LINK":         ToString(b.GetLink()),
-		"VELA_BUILD_MESSAGE":      ToString(b.GetMessage()),
-		"VELA_BUILD_NUMBER":       ToString(b.GetNumber()),
-		"VELA_BUILD_PARENT":       ToString(b.GetParent()),
-		"VELA_BUILD_REF":          ToString(b.GetRef()),
-		"VELA_BUILD_RUNTIME":      ToString(b.GetRuntime()),
-		"VELA_BUILD_SENDER":       ToString(b.GetSender()),
-		"VELA_BUILD_STARTED":      ToString(b.GetStarted()),
-		"VELA_BUILD_SOURCE":       ToString(b.GetSource()),
-		"VELA_BUILD_STATUS":       ToString(b.GetStatus()),
-		"VELA_BUILD_TITLE":        ToString(b.GetTitle()),
-		"VELA_BUILD_WORKSPACE":    ToString(workspace),
+		"VELA_BUILD_APPROVED_AT":   ToString(b.GetApprovedAt()),
+		"VELA_BUILD_APPROVED_BY":   ToString(b.GetApprovedBy()),
+		"VELA_BUILD_AUTHOR":        ToString(b.GetAuthor()),
+		"VELA_BUILD_AUTHOR_EMAIL":  ToString(b.GetEmail()),
+		"VELA_BUILD_BASE_REF":      ToString(b.GetBaseRef()),
+		"VELA_BUILD_BRANCH":        ToString(b.GetBranch()),
+		"VELA_BUILD_CHANNEL":       ToString(channel),
+		"VELA_BUILD_CLONE":         ToString(b.GetClone()),
+		"VELA_BUILD_COMMIT":        ToString(b.GetCommit()),
+		"VELA_BUILD_CREATED":       ToString(b.GetCreated()),
+		"VELA_BUILD_DISTRIBUTION":  ToString(b.GetDistribution()),
+		"VELA_BUILD_ENQUEUED":      ToString(b.GetEnqueued()),
+		"VELA_BUILD_EVENT":         ToString(b.GetEvent()),
+		"VELA_BUILD_EVENT_ACTION":  ToString(b.GetEventAction()),
+		"VELA_BUILD_HOST":          ToString(b.GetHost()),
+		"VELA_BUILD_LINK":          ToString(b.GetLink()),
+		"VELA_BUILD_MESSAGE":       ToString(b.GetMessage()),
+		"VELA_BUILD_NUMBER":        ToString(b.GetNumber()),
+		"VELA_BUILD_PARENT":        ToString(b.GetParent()),
+		"VELA_BUILD_REF":           ToString(b.GetRef()),
+		"VELA_BUILD_RUNTIME":       ToString(b.GetRuntime()),
+		"VELA_BUILD_SENDER":        ToString(b.GetSender()),
+		"VELA_BUILD_SENDER_SCM_ID": ToString(b.GetSenderSCMID()),
+		"VELA_BUILD_STARTED":       ToString(b.GetStarted()),
+		"VELA_BUILD_SOURCE":        ToString(b.GetSource()),
+		"VELA_BUILD_STATUS":        ToString(b.GetStatus()),
+		"VELA_BUILD_TITLE":         ToString(b.GetTitle()),
+		"VELA_BUILD_WORKSPACE":     ToString(workspace),
 
 		// deprecated environment variables
 		"BUILD_AUTHOR":       ToString(b.GetAuthor()),
@@ -500,6 +502,19 @@ func (b *Build) GetSender() string {
 	}
 
 	return *b.Sender
+}
+
+// GetSenderSCMID returns the SenderSCMID field.
+//
+// When the provided Build type is nil, or the field within
+// the type is nil, it returns the zero value for the field.
+func (b *Build) GetSenderSCMID() string {
+	// return zero value if Build type or SenderSCMID field is nil
+	if b == nil || b.SenderSCMID == nil {
+		return ""
+	}
+
+	return *b.SenderSCMID
 }
 
 // GetAuthor returns the Author field.
@@ -944,6 +959,19 @@ func (b *Build) SetSender(v string) {
 	b.Sender = &v
 }
 
+// SetSenderSCMID sets the SenderSCMID field.
+//
+// When the provided Build type is nil, it
+// will set nothing and immediately return.
+func (b *Build) SetSenderSCMID(v string) {
+	// return if Build type is nil
+	if b == nil {
+		return
+	}
+
+	b.SenderSCMID = &v
+}
+
 // SetAuthor sets the Author field.
 //
 // When the provided Build type is nil, it
@@ -1135,6 +1163,7 @@ func (b *Build) String() string {
   Repo: %s,
   Runtime: %s,
   Sender: %s,
+  SenderSCMID: %s,
   Source: %s,
   Started: %d,
   Status: %s,
@@ -1170,6 +1199,7 @@ func (b *Build) String() string {
 		b.GetRepo().GetFullName(),
 		b.GetRuntime(),
 		b.GetSender(),
+		b.GetSenderSCMID(),
 		b.GetSource(),
 		b.GetStarted(),
 		b.GetStatus(),

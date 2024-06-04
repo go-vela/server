@@ -50,9 +50,9 @@ func TestBuild_Engine_ListBuildsForDashboardRepo(t *testing.T) {
 
 	// create expected query result in mock
 	_rows := sqlmock.NewRows(
-		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
-		AddRow(2, 1, nil, 2, 0, "pull_request", "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0, "", 0).
-		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0, "", 0)
+		[]string{"id", "repo_id", "pipeline_id", "number", "parent", "event", "event_action", "status", "error", "enqueued", "created", "started", "finished", "deploy", "deploy_payload", "clone", "source", "title", "message", "commit", "sender", "sender_scm_id", "author", "email", "link", "branch", "ref", "base_ref", "head_ref", "host", "runtime", "distribution", "approved_at", "approved_by", "timestamp"}).
+		AddRow(2, 1, nil, 2, 0, "pull_request", "", "", "", 0, 2, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0, "", 0).
+		AddRow(1, 1, nil, 1, 0, "push", "", "", "", 0, 1, 0, 0, "", nil, "", "", "", "", "", "", "", "", "", "", "main", "", "", "", "", "", "", 0, "", 0)
 
 	// ensure the mock expects the query
 	_mock.ExpectQuery(`SELECT * FROM "builds" WHERE repo_id = $1 AND branch IN ($2) AND event IN ($3,$4) ORDER BY number DESC LIMIT $5`).WithArgs(1, "main", "push", "pull_request", 5).WillReturnRows(_rows)

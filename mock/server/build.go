@@ -85,6 +85,7 @@ const (
   "message": "First commit...",
   "commit": "48afb5bdc41ad69bf22588491333f7cf71135163",
   "sender": "OctoKitty",
+  "sender_scm_id": "0",
   "author": "OctoKitty",
   "email": "octokitty@github.com",
   "link": "https://vela.example.company.com/github/octocat/1",

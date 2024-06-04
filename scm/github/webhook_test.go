@@ -75,6 +75,7 @@ func TestGithub_ProcessWebhook_Push(t *testing.T) {
 	wantBuild.SetMessage("Update README.md")
 	wantBuild.SetCommit("9c93babf58917cd6f6f6772b5df2b098f507ff95")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
 	wantBuild.SetBranch("main")
@@ -153,6 +154,7 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 	wantBuild.SetMessage("Update README.md")
 	wantBuild.SetCommit("9c93babf58917cd6f6f6772b5df2b098f507ff95")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("0")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
 	wantBuild.SetBranch("main")
@@ -171,8 +173,8 @@ func TestGithub_ProcessWebhook_Push_NoSender(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -230,6 +232,7 @@ func TestGithub_ProcessWebhook_Push_Branch_Delete(t *testing.T) {
 	wantBuild.SetMessage("main branch deleted")
 	wantBuild.SetCommit("d3d9188fc87a6977343e922c128f162a86018d76")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
 	wantBuild.SetBranch("main")
@@ -307,6 +310,7 @@ func TestGithub_ProcessWebhook_Push_Tag_Delete(t *testing.T) {
 	wantBuild.SetMessage("v0.1 tag deleted")
 	wantBuild.SetCommit("d3d9188fc87a6977343e922c128f162a86018d76")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("21031067+Codertocat@users.noreply.github.com")
 	wantBuild.SetBranch("v0.1")
@@ -366,6 +370,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild.SetMessage("Update the README with new information")
 	wantBuild.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
 	wantBuild.SetBranch("main")
@@ -382,6 +387,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild2.SetMessage("Update the README with new information")
 	wantBuild2.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild2.SetSender("Codertocat")
+	wantBuild2.SetSenderSCMID("21031067")
 	wantBuild2.SetAuthor("Codertocat")
 	wantBuild2.SetEmail("")
 	wantBuild2.SetBranch("main")
@@ -398,6 +404,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild3.SetMessage("Update the README with new information")
 	wantBuild3.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild3.SetSender("Codertocat")
+	wantBuild3.SetSenderSCMID("21031067")
 	wantBuild3.SetAuthor("Codertocat")
 	wantBuild3.SetEmail("")
 	wantBuild3.SetBranch("main")
@@ -414,6 +421,7 @@ func TestGithub_ProcessWebhook_PullRequest(t *testing.T) {
 	wantBuild4.SetMessage("Update the README with new information")
 	wantBuild4.SetCommit("34c5c7793cb3b279e22454cb6750c80560547b3a")
 	wantBuild4.SetSender("Codertocat")
+	wantBuild4.SetSenderSCMID("21031067")
 	wantBuild4.SetAuthor("Codertocat")
 	wantBuild4.SetEmail("")
 	wantBuild4.SetBranch("main")
@@ -599,6 +607,7 @@ func TestGithub_ProcessWebhook_Deployment(t *testing.T) {
 	wantBuild.SetMessage("")
 	wantBuild.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
 	wantBuild.SetBranch("main")
@@ -734,6 +743,7 @@ func TestGithub_ProcessWebhook_Deployment_Commit(t *testing.T) {
 	wantBuild.SetMessage("")
 	wantBuild.SetCommit("f95f852bd8fca8fcc58a9a2d6c842781e32a215e")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("21031067")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
 	wantBuild.SetBranch("main")
@@ -1002,6 +1012,7 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 	wantBuild.SetTitle("comment received from https://github.com/Codertocat/Hello-World")
 	wantBuild.SetMessage("Update the README with new information")
 	wantBuild.SetSender("Codertocat")
+	wantBuild.SetSenderSCMID("2172")
 	wantBuild.SetAuthor("Codertocat")
 	wantBuild.SetEmail("")
 	wantBuild.SetRef("refs/pull/1/head")
@@ -1022,8 +1033,8 @@ func TestGithub_ProcessWebhook_IssueComment_PR(t *testing.T) {
 		t.Errorf("ProcessWebhook returned err: %v", err)
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("ProcessWebhook is %v, want %v", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("ProcessWebhook() mismatch (-want +got):\n%s", diff)
 	}
 }
 
